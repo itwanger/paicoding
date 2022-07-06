@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<div th:replace="include/navbar :: header"></div>
+
+
+<div th:replace="include/container :: container_all(~{::content})">
+    <content>
+        <div style="background-color: #fff;text-align: center;height: 700px;margin-bottom: 20px;padding-top: 265px;">
+            <p>
+                <span style="font-size: 30px;">不好意思，出错啦！！！</span>
+                <span th:if="${!#strings.isEmpty(toast)}"
+                      th:text="${'（' + toast + '）'}"
+                      style="font-size: 20px;color: red;">系统异常</span>
+            </p>
+        </div>
+    </content>
+</div>
+<div th:replace="include/footer :: footer"></div>
+</body>
+</html>

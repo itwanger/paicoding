@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<footer th:fragment="footer">
+    <div class="foot container-bg-light">
+        <ul class="foot-link">
+            <li><span th:text="${siteInfo.websiteRecord}">鄂ICP备18017282号</span>
+                <a class="text-reset"
+                   href="https://www.hhui.top"
+                   th:text="'© 2016-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 一灰灰blog'"
+                   target="_blank"> © 2016-2022 一灰灰</a>
+            </li>
+        </ul>
+    </div>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/toastr.min.js"></script>
+    <script src="/js/md5.min.js"></script>
+</footer>
+</html>

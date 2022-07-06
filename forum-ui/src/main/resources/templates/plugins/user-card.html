@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- 用户卡片 -->
+<div class="card" th:fragment="user_card(user)">
+    <div class="card-body">
+        <div class="d-inline-flex p-2">
+            <div class="d-flex">
+                <img class="avatar avatar-xl mb-3 avatar-rounded"
+                     th:src="${user.avatar}" height="76"
+                     style="padding-right: 1em" alt="">
+            </div>
+            <div class="d-flex flex-column justify-content-center">
+                <h5 class="card-title" th:text="${user.uname}">一灰灰</h5>
+                <p class="card-text" th:text="${user.desc}">
+                    伪全栈*真后端(求👍，求🌟 求👋 )
+                    微信公众号：一灰灰Blog
+                </p>
+            </div>
+        </div>
+        <hr/>
+        <ul th:if="${!#lists.isEmpty(user.items)}">
+            <li th:each="item : ${user.items}"
+                th:text="${item}"
+            ></li>
+        </ul>
+        <a href="#" class="btn btn-primary">
+            关注
+        </a>
+    </div>
+</div>
+
+</html>

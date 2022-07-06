@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title, links, scripts)">
+    <title th:replace="${title}" th:text="${siteInfo.websiteName}">Quick社区</title>
+    <!-- Required meta tags -->
+    <meta name="keywords" content="quick-forum，二维码，图片，开发工具，开发者社区，开源社区，spring boot开源社区，Java开源社区，社区文章，社区问答" />
+    <meta name="description" content="quick-forum社区" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+    <link rel="icon" th:href="${siteInfo.websiteFaviconIconUrl}" href="https://hhui.top/imgs/info/ico.png">
+
+    <!-- cdn server -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/toastr.min.css" rel="stylesheet">
+    <link href="/css/global.css" rel="stylesheet">
+
+    <th:block th:replace="${links}" />
+    <th:block th:replace="${scripts}" />
+</head>
+
+</html>

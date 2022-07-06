@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="carousel(id, carouselList)"
+     th:id="${id}"
+     th:if="${!#lists.isEmpty(carouselList)}" id="main_carousel" class="carousel slide" data-ride="carousel">
+    <!-- 指示符 -->
+    <ul class="carousel-indicators">
+        <li th:each="carousel,iterStat : ${carouselList}"
+            th:data-slide-to="${iterStat.index}"
+            th:class="${iterStat.index == 0 ? 'active' : ''}"
+            th:data-target="${'#' + id}"
+            data-slide-to="0" class="active"
+            data-target="#main_carousel"></li>
+    </ul>
+    <!-- 轮播图片 -->
+    <div class="carousel-inner">
+        <div th:each="carousel,iterStat : ${carouselList}"
+             th:class="${'carousel-item ' + (iterStat.index == 0 ? 'active' : '')}"
+             class="carousel-item active">
+            <a th:href="${carousel.actionUrl}" href="#" target="_blank">
+                <img th:src="${carousel.imgUrl}" src="https://static.runoob.com/images/mix/img_fjords_wide.jpg">
+                <div th:if="${!#strings.isEmpty(carousel.name)}" class="carousel-caption d-none d-sm-block">
+                    <h5 th:text="${carousel.name}" style="padding: 15px; background-color: rgba(255,255,255,0.5);color: #343a40;"></h5>
+                </div>
+            </a>
+        </div>
+    </div>
+    <!-- 左右切换按钮 -->
+    <a class="carousel-control-prev" th:href="${'#' + id}" href="#main_carousel" data-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </a>
+    <a class="carousel-control-next" th:href="${'#' + id}" href="#main_carousel" data-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </a>
+</div>
+
+</html>

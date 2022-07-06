@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<header>
+    <nav id="bodyNav" th:data-islogin="${isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
+        <a class="navbar-brand" href="/">
+            <img th:src="${siteInfo.websiteLogoUrl}"
+                 th:alt="${siteInfo.websiteName}"
+                 src="https://static.developers.pub/logo.jpeg" width="30" height="30" alt="" loading="lazy">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav mr-auto">
+                <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'article') ? ' selected-domain' : '')}"
+                    class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'faq') ? ' selected-domain' : '')}"
+                    class="nav-item">
+                    <a class="nav-link" href="/wiki">教程</a>
+                </li>
+                <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'tools') ? ' selected-domain' : '')}"
+                    class="nav-item">
+                    <a class="nav-link" href="https://tool.hhui.top">工具箱</a>
+                </li>
+                <li th:if="${isLogin}"
+                    th:class="${'nav-item' + (#strings.equals(currentDomain, 'interest') ? ' selected-domain' : '')}"
+                    class="nav-item">
+                    <a class="nav-link" href="/follow">关注</a>
+                </li>
+            </ul>
+            <form class="form-inline my-md-0" style="padding-right: 1em" action="/search" method="get" target="_blank">
+                <div class="input-icon">
+                    <span class="input-icon-addon">
+                      <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                           stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                           stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle
+                              cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+                    </span>
+                    <input name="key" required type="text" autocomplete="off" class="form-control" placeholder="搜索"
+                           aria-label="站内搜索">
+                </div>
+            </form>
+
+            <a th:href="${'/article/add'}"
+               target="_blank"
+               class="btn btn-primary" style="border-radius: 4px;">写文章</a>
+
+            <ul th:if="${!isLogin}" class="navbar-nav my-md-0">
+                <!--  待登录 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">登录</a>
+                </li>
+            </ul>
+            <ul th:if="${isLogin}" class="navbar-nav my-md-0">
+                <!--  已登录 -->
+                <li class="nav-item">
+                    <a class="nav-link navbar-count-msg-box" href="/message" target="_blank">
+                        <span th:if="!${#lists.isEmpty(user.newMsgList)}"
+                              class="navbar-count-msg"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+                            <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+                        </svg>
+                    </a>
+                </li>
+                <!-- Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        <img th:src="${user.avatar}"
+                             src="https://static.developers.pub/static/img/logo.b2ff606.jpeg" width="30" height="30"
+                             alt="" loading="lazy">
+                    </a>
+                    <div class="dropdown-menu">
+                        <a th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}" href="/admin" target="_blank"
+                           class="dropdown-item">管理后台</a>
+                        <div th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}"
+                             class="dropdown-divider"></div>
+                        <a th:href="${'/user/' + user.uid}" class="dropdown-item" target="_blank" href="#">个人主页</a>
+                        <a href="/user/logout" class="dropdown-item">登出</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- 登录 Modal -->
+    <div class="modal fade" id="loginModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+         aria-labelledby="loginModalDropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalDropLabel">邮箱登录</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">邮箱</span>
+                        </div>
+                        <input id="loginEmail" type="email" class="form-control" placeholder="请输入登录邮箱"/>
+                    </div>
+                    <br/>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">密码</span>
+                        </div>
+                        <input id="loginPassword" type="password" class="form-control" placeholder="请输入登录密码"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
+                            data-target="#registerModal">去注册
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 注册 Modal -->
+    <div class="modal fade" id="registerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+         aria-labelledby="registerModalDropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalDropLabel">邮箱注册</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">邮箱</span>
+                        </div>
+                        <input id="registerEmail" type="email" class="form-control" placeholder="注册邮箱（用于接收账号激活邮件）"/>
+                    </div>
+                    <br/>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">昵称</span>
+                        </div>
+                        <input id="registerNickname" type="text" class="form-control" placeholder="给自己起个昵称呗（50字以内）"/>
+                    </div>
+                    <br/>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">密码</span>
+                        </div>
+                        <input id="registerPassword" type="password" class="form-control" placeholder="注册密码"/>
+                    </div>
+                    <br/>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">确认</span>
+                        </div>
+                        <input id="registerPassword2" type="password" class="form-control" placeholder="请再次输入注册密码"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="registerBtn" type="button" class="btn btn-primary">注册</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
+                            data-target="#loginModal">去登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 普通卡片 -->
+<div th:fragment="normal_card(item)" class="card">
+    <div class="card-body">
+        <h5 class="card-title" th:text="${item.title}">标题</h5>
+        <p class="card-text" th:text="${item.desc}">描述</p>
+    </div>
+</div>
+
+</html>

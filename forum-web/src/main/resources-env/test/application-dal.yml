@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:mysql://test.hhui.top/forum?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: test_root
+    password:

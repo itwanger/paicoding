@@ -1,0 +1,10 @@
+view:
+  site:
+    websiteName: Quick社区
+    websiteLogoUrl: https://blog.hhui.top/hexblog/images/avatar.jpg
+    websiteFaviconIconUrl: https://blog.hhui.top/hexblog/images/avatar.jpg
+    contactMeTitle: 联系我 - liuyueyi25
+    contactMeWxQrCode: https://blog.hhui.top/hexblog/imgs/info/wx.jpg
+    pageSize: 20
+    cdnImgStyle:
+    websiteRecord: 备案记录
