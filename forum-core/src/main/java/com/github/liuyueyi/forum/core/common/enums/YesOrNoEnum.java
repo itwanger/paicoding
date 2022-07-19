@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.core.common;
+package com.github.liuyueyi.forum.core.common.enums;
 
 import lombok.Getter;
 
