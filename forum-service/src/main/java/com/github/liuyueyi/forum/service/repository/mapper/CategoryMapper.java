@@ -1,8 +1,7 @@
-package com.github.liuyueyi.forum.service.mybatis.mapper;
+package com.github.liuyueyi.forum.service.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.github.liuyueyi.forum.service.mybatis.entity.ArticleTagDTO;
-import com.github.liuyueyi.forum.service.mybatis.entity.CategoryDTO;
+import com.github.liuyueyi.forum.service.repository.entity.CategoryDTO;
 
 /**
  * 类目管理mapper接口

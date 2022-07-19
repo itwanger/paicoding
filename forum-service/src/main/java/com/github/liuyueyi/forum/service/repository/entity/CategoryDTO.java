@@ -1,29 +1,29 @@
-package com.github.liuyueyi.forum.service.mybatis.entity;
+package com.github.liuyueyi.forum.service.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 用户关系表
+ * 类目管理表
  *
  * @author louzai
  * @date 2022-07-18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("user_relation")
-public class UserRelationDTO extends BaseDTO {
+@TableName("category")
+public class CategoryDTO extends BaseDTO {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID
+     * 类目名称
      */
-    private Long userId;
+    private String categoryName;
 
     /**
-     * 关注用户ID
+     * 状态：0-未发布，1-已发布
      */
-    private Long followUserId;
+    private Integer status;
 }

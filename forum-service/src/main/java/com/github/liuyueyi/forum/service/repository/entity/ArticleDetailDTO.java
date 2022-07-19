@@ -1,19 +1,19 @@
-package com.github.liuyueyi.forum.service.mybatis.entity;
+package com.github.liuyueyi.forum.service.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 评论表
+ * 文章详情
  *
  * @author louzai
  * @date 2022-07-18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("comment")
-public class CommentDTO extends BaseDTO {
+@TableName("article_detail")
+public class ArticleDetailDTO extends BaseDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -23,17 +23,12 @@ public class CommentDTO extends BaseDTO {
     private Long articleId;
 
     /**
-     * 用户ID
+     * 版本号
      */
-    private Long userId;
+    private Long version;
 
     /**
-     * 评论内容
+     * 文章内容
      */
-    private String version;
-
-    /**
-     * 父评论ID
-     */
-    private Long parentCommentId;
+    private String content;
 }

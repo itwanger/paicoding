@@ -1,8 +1,7 @@
-package com.github.liuyueyi.forum.service.mybatis.mapper;
+package com.github.liuyueyi.forum.service.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.github.liuyueyi.forum.service.mybatis.entity.UserDTO;
-import com.github.liuyueyi.forum.service.mybatis.entity.UserFootDTO;
+import com.github.liuyueyi.forum.service.repository.entity.UserFootDTO;
 
 /**
  * 用户足迹mapper接口

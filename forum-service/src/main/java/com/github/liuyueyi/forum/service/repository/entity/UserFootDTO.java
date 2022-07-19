@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.mybatis.entity;
+package com.github.liuyueyi.forum.service.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
