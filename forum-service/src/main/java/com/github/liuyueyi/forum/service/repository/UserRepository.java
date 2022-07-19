@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.repository;
 
 import com.github.liuyueyi.forum.service.repository.entity.UserDTO;
+import com.github.liuyueyi.forum.service.repository.entity.UserFootDTO;
 import com.github.liuyueyi.forum.service.repository.entity.UserInfoDTO;
 import com.github.liuyueyi.forum.service.repository.entity.UserRelationDTO;
 
@@ -79,4 +80,63 @@ public interface UserRepository {
      * @param id
      */
     void deleteUserRelationById(Long id);
+
+    /**
+     * 添加用户足迹
+     * @param userFootDTO
+     * @return
+     */
+    Integer addUserFoot(UserFootDTO userFootDTO);
+
+    /**
+     * 文章收藏数
+     * @param documentId
+     * @return
+     */
+    Integer queryCollentionCount(Long documentId);
+
+    /**
+     * 文章阅读数
+     * @param documentId
+     * @return
+     */
+    Integer queryReadCount(Long documentId);
+
+    /**
+     * 文章评论数
+     * @param documentId
+     * @return
+     */
+    Integer queryCommentCount(Long documentId);
+
+    /**
+     * 文章点赞数
+     * @param documentId
+     * @return
+     */
+    Integer queryPraiseCount(Long documentId);
+
+    /**
+     * 取消收藏足迹
+     * @param documentId
+     * @param userId
+     * @return
+     */
+    Integer cancelCollectionFoot(Long documentId, Long userId);
+
+    /**
+     * 删除评论足迹
+     * @param documentId
+     * @param userId
+     * @return
+     */
+    Integer deleteCommentFoot(Long documentId, Long userId);
+
+    /**
+     * 取消点赞足迹
+     * @param documentId
+     * @param userId
+     * @return
+     */
+    Integer cancelPraiseFoot(Long documentId, Long userId);
 }

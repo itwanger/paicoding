@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.repository.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.liuyueyi.forum.core.common.enums.YesOrNoEnum;
+import com.github.liuyueyi.forum.core.common.enums.*;
 import com.github.liuyueyi.forum.service.repository.UserRepository;
 import com.github.liuyueyi.forum.service.repository.entity.UserDTO;
 import com.github.liuyueyi.forum.service.repository.entity.UserFootDTO;
@@ -107,10 +107,72 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    @Override
     public Integer addUserFoot(UserFootDTO userFootDTO) {
         userFootMapper.insert(userFootDTO);
         return userFootDTO.getId();
     }
 
+    @Override
+    public Integer queryCollentionCount(Long documentId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getCollectionStat, CollectionStatEnum.COLLECTION.getCode());
+        return userFootMapper.selectCount(query);
+    }
+
+    @Override
+    public Integer queryReadCount(Long documentId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getReadStat, ReadStatEnum.READ.getCode());
+        return userFootMapper.selectCount(query);
+    }
+
+    @Override
+    public Integer queryCommentCount(Long documentId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getCommentStat, CommentStatEnum.COMMENT.getCode());
+        return userFootMapper.selectCount(query);
+    }
+
+    @Override
+    public Integer queryPraiseCount(Long documentId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getPraiseStat, PraiseStatEnum.PRAISE.getCode());
+        return userFootMapper.selectCount(query);
+    }
+
+    @Override
+    public Integer cancelCollectionFoot(Long documentId, Long userId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getUserId, userId);
+        UserFootDTO userFootDTO = userFootMapper.selectOne(query);
+        userFootDTO.setCollectionStat(CollectionStatEnum.CANCEL_COLLECTION.getCode());
+        return userFootMapper.update(userFootDTO, query);
+    }
+
+    @Override
+    public Integer deleteCommentFoot(Long documentId, Long userId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getUserId, userId);
+        UserFootDTO userFootDTO = userFootMapper.selectOne(query);
+        userFootDTO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
+        return userFootMapper.update(userFootDTO, query);
+    }
+
+    @Override
+    public Integer cancelPraiseFoot(Long documentId, Long userId) {
+        LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDTO::getDoucumentId, documentId)
+                .eq(UserFootDTO::getUserId, userId);
+        UserFootDTO userFootDTO = userFootMapper.selectOne(query);
+        userFootDTO.setPraiseStat(PraiseStatEnum.CANCEL_PRAISE.getCode());
+        return userFootMapper.update(userFootDTO, query);
+    }
 
 }
