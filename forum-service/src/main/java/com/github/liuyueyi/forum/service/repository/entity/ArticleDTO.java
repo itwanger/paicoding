@@ -20,7 +20,7 @@ public class ArticleDTO extends BaseDTO {
     /**
      * 文章类型：1-博文，2-问答
      */
-    private Integer articleType;
+    private Long articleType;
 
     /**
      * 文章标题
@@ -56,4 +56,6 @@ public class ArticleDTO extends BaseDTO {
      * 状态：0-未发布，1-已发布
      */
     private Integer status;
+
+    private Integer deleted;
 }

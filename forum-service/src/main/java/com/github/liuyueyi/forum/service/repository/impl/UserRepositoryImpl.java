@@ -1,7 +1,9 @@
 package com.github.liuyueyi.forum.service.repository.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.liuyueyi.forum.core.common.enums.*;
 import com.github.liuyueyi.forum.service.repository.UserRepository;
 import com.github.liuyueyi.forum.service.repository.entity.UserDTO;
@@ -12,10 +14,10 @@ import com.github.liuyueyi.forum.service.repository.mapper.UserFootMapper;
 import com.github.liuyueyi.forum.service.repository.mapper.UserInfoMapper;
 import com.github.liuyueyi.forum.service.repository.mapper.UserMapper;
 import com.github.liuyueyi.forum.service.repository.mapper.UserRelationMapper;
+import com.github.liuyueyi.forum.service.repository.param.PageParam;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 用户相关DB操作
@@ -39,36 +41,49 @@ public class UserRepositoryImpl implements UserRepository {
     private UserFootMapper userFootMapper;
 
     @Override
-    public Integer addUser(UserDTO userDTO) {
+    public Long addUser(UserDTO userDTO) {
         userMapper.insert(userDTO);
         return userDTO.getId();
     }
 
     @Override
     public void updateUser(UserDTO userDTO) {
-        userMapper.updateById(userDTO);
+        UserDTO updateUser = userMapper.selectById(userDTO.getId());
+        if (updateUser != null)  {
+            userMapper.updateById(userDTO);
+        }
     }
 
     @Override
-    public Integer addUserInfo(UserInfoDTO userInfoDTO) {
+    public void deleteUser(Long userInfoId) {
+        UserDTO updateUser = userMapper.selectById(userInfoId);
+        if (updateUser != null)  {
+            updateUser.setDeleted(YesOrNoEnum.YES.getCode());
+            userMapper.updateById(updateUser);
+        }
+    }
+
+    @Override
+    public Long addUserInfo(UserInfoDTO userInfoDTO) {
         userInfoMapper.insert(userInfoDTO);
         return userInfoDTO.getId();
     }
 
     @Override
     public void updateUserInfo(UserInfoDTO userInfoDTO) {
-        userInfoMapper.updateById(userInfoDTO);
+        UserInfoDTO updateUserInfo = userInfoMapper.selectById(userInfoDTO.getId());
+        if (updateUserInfo != null)  {
+            userInfoMapper.updateById(userInfoDTO);
+        }
     }
 
     @Override
     public void deleteUserInfo(Long userId) {
-        LambdaQueryWrapper<UserInfoDTO> query = Wrappers.lambdaQuery();
-        query.eq(UserInfoDTO::getUserId, userId)
-                .eq(UserInfoDTO::getDeleted, YesOrNoEnum.NO.getCode());
-        UserInfoDTO userInfoDTO = new UserInfoDTO();
-        userInfoDTO.setUserId(userId);
-        userInfoDTO.setDeleted(YesOrNoEnum.YES.getCode());
-        userInfoMapper.update(userInfoDTO, query);
+        UserInfoDTO updateUserInfo = userInfoMapper.selectById(userId);
+        if (updateUserInfo != null)  {
+            updateUserInfo.setDeleted(YesOrNoEnum.YES.getCode());
+            userInfoMapper.updateById(updateUserInfo);
+        }
     }
 
     @Override
@@ -80,23 +95,25 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Integer addUserRelation(UserRelationDTO userRelationDTO) {
+    public Long addUserRelation(UserRelationDTO userRelationDTO) {
         userRelationMapper.insert(userRelationDTO);
         return userRelationDTO.getId();
     }
 
     @Override
-    public List<UserRelationDTO> getUserRelationListByUserId(Integer userId) {
+    public IPage<UserRelationDTO> getUserRelationListByUserId(Integer userId, PageParam pageParam) {
         LambdaQueryWrapper<UserRelationDTO> query = Wrappers.lambdaQuery();
         query.eq(UserRelationDTO::getUserId, userId);
-        return userRelationMapper.selectList(query);
+        Page page = new Page(pageParam.getPageNum(), pageParam.getPageSize());
+        return userRelationMapper.selectPage(page,query);
     }
 
     @Override
-    public List<UserRelationDTO> getUserRelationListByFollowUserId(Integer followUserId) {
+    public IPage<UserRelationDTO> getUserRelationListByFollowUserId(Integer followUserId, PageParam pageParam) {
         LambdaQueryWrapper<UserRelationDTO> query = Wrappers.lambdaQuery();
         query.eq(UserRelationDTO::getFollowUserId, followUserId);
-        return userRelationMapper.selectList(query);
+        Page page = new Page(pageParam.getPageNum(), pageParam.getPageSize());
+        return userRelationMapper.selectPage(page,query);
     }
 
     @Override
@@ -108,7 +125,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Integer addUserFoot(UserFootDTO userFootDTO) {
+    public Long addUserFoot(UserFootDTO userFootDTO) {
         userFootMapper.insert(userFootDTO);
         return userFootDTO.getId();
     }
@@ -146,32 +163,32 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Integer cancelCollectionFoot(Long documentId, Long userId) {
+    public Integer operateCollectionFoot(Long documentId, Long userId, CollectionStatEnum statEnum) {
         LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
         query.eq(UserFootDTO::getDoucumentId, documentId)
                 .eq(UserFootDTO::getUserId, userId);
         UserFootDTO userFootDTO = userFootMapper.selectOne(query);
-        userFootDTO.setCollectionStat(CollectionStatEnum.CANCEL_COLLECTION.getCode());
+        userFootDTO.setCollectionStat(statEnum.getCode());
         return userFootMapper.update(userFootDTO, query);
     }
 
     @Override
-    public Integer deleteCommentFoot(Long documentId, Long userId) {
+    public Integer operateCommentFoot(Long documentId, Long userId, CommentStatEnum statEnum) {
         LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
         query.eq(UserFootDTO::getDoucumentId, documentId)
                 .eq(UserFootDTO::getUserId, userId);
         UserFootDTO userFootDTO = userFootMapper.selectOne(query);
-        userFootDTO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
+        userFootDTO.setCommentStat(statEnum.getCode());
         return userFootMapper.update(userFootDTO, query);
     }
 
     @Override
-    public Integer cancelPraiseFoot(Long documentId, Long userId) {
+    public Integer operatePraiseFoot(Long documentId, Long userId, PraiseStatEnum statEnum) {
         LambdaQueryWrapper<UserFootDTO> query = Wrappers.lambdaQuery();
         query.eq(UserFootDTO::getDoucumentId, documentId)
                 .eq(UserFootDTO::getUserId, userId);
         UserFootDTO userFootDTO = userFootMapper.selectOne(query);
-        userFootDTO.setPraiseStat(PraiseStatEnum.CANCEL_PRAISE.getCode());
+        userFootDTO.setPraiseStat(statEnum.getCode());
         return userFootMapper.update(userFootDTO, query);
     }
 

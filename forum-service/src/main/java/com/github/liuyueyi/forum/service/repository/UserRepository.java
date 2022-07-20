@@ -1,9 +1,14 @@
 package com.github.liuyueyi.forum.service.repository;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.github.liuyueyi.forum.core.common.enums.CollectionStatEnum;
+import com.github.liuyueyi.forum.core.common.enums.CommentStatEnum;
+import com.github.liuyueyi.forum.core.common.enums.PraiseStatEnum;
 import com.github.liuyueyi.forum.service.repository.entity.UserDTO;
 import com.github.liuyueyi.forum.service.repository.entity.UserFootDTO;
 import com.github.liuyueyi.forum.service.repository.entity.UserInfoDTO;
 import com.github.liuyueyi.forum.service.repository.entity.UserRelationDTO;
+import com.github.liuyueyi.forum.service.repository.param.PageParam;
 
 import java.util.List;
 
@@ -20,7 +25,7 @@ public interface UserRepository {
      * @param userDTO
      * @return
      */
-    Integer addUser(UserDTO userDTO);
+    Long addUser(UserDTO userDTO);
 
     /**
      * 更新用户
@@ -29,11 +34,17 @@ public interface UserRepository {
     void updateUser(UserDTO userDTO);
 
     /**
+     * 删除用户
+     * @param userInfoId
+     */
+    void deleteUser(Long userInfoId);
+
+    /**
      * 保存用户信息
      * @param userInfoDTO
      * @return
      */
-    Integer addUserInfo(UserInfoDTO userInfoDTO);
+    Long addUserInfo(UserInfoDTO userInfoDTO);
 
     /**
      * 更新用户信息
@@ -59,21 +70,21 @@ public interface UserRepository {
      * @param userRelationDTO
      * @return
      */
-    Integer addUserRelation(UserRelationDTO userRelationDTO);
+    Long addUserRelation(UserRelationDTO userRelationDTO);
 
     /**
      * 获取关注用户列表
      * @param userId
      * @return
      */
-    List<UserRelationDTO> getUserRelationListByUserId(Integer userId);
+    IPage<UserRelationDTO> getUserRelationListByUserId(Integer userId, PageParam pageParam);
 
     /**
      * 获取被关注用户列表
      * @param followUserId
      * @return
      */
-    List<UserRelationDTO> getUserRelationListByFollowUserId(Integer followUserId);
+    IPage<UserRelationDTO> getUserRelationListByFollowUserId(Integer followUserId, PageParam pageParam);
 
     /**
      * 删除用户关系
@@ -86,7 +97,7 @@ public interface UserRepository {
      * @param userFootDTO
      * @return
      */
-    Integer addUserFoot(UserFootDTO userFootDTO);
+    Long addUserFoot(UserFootDTO userFootDTO);
 
     /**
      * 文章收藏数
@@ -117,26 +128,26 @@ public interface UserRepository {
     Integer queryPraiseCount(Long documentId);
 
     /**
-     * 取消收藏足迹
+     * 收藏/取消收藏足迹
      * @param documentId
      * @param userId
      * @return
      */
-    Integer cancelCollectionFoot(Long documentId, Long userId);
+    Integer operateCollectionFoot(Long documentId, Long userId, CollectionStatEnum statEnum);
 
     /**
-     * 删除评论足迹
+     * 评论/删除评论足迹
      * @param documentId
      * @param userId
      * @return
      */
-    Integer deleteCommentFoot(Long documentId, Long userId);
+    Integer operateCommentFoot(Long documentId, Long userId, CommentStatEnum statEnum);
 
     /**
-     * 取消点赞足迹
+     * 点赞/取消点赞足迹
      * @param documentId
      * @param userId
      * @return
      */
-    Integer cancelPraiseFoot(Long documentId, Long userId);
+    Integer operatePraiseFoot(Long documentId, Long userId, PraiseStatEnum statEnum);
 }

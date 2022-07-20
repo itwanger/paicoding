@@ -35,5 +35,7 @@ public class CommentDTO extends BaseDTO {
     /**
      * 父评论ID
      */
-    private Long parentCommentId;
+    private Integer parentCommentId;
+
+    private Integer deleted;
 }

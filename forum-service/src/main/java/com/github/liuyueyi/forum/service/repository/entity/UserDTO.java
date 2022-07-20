@@ -26,4 +26,6 @@ public class UserDTO extends BaseDTO {
      * 登录方式: 0-微信登录，1-账号密码登录
      */
     private Integer loginType;
+
+    private Integer deleted;
 }

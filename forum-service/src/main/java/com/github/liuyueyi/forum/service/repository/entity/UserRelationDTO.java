@@ -26,4 +26,6 @@ public class UserRelationDTO extends BaseDTO {
      * 关注用户ID
      */
     private Long followUserId;
+
+    private Integer deleted;
 }

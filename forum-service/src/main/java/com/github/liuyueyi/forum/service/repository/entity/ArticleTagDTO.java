@@ -26,4 +26,6 @@ public class ArticleTagDTO extends BaseDTO {
      * 标签id
      */
     private Long tagId;
+
+    private Integer deleted;
 }

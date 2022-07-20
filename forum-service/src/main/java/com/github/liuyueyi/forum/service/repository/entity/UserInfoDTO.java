@@ -51,4 +51,6 @@ public class UserInfoDTO extends BaseDTO {
      * 扩展字段
      */
     private String extend;
+
+    private Integer deleted;
 }

@@ -31,4 +31,6 @@ public class ArticleDetailDTO extends BaseDTO {
      * 文章内容
      */
     private String content;
+
+    private Integer deleted;
 }

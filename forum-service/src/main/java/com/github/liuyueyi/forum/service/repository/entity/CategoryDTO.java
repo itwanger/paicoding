@@ -26,4 +26,6 @@ public class CategoryDTO extends BaseDTO {
      * 状态：0-未发布，1-已发布
      */
     private Integer status;
+
+    private Integer deleted;
 }

@@ -10,9 +10,7 @@ import java.util.Date;
 public class BaseDTO {
 
     @TableId(type = IdType.AUTO)
-    private Integer id;
-
-    private Integer deleted;
+    private Long id;
 
     private Date createTime;
 
