@@ -25,38 +25,4 @@ import java.util.List;
 @Service
 public class ArticleRepositoryImpl implements ArticleRepository {
 
-    @Resource
-    private CategoryMapper categoryMapper;
-
-    @Resource
-    private TagMapper tagMapper;
-
-    @Override
-    public Long addCategory(CategoryDO categoryDTO) {
-        categoryMapper.insert(categoryDTO);
-        return categoryDTO.getId();
-    }
-
-    @Override
-    public IPage<CategoryDO> getCategoryByPage(PageParam pageParam) {
-        LambdaQueryWrapper<CategoryDO> query = Wrappers.lambdaQuery();
-        query.eq(CategoryDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(CategoryDO::getStatus, PushStatusEnum.ONLINE.getCode());
-        Page<CategoryDO> page = new Page<>(pageParam.getPageNum(), pageParam.getPageSize());
-        return categoryMapper.selectPage(page, query);
-    }
-
-    @Override
-    public Long addTag(TagDO tagDTO) {
-        tagMapper.insert(tagDTO);
-        return tagDTO.getId();
-    }
-
-    @Override
-    public List<TagDO> getTagListByCategoryId(Long categoryId) {
-        LambdaQueryWrapper<TagDO> query = Wrappers.lambdaQuery();
-        query.eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(TagDO::getCategoryId, categoryId);
-        return tagMapper.selectList(query);
-    }
 }

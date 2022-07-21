@@ -17,34 +17,4 @@ import java.util.List;
  */
 public interface ArticleRepository {
 
-    /**
-     * 添加类目
-     *
-     * @param categoryDTO
-     * @return
-     */
-    Long addCategory(CategoryDO categoryDTO);
-
-    /**
-     * 类目分页查询
-     *
-     * @return
-     */
-    IPage<CategoryDO> getCategoryByPage(PageParam pageParam);
-
-    /**
-     * 添加标签
-     *
-     * @param tagDTO
-     * @return
-     */
-    Long addTag(TagDO tagDTO);
-
-    /**
-     * 根据类目ID查询标签列表
-     *
-     * @param categoryId
-     * @return
-     */
-    List<TagDO> getTagListByCategoryId(Long categoryId);
 }
