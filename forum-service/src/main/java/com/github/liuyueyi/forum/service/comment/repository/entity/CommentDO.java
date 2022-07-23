@@ -31,12 +31,10 @@ public class CommentDO extends BaseDO {
     /**
      * 评论内容
      */
-    private String version;
+    private String content;
 
     /**
      * 父评论ID
      */
-    private Integer parentCommentId;
-
-    private Integer deleted;
+    private Long parentCommentId;
 }

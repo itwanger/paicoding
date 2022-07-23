@@ -49,7 +49,7 @@ public interface UserFootService {
     Integer operateCollectionFoot(Long documentId, Long userId, CollectionStatEnum statEnum);
 
     /**
-     * 评论/删除评论足迹 
+     * 评论/删除评论足迹
      * @param documentId
      * @param userId
      * @return
