@@ -73,7 +73,6 @@ CREATE TABLE `comment`
     `user_id`           int unsigned NOT NULL COMMENT '用户ID',
     `content`           varchar(300) NOT NULL DEFAULT '' COMMENT '评论内容',
     `parent_comment_id` int unsigned NOT NULL COMMENT '父评论ID',
-    `deleted`           tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
