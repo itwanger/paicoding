@@ -1,11 +1,18 @@
 package com.github.liuyueyi.forum.service.article;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
-import com.github.liuyueyi.forum.service.common.enums.PushStatusEnum;
 
 public interface CategoryService {
+    /**
+     * 查询类目名
+     *
+     * @param categoryId
+     * @return
+     */
+    String getCategoryName(Long categoryId);
 
     /**
      * 添加类目

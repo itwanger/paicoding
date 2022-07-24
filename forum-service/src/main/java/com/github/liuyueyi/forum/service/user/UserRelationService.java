@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.service.user;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 
 /**
@@ -14,6 +14,7 @@ public interface UserRelationService {
 
     /**
      * 获取关注用户列表
+     *
      * @param userId
      * @return
      */
@@ -21,6 +22,7 @@ public interface UserRelationService {
 
     /**
      * 获取被关注用户列表
+     *
      * @param followUserId
      * @return
      */
@@ -28,6 +30,7 @@ public interface UserRelationService {
 
     /**
      * 删除用户关系
+     *
      * @param id
      */
     void deleteUserRelationById(Long id);

@@ -1,18 +1,15 @@
 package com.github.liueyueyi.forum.test.dao;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.core.model.req.PageParam;
-import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
-import com.github.liuyueyi.forum.service.common.dto.CommentTreeDTO;
+import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.common.req.CommentReq;
 import com.github.liuyueyi.forum.service.common.req.PageSearchReq;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 import java.util.Map;
 
 /**

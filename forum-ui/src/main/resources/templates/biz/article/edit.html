@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${siteInfo.websiteName}">QuickFrom社区 - 文章发表</title>
+</div>
+
+<body id="body" th:data-toast-message="${toast}" th:data-token="${token}">
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: header"></div>
+
+<!-- 正文内容 -->
+
+<div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
+    <left>
+        <!-- 轮播图 -->
+        <div th:replace="plugins/carousel :: carousel('main_carousel', ${homeCarouselList})"></div>
+
+        <!-- 类别筛选 -->
+        <div th:replace="plugins/categories :: category(${categories})"></div>
+
+        <!-- 正文 -->
+        <content>
+            <div class="container-bg-light"
+                 style="text-align: center;height: 700px;margin-bottom: 20px;padding-top: 265px;">
+                <p>
+                    <span style="font-size: 30px;">正文内容！</span>
+                    <span th:if="${!#strings.isEmpty(toast)}"
+                          th:text="${'（' + toast + '）'}"
+                          style="font-size: 20px;color: red;">系统异常</span>
+                </p>
+            </div>
+        </content>
+    </left>
+    <right>
+        <!-- 操作按钮 -->
+        <div th:replace="plugins/user-card :: user_card(${author})"></div>
+
+        <!-- 公告 -->
+        <div th:if="${!#lists.isEmpty(sideBarItems)}"
+             th:each="item : ${sideBarItems}">
+            <div th:replace="plugins/normal-card :: normal_card(${item})"/>
+        </div>
+    </right>
+</div>
+
+
+<!-- 底部信息 -->
+<div th:replace="layout/footer :: footer"></div>
+</body>
+</html>

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.user.UserRelationService;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;

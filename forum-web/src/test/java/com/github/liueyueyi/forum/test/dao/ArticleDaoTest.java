@@ -3,10 +3,9 @@ package com.github.liueyueyi.forum.test.dao;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.core.model.req.PageParam;
-import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
 import com.github.liuyueyi.forum.service.article.impl.CategoryServiceImpl;
 import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
-import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
+import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +49,7 @@ public class ArticleDaoTest extends BasicTest {
         Long tagId = tagService.addTag(tag);
         log.info("tagId: {}", tagId);
 
-        List<TagDO> list = tagService.getTagListByCategoryId(1L);
+        List<TagDTO> list = tagService.getTagListByCategoryId(1L);
         log.info("tagList: {}", list);
     }
 

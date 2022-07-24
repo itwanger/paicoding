@@ -3,16 +3,15 @@ package com.github.liuyueyi.forum.service.comment.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
+import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
 import com.github.liuyueyi.forum.service.comment.CommentService;
+import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
+import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.comment.repository.mapper.CommentMapper;
-import com.github.liuyueyi.forum.service.common.dto.CommentTreeDTO;
-import com.github.liuyueyi.forum.service.common.enums.PraiseStatEnum;
-import com.github.liuyueyi.forum.service.common.enums.YesOrNoEnum;
-import com.github.liuyueyi.forum.service.common.req.CommentReq;
-import com.github.liuyueyi.forum.service.common.req.PageSearchReq;
-import com.github.liuyueyi.forum.service.converter.CommentConverter;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
@@ -44,11 +43,11 @@ public class CommentServiceImpl implements CommentService {
     private UserFootMapper userFootMapper;
 
     @Override
-    public Map<Long, CommentTreeDTO> getCommentList(Long articleId, PageSearchReq pageSearchReq) {
+    public Map<Long, CommentTreeDTO> getCommentList(Long articleId, PageParam pageSearchReq) {
 
         // 1. 获取当前分页的评论
         PageParam pageParam = PageParam.newPageInstance(pageSearchReq.getPageNum(), pageSearchReq.getPageSize());
-        List<CommentDO> commentFirstLevelList =  getCommentList(pageParam, 0L);
+        List<CommentDO> commentFirstLevelList = getCommentList(pageParam, 0L);
         if (commentFirstLevelList.isEmpty()) {
             return new HashMap<>();
         }
@@ -57,12 +56,12 @@ public class CommentServiceImpl implements CommentService {
 
         // 2. 获取所有评论，并过滤 1 级评论，且不在分页中的数据
         pageParam = PageParam.newPageInstance(1L, Long.MAX_VALUE);
-        List<CommentDO> commentAllList =  getCommentList(pageParam, null);
+        List<CommentDO> commentAllList = getCommentList(pageParam, null);
         if (commentAllList.isEmpty()) {
             return new HashMap<>();
         }
 
-        List<CommentDO> commentBasicList =  new ArrayList<>();
+        List<CommentDO> commentBasicList = new ArrayList<>();
         for (CommentDO commentDO : commentAllList) {
             if (commentDO.getParentCommentId() == 0 && !commentFirstLevelMap.containsKey(commentDO.getId())) {
                 continue;
@@ -106,6 +105,7 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 查询用户信息
+     *
      * @param userId
      * @return
      */
@@ -118,6 +118,7 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 获取评论点赞数量
+     *
      * @param documentId
      * @return
      */
@@ -130,6 +131,7 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 获取评论列表
+     *
      * @param pageParam
      * @param parentCommentId
      * @return
@@ -179,6 +181,7 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 填充评论的基础数据
+     *
      * @param commentTreeMap
      */
     private void fillCommentTree(Map<Long, CommentTreeDTO> commentTreeMap) {

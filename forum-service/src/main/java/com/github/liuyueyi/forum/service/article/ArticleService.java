@@ -1,18 +1,29 @@
 package com.github.liuyueyi.forum.service.article;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
-import com.github.liuyueyi.forum.service.common.enums.PushStatusEnum;
 
 public interface ArticleService {
 
     /**
-     * 更新文章
+     * 查询文章详情
      *
-     * @param articleDTO
+     * @param articleId
+     * @return
      */
-    void updateArticle(ArticleDO articleDTO);
+    ArticleDTO queryArticleDetail(Long articleId);
+
+    /**
+     * 保存or更新文章
+     *
+     * @param req
+     * @return
+     */
+    Long saveArticle(ArticlePostReq req);
 
     /**
      * 删除文章

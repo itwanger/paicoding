@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.liuyueyi.forum.service.common.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;

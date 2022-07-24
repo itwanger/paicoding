@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.service.comment.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.github.liuyueyi.forum.service.common.entity.BaseDO;
+import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -1,6 +1,6 @@
 package com.github.liuyueyi.forum.web.hook.filter;
 
-import com.github.liuyueyi.forum.core.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,7 @@ public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
 
     @Override
-    public void init(FilterConfig filterConfig)
-    {
+    public void init(FilterConfig filterConfig) {
     }
 
     @Override

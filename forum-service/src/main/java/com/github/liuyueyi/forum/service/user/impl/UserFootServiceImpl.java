@@ -2,10 +2,10 @@ package com.github.liuyueyi.forum.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.liuyueyi.forum.service.common.enums.CollectionStatEnum;
-import com.github.liuyueyi.forum.service.common.enums.CommentStatEnum;
-import com.github.liuyueyi.forum.service.common.enums.PraiseStatEnum;
-import com.github.liuyueyi.forum.service.common.enums.ReadStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.CommentStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.ReadStatEnum;
 import com.github.liuyueyi.forum.service.user.UserFootService;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;

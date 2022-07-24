@@ -1,13 +1,23 @@
 package com.github.liuyueyi.forum.service.article;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
-import com.github.liuyueyi.forum.service.common.enums.PushStatusEnum;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface TagService {
+
+    /**
+     * 查询类目
+     *
+     * @param tagIds
+     * @return
+     */
+    List<TagDTO> getTags(Collection<Long> tagIds);
 
     /**
      * 添加标签
@@ -52,5 +62,5 @@ public interface TagService {
      * @param categoryId
      * @return
      */
-    List<TagDO> getTagListByCategoryId(Long categoryId);
+    List<TagDTO> getTagListByCategoryId(Long categoryId);
 }

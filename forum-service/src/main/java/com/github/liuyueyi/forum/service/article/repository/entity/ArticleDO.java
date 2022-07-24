@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.service.article.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.github.liuyueyi.forum.service.common.entity.BaseDO;
+import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,13 +15,17 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("article")
 public class ArticleDO extends BaseDO {
-
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 作者
+     */
+    private Long userId;
 
     /**
      * 文章类型：1-博文，2-问答
      */
-    private Long articleType;
+    private Integer articleType;
 
     /**
      * 文章标题
@@ -50,11 +54,20 @@ public class ArticleDO extends BaseDO {
 
     /**
      * 来源：1-转载，2-原创，3-翻译
+     *
+     * @see com.github.liueyueyi.forum.api.model.enums.SourceTypeEnum
      */
     private Integer source;
 
     /**
+     * 原文地址
+     */
+    private String sourceUrl;
+
+    /**
      * 状态：0-未发布，1-已发布
+     *
+     * @see com.github.liueyueyi.forum.api.model.enums.PushStatusEnum
      */
     private Integer status;
 

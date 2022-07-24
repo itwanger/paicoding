@@ -1,8 +1,9 @@
 package com.github.liuyueyi.forum.service.user;
 
-import com.github.liuyueyi.forum.service.common.enums.CollectionStatEnum;
-import com.github.liuyueyi.forum.service.common.enums.CommentStatEnum;
-import com.github.liuyueyi.forum.service.common.enums.PraiseStatEnum;
+
+import com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.CommentStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 
 /**
  * 用户足迹Service接口
@@ -14,6 +15,7 @@ public interface UserFootService {
 
     /**
      * 文章收藏数
+     *
      * @param documentId
      * @return
      */
@@ -21,6 +23,7 @@ public interface UserFootService {
 
     /**
      * 文章阅读数
+     *
      * @param documentId
      * @return
      */
@@ -28,6 +31,7 @@ public interface UserFootService {
 
     /**
      * 文章评论数
+     *
      * @param documentId
      * @return
      */
@@ -35,6 +39,7 @@ public interface UserFootService {
 
     /**
      * 文章点赞数
+     *
      * @param documentId
      * @return
      */
@@ -42,6 +47,7 @@ public interface UserFootService {
 
     /**
      * 收藏/取消收藏足迹
+     *
      * @param documentId
      * @param userId
      * @return
@@ -50,6 +56,7 @@ public interface UserFootService {
 
     /**
      * 评论/删除评论足迹
+     *
      * @param documentId
      * @param userId
      * @return
@@ -58,6 +65,7 @@ public interface UserFootService {
 
     /**
      * 点赞/取消点赞足迹
+     *
      * @param documentId
      * @param userId
      * @return

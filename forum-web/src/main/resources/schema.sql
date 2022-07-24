@@ -3,6 +3,7 @@
 CREATE TABLE `article`
 (
     `id`           int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id`       int unsigned NOT NULL AUTO_INCREMENT COMMENT '作者uid',
     `article_type` tinyint      NOT NULL DEFAULT '1' COMMENT '文章类型：1-博文，2-问答',
     `title`        varchar(120) NOT NULL COMMENT '文章标题',
     `short_title`  varchar(120) NOT NULL COMMENT '短标题',
@@ -10,6 +11,7 @@ CREATE TABLE `article`
     `summary`      varchar(300) NOT NULL DEFAULT '' COMMENT '文章摘要',
     `category_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '类目ID',
     `source`       tinyint      NOT NULL DEFAULT '1' COMMENT '来源：1-转载，2-原创，3-翻译',
+    `sourceUrl`    varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
     `status`       tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`      tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
