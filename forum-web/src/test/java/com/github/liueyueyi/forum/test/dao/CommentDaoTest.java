@@ -1,11 +1,10 @@
 package com.github.liueyueyi.forum.test.dao;
 
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
 import com.github.liueyueyi.forum.test.BasicTest;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
-import com.github.liuyueyi.forum.service.common.req.CommentReq;
-import com.github.liuyueyi.forum.service.common.req.PageSearchReq;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class CommentDaoTest extends BasicTest {
 
     @Test
     public void testGetCommentList() {
-        PageSearchReq pageSearchReq = new PageSearchReq();
+        PageParam pageSearchReq = new PageParam();
         pageSearchReq.setPageNum(1L);
         pageSearchReq.setPageSize(2L);
         Map<Long, CommentTreeDTO> commentTreeDTOList = commentService.getCommentList(12L, pageSearchReq);

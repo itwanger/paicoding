@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,15 +35,17 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ArticleServiceImpl implements ArticleService {
-    @Autowired
+
+    @Resource
     private ArticleRepository articleRepository;
-    @Autowired
+
+    @Resource
     private ArticleMapper articleMapper;
 
-    @Autowired
+    @Resource
     private CategoryService categoryService;
 
-    @Autowired
+    @Resource
     private TagService tagService;
 
     /**
@@ -51,6 +54,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @param articleId
      * @return
      */
+    @Override
     public ArticleDTO queryArticleDetail(Long articleId) {
         ArticleDTO article = articleRepository.queryArticleDetail(articleId);
         // 更新分类
@@ -70,6 +74,7 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
+    @Override
     public Long saveArticle(ArticlePostReq req) {
         ArticleDO article = new ArticleDO();
         // 设置作者ID

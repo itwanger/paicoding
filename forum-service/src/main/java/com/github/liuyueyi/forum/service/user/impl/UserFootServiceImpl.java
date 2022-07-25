@@ -25,6 +25,7 @@ public class UserFootServiceImpl implements UserFootService {
     @Resource
     private UserFootMapper userFootMapper;
 
+
     @Override
     public Long queryCollentionCount(Long documentId) {
         LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();

@@ -1,8 +1,8 @@
 package com.github.liueyueyi.forum.test.dao;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.test.BasicTest;
-import com.github.liuyueyi.forum.core.model.req.PageParam;
 import com.github.liuyueyi.forum.service.article.impl.CategoryServiceImpl;
 import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
 import com.github.liuyueyi.forum.service.article.dto.TagDTO;

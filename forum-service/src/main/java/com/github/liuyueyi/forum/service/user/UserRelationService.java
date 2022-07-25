@@ -1,8 +1,9 @@
 package com.github.liuyueyi.forum.service.user;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
+import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
+
+import java.util.List;
 
 /**
  * 用户关系Service接口
@@ -13,20 +14,13 @@ import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 public interface UserRelationService {
 
     /**
-     * 获取关注用户列表
+     * 我关注的用户列表
      *
      * @param userId
+     * @param pageParam
      * @return
      */
-    IPage<UserRelationDO> getUserRelationListByUserId(Integer userId, PageParam pageParam);
-
-    /**
-     * 获取被关注用户列表
-     *
-     * @param followUserId
-     * @return
-     */
-    IPage<UserRelationDO> getUserRelationListByFollowUserId(Integer followUserId, PageParam pageParam);
+    List<UserFollowDTO> getUserRelationList(Integer userId, PageParam pageParam);
 
     /**
      * 删除用户关系

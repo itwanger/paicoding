@@ -28,5 +28,8 @@ public class UserRelationDO extends BaseDO {
      */
     private Long followUserId;
 
+    /**
+     * 删除标记
+     */
     private Integer deleted;
 }
