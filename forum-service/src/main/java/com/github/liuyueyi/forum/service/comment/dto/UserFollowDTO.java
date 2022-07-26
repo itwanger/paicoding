@@ -11,12 +11,15 @@ import lombok.Data;
 @Data
 public class UserFollowDTO {
 
+    /**
+     * 关系ID
+     */
     private Long userRelationId;
 
     /**
-     * 关注用户ID
+     * 用户ID
      */
-    private Long followUserId;
+    private Long userId;
 
     /**
      * 用户名

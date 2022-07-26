@@ -29,8 +29,11 @@ public class UserRelationDaoTest extends BasicTest {
 
     @Test
     public void testUserRelation() {
-        List<UserFollowDTO> userFollowDTOS = userRelationService.getUserRelationList(1L, PageParam.newPageInstance(1L, 10L));
+        List<UserFollowDTO> userFollowDTOS = userRelationService.getUserFollowList(1L, PageParam.newPageInstance(1L, 10L));
         log.info("query userFollowDTOS: {}", userFollowDTOS);
+
+        List<UserFollowDTO> userFansList = userRelationService.getUserFansList(1L, PageParam.newPageInstance(1L, 10L));
+        log.info("query userFansList: {}", userFansList);
     }
 
 }

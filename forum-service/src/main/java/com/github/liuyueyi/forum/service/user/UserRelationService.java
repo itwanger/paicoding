@@ -14,13 +14,25 @@ import java.util.List;
 public interface UserRelationService {
 
     /**
-     * 我关注的用户列表
+     * 我关注的用户
      *
      * @param userId
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> getUserRelationList(Long userId, PageParam pageParam);
+    List<UserFollowDTO> getUserFollowList(Long userId, PageParam pageParam);
+
+
+    /**
+     * 关注我的粉丝
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    List<UserFollowDTO> getUserFansList(Long userId, PageParam pageParam);
+
+
 
     /**
      * 删除用户关系

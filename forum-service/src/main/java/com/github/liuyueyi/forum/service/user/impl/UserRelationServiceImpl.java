@@ -36,9 +36,19 @@ public class UserRelationServiceImpl implements UserRelationService {
     private UserInfoMapper userInfoMapper;
 
     @Override
-    public List<UserFollowDTO> getUserRelationList(Long userId, PageParam pageParam) {
+    public List<UserFollowDTO> getUserFollowList(Long userId, PageParam pageParam) {
 
-        List<UserFollowDTO> userRelationList = userRelationMapper.queryUserFollow(userId, pageParam);
+        List<UserFollowDTO> userRelationList = userRelationMapper.queryUserFollowList(userId, pageParam);
+        if (userRelationList.isEmpty())  {
+            return new ArrayList<>();
+        }
+        return userRelationList;
+    }
+
+    @Override
+    public List<UserFollowDTO> getUserFansList(Long userId, PageParam pageParam) {
+
+        List<UserFollowDTO> userRelationList = userRelationMapper.queryUserFansList(userId, pageParam);
         if (userRelationList.isEmpty())  {
             return new ArrayList<>();
         }

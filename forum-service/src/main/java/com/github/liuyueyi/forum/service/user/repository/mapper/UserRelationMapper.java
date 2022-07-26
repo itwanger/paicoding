@@ -17,10 +17,18 @@ import java.util.List;
 public interface UserRelationMapper extends BaseMapper<UserRelationDO> {
 
     /**
-     * 分页查询关注用户
+     * 我关注的用户
+     * @param followUserId
+     * @param pageParam
+     * @return
+     */
+    List<UserFollowDTO> queryUserFollowList(@Param("followUserId") Long followUserId, @Param("pageParam") PageParam pageParam);
+
+    /**
+     * 关注我的粉丝
      * @param userId
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> queryUserFollow(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
+    List<UserFollowDTO> queryUserFansList(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 }
