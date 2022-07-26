@@ -20,7 +20,7 @@ public interface UserRelationService {
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> getUserRelationList(Integer userId, PageParam pageParam);
+    List<UserFollowDTO> getUserRelationList(Long userId, PageParam pageParam);
 
     /**
      * 删除用户关系

@@ -36,28 +36,13 @@ public class UserRelationServiceImpl implements UserRelationService {
     private UserInfoMapper userInfoMapper;
 
     @Override
-    public List<UserFollowDTO> getUserRelationList(Integer userId, PageParam pageParam) {
+    public List<UserFollowDTO> getUserRelationList(Long userId, PageParam pageParam) {
 
-        // TODO: 需要改成联合查询的方式
-
-        List<UserRelationDO> userRelationList = getUserRelationListByUserId(userId, pageParam);
-        if (userRelationList.isEmpty()) {
+        List<UserFollowDTO> userRelationList = userRelationMapper.queryUserFollow(userId, pageParam);
+        if (userRelationList.isEmpty())  {
             return new ArrayList<>();
         }
-
-        List<UserFollowDTO> userFollowList = new ArrayList<>();
-        for (UserRelationDO userRelationDO : userRelationList) {
-            UserInfoDO userInfoDO = getUserInfoByUserId(userRelationDO.getFollowUserId());
-            if (userInfoDO != null)  {
-                UserFollowDTO userFollowDTO = new UserFollowDTO();
-                userFollowDTO.setFollowUserId(userInfoDO.getUserId());
-                userFollowDTO.setPhoto(userInfoDO.getPhoto());
-                userFollowDTO.setUserName(userInfoDO.getUserName());
-                userFollowDTO.setProfile(userInfoDO.getProfile());
-                userFollowList.add(userFollowDTO);
-            }
-        }
-        return userFollowList;
+        return userRelationList;
     }
 
     public UserInfoDO getUserInfoByUserId(Long userId) {
