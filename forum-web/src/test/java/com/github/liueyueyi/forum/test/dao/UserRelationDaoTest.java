@@ -9,6 +9,7 @@ import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
+import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
 import com.github.liuyueyi.forum.service.user.UserRelationService;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +30,10 @@ public class UserRelationDaoTest extends BasicTest {
 
     @Test
     public void testUserRelation() {
-        List<UserFollowDTO> userFollowDTOS = userRelationService.getUserFollowList(1L, PageParam.newPageInstance(1L, 10L));
-        log.info("query userFollowDTOS: {}", userFollowDTOS);
+        UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(1L, PageParam.newPageInstance(1L, 10L));
+        log.info("query userFollowDTOS: {}", userFollowListDTO);
 
-        List<UserFollowDTO> userFansList = userRelationService.getUserFansList(1L, PageParam.newPageInstance(1L, 10L));
-        log.info("query userFansList: {}", userFansList);
+        UserFollowListDTO userFansListDTO = userRelationService.getUserFansList(1L, PageParam.newPageInstance(1L, 10L));
+        log.info("query userFansList: {}", userFansListDTO);
     }
-
 }

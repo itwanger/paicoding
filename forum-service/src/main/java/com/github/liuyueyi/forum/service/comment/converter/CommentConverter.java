@@ -1,6 +1,6 @@
 package com.github.liuyueyi.forum.service.comment.converter;
 
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 @Service
 public class CommentConverter {
 
-    public CommentDO toDo(CommentReq req) {
+    public CommentDO toDo(CommentSaveReq req) {
         if (req == null) {
             return null;
         }

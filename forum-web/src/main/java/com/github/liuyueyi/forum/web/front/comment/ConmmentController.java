@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.web.front.comment;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -49,13 +48,13 @@ public class ConmmentController {
     /**
      * 保存评论（TODO：异常需要捕获）
      *
-     * @param commentReq
+     * @param commentSaveReq
      * @return
      * @throws Exception
      */
     @PostMapping(path = "save")
-    public String save(CommentReq commentReq) throws Exception {
-        commentService.saveComment(commentReq);
+    public String save(CommentSaveReq commentSaveReq) throws Exception {
+        commentService.saveComment(commentSaveReq);
         return "biz/comment/list";
     }
 

@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.user;
 
-import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
+import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 
 /**
@@ -12,22 +13,23 @@ import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 public interface UserService {
 
     /**
-     * 更新用户
-     * @param userDTO
+     * 保存用户
+     * @param req
+     * @throws Exception
      */
-    void updateUser(UserDO userDTO);
+    void saveUser(UserSaveReq req) throws Exception;
 
     /**
      * 删除用户
-     * @param userInfoId
+     * @param userId
      */
-    void deleteUser(Long userInfoId);
+    void deleteUser(Long userId) throws Exception;
 
     /**
-     * 更新用户信息
-     * @param userInfoDTO
+     * 保存用户详情
+     * @param req
      */
-    void updateUserInfo(UserInfoDO userInfoDTO);
+    void saveUserInfo(UserInfoSaveReq req);
 
     /**
      * 删除用户信息
@@ -36,9 +38,11 @@ public interface UserService {
     void deleteUserInfo(Long userId);
 
     /**
-     * 查询用户信息
+     * 查询用户详情信息
      * @param userId
      * @return
      */
     UserInfoDO getUserInfoByUserId(Long userId);
+
+
 }

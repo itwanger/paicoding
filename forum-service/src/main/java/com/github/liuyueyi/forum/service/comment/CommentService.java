@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.service.comment;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
 
 import java.util.Map;
@@ -26,10 +26,10 @@ public interface CommentService {
     /**
      * 更新/保存评论
      *
-     * @param commentReq
+     * @param commentSaveReq
      * @throws Exception
      */
-    void saveComment(CommentReq commentReq) throws Exception;
+    void saveComment(CommentSaveReq commentSaveReq) throws Exception;
 
     /**
      * 删除评论

@@ -3,9 +3,13 @@ package com.github.liuyueyi.forum.service.user.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liuyueyi.forum.service.user.UserService;
+import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
+import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserInfoMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserMapper;
 import org.springframework.stereotype.Service;
@@ -20,35 +24,55 @@ import javax.annotation.Resource;
  */
 @Service
 public class UserServiceImpl implements UserService {
+
     @Resource
     private UserMapper userMapper;
 
     @Resource
     private UserInfoMapper userInfoMapper;
 
+    @Resource
+    private UserFootMapper userFootMapper;
+
+    @Resource
+    private UserConverter userConverter;
+
     @Override
-    public void updateUser(UserDO userDTO) {
-        UserDO updateUser = userMapper.selectById(userDTO.getId());
-        if (updateUser != null) {
-            userMapper.updateById(userDTO);
+    public void saveUser(UserSaveReq req) throws Exception {
+        if (req.getUserId() == null || req.getUserId() == 0) {
+            userMapper.insert(userConverter.toDO(req));
+            return;
         }
+
+        UserDO userDO = userMapper.selectById(req.getUserId());
+        if (userDO == null) {
+            throw new Exception("未查询到该用户");
+        }
+        userMapper.updateById(userConverter.toDO(req));
+    }
+
+
+    @Override
+    public void deleteUser(Long userId) throws Exception {
+        UserDO updateUser = userMapper.selectById(userId);
+        if (updateUser == null) {
+            throw new Exception("未查询到该用户");
+        }
+        updateUser.setDeleted(YesOrNoEnum.YES.getCode());
+        userMapper.updateById(updateUser);
     }
 
     @Override
-    public void deleteUser(Long userInfoId) {
-        UserDO updateUser = userMapper.selectById(userInfoId);
-        if (updateUser != null) {
-            updateUser.setDeleted(YesOrNoEnum.YES.getCode());
-            userMapper.updateById(updateUser);
+    public void saveUserInfo(UserInfoSaveReq req) {
+        UserInfoDO userInfoDO = getUserInfoByUserId(req.getUserId());
+        if (userInfoDO == null) {
+            userInfoMapper.insert(userConverter.toDO(req));
+            return;
         }
-    }
 
-    @Override
-    public void updateUserInfo(UserInfoDO userInfoDTO) {
-        UserInfoDO updateUserInfo = userInfoMapper.selectById(userInfoDTO.getId());
-        if (updateUserInfo != null) {
-            userInfoMapper.updateById(userInfoDTO);
-        }
+        UserInfoDO updateUserInfoDO = userConverter.toDO(req);
+        updateUserInfoDO.setId(userInfoDO.getId());
+        userInfoMapper.updateById(updateUserInfoDO);
     }
 
     @Override

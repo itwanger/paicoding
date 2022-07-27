@@ -2,6 +2,7 @@ package com.github.liuyueyi.forum.service.user;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
+import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface UserRelationService {
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> getUserFollowList(Long userId, PageParam pageParam);
+    UserFollowListDTO getUserFollowList(Long userId, PageParam pageParam);
 
 
     /**
@@ -30,7 +31,7 @@ public interface UserRelationService {
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> getUserFansList(Long userId, PageParam pageParam);
+    UserFollowListDTO getUserFansList(Long userId, PageParam pageParam);
 
 
 

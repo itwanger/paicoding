@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liuyueyi.forum.service.comment.CommentService;
 import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
@@ -81,17 +81,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void saveComment(CommentReq commentReq) throws Exception {
-        if (commentReq.getCommentId() == null || commentReq.getCommentId() == 0) {
-            commentMapper.insert(commentConverter.toDo(commentReq));
+    public void saveComment(CommentSaveReq commentSaveReq) throws Exception {
+        if (commentSaveReq.getCommentId() == null || commentSaveReq.getCommentId() == 0) {
+            commentMapper.insert(commentConverter.toDo(commentSaveReq));
             return;
         }
 
-        CommentDO commentDO = commentMapper.selectById(commentReq.getCommentId());
+        CommentDO commentDO = commentMapper.selectById(commentSaveReq.getCommentId());
         if (commentDO == null) {
             throw new Exception("未查询到该评论");
         }
-        commentMapper.updateById(commentConverter.toDo(commentReq));
+        commentMapper.updateById(commentConverter.toDo(commentSaveReq));
     }
 
     @Override

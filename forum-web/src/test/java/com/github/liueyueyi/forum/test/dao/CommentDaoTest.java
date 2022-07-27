@@ -1,7 +1,7 @@
 package com.github.liueyueyi.forum.test.dao;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentReq;
+import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
@@ -22,12 +22,12 @@ public class CommentDaoTest extends BasicTest {
     private CommentServiceImpl commentService;
 
     public void testSaveComment() throws Exception {
-        CommentReq commentReq = new CommentReq();
-        commentReq.setArticleId(12L);
-        commentReq.setCommentContent("comment test1");
-        commentReq.setParentCommentId(0L);
-        commentReq.setUserId(123L);
-        commentService.saveComment(commentReq);
+        CommentSaveReq commentSaveReq = new CommentSaveReq();
+        commentSaveReq.setArticleId(12L);
+        commentSaveReq.setCommentContent("comment test1");
+        commentSaveReq.setParentCommentId(0L);
+        commentSaveReq.setUserId(123L);
+        commentService.saveComment(commentSaveReq);
     }
 
     @Test

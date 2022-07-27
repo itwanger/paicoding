@@ -53,5 +53,8 @@ public class UserInfoDO extends BaseDO {
      */
     private String extend;
 
+    /**
+     * 删除标记
+     */
     private Integer deleted;
 }
