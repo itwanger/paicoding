@@ -3,7 +3,10 @@ package com.github.liuyueyi.forum.service.article;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
+
+import java.util.List;
 
 public interface CategoryService {
     /**
@@ -13,6 +16,15 @@ public interface CategoryService {
      * @return
      */
     String getCategoryName(Long categoryId);
+
+
+    /**
+     * 查询所有的分离
+     *
+     * @param forceDB
+     * @return
+     */
+    List<CategoryDTO> loadAllCategories(boolean forceDB);
 
     /**
      * 添加类目

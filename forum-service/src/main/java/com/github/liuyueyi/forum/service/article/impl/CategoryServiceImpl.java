@@ -52,6 +52,8 @@ public class CategoryServiceImpl implements CategoryService {
                 return new CategoryDTO(categoryId, category.getCategoryName());
             }
         });
+        // 预热全量缓存
+        loadAllCategories(true);
     }
 
     /**
@@ -115,7 +117,7 @@ public class CategoryServiceImpl implements CategoryService {
      * @return
      */
     public List<CategoryDTO> loadAllCategories(boolean forceDB) {
-        if (forceDB || categoryCaches == null) {
+        if (forceDB) {
             List<CategoryDTO> list = loadAllCategoriesFromDb();
             categoryCaches.invalidateAll();
             categoryCaches.cleanUp();

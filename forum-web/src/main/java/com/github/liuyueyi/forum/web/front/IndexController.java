@@ -1,6 +1,9 @@
 package com.github.liuyueyi.forum.web.front;
 
 import com.github.liuyueyi.forum.core.util.MapUtils;
+import com.github.liuyueyi.forum.service.article.CategoryService;
+import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +20,12 @@ import java.util.Map;
  */
 @Controller
 public class IndexController {
+    @Autowired
+    private CategoryService categoryService;
 
     @GetMapping(path = {"/", "", "/index"})
     public String index(Model model, HttpServletRequest request) {
-        String activeTab = request.getParameter("type");
+        String activeTab = request.getParameter("category");
         model.addAttribute("categories", categories(activeTab));
         model.addAttribute("homeCarouselList", homeCarouselList());
         model.addAttribute("sideBarItems", sideBarItems());
@@ -29,19 +34,24 @@ public class IndexController {
         return "index";
     }
 
-    // 分类，使用db中的进行替换
-    private List<String> DEFAULT_CATEGORIES = Arrays.asList("后端", "前端", "数据库");
-
-    private List<Map<String, Object>> categories(String active) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        boolean hit = DEFAULT_CATEGORIES.contains(active);
-        list.add(MapUtils.create("name", "全部", "selected", !hit, "refCount", 0));
-        for (int i = 0; i < DEFAULT_CATEGORIES.size(); i++) {
-            list.add(MapUtils.create("name", DEFAULT_CATEGORIES.get(i), "selected", hit && DEFAULT_CATEGORIES.get(i).equals(active), "refCount", i + 1));
-        }
+    /**
+     * 返回分类列表
+     *
+     * @param active
+     * @return
+     */
+    private List<CategoryDTO> categories(String active) {
+        List<CategoryDTO> list = categoryService.loadAllCategories(false);
+        list.add(0, CategoryDTO.DEFAULT_CATEGORY);
+        list.forEach(s -> s.setSelected(s.getCategory().equals(active)));
         return list;
     }
 
+    /**
+     * 轮播图
+     *
+     * @return
+     */
     private List<Map<String, Object>> homeCarouselList() {
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(MapUtils.create("imgUrl", "https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg", "name", "spring社区", "actionUrl", "https://spring.hhui.top/"));
@@ -50,6 +60,11 @@ public class IndexController {
     }
 
 
+    /**
+     * 侧边栏信息
+     *
+     * @return
+     */
     private List<Map<String, Object>> sideBarItems() {
         List<Map<String, Object>> res = new ArrayList<>();
         res.add(MapUtils.create("title", "公告", "desc", "简单的公告内容"));

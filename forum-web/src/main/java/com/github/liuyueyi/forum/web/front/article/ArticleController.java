@@ -1,14 +1,20 @@
 package com.github.liuyueyi.forum.web.front.article;
 
+import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.article.ArticleService;
+import com.github.liuyueyi.forum.service.article.CategoryService;
+import com.github.liuyueyi.forum.service.article.TagService;
 import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
+import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
+import com.github.liuyueyi.forum.service.article.dto.TagDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 文章
@@ -16,7 +22,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping(path = "article")
 public class ArticleController {
+    @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private TagService tagService;
 
     /**
      * 文章编辑页
@@ -43,6 +56,37 @@ public class ArticleController {
     public String post(ArticlePostReq req) {
         articleService.saveArticle(req);
         return "";
+    }
+
+    /**
+     * 查询所有的标签
+     *
+     * @return
+     */
+    @ResponseBody
+    @GetMapping(path = "tag/list")
+    public ResVo<List<TagDTO>> queryTags(Long categoryId) {
+        if (categoryId == null || categoryId <= 0L) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS, categoryId);
+        }
+
+        List<TagDTO> list = tagService.getTagListByCategoryId(categoryId);
+        return ResVo.ok(list);
+    }
+
+    /**
+     * 获取所有的分类
+     *
+     * @return
+     */
+    @ResponseBody
+    @GetMapping(path = "category/list")
+    public ResVo<List<CategoryDTO>> getCategoryList(@RequestParam(name = "categoryId", required = false) Long categoryId) {
+        List<CategoryDTO> list = categoryService.loadAllCategories(false);
+        if (categoryId != null) {
+            list.forEach(c -> c.setSelected(c.getCategoryId().equals(categoryId)));
+        }
+        return ResVo.ok(list);
     }
 
 }

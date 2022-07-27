@@ -5,45 +5,112 @@
 </div>
 
 <body id="body" th:data-toast-message="${toast}" th:data-token="${token}">
-<!-- 导航栏 -->
-<div th:replace="layout/navbar :: header"></div>
-
 <!-- 正文内容 -->
+<div th:replace="layout/container :: container_all(~{::content})">
+    <!-- 正文 -->
+    <content>
+        <nav id="bodyNav" class="navbar navbar-expand-md container-bg-light fixed-top">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <form class="form-inline my-md-0" action="/save" method="get">
+                    <div class="input-icon">
+                    <span class="input-icon-addon">
+                      <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                           stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                           stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle
+                              cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+                    </span>
 
-<div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
-    <left>
-        <!-- 轮播图 -->
-        <div th:replace="plugins/carousel :: carousel('main_carousel', ${homeCarouselList})"></div>
+                        <input type="text" class="form-control" th:text="${article != null ? article.title: ''}"
+                               placeholder="请输入文章标题">
+                    </div>
+                </form>
 
-        <!-- 类别筛选 -->
-        <div th:replace="plugins/categories :: category(${categories})"></div>
-
-        <!-- 正文 -->
-        <content>
-            <div class="container-bg-light"
-                 style="text-align: center;height: 700px;margin-bottom: 20px;padding-top: 265px;">
-                <p>
-                    <span style="font-size: 30px;">正文内容！</span>
-                    <span th:if="${!#strings.isEmpty(toast)}"
-                          th:text="${'（' + toast + '）'}"
-                          style="font-size: 20px;color: red;">系统异常</span>
-                </p>
+                <ul class="navbar-nav my-md-0">
+                    <!--  待登录 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">保存</a>
+                    </li>
+                </ul>
             </div>
-        </content>
-    </left>
-    <right>
-        <!-- 操作按钮 -->
-        <div th:replace="plugins/user-card :: user_card(${author})"></div>
-
-        <!-- 公告 -->
-        <div th:if="${!#lists.isEmpty(sideBarItems)}"
-             th:each="item : ${sideBarItems}">
-            <div th:replace="plugins/normal-card :: normal_card(${item})"/>
+        </nav>
+        <div class="form-group">
+             <textarea class="form-control" name="example-textarea-input" rows="12"
+                       th:text="${article != null ? article.content: ''}">
+            </textarea>
         </div>
-    </right>
+
+        <div class="modal fade" id="saveModel" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+             aria-labelledby="loginModalDropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalDropLabel">发布文章</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-12">
+                            <label class="form-label">Simple selectgroup</label>
+                            <div class="form-selectgroup">
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="name" value="HTML" class="form-selectgroup-input" checked="">
+                                    <span class="form-selectgroup-label">HTML</span>
+                                </label>
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="name" value="CSS" class="form-selectgroup-input">
+                                    <span class="form-selectgroup-label">CSS</span>
+                                </label>
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="name" value="PHP" class="form-selectgroup-input">
+                                    <span class="form-selectgroup-label">PHP</span>
+                                </label>
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="name" value="JavaScript" class="form-selectgroup-input">
+                                    <span class="form-selectgroup-label">JavaScript</span>
+                                </label>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">文章标签</span>
+                            </div>
+                            <select class="form-select" id="tagList">
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="form-check form-switch">
+                                <span class="form-check-label">原创</span>
+                                <input class="form-check-input" type="checkbox">
+                            </label>
+                        </div>
+                        <div class="input-group">
+                            <<label class="form-label">文章摘要</label>
+                            <textarea id="summary" class="form-control" data-bs-toggle="autosize" placeholder="Type something…"
+                                      style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 56px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
+                                data-target="#registerModal">去注册
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </content>
 </div>
-
-
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
 </body>
