@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +43,19 @@ public class ArticleController {
         if (articleId != null) {
             ArticleDTO article = articleService.queryArticleDetail(articleId);
             model.addAttribute("article", article);
+
+            List<CategoryDTO> categoryList = categoryService.loadAllCategories(false);
+            categoryList.forEach(s -> {
+                s.setSelected(s.getCategoryId().equals(article.getArticleId()));
+            });
+            model.addAttribute("categories", categoryList);
+
+            List<TagDTO> tagList = tagService.getTagListByCategoryId(article.getArticleId());
+            model.addAttribute("tags", tagList);
+        } else {
+            List<CategoryDTO> categoryList = categoryService.loadAllCategories(false);
+            model.addAttribute("categories", categoryList);
+            model.addAttribute("tags", Collections.emptyList());
         }
 
         return "biz/article/edit";

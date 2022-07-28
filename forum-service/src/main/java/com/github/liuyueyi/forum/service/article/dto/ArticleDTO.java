@@ -43,7 +43,7 @@ public class ArticleDTO implements Serializable {
     /**
      * 文章来源
      *
-     * @see com.github.liuyueyi.forum.service.common.enums.SourceTypeEnum
+     * @see com.github.liueyueyi.forum.api.model.enums.SourceTypeEnum
      */
     private String sourceType;
 

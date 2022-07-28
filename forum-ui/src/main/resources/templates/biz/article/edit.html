@@ -24,13 +24,14 @@
                               cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
                     </span>
 
-                        <input type="text" class="form-control" th:text="${article != null ? article.title: ''}"
+                        <input id="title" type="text" class="form-control"
+                               th:text="${article != null ? article.title: ''}"
                                placeholder="请输入文章标题">
                     </div>
                 </form>
 
                 <ul class="navbar-nav my-md-0">
-                    <!--  待登录 -->
+                    <!--  跳出保存弹窗 -->
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">保存</a>
                     </li>
@@ -38,7 +39,7 @@
             </div>
         </nav>
         <div class="form-group">
-             <textarea class="form-control" name="example-textarea-input" rows="12"
+             <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
                        th:text="${article != null ? article.content: ''}">
             </textarea>
         </div>
@@ -48,60 +49,59 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="loginModalDropLabel">发布文章</h5>
+                        <h5 class="modal-title">发布文章</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-12">
-                            <label class="form-label">Simple selectgroup</label>
+                            <label class="form-label">文章分类</label>
                             <div class="form-selectgroup">
-                                <label class="form-selectgroup-item">
-                                    <input type="checkbox" name="name" value="HTML" class="form-selectgroup-input" checked="">
-                                    <span class="form-selectgroup-label">HTML</span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="checkbox" name="name" value="CSS" class="form-selectgroup-input">
-                                    <span class="form-selectgroup-label">CSS</span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="checkbox" name="name" value="PHP" class="form-selectgroup-input">
-                                    <span class="form-selectgroup-label">PHP</span>
-                                </label>
-                                <label class="form-selectgroup-item">
-                                    <input type="checkbox" name="name" value="JavaScript" class="form-selectgroup-input">
-                                    <span class="form-selectgroup-label">JavaScript</span>
+                                <label class="form-selectgroup-item" th:each="category : ${categories}"
+                                       id="categoryList">
+                                    <input type="radio" name="category" th:value="${category.categoryId}"
+                                           class="form-selectgroup-input" th:checked="${category.selected}">
+                                    <span class="form-selectgroup-label" th:text="${category.category}">后端</span>
                                 </label>
                             </div>
                         </div>
                         <br/>
                         <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">文章标签</span>
-                            </div>
+                            <span class="form-label" style="padding-right: 1em">文章标签</span>
                             <select class="form-select" id="tagList">
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                <option th:if="${tag != null}"
+                                        th:each="tag : ${tags}" th:value="${tag.tagId}"
+                                        th:text="${tag.tag}">Java
+                                </option>
                             </select>
                         </div>
+                        <br/>
                         <div class="input-group">
-                            <label class="form-check form-switch">
-                                <span class="form-check-label">原创</span>
-                                <input class="form-check-input" type="checkbox">
-                            </label>
+                            <label class="form-label" style="padding-right: 1em">文章类型</label>
+                            <div class="form-selectgroup">
+                                <label class="form-selectgroup-item" id="sourceType">
+                                    <input type="radio" name="category" value="ORIGINAL"
+                                           class="form-selectgroup-input" th:checked="${article != null && article.sourceType == 'ORIGINAL'}">
+                                    <span class="form-selectgroup-label" th:text="原创"></span>
+                                </label>
+                            </div>
                         </div>
+                        <br/>
                         <div class="input-group">
-                            <<label class="form-label">文章摘要</label>
-                            <textarea id="summary" class="form-control" data-bs-toggle="autosize" placeholder="Type something…"
-                                      style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 56px;"></textarea>
+                            <label class="form-label">文章摘要</label>
+                            <div class="col-12">
+                                <textarea id="summary" class="form-control" data-bs-toggle="autosize"
+                                          placeholder="Type something…"
+                                          style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 56px;"></textarea>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
-                                data-target="#registerModal">去注册
+                        <button id="publish" type="button" class="btn btn-primary">发布</button>
+                        <button id="tmpSave" type="button" class="btn btn-secondary" data-dismiss="modal"
+                                data-toggle="modal"
+                                data-target="#registerModal">存草稿
                         </button>
                     </div>
                 </div>
@@ -113,5 +113,54 @@
 </div>
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
+
+<script>
+    $('#publish').on('click', function () {
+        const title = $('#title').val();
+        var content = $('#content').val();
+        var category = getChooseCategoryId();
+        var tags = $('#tagList option:selected').val();
+        console.log(title, content, category, tags);
+    });
+
+    // 选中分类，更新对应的下拉标签
+    $('input:radio[name="category"]').click(function () {
+        $.get('/article/tag/list?categoryId=' + getChooseCategoryId(), function (data) {
+            console.log("response: ", data);
+            const tagList = data.result;
+            let tagDivs = "";
+            tagList.forEach(tag => {
+                tagDivs += `<option value='${tag.tagId}'> ${tag.tag} </option>`
+            });
+            console.log("更新tagList:", tagDivs);
+            $("#tagList").html(tagDivs);
+            $('#debug').text(tagDivs);
+        });
+    });
+
+    function getChooseCategoryId() {
+        const category = $('input:radio:checked');
+        if (category) {
+            return category.val();
+        }
+        return -1;
+    }
+
+    var post = function (path, data, callback) {
+        $.ajax({
+            method: 'POST',
+            url: path,
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (data) {
+                if (!data.success) {
+                    toastr.error(data.message);
+                } else if (callback) {
+                    callback(data.data);
+                }
+            }
+        });
+    };
+</script>
 </body>
 </html>
