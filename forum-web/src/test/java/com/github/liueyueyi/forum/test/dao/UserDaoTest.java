@@ -11,8 +11,11 @@ import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
 import com.github.liuyueyi.forum.service.user.UserRelationService;
+import com.github.liuyueyi.forum.service.user.UserService;
+import com.github.liuyueyi.forum.service.user.dto.UserPageDTO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,10 +26,13 @@ import java.util.List;
  * @date 2022/7/20
  */
 @Slf4j
-public class UserRelationDaoTest extends BasicTest {
+public class UserDaoTest extends BasicTest {
 
     @Autowired
     private UserRelationService userRelationService;
+
+    @Autowired
+    private UserService userService;
 
     @Test
     public void testUserRelation() {
@@ -35,5 +41,11 @@ public class UserRelationDaoTest extends BasicTest {
 
         UserFollowListDTO userFansListDTO = userRelationService.getUserFansList(1L, PageParam.newPageInstance(1L, 10L));
         log.info("query userFansList: {}", userFansListDTO);
+    }
+
+    @Test
+    public void testUser() throws Exception {
+        UserPageDTO userPageDTO = userService.getUserPageDTO(1L);
+        log.info("query userPageDTO: {}", userPageDTO);
     }
 }

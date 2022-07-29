@@ -46,5 +46,41 @@
 
     </select>
 
+    <select id="queryUserFollowCount"
+            resultType="java.lang.Integer">
+
+        SELECT
+        count(*) as count
+        FROM user_relation as r
+        left join user_info as u on r.user_id = u.user_id
+        WHERE
+        r.follow_user_id = #{followUserId}
+        and u.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+        ORDER BY u.id desc
+
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+
+    </select>
+
+    <select id="queryUserFansCount"
+            resultType="java.lang.Integer">
+
+        SELECT
+        count(*) as count
+        FROM user_relation as r
+        left join user_info as u on r.follow_user_id = u.user_id
+        WHERE
+        r.user_id = #{userId}
+        and u.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+        ORDER BY u.id desc
+
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+
+    </select>
+
 
 </mapper>

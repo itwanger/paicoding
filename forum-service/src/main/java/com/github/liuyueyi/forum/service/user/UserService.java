@@ -2,6 +2,7 @@ package com.github.liuyueyi.forum.service.user;
 
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
+import com.github.liuyueyi.forum.service.user.dto.UserPageDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 
 /**
@@ -45,4 +46,11 @@ public interface UserService {
     UserInfoDO getUserInfoByUserId(Long userId);
 
 
+    /**
+     * 查询用户主页信息
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    UserPageDTO getUserPageDTO(Long userId) throws Exception;
 }
