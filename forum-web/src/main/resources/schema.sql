@@ -3,7 +3,7 @@
 CREATE TABLE `article`
 (
     `id`           int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `user_id`       int unsigned NOT NULL AUTO_INCREMENT COMMENT '作者uid',
+    `user_id`      int unsigned NOT NULL COMMENT '用户ID',
     `article_type` tinyint      NOT NULL DEFAULT '1' COMMENT '文章类型：1-博文，2-问答',
     `title`        varchar(120) NOT NULL COMMENT '文章标题',
     `short_title`  varchar(120) NOT NULL COMMENT '短标题',
@@ -123,6 +123,7 @@ CREATE TABLE `user_foot`
     `user_id`         int unsigned NOT NULL COMMENT '用户ID',
     `doucument_id`    int unsigned NOT NULL COMMENT '文档ID（文章/评论）',
     `doucument_type`  tinyint   NOT NULL DEFAULT '1' COMMENT '文档类型：1-文章，2-评论',
+    `doucument_user_id` int unsigned NOT NULL COMMENT '发布该文档的用户ID',
     `collection_stat` tinyint unsigned NOT NULL COMMENT '收藏状态: 0-未收藏，1-已收藏，2-取消收藏',
     `read_stat`       tinyint unsigned NOT NULL COMMENT '阅读状态: 0-未读，1-已读',
     `comment_stat`    tinyint unsigned NOT NULL COMMENT '评论状态: 0-未评论，1-已评论，2-删除评论',
