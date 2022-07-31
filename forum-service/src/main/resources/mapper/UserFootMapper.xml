@@ -17,4 +17,70 @@
 
     </select>
 
+    <select id="queryCollectionArticleList"
+            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
+
+        SELECT
+            a.id as id,
+            a.user_id as userId,
+            a.article_type as articleType,
+            a.title as title,
+            a.short_title as shortTitle,
+            a.picture as picture,
+            a.summary as summary,
+            a.category_id as categoryId,
+            a.source as source,
+            a.source_url as sourceUrl,
+            a.status as status,
+            a.create_time as createTime,
+            a.update_time as updateTime
+        FROM user_foot as uf
+            left join article as a on a.id = uf.doucument_id
+        WHERE
+            uf.user_id = #{userId}
+            AND uf.doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND uf.collection_stat = ${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}
+            AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+            AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+        ORDER BY uf.id desc
+
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+
+    </select>
+
+    <select id="queryReadArticleList"
+            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
+
+        SELECT
+            a.id as id,
+            a.user_id as userId,
+            a.article_type as articleType,
+            a.title as title,
+            a.short_title as shortTitle,
+            a.picture as picture,
+            a.summary as summary,
+            a.category_id as categoryId,
+            a.source as source,
+            a.source_url as sourceUrl,
+            a.status as status,
+            a.create_time as createTime,
+            a.update_time as updateTime
+        FROM user_foot as uf
+            left join article as a on a.id = uf.doucument_id
+        WHERE
+            uf.user_id = #{userId}
+            AND uf.doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND uf.read_stat = ${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}
+            AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+            AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+        ORDER BY uf.id desc
+
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+
+    </select>
+
 </mapper>

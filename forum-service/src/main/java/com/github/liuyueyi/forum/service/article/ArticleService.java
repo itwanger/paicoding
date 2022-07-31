@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
+import com.github.liuyueyi.forum.service.article.dto.ArticleListDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 public interface ArticleService {
@@ -47,4 +48,31 @@ public interface ArticleService {
      * @return
      */
     IPage<ArticleDO> getArticleByPage(PageParam pageParam);
+
+    /**
+     * 获取用户文章列表
+     *
+     * @param userId
+     * @return
+     */
+    ArticleListDTO getArticleListByUserId(Long userId, PageParam pageSearchReq);
+
+
+    /**
+     * 获取用户收藏的文章列表
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    ArticleListDTO getCollectionArticleListByUserId(Long userId, PageParam pageParam);
+
+    /**
+     * 获取用户阅读的文章列表
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    ArticleListDTO getReadArticleListByUserId(Long userId, PageParam pageParam);
 }

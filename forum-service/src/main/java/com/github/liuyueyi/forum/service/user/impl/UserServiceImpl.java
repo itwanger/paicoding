@@ -139,28 +139,6 @@ public class UserServiceImpl implements UserService {
         userPageDTO.setReadCount(articleFootCountDTO.getReadCount());
         userPageDTO.setCollectionCount(articleFootCountDTO.getCollectionCount());
         userPageDTO.setArticleCount(articleCount.intValue());
-
-
-
-
-//        // 获取该用户的所有文章Id
-//        LambdaQueryWrapper<ArticleDO> articleQuery = Wrappers.lambdaQuery();
-//        articleQuery.eq(ArticleDO::getUserId, userId)
-//                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
-//                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
-//        List<ArticleDO> articleDOS = articleMapper.selectList(articleQuery);
-//        if (articleDOS.isEmpty()) {
-//            userPageDTO.setArticleCount(0);
-//            userPageDTO.setCollectionCount(0);
-//            userPageDTO.setReadCount(0);
-//            userPageDTO.setPraiseCount(0);
-//            return userPageDTO;
-//        }
-//
-//        List<Long> articleIdList = articleDOS.stream().map(ArticleDO::getId).collect(Collectors.toList());
-
-
-
         return userPageDTO;
     }
 

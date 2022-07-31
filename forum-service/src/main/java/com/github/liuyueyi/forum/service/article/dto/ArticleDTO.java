@@ -18,13 +18,25 @@ public class ArticleDTO implements Serializable {
     private Long articleId;
 
     /**
+     * 文章类型：1-博文，2-问答
+     */
+    private Integer articleType;
+
+    /**
      * 作者uid
      */
     private Long author;
 
+    /**
+     * 文章标题
+     */
     private String title;
 
+    /**
+     * 短标题
+     */
     private String shortTitle;
+
     /**
      * 简介
      */

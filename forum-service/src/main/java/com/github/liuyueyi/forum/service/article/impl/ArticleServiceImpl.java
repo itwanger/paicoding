@@ -13,17 +13,25 @@ import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liuyueyi.forum.service.article.ArticleService;
 import com.github.liuyueyi.forum.service.article.CategoryService;
 import com.github.liuyueyi.forum.service.article.TagService;
+import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
+import com.github.liuyueyi.forum.service.article.dto.ArticleListDTO;
 import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
+import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
+import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,6 +55,12 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Resource
     private TagService tagService;
+
+    @Resource
+    private ArticleConverter articleConverter;
+
+    @Resource
+    private UserFootMapper userFootMapper;
 
     /**
      * 获取文章详情
@@ -120,5 +134,77 @@ public class ArticleServiceImpl implements ArticleService {
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
         Page<ArticleDO> page = new Page<>(pageParam.getPageNum(), pageParam.getPageSize());
         return articleMapper.selectPage(page, query);
+    }
+
+    @Override
+    public ArticleListDTO getArticleListByUserId(Long userId, PageParam pageParam) {
+
+        ArticleListDTO articleListDTO = new ArticleListDTO();
+        List<ArticleDO> articleDTOS = articleRepository.getArticleListByUserId(userId, pageParam);
+        if (articleDTOS.isEmpty()) {
+            articleListDTO.setIsMore(Boolean.FALSE);
+            return articleListDTO;
+        }
+
+        List<ArticleDTO> articleList = new ArrayList<>();
+        for (ArticleDO articleDTO : articleDTOS) {
+            ArticleDTO dto = articleConverter.toDTO(articleDTO);
+            // TODO: 筛其它数据
+            articleList.add(dto);
+        }
+
+        Boolean isMore = (articleList.size() == pageParam.getPageSize()) ? Boolean.TRUE : Boolean.FALSE;
+
+        articleListDTO.setArticleList(articleList);
+        articleListDTO.setIsMore(isMore);
+        return articleListDTO;
+    }
+
+    @Override
+    public ArticleListDTO getCollectionArticleListByUserId(Long userId, PageParam pageParam) {
+        ArticleListDTO articleListDTO = new ArticleListDTO();
+
+        List<ArticleDO> articleDTOS = userFootMapper.queryCollectionArticleList(userId, pageParam);
+        if (articleDTOS.isEmpty()) {
+            articleListDTO.setIsMore(Boolean.FALSE);
+            return articleListDTO;
+        }
+
+        List<ArticleDTO> articleList = new ArrayList<>();
+        for (ArticleDO articleDTO : articleDTOS) {
+            ArticleDTO dto = articleConverter.toDTO(articleDTO);
+            // TODO: 筛其它数据
+            articleList.add(dto);
+        }
+
+        Boolean isMore = (articleList.size() == pageParam.getPageSize()) ? Boolean.TRUE : Boolean.FALSE;
+
+        articleListDTO.setArticleList(articleList);
+        articleListDTO.setIsMore(isMore);
+        return articleListDTO;
+    }
+
+    @Override
+    public ArticleListDTO getReadArticleListByUserId(Long userId, PageParam pageParam) {
+        ArticleListDTO articleListDTO = new ArticleListDTO();
+
+        List<ArticleDO> articleDTOS = userFootMapper.queryReadArticleList(userId, pageParam);
+        if (articleDTOS.isEmpty()) {
+            articleListDTO.setIsMore(Boolean.FALSE);
+            return articleListDTO;
+        }
+
+        List<ArticleDTO> articleList = new ArrayList<>();
+        for (ArticleDO articleDTO : articleDTOS) {
+            ArticleDTO dto = articleConverter.toDTO(articleDTO);
+            // TODO: 筛其它数据
+            articleList.add(dto);
+        }
+
+        Boolean isMore = (articleList.size() == pageParam.getPageSize()) ? Boolean.TRUE : Boolean.FALSE;
+
+        articleListDTO.setArticleList(articleList);
+        articleListDTO.setIsMore(isMore);
+        return articleListDTO;
     }
 }
