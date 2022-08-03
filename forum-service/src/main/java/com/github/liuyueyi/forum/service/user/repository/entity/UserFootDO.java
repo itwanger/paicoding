@@ -34,6 +34,11 @@ public class UserFootDO extends BaseDO {
     private Integer doucumentType;
 
     /**
+     * 发布该文档的用户ID
+     */
+    private Long doucumentUserId;
+
+    /**
      * 收藏状态: 0-未收藏，1-已收藏，2-取消收藏
      */
     private Integer collectionStat;

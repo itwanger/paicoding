@@ -21,11 +21,7 @@ import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
-import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

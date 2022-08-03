@@ -3,6 +3,8 @@ package com.github.liuyueyi.forum.service.comment.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.liueyueyi.forum.api.model.enums.CommentStatEnum;
+import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
@@ -17,6 +19,7 @@ import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserInfoMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -81,9 +84,29 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveComment(CommentSaveReq commentSaveReq) throws Exception {
+
+        // 保存评论
         if (commentSaveReq.getCommentId() == null || commentSaveReq.getCommentId() == 0) {
-            commentMapper.insert(commentConverter.toDo(commentSaveReq));
+            CommentDO commentDO = commentConverter.toDo(commentSaveReq);
+            commentMapper.insert(commentDO);
+
+            // 保存评论足迹(针对文章)
+            UserFootDO userFootDO = new UserFootDO();
+            userFootDO.setUserId(commentSaveReq.getUserId());
+            userFootDO.setDoucumentId(commentSaveReq.getArticleId());
+            userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
+            userFootDO.setDoucumentUserId(0L);
+            userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
+            userFootMapper.insert(userFootDO);
+
+            // 保存评论足迹(针对父评论)
+            if (commentSaveReq.getParentCommentId() != null && commentSaveReq.getParentCommentId() != 0) {
+                userFootDO.setDoucumentId(commentSaveReq.getParentCommentId());
+                userFootDO.setDoucumentType(DocumentTypeEnum.COMMENT.getCode());
+                userFootMapper.insert(userFootDO);
+            }
             return;
         }
 
@@ -95,12 +118,41 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteComment(Long commentId) throws Exception {
+
+        // 删除评论
         CommentDO commentDO = commentMapper.selectById(commentId);
         if (commentDO == null) {
             throw new Exception("未查询到该评论");
         }
         commentMapper.deleteById(commentId);
+
+        // 删除评论足迹(文章)
+        LambdaQueryWrapper<UserFootDO> articleQuery = Wrappers.lambdaQuery();
+        articleQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
+                eq(UserFootDO::getDoucumentId, commentDO.getArticleId()).
+                eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode());
+        UserFootDO articleUserFootDO = userFootMapper.selectOne(articleQuery);
+        if (articleUserFootDO == null) {
+            throw new Exception("未查询到该评论足迹");
+        }
+        articleUserFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
+        userFootMapper.updateById(articleUserFootDO);
+
+        // 删除评论足迹(父评论)
+        if (commentDO.getParentCommentId() != null && commentDO.getParentCommentId() != 0) {
+            LambdaQueryWrapper<UserFootDO> commentQuery = Wrappers.lambdaQuery();
+            commentQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
+                    eq(UserFootDO::getDoucumentId, commentDO.getParentCommentId()).
+                    eq(UserFootDO::getDoucumentType, DocumentTypeEnum.COMMENT.getCode());
+            UserFootDO commentUserFootDO = userFootMapper.selectOne(commentQuery);
+            if (commentUserFootDO == null) {
+                throw new Exception("未查询到该评论足迹");
+            }
+            commentUserFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
+            userFootMapper.updateById(commentUserFootDO);
+        }
     }
 
     /**

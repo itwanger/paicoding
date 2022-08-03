@@ -9,7 +9,7 @@ import lombok.Data;
  * @since 2022/7/19
  */
 @Data
-public class UserPageDTO {
+public class UserHomeDTO {
 
     /**
      * 用户名

@@ -1,7 +1,6 @@
 package com.github.liuyueyi.forum.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
@@ -12,7 +11,7 @@ import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
-import com.github.liuyueyi.forum.service.user.dto.UserPageDTO;
+import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
@@ -22,8 +21,6 @@ import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapp
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 用户Service
@@ -55,6 +52,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveUser(UserSaveReq req) throws Exception {
         if (req.getUserId() == null || req.getUserId() == 0) {
+            // TODO: userID 需要自动生成
             userMapper.insert(userConverter.toDO(req));
             return;
         }
@@ -108,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserPageDTO getUserPageDTO(Long userId) throws Exception {
+    public UserHomeDTO getUserHomeDTO(Long userId) throws Exception {
 
         UserInfoDO userInfoDO = getUserInfoByUserId(userId);
         if (userInfoDO == null) {
@@ -129,17 +127,17 @@ public class UserServiceImpl implements UserService {
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
         Long articleCount = articleMapper.selectCount(articleQuery);
 
-        UserPageDTO userPageDTO = new UserPageDTO();
-        userPageDTO.setUserName(userInfoDO.getUserName());
-        userPageDTO.setPhoto(userInfoDO.getPhoto());
-        userPageDTO.setProfile(userInfoDO.getProfile());
-        userPageDTO.setFollowCount(followCount);
-        userPageDTO.setFansCount(fansCount);
-        userPageDTO.setPraiseCount(articleFootCountDTO.getPraiseCount());
-        userPageDTO.setReadCount(articleFootCountDTO.getReadCount());
-        userPageDTO.setCollectionCount(articleFootCountDTO.getCollectionCount());
-        userPageDTO.setArticleCount(articleCount.intValue());
-        return userPageDTO;
+        UserHomeDTO userHomeDTO = new UserHomeDTO();
+        userHomeDTO.setUserName(userInfoDO.getUserName());
+        userHomeDTO.setPhoto(userInfoDO.getPhoto());
+        userHomeDTO.setProfile(userInfoDO.getProfile());
+        userHomeDTO.setFollowCount(followCount);
+        userHomeDTO.setFansCount(fansCount);
+        userHomeDTO.setPraiseCount(articleFootCountDTO.getPraiseCount());
+        userHomeDTO.setReadCount(articleFootCountDTO.getReadCount());
+        userHomeDTO.setCollectionCount(articleFootCountDTO.getCollectionCount());
+        userHomeDTO.setArticleCount(articleCount.intValue());
+        return userHomeDTO;
     }
 
 }

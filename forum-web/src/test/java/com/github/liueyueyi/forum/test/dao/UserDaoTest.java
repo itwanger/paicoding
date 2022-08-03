@@ -1,25 +1,14 @@
 package com.github.liueyueyi.forum.test.dao;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.test.BasicTest;
-import com.github.liuyueyi.forum.service.article.dto.TagDTO;
-import com.github.liuyueyi.forum.service.article.impl.CategoryServiceImpl;
-import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
-import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
-import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
-import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
 import com.github.liuyueyi.forum.service.user.UserRelationService;
 import com.github.liuyueyi.forum.service.user.UserService;
-import com.github.liuyueyi.forum.service.user.dto.UserPageDTO;
-import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
+import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 /**
  * @author YiHui
@@ -45,7 +34,7 @@ public class UserDaoTest extends BasicTest {
 
     @Test
     public void testUser() throws Exception {
-        UserPageDTO userPageDTO = userService.getUserPageDTO(1L);
-        log.info("query userPageDTO: {}", userPageDTO);
+        UserHomeDTO userHomeDTO = userService.getUserHomeDTO(1L);
+        log.info("query userPageDTO: {}", userHomeDTO);
     }
 }

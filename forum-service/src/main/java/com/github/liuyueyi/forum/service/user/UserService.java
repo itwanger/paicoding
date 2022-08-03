@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.user;
 
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
-import com.github.liuyueyi.forum.service.user.dto.UserPageDTO;
+import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 
 /**
@@ -52,5 +52,5 @@ public interface UserService {
      * @return
      * @throws Exception
      */
-    UserPageDTO getUserPageDTO(Long userId) throws Exception;
+    UserHomeDTO getUserHomeDTO(Long userId) throws Exception;
 }
