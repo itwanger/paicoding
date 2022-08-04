@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.user;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
 
 /**
@@ -31,11 +32,10 @@ public interface UserRelationService {
     UserFollowListDTO getUserFansList(Long userId, PageParam pageParam);
 
 
-
     /**
-     * 删除用户关系
-     *
-     * @param id
+     * 保存用户关系
+     * @param req
+     * @throws Exception
      */
-    void deleteUserRelationById(Long id);
+    void saveUserRelation(UserRelationReq req) throws Exception;
 }

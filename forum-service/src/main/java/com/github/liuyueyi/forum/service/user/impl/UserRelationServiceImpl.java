@@ -1,9 +1,11 @@
 package com.github.liuyueyi.forum.service.user.impl;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
 import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
 import com.github.liuyueyi.forum.service.user.UserRelationService;
+import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class UserRelationServiceImpl implements UserRelationService {
 
     @Resource
     private UserRelationMapper userRelationMapper;
+
+    @Resource
+    private UserConverter userConverter;
 
     @Override
     public UserFollowListDTO getUserFollowList(Long userId, PageParam pageParam) {
@@ -56,10 +61,16 @@ public class UserRelationServiceImpl implements UserRelationService {
     }
 
     @Override
-    public void deleteUserRelationById(Long id) {
-        UserRelationDO userRelationDTO = userRelationMapper.selectById(id);
-        if (userRelationDTO != null) {
-            userRelationMapper.deleteById(id);
+    public void saveUserRelation(UserRelationReq req) throws Exception {
+        if (req.getUserRelationId() != null && req.getUserRelationId() != 0) {
+            userRelationMapper.insert(userConverter.toDO(req));
+            return;
         }
+
+        UserRelationDO userRelationDO = userRelationMapper.selectById(req.getUserRelationId());
+        if (userRelationDO == null) {
+            throw new Exception("未查询到该用户关系");
+        }
+        userRelationMapper.updateById(userConverter.toDO(req));
     }
 }

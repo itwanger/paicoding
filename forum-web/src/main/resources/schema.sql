@@ -163,6 +163,7 @@ CREATE TABLE `user_relation`
     `id`             int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id`        int unsigned NOT NULL COMMENT '用户ID',
     `follow_user_id` int unsigned NOT NULL COMMENT '关注用户ID',
+    `follow_state`   tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注',
     `create_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),

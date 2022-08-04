@@ -1,9 +1,11 @@
 package com.github.liuyueyi.forum.service.user.converter;
 
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
+import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,5 +40,16 @@ public class UserConverter {
         userInfoDO.setCompany(req.getCompany());
         userInfoDO.setProfile(req.getProfile());
         return userInfoDO;
+    }
+
+    public UserRelationDO toDO(UserRelationReq req) {
+        if (req == null) {
+            return null;
+        }
+        UserRelationDO userRelationDO = new UserRelationDO();
+        userRelationDO.setId(req.getUserRelationId());
+        userRelationDO.setUserId(req.getUserId());
+        userRelationDO.setFollowUserId(req.getFollowUserId());
+        return userRelationDO;
     }
 }
