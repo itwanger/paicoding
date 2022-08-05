@@ -9,6 +9,8 @@ import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.comment.CommentService;
 import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
@@ -45,12 +47,15 @@ public class CommentServiceImpl implements CommentService {
     @Resource
     private UserFootMapper userFootMapper;
 
+    @Resource
+    private ArticleMapper articleMapper;
+
     @Override
     public Map<Long, CommentTreeDTO> getCommentList(Long articleId, PageParam pageSearchReq) {
 
         // 1. 获取当前分页的评论
         PageParam pageParam = PageParam.newPageInstance(pageSearchReq.getPageNum(), pageSearchReq.getPageSize());
-        List<CommentDO> commentFirstLevelList = getCommentList(pageParam, 0L);
+        List<CommentDO> commentFirstLevelList = getCommentList(articleId, pageParam, 0L);
         if (commentFirstLevelList.isEmpty()) {
             return new HashMap<>();
         }
@@ -59,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
 
         // 2. 获取所有评论，并过滤 1 级评论，且不在分页中的数据
         pageParam = PageParam.newPageInstance(1L, Long.MAX_VALUE);
-        List<CommentDO> commentAllList = getCommentList(pageParam, null);
+        List<CommentDO> commentAllList = getCommentList(articleId, pageParam, null);
         if (commentAllList.isEmpty()) {
             return new HashMap<>();
         }
@@ -85,29 +90,41 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void saveComment(CommentSaveReq commentSaveReq) throws Exception {
+    public Long saveComment(CommentSaveReq commentSaveReq) throws Exception {
 
         // 保存评论
         if (commentSaveReq.getCommentId() == null || commentSaveReq.getCommentId() == 0) {
             CommentDO commentDO = commentConverter.toDo(commentSaveReq);
             commentMapper.insert(commentDO);
 
+            // 获取文章信息
+            ArticleDO articleDO = articleMapper.selectById(commentSaveReq.getArticleId());
+            if (articleDO == null) {
+                throw new Exception("该文章ID不存在");
+            }
+
             // 保存评论足迹(针对文章)
             UserFootDO userFootDO = new UserFootDO();
             userFootDO.setUserId(commentSaveReq.getUserId());
             userFootDO.setDoucumentId(commentSaveReq.getArticleId());
             userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
-            userFootDO.setDoucumentUserId(0L);
+            userFootDO.setDoucumentUserId(articleDO.getUserId());
+            userFootDO.setCommentId(commentDO.getId());
             userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
             userFootMapper.insert(userFootDO);
 
             // 保存评论足迹(针对父评论)
             if (commentSaveReq.getParentCommentId() != null && commentSaveReq.getParentCommentId() != 0) {
-                userFootDO.setDoucumentId(commentSaveReq.getParentCommentId());
-                userFootDO.setDoucumentType(DocumentTypeEnum.COMMENT.getCode());
-                userFootMapper.insert(userFootDO);
+                UserFootDO commentUserFootDO = new UserFootDO();
+                commentUserFootDO.setUserId(commentSaveReq.getUserId());
+                commentUserFootDO.setDoucumentId(commentSaveReq.getParentCommentId());
+                commentUserFootDO.setDoucumentType(DocumentTypeEnum.COMMENT.getCode());
+                commentUserFootDO.setDoucumentUserId(articleDO.getUserId());
+                commentUserFootDO.setCommentId(commentDO.getId());
+                commentUserFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
+                userFootMapper.insert(commentUserFootDO);
             }
-            return;
+            return commentDO.getId();
         }
 
         CommentDO commentDO = commentMapper.selectById(commentSaveReq.getCommentId());
@@ -115,6 +132,7 @@ public class CommentServiceImpl implements CommentService {
             throw new Exception("未查询到该评论");
         }
         commentMapper.updateById(commentConverter.toDo(commentSaveReq));
+        return commentSaveReq.getCommentId();
     }
 
     @Override
@@ -132,7 +150,8 @@ public class CommentServiceImpl implements CommentService {
         LambdaQueryWrapper<UserFootDO> articleQuery = Wrappers.lambdaQuery();
         articleQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
                 eq(UserFootDO::getDoucumentId, commentDO.getArticleId()).
-                eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode());
+                eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode()).
+                eq(UserFootDO::getCommentId, commentDO.getId());
         UserFootDO articleUserFootDO = userFootMapper.selectOne(articleQuery);
         if (articleUserFootDO == null) {
             throw new Exception("未查询到该评论足迹");
@@ -145,7 +164,8 @@ public class CommentServiceImpl implements CommentService {
             LambdaQueryWrapper<UserFootDO> commentQuery = Wrappers.lambdaQuery();
             commentQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
                     eq(UserFootDO::getDoucumentId, commentDO.getParentCommentId()).
-                    eq(UserFootDO::getDoucumentType, DocumentTypeEnum.COMMENT.getCode());
+                    eq(UserFootDO::getDoucumentType, DocumentTypeEnum.COMMENT.getCode()).
+                    eq(UserFootDO::getCommentId, commentDO.getId());
             UserFootDO commentUserFootDO = userFootMapper.selectOne(commentQuery);
             if (commentUserFootDO == null) {
                 throw new Exception("未查询到该评论足迹");
@@ -188,10 +208,11 @@ public class CommentServiceImpl implements CommentService {
      * @param parentCommentId
      * @return
      */
-    private List<CommentDO> getCommentList(PageParam pageParam, Long parentCommentId) {
+    private List<CommentDO> getCommentList(Long articleId, PageParam pageParam, Long parentCommentId) {
         QueryWrapper<CommentDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
                 .eq(parentCommentId != null, CommentDO::getParentCommentId, parentCommentId)
+                .eq(CommentDO::getArticleId, articleId)
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(CommentDO::getId);
         return commentMapper.selectList(queryWrapper);

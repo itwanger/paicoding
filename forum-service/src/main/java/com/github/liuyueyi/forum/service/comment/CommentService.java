@@ -29,7 +29,7 @@ public interface CommentService {
      * @param commentSaveReq
      * @throws Exception
      */
-    void saveComment(CommentSaveReq commentSaveReq) throws Exception;
+    Long saveComment(CommentSaveReq commentSaveReq) throws Exception;
 
     /**
      * 删除评论

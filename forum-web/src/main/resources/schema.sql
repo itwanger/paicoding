@@ -74,7 +74,7 @@ CREATE TABLE `comment`
     `article_id`        int unsigned NOT NULL COMMENT '文章ID',
     `user_id`           int unsigned NOT NULL COMMENT '用户ID',
     `content`           varchar(300) NOT NULL DEFAULT '' COMMENT '评论内容',
-    `parent_comment_id` int unsigned NOT NULL COMMENT '父评论ID',
+    `parent_comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父评论ID',
     `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
@@ -124,14 +124,15 @@ CREATE TABLE `user_foot`
     `doucument_id`    int unsigned NOT NULL COMMENT '文档ID（文章/评论）',
     `doucument_type`  tinyint   NOT NULL DEFAULT '1' COMMENT '文档类型：1-文章，2-评论',
     `doucument_user_id` int unsigned NOT NULL COMMENT '发布该文档的用户ID',
-    `collection_stat` tinyint unsigned NOT NULL COMMENT '收藏状态: 0-未收藏，1-已收藏，2-取消收藏',
-    `read_stat`       tinyint unsigned NOT NULL COMMENT '阅读状态: 0-未读，1-已读',
-    `comment_stat`    tinyint unsigned NOT NULL COMMENT '评论状态: 0-未评论，1-已评论，2-删除评论',
-    `praise_stat`     tinyint unsigned NOT NULL COMMENT '点赞状态: 0-未点赞，1-已点赞，2-取消点赞',
+    `comment_id`      int unsigned NOT NULL DEFAULT '0' COMMENT '当前发起评论的ID',
+    `collection_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '收藏状态: 0-未收藏，1-已收藏，2-取消收藏',
+    `read_stat`       tinyint unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未读，1-已读',
+    `comment_stat`    tinyint unsigned NOT NULL DEFAULT '0' COMMENT '评论状态: 0-未评论，1-已评论，2-删除评论',
+    `praise_stat`     tinyint unsigned NOT NULL DEFAULT '0' COMMENT '点赞状态: 0-未点赞，1-已点赞，2-取消点赞',
     `create_time`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_user_doucument` (`user_id`,`doucument_id`),
+    UNIQUE KEY `idx_user_doucument` (`user_id`,`doucument_id`,`doucument_type`,`comment_id`),
     KEY               `idx_doucument_id` (`doucument_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户足迹表';
 
@@ -170,3 +171,14 @@ CREATE TABLE `user_relation`
     UNIQUE KEY `uk_user_follow` (`user_id`,`follow_user_id`),
     KEY              `key_follow_user_id` (`follow_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户关系表';
+
+-- 变更记录
+alter table user_relation add `follow_state` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注';
+alter table comment change parent_comment_id `parent_comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父评论ID';
+alter table user_foot add `doucument_user_id` int unsigned NOT NULL COMMENT '发布该文档的用户ID';
+alter table user_foot add `comment_id`      int unsigned NOT NULL DEFAULT '0' COMMENT '当前发起评论的ID';
+alter table user_foot change praise_stat `praise_stat`     tinyint unsigned NOT NULL DEFAULT '0' COMMENT '点赞状态: 0-未点赞，1-已点赞，2-取消点赞';
+alter table user_foot change collection_stat `collection_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '收藏状态: 0-未收藏，1-已收藏，2-取消收藏';
+alter table user_foot change comment_stat `comment_stat`    tinyint unsigned NOT NULL DEFAULT '0' COMMENT '评论状态: 0-未评论，1-已评论，2-删除评论';
+drop index idx_user_doucument on user_foot;
+alter table user_foot add unique index `idx_user_doucument` (`user_id`,`doucument_id`,`doucument_type`,`comment_id`);

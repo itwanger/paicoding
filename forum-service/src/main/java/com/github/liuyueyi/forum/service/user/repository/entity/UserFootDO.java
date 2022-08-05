@@ -39,6 +39,11 @@ public class UserFootDO extends BaseDO {
     private Long doucumentUserId;
 
     /**
+     * 当前发起评论的ID
+     */
+    private Long commentId;
+
+    /**
      * 收藏状态: 0-未收藏，1-已收藏，2-取消收藏
      */
     private Integer collectionStat;
