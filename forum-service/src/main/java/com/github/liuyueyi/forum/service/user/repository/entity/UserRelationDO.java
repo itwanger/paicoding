@@ -29,7 +29,7 @@ public class UserRelationDO extends BaseDO {
     private Long followUserId;
 
     /**
-     * 删除标记
+     * 关注状态: 0-未关注，1-已关注，2-取消关注
      */
-    private Integer deleted;
+    private Integer followState;
 }

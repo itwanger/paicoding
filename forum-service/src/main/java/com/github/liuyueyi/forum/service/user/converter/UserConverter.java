@@ -50,6 +50,7 @@ public class UserConverter {
         userRelationDO.setId(req.getUserRelationId());
         userRelationDO.setUserId(req.getUserId());
         userRelationDO.setFollowUserId(req.getFollowUserId());
+        userRelationDO.setFollowState(req.getFollowState());
         return userRelationDO;
     }
 }
