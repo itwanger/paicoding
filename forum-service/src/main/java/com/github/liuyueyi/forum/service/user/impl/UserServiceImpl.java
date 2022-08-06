@@ -50,26 +50,27 @@ public class UserServiceImpl implements UserService {
     private UserConverter userConverter;
 
     @Override
-    public void saveUser(UserSaveReq req) throws Exception {
+    public void saveUser(UserSaveReq req) {
         if (req.getUserId() == null || req.getUserId() == 0) {
-            // TODO: userID 需要自动生成
-            userMapper.insert(userConverter.toDO(req));
+            UserDO user = userConverter.toDO(req);
+            userMapper.insert(user);
+            req.setUserId(user.getId());
             return;
         }
 
         UserDO userDO = userMapper.selectById(req.getUserId());
         if (userDO == null) {
-            throw new Exception("未查询到该用户");
+            throw new IllegalArgumentException("未查询到该用户");
         }
         userMapper.updateById(userConverter.toDO(req));
     }
 
 
     @Override
-    public void deleteUser(Long userId) throws Exception {
+    public void deleteUser(Long userId) {
         UserDO updateUser = userMapper.selectById(userId);
         if (updateUser == null) {
-            throw new Exception("未查询到该用户");
+            throw new IllegalArgumentException("未查询到该用户");
         }
         updateUser.setDeleted(YesOrNoEnum.YES.getCode());
         userMapper.updateById(updateUser);
@@ -135,9 +136,15 @@ public class UserServiceImpl implements UserService {
         userHomeDTO.setProfile(userInfoDO.getProfile());
         userHomeDTO.setFollowCount(followCount);
         userHomeDTO.setFansCount(fansCount);
-        userHomeDTO.setPraiseCount(articleFootCountDTO.getPraiseCount());
-        userHomeDTO.setReadCount(articleFootCountDTO.getReadCount());
-        userHomeDTO.setCollectionCount(articleFootCountDTO.getCollectionCount());
+        if (articleFootCountDTO != null) {
+            userHomeDTO.setPraiseCount(articleFootCountDTO.getPraiseCount());
+            userHomeDTO.setReadCount(articleFootCountDTO.getReadCount());
+            userHomeDTO.setCollectionCount(articleFootCountDTO.getCollectionCount());
+        } else {
+            userHomeDTO.setPraiseCount(0);
+            userHomeDTO.setReadCount(0);
+            userHomeDTO.setCollectionCount(0);
+        }
         userHomeDTO.setArticleCount(articleCount.intValue());
         return userHomeDTO;
     }

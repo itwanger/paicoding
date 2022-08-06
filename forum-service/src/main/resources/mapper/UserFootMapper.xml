@@ -2,6 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper">
 
+    <select id="queryCountByArticle"
+            resultType="com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO">
+
+        SELECT
+            sum(if (praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (read_stat =${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}, 1, 0)) as readCount,
+            sum(if (collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount
+        FROM
+            user_foot
+        WHERE
+                doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+              AND doucument_id = #{articleId}
+
+    </select>
+
+
     <select id="queryArticleFootCount"
             resultType="com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO">
 

@@ -18,13 +18,13 @@ public interface UserService {
      * @param req
      * @throws Exception
      */
-    void saveUser(UserSaveReq req) throws Exception;
+    void saveUser(UserSaveReq req);
 
     /**
      * 删除用户
      * @param userId
      */
-    void deleteUser(Long userId) throws Exception;
+    void deleteUser(Long userId);
 
     /**
      * 保存用户详情

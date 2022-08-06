@@ -3,12 +3,10 @@ package com.github.liuyueyi.forum.service.article.repository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
-import com.github.liueyueyi.forum.api.model.enums.SourceTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
-import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDetailDO;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -162,4 +161,14 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         return articleMapper.selectList(query);
     }
 
+    @Override
+    public List<ArticleDO> getArticleListByCategoryId(Long categoryId, PageParam pageParam) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
+        Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
+        query.last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId);
+        return articleMapper.selectList(query);
+    }
 }

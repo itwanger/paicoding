@@ -39,4 +39,13 @@ public interface ArticleRepository {
      * @return
      */
     List<ArticleDO> getArticleListByUserId(Long userId, PageParam pageParam);
+
+
+    /**
+     * 分页获取文章列表
+     * @param categoryId
+     * @param pageParam
+     * @return
+     */
+    List<ArticleDO> getArticleListByCategoryId(Long categoryId, PageParam pageParam);
 }

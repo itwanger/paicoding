@@ -4,6 +4,7 @@ package com.github.liuyueyi.forum.service.user;
 import com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.CommentStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
+import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
 
 /**
  * 用户足迹Service接口
@@ -12,6 +13,13 @@ import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
  * @date 2022-07-20
  */
 public interface UserFootService {
+
+    /**
+     * 查询文章计数
+     * @param documentId
+     * @return
+     */
+    ArticleFootCountDTO queryArticleCount(Long documentId);
 
     /**
      * 文章收藏数

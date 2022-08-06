@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 /**
  * 文章转换
  *
+ * fixme: 转换工具类，静态类就行了吧，为啥需要做成service ?
+ *
  * @author louzai
  * @date 2022-07-31
  */

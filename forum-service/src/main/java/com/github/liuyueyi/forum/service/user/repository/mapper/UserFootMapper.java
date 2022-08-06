@@ -16,6 +16,12 @@ import java.util.List;
  * @date 2022-07-18
  */
 public interface UserFootMapper extends BaseMapper<UserFootDO> {
+    /**
+     * 查询文章计数信息
+     * @param articleId
+     * @return
+     */
+    ArticleFootCountDTO queryCountByArticle(@Param("articleId")Long articleId);
 
     /**
      * 查询用户文章计数

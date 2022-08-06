@@ -3,6 +3,8 @@ package com.github.liueyueyi.forum.test;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -36,6 +38,38 @@ public class DemoTest {
         ImmutablePair<Boolean, T> accept(int i, int j);
     }
 
+    public static <T> T scanReturn(int x, int y, ScanFunc<T> func) {
+        Ans<T> ans = new Ans<>();
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                func.accept(i, j, ans);
+                if (ans.tag) {
+                    return ans.ans;
+                }
+            }
+        }
+        return null;
+    }
+
+    public interface ScanFunc<T> {
+        void accept(int i, int j, Ans<T> ans);
+    }
+
+    public static class Ans<T> {
+        private T ans;
+        private boolean tag = false;
+
+        public Ans<T> setAns(T ans) {
+            tag = true;
+            this.ans = ans;
+            return this;
+        }
+
+        public T getAns() {
+            return ans;
+        }
+    }
+
     @Test
     public void testScan() {
         int[][] cells = new int[][]{{1, 2, 3, 4}, {11, 12, 13, 14}, {21, 22, 23, 24}};
@@ -46,6 +80,17 @@ public class DemoTest {
         String ans = scanReturn(cells.length, cells[0].length, (i, j) -> cells[i][j] % 2 == 0 ?
                 ImmutablePair.of(true, "\"index:\" " + i + " + \"_\" " + j + ";") :
                 null);
+        System.out.println(ans);
+    }
+
+    @Test
+    public void getEven() {
+        int[][] cells = new int[][]{{1, 2, 3, 4}, {11, 12, 13, 14}, {21, 22, 23, 24}};
+        String ans = scanReturn(cells.length, cells[0].length, (i, j, a) -> {
+            if ((cells[i][j] & 1) == 0) {
+                a.setAns(i + "_" + j);
+            }
+        });
         System.out.println(ans);
     }
 }

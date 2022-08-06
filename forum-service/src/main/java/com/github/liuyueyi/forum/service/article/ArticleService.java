@@ -8,6 +8,8 @@ import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
 import com.github.liuyueyi.forum.service.article.dto.ArticleListDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
+import java.util.List;
+
 public interface ArticleService {
 
     /**
@@ -25,6 +27,15 @@ public interface ArticleService {
      * @return
      */
     Long saveArticle(ArticlePostReq req);
+
+    /**
+     * 查询某个分类下的文章，支持翻页
+     *
+     * @param categoryId
+     * @param page
+     * @return
+     */
+    ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page);
 
     /**
      * 删除文章

@@ -1,6 +1,5 @@
 package com.github.liuyueyi.forum.service.article.dto;
 
-import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
 import lombok.Data;
 
 import java.util.List;

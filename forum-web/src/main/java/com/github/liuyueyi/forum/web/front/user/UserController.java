@@ -22,6 +22,8 @@ import javax.annotation.Resource;
 
 /**
  * 用户
+ * fixme url 签名改一下, 用户注册、取消，登录、登出
+ *
  * @author lvmenglou
  * @date : 2022/8/3 10:56
  **/
@@ -41,6 +43,8 @@ public class UserController {
 
     /**
      * 保存用户（TODO：异常需要捕获）
+     * <p>
+     * fixme 用户注册，如公众号的登录方式，需要给用户补齐基本的个人信息
      *
      * @param req
      * @return

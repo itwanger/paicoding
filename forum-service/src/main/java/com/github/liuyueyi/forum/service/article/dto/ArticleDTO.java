@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.service.article.dto;
 
+import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -84,4 +85,8 @@ public class ArticleDTO implements Serializable {
      */
     private List<TagDTO> tags;
 
+    /**
+     * 计数统计相关
+     */
+    private ArticleFootCountDTO count;
 }

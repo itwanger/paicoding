@@ -22,7 +22,7 @@ public class UserConverter {
             return null;
         }
         UserDO userDO = new UserDO();
-        userDO.setUserId(req.getUserId());
+        userDO.setId(req.getUserId());
         userDO.setThirdAccountId(req.getThirdAccountId());
         userDO.setLoginType(req.getLoginType());
         return userDO;

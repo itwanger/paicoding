@@ -7,6 +7,7 @@ import com.github.liueyueyi.forum.api.model.enums.CommentStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.ReadStatEnum;
 import com.github.liuyueyi.forum.service.user.UserFootService;
+import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,15 @@ public class UserFootServiceImpl implements UserFootService {
 
     @Resource
     private UserFootMapper userFootMapper;
+
+    /**
+     * 获取文章计数
+     * @param documentId
+     * @return
+     */
+    public ArticleFootCountDTO queryArticleCount(Long documentId) {
+        return userFootMapper.queryCountByArticle(documentId);
+    }
 
 
     @Override

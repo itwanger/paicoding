@@ -21,7 +21,10 @@ import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
+import com.github.liuyueyi.forum.service.user.UserFootService;
+import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +58,10 @@ public class ArticleServiceImpl implements ArticleService {
     @Resource
     private ArticleConverter articleConverter;
 
-    @Resource
+    @Autowired
+    private UserFootService userFootService;
+
+    @Autowired
     private UserFootMapper userFootMapper;
 
     /**
@@ -104,6 +110,23 @@ public class ArticleServiceImpl implements ArticleService {
         return articleRepository.saveArticle(article, req.getContent(), req.getTagIds());
     }
 
+
+    @Override
+    public ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page) {
+        List<ArticleDO> records = articleRepository.getArticleListByCategoryId(categoryId, page);
+        List<ArticleDTO> result = new ArrayList<>();
+        records.forEach(record -> {
+            ArticleDTO dto = articleConverter.toDTO(record);
+            ArticleFootCountDTO count = userFootService.queryArticleCount(record.getId());
+            dto.setCount(count);
+            result.add(dto);
+        });
+
+        ArticleListDTO dto = new ArticleListDTO();
+        dto.setArticleList(result);
+        dto.setIsMore(result.size() == page.getPageSize());
+        return dto;
+    }
 
     @Override
     public void deleteArticle(Long articleId) {
