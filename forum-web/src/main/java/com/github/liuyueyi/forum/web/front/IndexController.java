@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ public class IndexController {
         model.addAttribute("categories", categories(activeTab));
         model.addAttribute("homeCarouselList", homeCarouselList());
         model.addAttribute("sideBarItems", sideBarItems());
-        model.addAttribute("author", author());
         model.addAttribute("currentDomain", "article");
         return "index";
     }
@@ -70,18 +68,5 @@ public class IndexController {
         res.add(MapUtils.create("title", "公告", "desc", "简单的公告内容"));
         res.add(MapUtils.create("title", "标签云", "desc", "java, web, html"));
         return res;
-    }
-
-    /**
-     * 作者信息
-     *
-     * @return
-     */
-    private Map<String, Object> author() {
-        return MapUtils.create("uid", 1L,
-                "avatar", "https://spring.hhui.top/spring-blog/css/images/avatar.jpg",
-                "uname", "一灰灰",
-                "desc", "码农界资深搬运工",
-                "items", Arrays.asList("java", "python", "js"));
     }
 }

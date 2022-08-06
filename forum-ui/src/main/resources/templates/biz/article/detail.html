@@ -8,32 +8,29 @@
 <!-- 导航栏 -->
 <div th:replace="layout/navbar :: header"></div>
 
-<!-- 正文内容 -->
 
 <div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
     <left>
-        <!-- 轮播图 -->
+        <!-- 这里显示cover -->
         <div th:replace="plugins/carousel :: carousel('main_carousel', ${homeCarouselList})"></div>
-
-        <!-- 类别筛选 -->
-        <div th:replace="plugins/categories :: category(${categories})"></div>
 
         <!-- 正文 -->
         <content>
             <div class="container-bg-light"
                  style="text-align: center;height: 700px;margin-bottom: 20px;padding-top: 265px;">
                 <p>
-                    <span style="font-size: 30px;">正文内容！</span>
-                    <span th:if="${!#strings.isEmpty(toast)}"
-                          th:text="${'（' + toast + '）'}"
-                          style="font-size: 20px;color: red;">系统异常</span>
+                <h1 th:text="${article.title}"> 文章标题 </h1>
+                <br/>
+                <pre th:text="${article.content}">
+                    文章内容
+                </pre>
                 </p>
             </div>
         </content>
     </left>
     <right>
         <!-- 操作按钮 -->
-        <div th:replace="plugins/user-card :: user_card(${user})"></div>
+        <div th:replace="plugins/user-card :: user_card(${author})"></div>
 
         <!-- 公告 -->
         <div th:if="${!#lists.isEmpty(sideBarItems)}"
@@ -43,8 +40,6 @@
     </right>
 </div>
 
-
-<!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
 </body>
 </html>

@@ -52,5 +52,5 @@ public interface UserService {
      * @return
      * @throws Exception
      */
-    UserHomeDTO getUserHomeDTO(Long userId) throws Exception;
+    UserHomeDTO getUserHomeDTO(Long userId);
 }

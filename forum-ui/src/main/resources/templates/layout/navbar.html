@@ -59,7 +59,7 @@
                 <!--  已登录 -->
                 <li class="nav-item">
                     <a class="nav-link navbar-count-msg-box" href="/message" target="_blank">
-                        <span th:if="!${#lists.isEmpty(user.newMsgList)}"
+                        <span th:if="!${#lists.isEmpty(msgs)}"
                               class="navbar-count-msg"></span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24"
                              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -73,7 +73,7 @@
                 <!-- Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        <img th:src="${user.avatar}"
+                        <img th:src="${user.photo}"
                              src="https://static.developers.pub/static/img/logo.b2ff606.jpeg" width="30" height="30"
                              alt="" loading="lazy">
                     </a>
@@ -82,7 +82,7 @@
                            class="dropdown-item">管理后台</a>
                         <div th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}"
                              class="dropdown-divider"></div>
-                        <a th:href="${'/user/' + user.uid}" class="dropdown-item" target="_blank" href="#">个人主页</a>
+                        <a th:href="${'/user/' + user.userId}" class="dropdown-item" target="_blank" href="#">个人主页</a>
                         <a href="/user/logout" class="dropdown-item">登出</a>
                     </div>
                 </li>

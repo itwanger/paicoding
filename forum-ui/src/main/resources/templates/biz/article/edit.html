@@ -39,8 +39,10 @@
             </div>
         </nav>
         <div class="form-group">
-             <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
-                       th:text="${article != null ? article.content: ''}">
+            <span id="articleId" style="visibility: hidden"
+                  th:text="${article != null ? article.articleId: ''}"></span>
+            <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
+                      th:text="${article != null ? article.content: ''}">
             </textarea>
         </div>
 
@@ -55,6 +57,12 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="input-group">
+                            <span class="form-label" style="padding-right: 1em">短标题</span>
+                            <input id="subTitle" type="text" class="form-control"
+                                   th:text="${article != null ? article.subTitle: ''}"
+                                   placeholder="请输入文章短标题">
+                        </div>
                         <div class="mb-12">
                             <label class="form-label">文章分类</label>
                             <div class="form-selectgroup">
@@ -81,8 +89,9 @@
                             <label class="form-label" style="padding-right: 1em">文章类型</label>
                             <div class="form-selectgroup">
                                 <label class="form-selectgroup-item" id="sourceType">
-                                    <input type="radio" name="category" value="ORIGINAL"
-                                           class="form-selectgroup-input" th:checked="${article != null && article.sourceType == 'ORIGINAL'}">
+                                    <input type="radio" name="source" value="ORIGINAL"
+                                           class="form-selectgroup-input"
+                                           th:checked="${article != null && article.sourceType == 'ORIGINAL'}">
                                     <span class="form-selectgroup-label" th:text="原创"></span>
                                 </label>
                             </div>
@@ -117,10 +126,30 @@
 <script>
     $('#publish').on('click', function () {
         const title = $('#title').val();
-        var content = $('#content').val();
-        var category = getChooseCategoryId();
-        var tags = $('#tagList option:selected').val();
-        console.log(title, content, category, tags);
+        const subTitle = $('#subTitle').val();
+        const content = $('#content').val();
+        const category = getChooseCategoryId();
+        const tags = $('#tagList option:selected').val();
+        const summary = $("#summary").val();
+        const articleId = $('#article_id').val();
+        const params = {
+            "articleId": articleId,
+            "title": title,
+            "subTitle": subTitle,
+            "content": content,
+            "categoryId": category,
+            "tagIds": [tags],
+            "summary": summary,
+            "articleType": "BLOG",
+            "source": 2,
+            "sourceUrl": "",
+            "actionType": "save",
+        }
+        console.log(params);
+
+        post("/article/post", params, function (data) {
+            console.log("返回结果:", data);
+        });
     });
 
     // 选中分类，更新对应的下拉标签
@@ -146,7 +175,7 @@
         return -1;
     }
 
-    var post = function (path, data, callback) {
+    const post = function (path, data, callback) {
         $.ajax({
             method: 'POST',
             url: path,
@@ -158,6 +187,9 @@
                 } else if (callback) {
                     callback(data.data);
                 }
+            },
+            error: function (data) {
+                toastr.error(data);
             }
         });
     };

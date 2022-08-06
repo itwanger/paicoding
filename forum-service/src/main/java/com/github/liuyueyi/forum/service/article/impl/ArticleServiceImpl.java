@@ -93,11 +93,11 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTitle(req.getTitle());
         article.setShortTitle(req.getSubTitle());
         article.setArticleType(ArticleTypeEnum.valueOf(req.getArticleType().toUpperCase()).getCode());
-        article.setPicture(req.getCover());
+        article.setPicture(req.getCover() == null ? "" : req.getCover());
         article.setCategoryId(req.getCategoryId());
         article.setSource(req.getSource());
         article.setSourceUrl(req.getSourceUrl());
-        article.setSummary(req.getSummery());
+        article.setSummary(req.getSummary());
         article.setStatus(req.pushStatus().getCode());
         article.setDeleted(req.deleted() ? 1 : 0);
 

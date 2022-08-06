@@ -41,7 +41,7 @@ public class ArticlePostReq implements Serializable {
     /**
      * 简介
      */
-    private String summery;
+    private String summary;
 
     /**
      * 正文内容

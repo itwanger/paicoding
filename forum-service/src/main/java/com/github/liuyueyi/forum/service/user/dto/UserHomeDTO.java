@@ -10,11 +10,20 @@ import lombok.Data;
  */
 @Data
 public class UserHomeDTO {
+    /**
+     * 用户id
+     */
+    private Long userId;
 
     /**
      * 用户名
      */
     private String userName;
+
+    /**
+     * 用户角色 admin, normal
+     */
+    private String role;
 
     /**
      * 用户图像

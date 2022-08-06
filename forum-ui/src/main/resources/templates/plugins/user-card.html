@@ -7,22 +7,21 @@
         <div class="d-inline-flex p-2">
             <div class="d-flex">
                 <img class="avatar avatar-xl mb-3 avatar-rounded"
-                     th:src="${user.avatar}" height="76"
+                     th:src="${user.photo}" height="76"
                      style="padding-right: 1em" alt="">
             </div>
             <div class="d-flex flex-column justify-content-center">
-                <h5 class="card-title" th:text="${user.uname}">一灰灰</h5>
-                <p class="card-text" th:text="${user.desc}">
+                <h5 class="card-title" th:text="${user.userName}">一灰灰</h5>
+                <p class="card-text" th:text="${user.profile}">
                     伪全栈*真后端(求👍，求🌟 求👋 )
                     微信公众号：一灰灰Blog
                 </p>
             </div>
         </div>
         <hr/>
-        <ul th:if="${!#lists.isEmpty(user.items)}">
-            <li th:each="item : ${user.items}"
-                th:text="${item}"
-            ></li>
+        <ul>
+            <li th:text="'获得点赞:' + ${user.praiseCount}">点赞数</li>
+            <li th:text="'文章被阅读:' + ${user.readCount}">阅读数</li>
         </ul>
         <a href="#" class="btn btn-primary">
             关注

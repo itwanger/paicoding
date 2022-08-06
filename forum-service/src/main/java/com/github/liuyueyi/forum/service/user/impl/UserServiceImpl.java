@@ -106,11 +106,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserHomeDTO getUserHomeDTO(Long userId) throws Exception {
+    public UserHomeDTO getUserHomeDTO(Long userId) {
 
         UserInfoDO userInfoDO = getUserInfoByUserId(userId);
         if (userInfoDO == null) {
-            throw new Exception("未查询到该用户");
+            throw new IllegalArgumentException("用户不存在!");
         }
 
         // 获取关注数、粉丝数
@@ -128,6 +128,8 @@ public class UserServiceImpl implements UserService {
         Long articleCount = articleMapper.selectCount(articleQuery);
 
         UserHomeDTO userHomeDTO = new UserHomeDTO();
+        userHomeDTO.setUserId(userInfoDO.getUserId());
+        userHomeDTO.setRole("normal");
         userHomeDTO.setUserName(userInfoDO.getUserName());
         userHomeDTO.setPhoto(userInfoDO.getPhoto());
         userHomeDTO.setProfile(userInfoDO.getProfile());
