@@ -18,6 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 /**
+ * 注入全局的配置信息：
+ * - thymleaf 站点信息，基本信息，在这里注入
+ *
  * @author yihui
  * @date 2022/6/15
  */

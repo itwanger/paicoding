@@ -57,11 +57,16 @@ public class ArticleServiceImpl implements ArticleService {
     @Resource
     private ArticleConverter articleConverter;
 
+    /**
+     * 在一个项目中，UserFootService 就是内部服务调用
+     * 拆微服务时，这个会作为远程服务访问
+     */
     @Autowired
     private UserFootService userFootService;
 
     // fixme 最好不要直接在ArticleService中使用userFootMapper，改为通过service访问；这样后续将user模块迁移出来时，会更方便
     // fixme 从业务领域触发， userFootMapper 应该是属于 article 文章领域的
+    // todo: 没发解耦
     @Autowired
     private UserFootMapper userFootMapper;
 

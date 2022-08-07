@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 文章详情
  *
+ * DO 对应数据库实体类
+ *
  * @author louzai
  * @date 2022-07-18
  */

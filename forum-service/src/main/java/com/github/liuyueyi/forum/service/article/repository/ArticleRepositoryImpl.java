@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 /**
  * 文章相关DB操作
+ * <p>
+ * 多表结构的操作封装，只与DB操作相关
  *
  * @author louzai
  * @date 2022-07-18
@@ -128,6 +130,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     private void insertArticle(ArticleDO article, String content, Set<Long> tags) {
+        // article + article_detail + tag  三张表的数据变更
         articleMapper.insert(article);
         Long articleId = article.getId();
 

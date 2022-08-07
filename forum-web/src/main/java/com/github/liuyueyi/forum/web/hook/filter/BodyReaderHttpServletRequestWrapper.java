@@ -18,6 +18,8 @@ import java.util.List;
 /**
  * post 流数据封装，避免因为打印日志导致请求参数被提前消费
  *
+ * todo 知识点： 请求参数的封装，避免输入流读取一次就消耗了
+ *
  * @author YiHui
  * @date 2022/7/6
  */

@@ -17,7 +17,8 @@ import java.io.IOException;
 import java.net.URLDecoder;
 
 /**
- * 请求参数日志输出过滤器
+ * 1. 请求参数日志输出过滤器
+ * 2. 判断用户是否登录
  *
  * @author YiHui
  * @date 2022/7/6

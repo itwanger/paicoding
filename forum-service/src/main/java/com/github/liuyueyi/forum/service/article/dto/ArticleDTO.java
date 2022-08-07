@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * 文章信息
  *
+ * DTO 定义返回给web前端的实体类 (VO)
+ *
  * @author YiHui
  * @date 2022/7/24
  */
