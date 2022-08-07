@@ -18,21 +18,20 @@
         <!-- 类别筛选 -->
         <div th:replace="plugins/categories :: category(${categories})"></div>
 
-        <!-- 正文 -->
+        <!-- 文章列表 -->
         <content>
             <div class="container-bg-light"
-                 style="text-align: center;height: 700px;margin-bottom: 20px;padding-top: 265px;">
-                <p>
-                    <span style="font-size: 30px;">正文内容！</span>
-                    <span th:if="${!#strings.isEmpty(toast)}"
-                          th:text="${'（' + toast + '）'}"
-                          style="font-size: 20px;color: red;">系统异常</span>
-                </p>
+                 style=";min-height: 700px;margin-bottom: 20px;">
+                <div th:each="article : ${articles.articleList}">
+                    <div th:replace="plugins/article-card :: article_card(${article})">
+                        正文
+                    </div>
+                </div>
             </div>
         </content>
     </left>
     <right>
-        <!-- 操作按钮 -->
+        <!-- 登录用户信息 -->
         <div th:replace="plugins/user-card :: user_card(${user})"></div>
 
         <!-- 公告 -->

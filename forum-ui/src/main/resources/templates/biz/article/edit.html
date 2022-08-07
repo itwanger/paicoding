@@ -124,7 +124,16 @@
 <div th:replace="layout/footer :: footer"></div>
 
 <script>
+    <!--    发表文章 -->
     $('#publish').on('click', function () {
+        doPostArticle("post")
+    });
+    // 保存草稿
+    $('#tmpSave').on('click', function () {
+        doPostArticle("save")
+    });
+
+    function doPostArticle(action) {
         const title = $('#title').val();
         const subTitle = $('#subTitle').val();
         const content = $('#content').val();
@@ -143,14 +152,14 @@
             "articleType": "BLOG",
             "source": 2,
             "sourceUrl": "",
-            "actionType": "save",
+            "actionType": action, // post 表示发表, save表示暂存
         }
         console.log(params);
 
         post("/article/post", params, function (data) {
             console.log("返回结果:", data);
         });
-    });
+    }
 
     // 选中分类，更新对应的下拉标签
     $('input:radio[name="category"]').click(function () {

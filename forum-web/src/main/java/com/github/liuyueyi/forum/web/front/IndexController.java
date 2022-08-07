@@ -55,6 +55,8 @@ public class IndexController {
             if (c.getCategory().equalsIgnoreCase(active)) {
                 selectCategoryId = c.getCategoryId();
                 c.setSelected(true);
+            } else {
+                c.setSelected(false);
             }
         }
 
@@ -76,10 +78,10 @@ public class IndexController {
     private void articleList(Model model, HttpServletRequest request, Long categoryId) {
         AtomicReference<Long> page = new AtomicReference<>(1L);
         AtomicReference<Long> pageNum = new AtomicReference<>(20L);
-        Optional.of(request.getParameter("page")).ifPresent(p -> page.set(Long.parseLong(p)));
-        Optional.of(request.getParameter("size")).ifPresent(p -> pageNum.set(Long.parseLong(p)));
+        Optional.ofNullable(request.getParameter("page")).ifPresent(p -> page.set(Long.parseLong(p)));
+        Optional.ofNullable(request.getParameter("size")).ifPresent(p -> pageNum.set(Long.parseLong(p)));
         ArticleListDTO list = articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page.get(), pageNum.get()));
-        model.addAttribute("list", list);
+        model.addAttribute("articles", list);
     }
 
     /**

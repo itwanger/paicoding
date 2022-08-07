@@ -113,11 +113,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page) {
+        if (categoryId != null && categoryId <= 0) categoryId = null;
         List<ArticleDO> records = articleRepository.getArticleListByCategoryId(categoryId, page);
         List<ArticleDTO> result = new ArrayList<>();
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
             ArticleFootCountDTO count = userFootService.queryArticleCount(record.getId());
+            if (count == null) count = new ArticleFootCountDTO();
             dto.setCount(count);
             result.add(dto);
         });

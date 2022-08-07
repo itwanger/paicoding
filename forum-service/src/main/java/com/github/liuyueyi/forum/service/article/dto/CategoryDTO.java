@@ -29,5 +29,6 @@ public class CategoryDTO implements Serializable {
     public CategoryDTO(Long categoryId, String category) {
         this.categoryId = categoryId;
         this.category = category;
+        this.selected = false;
     }
 }
