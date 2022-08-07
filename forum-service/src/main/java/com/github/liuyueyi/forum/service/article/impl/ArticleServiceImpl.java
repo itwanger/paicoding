@@ -160,15 +160,6 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public IPage<ArticleDO> getArticleByPage(PageParam pageParam) {
-        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
-        Page<ArticleDO> page = new Page<>(pageParam.getPageNum(), pageParam.getPageSize());
-        return articleMapper.selectPage(page, query);
-    }
-
-    @Override
     public ArticleListDTO getArticleListByUserId(Long userId, PageParam pageParam) {
 
         ArticleListDTO articleListDTO = new ArticleListDTO();

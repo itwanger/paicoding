@@ -21,22 +21,10 @@ public interface UserService {
     void saveUser(UserSaveReq req);
 
     /**
-     * 删除用户
-     * @param userId
-     */
-    void deleteUser(Long userId);
-
-    /**
      * 保存用户详情
      * @param req
      */
     void saveUserInfo(UserInfoSaveReq req);
-
-    /**
-     * 删除用户信息
-     * @param userId
-     */
-    void deleteUserInfo(Long userId);
 
     /**
      * 查询用户详情信息

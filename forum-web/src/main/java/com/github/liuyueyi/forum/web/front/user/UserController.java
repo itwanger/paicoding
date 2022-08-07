@@ -58,19 +58,6 @@ public class UserController {
 
 
     /**
-     * 删除用户（TODO：异常需要捕获）
-     *
-     * @param userId
-     * @return
-     * @throws Exception
-     */
-    @PostMapping(path = "deleteUser")
-    public String deleteUser(Long userId) throws Exception {
-        userService.deleteUser(userId);
-        return "";
-    }
-
-    /**
      * 保存用户详情（TODO：异常需要捕获）
      *
      * @param req
@@ -80,19 +67,6 @@ public class UserController {
     @PostMapping(path = "saveUserInfo")
     public String saveUserInfo(UserInfoSaveReq req) throws Exception {
         userService.saveUserInfo(req);
-        return "";
-    }
-
-    /**
-     * 删除用户详情（TODO：异常需要捕获）
-     *
-     * @param userId
-     * @return
-     * @throws Exception
-     */
-    @PostMapping(path = "deleteUserInfo")
-    public String deleteUserInfo(Long userId) throws Exception {
-        userService.deleteUserInfo(userId);
         return "";
     }
 

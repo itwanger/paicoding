@@ -31,72 +31,12 @@ public class UserFootServiceImpl implements UserFootService {
      * @param documentId
      * @return
      */
+    @Override
     public ArticleFootCountDTO queryArticleCount(Long documentId) {
         ArticleFootCountDTO res = userFootMapper.queryCountByArticle(documentId);
-        if (res == null) res = new ArticleFootCountDTO();
+        if (res == null) {
+            res = new ArticleFootCountDTO();
+        }
         return res;
-    }
-
-
-    @Override
-    public Long queryCollentionCount(Long documentId) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getCollectionStat, CollectionStatEnum.COLLECTION.getCode());
-        return userFootMapper.selectCount(query);
-    }
-
-    @Override
-    public Long queryReadCount(Long documentId) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getReadStat, ReadStatEnum.READ.getCode());
-        return userFootMapper.selectCount(query);
-    }
-
-    @Override
-    public Long queryCommentCount(Long documentId) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getCommentStat, CommentStatEnum.COMMENT.getCode());
-        return userFootMapper.selectCount(query);
-    }
-
-    @Override
-    public Long queryPraiseCount(Long documentId) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getPraiseStat, PraiseStatEnum.PRAISE.getCode());
-        return userFootMapper.selectCount(query);
-    }
-
-    @Override
-    public Integer operateCollectionFoot(Long documentId, Long userId, CollectionStatEnum statEnum) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getUserId, userId);
-        UserFootDO userFootDTO = userFootMapper.selectOne(query);
-        userFootDTO.setCollectionStat(statEnum.getCode());
-        return userFootMapper.update(userFootDTO, query);
-    }
-
-    @Override
-    public Integer operateCommentFoot(Long documentId, Long userId, CommentStatEnum statEnum) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getUserId, userId);
-        UserFootDO userFootDTO = userFootMapper.selectOne(query);
-        userFootDTO.setCommentStat(statEnum.getCode());
-        return userFootMapper.update(userFootDTO, query);
-    }
-
-    @Override
-    public Integer operatePraiseFoot(Long documentId, Long userId, PraiseStatEnum statEnum) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getUserId, userId);
-        UserFootDO userFootDTO = userFootMapper.selectOne(query);
-        userFootDTO.setPraiseStat(statEnum.getCode());
-        return userFootMapper.update(userFootDTO, query);
     }
 }

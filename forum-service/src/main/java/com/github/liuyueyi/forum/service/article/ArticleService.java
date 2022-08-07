@@ -53,14 +53,6 @@ public interface ArticleService {
     void operateArticle(Long articleId, PushStatusEnum pushStatusEnum);
 
     /**
-     * 分页获取文章列表
-     *
-     * @param pageParam
-     * @return
-     */
-    IPage<ArticleDO> getArticleByPage(PageParam pageParam);
-
-    /**
      * 获取用户文章列表
      *
      * @param userId

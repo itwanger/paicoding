@@ -65,17 +65,6 @@ public class UserServiceImpl implements UserService {
         userMapper.updateById(userConverter.toDO(req));
     }
 
-
-    @Override
-    public void deleteUser(Long userId) {
-        UserDO updateUser = userMapper.selectById(userId);
-        if (updateUser == null) {
-            throw new IllegalArgumentException("未查询到该用户");
-        }
-        updateUser.setDeleted(YesOrNoEnum.YES.getCode());
-        userMapper.updateById(updateUser);
-    }
-
     @Override
     public void saveUserInfo(UserInfoSaveReq req) {
         UserInfoDO userInfoDO = getUserInfoByUserId(req.getUserId());
@@ -87,15 +76,6 @@ public class UserServiceImpl implements UserService {
         UserInfoDO updateUserInfoDO = userConverter.toDO(req);
         updateUserInfoDO.setId(userInfoDO.getId());
         userInfoMapper.updateById(updateUserInfoDO);
-    }
-
-    @Override
-    public void deleteUserInfo(Long userId) {
-        UserInfoDO updateUserInfo = userInfoMapper.selectById(userId);
-        if (updateUserInfo != null) {
-            updateUserInfo.setDeleted(YesOrNoEnum.YES.getCode());
-            userInfoMapper.updateById(updateUserInfo);
-        }
     }
 
     @Override
