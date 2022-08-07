@@ -63,7 +63,7 @@ public class ReqRecordFilter implements Filter {
             ReqInfoContext.addReqInfo(reqInfo);
 
             // fixme 根据x-uuid获取对应的用户信息
-            reqInfo.setUserId(0L);
+            reqInfo.setUserId(1L);
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
         }

@@ -22,7 +22,6 @@ import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.user.UserFootService;
-import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +60,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private UserFootService userFootService;
 
+    // fixme 最好不要直接在ArticleService中使用userFootMapper，改为通过service访问；这样后续将user模块迁移出来时，会更方便
+    // fixme 从业务领域触发， userFootMapper 应该是属于 article 文章领域的
     @Autowired
     private UserFootMapper userFootMapper;
 
@@ -73,6 +74,10 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleDTO queryArticleDetail(Long articleId) {
         ArticleDTO article = articleRepository.queryArticleDetail(articleId);
+        if (article == null) {
+            throw new IllegalArgumentException("文章不存在");
+        }
+
         // 更新分类
         CategoryDTO category = article.getCategory();
         category.setCategory(categoryService.getCategoryName(category.getCategoryId()));
@@ -80,6 +85,9 @@ public class ArticleServiceImpl implements ArticleService {
         // 更新tagIds
         Set<Long> tagIds = article.getTags().stream().map(TagDTO::getTagId).collect(Collectors.toSet());
         article.setTags(tagService.getTags(tagIds));
+
+        // 更新统计计数
+        article.setCount(userFootService.queryArticleCount(articleId));
         return article;
     }
 
@@ -118,9 +126,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDTO> result = new ArrayList<>();
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
-            ArticleFootCountDTO count = userFootService.queryArticleCount(record.getId());
-            if (count == null) count = new ArticleFootCountDTO();
-            dto.setCount(count);
+            dto.setCount(userFootService.queryArticleCount(record.getId()));
             result.add(dto);
         });
 

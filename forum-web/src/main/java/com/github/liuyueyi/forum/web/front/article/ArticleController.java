@@ -11,12 +11,14 @@ import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
-import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,10 +54,11 @@ public class ArticleController {
 
             List<CategoryDTO> categoryList = categoryService.loadAllCategories(false);
             categoryList.forEach(s -> {
-                s.setSelected(s.getCategoryId().equals(article.getArticleId()));
+                s.setSelected(s.getCategoryId().equals(article.getCategory().getCategoryId()));
             });
             model.addAttribute("categories", categoryList);
-            model.addAttribute("tags", article.getTags());
+            model.addAttribute("tagChooses", article.getTags());
+            model.addAttribute("tags", tagService.getTagListByCategoryId(article.getCategory().getCategoryId()));
         } else {
             List<CategoryDTO> categoryList = categoryService.loadAllCategories(false);
             model.addAttribute("categories", categoryList);
@@ -73,9 +76,14 @@ public class ArticleController {
      * @return
      */
     @PostMapping(path = "post")
-    public String post(@RequestBody ArticlePostReq req) {
+    @ResponseBody
+    @Transactional(rollbackFor = Exception.class)
+    public ResVo<Long> post(@RequestBody ArticlePostReq req, HttpServletResponse response) throws IOException {
         Long id = articleService.saveArticle(req);
-        return "redirect:/article/detail/" + id;
+//        return "redirect:/article/detail/" + id;
+//        response.sendRedirect("/article/detail/" + id);
+        // 这里采用前端重定向策略
+        return ResVo.ok(id);
     }
 
     /**

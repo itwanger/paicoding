@@ -14,20 +14,10 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                <form class="form-inline my-md-0" action="/save" method="get">
-                    <div class="input-icon">
-                    <span class="input-icon-addon">
-                      <!-- Download SVG icon from http://tabler-icons.io/i/search -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                           stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                           stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle
-                              cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
-                    </span>
-
-                        <input id="title" type="text" class="form-control"
-                               th:text="${article != null ? article.title: ''}"
-                               placeholder="请输入文章标题">
-                    </div>
+                <form class="input-group my-md-0" action="/save" method="get">
+                    <input id="title" type="text" class="form-control"
+                           th:value="${article != null ? article.title: ''}"
+                           placeholder="请输入文章标题">
                 </form>
 
                 <ul class="navbar-nav my-md-0">
@@ -42,6 +32,7 @@
             <span id="articleId" style="visibility: hidden"
                   th:text="${article != null ? article.articleId: ''}"></span>
             <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
+                      style="min-height:700px;width:100%"
                       th:text="${article != null ? article.content: ''}">
             </textarea>
         </div>
@@ -60,7 +51,7 @@
                         <div class="input-group">
                             <span class="form-label" style="padding-right: 1em">短标题</span>
                             <input id="subTitle" type="text" class="form-control"
-                                   th:text="${article != null ? article.subTitle: ''}"
+                                   th:value="${article != null ? article.shortTitle: ''}"
                                    placeholder="请输入文章短标题">
                         </div>
                         <div class="mb-12">
@@ -76,11 +67,13 @@
                         </div>
                         <br/>
                         <div class="input-group">
+                            <!-- fixme                            这里改成复选框-->
                             <span class="form-label" style="padding-right: 1em">文章标签</span>
                             <select class="form-select" id="tagList">
                                 <option th:if="${tag != null}"
                                         th:each="tag : ${tags}" th:value="${tag.tagId}"
-                                        th:text="${tag.tag}">Java
+                                        th:text="${tag.tag}">
+                                    Java
                                 </option>
                             </select>
                         </div>
@@ -91,7 +84,7 @@
                                 <label class="form-selectgroup-item" id="sourceType">
                                     <input type="radio" name="source" value="ORIGINAL"
                                            class="form-selectgroup-input"
-                                           th:checked="${article != null && article.sourceType == 'ORIGINAL'}">
+                                           th:checked="${article != null && article.sourceType == '原创'}">
                                     <span class="form-selectgroup-label" th:text="原创"></span>
                                 </label>
                             </div>
@@ -101,8 +94,10 @@
                             <label class="form-label">文章摘要</label>
                             <div class="col-12">
                                 <textarea id="summary" class="form-control" data-bs-toggle="autosize"
-                                          placeholder="Type something…"
-                                          style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 56px;"></textarea>
+                                          placeholder="摘要信息... 不超过128字"
+                                          style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 56px;"
+                                          th:text="${article != null ?   article.summary: ''}">
+                                </textarea>
                             </div>
                         </div>
                     </div>
@@ -140,7 +135,7 @@
         const category = getChooseCategoryId();
         const tags = $('#tagList option:selected').val();
         const summary = $("#summary").val();
-        const articleId = $('#article_id').val();
+        const articleId = $('#articleId').text();
         const params = {
             "articleId": articleId,
             "title": title,
@@ -158,6 +153,7 @@
 
         post("/article/post", params, function (data) {
             console.log("返回结果:", data);
+            window.location.href = "/article/detail/" + data;
         });
     }
 
@@ -191,10 +187,11 @@
             contentType: 'application/json',
             data: JSON.stringify(data),
             success: function (data) {
-                if (!data.success) {
+                console.log("data", data);
+                if (!data || !data.status || data.status.code != 0) {
                     toastr.error(data.message);
                 } else if (callback) {
-                    callback(data.data);
+                    callback(data.result);
                 }
             },
             error: function (data) {

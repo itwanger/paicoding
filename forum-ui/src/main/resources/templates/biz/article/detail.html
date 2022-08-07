@@ -12,20 +12,17 @@
 <div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
     <left>
         <!-- 这里显示cover -->
-        <div th:replace="plugins/carousel :: carousel('main_carousel', ${homeCarouselList})"></div>
+        <div th:if="${!#strings.isEmpty(article.cover)}"
+             class="carousel slide">
+            <div class="carousel-inner">
+                <img th:src="${article.cover}" src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
+                     class="img-fluid"/>
+            </div>
+        </div>
 
         <!-- 正文 -->
         <content>
-            <div class="container-bg-light"
-                 style="text-align: center;height: 700px;margin-bottom: 20px;padding-top: 265px;">
-                <p>
-                <h1 th:text="${article.title}"> 文章标题 </h1>
-                <br/>
-                <pre th:text="${article.content}">
-                    文章内容
-                </pre>
-                </p>
-            </div>
+            <div th:replace="plugins/article-info :: article-info(${article}, ${author})"></div>
         </content>
     </left>
     <right>
@@ -41,5 +38,8 @@
 </div>
 
 <div th:replace="layout/footer :: footer"></div>
+
+<script>
+</script>
 </body>
 </html>

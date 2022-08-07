@@ -32,7 +32,9 @@ public class UserFootServiceImpl implements UserFootService {
      * @return
      */
     public ArticleFootCountDTO queryArticleCount(Long documentId) {
-        return userFootMapper.queryCountByArticle(documentId);
+        ArticleFootCountDTO res = userFootMapper.queryCountByArticle(documentId);
+        if (res == null) res = new ArticleFootCountDTO();
+        return res;
     }
 
 

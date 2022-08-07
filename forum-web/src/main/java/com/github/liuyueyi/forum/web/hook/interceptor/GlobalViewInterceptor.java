@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.web.hook.interceptor;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
@@ -38,10 +39,13 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
         // 重定向请求不需要添加
         if (!ObjectUtils.isEmpty(modelAndView)) {
             modelAndView.getModel().put("siteInfo", globalViewConfig);
-
+            Long userId = ReqInfoContext.getReqInfo().getUserId();
+            if (userId == null) {
+                return;
+            }
 
             // 用户信息
-            UserHomeDTO user = userService.getUserHomeDTO(1L);
+            UserHomeDTO user = userService.getUserHomeDTO(userId);
             if (user != null) {
                 modelAndView.getModel().put("isLogin", true);
                 modelAndView.getModel().put("user", user);
@@ -49,7 +53,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 modelAndView.getModel().put("isLogin", false);
             }
 
-            // 消息数
+            // 消息数 fixme 消息信息改由消息模块处理
             modelAndView.getModel().put("msgs", Arrays.asList(new UserMsg().setMsgId(100L).setMsgType(1).setMsg("模拟通知消息")));
         }
     }

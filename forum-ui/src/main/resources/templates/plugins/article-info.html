@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 文章内容 -->
+<div th:fragment="article-info(article, author)" class="posts-box">
+    <div id="postsTitle"
+         th:data-id="${article.articleId}"
+         th:text="${article.title}"
+         style="font-size: 30px;margin-bottom: 20px;font-weight: 600;">标题</div>
+    <div style="margin-bottom: 20px;">
+        <small class="text-muted" style="margin-right: 10px;">
+            <img th:src="${author.photo}" style="width: 12px;height: 12px;" />&nbsp;
+            <a th:href="${'/user/' + author.userId}" th:text="${author.userName}">作者</a>
+        </small>
+        <small class="text-muted" style="margin-right: 10px;">
+            <i data-feather="clock" style="width: 14px;height: 14px;"></i>
+            <span th:text="${article.lastUpdateTime}"> 最后更新时间 </span>
+        </small>
+        <small class="text-muted" style="margin-right: 10px;">
+            <i data-feather="eye" style="width: 14px;height: 14px;"></i>
+            <!--            阅读次数-->
+            <span th:text="${article.count.readCount}">520</span>
+        </small>
+        <small class="text-muted">
+            <!--            评论次数 -->
+            <i data-feather="message-square" style="width: 14px;height: 14px;"></i>
+            <span th:text="${article.count.commentCount}">521</span>
+        </small>
+        <span th:if="${isLogin && article.author == user.userId}" style="float: right;margin-left: 20px;">
+            <a th:href="${'/article/edit?articleId=' + article.articleId}">
+                <i data-feather="edit" style="width: 14px;height: 14px;"></i> 编辑
+            </a>
+        </span>
+        <span th:if="${isLogin && article.author == user.userId}" style="float: right;">
+            <a href="javascript:;" data-target="#deleteModal"
+               data-toggle="modal">
+                <i data-feather="x" style="width: 14px;height: 14px;"></i> 删除
+            </a>
+        </span>
+    </div>
+    <div th:if="${!#lists.isEmpty(article.tags)}" style="margin-bottom: 20px;">
+        <a th:each="tag : ${article.tags}"
+           th:text="${tag.tag}"
+           th:href="${'/tag/' + tag.tag}"
+           target="_blank"
+           href="#" style="padding: 2px 10px;border: 1px solid #6c757d;border-radius: 32px;margin-right: 10px;font-size: 10px;"></a>
+    </div>
+
+    <!--    <pre th:utext="${article.content}" class="article-content">-->
+    <!--    </pre>-->
+    <textarea th:text="${article.content}" style="min-height: 700px; width:100%">
+    </textarea>
+
+
+    <div style="margin-top: 20px;font-size: 14px;color: #999;">
+        最后一次编辑于 <span th:text="${article.lastUpdateTime}">2020年10月01日</span>
+        <span style="float: right;">
+            <a href="javascript:;" id="postsApprovalBtn"
+               th:title="点赞"
+               th:data-target="${isLogin ? '' : '#loginModal'}"
+               th:data-toggle="${isLogin ? '' : 'modal'}"
+               th:class="${article.count.praiseCount > 0 ? 'custom-font-color' : ''}">
+                <i th:data-feather="${postsType == '/article' ? 'thumbs-up' : 'heart'}"
+                   style="width: 14px;height: 14px;"></i>
+                <span id="postsApprovalNumber" th:text="${article.count.praiseCount}"></span>
+            </a>
+        </span>
+    </div>
+    <!-- 再次确认 Modal -->
+    <div class="modal fade" id="deleteModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="deleteModalDropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalDropLabel">删除提醒</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p th:text="${'确定删除《' + article.title + '》吗'}">确定删除吗</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="deleteBtn" type="button" class="btn btn-primary">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
