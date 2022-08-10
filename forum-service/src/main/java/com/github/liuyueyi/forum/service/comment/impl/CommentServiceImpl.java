@@ -16,6 +16,7 @@ import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
 import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.comment.repository.mapper.CommentMapper;
+import com.github.liuyueyi.forum.service.user.impl.UserFootServiceImpl;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
@@ -45,10 +46,10 @@ public class CommentServiceImpl implements CommentService {
     private UserInfoMapper userInfoMapper;
 
     @Resource
-    private UserFootMapper userFootMapper;
+    private ArticleMapper articleMapper;
 
     @Resource
-    private ArticleMapper articleMapper;
+    private UserFootServiceImpl userFootService;
 
     @Override
     public Map<Long, CommentTreeDTO> getCommentList(Long articleId, PageParam pageSearchReq) {
@@ -96,37 +97,15 @@ public class CommentServiceImpl implements CommentService {
         if (commentSaveReq.getCommentId() == null || commentSaveReq.getCommentId() == 0) {
             CommentDO commentDO = commentConverter.toDo(commentSaveReq);
             commentMapper.insert(commentDO);
-
-            // 获取文章信息
             ArticleDO articleDO = articleMapper.selectById(commentSaveReq.getArticleId());
             if (articleDO == null) {
                 throw new Exception("该文章ID不存在");
             }
-
-            // 保存评论足迹(针对文章)
-            UserFootDO userFootDO = new UserFootDO();
-            userFootDO.setUserId(commentSaveReq.getUserId());
-            userFootDO.setDoucumentId(commentSaveReq.getArticleId());
-            userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
-            userFootDO.setDoucumentUserId(articleDO.getUserId());
-            userFootDO.setCommentId(commentDO.getId());
-            userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
-            userFootMapper.insert(userFootDO);
-
-            // 保存评论足迹(针对父评论)
-            if (commentSaveReq.getParentCommentId() != null && commentSaveReq.getParentCommentId() != 0) {
-                UserFootDO commentUserFootDO = new UserFootDO();
-                commentUserFootDO.setUserId(commentSaveReq.getUserId());
-                commentUserFootDO.setDoucumentId(commentSaveReq.getParentCommentId());
-                commentUserFootDO.setDoucumentType(DocumentTypeEnum.COMMENT.getCode());
-                commentUserFootDO.setDoucumentUserId(articleDO.getUserId());
-                commentUserFootDO.setCommentId(commentDO.getId());
-                commentUserFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
-                userFootMapper.insert(commentUserFootDO);
-            }
+            userFootService.saveCommentFoot(commentSaveReq, commentDO.getId(), articleDO.getUserId());
             return commentDO.getId();
         }
 
+        // 更新评论
         CommentDO commentDO = commentMapper.selectById(commentSaveReq.getCommentId());
         if (commentDO == null) {
             throw new Exception("未查询到该评论");
@@ -138,41 +117,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteComment(Long commentId) throws Exception {
-
-        // 删除评论
         CommentDO commentDO = commentMapper.selectById(commentId);
         if (commentDO == null) {
             throw new Exception("未查询到该评论");
         }
         commentMapper.deleteById(commentId);
-
-        // 删除评论足迹(文章)
-        LambdaQueryWrapper<UserFootDO> articleQuery = Wrappers.lambdaQuery();
-        articleQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
-                eq(UserFootDO::getDoucumentId, commentDO.getArticleId()).
-                eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode()).
-                eq(UserFootDO::getCommentId, commentDO.getId());
-        UserFootDO articleUserFootDO = userFootMapper.selectOne(articleQuery);
-        if (articleUserFootDO == null) {
-            throw new Exception("未查询到该评论足迹");
-        }
-        articleUserFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
-        userFootMapper.updateById(articleUserFootDO);
-
-        // 删除评论足迹(父评论)
-        if (commentDO.getParentCommentId() != null && commentDO.getParentCommentId() != 0) {
-            LambdaQueryWrapper<UserFootDO> commentQuery = Wrappers.lambdaQuery();
-            commentQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
-                    eq(UserFootDO::getDoucumentId, commentDO.getParentCommentId()).
-                    eq(UserFootDO::getDoucumentType, DocumentTypeEnum.COMMENT.getCode()).
-                    eq(UserFootDO::getCommentId, commentDO.getId());
-            UserFootDO commentUserFootDO = userFootMapper.selectOne(commentQuery);
-            if (commentUserFootDO == null) {
-                throw new Exception("未查询到该评论足迹");
-            }
-            commentUserFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
-            userFootMapper.updateById(commentUserFootDO);
-        }
+        userFootService.deleteCommentFoot(commentDO);
     }
 
     /**
@@ -186,19 +136,6 @@ public class CommentServiceImpl implements CommentService {
         query.eq(UserInfoDO::getUserId, userId)
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return userInfoMapper.selectOne(query);
-    }
-
-    /**
-     * 获取评论点赞数量
-     *
-     * @param documentId
-     * @return
-     */
-    public Long queryPraiseCount(Long documentId) {
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, documentId)
-                .eq(UserFootDO::getPraiseStat, PraiseStatEnum.PRAISE.getCode());
-        return userFootMapper.selectCount(query);
     }
 
     /**
@@ -273,7 +210,7 @@ public class CommentServiceImpl implements CommentService {
             commentInfo.setUserPhoto(userInfoDO.getPhoto());
             commentInfo.setCommentCount(commentInfo.getCommentChilds().size());
 
-            Long praistCount = queryPraiseCount(userInfoDO.getId());
+            Long praistCount = userFootService.queryCommentPraiseCount(userInfoDO.getId());
             commentInfo.setPraiseCount(praistCount.intValue());
             fillCommentTree(commentInfo.getCommentChilds());
         }

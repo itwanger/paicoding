@@ -12,8 +12,8 @@
         FROM
             user_foot
         WHERE
-                doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
-              AND doucument_id = #{articleId}
+            doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND doucument_id = #{articleId}
 
     </select>
 

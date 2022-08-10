@@ -1,11 +1,8 @@
 package com.github.liuyueyi.forum.service.article.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.ArticleTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
@@ -22,7 +19,6 @@ import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.user.UserFootService;
-import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,12 +60,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private UserFootService userFootService;
 
-    // fixme 最好不要直接在ArticleService中使用userFootMapper，改为通过service访问；这样后续将user模块迁移出来时，会更方便
-    // fixme 从业务领域触发， userFootMapper 应该是属于 article 文章领域的
-    // todo: 没发解耦
-    @Autowired
-    private UserFootMapper userFootMapper;
-
     /**
      * 获取文章详情
      *
@@ -92,7 +82,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTags(tagService.getTags(tagIds));
 
         // 更新统计计数
-        article.setCount(userFootService.queryArticleCount(articleId));
+        article.setCount(userFootService.saveArticleCount(articleId, article.getAuthor(), OperateTypeEnum.READ));
         return article;
     }
 
@@ -126,12 +116,14 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page) {
-        if (categoryId != null && categoryId <= 0) categoryId = null;
+        if (categoryId != null && categoryId <= 0) {
+            categoryId = null;
+        }
         List<ArticleDO> records = articleRepository.getArticleListByCategoryId(categoryId, page);
         List<ArticleDTO> result = new ArrayList<>();
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
-            dto.setCount(userFootService.queryArticleCount(record.getId()));
+            dto.setCount(userFootService.queryArticleCountByArticleId(record.getId()));
             result.add(dto);
         });
 
@@ -187,7 +179,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleListDTO getCollectionArticleListByUserId(Long userId, PageParam pageParam) {
         ArticleListDTO articleListDTO = new ArticleListDTO();
 
-        List<ArticleDO> articleDTOS = userFootMapper.queryCollectionArticleList(userId, pageParam);
+        List<ArticleDO> articleDTOS = userFootService.queryCollectionArticleList(userId, pageParam);
         if (articleDTOS.isEmpty()) {
             articleListDTO.setIsMore(Boolean.FALSE);
             return articleListDTO;
@@ -211,7 +203,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleListDTO getReadArticleListByUserId(Long userId, PageParam pageParam) {
         ArticleListDTO articleListDTO = new ArticleListDTO();
 
-        List<ArticleDO> articleDTOS = userFootMapper.queryReadArticleList(userId, pageParam);
+        List<ArticleDO> articleDTOS = userFootService.queryReadArticleList(userId, pageParam);
         if (articleDTOS.isEmpty()) {
             articleListDTO.setIsMore(Boolean.FALSE);
             return articleListDTO;

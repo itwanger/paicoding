@@ -14,7 +14,6 @@ import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
-import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserInfoMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
@@ -44,10 +43,10 @@ public class UserServiceImpl implements UserService {
     private ArticleMapper articleMapper;
 
     @Resource
-    private UserFootMapper userFootMapper;
+    private UserConverter userConverter;
 
     @Resource
-    private UserConverter userConverter;
+    private UserFootServiceImpl userFootService;
 
     @Override
     public void saveUser(UserSaveReq req) {
@@ -99,7 +98,7 @@ public class UserServiceImpl implements UserService {
         Integer fansCount = userRelationMapper.queryUserFansCount(userId, null);
 
         // 获取文章相关统计
-        ArticleFootCountDTO articleFootCountDTO = userFootMapper.queryArticleFootCount(userId);
+        ArticleFootCountDTO articleFootCountDTO = userFootService.queryArticleCountByUserId(userId);
 
         // 获取发布文章总数
         LambdaQueryWrapper<ArticleDO> articleQuery = Wrappers.lambdaQuery();
