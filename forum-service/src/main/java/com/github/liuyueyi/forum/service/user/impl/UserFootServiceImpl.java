@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
@@ -34,17 +35,34 @@ public class UserFootServiceImpl implements UserFootService {
     private ArticleRepository articleRepository;
 
     @Override
-    public ArticleFootCountDTO saveArticleCount(Long articleId, Long userId, OperateTypeEnum operateTypeEnum) {
+    public ArticleFootCountDTO saveArticleFoot(Long articleId, Long userId, OperateTypeEnum operateTypeEnum) {
         ArticleDTO article = articleRepository.queryArticleDetail(articleId);
         if (article == null) {
             throw new IllegalArgumentException("文章不存在");
         }
 
-        UserFootDO userFootDO = new UserFootDO();
-        userFootDO.setUserId(userId);
-        userFootDO.setDoucumentId(article.getArticleId());
-        userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
-        userFootDO.setDoucumentUserId(article.getAuthor());
+        // 查询是否有该足迹
+        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
+        query.eq(UserFootDO::getDoucumentId, articleId)
+                .eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode())
+                .eq(UserFootDO::getUserId, userId);
+        UserFootDO readUserFootDO = userFootMapper.selectOne(query);
+        if (readUserFootDO == null) {
+            UserFootDO userFootDO = new UserFootDO();
+            userFootDO.setUserId(userId);
+            userFootDO.setDoucumentId(article.getArticleId());
+            userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
+            userFootDO.setDoucumentUserId(article.getAuthor());
+            userFootDO = setUserFootStat(userFootDO, operateTypeEnum);
+            userFootMapper.insert(userFootDO);
+        } else {
+            readUserFootDO = setUserFootStat(readUserFootDO, operateTypeEnum);
+            userFootMapper.updateById(readUserFootDO);
+        }
+        return userFootMapper.queryCountByArticle(articleId);
+    }
+
+    private UserFootDO setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operateTypeEnum) {
         if (operateTypeEnum.equals(OperateTypeEnum.READ)) {
             userFootDO.setReadStat(ReadStatEnum.READ.getCode());
         } else if (operateTypeEnum.equals(OperateTypeEnum.PRAISE)) {
@@ -56,8 +74,7 @@ public class UserFootServiceImpl implements UserFootService {
         } else if (operateTypeEnum.equals(OperateTypeEnum.CANCEL_COLLECTION)) {
             userFootDO.setCommentStat(CollectionStatEnum.CANCEL_COLLECTION.getCode());
         }
-        userFootMapper.insert(userFootDO);
-        return userFootMapper.queryCountByArticle(articleId);
+        return userFootDO;
     }
 
     @Override

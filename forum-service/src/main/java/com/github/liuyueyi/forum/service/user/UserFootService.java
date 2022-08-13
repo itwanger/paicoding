@@ -25,7 +25,7 @@ public interface UserFootService {
      * @param operateTypeEnum
      * @return
      */
-    ArticleFootCountDTO saveArticleCount(Long articleId, Long userId, OperateTypeEnum operateTypeEnum);
+    ArticleFootCountDTO saveArticleFoot(Long articleId, Long userId, OperateTypeEnum operateTypeEnum);
 
     /**
      * 根据文章ID查询文章计数

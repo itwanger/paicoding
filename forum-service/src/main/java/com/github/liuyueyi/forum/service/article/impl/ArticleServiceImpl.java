@@ -82,7 +82,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTags(tagService.getTags(tagIds));
 
         // 更新统计计数
-        article.setCount(userFootService.saveArticleCount(articleId, article.getAuthor(), OperateTypeEnum.READ));
+        article.setCount(userFootService.saveArticleFoot(articleId, article.getAuthor(), OperateTypeEnum.READ));
         return article;
     }
 
