@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.article.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
@@ -172,6 +173,22 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
         Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
+        query.last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId);
+        return articleMapper.selectList(query);
+    }
+
+    @Override
+    public List<ArticleDO> getArticleListByBySearchKey(String key, PageParam pageParam) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .and(!StringUtils.isEmpty(key),
+                        v -> v.like(ArticleDO::getTitle, key)
+                                .or()
+                                .like(ArticleDO::getShortTitle, key)
+                                .or()
+                                .like(ArticleDO::getSummary, key));
         query.last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId);
         return articleMapper.selectList(query);

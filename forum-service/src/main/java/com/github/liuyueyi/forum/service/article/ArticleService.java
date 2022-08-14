@@ -38,6 +38,15 @@ public interface ArticleService {
     ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page);
 
     /**
+     * 根据查询条件查询文章列表，支持翻页
+     *
+     * @param key
+     * @param page
+     * @return
+     */
+    ArticleListDTO queryArticlesBySearchKey(String key, PageParam page);
+
+    /**
      * 删除文章
      *
      * @param articleId

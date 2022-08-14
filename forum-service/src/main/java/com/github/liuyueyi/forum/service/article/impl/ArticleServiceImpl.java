@@ -134,6 +134,25 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public ArticleListDTO queryArticlesBySearchKey(String key, PageParam page) {
+        if (key == null || key.isEmpty()) {
+            return new ArticleListDTO();
+        }
+        List<ArticleDO> records = articleRepository.getArticleListByBySearchKey(key, page);
+        List<ArticleDTO> result = new ArrayList<>();
+        records.forEach(record -> {
+            ArticleDTO dto = articleConverter.toDTO(record);
+            dto.setCount(userFootService.queryArticleCountByArticleId(record.getId()));
+            result.add(dto);
+        });
+
+        ArticleListDTO dto = new ArticleListDTO();
+        dto.setArticleList(result);
+        dto.setIsMore(result.size() == page.getPageSize());
+        return dto;
+    }
+
+    @Override
     public void deleteArticle(Long articleId) {
         ArticleDO articleDTO = articleMapper.selectById(articleId);
         if (articleDTO != null) {

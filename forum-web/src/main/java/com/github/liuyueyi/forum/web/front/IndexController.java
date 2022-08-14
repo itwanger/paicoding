@@ -85,6 +85,22 @@ public class IndexController {
     }
 
     /**
+     * 查询文章列表
+     *
+     * @param model
+     * @param request
+     * @param key
+     */
+    private void searchArticleList(Model model, HttpServletRequest request, String key) {
+        AtomicReference<Long> page = new AtomicReference<>(1L);
+        AtomicReference<Long> pageNum = new AtomicReference<>(20L);
+        Optional.ofNullable(request.getParameter("page")).ifPresent(p -> page.set(Long.parseLong(p)));
+        Optional.ofNullable(request.getParameter("size")).ifPresent(p -> pageNum.set(Long.parseLong(p)));
+        ArticleListDTO list = articleService.queryArticlesBySearchKey(key, PageParam.newPageInstance(page.get(), pageNum.get()));
+        model.addAttribute("articles", list);
+    }
+
+    /**
      * 轮播图
      *
      * @return

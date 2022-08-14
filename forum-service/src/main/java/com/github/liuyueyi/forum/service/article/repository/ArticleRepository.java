@@ -48,4 +48,12 @@ public interface ArticleRepository {
      * @return
      */
     List<ArticleDO> getArticleListByCategoryId(Long categoryId, PageParam pageParam);
+
+    /**
+     * 分页获取文章列表（根据查询条件）
+     * @param key
+     * @param pageParam
+     * @return
+     */
+    List<ArticleDO> getArticleListByBySearchKey(String key, PageParam pageParam);
 }

@@ -1,7 +1,6 @@
 package com.github.liuyueyi.forum.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
