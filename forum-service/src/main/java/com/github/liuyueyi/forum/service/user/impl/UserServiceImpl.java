@@ -6,18 +6,20 @@ import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
-import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
-import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserInfoMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserMapper;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -48,6 +50,33 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserFootServiceImpl userFootService;
 
+    /**
+     * 用户存在时，直接返回；不存在时，则初始化
+     *
+     * @param req
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void registerOrGetUserInfo(UserSaveReq req) {
+        UserDO record = userMapper.getByThirdAccountId(req.getThirdAccountId());
+        if (record != null) {
+            req.setUserId(record.getId());
+            return;
+        }
+
+        // 用户不存在，则需要注册
+        record = userConverter.toDO(req);
+        userMapper.insert(record);
+        req.setUserId(record.getId());
+
+        // 初始化用户信息
+        UserInfoSaveReq infoReq = new UserInfoSaveReq();
+        infoReq.setUserId(req.getUserId());
+        infoReq.setUserName(String.format("小侠%06d", (int) (Math.random() * 1000000)));
+        infoReq.setPhoto("https://blog.hhui.top/hexblog/images/avatar.jpg");
+        saveUserInfo(infoReq);
+    }
+
     @Override
     public void saveUser(UserSaveReq req) {
         if (req.getUserId() == null || req.getUserId() == 0) {
@@ -66,29 +95,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUserInfo(UserInfoSaveReq req) {
-        UserInfoDO userInfoDO = getUserInfoByUserId(req.getUserId());
+        BaseUserInfoDTO userInfoDO = getUserInfoByUserId(req.getUserId());
         if (userInfoDO == null) {
             userInfoMapper.insert(userConverter.toDO(req));
             return;
         }
 
         UserInfoDO updateUserInfoDO = userConverter.toDO(req);
-        updateUserInfoDO.setId(userInfoDO.getId());
+        updateUserInfoDO.setId(userInfoDO.getUserId());
         userInfoMapper.updateById(updateUserInfoDO);
     }
 
     @Override
-    public UserInfoDO getUserInfoByUserId(Long userId) {
+    public BaseUserInfoDTO getUserInfoByUserId(Long userId) {
         LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
         query.eq(UserInfoDO::getUserId, userId)
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
-        return userInfoMapper.selectOne(query);
+        UserInfoDO user = userInfoMapper.selectOne(query);
+        return userConverter.toDO(user);
     }
 
     @Override
     public UserHomeDTO getUserHomeDTO(Long userId) {
-
-        UserInfoDO userInfoDO = getUserInfoByUserId(userId);
+        BaseUserInfoDTO userInfoDO = getUserInfoByUserId(userId);
         if (userInfoDO == null) {
             throw new IllegalArgumentException("用户不存在!");
         }

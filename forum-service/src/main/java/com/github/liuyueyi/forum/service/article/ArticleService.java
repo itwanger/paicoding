@@ -1,14 +1,10 @@
 package com.github.liuyueyi.forum.service.article;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
-import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
-import com.github.liuyueyi.forum.service.article.dto.ArticleListDTO;
-import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
-
-import java.util.List;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 
 public interface ArticleService {
 

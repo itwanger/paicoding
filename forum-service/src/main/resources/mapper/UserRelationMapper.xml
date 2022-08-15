@@ -3,7 +3,7 @@
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper">
 
     <select id="queryUserFollowList"
-            resultType="com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO">
 
         SELECT
             u.user_id as userId,
@@ -25,7 +25,7 @@
     </select>
 
     <select id="queryUserFansList"
-            resultType="com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO">
 
         SELECT
         u.user_id as userId,

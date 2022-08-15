@@ -1,6 +1,7 @@
 package com.github.liueyueyi.forum.api.model.vo.user;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 用户入参
@@ -9,6 +10,7 @@ import lombok.Data;
  * @date 2022-07-24
  */
 @Data
+@Accessors(chain = true)
 public class UserSaveReq {
     /**
      * 主键ID

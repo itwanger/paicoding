@@ -1,6 +1,6 @@
 package com.github.liuyueyi.forum.web.param.vo;
 
-import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
 import lombok.Data;
 
 import java.util.List;

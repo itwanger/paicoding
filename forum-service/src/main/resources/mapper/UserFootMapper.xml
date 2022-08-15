@@ -3,7 +3,7 @@
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper">
 
     <select id="queryCountByArticle"
-            resultType="com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
 
         SELECT
             sum(if (praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
@@ -19,7 +19,7 @@
 
 
     <select id="queryArticleFootCount"
-            resultType="com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
 
         SELECT
             sum(if (praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,

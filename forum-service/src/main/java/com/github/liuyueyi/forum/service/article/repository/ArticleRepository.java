@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.service.article.repository;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 import java.util.List;

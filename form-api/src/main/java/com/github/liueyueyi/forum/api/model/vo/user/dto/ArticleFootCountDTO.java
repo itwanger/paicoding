@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.user.dto;
+package com.github.liueyueyi.forum.api.model.vo.user.dto;
 
 import lombok.Data;
 

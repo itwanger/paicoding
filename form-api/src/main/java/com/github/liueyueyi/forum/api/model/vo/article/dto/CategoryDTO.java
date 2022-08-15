@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.article.dto;
+package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -4,11 +4,10 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
-import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 

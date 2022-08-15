@@ -8,7 +8,7 @@ import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.article.CategoryService;
-import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.CategoryMapper;
 import com.google.common.cache.CacheBuilder;

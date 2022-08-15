@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.user;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
-import com.github.liuyueyi.forum.service.comment.dto.UserFollowListDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 
 /**
  * 用户关系Service接口

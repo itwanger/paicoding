@@ -8,7 +8,7 @@ import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.article.TagService;
-import com.github.liuyueyi.forum.service.article.dto.TagDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.TagMapper;
 import org.springframework.stereotype.Service;

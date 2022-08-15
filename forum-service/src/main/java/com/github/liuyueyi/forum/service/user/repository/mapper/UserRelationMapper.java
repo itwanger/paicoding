@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.user.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liuyueyi.forum.service.comment.dto.UserFollowDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import org.apache.ibatis.annotations.Param;
 

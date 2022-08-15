@@ -1,7 +1,7 @@
 package com.github.liuyueyi.forum.service.comment.converter;
 
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
-import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import org.springframework.stereotype.Service;
 

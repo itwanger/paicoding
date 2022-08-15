@@ -1,16 +1,20 @@
 package com.github.liuyueyi.forum.web.hook.filter;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
+import com.github.liuyueyi.forum.service.user.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -27,6 +31,9 @@ import java.net.URLDecoder;
 @WebFilter(urlPatterns = "/*", filterName = "selfProcessBeforeFilter")
 public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
+
+    @Autowired
+    private LoginService loginService;
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -57,14 +64,21 @@ public class ReqRecordFilter implements Filter {
             reqInfo.setPath(request.getPathInfo());
             reqInfo.setReferer(request.getHeader("referer"));
             reqInfo.setClientIp(IpUtil.getClientIp(request));
-            reqInfo.setUuid(request.getHeader("x-uuid"));
             reqInfo.setUserAgent(request.getHeader("User-Agent"));
 
             request = this.wrapperRequest(request, reqInfo);
             ReqInfoContext.addReqInfo(reqInfo);
 
-            // fixme 根据x-uuid获取对应的用户信息
-            reqInfo.setUserId(1L);
+            for (Cookie cookie : request.getCookies()) {
+                if (LoginService.SESSION_KEY.equalsIgnoreCase(cookie.getName())) {
+                    String session = cookie.getValue();
+                    BaseUserInfoDTO user = loginService.getUserBySessionId(session);
+                    reqInfo.setSession(session);
+                    reqInfo.setUserId(user.getUserId());
+                    reqInfo.setUser(user);
+                    break;
+                }
+            }
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
         }
@@ -89,11 +103,6 @@ public class ReqRecordFilter implements Filter {
         }
         msg.append("remoteIp=").append(req.getClientIp());
         msg.append("; agent=").append(req.getUserAgent());
-
-        if (StringUtils.isNotBlank(req.getUuid())) {
-            // 打印设备信息
-            msg.append("; uuid=").append(req.getUuid());
-        }
 
         if (req.getUserId() != null) {
             // 打印用户信息

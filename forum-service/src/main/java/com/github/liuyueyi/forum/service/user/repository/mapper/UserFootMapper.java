@@ -3,7 +3,7 @@ package com.github.liuyueyi.forum.service.user.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
-import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import org.apache.ibatis.annotations.Param;
 

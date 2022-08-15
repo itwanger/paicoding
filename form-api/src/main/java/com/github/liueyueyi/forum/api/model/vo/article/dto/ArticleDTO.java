@@ -1,6 +1,6 @@
-package com.github.liuyueyi.forum.service.article.dto;
+package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
-import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import lombok.Data;
 
 import java.io.Serializable;

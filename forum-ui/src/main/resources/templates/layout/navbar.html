@@ -83,7 +83,7 @@
                         <div th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}"
                              class="dropdown-divider"></div>
                         <a th:href="${'/user/' + user.userId}" class="dropdown-item" target="_blank" href="#">个人主页</a>
-                        <a href="/user/logout" class="dropdown-item">登出</a>
+                        <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                     </div>
                 </li>
             </ul>
@@ -95,84 +95,92 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalDropLabel">邮箱登录</h5>
+                    <h5 class="modal-title" id="loginModalDropLabel">二维码登录</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">邮箱</span>
-                        </div>
-                        <input id="loginEmail" type="email" class="form-control" placeholder="请输入登录邮箱"/>
+                        <img src="https://blog.hhui.top/hexblog/imgs/info/wx.jpg"
+                             style="max-width: 80%; padding-left: 10%"/>
+                        <small>关注微信公众号，输入 “登录” or "login“ 关键词，将返回的验证码填在下面的输入框，点击登录即可</small>
                     </div>
                     <br/>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">密码</span>
+                            <span class="input-group-text">验证码</span>
                         </div>
-                        <input id="loginPassword" type="password" class="form-control" placeholder="请输入登录密码"/>
+                        <input id="loginCode" type="number" class="form-control" placeholder="请输入登录验证码"/>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
-                            data-target="#registerModal">去注册
-                    </button>
+                    <button id="getToken" type="button" class="btn btn-danger">获取token(测试用)</button>
                 </div>
+                <div id="testOutput"></div>
             </div>
         </div>
     </div>
-    <!-- 注册 Modal -->
-    <div class="modal fade" id="registerModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
-         aria-labelledby="registerModalDropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="registerModalDropLabel">邮箱注册</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">邮箱</span>
-                        </div>
-                        <input id="registerEmail" type="email" class="form-control" placeholder="注册邮箱（用于接收账号激活邮件）"/>
-                    </div>
-                    <br/>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">昵称</span>
-                        </div>
-                        <input id="registerNickname" type="text" class="form-control" placeholder="给自己起个昵称呗（50字以内）"/>
-                    </div>
-                    <br/>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">密码</span>
-                        </div>
-                        <input id="registerPassword" type="password" class="form-control" placeholder="注册密码"/>
-                    </div>
-                    <br/>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">确认</span>
-                        </div>
-                        <input id="registerPassword2" type="password" class="form-control" placeholder="请再次输入注册密码"/>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="registerBtn" type="button" class="btn btn-primary">注册</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
-                            data-target="#loginModal">去登录
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
 
+    <script src="/js/jquery.min.js"></script>
+    <script>
+        $('#logoutBtn').click(function () {
+            $.ajax({
+                url: "/logout",
+                dataType: "json",
+                type: "get",
+                success: function (data) {
+                    toastr.success("已退出登录")
+                    window.location.href = "/";
+                }
+            })
+        })
+
+        $('#loginBtn').click(function () {
+            const code = $('#loginCode').val();
+            console.log("开始登录：" + code);
+            $.ajax({
+                url: "/login?code=" + code,    //请求的url地址
+                dataType: "json",   //返回格式为json
+                async: true,//请求是否异步，默认为异步，这也是ajax重要特性
+                type: "GET",   //请求方式
+                success: function (data) {
+                    //请求成功时处理
+                    console.log("response data:", data);
+                    if (!data || !data.status || data.status.code !== 0) {
+                        toastr.error(data);
+                    } else {
+                        // 登录成功，刷新
+                        window.location.href = "/";
+                    }
+                },
+                error: function () {
+                    //请求出错处理
+                    toastr.error("登录错误");
+                }
+            });
+        });
+
+        $('#getToken').click(function () {
+            $.ajax({
+                method: 'POST',
+                url: "/wx/callback",
+                contentType: 'application/xml',
+                data: "<xml><URL><![CDATA[https://hhui.top]]></URL><ToUserName><![CDATA[一灰灰blog]]></ToUserName><FromUserName><![CDATA[demoUser1234]]></FromUserName><CreateTime>1655700579</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[login]]></Content><MsgId>11111111</MsgId></xml>",
+                success: function (data) {
+                    console.log("data", data);
+                    if (!data) {
+                        toastr.error(data.message);
+                    } else {
+                        $('#testOutput').html("<bold>" + $(data).find("Content").text() + "</bold>");
+                    }
+                },
+                error: function (data) {
+                    toastr.error(data);
+                }
+            });
+        })
+    </script>
+</header>
 </html>

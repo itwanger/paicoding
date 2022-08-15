@@ -3,15 +3,14 @@ package com.github.liueyueyi.forum.test.dao;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.test.BasicTest;
-import com.github.liuyueyi.forum.service.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
 import com.github.liuyueyi.forum.service.article.impl.CategoryServiceImpl;
 import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
-import com.github.liuyueyi.forum.service.article.dto.TagDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

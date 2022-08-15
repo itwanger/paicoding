@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.web.front.comment;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
-import com.github.liuyueyi.forum.service.comment.dto.CommentTreeDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

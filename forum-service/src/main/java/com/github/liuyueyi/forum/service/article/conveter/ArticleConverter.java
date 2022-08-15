@@ -1,8 +1,8 @@
 package com.github.liuyueyi.forum.service.article.conveter;
 
 import com.github.liueyueyi.forum.api.model.enums.SourceTypeEnum;
-import com.github.liuyueyi.forum.service.article.dto.ArticleDTO;
-import com.github.liuyueyi.forum.service.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import org.springframework.stereotype.Service;
 

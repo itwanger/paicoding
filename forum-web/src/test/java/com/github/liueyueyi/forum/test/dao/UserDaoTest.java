@@ -2,7 +2,7 @@ package com.github.liueyueyi.forum.test.dao;
 
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.service.user.UserService;
-import com.github.liuyueyi.forum.service.user.dto.UserHomeDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

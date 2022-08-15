@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.comment.dto;
+package com.github.liueyueyi.forum.api.model.vo.comment.dto;
 
 import lombok.Data;
 

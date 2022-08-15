@@ -6,7 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
-import com.github.liuyueyi.forum.service.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 
 import java.util.List;
 
