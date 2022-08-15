@@ -42,7 +42,7 @@ public class LoginController {
     @ResponseBody
     @RequestMapping("logout")
     public ResVo<Boolean> logOut() {
-        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(ReqInfoContext.ReqInfo::getSession);
+        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
         return ResVo.ok(true);
     }
 

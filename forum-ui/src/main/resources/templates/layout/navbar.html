@@ -149,10 +149,11 @@
                     //请求成功时处理
                     console.log("response data:", data);
                     if (!data || !data.status || data.status.code !== 0) {
-                        toastr.error(data);
+                        toastr.error(data.status.msg);
                     } else {
                         // 登录成功，刷新
                         window.location.href = "/";
+                        toastr.success("登录成功");
                     }
                 },
                 error: function () {
