@@ -7,18 +7,19 @@ import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.service.article.ArticleService;
 import com.github.liuyueyi.forum.service.article.CategoryService;
 import com.github.liuyueyi.forum.service.article.TagService;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
+import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleTagMapper;
 import com.github.liuyueyi.forum.service.user.UserFootService;
+import com.github.liuyueyi.forum.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 文章Service
@@ -48,6 +47,9 @@ public class ArticleServiceImpl implements ArticleService {
     private CategoryService categoryService;
 
     @Resource
+    private ArticleTagMapper articleTagMapper;
+
+    @Resource
     private TagService tagService;
 
     @Resource
@@ -60,26 +62,34 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private UserFootService userFootService;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * 获取文章详情
      *
      * @param articleId
+     * @param updateReadCnt
      * @return
      */
     @Override
-    public ArticleDTO queryArticleDetail(Long articleId) {
+    public ArticleDTO queryArticleDetail(Long articleId, boolean updateReadCnt) {
         ArticleDTO article = articleRepository.queryArticleDetail(articleId);
         if (article == null) {
             throw new IllegalArgumentException("文章不存在");
         }
 
-        // 更新分类
+        if (updateReadCnt) {
+            // 阅读计数+1
+            articleRepository.count(articleId);
+        }
+
+        // 更新分类相关信息
         CategoryDTO category = article.getCategory();
         category.setCategory(categoryService.getCategoryName(category.getCategoryId()));
 
-        // 更新tagIds
-        Set<Long> tagIds = article.getTags().stream().map(TagDTO::getTagId).collect(Collectors.toSet());
-        article.setTags(tagService.getTags(tagIds));
+        // 更新标签信息
+        article.setTags(articleTagMapper.queryArticleTagDetails(articleId));
 
         // 更新统计计数
         article.setCount(userFootService.saveArticleFoot(articleId, article.getAuthor(), OperateTypeEnum.READ));
@@ -123,7 +133,12 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDTO> result = new ArrayList<>();
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
+            // 阅读计数
             dto.setCount(userFootService.queryArticleCountByArticleId(record.getId()));
+            // 作者信息
+            dto.setAuthorName(userService.getUserInfoByUserId(dto.getAuthor()).getUserName());
+            // 标签列表
+            dto.setTags(articleTagMapper.queryArticleTagDetails(record.getId()));
             result.add(dto);
         });
 
@@ -143,6 +158,10 @@ public class ArticleServiceImpl implements ArticleService {
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
             dto.setCount(userFootService.queryArticleCountByArticleId(record.getId()));
+            // 作者信息
+            dto.setAuthorName(userService.getUserInfoByUserId(dto.getAuthor()).getUserName());
+            // 标签列表
+            dto.setTags(articleTagMapper.queryArticleTagDetails(record.getId()));
             result.add(dto);
         });
 

@@ -12,9 +12,10 @@ public interface ArticleService {
      * 查询文章详情
      *
      * @param articleId
+     * @param updateReadCnt true表示阅读计数+1； false则计数不变
      * @return
      */
-    ArticleDTO queryArticleDetail(Long articleId);
+    ArticleDTO queryArticleDetail(Long articleId, boolean updateReadCnt);
 
     /**
      * 保存or更新文章

@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.article.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleTagDO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -28,4 +29,14 @@ public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
             "</foreach>" +
             "</script>")
     int batchInsert(@Param("list") List<ArticleTagDO> entityList);
+
+    /**
+     * 查询文章标签
+     * @param articleId
+     * @return
+     */
+    List<TagDTO> queryArticleTagDetails(@Param("articleId") Long articleId);
+
+
+    List<ArticleTagDO> queryArticleTags(@Param("articleId") Long articleId);
 }

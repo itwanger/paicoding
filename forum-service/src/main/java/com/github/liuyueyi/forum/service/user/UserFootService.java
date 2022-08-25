@@ -4,9 +4,9 @@ package com.github.liuyueyi.forum.service.user;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
-import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 
 import java.util.List;
 
@@ -20,9 +20,10 @@ public interface UserFootService {
 
     /**
      * 保存文章计数
-     * @param articleId
-     * @param userId
-     * @param operateTypeEnum
+     *
+     * @param articleId       文章主键
+     * @param userId          操作用户
+     * @param operateTypeEnum 操作类型
      * @return
      */
     ArticleFootCountDTO saveArticleFoot(Long articleId, Long userId, OperateTypeEnum operateTypeEnum);
@@ -73,8 +74,8 @@ public interface UserFootService {
     /**
      * 保存评论足迹
      *
-     * @param commentSaveReq  保存评论入参
-     * @param commentId  评论ID
+     * @param commentSaveReq 保存评论入参
+     * @param commentId      评论ID
      * @param articleUserId  发版文章的用户ID
      */
     void saveCommentFoot(CommentSaveReq commentSaveReq, Long commentId, Long articleUserId);

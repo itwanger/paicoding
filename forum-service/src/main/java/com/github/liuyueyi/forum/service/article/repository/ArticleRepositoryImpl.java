@@ -3,18 +3,20 @@ package com.github.liuyueyi.forum.service.article.repository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
+import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDetailDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleTagDO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ReadCountDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleDetailMapper;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleTagMapper;
+import com.github.liuyueyi.forum.service.article.repository.mapper.ReadCountMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 文章相关DB操作
@@ -40,6 +41,8 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     private ArticleDetailMapper articleDetailMapper;
     @Autowired
     private ArticleTagMapper articleTagMapper;
+    @Autowired
+    private ReadCountMapper readCountMapper;
     @Autowired
     private ArticleConverter articleConverter;
 
@@ -59,13 +62,9 @@ public class ArticleRepositoryImpl implements ArticleRepository {
 
 
         // 查询文章关联标签
-        ArticleDetailDO detail = findLatestDetail(articleId);
-        List<ArticleTagDO> tagList = findArticleTags(articleId);
-
         ArticleDTO dto = articleConverter.toDTO(article);
+        ArticleDetailDO detail = findLatestDetail(articleId);
         dto.setContent(detail.getContent());
-        // 设置标签列表
-        dto.setTags(tagList.stream().map(s -> new TagDTO(s.getTagId())).collect(Collectors.toList()));
         return dto;
     }
 
@@ -77,13 +76,6 @@ public class ArticleRepositoryImpl implements ArticleRepository {
                 .orderByDesc(ArticleDetailDO::getVersion);
         return articleDetailMapper.selectOne(contentQuery);
     }
-
-    private List<ArticleTagDO> findArticleTags(long articleId) {
-        LambdaQueryWrapper<ArticleTagDO> contentQuery = Wrappers.lambdaQuery();
-        return articleTagMapper.selectList(contentQuery.eq(ArticleTagDO::getArticleId, articleId)
-                .eq(ArticleTagDO::getDeleted, YesOrNoEnum.NO.getCode()));
-    }
-
 
     @Override
     public Long saveArticle(ArticleDO article, String content, Set<Long> tags) {
@@ -110,7 +102,7 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     }
 
     private void updateTags(Long articleId, Set<Long> newTags) {
-        List<ArticleTagDO> dbTags = findArticleTags(articleId);
+        List<ArticleTagDO> dbTags = articleTagMapper.queryArticleTags(articleId);
         // 在旧的里面，不在新的里面的标签，设置为删除
         List<Long> toDeleted = new ArrayList<>();
         dbTags.forEach(tag -> {
@@ -156,6 +148,12 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         articleTagMapper.batchInsert(insertList);
     }
 
+
+    @Override
+    public ArticleDO getSimpleArticle(Long articleId) {
+        return articleMapper.selectById(articleId);
+    }
+
     @Override
     public List<ArticleDO> getArticleListByUserId(Long userId, PageParam pageParam) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
@@ -192,5 +190,20 @@ public class ArticleRepositoryImpl implements ArticleRepository {
         query.last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId);
         return articleMapper.selectList(query);
+    }
+
+    @Override
+    public int count(Long articleId) {
+        LambdaQueryWrapper<ReadCountDO> query = Wrappers.lambdaQuery();
+        query.eq(ReadCountDO::getDocumentId, articleId).eq(ReadCountDO::getDocumentType, DocumentTypeEnum.DOCUMENT.getCode());
+        ReadCountDO record = readCountMapper.selectOne(query);
+        if (record == null) {
+            record = new ReadCountDO().setDocumentId(articleId).setDocumentType(DocumentTypeEnum.DOCUMENT.getCode()).setCnt(1);
+            readCountMapper.insert(record);
+        } else {
+            record.setCnt(record.getCnt() + 1);
+            readCountMapper.updateById(record);
+        }
+        return record.getCnt();
     }
 }

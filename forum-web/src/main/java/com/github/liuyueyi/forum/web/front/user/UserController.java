@@ -5,6 +5,8 @@ import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
@@ -28,6 +30,7 @@ import javax.annotation.Resource;
  * @date : 2022/8/3 10:56
  **/
 @Controller
+@Permission(role = UserRole.LOGIN)
 @RequestMapping(path = "user")
 @Slf4j
 public class UserController {

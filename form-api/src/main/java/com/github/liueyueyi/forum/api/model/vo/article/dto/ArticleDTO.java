@@ -31,6 +31,11 @@ public class ArticleDTO implements Serializable {
     private Long author;
 
     /**
+     * 作者名
+     */
+    private String authorName;
+
+    /**
      * 文章标题
      */
     private String title;
@@ -71,6 +76,11 @@ public class ArticleDTO implements Serializable {
      * 0 未发布 1 已发布
      */
     private Integer status;
+
+    /**
+     * 创建时间
+     */
+    private Long createTime;
 
     /**
      * 最后更新时间

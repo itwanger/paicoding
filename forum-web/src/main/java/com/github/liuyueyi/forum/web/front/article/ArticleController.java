@@ -1,16 +1,22 @@
 package com.github.liuyueyi.forum.web.front.article;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
-import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
-import com.github.liuyueyi.forum.service.article.ArticleService;
-import com.github.liuyueyi.forum.service.article.CategoryService;
-import com.github.liuyueyi.forum.service.article.TagService;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
-import com.github.liuyueyi.forum.service.user.UserService;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
+import com.github.liuyueyi.forum.service.article.ArticleService;
+import com.github.liuyueyi.forum.service.article.CategoryService;
+import com.github.liuyueyi.forum.service.article.TagService;
+import com.github.liuyueyi.forum.service.user.UserFootService;
+import com.github.liuyueyi.forum.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文章
@@ -39,6 +46,9 @@ public class ArticleController {
     private ArticleService articleService;
 
     @Autowired
+    private UserFootService userFootService;
+
+    @Autowired
     private CategoryService categoryService;
 
     @Autowired
@@ -53,10 +63,16 @@ public class ArticleController {
      * @param articleId
      * @return
      */
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "edit")
     public String edit(@RequestParam(required = false) Long articleId, Model model) {
         if (articleId != null) {
-            ArticleDTO article = articleService.queryArticleDetail(articleId);
+            ArticleDTO article = articleService.queryArticleDetail(articleId, false);
+            if (!Objects.equals(article.getAuthor(), ReqInfoContext.getReqInfo().getUserId())) {
+                // 没有权限
+                model.addAttribute("toast", "内容不存在");
+                return "redirect:403";
+            }
             model.addAttribute("article", article);
 
             List<CategoryDTO> categoryList = categoryService.loadAllCategories(false);
@@ -78,10 +94,11 @@ public class ArticleController {
     /**
      * 发布文章，完成后跳转到详情页
      * - 这里有一个重定向的知识点
-     * - 博文：* [5.请求重定向 | 一灰灰Learning](https://hhui.top/spring-web/02.response/05.190929-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8B%E9%87%8D%E5%AE%9A%E5%90%91/)
+     * - fixme 博文：* [5.请求重定向 | 一灰灰Learning](https://hhui.top/spring-web/02.response/05.190929-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8B%E9%87%8D%E5%AE%9A%E5%90%91/)
      *
      * @return
      */
+    @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
@@ -96,14 +113,14 @@ public class ArticleController {
     /**
      * 文章详情页
      * - 参数解析知识点
-     * - * [1.Get请求参数解析姿势汇总 | 一灰灰Learning](https://hhui.top/spring-web/01.request/01.190824-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8Bget%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%A7%BF%E5%8A%BF%E6%B1%87%E6%80%BB/)
+     * - fixme * [1.Get请求参数解析姿势汇总 | 一灰灰Learning](https://hhui.top/spring-web/01.request/01.190824-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8Bget%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%A7%BF%E5%8A%BF%E6%B1%87%E6%80%BB/)
      *
      * @param articleId
      * @return
      */
     @GetMapping("detail/{articleId}")
     public String detail(@PathVariable(name = "articleId") Long articleId, Model model) {
-        ArticleDTO articleDTO = articleService.queryArticleDetail(articleId);
+        ArticleDTO articleDTO = articleService.queryArticleDetail(articleId, true);
         model.addAttribute("article", articleDTO);
 
         // 作者信息
@@ -143,4 +160,24 @@ public class ArticleController {
         return ResVo.ok(list);
     }
 
+
+    /**
+     * 收藏、点赞等相关操作
+     *
+     * @param articleId
+     * @param type      取值来自于 OperateTypeEnum#code
+     * @return
+     */
+    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
+    @GetMapping(path = "favor")
+    public ResVo<ArticleFootCountDTO> favor(@RequestParam(name = "articleId") Long articleId, @RequestParam(name = "type") Integer type) {
+        OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
+        if (operate == OperateTypeEnum.EMPTY) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
+        }
+
+        ArticleFootCountDTO count = userFootService.saveArticleFoot(articleId, ReqInfoContext.getReqInfo().getUserId(), operate);
+        return ResVo.ok(count);
+    }
 }

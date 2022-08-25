@@ -5,12 +5,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.user.UserFootService;
-import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.stereotype.Service;
@@ -35,23 +34,23 @@ public class UserFootServiceImpl implements UserFootService {
 
     @Override
     public ArticleFootCountDTO saveArticleFoot(Long articleId, Long userId, OperateTypeEnum operateTypeEnum) {
-        ArticleDTO article = articleRepository.queryArticleDetail(articleId);
+        ArticleDO article = articleRepository.getSimpleArticle(articleId);
         if (article == null) {
             throw new IllegalArgumentException("文章不存在");
         }
 
         // 查询是否有该足迹
         LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, articleId)
-                .eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode())
+        query.eq(UserFootDO::getDocumentId, articleId)
+                .eq(UserFootDO::getDocumentType, DocumentTypeEnum.DOCUMENT.getCode())
                 .eq(UserFootDO::getUserId, userId);
         UserFootDO readUserFootDO = userFootMapper.selectOne(query);
         if (readUserFootDO == null) {
             UserFootDO userFootDO = new UserFootDO();
             userFootDO.setUserId(userId);
-            userFootDO.setDoucumentId(article.getArticleId());
-            userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
-            userFootDO.setDoucumentUserId(article.getAuthor());
+            userFootDO.setDocumentId(article.getId());
+            userFootDO.setDocumentType(DocumentTypeEnum.DOCUMENT.getCode());
+            userFootDO.setDocumentUserId(article.getUserId());
             userFootDO = setUserFootStat(userFootDO, operateTypeEnum);
             userFootMapper.insert(userFootDO);
         } else {
@@ -93,7 +92,7 @@ public class UserFootServiceImpl implements UserFootService {
     @Override
     public Long queryCommentPraiseCount(Long commentId) {
         LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDoucumentId, commentId)
+        query.eq(UserFootDO::getDocumentId, commentId)
                 .eq(UserFootDO::getPraiseStat, PraiseStatEnum.PRAISE.getCode());
         return userFootMapper.selectCount(query);
     }
@@ -114,9 +113,9 @@ public class UserFootServiceImpl implements UserFootService {
         // 保存评论足迹(针对文章)
         UserFootDO userFootDO = new UserFootDO();
         userFootDO.setUserId(commentSaveReq.getUserId());
-        userFootDO.setDoucumentId(commentSaveReq.getArticleId());
-        userFootDO.setDoucumentType(DocumentTypeEnum.DOCUMENT.getCode());
-        userFootDO.setDoucumentUserId(articleUserId);
+        userFootDO.setDocumentId(commentSaveReq.getArticleId());
+        userFootDO.setDocumentType(DocumentTypeEnum.DOCUMENT.getCode());
+        userFootDO.setDocumentUserId(articleUserId);
         userFootDO.setCommentId(commentId);
         userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
         userFootMapper.insert(userFootDO);
@@ -125,9 +124,9 @@ public class UserFootServiceImpl implements UserFootService {
         if (commentSaveReq.getParentCommentId() != null && commentSaveReq.getParentCommentId() != 0) {
             UserFootDO commentUserFootDO = new UserFootDO();
             commentUserFootDO.setUserId(commentSaveReq.getUserId());
-            commentUserFootDO.setDoucumentId(commentSaveReq.getParentCommentId());
-            commentUserFootDO.setDoucumentType(DocumentTypeEnum.COMMENT.getCode());
-            commentUserFootDO.setDoucumentUserId(articleUserId);
+            commentUserFootDO.setDocumentId(commentSaveReq.getParentCommentId());
+            commentUserFootDO.setDocumentType(DocumentTypeEnum.COMMENT.getCode());
+            commentUserFootDO.setDocumentUserId(articleUserId);
             commentUserFootDO.setCommentId(commentId);
             commentUserFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
             userFootMapper.insert(commentUserFootDO);
@@ -140,8 +139,8 @@ public class UserFootServiceImpl implements UserFootService {
         // 删除评论足迹(文章)
         LambdaQueryWrapper<UserFootDO> articleQuery = Wrappers.lambdaQuery();
         articleQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
-                eq(UserFootDO::getDoucumentId, commentDO.getArticleId()).
-                eq(UserFootDO::getDoucumentType, DocumentTypeEnum.DOCUMENT.getCode()).
+                eq(UserFootDO::getDocumentId, commentDO.getArticleId()).
+                eq(UserFootDO::getDocumentType, DocumentTypeEnum.DOCUMENT.getCode()).
                 eq(UserFootDO::getCommentId, commentDO.getId());
         UserFootDO articleUserFootDO = userFootMapper.selectOne(articleQuery);
         if (articleUserFootDO == null) {
@@ -154,8 +153,8 @@ public class UserFootServiceImpl implements UserFootService {
         if (commentDO.getParentCommentId() != null && commentDO.getParentCommentId() != 0) {
             LambdaQueryWrapper<UserFootDO> commentQuery = Wrappers.lambdaQuery();
             commentQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
-                    eq(UserFootDO::getDoucumentId, commentDO.getParentCommentId()).
-                    eq(UserFootDO::getDoucumentType, DocumentTypeEnum.COMMENT.getCode()).
+                    eq(UserFootDO::getDocumentId, commentDO.getParentCommentId()).
+                    eq(UserFootDO::getDocumentType, DocumentTypeEnum.COMMENT.getCode()).
                     eq(UserFootDO::getCommentId, commentDO.getId());
             UserFootDO commentUserFootDO = userFootMapper.selectOne(commentQuery);
             if (commentUserFootDO == null) {

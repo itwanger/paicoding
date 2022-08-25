@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface TagService {
 
+    List<TagDTO> getArticleTags(long articleId);
+
     /**
      * 查询类目
      *

@@ -32,6 +32,7 @@ public class ArticleConverter {
         articleDTO.setSourceType(SourceTypeEnum.formCode(articleDO.getSource()).getDesc());
         articleDTO.setSourceUrl(articleDO.getSourceUrl());
         articleDTO.setStatus(articleDO.getStatus());
+        articleDTO.setCreateTime(articleDO.getCreateTime().getTime());
         articleDTO.setLastUpdateTime(articleDO.getUpdateTime().getTime());
 
         // 设置类目id
