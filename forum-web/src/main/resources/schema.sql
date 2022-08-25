@@ -18,7 +18,7 @@ CREATE TABLE `article`
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY            `idx_category_id` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章表'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章表'
 
 
 -- forum.article_detail definition
@@ -34,7 +34,7 @@ CREATE TABLE `article_detail`
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_article_version` (`article_id`,`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章详情表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章详情表';
 
 
 -- forum.article_tag definition
@@ -49,7 +49,7 @@ CREATE TABLE `article_tag`
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY           `idx_tag_id` (`tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章标签映射';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章标签映射';
 
 
 -- forum.category definition
@@ -63,7 +63,7 @@ CREATE TABLE `category`
     `create_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='类目管理表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='类目管理表';
 
 
 -- forum.comment definition
@@ -80,7 +80,7 @@ CREATE TABLE `comment`
     PRIMARY KEY (`id`),
     KEY                 `idx_article_id` (`article_id`),
     KEY                 `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='评论表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='评论表';
 
 
 -- forum.tag definition
@@ -97,7 +97,7 @@ CREATE TABLE `tag`
     `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY           `idx_category_id` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='标签管理表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='标签管理表';
 
 -- forum.read_count 访问计数
 
@@ -124,7 +124,7 @@ CREATE TABLE `user`
     `update_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY                `key_third_account_id` (`third_account_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户登录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户登录表';
 
 
 -- forum.user_foot definition
@@ -146,7 +146,7 @@ CREATE TABLE `user_foot`
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_user_document` (`user_id`,`document_id`,`document_type`,`comment_id`),
     KEY                 `idx_document_id` (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户足迹表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户足迹表';
 
 
 -- forum.user_info definition
@@ -166,7 +166,7 @@ CREATE TABLE `user_info`
     `update_time` timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY           `key_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户个人信息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户个人信息表';
 
 
 -- forum.user_relation definition
@@ -182,7 +182,7 @@ CREATE TABLE `user_relation`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_follow` (`user_id`,`follow_user_id`),
     KEY              `key_follow_user_id` (`follow_user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户关系表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户关系表';
 
 -- 变更记录
 alter table user_relation
