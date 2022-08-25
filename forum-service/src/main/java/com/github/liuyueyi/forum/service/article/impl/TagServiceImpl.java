@@ -30,6 +30,11 @@ public class TagServiceImpl implements TagService {
     @Resource
     private TagMapper tagMapper;
 
+    @Override
+    public List<TagDTO> getArticleTags(long articleId) {
+        return null;
+    }
+
     /**
      * 查询标签
      *

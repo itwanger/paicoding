@@ -26,7 +26,7 @@ public enum OperateTypeEnum {
     private final Integer code;
     private final String desc;
 
-    public static OperateTypeEnum formCode(Integer code) {
+    public static OperateTypeEnum fromCode(Integer code) {
         for (OperateTypeEnum value : OperateTypeEnum.values()) {
             if (value.getCode().equals(code)) {
                 return value;

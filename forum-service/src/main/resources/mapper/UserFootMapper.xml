@@ -6,14 +6,14 @@
             resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
 
         SELECT
-            sum(if (praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
-            sum(if (read_stat =${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}, 1, 0)) as readCount,
-            sum(if (collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount
+            sum(if (f.praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (f.collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
+            sum(r.`cnt`) as readCount
         FROM
-            user_foot
+            user_foot as f left join read_count as r on f.document_id = r.document_id
         WHERE
-            doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
-            AND doucument_id = #{articleId}
+            f.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND f.document_id = #{articleId}
 
     </select>
 
@@ -28,8 +28,8 @@
         FROM
             user_foot
         WHERE
-            doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
-            AND doucument_user_id = #{userId}
+            document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND document_user_id = #{userId}
 
     </select>
 
@@ -51,10 +51,10 @@
             a.create_time as createTime,
             a.update_time as updateTime
         FROM user_foot as uf
-            left join article as a on a.id = uf.doucument_id
+            left join article as a on a.id = uf.document_id
         WHERE
             uf.user_id = #{userId}
-            AND uf.doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
             AND uf.collection_stat = ${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}
             AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
             AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
@@ -84,10 +84,10 @@
             a.create_time as createTime,
             a.update_time as updateTime
         FROM user_foot as uf
-            left join article as a on a.id = uf.doucument_id
+            left join article as a on a.id = uf.document_id
         WHERE
             uf.user_id = #{userId}
-            AND uf.doucument_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
             AND uf.read_stat = ${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}
             AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
             AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}

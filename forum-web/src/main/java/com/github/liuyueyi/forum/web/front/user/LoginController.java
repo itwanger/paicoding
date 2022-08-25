@@ -5,6 +5,8 @@ import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.user.LoginService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ public class LoginController {
     }
 
     @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
     public ResVo<Boolean> logOut() {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));

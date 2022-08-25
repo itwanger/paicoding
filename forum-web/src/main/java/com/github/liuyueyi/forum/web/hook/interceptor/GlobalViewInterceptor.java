@@ -1,6 +1,8 @@
 package com.github.liuyueyi.forum.web.hook.interceptor;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import lombok.Data;
@@ -8,7 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -34,6 +36,26 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            Permission permission = handlerMethod.getMethod().getAnnotation(Permission.class);
+            if (permission == null) {
+                permission = handlerMethod.getBeanType().getAnnotation(Permission.class);
+            }
+
+            if (permission == null || permission.role() == UserRole.ALL) {
+                return true;
+            }
+            if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
+                response.sendRedirect("403");
+                return false;
+            }
+
+            if (permission.role() == UserRole.ADMIN && !"admin".equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
+                response.sendRedirect("403");
+                return false;
+            }
+        }
         return true;
     }
 

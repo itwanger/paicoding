@@ -4,7 +4,6 @@ import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
-import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 
 /**
  * 用户Service接口
@@ -23,6 +22,7 @@ public interface UserService {
 
     /**
      * 保存用户
+     *
      * @param req
      * @throws Exception
      */
@@ -30,12 +30,15 @@ public interface UserService {
 
     /**
      * 保存用户详情
+     *
      * @param req
      */
     void saveUserInfo(UserInfoSaveReq req);
 
     /**
      * 查询用户详情信息
+     * todo: 可以做缓存优化
+     *
      * @param userId
      * @return
      */
@@ -44,6 +47,7 @@ public interface UserService {
 
     /**
      * 查询用户主页信息
+     *
      * @param userId
      * @return
      * @throws Exception

@@ -8,20 +8,16 @@
         <div th:style="${'' + (#strings.isEmpty(article.cover) ? 'width: 100%;' : 'width: 80%; padding-right: 10px;')}">
             <div class="form-inline" style="font-size: 0.8em">
                 <a href="/user/377887729916126" target="_blank" rel="" class="text-muted" style="padding-right: .5em">
-                    <div th:text="${'作者: ' + article.author}" class="text-muted">
+                    <div th:text="${'作者: ' + article.authorName}" class="text-muted">
                         作者
                     </div>
                 </a>
                 |
-                <div class="date" style="padding-right: .5em; padding-left: .5em">10小时前</div>
+                <div class="date" style="padding-right: .5em; padding-left: .5em" th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}">10小时前</div>
                 |
                 <div class="tag_list" style="padding-right: .5em; padding-left: .5em">
-                    <a href="/tag/Java" target="_blank" rel="" class="tag">
+                    <a th:href="'/tag/' + ${tag.tag}" th:text="${tag.tag}" target="_blank" rel="" class="tag" th:each="tag : ${article.tags}">
                         Java
-                    </a>
-                    -
-                    <a href="/tag/%E5%90%8E%E7%AB%AF" target="_blank" rel="" class="text-muted">
-                        后端
                     </a>
                 </div>
             </div>
