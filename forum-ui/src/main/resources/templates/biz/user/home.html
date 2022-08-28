@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${siteInfo.websiteName}">QuickFrom社区</title>
+</div>
+
+<body id="body" th:data-toast-message="${toast}" th:data-token="${token}">
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: header"></div>
+
+<div th:replace="layout/container :: container_left_sidebar(~{::left}, ~{::right})">
+    <left>
+        <div th:replace="biz/user/profile :: user_profile(${userHome})"></div>
+        <div th:replace="biz/user/achievement :: user_achievement(${userHome})"></div>
+        <div th:replace="biz/user/process :: user_process(${userHome})"></div>
+    </left>
+
+    <right>
+
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text" th:text="${userHome.profile}">个人简介</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
+
+            <!-- 选择标签列表 -->
+            <div th:replace="plugins/user-select-tag :: select_tag(${homeSelectTags})"></div>
+
+            <!-- 文章列表 -->
+            <content>
+                <div class="container-bg-light" style=";min-height: 700px;margin-bottom: 20px;">
+
+                    <a th:if ="${homeSelectType == 'article' || homeSelectType == 'read' || homeSelectType == 'collection'}">
+                        <div th:each="article : ${homeSelectList.articleList}">
+                            <div th:replace="plugins/user-article-card :: article_card(${article})">
+                                正文
+                            </div>
+                        </div>
+                    </a>
+
+                    <a th:if ="${homeSelectType == 'follow'}">
+                        <div th:each="follow : ${followList.userFollowList}">
+                            <div th:replace="plugins/user-follow-card :: follow_card(${follow})">
+                                正文
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </content>
+        </div>
+    </right>>
+</div>
+
+
+
+<div th:replace="layout/footer :: footer"></div>
+
+<script>
+</script>
+</body>
+</html>

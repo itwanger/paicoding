@@ -10,6 +10,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.service.article.ArticleService;
 import com.github.liuyueyi.forum.service.article.CategoryService;
 import com.github.liuyueyi.forum.service.article.TagService;
@@ -199,10 +200,18 @@ public class ArticleServiceImpl implements ArticleService {
             return articleListDTO;
         }
 
+        // 获取用户信息
+        BaseUserInfoDTO userInfoDTO = userService.getUserInfoByUserId(userId);
+
         List<ArticleDTO> articleList = new ArrayList<>();
         for (ArticleDO articleDTO : articleDTOS) {
             ArticleDTO dto = articleConverter.toDTO(articleDTO);
-            // TODO: 筛其它数据
+            // 阅读计数
+            dto.setCount(userFootService.queryArticleCountByArticleId(articleDTO.getId()));
+            // 作者信息
+            dto.setAuthorName(userInfoDTO.getUserName());
+            // 标签列表
+            dto.setTags(articleTagMapper.queryArticleTagDetails(articleDTO.getId()));
             articleList.add(dto);
         }
 
@@ -217,6 +226,9 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleListDTO getCollectionArticleListByUserId(Long userId, PageParam pageParam) {
         ArticleListDTO articleListDTO = new ArticleListDTO();
 
+        // 获取用户信息
+        BaseUserInfoDTO userInfoDTO = userService.getUserInfoByUserId(userId);
+
         List<ArticleDO> articleDTOS = userFootService.queryCollectionArticleList(userId, pageParam);
         if (articleDTOS.isEmpty()) {
             articleListDTO.setIsMore(Boolean.FALSE);
@@ -226,7 +238,12 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDTO> articleList = new ArrayList<>();
         for (ArticleDO articleDTO : articleDTOS) {
             ArticleDTO dto = articleConverter.toDTO(articleDTO);
-            // TODO: 筛其它数据
+            // 阅读计数
+            dto.setCount(userFootService.queryArticleCountByArticleId(articleDTO.getId()));
+            // 作者信息
+            dto.setAuthorName(userInfoDTO.getUserName());
+            // 标签列表
+            dto.setTags(articleTagMapper.queryArticleTagDetails(articleDTO.getId()));
             articleList.add(dto);
         }
 
@@ -241,6 +258,9 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleListDTO getReadArticleListByUserId(Long userId, PageParam pageParam) {
         ArticleListDTO articleListDTO = new ArticleListDTO();
 
+        // 获取用户信息
+        BaseUserInfoDTO userInfoDTO = userService.getUserInfoByUserId(userId);
+
         List<ArticleDO> articleDTOS = userFootService.queryReadArticleList(userId, pageParam);
         if (articleDTOS.isEmpty()) {
             articleListDTO.setIsMore(Boolean.FALSE);
@@ -250,7 +270,12 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDTO> articleList = new ArrayList<>();
         for (ArticleDO articleDTO : articleDTOS) {
             ArticleDTO dto = articleConverter.toDTO(articleDTO);
-            // TODO: 筛其它数据
+            // 阅读计数
+            dto.setCount(userFootService.queryArticleCountByArticleId(articleDTO.getId()));
+            // 作者信息
+            dto.setAuthorName(userInfoDTO.getUserName());
+            // 标签列表
+            dto.setTags(articleTagMapper.queryArticleTagDetails(articleDTO.getId()));
             articleList.add(dto);
         }
 

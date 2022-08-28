@@ -1,18 +1,23 @@
 package com.github.liuyueyi.forum.web.front.user;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.UserHomeSelectEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.UserSelectDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
-import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.user.impl.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +25,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -44,8 +53,10 @@ public class UserController {
     @Resource
     private ArticleServiceImpl articleService;
 
+    private static final List<String> selectTags = Arrays.asList("article", "read", "follow", "collection");
+
     /**
-     * 保存用户（TODO：异常需要捕获）
+     * 保存用户
      * <p>
      * fixme 用户注册，如公众号的登录方式，需要给用户补齐基本的个人信息
      *
@@ -54,21 +65,21 @@ public class UserController {
      * @throws Exception
      */
     @PostMapping(path = "saveUser")
-    public String saveUser(UserSaveReq req) throws Exception {
+    public String saveUser(UserSaveReq req) {
         userService.saveUser(req);
         return "";
     }
 
 
     /**
-     * 保存用户详情（TODO：异常需要捕获）
+     * 保存用户详情
      *
      * @param req
      * @return
      * @throws Exception
      */
     @PostMapping(path = "saveUserInfo")
-    public String saveUserInfo(UserInfoSaveReq req) throws Exception {
+    public String saveUserInfo(UserInfoSaveReq req) {
         userService.saveUserInfo(req);
         return "";
     }
@@ -76,53 +87,81 @@ public class UserController {
     /**
      * 获取用户主页信息（TODO：异常需要捕获）
      *
-     * @param userId
      * @return
      */
     @GetMapping(path = "home")
-    public String getUserHomeDTO(Long userId, Model model) throws Exception {
+    public String getUserHome(Model model, HttpServletRequest request) {
+
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
+//        userId = 5L; // for test
+
+        String selectType = request.getParameter("selectType");
+        if (selectType == null || selectType.equals(Strings.EMPTY)) {
+            selectType = UserHomeSelectEnum.ARTICLE.getCode();
+        }
+
         UserHomeDTO userHomeDTO = userService.getUserHomeDTO(userId);
+        List<UserSelectDTO> userSelectDTOS = userHomeSelectTags(selectType);
+        userHomeSelectList(selectType, userId, request, model);
+
+        model.addAttribute("homeSelectType", selectType);
+        model.addAttribute("homeSelectTags", userSelectDTOS);
         model.addAttribute("userHome", userHomeDTO);
         return "biz/user/home";
     }
 
     /**
-     * 获取我关注的用户列表（TODO：异常需要捕获）
+     * 返回选择列表标签
      *
-     * @param userId
-     * @param pageNum
-     * @param pageSize
-     * @param model
-     * @return
-     * @throws Exception
+     * @param selectType
      */
-    @GetMapping(path = "followList")
-    public String followList(Long userId, Long pageNum, Long pageSize, Model model) throws Exception {
-        pageNum = (pageNum == null) ? 1L : pageNum;
-        pageSize = (pageSize == null) ? 10L : pageSize;
-        UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, PageParam.newPageInstance(pageNum, pageSize));
-        model.addAttribute("followList", userFollowListDTO);
-        return "biz/user/followList";
+    private List<UserSelectDTO> userHomeSelectTags(String selectType) {
+        List<UserSelectDTO> userSelectDTOS = new ArrayList<>();
+        selectTags.forEach(tag -> {
+            UserSelectDTO userSelectDTO = new UserSelectDTO();
+            userSelectDTO.setSelectType(tag);
+            userSelectDTO.setSelectDesc(UserHomeSelectEnum.formCode(tag).getDesc());
+            userSelectDTO.setSelected(selectType.equals(tag) ? Boolean.TRUE : Boolean.FALSE);
+            userSelectDTOS.add(userSelectDTO);
+        });
+        return userSelectDTOS;
     }
 
-
     /**
-     * 获取我关注的用户列表（TODO：异常需要捕获）
+     * 返回选择列表
      *
+     * @param homeSelectType
      * @param userId
-     * @param pageNum
-     * @param pageSize
      * @param model
-     * @return
-     * @throws Exception
      */
-    @GetMapping(path = "fansList")
-    public String fansList(Long userId, Long pageNum, Long pageSize, Model model) throws Exception {
-        pageNum = (pageNum == null) ? 1L : pageNum;
-        pageSize = (pageSize == null) ? 10L : pageSize;
-        UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, PageParam.newPageInstance(pageNum, pageSize));
-        model.addAttribute("fansList", userFollowListDTO);
-        return "biz/user/fansList";
+    private void userHomeSelectList(String homeSelectType, Long userId, HttpServletRequest request, Model model) {
+        PageParam pageParam = PageParam.newPageInstance(1L, 10L);
+        if (homeSelectType.equals(UserHomeSelectEnum.ARTICLE.getCode())) {
+            ArticleListDTO articleListDTO = articleService.getArticleListByUserId(userId, pageParam);
+            model.addAttribute("homeSelectList", articleListDTO);
+        } else if (homeSelectType.equals(UserHomeSelectEnum.READ.getCode())) {
+            ArticleListDTO articleListDTO = articleService.getReadArticleListByUserId(userId, pageParam);
+            model.addAttribute("homeSelectList", articleListDTO);
+        }  else if (homeSelectType.equals(UserHomeSelectEnum.COLLECTION.getCode())) {
+            ArticleListDTO articleListDTO = articleService.getCollectionArticleListByUserId(userId, pageParam);
+            model.addAttribute("homeSelectList", articleListDTO);
+        } else if (homeSelectType.equals(UserHomeSelectEnum.FOLLOW.getCode())) {
+
+            // 关注用户与被关注用户
+            String selectType = request.getParameter("followType");
+            if (selectType == null || selectType.equals(Strings.EMPTY)) {
+                selectType = FollowTypeEnum.FOLLOW.getCode();
+            }
+
+            if (selectType.equals(FollowTypeEnum.FOLLOW.getCode())) {
+                UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
+                model.addAttribute("followList", userFollowListDTO);
+            } else {
+                UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
+                model.addAttribute("fansList", userFollowListDTO);
+            }
+            model.addAttribute("followType", selectType);
+        }
     }
 
     /**
@@ -137,62 +176,4 @@ public class UserController {
         userRelationService.saveUserRelation(req);
         return "";
     }
-
-    /**
-     * 获取用户文章列表
-     *
-     * @param userId
-     * @param pageNum
-     * @param pageSize
-     * @param model
-     * @return
-     */
-    @GetMapping(path = "articleList")
-    public String getArticleList(Long userId, Long pageNum, Long pageSize, Model model) {
-        pageNum = (pageNum == null) ? 1L : pageNum;
-        pageSize = (pageSize == null) ? 10L : pageSize;
-
-        ArticleListDTO articleListDTO = articleService.getArticleListByUserId(userId, PageParam.newPageInstance(pageNum, pageSize));
-        model.addAttribute("articleList", articleListDTO);
-        return "biz/user/articleList";
-    }
-
-    /**
-     * 获取用户收藏的文章列表
-     *
-     * @param userId
-     * @param pageNum
-     * @param pageSize
-     * @param model
-     * @return
-     */
-    @GetMapping(path = " collectionArticleList")
-    public String getCollectionArticleList(Long userId, Long pageNum, Long pageSize, Model model) {
-        pageNum = (pageNum == null) ? 1L : pageNum;
-        pageSize = (pageSize == null) ? 10L : pageSize;
-
-        ArticleListDTO articleListDTO = articleService.getCollectionArticleListByUserId(userId, PageParam.newPageInstance(pageNum, pageSize));
-        model.addAttribute("collectionArticleList", articleListDTO);
-        return "biz/user/collectionArticleList";
-    }
-
-    /**
-     * 获取用户阅读的文章列表
-     *
-     * @param userId
-     * @param pageNum
-     * @param pageSize
-     * @param model
-     * @return
-     */
-    @GetMapping(path = "readArticleList")
-    public String getReadArticleList(Long userId, Long pageNum, Long pageSize, Model model) {
-        pageNum = (pageNum == null) ? 1L : pageNum;
-        pageSize = (pageSize == null) ? 10L : pageSize;
-
-        ArticleListDTO articleListDTO = articleService.getReadArticleListByUserId(userId, PageParam.newPageInstance(pageNum, pageSize));
-        model.addAttribute("readArticleList", articleListDTO);
-        return "biz/user/readArticleList";
-    }
-
 }

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="follow_card(list)" class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
+    <div class="card-body d-flex align-content-start flex-wrap type-box">
+        <a th:each="follow : ${list}">
+            <p th:text="${follow.userName} + '  ' + ${follow.profile}">用户名</p>
+<!--            <p th:text="${follow.profile}">用户简介</p>-->
+        </a>
+    </div>
+</div>
+
+</html>

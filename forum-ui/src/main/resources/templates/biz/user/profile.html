@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 
 <!-- 用户卡片 -->
-<div class="card" th:fragment="user_card(user)">
+<div class="card" th:fragment="user_profile(user)">
     <div class="card-body">
         <div class="d-inline-flex p-2">
             <div class="d-flex">
@@ -12,20 +12,12 @@
             </div>
             <div class="d-flex flex-column justify-content-center">
                 <h5 class="card-title" th:text="${user.userName}">一灰灰</h5>
-                <p class="card-text" th:text="${user.profile}">
-                    伪全栈*真后端(求👍，求🌟 求👋 )
-                    微信公众号：一灰灰Blog
-                </p>
             </div>
         </div>
-        <hr/>
         <ul>
-            <li th:text="'获得点赞:' + ${user.praiseCount}">点赞数</li>
-            <li th:text="'文章被阅读:' + ${user.readCount}">阅读数</li>
+            <li th:text="'关注数: ' + ${user.fansCount}">关注数</li>
+            <li th:text="'粉丝数: ' + ${user.followCount}">粉丝数</li>
         </ul>
-        <a href="#" class="btn btn-primary">
-            关注
-        </a>
     </div>
 </div>
 

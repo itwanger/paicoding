@@ -3,7 +3,7 @@ package com.github.liueyueyi.forum.api.model.enums;
 import lombok.Getter;
 
 /**
- * 关注类型枚举
+ * 关注状态枚举
  *
  * @author louzai
  * @since 2022/7/19

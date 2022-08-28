@@ -66,6 +66,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             modelAndView.getModel().put("siteInfo", globalViewConfig);
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
                 modelAndView.getModel().put("isLogin", false);
+
             } else {
                 modelAndView.getModel().put("isLogin", true);
                 modelAndView.getModel().put("user", userService.getUserHomeDTO(ReqInfoContext.getReqInfo().getUserId()));

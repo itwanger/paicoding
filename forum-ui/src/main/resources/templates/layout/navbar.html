@@ -3,7 +3,8 @@
 
 <header>
     <nav id="bodyNav" th:data-islogin="${isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand" th:href="${'/user/home'}">
+<!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
             <img th:src="${siteInfo.websiteLogoUrl}"
                  th:alt="${siteInfo.websiteName}"
                  src="https://static.developers.pub/logo.jpeg" width="30" height="30" alt="" loading="lazy">
