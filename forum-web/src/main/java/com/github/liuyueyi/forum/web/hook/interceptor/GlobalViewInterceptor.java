@@ -8,6 +8,7 @@ import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.method.HandlerMethod;
@@ -33,6 +34,8 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
     private GlobalViewConfig globalViewConfig;
     @Resource
     private UserService userService;
+    @Value("${env.name}")
+    private String env;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -63,6 +66,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         // 重定向请求不需要添加
         if (!ObjectUtils.isEmpty(modelAndView)) {
+            modelAndView.getModel().put("env", env);
             modelAndView.getModel().put("siteInfo", globalViewConfig);
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
                 modelAndView.getModel().put("isLogin", false);

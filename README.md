@@ -15,6 +15,10 @@ quick-forum
 - 创建数据库, 命名为 forum
 - 初始化表结构和demo数据, 可以直接导入 [test-data.sql](forum-web/src/main/resources/test-data.sql)
 
+## 部署教程
+
+- [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
+
 ## todo
 
 1. 权限限制（包括菜单权限）

@@ -33,7 +33,9 @@ function restart() {
 if [ $# == 0 ]; then
   echo "miss command: start | restart"
 elif [ $1 == 'start' ]; then
-    start
+  start
 elif [ $1 == 'restart' ];then
-    restart
+  restart
+else
+  echo 'illegal command, support cmd: start | restart'
 fi

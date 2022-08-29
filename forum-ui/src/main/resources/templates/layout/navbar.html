@@ -117,7 +117,8 @@
                 </div>
                 <div class="modal-footer">
                     <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
-                    <button id="getToken" type="button" class="btn btn-danger">获取token(测试用)</button>
+                    <!-- 非生产环境，使用模拟登陆  -->
+                    <button th:if="${#strings.isEmpty(env) || env != 'prod'}" id="getToken" type="button" class="btn btn-danger">获取token(测试用)</button>
                 </div>
                 <div id="testOutput"></div>
             </div>
@@ -125,64 +126,7 @@
     </div>
 
     <script src="/js/jquery.min.js"></script>
-    <script>
-        $('#logoutBtn').click(function () {
-            $.ajax({
-                url: "/logout",
-                dataType: "json",
-                type: "get",
-                success: function (data) {
-                    toastr.success("已退出登录")
-                    window.location.href = "/";
-                }
-            })
-        })
-
-        $('#loginBtn').click(function () {
-            const code = $('#loginCode').val();
-            console.log("开始登录：" + code);
-            $.ajax({
-                url: "/login?code=" + code,    //请求的url地址
-                dataType: "json",   //返回格式为json
-                async: true,//请求是否异步，默认为异步，这也是ajax重要特性
-                type: "GET",   //请求方式
-                success: function (data) {
-                    //请求成功时处理
-                    console.log("response data:", data);
-                    if (!data || !data.status || data.status.code !== 0) {
-                        toastr.error(data.status.msg);
-                    } else {
-                        // 登录成功，刷新
-                        window.location.href = "/";
-                        toastr.success("登录成功");
-                    }
-                },
-                error: function () {
-                    //请求出错处理
-                    toastr.error("登录错误");
-                }
-            });
-        });
-
-        $('#getToken').click(function () {
-            $.ajax({
-                method: 'POST',
-                url: "/wx/callback",
-                contentType: 'application/xml',
-                data: "<xml><URL><![CDATA[https://hhui.top]]></URL><ToUserName><![CDATA[一灰灰blog]]></ToUserName><FromUserName><![CDATA[demoUser1234]]></FromUserName><CreateTime>1655700579</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[login]]></Content><MsgId>11111111</MsgId></xml>",
-                success: function (data) {
-                    console.log("data", data);
-                    if (!data) {
-                        toastr.error(data.message);
-                    } else {
-                        $('#testOutput').html("<bold>" + $(data).find("Content").text() + "</bold>");
-                    }
-                },
-                error: function (data) {
-                    toastr.error(data);
-                }
-            });
-        })
-    </script>
+    <script src="/js/login.js"></script>
+    <script src="/js/mock.js" th:if="${#strings.isEmpty(env) || env != 'prod'}"></script>
 </header>
 </html>
