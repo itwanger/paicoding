@@ -55,7 +55,8 @@ public class LoginController {
      * @param request
      * @return
      */
-    @GetMapping(path = "msg/callback")
+    @GetMapping(path = "wx/callback")
+    @ResponseBody
     public String check(HttpServletRequest request) {
         String echoStr = request.getParameter("echostr");
         if (StringUtils.isNoneEmpty(echoStr)) {
