@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -33,8 +34,7 @@ import java.util.List;
 
 
 /**
- * 用户
- * fixme url 签名改一下, 用户注册、取消，登录、登出
+ * 用户注册、取消，登录、登出
  *
  * @author lvmenglou
  * @date : 2022/8/3 10:56
@@ -104,19 +104,23 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "home")
-    public String getUserHome(Model model, HttpServletRequest request) {
+    public String getUserHome(@RequestParam(name = "homeSelectType") String homeSelectType,
+                              @RequestParam(name = "followSelectType") String followSelectType,
+                              Model model) {
 
         Long userId = ReqInfoContext.getReqInfo().getUserId();
 //        userId = 5L; // for test
 
-        String homeSelectType = request.getParameter("homeSelectType");
         if (homeSelectType == null || homeSelectType.equals(Strings.EMPTY)) {
             homeSelectType = HomeSelectEnum.ARTICLE.getCode();
+        }
+        if (followSelectType == null || followSelectType.equals(Strings.EMPTY)) {
+            followSelectType = FollowTypeEnum.FOLLOW.getCode();
         }
 
         UserHomeDTO userHomeDTO = userService.getUserHomeDTO(userId);
         List<TagSelectDTO> homeSelectTags = homeSelectTags(homeSelectType);
-        userHomeSelectList(homeSelectType, userId, request, model);
+        userHomeSelectList(homeSelectType, followSelectType, userId, model);
 
         model.addAttribute("homeSelectType", homeSelectType);
         model.addAttribute("homeSelectTags", homeSelectTags);
@@ -167,7 +171,7 @@ public class UserController {
      * @param userId
      * @param model
      */
-    private void userHomeSelectList(String homeSelectType, Long userId, HttpServletRequest request, Model model) {
+    private void userHomeSelectList(String homeSelectType, String followSelectType, Long userId,  Model model) {
         PageParam pageParam = PageParam.newPageInstance(1L, 10L);
         if (homeSelectType.equals(HomeSelectEnum.ARTICLE.getCode())) {
             ArticleListDTO articleListDTO = articleService.getArticleListByUserId(userId, pageParam);
@@ -181,11 +185,6 @@ public class UserController {
         } else if (homeSelectType.equals(HomeSelectEnum.FOLLOW.getCode())) {
 
             // 关注用户与被关注用户
-            String followSelectType = request.getParameter("followSelectType");
-            if (followSelectType == null || followSelectType.equals(Strings.EMPTY)) {
-                followSelectType = FollowTypeEnum.FOLLOW.getCode();
-            }
-
             // 获取选择标签
             List<TagSelectDTO> followSelectTags = followSelectTags(followSelectType);
 
@@ -200,5 +199,4 @@ public class UserController {
             model.addAttribute("followSelectTags", followSelectTags);
         }
     }
-
 }

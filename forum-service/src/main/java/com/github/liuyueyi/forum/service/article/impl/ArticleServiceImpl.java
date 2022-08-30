@@ -158,6 +158,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDTO> result = new ArrayList<>();
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
+            // 阅读计数
             dto.setCount(userFootService.queryArticleCountByArticleId(record.getId()));
             // 作者信息
             dto.setAuthorName(userService.getUserInfoByUserId(dto.getAuthor()).getUserName());

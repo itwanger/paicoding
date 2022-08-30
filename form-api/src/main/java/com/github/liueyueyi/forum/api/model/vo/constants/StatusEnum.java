@@ -13,6 +13,8 @@ public enum StatusEnum {
     ILLEGAL_ARGUMENTS(400_001, "参数异常"),
     ILLEGAL_ARGUMENTS_MIXED(400_002, "参数异常:%s"),
 
+    ILLEGAL_S(400_002, "参数异常:%s"),
+
     LOGIN_FAILED_MIXED(403_001, "登录失败:%s"),
     ;
 

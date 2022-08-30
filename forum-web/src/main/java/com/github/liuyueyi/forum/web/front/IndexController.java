@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -39,6 +40,20 @@ public class IndexController {
         sideBarItems(model);
         model.addAttribute("currentDomain", "article");
         return "index";
+    }
+
+    /**
+     * 查询文章列表
+     *
+     * @param model
+     */
+    @GetMapping(path = "search")
+    public String searchArticleList(@RequestParam(name = "key") String key, Model model) {
+        PageParam page = PageParam.newPageInstance(1L, 10L);
+        ArticleListDTO list = articleService.queryArticlesBySearchKey(key, page);
+        model.addAttribute("articles", list);
+        sideBarItems(model);
+        return "biz/article/search";
     }
 
     /**
@@ -85,22 +100,6 @@ public class IndexController {
     }
 
     /**
-     * 查询文章列表
-     *
-     * @param model
-     * @param request
-     * @param key
-     */
-    private void searchArticleList(Model model, HttpServletRequest request, String key) {
-        AtomicReference<Long> page = new AtomicReference<>(1L);
-        AtomicReference<Long> pageNum = new AtomicReference<>(20L);
-        Optional.ofNullable(request.getParameter("page")).ifPresent(p -> page.set(Long.parseLong(p)));
-        Optional.ofNullable(request.getParameter("size")).ifPresent(p -> pageNum.set(Long.parseLong(p)));
-        ArticleListDTO list = articleService.queryArticlesBySearchKey(key, PageParam.newPageInstance(page.get(), pageNum.get()));
-        model.addAttribute("articles", list);
-    }
-
-    /**
      * 轮播图
      *
      * @return
@@ -126,6 +125,7 @@ public class IndexController {
         res.add(MapUtils.create("title", "标签云", "desc", "java, web, html"));
         model.addAttribute("sideBarItems", res);
     }
+
 
     @GetMapping(path = "/403")
     public String _403() {
