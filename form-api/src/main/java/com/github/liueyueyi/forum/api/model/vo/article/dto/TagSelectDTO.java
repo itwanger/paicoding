@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
+ * 通用标签选择
+ *
  * @author LouZai
  * @date 2022/8/28
  */
 @Data
-public class UserSelectDTO implements Serializable {
+public class TagSelectDTO implements Serializable {
 
     /**
      * 类型

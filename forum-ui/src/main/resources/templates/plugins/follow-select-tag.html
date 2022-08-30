@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="select_tag(list)" class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
+    <div class="card-body d-flex align-content-start flex-wrap type-box">
+        <a th:each="selectTag : ${list}"
+           th:text="${selectTag.selectDesc}"
+           th:href="${'?homeSelectType=follow&followSelectType=' + selectTag.selectType}"
+           th:class="${'btn ' + (selectTag.selected ? 'btn-primary' : '')}"
+           th:style="${'margin: 0.5em;' + (selectTag.selected ? 'color: #fff;' : '')}"
+           style="margin: 0.1em;color: #fff;"
+           class="btn btn-primary">关注用户/粉丝</a>
+    </div>
+</div>
+
+</html>

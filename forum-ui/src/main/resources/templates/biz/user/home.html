@@ -26,7 +26,7 @@
         <div class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
 
             <!-- 选择标签列表 -->
-            <div th:replace="plugins/user-select-tag :: select_tag(${homeSelectTags})"></div>
+            <div th:replace="plugins/home-select-tag :: select_tag(${homeSelectTags})"></div>
 
             <!-- 文章列表 -->
             <content>
@@ -41,11 +41,25 @@
                     </a>
 
                     <a th:if ="${homeSelectType == 'follow'}">
-                        <div th:each="follow : ${followList.userFollowList}">
-                            <div th:replace="plugins/user-follow-card :: follow_card(${follow})">
-                                正文
+
+                        <!-- 选择标签列表 -->
+                        <div th:replace="plugins/follow-select-tag :: select_tag(${followSelectTags})"></div>
+
+                        <a th:if ="${followSelectType == 'follow'}">
+                            <div th:each="follow : ${followList.userFollowList}">
+                                <div th:replace="plugins/user-follow-card :: follow_card(${follow})">
+                                    正文
+                                </div>
                             </div>
-                        </div>
+                        </a>
+
+                        <a th:if ="${followSelectType == 'fans'}">
+                            <div th:each="follow : ${fansList.userFollowList}">
+                                <div th:replace="plugins/user-follow-card :: follow_card(${follow})">
+                                    正文
+                                </div>
+                            </div>
+                        </a>
                     </a>
                 </div>
             </content>

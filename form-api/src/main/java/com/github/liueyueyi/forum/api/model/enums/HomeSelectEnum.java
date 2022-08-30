@@ -9,14 +9,14 @@ import lombok.Getter;
  * @since 2022/7/19
  */
 @Getter
-public enum UserHomeSelectEnum {
+public enum HomeSelectEnum {
 
     ARTICLE("article", "文章"),
     READ("read", "浏览记录"),
     FOLLOW("follow", "关注"),
     COLLECTION("collection", "收藏");
 
-    UserHomeSelectEnum(String code, String desc) {
+    HomeSelectEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
     }
@@ -24,12 +24,12 @@ public enum UserHomeSelectEnum {
     private final String code;
     private final String desc;
 
-    public static UserHomeSelectEnum formCode(String code) {
-        for (UserHomeSelectEnum value : UserHomeSelectEnum.values()) {
+    public static HomeSelectEnum formCode(String code) {
+        for (HomeSelectEnum value : HomeSelectEnum.values()) {
             if (value.getCode().equals(code)) {
                 return value;
             }
         }
-        return UserHomeSelectEnum.ARTICLE;
+        return HomeSelectEnum.ARTICLE;
     }
 }

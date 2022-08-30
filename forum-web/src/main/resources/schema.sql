@@ -11,14 +11,14 @@ CREATE TABLE `article`
     `summary`      varchar(300) NOT NULL DEFAULT '' COMMENT '文章摘要',
     `category_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '类目ID',
     `source`       tinyint      NOT NULL DEFAULT '1' COMMENT '来源：1-转载，2-原创，3-翻译',
-    `sourceUrl`    varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
+    `source_url`   varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
     `status`       tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`      tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY            `idx_category_id` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章表'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章表';
 
 
 -- forum.article_detail definition
@@ -185,18 +185,17 @@ CREATE TABLE `user_relation`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户关系表';
 
 -- 变更记录
-alter table user_relation
-    add `follow_state` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注';
-alter table comment change parent_comment_id `parent_comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父评论ID';
-alter table user_foot add `document_user_id` int unsigned NOT NULL COMMENT '发布该文档的用户ID';
-alter table user_foot
-    add `comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '当前发起评论的ID';
-alter table user_foot change praise_stat `praise_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '点赞状态: 0-未点赞，1-已点赞';
-alter table user_foot change collection_stat `collection_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '收藏状态: 0-未收藏，1-已收藏';
-alter table user_foot change comment_stat `comment_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '评论状态: 0-未评论，1-已评论';
-drop index idx_user_document on user_foot;
-alter table user_foot add unique index `idx_user_document` (`user_id`,`document_id`,`document_type`,`comment_id`);
-
-alter table user_foot rename column doucument_id to document_id;
-alter table user_foot rename column doucument_type to document_type;
-alter table user_foot rename column doucument_user_id to document_user_id;
+# alter table user_relation
+#     add `follow_state` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注';
+# alter table comment change parent_comment_id `parent_comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父评论ID';
+# alter table user_foot add `document_user_id` int unsigned NOT NULL COMMENT '发布该文档的用户ID';
+# alter table user_foot
+#     add `comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '当前发起评论的ID';
+# alter table user_foot change praise_stat `praise_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '点赞状态: 0-未点赞，1-已点赞';
+# alter table user_foot change collection_stat `collection_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '收藏状态: 0-未收藏，1-已收藏';
+# alter table user_foot change comment_stat `comment_stat` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '评论状态: 0-未评论，1-已评论';
+# drop index idx_user_document on user_foot;
+# alter table user_foot add unique index `idx_user_document` (`user_id`,`document_id`,`document_type`,`comment_id`);
+# alter table user_foot rename column doucument_id to document_id;
+# alter table user_foot rename column doucument_type to document_type;
+# alter table user_foot rename column doucument_user_id to document_user_id;

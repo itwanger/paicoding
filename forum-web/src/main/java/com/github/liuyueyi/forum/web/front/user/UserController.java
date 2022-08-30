@@ -1,11 +1,12 @@
 package com.github.liuyueyi.forum.web.front.user;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
 import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
-import com.github.liueyueyi.forum.api.model.enums.UserHomeSelectEnum;
+import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.UserSelectDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
@@ -53,7 +54,8 @@ public class UserController {
     @Resource
     private ArticleServiceImpl articleService;
 
-    private static final List<String> selectTags = Arrays.asList("article", "read", "follow", "collection");
+    private static final List<String> homeSelectTags = Arrays.asList("article", "read", "follow", "collection");
+    private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
 
     /**
      * 保存用户
@@ -70,7 +72,6 @@ public class UserController {
         return "";
     }
 
-
     /**
      * 保存用户详情
      *
@@ -85,86 +86,6 @@ public class UserController {
     }
 
     /**
-     * 获取用户主页信息（TODO：异常需要捕获）
-     *
-     * @return
-     */
-    @GetMapping(path = "home")
-    public String getUserHome(Model model, HttpServletRequest request) {
-
-        Long userId = ReqInfoContext.getReqInfo().getUserId();
-//        userId = 5L; // for test
-
-        String selectType = request.getParameter("selectType");
-        if (selectType == null || selectType.equals(Strings.EMPTY)) {
-            selectType = UserHomeSelectEnum.ARTICLE.getCode();
-        }
-
-        UserHomeDTO userHomeDTO = userService.getUserHomeDTO(userId);
-        List<UserSelectDTO> userSelectDTOS = userHomeSelectTags(selectType);
-        userHomeSelectList(selectType, userId, request, model);
-
-        model.addAttribute("homeSelectType", selectType);
-        model.addAttribute("homeSelectTags", userSelectDTOS);
-        model.addAttribute("userHome", userHomeDTO);
-        return "biz/user/home";
-    }
-
-    /**
-     * 返回选择列表标签
-     *
-     * @param selectType
-     */
-    private List<UserSelectDTO> userHomeSelectTags(String selectType) {
-        List<UserSelectDTO> userSelectDTOS = new ArrayList<>();
-        selectTags.forEach(tag -> {
-            UserSelectDTO userSelectDTO = new UserSelectDTO();
-            userSelectDTO.setSelectType(tag);
-            userSelectDTO.setSelectDesc(UserHomeSelectEnum.formCode(tag).getDesc());
-            userSelectDTO.setSelected(selectType.equals(tag) ? Boolean.TRUE : Boolean.FALSE);
-            userSelectDTOS.add(userSelectDTO);
-        });
-        return userSelectDTOS;
-    }
-
-    /**
-     * 返回选择列表
-     *
-     * @param homeSelectType
-     * @param userId
-     * @param model
-     */
-    private void userHomeSelectList(String homeSelectType, Long userId, HttpServletRequest request, Model model) {
-        PageParam pageParam = PageParam.newPageInstance(1L, 10L);
-        if (homeSelectType.equals(UserHomeSelectEnum.ARTICLE.getCode())) {
-            ArticleListDTO articleListDTO = articleService.getArticleListByUserId(userId, pageParam);
-            model.addAttribute("homeSelectList", articleListDTO);
-        } else if (homeSelectType.equals(UserHomeSelectEnum.READ.getCode())) {
-            ArticleListDTO articleListDTO = articleService.getReadArticleListByUserId(userId, pageParam);
-            model.addAttribute("homeSelectList", articleListDTO);
-        }  else if (homeSelectType.equals(UserHomeSelectEnum.COLLECTION.getCode())) {
-            ArticleListDTO articleListDTO = articleService.getCollectionArticleListByUserId(userId, pageParam);
-            model.addAttribute("homeSelectList", articleListDTO);
-        } else if (homeSelectType.equals(UserHomeSelectEnum.FOLLOW.getCode())) {
-
-            // 关注用户与被关注用户
-            String selectType = request.getParameter("followType");
-            if (selectType == null || selectType.equals(Strings.EMPTY)) {
-                selectType = FollowTypeEnum.FOLLOW.getCode();
-            }
-
-            if (selectType.equals(FollowTypeEnum.FOLLOW.getCode())) {
-                UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
-                model.addAttribute("followList", userFollowListDTO);
-            } else {
-                UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
-                model.addAttribute("fansList", userFollowListDTO);
-            }
-            model.addAttribute("followType", selectType);
-        }
-    }
-
-    /**
      * 保存用户关系
      *
      * @param req
@@ -176,4 +97,108 @@ public class UserController {
         userRelationService.saveUserRelation(req);
         return "";
     }
+
+    /**
+     * 获取用户主页信息（TODO：异常需要捕获）
+     *
+     * @return
+     */
+    @GetMapping(path = "home")
+    public String getUserHome(Model model, HttpServletRequest request) {
+
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
+//        userId = 5L; // for test
+
+        String homeSelectType = request.getParameter("homeSelectType");
+        if (homeSelectType == null || homeSelectType.equals(Strings.EMPTY)) {
+            homeSelectType = HomeSelectEnum.ARTICLE.getCode();
+        }
+
+        UserHomeDTO userHomeDTO = userService.getUserHomeDTO(userId);
+        List<TagSelectDTO> homeSelectTags = homeSelectTags(homeSelectType);
+        userHomeSelectList(homeSelectType, userId, request, model);
+
+        model.addAttribute("homeSelectType", homeSelectType);
+        model.addAttribute("homeSelectTags", homeSelectTags);
+        model.addAttribute("userHome", userHomeDTO);
+        return "biz/user/home";
+    }
+
+    /**
+     * 返回Home页选择列表标签
+     *
+     * @param selectType
+     * @return
+     */
+    private List<TagSelectDTO> homeSelectTags(String selectType) {
+        List<TagSelectDTO> tagSelectDTOS = new ArrayList<>();
+        homeSelectTags.forEach(tag -> {
+            TagSelectDTO tagSelectDTO = new TagSelectDTO();
+            tagSelectDTO.setSelectType(tag);
+            tagSelectDTO.setSelectDesc(HomeSelectEnum.formCode(tag).getDesc());
+            tagSelectDTO.setSelected(selectType.equals(tag) ? Boolean.TRUE : Boolean.FALSE);
+            tagSelectDTOS.add(tagSelectDTO);
+        });
+        return tagSelectDTOS;
+    }
+
+    /**
+     * 返回关注用户选择列表标签
+     *
+     * @param selectType
+     * @return
+     */
+    private List<TagSelectDTO> followSelectTags(String selectType) {
+        List<TagSelectDTO> tagSelectDTOS = new ArrayList<>();
+        followSelectTags.forEach(tag -> {
+            TagSelectDTO tagSelectDTO = new TagSelectDTO();
+            tagSelectDTO.setSelectType(tag);
+            tagSelectDTO.setSelectDesc(FollowSelectEnum.formCode(tag).getDesc());
+            tagSelectDTO.setSelected(selectType.equals(tag) ? Boolean.TRUE : Boolean.FALSE);
+            tagSelectDTOS.add(tagSelectDTO);
+        });
+        return tagSelectDTOS;
+    }
+
+    /**
+     * 返回选择列表
+     *
+     * @param homeSelectType
+     * @param userId
+     * @param model
+     */
+    private void userHomeSelectList(String homeSelectType, Long userId, HttpServletRequest request, Model model) {
+        PageParam pageParam = PageParam.newPageInstance(1L, 10L);
+        if (homeSelectType.equals(HomeSelectEnum.ARTICLE.getCode())) {
+            ArticleListDTO articleListDTO = articleService.getArticleListByUserId(userId, pageParam);
+            model.addAttribute("homeSelectList", articleListDTO);
+        } else if (homeSelectType.equals(HomeSelectEnum.READ.getCode())) {
+            ArticleListDTO articleListDTO = articleService.getReadArticleListByUserId(userId, pageParam);
+            model.addAttribute("homeSelectList", articleListDTO);
+        }  else if (homeSelectType.equals(HomeSelectEnum.COLLECTION.getCode())) {
+            ArticleListDTO articleListDTO = articleService.getCollectionArticleListByUserId(userId, pageParam);
+            model.addAttribute("homeSelectList", articleListDTO);
+        } else if (homeSelectType.equals(HomeSelectEnum.FOLLOW.getCode())) {
+
+            // 关注用户与被关注用户
+            String followSelectType = request.getParameter("followSelectType");
+            if (followSelectType == null || followSelectType.equals(Strings.EMPTY)) {
+                followSelectType = FollowTypeEnum.FOLLOW.getCode();
+            }
+
+            // 获取选择标签
+            List<TagSelectDTO> followSelectTags = followSelectTags(followSelectType);
+
+            if (followSelectType.equals(FollowTypeEnum.FOLLOW.getCode())) {
+                UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
+                model.addAttribute("followList", userFollowListDTO);
+            } else {
+                UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
+                model.addAttribute("fansList", userFollowListDTO);
+            }
+            model.addAttribute("followSelectType", followSelectType);
+            model.addAttribute("followSelectTags", followSelectTags);
+        }
+    }
+
 }
