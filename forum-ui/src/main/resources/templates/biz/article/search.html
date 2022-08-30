@@ -9,36 +9,21 @@
 <div th:replace="layout/navbar :: header"></div>
 
 <!-- 正文内容 -->
-
-<div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
-    <left>
-        <!-- 文章列表 -->
-        <content>
-            <div class="container-bg-light"
-                 style=";min-height: 700px;margin-bottom: 20px;">
-                <div th:each="article : ${articles.articleList}">
-                    <div th:replace="plugins/article-card :: article_card(${article})">
-                        正文
-                    </div>
-                </div>
-                <div th:if="${#lists.isEmpty(articles.articleList)}">
-                    <a>没有查询到任何记录。</a>
+<div th:replace="layout/container :: container_all(~{::content})">
+    <!-- 文章列表 -->
+    <content>
+        <div class="container-bg-light"
+             style=";min-height: 700px;margin-bottom: 20px;">
+            <div th:each="article : ${articles.articleList}">
+                <div th:replace="plugins/article-card :: article_card(${article})">
+                    正文
                 </div>
             </div>
-        </content>
-    </left>
-    <right>
-        <!-- 登录用户信息 -->
-        <div th:if="${isLogin}">
-            <div th:replace="plugins/user-card :: user_card(${user})"></div>
+            <div th:if="${#lists.isEmpty(articles.articleList)}">
+                <a>没有查询到任何记录。</a>
+            </div>
         </div>
-
-        <!-- 公告 -->
-        <div th:if="${!#lists.isEmpty(sideBarItems)}"
-             th:each="item : ${sideBarItems}">
-            <div th:replace="plugins/normal-card :: normal_card(${item})"/>
-        </div>
-    </right>
+    </content>
 </div>
 
 
