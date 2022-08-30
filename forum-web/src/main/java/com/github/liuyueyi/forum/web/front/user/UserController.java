@@ -12,8 +12,6 @@ import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
-import com.github.liuyueyi.forum.core.permission.Permission;
-import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
 import com.github.liuyueyi.forum.service.user.impl.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.impl.UserServiceImpl;
@@ -24,7 +22,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +37,7 @@ import java.util.List;
  * @date : 2022/8/3 10:56
  **/
 @Controller
-@Permission(role = UserRole.LOGIN)
+//@Permission(role = UserRole.LOGIN)
 @RequestMapping(path = "user")
 @Slf4j
 public class UserController {
@@ -104,20 +101,19 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "home")
-    public String getUserHome(@RequestParam(name = "homeSelectType") String homeSelectType,
-                              @RequestParam(name = "followSelectType") String followSelectType,
-                              Model model) {
+    public String getUserHome(Model model, HttpServletRequest request) {
 
-        Long userId = ReqInfoContext.getReqInfo().getUserId();
-//        userId = 5L; // for test
-
+        String homeSelectType = request.getParameter("homeSelectType");
         if (homeSelectType == null || homeSelectType.equals(Strings.EMPTY)) {
             homeSelectType = HomeSelectEnum.ARTICLE.getCode();
         }
+
+        String followSelectType = request.getParameter("followSelectType");
         if (followSelectType == null || followSelectType.equals(Strings.EMPTY)) {
             followSelectType = FollowTypeEnum.FOLLOW.getCode();
         }
 
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
         UserHomeDTO userHomeDTO = userService.getUserHomeDTO(userId);
         List<TagSelectDTO> homeSelectTags = homeSelectTags(homeSelectType);
         userHomeSelectList(homeSelectType, followSelectType, userId, model);

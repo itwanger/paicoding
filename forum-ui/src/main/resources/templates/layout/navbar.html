@@ -3,7 +3,7 @@
 
 <header>
     <nav id="bodyNav" th:data-islogin="${isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
-        <a class="navbar-brand" th:href="${'/user/home'}">
+        <a class="navbar-brand">
 <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
             <img th:src="${siteInfo.websiteLogoUrl}"
                  th:alt="${siteInfo.websiteName}"
@@ -83,7 +83,7 @@
                            class="dropdown-item">管理后台</a>
                         <div th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}"
                              class="dropdown-divider"></div>
-                        <a th:href="${'/user/' + user.userId}" class="dropdown-item" target="_blank" href="#">个人主页</a>
+                        <a th:href="${'/user/home'}" class="dropdown-item" target="_blank" href="#">个人主页</a>
                         <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                     </div>
                 </li>
