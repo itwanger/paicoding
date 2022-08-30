@@ -1,5 +1,8 @@
 package com.github.liuyueyi.forum.service.user.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.liueyueyi.forum.api.model.enums.FollowStateEnum;
+import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO;
@@ -8,6 +11,7 @@ import com.github.liuyueyi.forum.service.user.UserRelationService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +66,6 @@ public class UserRelationServiceImpl implements UserRelationService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void saveUserRelation(UserRelationReq req) throws Exception {
         if (req.getUserRelationId() == null || req.getUserRelationId() == 0) {
             userRelationMapper.insert(userConverter.toDO(req));

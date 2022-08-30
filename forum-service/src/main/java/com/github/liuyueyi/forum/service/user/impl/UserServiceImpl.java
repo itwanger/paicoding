@@ -13,6 +13,7 @@ import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
+import com.github.liuyueyi.forum.service.user.repository.UserRepositoryImpl;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserInfoMapper;
@@ -49,6 +50,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserFootServiceImpl userFootService;
+
+    @Resource
+    private UserRepositoryImpl userRepository;
 
     /**
      * 用户存在时，直接返回；不存在时，则初始化
@@ -123,8 +127,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 获取关注数、粉丝数
-        Integer followCount = userRelationMapper.queryUserFollowCount(userId, null);
-        Integer fansCount = userRelationMapper.queryUserFansCount(userId, null);
+        Long followCount = userRepository.queryUserFollowCount(userId);
+        Long fansCount = userRepository.queryUserFansCount(userId);
 
         // 获取文章相关统计
         ArticleFootCountDTO articleFootCountDTO = userFootService.queryArticleCountByUserId(userId);
@@ -142,8 +146,8 @@ public class UserServiceImpl implements UserService {
         userHomeDTO.setUserName(userInfoDO.getUserName());
         userHomeDTO.setPhoto(userInfoDO.getPhoto());
         userHomeDTO.setProfile(userInfoDO.getProfile());
-        userHomeDTO.setFollowCount(followCount);
-        userHomeDTO.setFansCount(fansCount);
+        userHomeDTO.setFollowCount(followCount.intValue());
+        userHomeDTO.setFansCount(fansCount.intValue());
         if (articleFootCountDTO != null) {
             userHomeDTO.setPraiseCount(articleFootCountDTO.getPraiseCount());
             userHomeDTO.setReadCount(articleFootCountDTO.getReadCount());

@@ -7,5 +7,19 @@ package com.github.liuyueyi.forum.service.user.repository;
  * @date 2022-07-18
  */
 public interface UserRepository {
+    /**
+     * 查询关注用户总数
+     *
+     * @param userId
+     * @return
+     */
+    Long queryUserFollowCount(Long userId);
 
+    /**
+     * 查询粉丝总数
+     *
+     * @param userId
+     * @return
+     */
+    Long queryUserFansCount(Long userId);
 }

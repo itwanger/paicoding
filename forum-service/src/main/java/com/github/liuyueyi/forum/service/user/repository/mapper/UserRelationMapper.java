@@ -31,20 +31,4 @@ public interface UserRelationMapper extends BaseMapper<UserRelationDO> {
      * @return
      */
     List<UserFollowDTO> queryUserFansList(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
-
-    /**
-     * 我关注的用户总数
-     * @param followUserId
-     * @param pageParam
-     * @return
-     */
-    Integer queryUserFollowCount(@Param("followUserId") Long followUserId, @Param("pageParam") PageParam pageParam);
-
-    /**
-     * 关注我的粉丝总数
-     * @param userId
-     * @param pageParam
-     * @return
-     */
-    Integer queryUserFansCount(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 }

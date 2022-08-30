@@ -99,7 +99,7 @@ public class UserController {
     }
 
     /**
-     * 获取用户主页信息（TODO：异常需要捕获）
+     * 获取用户主页信息
      *
      * @return
      */
