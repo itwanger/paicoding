@@ -201,5 +201,7 @@ CREATE TABLE `user_relation`
 # alter table user_foot rename column doucument_id to document_id;
 # alter table user_foot rename column doucument_type to document_type;
 # alter table user_foot rename column doucument_user_id to document_user_id;
+-- 删除用户足迹中的评论id
+# alter table user_foot  drop column comment_id;
 # alter table `comment` add column `top_comment_id` int not null default '0' comment '顶级评论ID'  after `content`;
-# alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`
+# alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`;
