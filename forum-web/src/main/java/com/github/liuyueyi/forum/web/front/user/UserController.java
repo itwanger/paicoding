@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
 import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
@@ -12,16 +13,17 @@ import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
 import com.github.liuyueyi.forum.service.user.impl.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +39,7 @@ import java.util.List;
  * @date : 2022/8/3 10:56
  **/
 @Controller
-//@Permission(role = UserRole.LOGIN)
+@Permission(role = UserRole.LOGIN)
 @RequestMapping(path = "user")
 @Slf4j
 public class UserController {
@@ -77,9 +79,11 @@ public class UserController {
      * @throws Exception
      */
     @PostMapping(path = "saveUserInfo")
-    public String saveUserInfo(UserInfoSaveReq req) {
+    @ResponseBody
+    @Transactional(rollbackFor = Exception.class)
+    public ResVo<Object> saveUserInfo(@RequestBody UserInfoSaveReq req) {
         userService.saveUserInfo(req);
-        return "";
+        return ResVo.ok(1);
     }
 
     /**

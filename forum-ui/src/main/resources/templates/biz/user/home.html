@@ -10,7 +10,36 @@
 
 <div th:replace="layout/container :: container_left_sidebar(~{::left}, ~{::right})">
     <left>
-        <div th:replace="biz/user/profile :: user_profile(${userHome})"></div>
+        <div class="card">
+                <div class="card-body">
+                    <div class="d-inline-flex p-2">
+                        <div class="d-flex">
+                            <img class="avatar avatar-xl mb-3 avatar-rounded"
+                                 th:src="${userHome.photo}" height="76"
+                                 style="padding-right: 1em" alt="">
+                        </div>
+                        <div class="d-flex flex-column justify-content-center">
+                            <h5 class="card-title" th:text="${userHome.userName}">一灰灰</h5>
+                        </div>
+                    </div>
+                    <ul>
+                        <li th:text="'关注数: ' + ${userHome.fansCount}">关注数</li>
+                        <li th:text="'粉丝数: ' + ${userHome.followCount}">粉丝数</li>
+                    </ul>
+
+                    <ul class="navbar-nav my-md-0">
+                        <!--  跳出保存弹窗 -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">编辑个人资料</a>
+                        </li>
+                    </ul>
+
+                    <span id="userId" style="visibility: hidden"
+                          th:text="${userHome != null ? userHome.userId: ''}">
+                    </span>
+                </div>
+        </div>
+
         <div th:replace="biz/user/achievement :: user_achievement(${userHome})"></div>
         <div th:replace="biz/user/process :: user_process(${userHome})"></div>
     </left>
@@ -20,6 +49,55 @@
         <div class="card">
             <div class="card-body">
                 <p class="card-text" th:text="${userHome.profile}">个人简介</p>
+            </div>
+        </div>
+
+        <div class="modal fade" id="saveModel" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+             aria-labelledby="loginModalDropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">编辑个人信息</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <span class="form-label" style="padding-right: 1em">用户名</span>
+                            <input id="userName" type="text" class="form-control"
+                                   th:value="${userHome != null ? userHome.userName: ''}"
+                                   placeholder="请输入用户名">
+                        </div>
+                        <div class="input-group">
+                            <span class="form-label" style="padding-right: 1em">用户图像</span>
+                            <input id="photo" type="text" class="form-control"
+                                   th:value="${userHome != null ? userHome.photo: ''}"
+                                   placeholder="请输入用户图像">
+                        </div>
+                        <div class="input-group">
+                            <span class="form-label" style="padding-right: 1em">公司</span>
+                            <input id="company" type="text" class="form-control"
+                                   th:value="${userHome != null ? userHome.company: ''}"
+                                   placeholder="请输入公司">
+                        </div>
+                        <div class="input-group">
+                            <span class="form-label" style="padding-right: 1em">职位</span>
+                            <input id="position" type="text" class="form-control"
+                                   th:value="${userHome != null ? userHome.position: ''}"
+                                   placeholder="请输入职位">
+                        </div>
+                        <div class="input-group">
+                            <span class="form-label" style="padding-right: 1em">个人简介</span>
+                            <input id="profile" type="text" class="form-control"
+                                   th:value="${userHome != null ? userHome.profile: ''}"
+                                   placeholder="请输入个人简介">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="publish" type="button" class="btn btn-primary">保存</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -67,11 +145,57 @@
     </right>>
 </div>
 
-
-
 <div th:replace="layout/footer :: footer"></div>
 
 <script>
+
+    <!--    保存用户信息 -->
+    $('#publish').on('click', function () {
+        doPostUserInfo()
+    });
+    
+    function doPostUserInfo() {
+        const userId = $('#userId').text();
+        const userName = $('#userName').val();
+        const photo = $('#photo').val();
+        const company = $('#company').val();
+        const position = $('#position').val();
+        const profile = $('#profile').val();
+        const params = {
+            "userId" : userId,
+            "userName": userName,
+            "photo": photo,
+            "company": company,
+            "position": position,
+            "profile": profile,
+        }
+        console.log(params);
+
+        post("/user/saveUserInfo", params, function (data) {
+            console.log("返回结果:", data);
+            window.location.href = "/user/home";
+        });
+    }
+
+    const post = function (path, data, callback) {
+        $.ajax({
+            method: 'POST',
+            url: path,
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (data) {
+                console.log("data", data);
+                if (!data || !data.status || data.status.code != 0) {
+                    toastr.error(data.message);
+                } else if (callback) {
+                    callback(data.result);
+                }
+            },
+            error: function (data) {
+                toastr.error(data);
+            }
+        });
+    };
 </script>
 </body>
 </html>

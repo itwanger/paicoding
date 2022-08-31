@@ -99,15 +99,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUserInfo(UserInfoSaveReq req) {
-        BaseUserInfoDTO userInfoDO = getUserInfoByUserId(req.getUserId());
-        if (userInfoDO == null) {
+        BaseUserInfoDTO userInfoDTO = getUserInfoByUserId(req.getUserId());
+        if (userInfoDTO == null) {
             userInfoMapper.insert(userConverter.toDO(req));
             return;
         }
 
-        UserInfoDO updateUserInfoDO = userConverter.toDO(req);
-        updateUserInfoDO.setId(userInfoDO.getUserId());
-        userInfoMapper.updateById(updateUserInfoDO);
+        UserInfoDO userInfoDO = userConverter.toDO(userInfoDTO);
+
+        userInfoDO.setUserId(userInfoDTO.getUserId());
+        userInfoDO.setUserName(req.getUserName());
+        userInfoDO.setPhoto(req.getPhoto());
+        userInfoDO.setPosition(req.getPosition());
+        userInfoDO.setCompany(req.getCompany());
+        userInfoDO.setProfile(req.getProfile());
+        userInfoMapper.updateById(userInfoDO);
     }
 
     @Override
@@ -116,13 +122,13 @@ public class UserServiceImpl implements UserService {
         query.eq(UserInfoDO::getUserId, userId)
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         UserInfoDO user = userInfoMapper.selectOne(query);
-        return userConverter.toDO(user);
+        return userConverter.toDTO(user);
     }
 
     @Override
     public UserHomeDTO getUserHomeDTO(Long userId) {
-        BaseUserInfoDTO userInfoDO = getUserInfoByUserId(userId);
-        if (userInfoDO == null) {
+        BaseUserInfoDTO userInfoDTO = getUserInfoByUserId(userId);
+        if (userInfoDTO == null) {
             throw new IllegalArgumentException("用户不存在!");
         }
 
@@ -140,12 +146,8 @@ public class UserServiceImpl implements UserService {
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
         Long articleCount = articleMapper.selectCount(articleQuery);
 
-        UserHomeDTO userHomeDTO = new UserHomeDTO();
-        userHomeDTO.setUserId(userInfoDO.getUserId());
+        UserHomeDTO userHomeDTO = userConverter.toUserHomeDTO(userInfoDTO);
         userHomeDTO.setRole("normal");
-        userHomeDTO.setUserName(userInfoDO.getUserName());
-        userHomeDTO.setPhoto(userInfoDO.getPhoto());
-        userHomeDTO.setProfile(userInfoDO.getProfile());
         userHomeDTO.setFollowCount(followCount.intValue());
         userHomeDTO.setFansCount(fansCount.intValue());
         if (articleFootCountDTO != null) {

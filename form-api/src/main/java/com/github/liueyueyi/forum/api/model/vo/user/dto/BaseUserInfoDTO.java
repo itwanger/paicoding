@@ -1,5 +1,6 @@
 package com.github.liueyueyi.forum.api.model.vo.user.dto;
 
+import com.github.liueyueyi.forum.api.model.entity.BaseDTO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -9,7 +10,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class BaseUserInfoDTO {
+public class BaseUserInfoDTO extends BaseDTO {
     /**
      * 用户id
      */
@@ -47,4 +48,9 @@ public class BaseUserInfoDTO {
      * 扩展字段
      */
     private String extend;
+
+    /**
+     * 是否删除
+     */
+    private Integer deleted;
 }

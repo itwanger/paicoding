@@ -4,6 +4,7 @@ import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
@@ -44,7 +45,7 @@ public class UserConverter {
         return userInfoDO;
     }
 
-    public BaseUserInfoDTO toDO(UserInfoDO info) {
+    public BaseUserInfoDTO toDTO(UserInfoDO info) {
         if (info == null) {
             return null;
         }
@@ -64,5 +65,44 @@ public class UserConverter {
         userRelationDO.setFollowUserId(req.getFollowUserId());
         userRelationDO.setFollowState(req.getFollowState());
         return userRelationDO;
+    }
+
+    public UserInfoDO toDO(BaseUserInfoDTO baseUserInfoDTO) {
+        if (baseUserInfoDTO == null) {
+            return null;
+        }
+        UserInfoDO userInfoDO = new UserInfoDO();
+        userInfoDO.setUserId(baseUserInfoDTO.getUserId());
+        userInfoDO.setUserName(baseUserInfoDTO.getUserName());
+        userInfoDO.setPhoto(baseUserInfoDTO.getPhoto());
+        userInfoDO.setProfile(baseUserInfoDTO.getProfile());
+        userInfoDO.setPosition(baseUserInfoDTO.getPosition());
+        userInfoDO.setCompany(baseUserInfoDTO.getCompany());
+        userInfoDO.setExtend(baseUserInfoDTO.getExtend());
+        userInfoDO.setDeleted(baseUserInfoDTO.getDeleted());
+        userInfoDO.setId(baseUserInfoDTO.getId());
+        userInfoDO.setCreateTime(baseUserInfoDTO.getCreateTime());
+        userInfoDO.setUpdateTime(baseUserInfoDTO.getUpdateTime());
+        return userInfoDO;
+    }
+
+    public UserHomeDTO toUserHomeDTO(BaseUserInfoDTO baseUserInfoDTO) {
+        if (baseUserInfoDTO == null) {
+            return null;
+        }
+        UserHomeDTO userHomeDTO = new UserHomeDTO();
+        userHomeDTO.setUserId(baseUserInfoDTO.getUserId());
+        userHomeDTO.setUserName(baseUserInfoDTO.getUserName());
+        userHomeDTO.setRole(baseUserInfoDTO.getRole());
+        userHomeDTO.setPhoto(baseUserInfoDTO.getPhoto());
+        userHomeDTO.setProfile(baseUserInfoDTO.getProfile());
+        userHomeDTO.setPosition(baseUserInfoDTO.getPosition());
+        userHomeDTO.setCompany(baseUserInfoDTO.getCompany());
+        userHomeDTO.setExtend(baseUserInfoDTO.getExtend());
+        userHomeDTO.setDeleted(baseUserInfoDTO.getDeleted());
+        userHomeDTO.setId(baseUserInfoDTO.getId());
+        userHomeDTO.setCreateTime(baseUserInfoDTO.getCreateTime());
+        userHomeDTO.setUpdateTime(baseUserInfoDTO.getUpdateTime());
+        return userHomeDTO;
     }
 }
