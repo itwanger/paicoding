@@ -66,6 +66,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private UserService userService;
 
+    @Override
+    public ArticleDO querySimpleArticle(Long articleId) {
+        return articleRepository.getSimpleArticle(articleId);
+    }
+
     /**
      * 获取文章详情
      *
@@ -93,7 +98,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTags(articleTagMapper.queryArticleTagDetails(articleId));
 
         // 更新统计计数
-        article.setCount(userFootService.saveArticleFoot(articleId, article.getAuthor(), OperateTypeEnum.READ));
+        article.setCount(userFootService.saveArticleFoot(articleId, article.getAuthor(), ReqInfoContext.getReqInfo().getUserId(), OperateTypeEnum.READ));
         return article;
     }
 

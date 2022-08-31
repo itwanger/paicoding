@@ -12,7 +12,7 @@ import lombok.Getter;
 public enum DocumentTypeEnum {
 
     EMPTY(0, ""),
-    DOCUMENT(1, "文章"),
+    ARTICLE(1, "文章"),
     COMMENT(2, "评论");
 
     DocumentTypeEnum(Integer code, String desc) {

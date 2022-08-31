@@ -195,12 +195,13 @@ public class ArticleRepositoryImpl implements ArticleRepository {
     @Override
     public int count(Long articleId) {
         LambdaQueryWrapper<ReadCountDO> query = Wrappers.lambdaQuery();
-        query.eq(ReadCountDO::getDocumentId, articleId).eq(ReadCountDO::getDocumentType, DocumentTypeEnum.DOCUMENT.getCode());
+        query.eq(ReadCountDO::getDocumentId, articleId).eq(ReadCountDO::getDocumentType, DocumentTypeEnum.ARTICLE.getCode());
         ReadCountDO record = readCountMapper.selectOne(query);
         if (record == null) {
-            record = new ReadCountDO().setDocumentId(articleId).setDocumentType(DocumentTypeEnum.DOCUMENT.getCode()).setCnt(1);
+            record = new ReadCountDO().setDocumentId(articleId).setDocumentType(DocumentTypeEnum.ARTICLE.getCode()).setCnt(1);
             readCountMapper.insert(record);
         } else {
+            // fixme: 这里存在并发覆盖问题，推荐使用 update read_count set cnt = cnt + 1 where id = xxx
             record.setCnt(record.getCnt() + 1);
             readCountMapper.updateById(record);
         }

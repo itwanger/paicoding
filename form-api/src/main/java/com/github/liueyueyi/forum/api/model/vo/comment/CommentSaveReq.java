@@ -35,4 +35,9 @@ public class CommentSaveReq {
      * 父评论ID
      */
     private Long parentCommentId;
+
+    /**
+     * 顶级评论ID
+     */
+    private Long topCommentId;
 }

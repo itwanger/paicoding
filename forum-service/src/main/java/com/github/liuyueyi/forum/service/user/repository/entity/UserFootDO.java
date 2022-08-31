@@ -32,17 +32,10 @@ public class UserFootDO extends BaseDO {
      * 文档类型：1-文章，2-评论
      */
     private Integer documentType;
-
     /**
      * 发布该文档的用户ID
      */
     private Long documentUserId;
-
-    /**
-     * 当前发起评论的ID
-     */
-    private Long commentId;
-
     /**
      * 收藏状态: 0-未收藏，1-已收藏
      */

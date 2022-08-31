@@ -9,6 +9,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
@@ -18,6 +19,8 @@ import com.github.liuyueyi.forum.core.util.MapUtils;
 import com.github.liuyueyi.forum.service.article.ArticleService;
 import com.github.liuyueyi.forum.service.article.CategoryService;
 import com.github.liuyueyi.forum.service.article.TagService;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.comment.CommentService;
 import com.github.liuyueyi.forum.service.user.UserFootService;
 import com.github.liuyueyi.forum.service.user.UserService;
 import org.apache.logging.log4j.util.Strings;
@@ -60,6 +63,9 @@ public class ArticleController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CommentService commentService;
 
     /**
      * 文章编辑页
@@ -127,8 +133,13 @@ public class ArticleController {
         ArticleDTO articleDTO = articleService.queryArticleDetail(articleId, true);
         model.addAttribute("article", articleDTO);
 
+        // 评论信息
+        List<TopCommentDTO> comments = commentService.getArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
+        model.addAttribute("comments", comments);
+
         // 作者信息
         UserHomeDTO user = userService.getUserHomeDTO(articleDTO.getAuthor());
+        articleDTO.setAuthorName(user.getUserName());
         model.addAttribute("author", user);
         return "biz/article/detail";
     }
@@ -175,13 +186,21 @@ public class ArticleController {
     @ResponseBody
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "favor")
-    public ResVo<ArticleFootCountDTO> favor(@RequestParam(name = "articleId") Long articleId, @RequestParam(name = "type") Integer type) {
+    public ResVo<ArticleFootCountDTO> favor(@RequestParam(name = "articleId") Long articleId,
+                                            @RequestParam(name = "type") Integer type) {
         OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
         if (operate == OperateTypeEnum.EMPTY) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
         }
 
-        ArticleFootCountDTO count = userFootService.saveArticleFoot(articleId, ReqInfoContext.getReqInfo().getUserId(), operate);
+        ArticleDO article = articleService.querySimpleArticle(articleId);
+        if (article == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
+        }
+
+        ArticleFootCountDTO count = userFootService.saveArticleFoot(articleId, article.getUserId(),
+                ReqInfoContext.getReqInfo().getUserId(),
+                operate);
         return ResVo.ok(count);
     }
 }

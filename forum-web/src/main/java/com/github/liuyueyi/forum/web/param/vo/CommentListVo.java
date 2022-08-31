@@ -1,6 +1,6 @@
 package com.github.liuyueyi.forum.web.param.vo;
 
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -21,10 +21,10 @@ public class CommentListVo {
     /**
      * 热门评论(一期先不做)
      */
-    private List<CommentTreeDTO> hotCommentList;
+    private List<TopCommentDTO> hotCommentList;
 
     /**
      * 评论列表
      */
-    private List<CommentTreeDTO> commentList;
+    private List<TopCommentDTO> commentList;
 }

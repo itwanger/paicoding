@@ -3,7 +3,6 @@ package com.github.liuyueyi.forum.service.user;
 
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
@@ -22,11 +21,12 @@ public interface UserFootService {
      * 保存文章计数
      *
      * @param articleId       文章主键
+     * @param author          作者
      * @param userId          操作用户
      * @param operateTypeEnum 操作类型
      * @return
      */
-    ArticleFootCountDTO saveArticleFoot(Long articleId, Long userId, OperateTypeEnum operateTypeEnum);
+    ArticleFootCountDTO saveArticleFoot(Long articleId, Long author, Long userId, OperateTypeEnum operateTypeEnum);
 
     /**
      * 根据文章ID查询文章计数
@@ -74,11 +74,9 @@ public interface UserFootService {
     /**
      * 保存评论足迹
      *
-     * @param commentSaveReq 保存评论入参
-     * @param commentId      评论ID
-     * @param articleUserId  发版文章的用户ID
+     * @param comment 保存评论入参
      */
-    void saveCommentFoot(CommentSaveReq commentSaveReq, Long commentId, Long articleUserId);
+    void saveCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor);
 
     /**
      * 删除评论足迹
@@ -86,5 +84,5 @@ public interface UserFootService {
      * @param commentDO
      * @throws Exception
      */
-    void deleteCommentFoot(CommentDO commentDO) throws Exception;
+    void deleteCommentFoot(CommentDO commentDO, Long articleAuthor, Long parentCommentAuthor);
 }

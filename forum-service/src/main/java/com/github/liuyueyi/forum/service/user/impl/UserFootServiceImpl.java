@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
@@ -29,48 +28,57 @@ public class UserFootServiceImpl implements UserFootService {
     @Resource
     private UserFootMapper userFootMapper;
 
-    @Resource
-    private ArticleRepository articleRepository;
-
     @Override
-    public ArticleFootCountDTO saveArticleFoot(Long articleId, Long userId, OperateTypeEnum operateTypeEnum) {
-        ArticleDO article = articleRepository.getSimpleArticle(articleId);
-        if (article == null) {
-            throw new IllegalArgumentException("文章不存在");
-        }
-
-        // 查询是否有该足迹
-        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
-        query.eq(UserFootDO::getDocumentId, articleId)
-                .eq(UserFootDO::getDocumentType, DocumentTypeEnum.DOCUMENT.getCode())
-                .eq(UserFootDO::getUserId, userId);
-        UserFootDO readUserFootDO = userFootMapper.selectOne(query);
-        if (readUserFootDO == null) {
-            UserFootDO userFootDO = new UserFootDO();
-            userFootDO.setUserId(userId);
-            userFootDO.setDocumentId(article.getId());
-            userFootDO.setDocumentType(DocumentTypeEnum.DOCUMENT.getCode());
-            userFootDO.setDocumentUserId(article.getUserId());
-            userFootDO = setUserFootStat(userFootDO, operateTypeEnum);
-            userFootMapper.insert(userFootDO);
-        } else {
-            readUserFootDO = setUserFootStat(readUserFootDO, operateTypeEnum);
-            userFootMapper.updateById(readUserFootDO);
+    public ArticleFootCountDTO saveArticleFoot(Long articleId, Long author, Long userId, OperateTypeEnum operateTypeEnum) {
+        if (userId != null) {
+            // 未登录时，不更新对应的足迹内容
+            doSaveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, author, articleId, userId, operateTypeEnum);
         }
         return userFootMapper.queryCountByArticle(articleId);
     }
 
+    /**
+     * 保存或更新状态信息
+     *
+     * @param documentType    文档类型：博文 + 评论
+     * @param documentId      文档id
+     * @param authorId        作者
+     * @param userId          操作人
+     * @param operateTypeEnum 操作类型：点赞，评论，收藏等
+     */
+    private void doSaveOrUpdateUserFoot(DocumentTypeEnum documentType, Long documentId,
+                                        Long authorId, Long userId, OperateTypeEnum operateTypeEnum) {
+        // 查询是否有该足迹
+        UserFootDO readUserFootDO = userFootMapper.queryFootByDocumentInfo(documentId, documentType.getCode(), userId);
+        if (readUserFootDO == null) {
+            readUserFootDO = new UserFootDO();
+            readUserFootDO.setUserId(userId);
+            readUserFootDO.setDocumentId(documentId);
+            readUserFootDO.setDocumentType(documentType.getCode());
+            readUserFootDO.setDocumentUserId(authorId);
+            setUserFootStat(readUserFootDO, operateTypeEnum);
+            userFootMapper.insert(readUserFootDO);
+        } else {
+            setUserFootStat(readUserFootDO, operateTypeEnum);
+            userFootMapper.updateById(readUserFootDO);
+        }
+    }
+
     private UserFootDO setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operateTypeEnum) {
-        if (operateTypeEnum.equals(OperateTypeEnum.READ)) {
+        if (operateTypeEnum == OperateTypeEnum.READ) {
             userFootDO.setReadStat(ReadStatEnum.READ.getCode());
-        } else if (operateTypeEnum.equals(OperateTypeEnum.PRAISE)) {
+        } else if (operateTypeEnum == OperateTypeEnum.PRAISE) {
             userFootDO.setPraiseStat(PraiseStatEnum.PRAISE.getCode());
-        } else if (operateTypeEnum.equals(OperateTypeEnum.COLLECTION)) {
-            userFootDO.setCommentStat(CollectionStatEnum.COLLECTION.getCode());
-        } else if (operateTypeEnum.equals(OperateTypeEnum.CANCEL_PRAISE)) {
+        } else if (operateTypeEnum == OperateTypeEnum.CANCEL_PRAISE) {
             userFootDO.setPraiseStat(PraiseStatEnum.CANCEL_PRAISE.getCode());
-        } else if (operateTypeEnum.equals(OperateTypeEnum.CANCEL_COLLECTION)) {
-            userFootDO.setCommentStat(CollectionStatEnum.CANCEL_COLLECTION.getCode());
+        } else if (operateTypeEnum == OperateTypeEnum.COLLECTION) {
+            userFootDO.setCollectionStat(CollectionStatEnum.COLLECTION.getCode());
+        } else if (operateTypeEnum == OperateTypeEnum.CANCEL_COLLECTION) {
+            userFootDO.setCollectionStat(CollectionStatEnum.CANCEL_COLLECTION.getCode());
+        } else if (operateTypeEnum == OperateTypeEnum.COMMENT) {
+            userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
+        } else if (operateTypeEnum == OperateTypeEnum.DELETE_COMMENT) {
+            userFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
         }
         return userFootDO;
     }
@@ -93,6 +101,7 @@ public class UserFootServiceImpl implements UserFootService {
     public Long queryCommentPraiseCount(Long commentId) {
         LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
         query.eq(UserFootDO::getDocumentId, commentId)
+                .eq(UserFootDO::getDocumentType, DocumentTypeEnum.COMMENT.getCode())
                 .eq(UserFootDO::getPraiseStat, PraiseStatEnum.PRAISE.getCode());
         return userFootMapper.selectCount(query);
     }
@@ -108,60 +117,20 @@ public class UserFootServiceImpl implements UserFootService {
     }
 
     @Override
-    public void saveCommentFoot(CommentSaveReq commentSaveReq, Long commentId, Long articleUserId) {
-
-        // 保存评论足迹(针对文章)
-        UserFootDO userFootDO = new UserFootDO();
-        userFootDO.setUserId(commentSaveReq.getUserId());
-        userFootDO.setDocumentId(commentSaveReq.getArticleId());
-        userFootDO.setDocumentType(DocumentTypeEnum.DOCUMENT.getCode());
-        userFootDO.setDocumentUserId(articleUserId);
-        userFootDO.setCommentId(commentId);
-        userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
-        userFootMapper.insert(userFootDO);
-
-        // 保存评论足迹(针对父评论)
-        if (commentSaveReq.getParentCommentId() != null && commentSaveReq.getParentCommentId() != 0) {
-            UserFootDO commentUserFootDO = new UserFootDO();
-            commentUserFootDO.setUserId(commentSaveReq.getUserId());
-            commentUserFootDO.setDocumentId(commentSaveReq.getParentCommentId());
-            commentUserFootDO.setDocumentType(DocumentTypeEnum.COMMENT.getCode());
-            commentUserFootDO.setDocumentUserId(articleUserId);
-            commentUserFootDO.setCommentId(commentId);
-            commentUserFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
-            userFootMapper.insert(commentUserFootDO);
+    public void saveCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor) {
+        // 保存文章对应的评论足迹
+        doSaveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleAuthor, comment.getArticleId(), comment.getUserId(), OperateTypeEnum.COMMENT);
+        // 如果是子评论，则找到父评论的记录，然后设置为已评
+        if (parentCommentAuthor != null) {
+            doSaveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, parentCommentAuthor, comment.getParentCommentId(), comment.getUserId(), OperateTypeEnum.COMMENT);
         }
     }
 
     @Override
-    public void deleteCommentFoot(CommentDO commentDO) throws Exception {
-
-        // 删除评论足迹(文章)
-        LambdaQueryWrapper<UserFootDO> articleQuery = Wrappers.lambdaQuery();
-        articleQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
-                eq(UserFootDO::getDocumentId, commentDO.getArticleId()).
-                eq(UserFootDO::getDocumentType, DocumentTypeEnum.DOCUMENT.getCode()).
-                eq(UserFootDO::getCommentId, commentDO.getId());
-        UserFootDO articleUserFootDO = userFootMapper.selectOne(articleQuery);
-        if (articleUserFootDO == null) {
-            throw new Exception("未查询到该评论足迹");
-        }
-        articleUserFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
-        userFootMapper.updateById(articleUserFootDO);
-
-        // 删除评论足迹(父评论)
-        if (commentDO.getParentCommentId() != null && commentDO.getParentCommentId() != 0) {
-            LambdaQueryWrapper<UserFootDO> commentQuery = Wrappers.lambdaQuery();
-            commentQuery.eq(UserFootDO::getUserId, commentDO.getUserId()).
-                    eq(UserFootDO::getDocumentId, commentDO.getParentCommentId()).
-                    eq(UserFootDO::getDocumentType, DocumentTypeEnum.COMMENT.getCode()).
-                    eq(UserFootDO::getCommentId, commentDO.getId());
-            UserFootDO commentUserFootDO = userFootMapper.selectOne(commentQuery);
-            if (commentUserFootDO == null) {
-                throw new Exception("未查询到该评论足迹");
-            }
-            commentUserFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
-            userFootMapper.updateById(commentUserFootDO);
+    public void deleteCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor) {
+        doSaveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleAuthor, comment.getArticleId(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
+        if (parentCommentAuthor != null) {
+            doSaveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, parentCommentAuthor, comment.getParentCommentId(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
         }
     }
 }

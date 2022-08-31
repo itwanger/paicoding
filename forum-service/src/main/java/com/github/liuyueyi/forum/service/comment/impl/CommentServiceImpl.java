@@ -1,26 +1,27 @@
 package com.github.liuyueyi.forum.service.comment.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
-import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
-import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.BaseCommentDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.SubCommentDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.comment.CommentService;
 import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.comment.repository.mapper.CommentMapper;
+import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.impl.UserFootServiceImpl;
-import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
-import com.github.liuyueyi.forum.service.user.repository.mapper.UserInfoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 评论Service
@@ -38,75 +39,119 @@ public class CommentServiceImpl implements CommentService {
     private CommentConverter commentConverter;
 
     @Resource
-    private UserInfoMapper userInfoMapper;
-
-    @Resource
-    private ArticleMapper articleMapper;
+    private UserService userService;
 
     @Resource
     private UserFootServiceImpl userFootService;
 
     @Override
-    public Map<Long, CommentTreeDTO> getCommentList(Long articleId, PageParam pageSearchReq) {
-
-        // 1. 获取当前分页的评论
-        PageParam pageParam = PageParam.newPageInstance(pageSearchReq.getPageNum(), pageSearchReq.getPageSize());
-        List<CommentDO> commentFirstLevelList = getCommentList(articleId, pageParam, 0L);
-        if (commentFirstLevelList.isEmpty()) {
-            return new HashMap<>();
+    public List<TopCommentDTO> getArticleComments(Long articleId, PageParam page) {
+        // 1.查询一级评论
+        List<CommentDO> comments = queryTopCommentList(articleId, page);
+        if (CollectionUtils.isEmpty(comments)) {
+            return Collections.emptyList();
         }
-        Map<Long, CommentDO> commentFirstLevelMap = new HashMap<>();
-        commentFirstLevelList.forEach(commentDO -> commentFirstLevelMap.put(commentDO.getId(), commentDO));
+        // map 存 commentId -> 评论
+        Map<Long, TopCommentDTO> maps = comments.stream().collect(Collectors.toMap(CommentDO::getId, commentConverter::toTopDto));
 
-        // 2. 获取所有评论，并过滤 1 级评论，且不在分页中的数据
-        pageParam = PageParam.newPageInstance(1L, Long.MAX_VALUE);
-        List<CommentDO> commentAllList = getCommentList(articleId, pageParam, null);
-        if (commentAllList.isEmpty()) {
-            return new HashMap<>();
-        }
+        // 2.查询非一级评论
+        List<CommentDO> subComments = this.querySubCommentIdMappers(articleId, maps.keySet());
+        Map<Long, SubCommentDTO> subCommentMap = subComments.stream().collect(Collectors.toMap(CommentDO::getId, commentConverter::toSubDto));
 
-        List<CommentDO> commentBasicList = new ArrayList<>();
-        for (CommentDO commentDO : commentAllList) {
-            if (commentDO.getParentCommentId() == 0 && !commentFirstLevelMap.containsKey(commentDO.getId())) {
-                continue;
+        // 3.构建一级评论的子评论
+        subComments.forEach(comment -> {
+            TopCommentDTO top = maps.get(comment.getTopCommentId());
+            if (top != null) {
+                SubCommentDTO sub = subCommentMap.get(comment.getId());
+                top.getChildComments().add(sub);
+                if (Objects.equals(comment.getTopCommentId(), comment.getParentCommentId())) {
+                    return;
+                }
+
+                SubCommentDTO parent = subCommentMap.get(comment.getParentCommentId());
+                if (parent == null) {
+                    sub.setParentContent("~~已删除~~");
+                } else {
+                    sub.setParentContent(parent.getCommentContent());
+                }
             }
-            commentBasicList.add(commentDO);
+        });
+
+
+        // 4.挑出需要返回的数据，排序，并补齐对应的用户信息，最后排序返回
+        List<TopCommentDTO> result = new ArrayList<>();
+        comments.forEach(comment -> {
+            TopCommentDTO dto = maps.get(comment.getId());
+            fillCommentInfo(dto);
+            dto.getChildComments().forEach(this::fillCommentInfo);
+            Collections.sort(dto.getChildComments());
+            result.add(dto);
+        });
+
+        // 返回结果根据时间进行排序
+        Collections.sort(result);
+        return result;
+    }
+
+    private void fillCommentInfo(BaseCommentDTO comment) {
+        BaseUserInfoDTO userInfoDO = userService.getUserInfoByUserId(comment.getUserId());
+        if (userInfoDO == null) {
+            // 如果用户注销，给一个默认的用户
+            comment.setUserName("默认用户");
+            comment.setUserPhoto("");
+            if (comment instanceof TopCommentDTO) {
+                ((TopCommentDTO) comment).setCommentCount(0);
+            }
+        } else {
+            comment.setUserName(userInfoDO.getUserName());
+            comment.setUserPhoto(userInfoDO.getPhoto());
+            if (comment instanceof TopCommentDTO) {
+                ((TopCommentDTO) comment).setCommentCount(((TopCommentDTO) comment).getChildComments().size());
+            }
         }
 
-        // 3. 组建一棵树
-        Map<Long, CommentTreeDTO> deptTreeMap = new HashMap<>();
-        commentBasicList.forEach(commentDO -> deptTreeMap.put(commentDO.getId(), commentConverter.toDTO(commentDO)));
-        Set<Long> commentIdSet = new HashSet<>(deptTreeMap.keySet());
-        Map<Long, CommentTreeDTO> commentTreeMap = getCommentTree(deptTreeMap, commentIdSet, 0L);
-
-        // 4. 填充每一个节点的信息
-        fillCommentTree(commentTreeMap);
-        return commentTreeMap;
+        // 查询点赞数
+        Long praiseCount = userFootService.queryCommentPraiseCount(comment.getCommentId());
+        comment.setPraiseCount(praiseCount.intValue());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long saveComment(CommentSaveReq commentSaveReq) throws Exception {
-
+    public Long saveComment(CommentSaveReq commentSaveReq) {
         // 保存评论
-        if (commentSaveReq.getCommentId() == null || commentSaveReq.getCommentId() == 0) {
-            CommentDO commentDO = commentConverter.toDo(commentSaveReq);
-            commentMapper.insert(commentDO);
-            ArticleDO articleDO = articleMapper.selectById(commentSaveReq.getArticleId());
-            if (articleDO == null) {
-                throw new Exception("该文章ID不存在");
-            }
-            userFootService.saveCommentFoot(commentSaveReq, commentDO.getId(), articleDO.getUserId());
-            return commentDO.getId();
+        CommentDO comment;
+        if (NumUtil.nullOrZero(commentSaveReq.getCommentId())) {
+            comment = addComment(commentSaveReq);
+        } else {
+            comment = updateComment(commentSaveReq);
         }
+        return comment.getId();
+    }
 
+    private CommentDO addComment(CommentSaveReq commentSaveReq) {
+        // 0.获取父评论信息，校验是否存在
+        Long parentCommentUser = getParentCommentUser(commentSaveReq.getParentCommentId());
+
+        // 1. 保存评论内容
+        CommentDO commentDO = commentConverter.toDo(commentSaveReq);
+        commentDO.setCreateTime(new Date());
+        commentDO.setUpdateTime(new Date());
+        commentMapper.insert(commentDO);
+
+        // 2. 保存足迹信息 : 文章的已评信息 + 评论的已评信息
+        userFootService.saveCommentFoot(commentDO, commentSaveReq.getArticleId(), parentCommentUser);
+        return commentDO;
+    }
+
+    private CommentDO updateComment(CommentSaveReq commentSaveReq) {
         // 更新评论
         CommentDO commentDO = commentMapper.selectById(commentSaveReq.getCommentId());
         if (commentDO == null) {
-            throw new Exception("未查询到该评论");
+            throw new RuntimeException("未查询到该评论");
         }
-        commentMapper.updateById(commentConverter.toDo(commentSaveReq));
-        return commentSaveReq.getCommentId();
+        commentDO.setContent(commentSaveReq.getCommentContent());
+        commentMapper.updateById(commentDO);
+        return commentDO;
     }
 
     @Override
@@ -116,98 +161,52 @@ public class CommentServiceImpl implements CommentService {
         if (commentDO == null) {
             throw new Exception("未查询到该评论");
         }
-        commentMapper.deleteById(commentId);
-        userFootService.deleteCommentFoot(commentDO);
+        commentDO.setDeleted(YesOrNoEnum.YES.getCode());
+        commentMapper.updateById(commentDO);
+        userFootService.deleteCommentFoot(commentDO, commentDO.getArticleId(), getParentCommentUser(commentDO.getParentCommentId()));
     }
 
-    /**
-     * 查询用户信息
-     *
-     * @param userId
-     * @return
-     */
-    private UserInfoDO getUserInfoByUserId(Long userId) {
-        LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
-        query.eq(UserInfoDO::getUserId, userId)
-                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
-        return userInfoMapper.selectOne(query);
+    private Long getParentCommentUser(Long parentCommentId) {
+        Long parentCommentAuthor = null;
+        if (NumUtil.upZero(parentCommentId)) {
+            CommentDO parent = commentMapper.selectById(parentCommentId);
+            if (parent == null) {
+                throw new IllegalStateException("父评论不存在!");
+            }
+            parentCommentAuthor = parent.getUserId();
+        }
+        return parentCommentAuthor;
     }
 
     /**
      * 获取评论列表
      *
      * @param pageParam
-     * @param parentCommentId
      * @return
      */
-    private List<CommentDO> getCommentList(Long articleId, PageParam pageParam, Long parentCommentId) {
+    private List<CommentDO> queryTopCommentList(Long articleId, PageParam pageParam) {
         QueryWrapper<CommentDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda()
-                .eq(parentCommentId != null, CommentDO::getParentCommentId, parentCommentId)
+                .eq(CommentDO::getTopCommentId, 0)
                 .eq(CommentDO::getArticleId, articleId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(CommentDO::getId);
         return commentMapper.selectList(queryWrapper);
     }
 
     /**
-     * 将评论构建成一棵树
-     * 功能说明：将评论列表，构建成一颗树，如果列表中数据有多余的，可以直接剔除
+     * 查询所有的子评论
      *
-     * @param commentMap    需要构件树的评论列表
-     * @param notDeleteSet  未删除标记
-     * @param rootCommentId 根节点的ID
-     * @return 一棵树
+     * @param articleId
+     * @return
      */
-    private Map<Long, CommentTreeDTO> getCommentTree(Map<Long, CommentTreeDTO> commentMap, Set<Long> notDeleteSet, Long rootCommentId) {
-        Map<Long, CommentTreeDTO> commentTree = new HashMap<>();
-        for (Map.Entry<Long, CommentTreeDTO> entry : commentMap.entrySet()) {
-            Long commentId = entry.getKey();
-            CommentTreeDTO commentInfo = entry.getValue();
-            // 如果已经删除，直接跳过
-            if (!notDeleteSet.contains(commentId)) {
-                continue;
-            }
-            // 找到根节点的一个孩子，获取这个孩子节点的树
-            if (commentInfo.getParentCommentId().equals(rootCommentId)) {
-                // 删除已经处理过的节点
-                notDeleteSet.remove(commentId);
-                // 构造该节点的孩子节点树
-                Map<Long, CommentTreeDTO> childrenCommentTree = this.getCommentTree(commentMap, notDeleteSet, commentId);
-                if (childrenCommentTree.size() > 0) {
-                    commentInfo.setCommentChilds(childrenCommentTree);
-                }
-                // 添加一颗子树
-                commentTree.put(commentId, commentInfo);
-            }
-        }
-        return commentTree;
-    }
-
-    /**
-     * 填充评论的基础数据
-     *
-     * @param commentTreeMap
-     */
-    private void fillCommentTree(Map<Long, CommentTreeDTO> commentTreeMap) {
-        for (Map.Entry<Long, CommentTreeDTO> entry : commentTreeMap.entrySet()) {
-            CommentTreeDTO commentInfo = entry.getValue();
-            UserInfoDO userInfoDO = getUserInfoByUserId(commentInfo.getUserId());
-            if (userInfoDO == null) {
-                // 如果用户注销，给一个默认的用户
-                commentInfo.setUserName("默认用户"); // TODO: 后续再优化
-                commentInfo.setUserPhoto("");
-                commentInfo.setCommentCount(0);
-                commentInfo.setCommentChilds(new HashMap<>());
-                continue;
-            }
-            commentInfo.setUserName(userInfoDO.getUserName());
-            commentInfo.setUserPhoto(userInfoDO.getPhoto());
-            commentInfo.setCommentCount(commentInfo.getCommentChilds().size());
-
-            Long praistCount = userFootService.queryCommentPraiseCount(userInfoDO.getId());
-            commentInfo.setPraiseCount(praistCount.intValue());
-            fillCommentTree(commentInfo.getCommentChilds());
-        }
+    private List<CommentDO> querySubCommentIdMappers(Long articleId, Collection<Long> topCommentIds) {
+        QueryWrapper<CommentDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .in(CommentDO::getTopCommentId, topCommentIds)
+                .eq(CommentDO::getArticleId, articleId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return commentMapper.selectList(queryWrapper);
     }
 }

@@ -25,7 +25,7 @@ $('#loginBtn').click(function () {
                 toastr.error(data.status.msg);
             } else {
                 // 登录成功，刷新
-                window.location.href = "/";
+                window.location.reload();
                 toastr.success("登录成功");
             }
         },

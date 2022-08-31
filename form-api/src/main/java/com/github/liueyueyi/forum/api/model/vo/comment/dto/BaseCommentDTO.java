@@ -1,9 +1,7 @@
 package com.github.liueyueyi.forum.api.model.vo.comment.dto;
 
 import lombok.Data;
-
-import java.util.Date;
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 评论树状结构
@@ -12,7 +10,7 @@ import java.util.Map;
  * @since 2022/7/19
  */
 @Data
-public class CommentTreeDTO {
+public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
 
     /**
      * 用户ID
@@ -30,32 +28,27 @@ public class CommentTreeDTO {
     private String userPhoto;
 
     /**
+     * 评论时间
+     */
+    private Long commentTime;
+
+    /**
      * 评论内容
      */
     private String commentContent;
 
     /**
-     * 评论时间
+     * 评论id
      */
-    private Date commentTime;
-
-    /**
-     * 父评论ID
-     */
-    private Long parentCommentId;
+    private Long commentId;
 
     /**
      * 点赞数量
      */
     private Integer praiseCount;
 
-    /**
-     * 评论数量
-     */
-    private Integer commentCount;
-
-    /**
-     * 子评论
-     */
-    private Map<Long, CommentTreeDTO> commentChilds;
+    @Override
+    public int compareTo(@NotNull BaseCommentDTO o) {
+        return Long.compare(o.getCommentTime(), this.commentTime);
+    }
 }

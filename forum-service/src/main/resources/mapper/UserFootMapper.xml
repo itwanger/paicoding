@@ -2,6 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper">
 
+    <select id="queryFootByDocumentInfo" resultType="com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO">
+        select * from user_foot where document_id = #{documentId} and document_type = #{type} and user_id = #{userId}
+    </select>
+
+
     <select id="queryCountByArticle"
             resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
 
@@ -10,10 +15,10 @@
             sum(if (f.collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
             sum(r.`cnt`) as readCount
         FROM
-            user_foot as f left join read_count as r on f.document_id = r.document_id
+            user_foot as f right join read_count as r on f.document_id = r.document_id and f.document_type = r.document_type
         WHERE
-            f.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
-            AND f.document_id = #{articleId}
+            r.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+            AND r.document_id = #{articleId}
 
     </select>
 
@@ -28,7 +33,7 @@
         FROM
             user_foot
         WHERE
-            document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
             AND document_user_id = #{userId}
 
     </select>
@@ -54,7 +59,7 @@
             left join article as a on a.id = uf.document_id
         WHERE
             uf.user_id = #{userId}
-            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
             AND uf.collection_stat = ${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}
             AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
             AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
@@ -87,7 +92,7 @@
             left join article as a on a.id = uf.document_id
         WHERE
             uf.user_id = #{userId}
-            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@DOCUMENT.code}
+            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
             AND uf.read_stat = ${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}
             AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
             AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}

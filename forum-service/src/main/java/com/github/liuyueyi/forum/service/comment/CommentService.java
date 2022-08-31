@@ -2,9 +2,9 @@ package com.github.liuyueyi.forum.service.comment;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 评论Service接口
@@ -15,21 +15,21 @@ import java.util.Map;
 public interface CommentService {
 
     /**
-     * 获取文章评论列表
+     * 查询文章评论列表
      *
-     * @param articleId     文章ID
-     * @param pageSearchReq 分页
+     * @param articleId
+     * @param page
      * @return
      */
-    Map<Long, CommentTreeDTO> getCommentList(Long articleId, PageParam pageSearchReq);
+    List<TopCommentDTO> getArticleComments(Long articleId, PageParam page);
 
     /**
      * 更新/保存评论
      *
      * @param commentSaveReq
-     * @throws Exception
+     * @return
      */
-    Long saveComment(CommentSaveReq commentSaveReq) throws Exception;
+    Long saveComment(CommentSaveReq commentSaveReq);
 
     /**
      * 删除评论

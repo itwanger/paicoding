@@ -5,8 +5,11 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 public interface ArticleService {
+
+    ArticleDO querySimpleArticle(Long articleId);
 
     /**
      * 查询文章详情

@@ -74,12 +74,15 @@ CREATE TABLE `comment`
     `article_id`        int unsigned NOT NULL COMMENT '文章ID',
     `user_id`           int unsigned NOT NULL COMMENT '用户ID',
     `content`           varchar(300) NOT NULL DEFAULT '' COMMENT '评论内容',
+    `top_comment_id`    int unsigned NOT NULL DEFAULT '0' COMMENT '顶级评论ID',
     `parent_comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父评论ID',
+    `deleted`           tinyint     NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
-    KEY                 `idx_article_id` (`article_id`),
-    KEY                 `idx_user_id` (`user_id`)
+    KEY                 `idx_article_id_parent_comment_id` (`article_id`, `parent_comment_id`),
+    KEY                 `idx_user_id` (`user_id`),
+    KEY                 `idx_article_id` (`top_comment_id`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='评论表';
 
 
@@ -135,8 +138,7 @@ CREATE TABLE `user_foot`
     `user_id`           int unsigned NOT NULL COMMENT '用户ID',
     `document_id`      int unsigned NOT NULL COMMENT '文档ID（文章/评论）',
     `document_type`    tinyint   NOT NULL DEFAULT '1' COMMENT '文档类型：1-文章，2-评论',
-    `document_user_id` int unsigned NOT NULL COMMENT '发布该文档的用户ID',
-    `comment_id`        int unsigned NOT NULL DEFAULT '0' COMMENT '当前发起评论的ID',
+    `document_user_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '发布该文档的用户ID',
     `collection_stat`   tinyint unsigned NOT NULL DEFAULT '0' COMMENT '收藏状态: 0-未收藏，1-已收藏，2-取消收藏',
     `read_stat`         tinyint unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未读，1-已读',
     `comment_stat`      tinyint unsigned NOT NULL DEFAULT '0' COMMENT '评论状态: 0-未评论，1-已评论，2-删除评论',
@@ -199,3 +201,5 @@ CREATE TABLE `user_relation`
 # alter table user_foot rename column doucument_id to document_id;
 # alter table user_foot rename column doucument_type to document_type;
 # alter table user_foot rename column doucument_user_id to document_user_id;
+# alter table `comment` add column `top_comment_id` int not null default '0' comment '顶级评论ID'  after `content`;
+# alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`

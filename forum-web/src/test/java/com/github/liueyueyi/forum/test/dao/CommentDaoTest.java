@@ -1,15 +1,11 @@
 package com.github.liueyueyi.forum.test.dao;
 
-import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.service.comment.impl.CommentServiceImpl;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.CommentTreeDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Map;
 
 /**
  * @author YiHui
@@ -58,16 +54,6 @@ public class CommentDaoTest extends BasicTest {
         commentSaveReq5.setParentCommentId(commentId3);
         commentSaveReq5.setUserId(2L);
         commentService.saveComment(commentSaveReq5);
-    }
-
-
-    @Test
-    public void testGetCommentList() {
-        PageParam pageSearchReq = new PageParam();
-        pageSearchReq.setPageNum(1L);
-        pageSearchReq.setPageSize(2L);
-        Map<Long, CommentTreeDTO> commentTreeDTOList = commentService.getCommentList(1L, pageSearchReq);
-        log.info("commentTreeDTOList: {}", commentTreeDTOList);
     }
 
     @Test

@@ -2,6 +2,8 @@ package com.github.liueyueyi.forum.api.model.enums;
 
 import lombok.Getter;
 
+import java.util.function.Consumer;
+
 /**
  * 操作类型
  *
@@ -16,7 +18,10 @@ public enum OperateTypeEnum {
     PRAISE(2, "点赞"),
     COLLECTION(3, "收藏"),
     CANCEL_PRAISE(4, "取消点赞"),
-    CANCEL_COLLECTION(5, "取消收藏");
+    CANCEL_COLLECTION(5, "取消收藏"),
+    COMMENT(6, "评论"),
+    DELETE_COMMENT(7, "删除评论"),
+    ;
 
     OperateTypeEnum(Integer code, String desc) {
         this.code = code;

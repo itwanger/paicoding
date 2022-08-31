@@ -37,4 +37,14 @@ public class CommentDO extends BaseDO {
      * 父评论ID
      */
     private Long parentCommentId;
+
+    /**
+     * 顶级评论ID
+     */
+    private Long topCommentId;
+
+    /**
+     * 0未删除 1 已删除
+     */
+    private Integer deleted;
 }
