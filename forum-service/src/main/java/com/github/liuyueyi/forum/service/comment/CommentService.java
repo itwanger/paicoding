@@ -38,4 +38,12 @@ public interface CommentService {
      * @throws Exception
      */
     void deleteComment(Long commentId) throws Exception;
+
+    /**
+     * 文章的有效评论数
+     *
+     * @param articleId
+     * @return
+     */
+    int commentCount(Long articleId);
 }

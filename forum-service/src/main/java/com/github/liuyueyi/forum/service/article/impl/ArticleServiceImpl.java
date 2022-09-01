@@ -1,10 +1,7 @@
 package com.github.liuyueyi.forum.service.article.impl;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
-import com.github.liueyueyi.forum.api.model.enums.ArticleTypeEnum;
-import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
-import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
-import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
@@ -21,6 +18,7 @@ import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleTagMapper;
 import com.github.liuyueyi.forum.service.user.UserFootService;
 import com.github.liuyueyi.forum.service.user.UserService;
+import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文章Service
@@ -67,38 +66,52 @@ public class ArticleServiceImpl implements ArticleService {
     private UserService userService;
 
     @Override
-    public ArticleDO querySimpleArticle(Long articleId) {
+    public ArticleDO queryBasicArticle(Long articleId) {
         return articleRepository.getSimpleArticle(articleId);
     }
 
-    /**
-     * 获取文章详情
-     *
-     * @param articleId
-     * @param updateReadCnt
-     * @return
-     */
     @Override
-    public ArticleDTO queryArticleDetail(Long articleId, boolean updateReadCnt) {
+    public ArticleDTO queryArticleDetail(Long articleId) {
         ArticleDTO article = articleRepository.queryArticleDetail(articleId);
         if (article == null) {
             throw new IllegalArgumentException("文章不存在");
         }
-
-        if (updateReadCnt) {
-            // 阅读计数+1
-            articleRepository.count(articleId);
-        }
-
         // 更新分类相关信息
         CategoryDTO category = article.getCategory();
         category.setCategory(categoryService.getCategoryName(category.getCategoryId()));
 
         // 更新标签信息
         article.setTags(articleTagMapper.queryArticleTagDetails(articleId));
+        return article;
+    }
 
-        // 更新统计计数
-        article.setCount(userFootService.saveArticleFoot(articleId, article.getAuthor(), ReqInfoContext.getReqInfo().getUserId(), OperateTypeEnum.READ));
+    /**
+     * 查询文章所有的关联信息，正文，分类，标签，阅读计数，当前登录用户是否点赞、评论过
+     *
+     * @param articleId
+     * @param currentUser
+     * @return
+     */
+    @Override
+    public ArticleDTO queryTotalArticleDetail(Long articleId, Long currentUser) {
+        ArticleDTO article = queryArticleDetail(articleId);
+
+        // 文章阅读计数+1
+        articleRepository.count(articleId);
+
+        if (currentUser != null) {
+            // 更新用于足迹，并判断是否点赞、评论
+            UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getAuthor(), currentUser, OperateTypeEnum.READ);
+            article.setPraised(Objects.equals(foot.getPraiseStat(), PraiseStatEnum.PRAISE.getCode()));
+            article.setCommented(Objects.equals(foot.getCommentStat(), CommentStatEnum.COMMENT.getCode()));
+        } else {
+            // 未登录
+            article.setPraised(false);
+            article.setCommented(false);
+        }
+
+        // 更新文章统计计数
+        article.setCount(userFootService.queryArticleCountByArticleId(articleId));
         return article;
     }
 

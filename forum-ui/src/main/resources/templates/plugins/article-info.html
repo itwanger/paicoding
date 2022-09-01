@@ -52,12 +52,10 @@
            href="#" style="padding: 2px 10px;border: 1px solid #6c757d;border-radius: 32px;margin-right: 10px;font-size: 10px;"></a>
     </div>
 
-    <textarea th:text="${article.content}" style="min-height: 700px; width:100%">
-    </textarea>
-
+    <div id="articleContent" class="article-content"  style="min-height: 700px; width:100%"></div>
 
     <div style="margin-top: 20px;font-size: 14px;color: #999;">
-        最后一次编辑于 <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}">2020年10月01日</span>
+        最近更新于 <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}">2022年09月01日</span>
         <span style="float: right;">
             <a href="javascript:;" id="postsApprovalBtn"
                th:title="点赞"

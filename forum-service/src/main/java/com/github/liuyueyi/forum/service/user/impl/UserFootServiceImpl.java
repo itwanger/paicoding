@@ -2,19 +2,25 @@ package com.github.liuyueyi.forum.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.liueyueyi.forum.api.model.enums.*;
+import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
-import com.github.liuyueyi.forum.service.article.repository.ArticleRepository;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.comment.CommentService;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.user.UserFootService;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 用户足迹Service
@@ -28,14 +34,8 @@ public class UserFootServiceImpl implements UserFootService {
     @Resource
     private UserFootMapper userFootMapper;
 
-    @Override
-    public ArticleFootCountDTO saveArticleFoot(Long articleId, Long author, Long userId, OperateTypeEnum operateTypeEnum) {
-        if (userId != null) {
-            // 未登录时，不更新对应的足迹内容
-            doSaveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, author, articleId, userId, operateTypeEnum);
-        }
-        return userFootMapper.queryCountByArticle(articleId);
-    }
+    @Autowired
+    private CommentService commentService;
 
     /**
      * 保存或更新状态信息
@@ -46,9 +46,9 @@ public class UserFootServiceImpl implements UserFootService {
      * @param userId          操作人
      * @param operateTypeEnum 操作类型：点赞，评论，收藏等
      */
-    private void doSaveOrUpdateUserFoot(DocumentTypeEnum documentType, Long documentId,
-                                        Long authorId, Long userId, OperateTypeEnum operateTypeEnum) {
-        // 查询是否有该足迹
+    @Override
+    public UserFootDO saveOrUpdateUserFoot(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum) {
+        // 查询是否有该足迹；有则更新，没有则插入
         UserFootDO readUserFootDO = userFootMapper.queryFootByDocumentInfo(documentId, documentType.getCode(), userId);
         if (readUserFootDO == null) {
             readUserFootDO = new UserFootDO();
@@ -58,29 +58,45 @@ public class UserFootServiceImpl implements UserFootService {
             readUserFootDO.setDocumentUserId(authorId);
             setUserFootStat(readUserFootDO, operateTypeEnum);
             userFootMapper.insert(readUserFootDO);
-        } else {
-            setUserFootStat(readUserFootDO, operateTypeEnum);
+        } else if (setUserFootStat(readUserFootDO, operateTypeEnum)) {
             userFootMapper.updateById(readUserFootDO);
+        }
+        return readUserFootDO;
+    }
+
+    private boolean setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operate) {
+        switch (operate) {
+            case READ:
+                return compareAndUpdate(userFootDO::getReadStat, userFootDO::setReadStat, operate.getDbStatCode());
+            case PRAISE:
+            case CANCEL_PRAISE:
+                return compareAndUpdate(userFootDO::getPraiseStat, userFootDO::setPraiseStat, operate.getDbStatCode());
+            case COLLECTION:
+            case CANCEL_COLLECTION:
+                return compareAndUpdate(userFootDO::getCollectionStat, userFootDO::setCollectionStat, operate.getDbStatCode());
+            case COMMENT:
+            case DELETE_COMMENT:
+                return compareAndUpdate(userFootDO::getCommentStat, userFootDO::setCommentStat, operate.getDbStatCode());
+            default:
+                return false;
         }
     }
 
-    private UserFootDO setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operateTypeEnum) {
-        if (operateTypeEnum == OperateTypeEnum.READ) {
-            userFootDO.setReadStat(ReadStatEnum.READ.getCode());
-        } else if (operateTypeEnum == OperateTypeEnum.PRAISE) {
-            userFootDO.setPraiseStat(PraiseStatEnum.PRAISE.getCode());
-        } else if (operateTypeEnum == OperateTypeEnum.CANCEL_PRAISE) {
-            userFootDO.setPraiseStat(PraiseStatEnum.CANCEL_PRAISE.getCode());
-        } else if (operateTypeEnum == OperateTypeEnum.COLLECTION) {
-            userFootDO.setCollectionStat(CollectionStatEnum.COLLECTION.getCode());
-        } else if (operateTypeEnum == OperateTypeEnum.CANCEL_COLLECTION) {
-            userFootDO.setCollectionStat(CollectionStatEnum.CANCEL_COLLECTION.getCode());
-        } else if (operateTypeEnum == OperateTypeEnum.COMMENT) {
-            userFootDO.setCommentStat(CommentStatEnum.COMMENT.getCode());
-        } else if (operateTypeEnum == OperateTypeEnum.DELETE_COMMENT) {
-            userFootDO.setCommentStat(CommentStatEnum.CANCEL_COMMENT.getCode());
+    /**
+     * 相同则直接返回false不用更新；不同则更新,返回true
+     *
+     * @param supplier
+     * @param consumer
+     * @param input
+     * @param <T>
+     * @return
+     */
+    private <T> boolean compareAndUpdate(Supplier<T> supplier, Consumer<T> consumer, T input) {
+        if (Objects.equals(supplier.get(), input)) {
+            return false;
         }
-        return userFootDO;
+        consumer.accept(input);
+        return true;
     }
 
     @Override
@@ -88,6 +104,8 @@ public class UserFootServiceImpl implements UserFootService {
         ArticleFootCountDTO res = userFootMapper.queryCountByArticle(articleId);
         if (res == null) {
             res = new ArticleFootCountDTO();
+        } else {
+            res.setCommentCount(commentService.commentCount(articleId));
         }
         return res;
     }
@@ -119,18 +137,18 @@ public class UserFootServiceImpl implements UserFootService {
     @Override
     public void saveCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor) {
         // 保存文章对应的评论足迹
-        doSaveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleAuthor, comment.getArticleId(), comment.getUserId(), OperateTypeEnum.COMMENT);
+        saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleAuthor, comment.getArticleId(), comment.getUserId(), OperateTypeEnum.COMMENT);
         // 如果是子评论，则找到父评论的记录，然后设置为已评
         if (parentCommentAuthor != null) {
-            doSaveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, parentCommentAuthor, comment.getParentCommentId(), comment.getUserId(), OperateTypeEnum.COMMENT);
+            saveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, parentCommentAuthor, comment.getParentCommentId(), comment.getUserId(), OperateTypeEnum.COMMENT);
         }
     }
 
     @Override
     public void deleteCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor) {
-        doSaveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleAuthor, comment.getArticleId(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
+        saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleAuthor, comment.getArticleId(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
         if (parentCommentAuthor != null) {
-            doSaveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, parentCommentAuthor, comment.getParentCommentId(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
+            saveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, parentCommentAuthor, comment.getParentCommentId(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
         }
     }
 }

@@ -4,6 +4,8 @@ server:
 spring:
   profiles:
     active: dal,web,config
+  main:
+    allow-circular-references: true
 
 # mybatis 相关统一配置
 mybatis-plus:

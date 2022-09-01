@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<link href="/css/content.css" rel="stylesheet">
+
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${siteInfo.websiteName}">QuickFrom社区</title>
 </div>
@@ -7,7 +9,6 @@
 <body id="body" th:data-toast-message="${toast}" th:data-token="${token}">
 <!-- 导航栏 -->
 <div th:replace="layout/navbar :: header"></div>
-
 
 <div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
     <left>
@@ -20,6 +21,8 @@
             </div>
         </div>
 
+        <!-- 侧边tool -->
+        <div th:replace="plugins/article-tool-bar :: tool_bar(${article})"></div>
         <!-- 正文 -->
         <content>
             <div th:replace="plugins/article-info :: article_info(${article}, ${author})"></div>
@@ -36,12 +39,35 @@
              th:each="item : ${sideBarItems}">
             <div th:replace="plugins/normal-card :: normal_card(${item})"/>
         </div>
+
+        <!--  推荐阅读  -->
+        <!--  作者其他博文  -->
     </right>
 </div>
 
 <div th:replace="layout/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="/js/biz/toolaction.js"></script>
+<script th:inline="javascript">
+    // 内容渲染
+    const content = [[${article.content}]];
+    document.getElementById('articleContent').innerHTML = marked.parse(content);
+    // 文章样式渲染
+    document.addEventListener('DOMContentLoaded', function (event) {
+        if (document.querySelectorAll('pre code').length === 0) {
+            return;
+        }
 
-<script>
+        // 加载 highlight 样式文件
+        loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
+        // 加载 highlight 脚本文件
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
+            document.querySelectorAll('pre code').forEach(function (block) {
+                hljs.highlightBlock(block);
+            });
+        });
+    });
+
     <!-- 评论相关 -->
     const commentContent = $("#commentContent");
     commentContent.on('input propertychange', function () {
@@ -107,6 +133,39 @@
             location.reload();
         })
     });
+
+    // 跳转到评论的地方
+    $("#commentFloatBtn").click(function () {
+        window.location.hash = "commentList"
+    })
+
+    // 点赞
+    const articleId = [[${article.articleId}]];
+    let praisedCount = [[${article.count.praiseCount}]]
+    let praised = [[${article.praised}]]
+    let collected = [[${article.collected}]]
+    $("#praiseFloatBtn").click(function () {
+        praised = !praised;
+
+        praiseArticle(articleId, praised, new function (data) {
+            if (praised) {
+                // 点赞
+                praisedCount += 1;
+                $("#praiseFloatBtn").addClass("active")
+            } else {
+                praisedCount -= 1;
+                $("#praiseFloatBtn").removeClass("active")
+            }
+
+            if(praisedCount > 0) {
+                $("#praiseFloatBtn").addClass("with-badge")
+                $('#praiseFloatBtn').attr("badge", praisedCount)
+            } else {
+                $("#praiseFloatBtn").removeClass("with-badge")
+                $('#praiseFloatBtn').removeAttr("badge")
+            }
+        });
+    })
 
 </script>
 </body>

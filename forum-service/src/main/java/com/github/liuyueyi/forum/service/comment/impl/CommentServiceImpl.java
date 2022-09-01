@@ -16,6 +16,7 @@ import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.comment.repository.mapper.CommentMapper;
 import com.github.liuyueyi.forum.service.user.UserService;
 import com.github.liuyueyi.forum.service.user.impl.UserFootServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
     @Resource
     private UserService userService;
 
-    @Resource
+    @Autowired
     private UserFootServiceImpl userFootService;
 
     @Override
@@ -208,5 +209,21 @@ public class CommentServiceImpl implements CommentService {
                 .eq(CommentDO::getArticleId, articleId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode());
         return commentMapper.selectList(queryWrapper);
+    }
+
+
+    /**
+     * 查询有效评论数
+     *
+     * @param articleId
+     * @return
+     */
+    @Override
+    public int commentCount(Long articleId) {
+        QueryWrapper<CommentDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
+                .eq(CommentDO::getArticleId, articleId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return commentMapper.selectCount(queryWrapper).intValue();
     }
 }

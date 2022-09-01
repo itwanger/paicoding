@@ -9,16 +9,32 @@ import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 public interface ArticleService {
 
-    ArticleDO querySimpleArticle(Long articleId);
-
     /**
-     * 查询文章详情
+     * 查询基础的文章信息
      *
      * @param articleId
-     * @param updateReadCnt true表示阅读计数+1； false则计数不变
      * @return
      */
-    ArticleDTO queryArticleDetail(Long articleId, boolean updateReadCnt);
+    ArticleDO queryBasicArticle(Long articleId);
+
+
+    /**
+     * 查询文章详情，包括正文内容，分类、标签等信息
+     *
+     * @param articleId
+     * @return
+     */
+    ArticleDTO queryArticleDetail(Long articleId);
+
+    /**
+     * 查询文章所有的关联信息，正文，分类，标签，阅读计数+1，当前登录用户是否点赞、评论过
+     *
+     * @param articleId   文章id
+     * @param currentUser 当前查看的用户ID
+     * @return
+     */
+    ArticleDTO queryTotalArticleDetail(Long articleId, Long currentUser);
+
 
     /**
      * 保存or更新文章

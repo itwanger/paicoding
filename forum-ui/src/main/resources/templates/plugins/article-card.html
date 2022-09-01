@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-start" style="border-bottom: 1px dashed lightgray; padding-bottom: 10px">
         <div th:style="${'' + (#strings.isEmpty(article.cover) ? 'width: 100%;' : 'width: 80%; padding-right: 10px;')}">
             <div class="form-inline" style="font-size: 0.8em">
-                <a th:href="${'/user/home?userId=' + article.author}" target="_blank" rel="" class="text-muted" style="padding-right: .5em">
+                <a th:href="${'/user/home?userId=' + article.author}" rel="" class="text-muted" style="padding-right: .5em">
                     <div th:text="${'作者: ' + article.authorName}" class="text-muted">
                         作者
                     </div>
@@ -16,7 +16,7 @@
                 <div class="date" style="padding-right: .5em; padding-left: .5em" th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}">10小时前</div>
                 |
                 <div class="tag_list" style="padding-right: .5em; padding-left: .5em">
-                    <a th:href="'/tag/' + ${tag.tag}" th:text="${tag.tag}" target="_blank" rel="" class="tag" th:each="tag : ${article.tags}">
+                    <a th:href="'/tag/' + ${tag.tag}" th:text="${tag.tag}" rel="" class="tag" th:each="tag : ${article.tags}">
                         Java
                     </a>
                 </div>
@@ -28,7 +28,6 @@
                 <small th:if="true" class="posts-admin-tag posts-admin-tag-marrow">精</small>
                 <a th:text="${article.title}"
                    th:href="${'/article/detail/' + article.articleId}"
-                   target="_blank"
                    class="text-truncate posts-list-title">第一个文章</a>
             </div>
             <p th:text="${article.summary}" class="mb-1 posts-list-desc">

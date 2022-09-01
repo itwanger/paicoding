@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * 文章信息
- *
+ * <p>
  * DTO 定义返回给web前端的实体类 (VO)
  *
  * @author YiHui
@@ -98,7 +98,22 @@ public class ArticleDTO implements Serializable {
     private List<TagDTO> tags;
 
     /**
-     * 计数统计相关
+     * 表示当前查看的用户是否已经点赞过
+     */
+    private Boolean praised;
+
+    /**
+     * 表示当用户是否评论过
+     */
+    private Boolean commented;
+
+    /**
+     * 表示当前用户是否收藏过
+     */
+    private Boolean collected;
+
+    /**
+     * 文章对应的统计计数
      */
     private ArticleFootCountDTO count;
 }

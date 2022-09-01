@@ -15,7 +15,7 @@
             sum(if (f.collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
             sum(r.`cnt`) as readCount
         FROM
-            user_foot as f right join read_count as r on f.document_id = r.document_id and f.document_type = r.document_type
+            read_count as r left join user_foot as f  on f.document_id = r.document_id and f.document_type = r.document_type
         WHERE
             r.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
             AND r.document_id = #{articleId}

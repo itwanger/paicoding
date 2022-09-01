@@ -1,21 +1,19 @@
 package com.github.liuyueyi.forum.web.front.article;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
-import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
-import com.github.liuyueyi.forum.core.util.MapUtils;
 import com.github.liuyueyi.forum.service.article.ArticleService;
 import com.github.liuyueyi.forum.service.article.CategoryService;
 import com.github.liuyueyi.forum.service.article.TagService;
@@ -23,18 +21,17 @@ import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.comment.CommentService;
 import com.github.liuyueyi.forum.service.user.UserFootService;
 import com.github.liuyueyi.forum.service.user.UserService;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 文章
@@ -77,7 +74,7 @@ public class ArticleController {
     @GetMapping(path = "edit")
     public String edit(@RequestParam(required = false) Long articleId, Model model) {
         if (articleId != null) {
-            ArticleDTO article = articleService.queryArticleDetail(articleId, false);
+            ArticleDTO article = articleService.queryArticleDetail(articleId);
             if (!Objects.equals(article.getAuthor(), ReqInfoContext.getReqInfo().getUserId())) {
                 // 没有权限
                 model.addAttribute("toast", "内容不存在");
@@ -130,7 +127,7 @@ public class ArticleController {
      */
     @GetMapping("detail/{articleId}")
     public String detail(@PathVariable(name = "articleId") Long articleId, Model model) {
-        ArticleDTO articleDTO = articleService.queryArticleDetail(articleId, true);
+        ArticleDTO articleDTO = articleService.queryTotalArticleDetail(articleId, ReqInfoContext.getReqInfo().getUserId());
         model.addAttribute("article", articleDTO);
 
         // 评论信息
@@ -186,21 +183,22 @@ public class ArticleController {
     @ResponseBody
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "favor")
-    public ResVo<ArticleFootCountDTO> favor(@RequestParam(name = "articleId") Long articleId,
-                                            @RequestParam(name = "type") Integer type) {
+    public ResVo<Boolean> favor(@RequestParam(name = "articleId") Long articleId,
+                                @RequestParam(name = "type") Integer type) {
         OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
         if (operate == OperateTypeEnum.EMPTY) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
         }
 
-        ArticleDO article = articleService.querySimpleArticle(articleId);
+        // 要求文章必须存在
+        ArticleDO article = articleService.queryBasicArticle(articleId);
         if (article == null) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
         }
 
-        ArticleFootCountDTO count = userFootService.saveArticleFoot(articleId, article.getUserId(),
+        userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(),
                 ReqInfoContext.getReqInfo().getUserId(),
                 operate);
-        return ResVo.ok(count);
+        return ResVo.ok(true);
     }
 }

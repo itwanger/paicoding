@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 
 <!-- 文章内容 -->
-<div th:fragment="comment_list(comments, article)" class="posts-box">
+<div th:fragment="comment_list(comments, article)" class="posts-box" id="commentList">
     <div class="posts-comment-box posts-comment-input-box clearfix" style="width: 100%;">
         <img th:if="${isLogin}"
              th:alt="${user.userName}"
