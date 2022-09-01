@@ -161,6 +161,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         List<ArticleDO> records = articleRepository.getArticleListByBySearchKey(key, page);
         List<ArticleDTO> result = new ArrayList<>();
+
         records.forEach(record -> {
             ArticleDTO dto = articleConverter.toDTO(record);
             // 阅读计数
@@ -211,13 +212,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<ArticleDTO> articleList = new ArrayList<>();
         for (ArticleDO articleDTO : articleDTOS) {
-            ArticleDTO dto = articleConverter.toDTO(articleDTO);
-            // 阅读计数
-            dto.setCount(userFootService.queryArticleCountByArticleId(articleDTO.getId()));
-            // 作者信息
-            dto.setAuthorName(userInfoDTO.getUserName());
-            // 标签列表
-            dto.setTags(articleTagMapper.queryArticleTagDetails(articleDTO.getId()));
+            ArticleDTO dto = getArticleDTO(articleDTO, userInfoDTO);
             articleList.add(dto);
         }
 
@@ -243,13 +238,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<ArticleDTO> articleList = new ArrayList<>();
         for (ArticleDO articleDTO : articleDTOS) {
-            ArticleDTO dto = articleConverter.toDTO(articleDTO);
-            // 阅读计数
-            dto.setCount(userFootService.queryArticleCountByArticleId(articleDTO.getId()));
-            // 作者信息
-            dto.setAuthorName(userInfoDTO.getUserName());
-            // 标签列表
-            dto.setTags(articleTagMapper.queryArticleTagDetails(articleDTO.getId()));
+            ArticleDTO dto = getArticleDTO(articleDTO, userInfoDTO);
             articleList.add(dto);
         }
 
@@ -274,14 +263,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         List<ArticleDTO> articleList = new ArrayList<>();
-        for (ArticleDO articleDTO : articleDTOS) {
-            ArticleDTO dto = articleConverter.toDTO(articleDTO);
-            // 阅读计数
-            dto.setCount(userFootService.queryArticleCountByArticleId(articleDTO.getId()));
-            // 作者信息
-            dto.setAuthorName(userInfoDTO.getUserName());
-            // 标签列表
-            dto.setTags(articleTagMapper.queryArticleTagDetails(articleDTO.getId()));
+        for (ArticleDO articleDO : articleDTOS) {
+            ArticleDTO dto = getArticleDTO(articleDO, userInfoDTO);
             articleList.add(dto);
         }
 
@@ -290,5 +273,23 @@ public class ArticleServiceImpl implements ArticleService {
         articleListDTO.setArticleList(articleList);
         articleListDTO.setIsMore(isMore);
         return articleListDTO;
+    }
+
+    /**
+     * 获取返回的文章数据
+     *
+     * @param articleDO
+     * @param userInfoDTO
+     * @return
+     */
+    private ArticleDTO getArticleDTO(ArticleDO articleDO, BaseUserInfoDTO userInfoDTO) {
+        ArticleDTO dto = articleConverter.toDTO(articleDO);
+        // 阅读计数
+        dto.setCount(userFootService.queryArticleCountByArticleId(articleDO.getId()));
+        // 作者信息
+        dto.setAuthorName(userInfoDTO.getUserName());
+        // 标签列表
+        dto.setTags(articleTagMapper.queryArticleTagDetails(articleDO.getId()));
+        return dto;
     }
 }

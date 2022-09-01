@@ -39,7 +39,6 @@ import java.util.List;
  * @date : 2022/8/3 10:56
  **/
 @Controller
-@Permission(role = UserRole.LOGIN)
 @RequestMapping(path = "user")
 @Slf4j
 public class UserController {
@@ -57,33 +56,19 @@ public class UserController {
     private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
 
     /**
-     * 保存用户
-     * <p>
-     * fixme 用户注册，如公众号的登录方式，需要给用户补齐基本的个人信息
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @PostMapping(path = "saveUser")
-    public String saveUser(UserSaveReq req) {
-        userService.saveUser(req);
-        return "";
-    }
-
-    /**
      * 保存用户详情
      *
      * @param req
      * @return
      * @throws Exception
      */
+    @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "saveUserInfo")
     @ResponseBody
     @Transactional(rollbackFor = Exception.class)
     public ResVo<Object> saveUserInfo(@RequestBody UserInfoSaveReq req) {
         userService.saveUserInfo(req);
-        return ResVo.ok(1);
+        return ResVo.ok("");
     }
 
     /**
@@ -93,6 +78,7 @@ public class UserController {
      * @return
      * @throws Exception
      */
+    @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "saveUserRelation")
     public String saveUserRelation(UserRelationReq req) throws Exception {
         userRelationService.saveUserRelation(req);
@@ -105,7 +91,7 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "home")
-    public String getUserHome(Model model, HttpServletRequest request) {
+    public String getUserHome(@RequestParam(name = "userId", required = true) Long userId, Model model, HttpServletRequest request) {
 
         String homeSelectType = request.getParameter("homeSelectType");
         if (homeSelectType == null || homeSelectType.equals(Strings.EMPTY)) {
@@ -117,7 +103,6 @@ public class UserController {
             followSelectType = FollowTypeEnum.FOLLOW.getCode();
         }
 
-        Long userId = ReqInfoContext.getReqInfo().getUserId();
         UserHomeDTO userHomeDTO = userService.getUserHomeDTO(userId);
         List<TagSelectDTO> homeSelectTags = homeSelectTags(homeSelectType);
         userHomeSelectList(homeSelectType, followSelectType, userId, model);

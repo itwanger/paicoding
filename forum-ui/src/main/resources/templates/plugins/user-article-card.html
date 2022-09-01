@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-start" style="border-bottom: 1px dashed lightgray; padding-bottom: 10px">
         <div th:style="${'' + (#strings.isEmpty(article.cover) ? 'width: 100%;' : 'width: 80%; padding-right: 10px;')}">
             <div class="form-inline" style="font-size: 0.8em">
-                <a target="_blank" rel="" class="text-muted" style="padding-right: .5em">
+                <a th:href="${'/user/home?userId=' + article.author}" target="_blank" rel="" class="text-muted" style="padding-right: .5em">
                     <div th:text="${'作者: ' + article.authorName}" class="text-muted">
                         作者
                     </div>

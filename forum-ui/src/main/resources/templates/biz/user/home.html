@@ -27,7 +27,7 @@
                         <li th:text="'粉丝数: ' + ${userHome.followCount}">粉丝数</li>
                     </ul>
 
-                    <ul class="navbar-nav my-md-0">
+                    <ul class="navbar-nav my-md-0" th:if="${isLogin && (userHome.userId == user.userId)}">
                         <!--  跳出保存弹窗 -->
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">编辑个人资料</a>
@@ -104,7 +104,7 @@
         <div class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
 
             <!-- 选择标签列表 -->
-            <div th:replace="plugins/home-select-tag :: select_tag(${homeSelectTags})"></div>
+            <div th:replace="plugins/home-select-tag :: select_tag(${homeSelectTags}, ${userHome.userId})"></div>
 
             <!-- 文章列表 -->
             <content>
@@ -121,7 +121,7 @@
                     <a th:if ="${homeSelectType == 'follow'}">
 
                         <!-- 选择标签列表 -->
-                        <div th:replace="plugins/follow-select-tag :: select_tag(${followSelectTags})"></div>
+                        <div th:replace="plugins/follow-select-tag :: select_tag(${followSelectTags}, ${userHome.userId})"></div>
 
                         <a th:if ="${followSelectType == 'follow'}">
                             <div th:each="follow : ${followList.userFollowList}">
@@ -173,29 +173,9 @@
 
         post("/user/saveUserInfo", params, function (data) {
             console.log("返回结果:", data);
-            window.location.href = "/user/home";
+            window.location.href = "/user/home?userId=" + userId;
         });
     }
-
-    const post = function (path, data, callback) {
-        $.ajax({
-            method: 'POST',
-            url: path,
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (data) {
-                console.log("data", data);
-                if (!data || !data.status || data.status.code != 0) {
-                    toastr.error(data.message);
-                } else if (callback) {
-                    callback(data.result);
-                }
-            },
-            error: function (data) {
-                toastr.error(data);
-            }
-        });
-    };
 </script>
 </body>
 </html>

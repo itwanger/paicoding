@@ -83,7 +83,7 @@
                            class="dropdown-item">管理后台</a>
                         <div th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}"
                              class="dropdown-divider"></div>
-                        <a th:href="${'/user/home'}" class="dropdown-item" target="_blank" href="#">个人主页</a>
+                        <a th:href="${'/user/home?userId=' + user.userId}" class="dropdown-item" target="_blank" href="#">个人主页</a>
                         <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                     </div>
                 </li>
