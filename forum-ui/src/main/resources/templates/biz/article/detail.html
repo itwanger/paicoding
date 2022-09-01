@@ -26,7 +26,9 @@
         <!-- 正文 -->
         <content>
             <div th:replace="plugins/article-info :: article_info(${article}, ${author})"></div>
+        </content>
 
+        <content>
             <div th:replace="plugins/comment-list :: comment_list(${comments}, ${article})"></div>
         </content>
     </left>
@@ -143,8 +145,13 @@
     const articleId = [[${article.articleId}]];
     let praisedCount = [[${article.count.praiseCount}]]
     let praised = [[${article.praised}]]
-    let collected = [[${article.collected}]]
+    const isLogin = [[${isLogin}]]
     $("#praiseFloatBtn").click(function () {
+        if (!isLogin) {
+            // 未登录，不执行相关操作
+            return;
+        }
+
         praised = !praised;
 
         praiseArticle(articleId, praised, new function (data) {
@@ -157,7 +164,7 @@
                 $("#praiseFloatBtn").removeClass("active")
             }
 
-            if(praisedCount > 0) {
+            if (praisedCount > 0) {
                 $("#praiseFloatBtn").addClass("with-badge")
                 $('#praiseFloatBtn').attr("badge", praisedCount)
             } else {
