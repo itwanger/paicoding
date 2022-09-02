@@ -1,5 +1,7 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
+import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
@@ -9,13 +11,15 @@ import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleWriteService;
+import com.github.liuyueyi.forum.service.user.service.UserFootService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
 /**
- *  文章操作相关服务类
+ * 文章操作相关服务类
  *
  * @author louzai
  * @date 2022-07-20
@@ -26,6 +30,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     private final ArticleDao articleDao;
 
     private final ArticleTagDao articleTagDao;
+
+    @Autowired
+    private UserFootService userFootService;
 
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
         this.articleDao = articleDao;
@@ -42,7 +49,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Override
     public Long saveArticle(ArticlePostReq req, Long author) {
         ArticleDO article = ArticleConverter.toArticleDo(req, author);
-        if (NumUtil.upZero(req.getArticleId())) {
+        if (NumUtil.nullOrZero(req.getArticleId())) {
             return insertArticle(article, req.getContent(), req.getTagIds());
         } else {
             return updateArticle(article, req.getContent(), req.getTagIds());
@@ -65,6 +72,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         articleDao.saveArticleContent(articleId, content);
 
         articleTagDao.batchSave(articleId, tags);
+
+        // 发布文章，阅读计数+1
+        userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(), article.getUserId(), OperateTypeEnum.READ);
         return articleId;
     }
 

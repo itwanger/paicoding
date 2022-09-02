@@ -50,12 +50,13 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 return true;
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
-                response.sendRedirect("403");
+                // 跳转到登录界面
+                response.sendRedirect("/403");
                 return false;
             }
 
             if (permission.role() == UserRole.ADMIN && !"admin".equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
-                response.sendRedirect("403");
+                response.sendRedirect("/403");
                 return false;
             }
         }

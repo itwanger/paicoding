@@ -17,7 +17,10 @@ import java.util.List;
 @Repository
 public class TagDao extends ServiceImpl<TagMapper, TagDO> {
     public List<TagDTO> listTagsByCategoryId(Long categoryId) {
-        List<TagDO> list = lambdaQuery().eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode()).eq(TagDO::getCategoryId, categoryId).list();
+        List<TagDO> list = lambdaQuery()
+                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(TagDO::getCategoryId, categoryId)
+                .list();
         return ArticleConverter.toDtoList(list);
     }
 }

@@ -10,7 +10,6 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,15 +66,16 @@ public class ArticleConverter {
 
 
     /**
-     * fixme 知识点：<a href="https://blog.hhui.top/hexblog/2021/04/08/210408-%E5%B8%B8%E8%A7%81Bean%E6%8B%B7%E8%B4%9D%E6%A1%86%E6%9E%B6%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF%E5%8F%8A%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94/"/>
+     * do转换
      *
      * @param tag
      * @return
      */
     public static TagDTO toDto(TagDO tag) {
         TagDTO dto = new TagDTO();
-        // 注意，下面这个不要使用Apache的工具类，性能很差
-        BeanUtils.copyProperties(tag, dto);
+        dto.setTag(tag.getTagName());
+        dto.setTagId(tag.getId());
+        dto.setCategoryId(tag.getCategoryId());
         return dto;
     }
 

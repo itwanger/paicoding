@@ -23,12 +23,12 @@ import java.util.Optional;
  * @date 2022/8/15
  */
 @RestController
-@RequestMapping(path = "user/api")
+@RequestMapping
 public class LoginRestController {
     @Autowired
     private LoginService loginService;
 
-    @RequestMapping("login")
+    @RequestMapping("/login")
     public ResVo<Boolean> login(@RequestParam(name = "code") String code,
                                 HttpServletResponse response) {
         String session = loginService.login(code);
