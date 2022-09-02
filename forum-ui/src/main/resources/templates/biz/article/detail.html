@@ -138,7 +138,7 @@
 
     // 跳转到评论的地方
     $("#commentFloatBtn").click(function () {
-        window.location.hash = "commentList"
+        document.getElementById("commentList").scrollIntoView(true);
     })
 
     // 点赞
@@ -154,7 +154,7 @@
 
         praised = !praised;
 
-        praiseArticle(articleId, praised, new function (data) {
+        praiseArticle(articleId, praised, function (data) {
             if (praised) {
                 // 点赞
                 praisedCount += 1;

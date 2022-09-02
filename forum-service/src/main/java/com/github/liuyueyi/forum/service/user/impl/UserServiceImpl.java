@@ -140,6 +140,7 @@ public class UserServiceImpl implements UserService {
         ArticleFootCountDTO articleFootCountDTO = userFootService.queryArticleCountByUserId(userId);
 
         // 获取发布文章总数
+        // fixme 不要直接在用户服务类，操作文章的Mapper
         LambdaQueryWrapper<ArticleDO> articleQuery = Wrappers.lambdaQuery();
         articleQuery.eq(ArticleDO::getUserId, userId)
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())

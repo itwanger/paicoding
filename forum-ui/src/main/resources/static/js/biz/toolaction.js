@@ -3,7 +3,7 @@ const praiseArticle = function (articleId, action, callback) {
     // 2 点赞， 4 取消点赞
     const type = action ? 2 : 4;
     $.get('/article/favor?articleId=' + articleId + "&type=" + type, function (data) {
-        console.log("response:" + data);
+        console.log("response:", data);
         if (!data || !data.status || data.status.code !== 0) {
             toastr.error(data.message);
         } else if (callback) {
@@ -17,7 +17,7 @@ const praiseComment = function (commentId, action, callback) {
     // 2 点赞， 4 取消点赞
     const type = action ? 2 : 4;
     $.get('/comment/favor?commentId=' + commentId + "&type=" + type, function (data) {
-        console.log("response:" + data);
+        console.log("response:", data);
         if (!data || !data.status || data.status.code !== 0) {
             toastr.error(data.message);
         } else if (callback) {
