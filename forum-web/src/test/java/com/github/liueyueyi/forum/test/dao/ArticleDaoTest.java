@@ -1,12 +1,11 @@
 package com.github.liueyueyi.forum.test.dao;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
-import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
-import com.github.liuyueyi.forum.service.article.impl.CategoryServiceImpl;
-import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
+import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadServiceImpl;
+import com.github.liuyueyi.forum.service.article.service.impl.CategoryServiceImpl;
+import com.github.liuyueyi.forum.service.article.service.impl.TagServiceImpl;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
@@ -30,19 +29,15 @@ public class ArticleDaoTest extends BasicTest {
     private CategoryServiceImpl categoryService;
 
     @Autowired
-    private ArticleServiceImpl articleService;
+    private ArticleReadServiceImpl articleService;
 
     @Test
     public void testCategory() {
         CategoryDO category = new CategoryDO();
         category.setCategoryName("后端");
         category.setStatus(1);
-        Long categoryId = categoryService.addCategory(category);
-        log.info("save category:{} -> id:{}", category, categoryId);
-
-        IPage<CategoryDO> list = categoryService.getCategoryByPage(PageParam.newPageInstance(0L, 10L));
-        log.info("query list: {}", list.getRecords());
-
+        categoryService.save(category);
+        log.info("save category:{} -> id:{}", category, category.getId());
     }
 
     @Test
@@ -51,10 +46,10 @@ public class ArticleDaoTest extends BasicTest {
         tag.setTagName("Java");
         tag.setTagType(1);
         tag.setCategoryId(1L);
-        Long tagId = tagService.addTag(tag);
-        log.info("tagId: {}", tagId);
+        tagService.save(tag);
+        log.info("tagId: {}", tag.getId());
 
-        List<TagDTO> list = tagService.getTagListByCategoryId(1L);
+        List<TagDTO> list = tagService.queryTagsByCategoryId(1L);
         log.info("tagList: {}", list);
     }
 

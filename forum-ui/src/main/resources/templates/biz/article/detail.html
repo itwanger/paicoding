@@ -52,6 +52,7 @@
 <script src="/js/biz/toolaction.js"></script>
 <script th:inline="javascript">
     // 内容渲染
+    const articleId = [[${article.articleId}]];
     const content = [[${article.content}]];
     document.getElementById('articleContent').innerHTML = marked.parse(content);
     // 文章样式渲染
@@ -92,15 +93,14 @@
         // 提交评论
         const params = {
             // 文章id
-            "articleId": $('#postsTitle').attr("data-id"),
+            "articleId": articleId,
             // 评论内容
             "commentContent": content
         };
-        post("/comment/post", params, function (data) {
+        post("/comment/api/post", params, function (data) {
             location.reload();
         })
     });
-
 
     // 回复评论
     const replyContent = $('#replyContent');
@@ -131,7 +131,7 @@
             // 回复的一级评论id
             "topCommentId": replyBtn.attr('data-reply-top')
         };
-        post("/comment/post", params, function (data) {
+        post("/comment/api/post", params, function (data) {
             location.reload();
         })
     });
@@ -142,7 +142,6 @@
     })
 
     // 点赞
-    const articleId = [[${article.articleId}]];
     let praisedCount = [[${article.count.praiseCount}]]
     let praised = [[${article.praised}]]
     const isLogin = [[${isLogin}]]

@@ -1,6 +1,6 @@
 $('#logoutBtn').click(function () {
     $.ajax({
-        url: "/logout",
+        url: "/user/api/logout",
         dataType: "json",
         type: "get",
         success: function (data) {
@@ -14,7 +14,7 @@ $('#loginBtn').click(function () {
     const code = $('#loginCode').val();
     console.log("开始登录：" + code);
     $.ajax({
-        url: "/login?code=" + code,    //请求的url地址
+        url: "/user/api/login?code=" + code,    //请求的url地址
         dataType: "json",   //返回格式为json
         async: true,//请求是否异步，默认为异步，这也是ajax重要特性
         type: "GET",   //请求方式

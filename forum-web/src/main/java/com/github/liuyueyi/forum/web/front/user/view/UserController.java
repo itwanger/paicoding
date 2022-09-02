@@ -1,0 +1,187 @@
+package com.github.liuyueyi.forum.web.front.user.view;
+
+import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
+import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
+import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
+import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadServiceImpl;
+import com.github.liuyueyi.forum.service.user.service.relation.UserRelationServiceImpl;
+import com.github.liuyueyi.forum.service.user.service.user.UserServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+
+/**
+ * 用户注册、取消，登录、登出
+ *
+ * @author lvmenglou
+ * @date : 2022/8/3 10:56
+ **/
+@Controller
+@RequestMapping(path = "user")
+@Slf4j
+public class UserController {
+
+    @Resource
+    private UserServiceImpl userService;
+
+    @Resource
+    private UserRelationServiceImpl userRelationService;
+
+    @Resource
+    private ArticleReadServiceImpl articleReadService;
+
+    private static final List<String> homeSelectTags = Arrays.asList("article", "read", "follow", "collection");
+    private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
+
+    /**
+     * 保存用户详情
+     *
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    @Permission(role = UserRole.LOGIN)
+    @PostMapping(path = "saveUserInfo")
+    @ResponseBody
+    @Transactional(rollbackFor = Exception.class)
+    public ResVo<Object> saveUserInfo(@RequestBody UserInfoSaveReq req) {
+        userService.saveUserInfo(req);
+        return ResVo.ok("");
+    }
+
+    /**
+     * 保存用户关系
+     *
+     * @param req
+     * @return
+     * @throws Exception
+     */
+    @Permission(role = UserRole.LOGIN)
+    @PostMapping(path = "saveUserRelation")
+    public String saveUserRelation(UserRelationReq req) throws Exception {
+        userRelationService.saveUserRelation(req);
+        return "";
+    }
+
+    /**
+     * 获取用户主页信息
+     *
+     * @return
+     */
+    @GetMapping(path = "home")
+    public String getUserHome(@RequestParam(name = "userId", required = true) Long userId, Model model, HttpServletRequest request) {
+
+        String homeSelectType = request.getParameter("homeSelectType");
+        if (homeSelectType == null || homeSelectType.equals(Strings.EMPTY)) {
+            homeSelectType = HomeSelectEnum.ARTICLE.getCode();
+        }
+
+        String followSelectType = request.getParameter("followSelectType");
+        if (followSelectType == null || followSelectType.equals(Strings.EMPTY)) {
+            followSelectType = FollowTypeEnum.FOLLOW.getCode();
+        }
+
+        UserStatisticInfoDTO userHomeDTO = userService.queryUserInfoWithStatistic(userId);
+        List<TagSelectDTO> homeSelectTags = homeSelectTags(homeSelectType);
+        userHomeSelectList(homeSelectType, followSelectType, userId, model);
+
+        model.addAttribute("homeSelectType", homeSelectType);
+        model.addAttribute("homeSelectTags", homeSelectTags);
+        model.addAttribute("userHome", userHomeDTO);
+        return "biz/user/home";
+    }
+
+    /**
+     * 返回Home页选择列表标签
+     *
+     * @param selectType
+     * @return
+     */
+    private List<TagSelectDTO> homeSelectTags(String selectType) {
+        List<TagSelectDTO> tags = new ArrayList<>();
+        homeSelectTags.forEach(tag -> {
+            TagSelectDTO tagSelectDTO = new TagSelectDTO();
+            tagSelectDTO.setSelectType(tag);
+            tagSelectDTO.setSelectDesc(HomeSelectEnum.fromCode(tag).getDesc());
+            tagSelectDTO.setSelected(selectType.equals(tag));
+            tags.add(tagSelectDTO);
+        });
+        return tags;
+    }
+
+    /**
+     * 返回关注用户选择列表标签
+     *
+     * @param selectType
+     * @return
+     */
+    private List<TagSelectDTO> followSelectTags(String selectType) {
+        List<TagSelectDTO> tags = new ArrayList<>();
+        followSelectTags.forEach(tag -> {
+            TagSelectDTO tagSelectDTO = new TagSelectDTO();
+            tagSelectDTO.setSelectType(tag);
+            tagSelectDTO.setSelectDesc(FollowSelectEnum.fromCode(tag).getDesc());
+            tagSelectDTO.setSelected(selectType.equals(tag));
+            tags.add(tagSelectDTO);
+        });
+        return tags;
+    }
+
+    /**
+     * 返回选择列表
+     *
+     * @param homeSelectType
+     * @param userId
+     * @param model
+     */
+    private void userHomeSelectList(String homeSelectType, String followSelectType, Long userId, Model model) {
+        PageParam pageParam = PageParam.newPageInstance();
+        HomeSelectEnum select = HomeSelectEnum.fromCode(homeSelectType);
+        if (select == null) {
+            return;
+        }
+
+        switch (select) {
+            case ARTICLE:
+            case READ:
+            case COLLECTION:
+                ArticleListDTO dto = articleReadService.queryArticlesByUserAndType(userId, pageParam, select);
+                model.addAttribute("homeSelectList", dto);
+                break;
+            case FOLLOW:
+                // 关注用户与被关注用户
+                // 获取选择标签
+                List<TagSelectDTO> followSelectTags = followSelectTags(followSelectType);
+
+                if (followSelectType.equals(FollowTypeEnum.FOLLOW.getCode())) {
+                    UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
+                    model.addAttribute("followList", userFollowListDTO);
+                } else {
+                    UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
+                    model.addAttribute("fansList", userFollowListDTO);
+                }
+                model.addAttribute("followSelectType", followSelectType);
+                model.addAttribute("followSelectTags", followSelectTags);
+        }
+    }
+}

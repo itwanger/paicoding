@@ -3,7 +3,7 @@ package com.github.liuyueyi.forum.web.hook.interceptor;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
-import com.github.liuyueyi.forum.service.user.UserService;
+import com.github.liuyueyi.forum.service.user.service.UserService;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -73,7 +73,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 
             } else {
                 modelAndView.getModel().put("isLogin", true);
-                modelAndView.getModel().put("user", userService.getUserHomeDTO(ReqInfoContext.getReqInfo().getUserId()));
+                modelAndView.getModel().put("user", userService.queryUserInfoWithStatistic(ReqInfoContext.getReqInfo().getUserId()));
                 // 消息数 fixme 消息信息改由消息模块处理
                 modelAndView.getModel().put("msgs", Arrays.asList(new UserMsg().setMsgId(100L).setMsgType(1).setMsg("模拟通知消息")));
             }

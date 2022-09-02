@@ -117,7 +117,6 @@
 </div>
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
-
 <script>
     <!--    发表文章 -->
     $('#publish').on('click', function () {
@@ -151,7 +150,7 @@
         }
         console.log(params);
 
-        post("/article/post", params, function (data) {
+        post("/article/api/post", params, function (data) {
             console.log("返回结果:", data);
             window.location.href = "/article/detail/" + data;
         });
@@ -159,7 +158,7 @@
 
     // 选中分类，更新对应的下拉标签
     $('input:radio[name="category"]').click(function () {
-        $.get('/article/tag/list?categoryId=' + getChooseCategoryId(), function (data) {
+        $.get('/article/api/tag/list?categoryId=' + getChooseCategoryId(), function (data) {
             console.log("response: ", data);
             const tagList = data.result;
             let tagDivs = "";
@@ -179,26 +178,6 @@
         }
         return -1;
     }
-
-    const post = function (path, data, callback) {
-        $.ajax({
-            method: 'POST',
-            url: path,
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (data) {
-                console.log("data", data);
-                if (!data || !data.status || data.status.code != 0) {
-                    toastr.error(data.message);
-                } else if (callback) {
-                    callback(data.result);
-                }
-            },
-            error: function (data) {
-                toastr.error(data);
-            }
-        });
-    };
 </script>
 </body>
 </html>
