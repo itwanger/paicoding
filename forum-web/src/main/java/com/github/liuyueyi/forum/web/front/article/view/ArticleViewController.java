@@ -2,8 +2,6 @@ package com.github.liuyueyi.forum.web.front.article.view;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.ResVo;
-import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
@@ -11,19 +9,20 @@ import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
-import com.github.liuyueyi.forum.service.article.service.ArticleWriteService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
 import com.github.liuyueyi.forum.service.article.service.TagService;
 import com.github.liuyueyi.forum.service.comment.service.CommentReadService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
+import com.github.liuyueyi.forum.web.front.article.vo.ArticleDetailVo;
+import com.github.liuyueyi.forum.web.front.article.vo.ArticleEditVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -37,15 +36,14 @@ import java.util.Objects;
  * ---
  *  - 返回视图 view
  *  - 返回json数据
+ *
+ * @author yihui
  */
 @Controller
 @RequestMapping(path = "article")
 public class ArticleViewController {
     @Autowired
     private ArticleReadService articleService;
-
-    @Autowired
-    private ArticleWriteService articleWriteService;
 
     @Autowired
     private CategoryService categoryService;
@@ -68,28 +66,28 @@ public class ArticleViewController {
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "edit")
     public String edit(@RequestParam(required = false) Long articleId, Model model) {
+        ArticleEditVo vo = new ArticleEditVo();
         if (articleId != null) {
             ArticleDTO article = articleService.queryDetailArticleInfo(articleId);
+            vo.setArticle(article);
             if (!Objects.equals(article.getAuthor(), ReqInfoContext.getReqInfo().getUserId())) {
                 // 没有权限
                 model.addAttribute("toast", "内容不存在");
                 return "redirect:403";
             }
-            model.addAttribute("article", article);
 
             List<CategoryDTO> categoryList = categoryService.loadAllCategories();
             categoryList.forEach(s -> {
                 s.setSelected(s.getCategoryId().equals(article.getCategory().getCategoryId()));
             });
-            model.addAttribute("categories", categoryList);
-            model.addAttribute("tagChooses", article.getTags());
-            model.addAttribute("tags", tagService.queryTagsByCategoryId(article.getCategory().getCategoryId()));
+            vo.setCategories(categoryList);
+            vo.setTags(tagService.queryTagsByCategoryId(article.getCategory().getCategoryId()));
         } else {
             List<CategoryDTO> categoryList = categoryService.loadAllCategories();
-            model.addAttribute("categories", categoryList);
-            model.addAttribute("tags", Collections.emptyList());
+            vo.setCategories(categoryList);
+            vo.setTags(Collections.emptyList());
         }
-
+        model.addAttribute("vo", vo);
         return "biz/article/edit";
     }
 
@@ -104,17 +102,19 @@ public class ArticleViewController {
      */
     @GetMapping("detail/{articleId}")
     public String detail(@PathVariable(name = "articleId") Long articleId, Model model) {
+        ArticleDetailVo vo = new ArticleDetailVo();
         ArticleDTO articleDTO = articleService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        model.addAttribute("article", articleDTO);
+        vo.setArticle(articleDTO);
 
         // 评论信息
         List<TopCommentDTO> comments = commentService.getArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
-        model.addAttribute("comments", comments);
+        vo.setComments(comments);
 
         // 作者信息
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());
         articleDTO.setAuthorName(user.getUserName());
-        model.addAttribute("author", user);
+        vo.setAuthor(user);
+        model.addAttribute("vo", vo);
         return "biz/article/detail";
     }
 

@@ -4,27 +4,23 @@ import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
 import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
-import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
-import com.github.liuyueyi.forum.core.permission.Permission;
-import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadServiceImpl;
 import com.github.liuyueyi.forum.service.user.service.relation.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.service.user.UserServiceImpl;
+import com.github.liuyueyi.forum.web.front.user.vo.UserHomeVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +35,7 @@ import java.util.List;
 @Controller
 @RequestMapping(path = "user")
 @Slf4j
-public class UserController {
+public class UserViewController {
 
     @Resource
     private UserServiceImpl userService;
@@ -54,60 +50,27 @@ public class UserController {
     private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
 
     /**
-     * 保存用户详情
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @Permission(role = UserRole.LOGIN)
-    @PostMapping(path = "saveUserInfo")
-    @ResponseBody
-    @Transactional(rollbackFor = Exception.class)
-    public ResVo<Object> saveUserInfo(@RequestBody UserInfoSaveReq req) {
-        userService.saveUserInfo(req);
-        return ResVo.ok("");
-    }
-
-    /**
-     * 保存用户关系
-     *
-     * @param req
-     * @return
-     * @throws Exception
-     */
-    @Permission(role = UserRole.LOGIN)
-    @PostMapping(path = "saveUserRelation")
-    public String saveUserRelation(UserRelationReq req) throws Exception {
-        userRelationService.saveUserRelation(req);
-        return "";
-    }
-
-    /**
      * 获取用户主页信息
      *
      * @return
      */
     @GetMapping(path = "home")
-    public String getUserHome(@RequestParam(name = "userId", required = true) Long userId, Model model, HttpServletRequest request) {
+    public String getUserHome(@RequestParam(name = "userId") Long userId,
+                              @RequestParam(name = "homeSelectType", required = false) String homeSelectType,
+                              @RequestParam(name = "followSelectType", required = false) String followSelectType,
+                              Model model) {
+        UserHomeVo vo = new UserHomeVo();
+        vo.setHomeSelectType(StringUtils.isBlank(homeSelectType) ? HomeSelectEnum.ARTICLE.getCode() : homeSelectType);
+        vo.setFollowSelectType(StringUtils.isBlank(followSelectType) ? FollowTypeEnum.FOLLOW.getCode() : followSelectType);
 
-        String homeSelectType = request.getParameter("homeSelectType");
-        if (homeSelectType == null || homeSelectType.equals(Strings.EMPTY)) {
-            homeSelectType = HomeSelectEnum.ARTICLE.getCode();
-        }
+        UserStatisticInfoDTO userInfo = userService.queryUserInfoWithStatistic(userId);
+        vo.setUserHome(userInfo);
 
-        String followSelectType = request.getParameter("followSelectType");
-        if (followSelectType == null || followSelectType.equals(Strings.EMPTY)) {
-            followSelectType = FollowTypeEnum.FOLLOW.getCode();
-        }
+        List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType());
+        vo.setHomeSelectTags(homeSelectTags);
 
-        UserStatisticInfoDTO userHomeDTO = userService.queryUserInfoWithStatistic(userId);
-        List<TagSelectDTO> homeSelectTags = homeSelectTags(homeSelectType);
-        userHomeSelectList(homeSelectType, followSelectType, userId, model);
-
-        model.addAttribute("homeSelectType", homeSelectType);
-        model.addAttribute("homeSelectTags", homeSelectTags);
-        model.addAttribute("userHome", userHomeDTO);
+        userHomeSelectList(vo, userId);
+        model.addAttribute("vo", vo);
         return "biz/user/home";
     }
 
@@ -150,13 +113,12 @@ public class UserController {
     /**
      * 返回选择列表
      *
-     * @param homeSelectType
+     * @param vo
      * @param userId
-     * @param model
      */
-    private void userHomeSelectList(String homeSelectType, String followSelectType, Long userId, Model model) {
+    private void userHomeSelectList(UserHomeVo vo, Long userId) {
         PageParam pageParam = PageParam.newPageInstance();
-        HomeSelectEnum select = HomeSelectEnum.fromCode(homeSelectType);
+        HomeSelectEnum select = HomeSelectEnum.fromCode(vo.getHomeSelectType());
         if (select == null) {
             return;
         }
@@ -166,22 +128,28 @@ public class UserController {
             case READ:
             case COLLECTION:
                 ArticleListDTO dto = articleReadService.queryArticlesByUserAndType(userId, pageParam, select);
-                model.addAttribute("homeSelectList", dto);
-                break;
+                vo.setHomeSelectList(dto);
+                return;
             case FOLLOW:
                 // 关注用户与被关注用户
                 // 获取选择标签
-                List<TagSelectDTO> followSelectTags = followSelectTags(followSelectType);
+                List<TagSelectDTO> followSelectTags = followSelectTags(vo.getFollowSelectType());
+                vo.setFollowSelectTags(followSelectTags);
+                initFollowFansList(vo, userId, pageParam);
+                return;
+            default:
+        }
+    }
 
-                if (followSelectType.equals(FollowTypeEnum.FOLLOW.getCode())) {
-                    UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
-                    model.addAttribute("followList", userFollowListDTO);
-                } else {
-                    UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
-                    model.addAttribute("fansList", userFollowListDTO);
-                }
-                model.addAttribute("followSelectType", followSelectType);
-                model.addAttribute("followSelectTags", followSelectTags);
+    private void initFollowFansList(UserHomeVo vo, long userId, PageParam pageParam) {
+        if (vo.getHomeSelectType().equals(FollowTypeEnum.FOLLOW.getCode())) {
+            UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
+            vo.setFollowList(userFollowListDTO);
+            vo.setFansList(UserFollowListDTO.emptyInstance());
+        } else {
+            UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
+            vo.setFansList(userFollowListDTO);
+            vo.setFollowList(UserFollowListDTO.emptyInstance());
         }
     }
 }

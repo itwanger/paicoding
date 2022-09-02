@@ -16,7 +16,7 @@
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
                 <form class="input-group my-md-0" action="/save" method="get">
                     <input id="title" type="text" class="form-control"
-                           th:value="${article != null ? article.title: ''}"
+                           th:value="${vo.article != null ? vo.article.title: ''}"
                            placeholder="请输入文章标题">
                 </form>
 
@@ -30,10 +30,10 @@
         </nav>
         <div class="form-group">
             <span id="articleId" style="visibility: hidden"
-                  th:text="${article != null ? article.articleId: ''}"></span>
+                  th:text="${vo.article != null ? vo.article.articleId: ''}"></span>
             <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
                       style="min-height:700px;width:100%"
-                      th:text="${article != null ? article.content: ''}">
+                      th:text="${vo.article != null ? vo.article.content: ''}">
             </textarea>
         </div>
 
@@ -51,13 +51,13 @@
                         <div class="input-group">
                             <span class="form-label" style="padding-right: 1em">短标题</span>
                             <input id="subTitle" type="text" class="form-control"
-                                   th:value="${article != null ? article.shortTitle: ''}"
+                                   th:value="${vo.article != null ? vo.article.shortTitle: ''}"
                                    placeholder="请输入文章短标题">
                         </div>
                         <div class="mb-12">
                             <label class="form-label">文章分类</label>
                             <div class="form-selectgroup">
-                                <label class="form-selectgroup-item" th:each="category : ${categories}"
+                                <label class="form-selectgroup-item" th:each="category : ${vo.categories}"
                                        id="categoryList">
                                     <input type="radio" name="category" th:value="${category.categoryId}"
                                            class="form-selectgroup-input" th:checked="${category.selected}">
@@ -71,7 +71,7 @@
                             <span class="form-label" style="padding-right: 1em">文章标签</span>
                             <select class="form-select" id="tagList">
                                 <option th:if="${tag != null}"
-                                        th:each="tag : ${tags}" th:value="${tag.tagId}"
+                                        th:each="tag : ${vo.tags}" th:value="${tag.tagId}"
                                         th:text="${tag.tag}">
                                     Java
                                 </option>
@@ -84,7 +84,7 @@
                                 <label class="form-selectgroup-item" id="sourceType">
                                     <input type="radio" name="source" value="ORIGINAL"
                                            class="form-selectgroup-input"
-                                           th:checked="${article != null && article.sourceType == '原创'}">
+                                           th:checked="${vo.article != null && vo.article.sourceType == '原创'}">
                                     <span class="form-selectgroup-label" th:text="原创"></span>
                                 </label>
                             </div>
@@ -96,7 +96,7 @@
                                 <textarea id="summary" class="form-control" data-bs-toggle="autosize"
                                           placeholder="摘要信息... 不超过128字"
                                           style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 56px;"
-                                          th:text="${article != null ?   article.summary: ''}">
+                                          th:text="${vo.article != null ?  vo.article.summary: ''}">
                                 </textarea>
                             </div>
                         </div>
