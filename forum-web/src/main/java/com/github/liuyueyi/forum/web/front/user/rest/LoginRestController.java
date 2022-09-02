@@ -29,7 +29,8 @@ public class LoginRestController {
     private LoginService loginService;
 
     @RequestMapping("login")
-    public ResVo<Boolean> login(@RequestParam(name = "code") String code, HttpServletResponse response) {
+    public ResVo<Boolean> login(@RequestParam(name = "code") String code,
+                                HttpServletResponse response) {
         String session = loginService.login(code);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
