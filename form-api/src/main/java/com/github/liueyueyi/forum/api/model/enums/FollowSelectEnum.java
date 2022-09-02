@@ -22,7 +22,7 @@ public enum FollowSelectEnum {
     private final String code;
     private final String desc;
 
-    public static FollowSelectEnum formCode(String code) {
+    public static FollowSelectEnum fromCode(String code) {
         for (FollowSelectEnum value : FollowSelectEnum.values()) {
             if (value.getCode().equals(code)) {
                 return value;

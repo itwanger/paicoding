@@ -17,26 +17,11 @@ import java.util.List;
 public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
 
     /**
-     * 批量保存
-     *
-     * @param entityList
-     * @return
-     */
-    @Insert("<script>" +
-            "insert into article_tag(`article_id`, `tag_id`, `deleted`) values " +
-            "<foreach collection='list' item='item' separator=','>" +
-            "   (#{item.articleId}, #{item.tagId}, 0)" +
-            "</foreach>" +
-            "</script>")
-    int batchInsert(@Param("list") List<ArticleTagDO> entityList);
-
-    /**
      * 查询文章标签
+     *
      * @param articleId
      * @return
      */
-    List<TagDTO> queryArticleTagDetails(@Param("articleId") Long articleId);
+    List<TagDTO> listArticleTagDetails(@Param("articleId") Long articleId);
 
-
-    List<ArticleTagDO> queryArticleTags(@Param("articleId") Long articleId);
 }

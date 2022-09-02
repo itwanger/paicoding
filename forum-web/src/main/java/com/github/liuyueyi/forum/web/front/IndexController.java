@@ -4,8 +4,9 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.core.util.MapUtils;
-import com.github.liuyueyi.forum.service.article.ArticleService;
-import com.github.liuyueyi.forum.service.article.CategoryService;
+import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
+import com.github.liuyueyi.forum.service.article.service.CategoryService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +30,7 @@ public class IndexController {
     private CategoryService categoryService;
 
     @Autowired
-    private ArticleService articleService;
+    private ArticleReadService articleService;
 
     @GetMapping(path = {"/", "", "/index"})
     public String index(Model model, HttpServletRequest request) {
@@ -49,10 +50,12 @@ public class IndexController {
      */
     @GetMapping(path = "search")
     public String searchArticleList(@RequestParam(name = "key") String key, Model model) {
-        PageParam page = PageParam.newPageInstance(1L, 10L);
-        ArticleListDTO list = articleService.queryArticlesBySearchKey(key, page);
-        model.addAttribute("articles", list);
-        sideBarItems(model);
+        if (!StringUtils.isBlank(key)) {
+            PageParam page = PageParam.newPageInstance(1L, 10L);
+            ArticleListDTO list = articleService.queryArticlesBySearchKey(key, page);
+            model.addAttribute("articles", list);
+            sideBarItems(model);
+        }
         return "biz/article/search";
     }
 
@@ -63,7 +66,7 @@ public class IndexController {
      * @return
      */
     private Long categories(Model model, String active) {
-        List<CategoryDTO> list = categoryService.loadAllCategories(false);
+        List<CategoryDTO> list = categoryService.loadAllCategories();
         list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, false));
         Long selectCategoryId = null;
         for (CategoryDTO c : list) {
