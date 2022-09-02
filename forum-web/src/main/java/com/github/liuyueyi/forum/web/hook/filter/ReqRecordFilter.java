@@ -4,7 +4,7 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
-import com.github.liuyueyi.forum.service.user.LoginService;
+import com.github.liuyueyi.forum.service.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

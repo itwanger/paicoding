@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper">
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
 
     <select id="queryUserFollowList"
             resultType="com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO">
@@ -17,11 +22,7 @@
             r.follow_user_id = #{followUserId}
             and r.follow_state = ${@com.github.liueyueyi.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
         ORDER BY u.id desc
-
-        <if test="pageParam != null">
-            limit #{pageParam.offset}, #{pageParam.limit}
-        </if>
-
+        <include refid="limit"/>
     </select>
 
     <select id="queryUserFansList"
@@ -39,11 +40,7 @@
             r.user_id = #{userId}
             and r.follow_state = ${@com.github.liueyueyi.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
         ORDER BY u.id desc
-
-        <if test="pageParam != null">
-            limit #{pageParam.offset}, #{pageParam.limit}
-        </if>
-
+        <include refid="limit"/>
     </select>
 
 

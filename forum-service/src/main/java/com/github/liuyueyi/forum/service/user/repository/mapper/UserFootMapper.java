@@ -16,15 +16,6 @@ import java.util.List;
  * @date 2022-07-18
  */
 public interface UserFootMapper extends BaseMapper<UserFootDO> {
-    /**
-     * 查询足迹信息
-     *
-     * @param documentId
-     * @param type
-     * @param userId
-     * @return
-     */
-    UserFootDO queryFootByDocumentInfo(@Param("documentId") Long documentId, @Param("type") Integer type, @Param("userId") Long userId);
 
     /**
      * 查询文章计数信息
@@ -32,7 +23,7 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
      * @param articleId
      * @return
      */
-    ArticleFootCountDTO queryCountByArticle(@Param("articleId") Long articleId);
+    ArticleFootCountDTO countArticleByArticleId(@Param("articleId") Long articleId);
 
     /**
      * 查询作者的文章统计
@@ -40,7 +31,7 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
      * @param author
      * @return
      */
-    ArticleFootCountDTO queryArticleFootCount(@Param("userId") Long author);
+    ArticleFootCountDTO countArticleByUserId(@Param("userId") Long author);
 
     /**
      * 查询用户收藏的文章列表
@@ -49,7 +40,7 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
      * @param pageParam
      * @return
      */
-    List<ArticleDO> queryCollectionArticleList(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
+    List<Long> listCollectedArticlesByUserId(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 
 
     /**
@@ -59,5 +50,5 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
      * @param pageParam
      * @return
      */
-    List<ArticleDO> queryReadArticleList(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
+    List<Long> listReadArticleByUserId(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 }

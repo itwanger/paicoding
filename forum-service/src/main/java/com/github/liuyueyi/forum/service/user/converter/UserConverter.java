@@ -4,12 +4,11 @@ import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
-import com.github.liueyueyi.forum.api.model.vo.user.dto.UserHomeDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 
 /**
  * 用户转换
@@ -17,10 +16,9 @@ import org.springframework.stereotype.Service;
  * @author louzai
  * @date 2022-07-20
  */
-@Service
 public class UserConverter {
 
-    public UserDO toDO(UserSaveReq req) {
+    public static UserDO toDO(UserSaveReq req) {
         if (req == null) {
             return null;
         }
@@ -31,7 +29,7 @@ public class UserConverter {
         return userDO;
     }
 
-    public UserInfoDO toDO(UserInfoSaveReq req) {
+    public static UserInfoDO toDO(UserInfoSaveReq req) {
         if (req == null) {
             return null;
         }
@@ -45,7 +43,7 @@ public class UserConverter {
         return userInfoDO;
     }
 
-    public BaseUserInfoDTO toDTO(UserInfoDO info) {
+    public static BaseUserInfoDTO toDTO(UserInfoDO info) {
         if (info == null) {
             return null;
         }
@@ -55,7 +53,7 @@ public class UserConverter {
         return user;
     }
 
-    public UserRelationDO toDO(UserRelationReq req) {
+    public static UserRelationDO toDO(UserRelationReq req) {
         if (req == null) {
             return null;
         }
@@ -67,7 +65,7 @@ public class UserConverter {
         return userRelationDO;
     }
 
-    public UserInfoDO toDO(BaseUserInfoDTO baseUserInfoDTO) {
+    public static UserInfoDO toDO(BaseUserInfoDTO baseUserInfoDTO) {
         if (baseUserInfoDTO == null) {
             return null;
         }
@@ -86,11 +84,11 @@ public class UserConverter {
         return userInfoDO;
     }
 
-    public UserHomeDTO toUserHomeDTO(BaseUserInfoDTO baseUserInfoDTO) {
+    public static UserStatisticInfoDTO toUserHomeDTO(BaseUserInfoDTO baseUserInfoDTO) {
         if (baseUserInfoDTO == null) {
             return null;
         }
-        UserHomeDTO userHomeDTO = new UserHomeDTO();
+        UserStatisticInfoDTO userHomeDTO = new UserStatisticInfoDTO();
         userHomeDTO.setUserId(baseUserInfoDTO.getUserId());
         userHomeDTO.setUserName(baseUserInfoDTO.getUserName());
         userHomeDTO.setRole(baseUserInfoDTO.getRole());
