@@ -67,10 +67,9 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 //            } else {
 //                modelAndView.getModel().put("isLogin", true);
 //                modelAndView.getModel().put("user", userService.queryUserInfoWithStatistic(ReqInfoContext.getReqInfo().getUserId()));
-//                // 消息数 fixme 消息信息改由消息模块处理
-//                modelAndView.getModel().put("msgs", Arrays.asList(new UserMsg().setMsgId(100L).setMsgType(1).setMsg("模拟通知消息")));
 //            }
 //        }
+        // fixme 对于异常重定向到 /error 时，会导致登录信息丢失，待解决
         if (response.getStatus() != HttpStatus.OK.value() && modelAndView != null) {
             try {
                 ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
