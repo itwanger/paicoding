@@ -1,20 +1,16 @@
 package com.github.liueyueyi.forum.test.dao;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
-import com.github.liuyueyi.forum.service.article.impl.ArticleServiceImpl;
-import com.github.liuyueyi.forum.service.article.impl.CategoryServiceImpl;
-import com.github.liuyueyi.forum.service.article.impl.TagServiceImpl;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
+import com.github.liueyueyi.forum.test.BasicTest;
+import com.github.liuyueyi.forum.service.article.repository.dao.CategoryDao;
+import com.github.liuyueyi.forum.service.article.repository.dao.TagDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
+import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 /**
  * @author YiHui
@@ -24,25 +20,21 @@ import java.util.List;
 public class ArticleDaoTest extends BasicTest {
 
     @Autowired
-    private TagServiceImpl tagService;
+    private TagDao tagDao;
 
     @Autowired
-    private CategoryServiceImpl categoryService;
+    private CategoryDao categoryDao;
 
     @Autowired
-    private ArticleServiceImpl articleService;
+    private ArticleReadService articleService;
 
     @Test
     public void testCategory() {
         CategoryDO category = new CategoryDO();
         category.setCategoryName("后端");
         category.setStatus(1);
-        Long categoryId = categoryService.addCategory(category);
-        log.info("save category:{} -> id:{}", category, categoryId);
-
-        IPage<CategoryDO> list = categoryService.getCategoryByPage(PageParam.newPageInstance(0L, 10L));
-        log.info("query list: {}", list.getRecords());
-
+        categoryDao.save(category);
+        log.info("save category:{} -> id:{}", category, category.getId());
     }
 
     @Test
@@ -51,16 +43,13 @@ public class ArticleDaoTest extends BasicTest {
         tag.setTagName("Java");
         tag.setTagType(1);
         tag.setCategoryId(1L);
-        Long tagId = tagService.addTag(tag);
-        log.info("tagId: {}", tagId);
-
-        List<TagDTO> list = tagService.getTagListByCategoryId(1L);
-        log.info("tagList: {}", list);
+        tagDao.save(tag);
+        log.info("tagId: {}", tag.getId());
     }
 
     @Test
     public void testArticle() {
-        ArticleListDTO articleListDTO = articleService.getCollectionArticleListByUserId(1L, PageParam.newPageInstance(1L, 10L));
+        ArticleListDTO articleListDTO = articleService.queryArticlesByCategory(1L, PageParam.newPageInstance(1L, 10L));
         log.info("articleListDTO: {}", articleListDTO);
     }
 

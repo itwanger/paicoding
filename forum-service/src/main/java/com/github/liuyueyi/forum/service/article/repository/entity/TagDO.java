@@ -15,8 +15,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("tag")
 public class TagDO extends BaseDO {
-
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3796460143933607644L;
 
     /**
      * 标签名称

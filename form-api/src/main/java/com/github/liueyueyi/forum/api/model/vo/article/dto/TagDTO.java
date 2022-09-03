@@ -1,8 +1,6 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -11,8 +9,6 @@ import java.io.Serializable;
  * @date 2022/7/24
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class TagDTO implements Serializable {
     private static final long serialVersionUID = -8614833588325787479L;
 
@@ -21,8 +17,4 @@ public class TagDTO implements Serializable {
     private Long tagId;
 
     private String tag;
-
-    public TagDTO(Long tagId) {
-        this.tagId = tagId;
-    }
 }

@@ -1,10 +1,9 @@
 package com.github.liuyueyi.forum.web.hook.filter;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
-import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
-import com.github.liuyueyi.forum.service.user.LoginService;
+import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpMethod;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,12 +26,12 @@ import java.net.URLDecoder;
  * @date 2022/7/6
  */
 @Slf4j
-@WebFilter(urlPatterns = "/*", filterName = "selfProcessBeforeFilter")
+@WebFilter(urlPatterns = "/*", filterName = "reqRecordFilter")
 public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
 
     @Autowired
-    private LoginService loginService;
+    private GlobalInitService globalInitService;
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -67,18 +65,9 @@ public class ReqRecordFilter implements Filter {
             reqInfo.setUserAgent(request.getHeader("User-Agent"));
 
             request = this.wrapperRequest(request, reqInfo);
+            // 初始化登录信息
+            globalInitService.initLoginUser(reqInfo);
             ReqInfoContext.addReqInfo(reqInfo);
-
-            for (Cookie cookie : request.getCookies()) {
-                if (LoginService.SESSION_KEY.equalsIgnoreCase(cookie.getName())) {
-                    String session = cookie.getValue();
-                    BaseUserInfoDTO user = loginService.getUserBySessionId(session);
-                    reqInfo.setSession(session);
-                    reqInfo.setUserId(user.getUserId());
-                    reqInfo.setUser(user);
-                    break;
-                }
-            }
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
         }

@@ -35,8 +35,8 @@
         <!-- 点赞 -->
         <div th:badge="${article.count.praiseCount > 0 ? article.count.praiseCount: ''}"
              th:class="'panel-btn ' + ${article.praised ? ' active': ''} + ${article.count.praiseCount > 0 ? ' with-badge': ''} "
-             th:data-target="${isLogin ? '' : '#loginModal'}"
-             th:data-toggle="${isLogin ? '' : 'modal'}"
+             th:data-target="${global.isLogin ? '' : '#loginModal'}"
+             th:data-toggle="${global.isLogin ? '' : 'modal'}"
              id="praiseFloatBtn">
             <svg class="sprite-icon icon-zan">
                 <use xlink:href="#icon-zan"></use>
@@ -54,8 +54,8 @@
 
         <!-- 收藏 -->
         <div class="panel-btn" id="collectBtn"
-             th:data-target="${isLogin ? '' : '#loginModal'}"
-             th:data-toggle="${isLogin ? '' : 'modal'}">
+             th:data-target="${global.isLogin ? '' : '#loginModal'}"
+             th:data-toggle="${global.isLogin ? '' : 'modal'}">
             <svg class="sprite-icon icon-collect">
                 <use xlink:href="#icon-collect"></use>
             </svg>
