@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${siteInfo.websiteName}">QuickFrom社区</title>
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
 
 <body id="body">
@@ -27,7 +27,7 @@
                     <li th:text="'粉丝数: ' + ${vo.userHome.followCount}">粉丝数</li>
                 </ul>
 
-                <ul class="navbar-nav my-md-0" th:if="${isLogin && (vo.userHome.userId == user.userId)}">
+                <ul class="navbar-nav my-md-0" th:if="${global.isLogin && (vo.userHome.userId == global.user.userId)}">
                     <!--  跳出保存弹窗 -->
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">编辑个人资料</a>

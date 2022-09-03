@@ -1,10 +1,12 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.*;
+import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleTagDao;
@@ -64,7 +66,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     public ArticleDTO queryDetailArticleInfo(Long articleId) {
         ArticleDTO article = articleDao.queryArticleDetail(articleId);
         if (article == null) {
-            throw new IllegalArgumentException("文章不存在");
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在");
         }
         // 更新分类相关信息
         CategoryDTO category = article.getCategory();

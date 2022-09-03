@@ -1,9 +1,6 @@
 $('#logoutBtn').click(function () {
     $.ajax({
-        url: "/logout",
-        dataType: "json",
-        type: "get",
-        success: function (data) {
+        url: "/logout", dataType: "json", type: "get", success: function (data) {
             toastr.success("已退出登录")
             window.location.href = "/";
         }
@@ -17,7 +14,7 @@ $('#loginBtn').click(function () {
         url: "/login?code=" + code,    //请求的url地址
         dataType: "json",   //返回格式为json
         async: false,//请求是否异步，默认为异步，这也是ajax重要特性
-        type: "GET",   //请求方式
+        type: "POST",   //请求方式
         success: function (data) {
             //请求成功时处理
             console.log("response data:", data);
@@ -25,11 +22,14 @@ $('#loginBtn').click(function () {
                 toastr.error(data.status.msg);
             } else {
                 // 登录成功，刷新
-                window.location.reload();
+                if (window.location.pathname == "/login") {
+                    window.location.href = "/";
+                } else {
+                    window.location.reload();
+                }
                 toastr.success("登录成功");
             }
-        },
-        error: function () {
+        }, error: function () {
             //请求出错处理
             toastr.error("登录错误");
         }

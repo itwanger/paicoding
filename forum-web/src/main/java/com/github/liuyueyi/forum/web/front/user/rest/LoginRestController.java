@@ -8,6 +8,7 @@ import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.user.service.LoginService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ public class LoginRestController {
     @Autowired
     private LoginService loginService;
 
-    @RequestMapping("/login")
+    @PostMapping("/login")
     public ResVo<Boolean> login(@RequestParam(name = "code") String code,
                                 HttpServletResponse response) {
         String session = loginService.login(code);

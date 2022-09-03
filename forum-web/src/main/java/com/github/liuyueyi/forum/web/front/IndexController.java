@@ -6,6 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.core.util.MapUtils;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
+import com.github.liuyueyi.forum.web.global.BaseController;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @date 2022/7/6
  */
 @Controller
-public class IndexController {
+public class IndexController extends BaseController {
     @Autowired
     private CategoryService categoryService;
 
@@ -127,16 +128,5 @@ public class IndexController {
         res.add(MapUtils.create("title", "公告", "desc", "简单的公告内容"));
         res.add(MapUtils.create("title", "标签云", "desc", "java, web, html"));
         model.addAttribute("sideBarItems", res);
-    }
-
-
-    @GetMapping(path = "/403")
-    public String _403() {
-        return "403";
-    }
-
-    @GetMapping(path = "/500")
-    public String _500() {
-        return "500";
     }
 }

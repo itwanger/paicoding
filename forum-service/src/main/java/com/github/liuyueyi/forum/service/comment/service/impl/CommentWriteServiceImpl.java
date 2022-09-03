@@ -64,7 +64,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         // 更新评论
         CommentDO commentDO = commentDao.getById(commentSaveReq.getCommentId());
         if (commentDO == null) {
-            throw new RuntimeException("未查询到该评论");
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "未查询到该评论");
         }
         commentDO.setContent(commentSaveReq.getCommentContent());
         commentDao.updateById(commentDO);
