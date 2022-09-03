@@ -148,8 +148,7 @@
 
 <div th:replace="layout/footer :: footer"></div>
 
-<script>
-
+<script th:inline="javascript">
     <!--    保存用户信息 -->
     $('#publish').on('click', function () {
         doPostUserInfo()
