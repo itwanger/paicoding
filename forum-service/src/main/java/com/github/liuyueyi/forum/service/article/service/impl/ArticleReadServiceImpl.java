@@ -19,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -95,7 +93,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getAuthor(), readUser, OperateTypeEnum.READ);
             article.setPraised(Objects.equals(foot.getPraiseStat(), PraiseStatEnum.PRAISE.getCode()));
             article.setCommented(Objects.equals(foot.getCommentStat(), CommentStatEnum.COMMENT.getCode()));
-            article.setCollected(Objects.equals(foot.getCommentStat(), CollectionStatEnum.COLLECTION.getCode()));
+            article.setCollected(Objects.equals(foot.getCollectionStat(), CollectionStatEnum.COLLECTION.getCode()));
         } else {
             // 未登录，全部设置为未处理
             article.setPraised(false);
@@ -121,6 +119,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return buildArticleListVo(records, page.getPageSize());
     }
 
+    @Override
     public ArticleListDTO queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select) {
         List<ArticleDO> records = null;
         if (select == HomeSelectEnum.ARTICLE) {
@@ -130,16 +129,29 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             // 用户的阅读记录
             List<Long> articleIds = userFootService.queryUserReadArticleList(userId, pageParam);
             records = CollectionUtils.isEmpty(articleIds) ? Collections.emptyList() : articleDao.listByIds(articleIds);
+            records = sortByIds(articleIds, records);
         } else if (select == HomeSelectEnum.COLLECTION) {
             // 用户的收藏列表
             List<Long> articleIds = userFootService.queryUserCollectionArticleList(userId, pageParam);
             records = CollectionUtils.isEmpty(articleIds) ? Collections.emptyList() : articleDao.listByIds(articleIds);
+            records = sortByIds(articleIds, records);
         }
 
         if (CollectionUtils.isEmpty(records)) {
             return new ArticleListDTO();
         }
         return buildArticleListVo(records, pageParam.getPageSize());
+    }
+
+    private List<ArticleDO> sortByIds(List<Long> articleIds, List<ArticleDO> records) {
+        List<ArticleDO> articleDOS = new ArrayList<>();
+        Map<Long, ArticleDO> articleDOMap = records.stream().collect(Collectors.toMap(ArticleDO::getId, t -> t));
+        articleIds.forEach(articleId -> {
+            if (articleDOMap.containsKey(articleId)) {
+                articleDOS.add(articleDOMap.get(articleId));
+            }
+        });
+        return articleDOS;
     }
 
     private ArticleListDTO buildArticleListVo(List<ArticleDO> records, long pageSize) {
