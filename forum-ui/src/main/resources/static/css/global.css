@@ -506,3 +506,16 @@ a {
         margin-right: 5px;
     }
 }
+.parent-wrapper {
+    display: flex;
+    background: #f2f3f5;
+    border: 1px solid #e4e6eb;
+    box-sizing: border-box;
+    border-radius: 4px;
+    padding: 0 12px;
+    line-height: 36px;
+    height: 36px;
+    font-size: 14px;
+    color: #8a919f;
+    margin-top: 8px;
+}

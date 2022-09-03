@@ -8,6 +8,7 @@
         <module>forum-web</module>
         <module>forum-service</module>
         <module>forum-core</module>
+        <module>form-api</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -22,12 +23,20 @@
     <description>simple forum by java &amp; spring</description>
     <properties>
         <java.version>8</java.version>
+        <guava.version>31.1-jre</guava.version>
+        <mybaits-plus.version>3.5.2</mybaits-plus.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.github.liuyueyi.quick-forum</groupId>
+                <artifactId>form-api</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
             <dependency>
                 <artifactId>forum-ui</artifactId>
                 <groupId>com.github.liuyueyi.quick-forum</groupId>
@@ -44,6 +53,18 @@
                 <groupId>com.github.liuyueyi.quick-forum</groupId>
                 <artifactId>forum-core</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybaits-plus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -83,12 +104,12 @@
     </profiles>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
 
         <resources>
             <resource>

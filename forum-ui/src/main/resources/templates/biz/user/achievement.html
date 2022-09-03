@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 用户卡片 -->
+<div class="card" th:fragment="user_achievement(user)">
+    <div class="card-body">
+        <h5 class="card-title" th:text="${'个人成就'}">标题</h5>
+        <ul>
+            <li th:text="'已发布文章: ' + ${user.articleCount} + ' 篇'">已发布文章</li>
+            <li th:text="'文章被点赞: ' + ${user.praiseCount} + ' 次'">文章被点赞</li>
+            <li th:text="'文章被阅读: ' + ${user.readCount} + ' 次'">文章被阅读</li>
+            <li th:text="'文章被收藏: ' + ${user.collectionCount} + ' 次'">文章被收藏</li>
+        </ul>
+    </div>
+</div>
+
+</html>

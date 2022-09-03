@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 文章内容 -->
+<div th:fragment="comment_list(comments, article)" class="posts-box" id="commentList">
+    <div class="posts-comment-box posts-comment-input-box clearfix" style="width: 100%;">
+        <img th:if="${global.isLogin}"
+             th:alt="${global.user.userName}"
+             th:src="${global.user.photo}"
+             style="width: 30px;height: 30px;border: 1px solid #ddd;border-radius: 50%;"
+             class="img-fluid">
+        <div th:if="${!global.isLogin}"
+             style="display: inline-block;background-color: gray;width: 30px;height: 30px;border: 1px solid #ddd;border-radius: 50%;"></div>
+        <textarea
+                th:data-target="${global.isLogin ? '' : '#loginModal'}"
+                th:data-toggle="${global.isLogin ? '' : 'modal'}"
+                th:placeholder="${global.isLogin ? '输入评论...' : '请先登录后再评论'}"
+                class="posts-comment-input-box-textarea"
+                id="commentContent"
+                style="height: 32px;border: 1px solid #f1f1f1;outline: none;"></textarea>
+        <div id="postsCommentBtnBox">
+            <button id="commentBtn" type="button"
+                    class="btn btn-success btn-sm"
+                    style="float: right;margin-top: 10px;" disabled>
+                评论
+            </button>
+        </div>
+    </div>
+    <div th:class="${'posts-comment-box' + (#lists.isEmpty(comments) ? ' no-comment-box' : '')}"
+         style="background-color: #fff;">
+        <!--<h5 class="bottom-line" style="padding-bottom: 10px;">评论</h5>-->
+        <div th:if="${#lists.isEmpty(comments)}"
+             th:include="plugins/custom-empty :: custom-empty('暂无评论')"></div>
+        <div th:each="comment : ${comments}" class="clearfix">
+            <div class="comment-avatar-box" style="padding-right: 0;">
+                <a th:href="${'/user/' + comment.userId}" target="_blank">
+                    <img th:alt="${comment.userName}"
+                         th:src="${comment.userPhoto}"
+                         style="width: 30px;height: 30px;border: 1px solid #ddd;border-radius: 50%;"
+                         class="img-fluid">
+                </a>
+            </div>
+            <div class="comment-content-box bottom-line" style="margin-bottom: 10px;">
+                <p class="comment-content-box-title" style="margin-bottom: 0;">
+                    <span class="text-muted">
+                        <a th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
+                           th:href="${'/user/' + comment.userId}"
+                           target="_blank"></a>
+                    </span>
+                </p>
+                <p th:text="${comment.commentContent}" class="comment-content-box-content"></p>
+                <p class="comment-content-box-foot" style="margin-bottom: 10px;">
+                    <small th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(comment.commentTime)}"
+                           class="text-muted"></small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <small th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
+                           data-toggle="modal"
+                           th:data-reply-top="${comment.commentId}"
+                           th:data-reply-id="${comment.commentId}"
+                           th:data-reply-nickname="${comment.userName}"
+                           th:data-reply-content="${comment.commentContent}"
+                           class="text-muted reply-comment"
+                           style="float: right;">
+                        <i data-feather="message-circle" style="width: 14px;height: 14px;"></i> 回复
+                    </small>
+                </p>
+                <!-- 二级评论 -->
+                <div th:if="${!#lists.isEmpty(comment.childComments)}" th:each="reply : ${comment.childComments}"
+                     class="posts-comment-box clearfix"
+                     style="background-color: #fafbfc;padding-top: 10px;padding-bottom: 0;">
+                    <div class="comment-avatar-box" style="padding-right: 0;">
+                        <a th:href="${'/user/' + reply.userId}" target="_blank">
+                            <img th:alt="${reply.userName}"
+                                 th:src="${reply.userPhoto}"
+                                 style="width: 30px;height: 30px;border: 1px solid #ddd;border-radius: 50%;"
+                                 class="img-fluid">
+                        </a>
+                    </div>
+                    <div class="comment-content-box" style="padding-bottom: 10px;">
+                        <p class="comment-content-box-title" style="margin-bottom: 0;">
+                            <span class="text-muted">
+                                <a th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
+                                   th:href="${'/user/' + reply.userId}" target="_blank"></a>
+                            </span>
+
+                        </p>
+                        <p th:text="${reply.commentContent}" class="comment-content-box-content">
+                        </p>
+                        <small th:if="${#objects.nullSafe(reply.parentContent, false)}"
+                               style=" display: flex;    background: #f2f3f5;    border: 1px solid #e4e6eb;    box-sizing: border-box;    border-radius: 4px;    padding: 0 12px;    line-height: 36px;    height: 36px;    font-size: 14px;    color: #8a919f;    margin-top: 8px;">
+                            <span th:text="${reply.parentContent}"></span>
+                        </small>
+                        <p class="comment-content-box-foot" style="margin-bottom: 0;">
+                            <small th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(comment.commentTime)}"
+                                   class="text-muted"></small>
+                            <small th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
+                                   data-toggle="modal"
+                                   th:data-reply-top="${comment.commentId}"
+                                   th:data-reply-id="${reply.commentId}"
+                                   th:data-reply-nickname="${reply.userName}"
+                                   th:data-reply-content="${reply.commentContent}"
+                                   class="text-muted reply-comment"
+                                   style="float: right;">
+                                <i data-feather="message-circle" style="width: 14px;height: 14px;"></i> 回复
+                            </small>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 二级评论 Modal -->
+    <div class="modal fade" id="commentModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+         aria-labelledby="commentModalDropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalDropLabel">回复</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="repliedContent" class="comment-content-box-content"></p>
+                    <div class="input-group">
+                        <textarea
+                                id="replyContent"
+                                placeholder="请输入回复内容"
+                                class="posts-comment-input-box-textarea"
+                                style="width: 100%;height: 64px;border: 1px solid #f1f1f1;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="replyBtn" data-reply-id="" type="button" class="btn btn-primary">回复</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
