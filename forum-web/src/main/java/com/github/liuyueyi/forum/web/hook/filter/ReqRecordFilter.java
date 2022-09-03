@@ -1,12 +1,14 @@
 package com.github.liuyueyi.forum.web.hook.filter;
 
-import com.github.liuyueyi.forum.core.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
+import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 
 import javax.servlet.*;
@@ -17,19 +19,22 @@ import java.io.IOException;
 import java.net.URLDecoder;
 
 /**
- * 请求参数日志输出过滤器
+ * 1. 请求参数日志输出过滤器
+ * 2. 判断用户是否登录
  *
  * @author YiHui
  * @date 2022/7/6
  */
 @Slf4j
-@WebFilter(urlPatterns = "/*", filterName = "selfProcessBeforeFilter")
+@WebFilter(urlPatterns = "/*", filterName = "reqRecordFilter")
 public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
 
+    @Autowired
+    private GlobalInitService globalInitService;
+
     @Override
-    public void init(FilterConfig filterConfig)
-    {
+    public void init(FilterConfig filterConfig) {
     }
 
     @Override
@@ -57,14 +62,12 @@ public class ReqRecordFilter implements Filter {
             reqInfo.setPath(request.getPathInfo());
             reqInfo.setReferer(request.getHeader("referer"));
             reqInfo.setClientIp(IpUtil.getClientIp(request));
-            reqInfo.setUuid(request.getHeader("x-uuid"));
             reqInfo.setUserAgent(request.getHeader("User-Agent"));
 
             request = this.wrapperRequest(request, reqInfo);
+            // 初始化登录信息
+            globalInitService.initLoginUser(reqInfo);
             ReqInfoContext.addReqInfo(reqInfo);
-
-            // fixme 根据x-uuid获取对应的用户信息
-            reqInfo.setUserId(0L);
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
         }
@@ -89,11 +92,6 @@ public class ReqRecordFilter implements Filter {
         }
         msg.append("remoteIp=").append(req.getClientIp());
         msg.append("; agent=").append(req.getUserAgent());
-
-        if (StringUtils.isNotBlank(req.getUuid())) {
-            // 打印设备信息
-            msg.append("; uuid=").append(req.getUuid());
-        }
 
         if (req.getUserId() != null) {
             // 打印用户信息

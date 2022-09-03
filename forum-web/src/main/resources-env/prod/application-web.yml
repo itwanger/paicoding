@@ -1,5 +1,5 @@
 log:
-  path: /home/logs # 请使用实际的地址进行替换
+  path: /home/admin/workspace/quick-forum/logs # 请使用实际的地址进行替换
 env:
   name: prod
 

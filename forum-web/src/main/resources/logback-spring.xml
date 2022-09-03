@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- fixme 知识点：logback配置变量的姿势，如何读取Spring配置参数   -->
     <springProperty scope="context" name="log.path" source="log.path" defaultValue="logs"/>
     <springProperty scope="context" name="log.env" source="env.name" defaultValue="NO"/>
     <property name="log.service.name" value="forum"/>
@@ -79,7 +80,6 @@
     <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
     <!-- additivity=false 表示匹配之后，不再继续传递给其他的logger-->
     <logger name="com.github.liuyueyi.forum" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT"/>
         <appender-ref ref="service"/>
     </logger>
 

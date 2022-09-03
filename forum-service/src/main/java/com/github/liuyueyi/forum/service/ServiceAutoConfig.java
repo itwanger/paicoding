@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.service;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,5 +10,9 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan("com.github.liuyueyi.forum.service")
+@MapperScan(basePackages = {
+        "com.github.liuyueyi.forum.service.article.repository.mapper",
+        "com.github.liuyueyi.forum.service.user.repository.mapper",
+        "com.github.liuyueyi.forum.service.comment.repository.mapper",})
 public class ServiceAutoConfig {
 }
