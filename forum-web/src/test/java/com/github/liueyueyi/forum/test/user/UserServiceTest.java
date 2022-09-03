@@ -3,7 +3,7 @@ package com.github.liueyueyi.forum.test.user;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.test.BasicTest;
-import com.github.liuyueyi.forum.service.user.UserService;
+import com.github.liuyueyi.forum.service.user.service.UserService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,7 +26,7 @@ public class UserServiceTest extends BasicTest {
         UserSaveReq req = new UserSaveReq();
         req.setThirdAccountId(UUID.randomUUID().toString());
         req.setLoginType(0);
-        userService.saveUser(req);
+        userService.registerOrGetUserInfo(req);
         long userId = req.getUserId();
 
         UserInfoSaveReq save = new UserInfoSaveReq();

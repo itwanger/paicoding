@@ -2,6 +2,7 @@ package com.github.liueyueyi.forum.api.model.vo.comment.dto;
 
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,4 +23,11 @@ public class UserFollowListDTO {
      * 是否有更多
      */
     private Boolean isMore;
+
+    public static UserFollowListDTO emptyInstance() {
+        UserFollowListDTO res = new UserFollowListDTO();
+        res.setUserFollowList(Collections.emptyList());
+        res.setIsMore(false);
+        return res;
+    }
 }

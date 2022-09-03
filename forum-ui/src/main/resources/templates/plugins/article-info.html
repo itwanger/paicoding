@@ -32,12 +32,12 @@
             <i data-feather="message-square" style="width: 14px;height: 14px;"></i>
             <span th:text="'评论 ' + ${article.count.commentCount}">521</span>
         </small>
-        <span th:if="${isLogin && article.author == user.userId}" style="float: right;margin-left: 20px;">
+        <span th:if="${global.isLogin && article.author == global.user.userId}" style="float: right;margin-left: 20px;">
             <a th:href="${'/article/edit?articleId=' + article.articleId}">
                 <i data-feather="edit" style="width: 14px;height: 14px;"></i> 编辑
             </a>
         </span>
-        <span th:if="${isLogin && article.author == user.userId}" style="float: right;">
+        <span th:if="${global.isLogin && article.author == global.user.userId}" style="float: right;">
             <a href="javascript:;" data-target="#deleteModal"
                data-toggle="modal">
                 <i data-feather="x" style="width: 14px;height: 14px;"></i> 删除
@@ -59,8 +59,8 @@
         <span style="float: right;">
             <a href="javascript:;" id="postsApprovalBtn"
                th:title="点赞"
-               th:data-target="${isLogin ? '' : '#loginModal'}"
-               th:data-toggle="${isLogin ? '' : 'modal'}"
+               th:data-target="${global.isLogin ? '' : '#loginModal'}"
+               th:data-toggle="${global.isLogin ? '' : 'modal'}"
                th:class="${article.count.praiseCount > 0 ? 'custom-font-color' : ''}">
                 <i th:data-feather="${postsType == '/article' ? 'thumbs-up' : 'heart'}"
                    style="width: 14px;height: 14px;"></i>

@@ -24,7 +24,7 @@ public enum HomeSelectEnum {
     private final String code;
     private final String desc;
 
-    public static HomeSelectEnum formCode(String code) {
+    public static HomeSelectEnum fromCode(String code) {
         for (HomeSelectEnum value : HomeSelectEnum.values()) {
             if (value.getCode().equals(code)) {
                 return value;

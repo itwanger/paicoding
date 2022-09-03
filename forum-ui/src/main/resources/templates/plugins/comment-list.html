@@ -4,17 +4,17 @@
 <!-- 文章内容 -->
 <div th:fragment="comment_list(comments, article)" class="posts-box" id="commentList">
     <div class="posts-comment-box posts-comment-input-box clearfix" style="width: 100%;">
-        <img th:if="${isLogin}"
-             th:alt="${user.userName}"
-             th:src="${user.photo}"
+        <img th:if="${global.isLogin}"
+             th:alt="${global.user.userName}"
+             th:src="${global.user.photo}"
              style="width: 30px;height: 30px;border: 1px solid #ddd;border-radius: 50%;"
              class="img-fluid">
-        <div th:if="${!isLogin}"
+        <div th:if="${!global.isLogin}"
              style="display: inline-block;background-color: gray;width: 30px;height: 30px;border: 1px solid #ddd;border-radius: 50%;"></div>
         <textarea
-                th:data-target="${isLogin ? '' : '#loginModal'}"
-                th:data-toggle="${isLogin ? '' : 'modal'}"
-                th:placeholder="${isLogin ? '输入评论...' : '请先登录后再评论'}"
+                th:data-target="${global.isLogin ? '' : '#loginModal'}"
+                th:data-toggle="${global.isLogin ? '' : 'modal'}"
+                th:placeholder="${global.isLogin ? '输入评论...' : '请先登录后再评论'}"
                 class="posts-comment-input-box-textarea"
                 id="commentContent"
                 style="height: 32px;border: 1px solid #f1f1f1;outline: none;"></textarea>
@@ -52,7 +52,7 @@
                 <p class="comment-content-box-foot" style="margin-bottom: 10px;">
                     <small th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(comment.commentTime)}"
                            class="text-muted"></small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <small th:data-target="${isLogin ? '#commentModal' : '#loginModal'}"
+                    <small th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
                            data-toggle="modal"
                            th:data-reply-top="${comment.commentId}"
                            th:data-reply-id="${comment.commentId}"
@@ -92,7 +92,7 @@
                         <p class="comment-content-box-foot" style="margin-bottom: 0;">
                             <small th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(comment.commentTime)}"
                                    class="text-muted"></small>
-                            <small th:data-target="${isLogin ? '#commentModal' : '#loginModal'}"
+                            <small th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
                                    data-toggle="modal"
                                    th:data-reply-top="${comment.commentId}"
                                    th:data-reply-id="${reply.commentId}"

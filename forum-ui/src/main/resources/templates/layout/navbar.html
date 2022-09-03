@@ -2,11 +2,11 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 
 <header>
-    <nav id="bodyNav" th:data-islogin="${isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
+    <nav id="bodyNav" th:data-islogin="${global.isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
         <a class="navbar-brand">
-<!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
-            <img th:src="${siteInfo.websiteLogoUrl}"
-                 th:alt="${siteInfo.websiteName}"
+            <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
+            <img th:src="${global.siteInfo.websiteLogoUrl}"
+                 th:alt="${global.siteInfo.websiteName}"
                  src="https://static.developers.pub/logo.jpeg" width="30" height="30" alt="" loading="lazy">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
@@ -26,13 +26,14 @@
                     class="nav-item">
                     <a class="nav-link" href="https://tool.hhui.top">工具箱</a>
                 </li>
-                <li th:if="${isLogin}"
+                <li th:if="${global.isLogin}"
                     th:class="${'nav-item' + (#strings.equals(currentDomain, 'interest') ? ' selected-domain' : '')}"
                     class="nav-item">
                     <a class="nav-link" href="/follow">关注</a>
                 </li>
             </ul>
-            <form class="form-inline my-md-0" style="padding-right: 1em" action="search" method="get" target="_blank">
+            <form class="form-inline my-md-0" style="padding-right: 1em"
+                  action="/search" method="get">
                 <div class="input-icon">
                     <span class="input-icon-addon">
                       <!-- Download SVG icon from http://tabler-icons.io/i/search -->
@@ -50,17 +51,17 @@
                target="_blank"
                class="btn btn-primary" style="border-radius: 4px;">写文章</a>
 
-            <ul th:if="${!isLogin}" class="navbar-nav my-md-0">
+            <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
                 <!--  待登录 -->
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">登录</a>
                 </li>
             </ul>
-            <ul th:if="${isLogin}" class="navbar-nav my-md-0">
+            <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
                 <!--  已登录 -->
                 <li class="nav-item">
                     <a class="nav-link navbar-count-msg-box" href="/message" target="_blank">
-                        <span th:if="!${#lists.isEmpty(msgs)}"
+                        <span th:if="${global.msgNum != null && global.msgNum > 0}"
                               class="navbar-count-msg"></span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24"
                              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -74,16 +75,17 @@
                 <!-- Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        <img th:src="${user.photo}"
+                        <img th:src="${global.user.photo}"
                              src="https://static.developers.pub/static/img/logo.b2ff606.jpeg" width="30" height="30"
                              alt="" loading="lazy">
                     </a>
                     <div class="dropdown-menu">
-                        <a th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}" href="/admin" target="_blank"
+                        <a th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}" href="/admin" target="_blank"
                            class="dropdown-item">管理后台</a>
-                        <div th:if="${!#strings.equalsIgnoreCase(user.role, 'admin')}"
+                        <div th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
                              class="dropdown-divider"></div>
-                        <a th:href="${'/user/home?userId=' + user.userId}" class="dropdown-item" target="_blank" href="#">个人主页</a>
+                        <a th:href="${'/user/home?userId=' + global.user.userId}" class="dropdown-item" target="_blank"
+                           href="#">个人主页</a>
                         <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                     </div>
                 </li>
@@ -118,7 +120,9 @@
                 <div class="modal-footer">
                     <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
                     <!-- 非生产环境，使用模拟登陆  -->
-                    <button th:if="${#strings.isEmpty(env) || env != 'prod'}" id="getToken" type="button" class="btn btn-danger">获取token(测试用)</button>
+                    <button th:if="${!#strings.equals(global.env, 'prod')}" id="getToken" type="button"
+                            class="btn btn-danger">获取token(测试用)
+                    </button>
                 </div>
                 <div id="testOutput"></div>
             </div>
@@ -127,6 +131,6 @@
 
     <script src="/js/jquery.min.js"></script>
     <script src="/js/biz/login.js"></script>
-    <script src="/js/mock.js" th:if="${#strings.isEmpty(env) || env != 'prod'}"></script>
+    <script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
 </header>
 </html>

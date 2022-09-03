@@ -2,12 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper">
 
-    <select id="queryFootByDocumentInfo" resultType="com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO">
-        select * from user_foot where document_id = #{documentId} and document_type = #{type} and user_id = #{userId}
-    </select>
 
-
-    <select id="queryCountByArticle"
+    <select id="countArticleByArticleId"
             resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
 
         SELECT
@@ -23,81 +19,38 @@
     </select>
 
 
-    <select id="queryArticleFootCount"
+    <select id="countArticleByUserId"
             resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
-
         SELECT
-            sum(if (praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
-            sum(if (read_stat =${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}, 1, 0)) as readCount,
-            sum(if (collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount
+            sum(if (f.praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (f.collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
+            sum(r.`cnt`) as readCount
         FROM
-            user_foot
+            read_count as r left join user_foot as f on f.document_id = r.document_id and f.document_type = r.document_type
         WHERE
-            document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
-            AND document_user_id = #{userId}
+            r.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+            AND f.document_user_id = #{userId}
 
     </select>
 
-    <select id="queryCollectionArticleList"
-            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
-
+    <select id="listCollectedArticlesByUserId" resultType="java.lang.Long">
         SELECT
-            a.id as id,
-            a.user_id as userId,
-            a.article_type as articleType,
-            a.title as title,
-            a.short_title as shortTitle,
-            a.picture as picture,
-            a.summary as summary,
-            a.category_id as categoryId,
-            a.source as source,
-            a.source_url as sourceUrl,
-            a.status as status,
-            a.create_time as createTime,
-            a.update_time as updateTime
-        FROM user_foot as uf
-            left join article as a on a.id = uf.document_id
+           `document_id`
+        FROM user_foot
         WHERE
-            uf.user_id = #{userId}
-            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
-            AND uf.collection_stat = ${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}
-            AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
-            AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
-        ORDER BY uf.id desc
-
+            user_id = #{userId} and document_type = 1 and collection_stat = 1 order by update_time desc
         <if test="pageParam != null">
             limit #{pageParam.offset}, #{pageParam.limit}
         </if>
 
     </select>
 
-    <select id="queryReadArticleList"
-            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
-
+    <select id="listReadArticleByUserId" resultType="java.lang.Long">
         SELECT
-            a.id as id,
-            a.user_id as userId,
-            a.article_type as articleType,
-            a.title as title,
-            a.short_title as shortTitle,
-            a.picture as picture,
-            a.summary as summary,
-            a.category_id as categoryId,
-            a.source as source,
-            a.source_url as sourceUrl,
-            a.status as status,
-            a.create_time as createTime,
-            a.update_time as updateTime
-        FROM user_foot as uf
-            left join article as a on a.id = uf.document_id
+            `document_id`
+        FROM user_foot
         WHERE
-            uf.user_id = #{userId}
-            AND uf.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
-            AND uf.read_stat = ${@com.github.liueyueyi.forum.api.model.enums.ReadStatEnum@READ.code}
-            AND a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
-            AND a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
-        ORDER BY uf.id desc
-
+            user_id = #{userId} and document_type = 1 and read_stat = 1 order by update_time desc
         <if test="pageParam != null">
             limit #{pageParam.offset}, #{pageParam.limit}
         </if>

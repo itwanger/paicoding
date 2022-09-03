@@ -3,38 +3,38 @@
 <link href="/css/content.css" rel="stylesheet">
 
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${siteInfo.websiteName}">QuickFrom社区</title>
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
 
-<body id="body" th:data-toast-message="${toast}" th:data-token="${token}">
+<body id="body">
 <!-- 导航栏 -->
 <div th:replace="layout/navbar :: header"></div>
 
 <div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
     <left>
         <!-- 这里显示cover -->
-        <div th:if="${!#strings.isEmpty(article.cover)}"
+        <div th:if="${!#strings.isEmpty(vo.article.cover)}"
              class="carousel slide">
             <div class="carousel-inner">
-                <img th:src="${article.cover}" src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
+                <img th:src="${vo.article.cover}" src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
                      class="img-fluid"/>
             </div>
         </div>
 
         <!-- 侧边tool -->
-        <div th:replace="plugins/article-tool-bar :: tool_bar(${article})"></div>
+        <div th:replace="plugins/article-tool-bar :: tool_bar(${vo.article})"></div>
         <!-- 正文 -->
         <content>
-            <div th:replace="plugins/article-info :: article_info(${article}, ${author})"></div>
+            <div th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"></div>
         </content>
 
         <content>
-            <div th:replace="plugins/comment-list :: comment_list(${comments}, ${article})"></div>
+            <div th:replace="plugins/comment-list :: comment_list(${vo.comments}, ${vo.article})"></div>
         </content>
     </left>
     <right>
         <!-- 用户相关信息 -->
-        <div th:replace="plugins/user-card :: user_card(${author})"></div>
+        <div th:replace="plugins/user-card :: user_card(${vo.author})"></div>
 
         <!-- 公告 -->
         <div th:if="${!#lists.isEmpty(sideBarItems)}"
@@ -48,11 +48,12 @@
 </div>
 
 <div th:replace="layout/footer :: footer"></div>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="/js/marked.min.js"></script>
 <script src="/js/biz/toolaction.js"></script>
 <script th:inline="javascript">
     // 内容渲染
-    const content = [[${article.content}]];
+    const articleId = [[${vo.article.articleId}]];
+    const content = [[${vo.article.content}]];
     document.getElementById('articleContent').innerHTML = marked.parse(content);
     // 文章样式渲染
     document.addEventListener('DOMContentLoaded', function (event) {
@@ -92,15 +93,14 @@
         // 提交评论
         const params = {
             // 文章id
-            "articleId": $('#postsTitle').attr("data-id"),
+            "articleId": articleId,
             // 评论内容
             "commentContent": content
         };
-        post("/comment/post", params, function (data) {
+        post("/comment/api/post", params, function (data) {
             location.reload();
         })
     });
-
 
     // 回复评论
     const replyContent = $('#replyContent');
@@ -131,7 +131,7 @@
             // 回复的一级评论id
             "topCommentId": replyBtn.attr('data-reply-top')
         };
-        post("/comment/post", params, function (data) {
+        post("/comment/api/post", params, function (data) {
             location.reload();
         })
     });
@@ -142,9 +142,8 @@
     })
 
     // 点赞
-    const articleId = [[${article.articleId}]];
-    let praisedCount = [[${article.count.praiseCount}]]
-    let praised = [[${article.praised}]]
+    let praisedCount = [[${vo.article.count.praiseCount}]]
+    let praised = [[${vo.article.praised}]]
     const isLogin = [[${isLogin}]]
     $("#praiseFloatBtn").click(function () {
         if (!isLogin) {
