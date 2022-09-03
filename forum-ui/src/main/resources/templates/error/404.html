@@ -3,7 +3,7 @@
 
 <body>
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${siteInfo.websiteName}">QuickFrom社区</title>
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
 
 <!-- 导航栏 -->
@@ -13,10 +13,7 @@
     <content>
         <div style="background-color: #fff;text-align: center;height: 600px;margin-bottom: 20px;padding-top: 265px;">
             <p>
-                <span style="font-size: 30px;">不好意思，出错啦！！！</span>
-                <span th:if="${!#strings.isEmpty(toast)}"
-                      th:text="${'（' + toast + '）'}"
-                      style="font-size: 20px;color: red;">系统异常</span>
+                <span style="font-size: 30px;">页面不存在！！！</span>
             </p>
         </div>
     </content>

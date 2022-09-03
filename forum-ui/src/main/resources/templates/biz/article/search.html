@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${siteInfo.websiteName}">QuickFrom社区</title>
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
 
-<body id="body" th:data-toast-message="${toast}" th:data-token="${token}">
+<body id="body">
 <!-- 导航栏 -->
 <div th:replace="layout/navbar :: header"></div>
 

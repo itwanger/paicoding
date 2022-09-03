@@ -2,6 +2,7 @@ package com.github.liueyueyi.forum.api.model.exception;
 
 import com.github.liueyueyi.forum.api.model.vo.Status;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import lombok.Getter;
 
 /**
  * 业务异常
@@ -10,6 +11,7 @@ import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
  * @date 2022/9/2
  */
 public class ForumException extends RuntimeException {
+    @Getter
     private Status status;
 
     public ForumException(Status status) {

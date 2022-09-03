@@ -12,6 +12,7 @@ import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadService
 import com.github.liuyueyi.forum.service.user.service.relation.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.service.user.UserServiceImpl;
 import com.github.liuyueyi.forum.web.front.user.vo.UserHomeVo;
+import com.github.liuyueyi.forum.web.global.BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -35,7 +36,7 @@ import java.util.List;
 @Controller
 @RequestMapping(path = "user")
 @Slf4j
-public class UserViewController {
+public class UserViewController extends BaseController {
 
     @Resource
     private UserServiceImpl userService;
