@@ -25,3 +25,17 @@ const praiseComment = function (commentId, action, callback) {
         }
     });
 }
+
+// 文章收藏
+const collectArticle = function (articleId, action, callback) {
+    // 3 收藏， 5 取消收藏
+    const type = action ? 3 : 5;
+    $.get('/article/api/favor?articleId=' + articleId + "&type=" + type, function (data) {
+        console.log("response:", data);
+        if (!data || !data.status || data.status.code !== 0) {
+            toastr.error(data.message);
+        } else if (callback) {
+            callback(data.result);
+        }
+    });
+}

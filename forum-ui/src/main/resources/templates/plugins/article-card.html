@@ -1,61 +1,95 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-
-<!-- 文章卡片 -->
-<div class="list-group-item list-group-item-action" th:fragment="article_card(article)">
+  <!-- 文章卡片 -->
+  <div
+    class="list-group-item list-group-item-action article-list-wrap"
+    th:fragment="article_card(article)"
+  >
     <!-- 文章 -->
-    <div class="d-flex justify-content-start" style="border-bottom: 1px dashed lightgray; padding-bottom: 10px">
-        <div th:style="${'' + (#strings.isEmpty(article.cover) ? 'width: 100%;' : 'width: 80%; padding-right: 10px;')}">
-            <div class="form-inline" style="font-size: 0.8em">
-                <a th:href="${'/user/home?userId=' + article.author}" rel="" class="text-muted" style="padding-right: .5em">
-                    <div th:text="${'作者: ' + article.authorName}" class="text-muted">
-                        作者
-                    </div>
-                </a>
-                |
-                <div class="date" style="padding-right: .5em; padding-left: .5em" th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}">10小时前</div>
-                |
-                <div class="tag_list" style="padding-right: .5em; padding-left: .5em">
-                    <a th:href="'/tag/' + ${tag.tag}" th:text="${tag.tag}" rel="" class="tag" th:each="tag : ${article.tags}">
-                        Java
-                    </a>
-                </div>
-            </div>
-
-            <div class="d-flex align-content-start">
-                <small th:if="true" class="posts-admin-tag posts-admin-tag-official">官</small>
-                <small th:if="true" class="posts-admin-tag posts-admin-tag-top">顶</small>
-                <small th:if="true" class="posts-admin-tag posts-admin-tag-marrow">精</small>
-                <a th:text="${article.title}"
-                   th:href="${'/article/detail/' + article.articleId}"
-                   class="text-truncate posts-list-title">第一个文章</a>
-            </div>
-            <p th:text="${article.summary}" class="mb-1 posts-list-desc">
-                文章简介
-            </p>
-            <div>
-                <p class="card-text">
-                    <small class="text-muted" th:text="'阅读: ' + ${article.count.readCount}">
-                        阅读: 10
-                    </small>
-                    <small class="text-muted" th:text="'点赞: ' + ${article.count.praiseCount}">
-                        点赞: 10
-                    </small>
-                    <small class="text-muted" th:text="'评论: ' + ${article.count.commentCount}">
-                        评论: 10
-                    </small>
-                </p>
-            </div>
-        </div>
-        <div th:if="${!#strings.isEmpty(article.cover)}"
-             class="d-flex justify-content-center align-self-center"
-             style="width: 20%;">
-            <img th:src="${article.cover}" src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
-                 class="img-fluid" style="max-height: 89px;"/>
+    <div class="article-wrap">
+      <div class="article-title">
+        <div class="article-title-wrap">
+          <a
+            th:href="${'/user/home?userId=' + article.author}"
+            th:text="${article.authorName}"
+            rel=""
+            class="article-title-name"
+          ></a>
+          <span class="article-cell">|</span>
+          <span
+            th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}"
+          >
+            10小时前
+          </span>
+          <span class="article-cell">|</span>
+          <a
+            th:href="'/tag/' + ${tag.tag}"
+            th:text="${tag.tag}"
+            rel="article-tag"
+            th:each="tag : ${article.tags}"
+            class="article-tag-name"
+          >
+            Java
+          </a>
         </div>
 
+        <div class="d-flex align-content-start">
+          <!-- <small th:if="true" class="posts-admin-tag posts-admin-tag-official">
+            官
+          </small>
+          <small th:if="true" class="posts-admin-tag posts-admin-tag-top">
+            顶
+          </small>
+          <small th:if="true" class="posts-admin-tag posts-admin-tag-marrow">
+            精
+          </small> -->
+          <a
+            th:text="${article.title}"
+            th:href="${'/article/detail/' + article.articleId}"
+            class="article-item-title"
+          >
+            第一个文章
+          </a>
+        </div>
+        <a
+          th:text="${article.summary}"
+          th:href="${'/article/detail/' + article.articleId}"
+          class="article-item-content"
+        >
+          文章简介
+        </a>
+        <div class="article-other-wrap">
+          <small
+            class="text-muted"
+            th:text="'阅读: ' + ${article.count.readCount}"
+          >
+            阅读: 10
+          </small>
+          <small
+            class="text-muted"
+            th:text="'点赞: ' + ${article.count.praiseCount}"
+          >
+            点赞: 10
+          </small>
+          <small
+            class="text-muted"
+            th:text="'评论: ' + ${article.count.commentCount}"
+          >
+            评论: 10
+          </small>
+        </div>
+      </div>
+      <div class="article-img-wrap" th:if="${!#strings.isEmpty(article.cover)}">
+        <!-- <img
+          th:src="${article.cover}"
+          class="img-fluid"
+          style="max-height: 89px"
+        /> -->
+        <img
+          src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+          class="article-img"
+        />
+      </div>
     </div>
-
-</div>
-
+  </div>
 </html>

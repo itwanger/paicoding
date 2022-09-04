@@ -3,11 +3,13 @@ package com.github.liuyueyi.forum.service.comment.service.impl;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
+import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
 import com.github.liuyueyi.forum.service.comment.repository.dao.CommentDao;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
@@ -30,6 +32,9 @@ public class CommentWriteServiceImpl implements CommentWriteService {
 
     @Autowired
     private CommentDao commentDao;
+
+    @Autowired
+    private ArticleDao articleDao;
 
     @Autowired
     private UserFootService userFootWriteService;
@@ -90,7 +95,14 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         }
         commentDO.setDeleted(YesOrNoEnum.YES.getCode());
         commentDao.updateById(commentDO);
-        userFootWriteService.removeCommentFoot(commentDO, commentDO.getArticleId(), getParentCommentUser(commentDO.getParentCommentId()));
+
+        // 获取文章信息
+        ArticleDTO articleDTO = articleDao.queryArticleDetail(commentDO.getArticleId());
+        if (articleDTO == null) {
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章=" + commentDO.getArticleId());
+        }
+
+        userFootWriteService.removeCommentFoot(commentDO, articleDTO.getAuthor(), getParentCommentUser(commentDO.getParentCommentId()));
     }
 
 
