@@ -6,7 +6,7 @@
     th:fragment="article_card(article)"
   >
     <!-- 文章 -->
-    <div class="article-wrap" th:if="${!#strings.isEmpty(article.cover)}">
+    <div class="article-wrap">
       <div class="article-title">
         <div class="article-title-wrap">
           <a
@@ -79,7 +79,7 @@
           </small>
         </div>
       </div>
-      <div class="article-img-wrap">
+      <div class="article-img-wrap" th:if="${!#strings.isEmpty(article.cover)}">
         <!-- <img
           th:src="${article.cover}"
           class="img-fluid"
