@@ -174,6 +174,37 @@
         });
     })
 
+    // 收藏
+    let collectionCount = [[${vo.article.count.collectionCount}]]
+    let collected = [[${vo.article.collected}]]
+    $("#collectFloatBtn").click(function () {
+        if (!isLogin) {
+            // 未登录，不执行相关操作
+            return;
+        }
+
+        collected = !collected;
+
+        collectArticle(articleId, collected, function (data) {
+            if (collected) {
+                // 点赞
+                collectionCount += 1;
+                $("#collectFloatBtn").addClass("active")
+            } else {
+                collectionCount -= 1;
+                $("#collectFloatBtn").removeClass("active")
+            }
+
+            if (collectionCount > 0) {
+                $("#collectFloatBtn").addClass("with-badge")
+                $('#collectFloatBtn').attr("badge", collectionCount)
+            } else {
+                $("#collectFloatBtn").removeClass("with-badge")
+                $('#collectFloatBtn').removeAttr("badge")
+            }
+        });
+    })
+
 </script>
 </body>
 </html>

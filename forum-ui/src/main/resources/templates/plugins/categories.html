@@ -2,14 +2,12 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 
 <div th:fragment="category(list)" class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
-    <div class="card-body d-flex align-content-start flex-wrap type-box">
+    <div class="card-body d-flex align-content-start flex-wrap type-box category-wrap">
         <a th:each="category : ${list}"
            th:text="${category.category}"
            th:href="${'?category=' + category.category}"
-           th:class="${'btn ' + (category.selected ? 'btn-primary' : '')}"
-           th:style="${'margin: 0.5em;' + (category.selected ? 'color: #fff;' : '')}"
-           style="margin: 0.1em;color: #fff;"
-           class="btn btn-primary">全部</a>
+           th:class="'category--item ' + ${(category.selected ? 'category--active' : '')}"
+           >全部</a>
     </div>
 </div>
 
