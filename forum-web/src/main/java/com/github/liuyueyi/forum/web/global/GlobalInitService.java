@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.web.global;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.core.util.NumUtil;
+import com.github.liuyueyi.forum.service.notify.service.NotifyService;
 import com.github.liuyueyi.forum.service.user.service.LoginService;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import com.github.liuyueyi.forum.web.global.vo.GlobalVo;
@@ -30,6 +31,9 @@ public class GlobalInitService {
     @Resource
     private GlobalViewConfig globalViewConfig;
 
+    @Resource
+    private NotifyService notifyService;
+
     /**
      * 全局属性配置
      */
@@ -40,10 +44,10 @@ public class GlobalInitService {
         if (ReqInfoContext.getReqInfo() != null && NumUtil.upZero(ReqInfoContext.getReqInfo().getUserId())) {
             vo.setIsLogin(true);
             vo.setUser(ReqInfoContext.getReqInfo().getUser());
+            vo.setMsgNum(ReqInfoContext.getReqInfo().getMsgNum());
         } else {
             vo.setIsLogin(false);
         }
-        vo.setMsgNum(1);
         return vo;
     }
 
@@ -58,6 +62,7 @@ public class GlobalInitService {
                 if (user != null) {
                     reqInfo.setUserId(user.getUserId());
                     reqInfo.setUser(user);
+                    reqInfo.setMsgNum(notifyService.queryUserNotifyMsgCount(user.getUserId()));
                 }
                 return;
             }

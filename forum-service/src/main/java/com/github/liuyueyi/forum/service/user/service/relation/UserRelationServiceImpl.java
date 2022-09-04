@@ -1,12 +1,15 @@
 package com.github.liuyueyi.forum.service.user.service.relation;
 
+import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liuyueyi.forum.core.util.NumUtil;
+import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.repository.dao.UserRelationDao;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
@@ -31,13 +34,13 @@ public class UserRelationServiceImpl implements UserRelationService {
 
     @Override
     public UserFollowListDTO getUserFollowList(Long userId, PageParam pageParam) {
-        List<UserFollowDTO> userRelationList = userRelationDao.queryUserFollowList(userId, pageParam);
+        List<UserFollowDTO> userRelationList = userRelationDao.listUserFollows(userId, pageParam);
         return buildRes(userRelationList, pageParam);
     }
 
     @Override
     public UserFollowListDTO getUserFansList(Long userId, PageParam pageParam) {
-        List<UserFollowDTO> userRelationList = userRelationDao.queryUserFansList(userId, pageParam);
+        List<UserFollowDTO> userRelationList = userRelationDao.listUserFans(userId, pageParam);
         return buildRes(userRelationList, pageParam);
     }
 
@@ -55,7 +58,10 @@ public class UserRelationServiceImpl implements UserRelationService {
     @Override
     public void saveUserRelation(UserRelationReq req) {
         if (NumUtil.nullOrZero(req.getUserRelationId())) {
-            userRelationDao.save(UserConverter.toDO(req));
+            UserRelationDO relationDO = UserConverter.toDO(req);
+            userRelationDao.save(relationDO);
+            // 发布关注事件
+            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.FOLLOW, relationDO));
             return;
         }
 

@@ -84,7 +84,7 @@
     </logger>
 
     <!-- 控制台输出日志级别 -->
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

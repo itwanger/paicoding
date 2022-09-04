@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan(basePackages = {
         "com.github.liuyueyi.forum.service.article.repository.mapper",
         "com.github.liuyueyi.forum.service.user.repository.mapper",
-        "com.github.liuyueyi.forum.service.comment.repository.mapper",})
+        "com.github.liuyueyi.forum.service.comment.repository.mapper",
+        "com.github.liuyueyi.forum.service.notify.repository.mapper",})
 public class ServiceAutoConfig {
 }

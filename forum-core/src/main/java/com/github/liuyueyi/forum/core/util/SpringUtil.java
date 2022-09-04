@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.core.util;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -49,5 +50,14 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      */
     public static String getConfig(String key) {
         return environment.getProperty(key);
+    }
+
+    /**
+     * 发布事件消息
+     *
+     * @param event
+     */
+    public static void publishEvent(ApplicationEvent event) {
+        context.publishEvent(event);
     }
 }

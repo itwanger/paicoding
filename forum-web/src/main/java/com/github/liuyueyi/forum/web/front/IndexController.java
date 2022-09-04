@@ -6,7 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liuyueyi.forum.core.util.MapUtils;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
-import com.github.liuyueyi.forum.web.global.BaseController;
+import com.github.liuyueyi.forum.web.global.BaseViewController;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @date 2022/7/6
  */
 @Controller
-public class IndexController extends BaseController {
+public class IndexController extends BaseViewController {
     @Autowired
     private CategoryService categoryService;
 
