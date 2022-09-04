@@ -2,6 +2,61 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 
 <header>
+    <style>
+        #bodyNav {
+            padding: 0 24px;
+        }
+        .nav-link {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .navbar {
+            height: 60px;
+        }
+        .nav-search {
+            font-size: 14px;
+            height: 32px;
+            width: 238px !important;
+            margin-right: 26px;
+        }
+        .nav-article {
+            background-color: #1f80ff !important;
+            color: #fff;
+            font-weight: 500;
+            height: 32px;
+            font-size: 14px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .nav-article:hover {
+            background-color: #1171ee !important;
+        }
+        .nav-notice {
+            display: flex;
+            align-items: center;
+        }
+        .dropdown-toggle::after {
+            display: none !important;;
+        }
+        .nav-login-img {
+            height: 36px;
+            width: 36px;
+        }
+        .nav-login-menu {
+            left: -20px;
+            box-shadow: 0 0 24px rgb(81 87 103 / 16%);
+            width: 224px;
+            border-radius: 4px;
+            padding: 20px;
+            left: -200px;
+        }
+        .nav-login-head {
+            display: flex;
+            align-items: center;
+            padding: 0;
+        }
+    </style>
     <nav id="bodyNav" th:data-islogin="${global.isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
         <a class="navbar-brand">
             <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
@@ -9,9 +64,6 @@
                  th:alt="${global.siteInfo.websiteName}"
                  src="https://static.developers.pub/logo.jpeg" width="30" height="30" alt="" loading="lazy">
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
             <ul class="navbar-nav mr-auto">
                 <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'article') ? ' selected-domain' : '')}"
@@ -32,25 +84,23 @@
                     <a class="nav-link" href="/follow">关注</a>
                 </li>
             </ul>
-            <form class="form-inline my-md-0" style="padding-right: 1em"
-                  action="/search" method="get">
+            <form class="form-inline my-md-0" action="/search" method="get">
                 <div class="input-icon">
-                    <span class="input-icon-addon">
-                      <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                    <!-- <span class="input-icon-addon">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                            stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle
                               cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
-                    </span>
-                    <input name="key" required type="text" autocomplete="off" class="form-control" placeholder="搜索"
-                           aria-label="站内搜索">
+                    </span> -->
+                    <input name="key" required type="text" class="form-control nav-search" placeholder="找文章/找标签/找技术大神" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    <!-- <div class="input-group-append">
+                        <span class="input-group-text" id="basic-addon2">搜索</span>
+                    </div>        -->
                 </div>
             </form>
-
-            <a th:href="${'/article/edit'}"
-               target="_blank"
-               class="btn btn-primary" style="border-radius: 4px;">写文章</a>
-
+            <button type="button" class="btn btn-primary nav-article">
+              写文章
+            </button>
             <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
                 <!--  待登录 -->
                 <li class="nav-item">
@@ -59,7 +109,7 @@
             </ul>
             <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
                 <!--  已登录 -->
-                <li class="nav-item">
+                <li class="nav-item nav-notice">
                     <a class="nav-link navbar-count-msg-box" href="/message" target="_blank">
                         <span th:if="${global.msgNum != null && global.msgNum > 0}"
                               class="navbar-count-msg"></span>
@@ -73,13 +123,13 @@
                     </a>
                 </li>
                 <!-- Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                        <img th:src="${global.user.photo}"
-                             src="https://static.developers.pub/static/img/logo.b2ff606.jpeg" width="30" height="30"
+                <li class="nav-item dropdown nav-login-head">
+                    <!-- <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"> -->
+                        <img class="nav-login-img dropdown-toggle" th:src="${global.user.photo}" data-toggle="dropdown"
+                             src="https://static.developers.pub/static/img/logo.b2ff606.jpeg" 
                              alt="" loading="lazy">
-                    </a>
-                    <div class="dropdown-menu">
+                    <!-- </a> -->
+                    <div class="dropdown-menu nav-login-menu">
                         <a th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}" href="/admin" target="_blank"
                            class="dropdown-item">管理后台</a>
                         <div th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
@@ -128,9 +178,14 @@
             </div>
         </div>
     </div>
-
+    
     <script src="/js/jquery.min.js"></script>
     <script src="/js/biz/login.js"></script>
     <script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
+    <script>
+        $('.nav-article').click(()=>{
+            window.location.href = '/article/edit'
+        })
+    </script>
 </header>
 </html>

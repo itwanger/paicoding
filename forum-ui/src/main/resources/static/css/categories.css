@@ -1,0 +1,14 @@
+.category--item {
+    padding: 8px 24px;
+    color: #71777c;
+    font-weight: 500;
+}
+.category--active {
+    color: #007fff;
+}
+.category-wrap {
+    padding: 12px 0;
+}
+a:hover {
+    text-decoration: none !important;
+}
