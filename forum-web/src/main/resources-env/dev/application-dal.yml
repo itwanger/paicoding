@@ -3,3 +3,8 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/forum?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password:
+
+#
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志

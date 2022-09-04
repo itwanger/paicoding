@@ -24,7 +24,7 @@ public class UserRelationDO extends BaseDO {
     private Long userId;
 
     /**
-     * 关注用户ID
+     * 粉丝用户ID
      */
     private Long followUserId;
 

@@ -12,7 +12,7 @@ import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadService
 import com.github.liuyueyi.forum.service.user.service.relation.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.service.user.UserServiceImpl;
 import com.github.liuyueyi.forum.web.front.user.vo.UserHomeVo;
-import com.github.liuyueyi.forum.web.global.BaseController;
+import com.github.liuyueyi.forum.web.global.BaseViewController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -30,13 +30,13 @@ import java.util.List;
 /**
  * 用户注册、取消，登录、登出
  *
- * @author lvmenglou
+ * @author louzai
  * @date : 2022/8/3 10:56
  **/
 @Controller
 @RequestMapping(path = "user")
 @Slf4j
-public class UserViewController extends BaseController {
+public class UserViewController extends BaseViewController {
 
     @Resource
     private UserServiceImpl userService;

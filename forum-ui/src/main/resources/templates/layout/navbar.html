@@ -86,16 +86,7 @@
             </ul>
             <form class="form-inline my-md-0" action="/search" method="get">
                 <div class="input-icon">
-                    <!-- <span class="input-icon-addon">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                           stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                           stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle
-                              cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
-                    </span> -->
                     <input name="key" required type="text" class="form-control nav-search" placeholder="找文章/找标签/找技术大神" aria-label="Recipient's username" aria-describedby="basic-addon2">
-                    <!-- <div class="input-group-append">
-                        <span class="input-group-text" id="basic-addon2">搜索</span>
-                    </div>        -->
                 </div>
             </form>
             <button type="button" class="btn btn-primary nav-article">
@@ -110,7 +101,7 @@
             <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
                 <!--  已登录 -->
                 <li class="nav-item nav-notice">
-                    <a class="nav-link navbar-count-msg-box" href="/message" target="_blank">
+                    <a class="nav-link navbar-count-msg-box" href="/notice/comment">
                         <span th:if="${global.msgNum != null && global.msgNum > 0}"
                               class="navbar-count-msg"></span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24"
@@ -178,7 +169,7 @@
             </div>
         </div>
     </div>
-    
+
     <script src="/js/jquery.min.js"></script>
     <script src="/js/biz/login.js"></script>
     <script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>

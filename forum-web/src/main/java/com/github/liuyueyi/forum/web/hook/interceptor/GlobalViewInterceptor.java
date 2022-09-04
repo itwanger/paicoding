@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.web.hook.interceptor;
 
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
@@ -57,28 +58,22 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-//        // 重定向请求不需要添加
-//        if (!ObjectUtils.isEmpty(modelAndView)) {
-//            modelAndView.getModel().put("env", env);
-//            modelAndView.getModel().put("siteInfo", globalViewConfig);
-//            if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
-//                modelAndView.getModel().put("isLogin", false);
-//
-//            } else {
-//                modelAndView.getModel().put("isLogin", true);
-//                modelAndView.getModel().put("user", userService.queryUserInfoWithStatistic(ReqInfoContext.getReqInfo().getUserId()));
-//            }
-//        }
-        // fixme 对于异常重定向到 /error 时，会导致登录信息丢失，待解决
-        if (response.getStatus() != HttpStatus.OK.value() && modelAndView != null) {
-            try {
-                ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
-                globalInitService.initLoginUser(reqInfo);
-                ReqInfoContext.addReqInfo(reqInfo);
+        // 重定向请求不需要添加
+        if (!ObjectUtils.isEmpty(modelAndView)) {
+            if (response.getStatus() != HttpStatus.OK.value()) {
+                try {
+                    ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
+                    // fixme 对于异常重定向到 /error 时，会导致登录信息丢失，待解决
+                    globalInitService.initLoginUser(reqInfo);
+                    ReqInfoContext.addReqInfo(reqInfo);
+                    modelAndView.getModel().put("global", globalInitService.globalAttr());
+                } finally {
+                    ReqInfoContext.clear();
+                }
+            } else {
                 modelAndView.getModel().put("global", globalInitService.globalAttr());
-            } finally {
-                ReqInfoContext.clear();
             }
         }
+
     }
 }

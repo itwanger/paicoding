@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<!-- 消息通知 -->
+<div th:fragment="notify_follow_item(msg)" class="notification">
+    <a th:href="'/user/home?userId=' + ${msg.operateUserId}"
+       class="" target="_blank">
+        <img th:src="${msg.operateUserPhoto}"
+             class="lazy avatar"
+             loading="lazy"></a>
+    <div class="right">
+        <div class="top">
+            <div class="content">
+                <div class="profile">
+                    <a th:href="'/user/home?userId=' + ${msg.operateUserId}"
+                       class=""
+                       target="_blank">
+                        <span class="name" th:text="${msg.operateUserName}">一灰灰</span>
+                    </a>
+                    关注了你
+                </div>
+            </div>
+        </div>
+        <div class="bottom">
+            <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(msg.createTime)}">4天前</span>
+            <div class="action">
+                <div class="action-item">
+                    <button class="follow-btn" data-follow-user="${msg.operateUserId}">
+                        <span>关注</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

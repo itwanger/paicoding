@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<link href="/css/notifycation.css" rel="stylesheet">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
+</div>
+
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: header"></div>
+
+<!-- 正文内容 -->
+<div th:replace="layout/container :: container_all(~{::content})">
+    <content>
+        <!-- 文章列表 -->
+        <div th:fragment="category(list)" class="card"
+             style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
+            <div class="card-body d-flex align-content-start flex-wrap type-box">
+                <a th:each="type: ${vo.unreadCountMap}"
+                   th:href="'/notice/' + ${type.key}"
+                   th:class="'btn' + ${#strings.equalsIgnoreCase(type.key,vo.selectType) ? ' btn-primary ': ''}"
+                   th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}">
+                    <small th:text="${type.value}">未读数</small>
+                </a>
+            </div>
+        </div>
+        <div class="container-bg-light"
+             style="min-height: 700px;margin-bottom: 20px;">
+            <div th:if="${#strings.equalsIgnoreCase('comment',vo.selectType)}">
+                <div th:each="msg: ${vo.list.list}">
+                    <div th:replace="plugins/notify-comment-item :: notify_commenet_item(${msg})"></div>
+                </div>
+            </div>
+            <div th:if="${#strings.equalsIgnoreCase('reply',vo.selectType)}">
+                <div th:each="msg: ${vo.list.list}">
+                    <div th:replace="plugins/notify-reply-item :: notify_reply_item(${msg})"></div>
+                </div>
+            </div>
+            <div th:if="${#strings.equalsIgnoreCase('praise',vo.selectType)}">
+                <div th:each="msg: ${vo.list.list}">
+                    <div th:replace="plugins/notify-praise-item :: notify_praise_item(${msg})"></div>
+                </div>
+            </div>
+            <div th:if="${#strings.equalsIgnoreCase('collect',vo.selectType)}">
+                <div th:each="msg: ${vo.list.list}">
+                    <div th:replace="plugins/notify-collect-item :: notify_collect_item(${msg})"></div>
+                </div>
+            </div>
+            <div th:if="${#strings.equalsIgnoreCase('system',vo.selectType)}">
+                <div th:each="msg: ${vo.list.list}">
+                    <div th:replace="plugins/notify-system-item :: notify_system_item(${msg})"></div>
+                </div>
+            </div>
+
+        </div>
+    </content>
+</div>
+
+<!-- 底部信息 -->
+<div th:replace="layout/footer :: footer"></div>
+</body>
+</html>
