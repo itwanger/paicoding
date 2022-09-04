@@ -15,7 +15,7 @@ import com.github.liuyueyi.forum.service.comment.service.CommentReadService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import com.github.liuyueyi.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.liuyueyi.forum.web.front.article.vo.ArticleEditVo;
-import com.github.liuyueyi.forum.web.global.BaseController;
+import com.github.liuyueyi.forum.web.global.BaseViewController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,7 +42,7 @@ import java.util.Objects;
  */
 @Controller
 @RequestMapping(path = "article")
-public class ArticleViewController extends BaseController {
+public class ArticleViewController extends BaseViewController {
     @Autowired
     private ArticleReadService articleService;
 

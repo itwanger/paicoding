@@ -1,0 +1,85 @@
+.notification {
+    padding: 1.67rem;
+    display: flex;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+    background: #fff;
+}
+.notification.active .icon {
+    color: #1e80ff
+}
+
+.notification .count {
+    position: absolute;
+    left: 15px;
+    bottom: 65%;
+    margin: 0;
+    line-height: 11px;
+    text-align: center;
+    border-radius: 3rem;
+    word-break: normal;
+    display: inline-block;
+    color: #f1f1f1;
+    transform: scale(.8);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 3px 5px;
+    background: #f03535;
+    border-radius: 50px;
+    border: 1px solid #fff
+}
+
+.notification .avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 100%;
+    margin-right: 2rem;
+}
+
+.notification .right {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.notification .count.More {
+    left: 12px
+}
+
+.notification .right .top {
+    display: flex;
+}
+
+.notification .right .top .content {
+    flex: 1;
+    margin-right: 1.67rem;
+}
+
+.notification .right .top .content .comment {
+    font-size: 15px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #fafbfc;
+    border-radius: 3px;
+    border: 1px solid #f1f1f2;
+}
+
+
+.notification .right .bottom {
+    font-size: 1.166rem;
+    display: flex;
+    color: #8a9aa9;
+    justify-content: space-between;
+}
+
+
+.notification .right .bottom .action {
+    display: flex;
+    align-items: center;
+}
+
+.notification .right .bottom .action .action-item {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+    cursor: pointer;
+}

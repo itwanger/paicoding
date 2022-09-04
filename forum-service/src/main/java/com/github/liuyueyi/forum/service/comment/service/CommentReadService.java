@@ -2,6 +2,7 @@ package com.github.liuyueyi.forum.service.comment.service;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 
 import java.util.List;
 
@@ -12,6 +13,8 @@ import java.util.List;
  * @date 2022-07-24
  */
 public interface CommentReadService {
+
+    CommentDO queryComment(Long commentId);
 
     /**
      * 查询文章评论列表
