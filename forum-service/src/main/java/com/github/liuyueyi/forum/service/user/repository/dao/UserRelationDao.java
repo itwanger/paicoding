@@ -20,12 +20,25 @@ import java.util.List;
 @Repository
 public class UserRelationDao extends ServiceImpl<UserRelationMapper, UserRelationDO> {
 
-
-    public List<UserFollowDTO> queryUserFollowList(Long followUserId, PageParam pageParam) {
+    /**
+     * 查询用户的关注列表
+     *
+     * @param followUserId
+     * @param pageParam
+     * @return
+     */
+    public List<UserFollowDTO> listUserFollows(Long followUserId, PageParam pageParam) {
         return baseMapper.queryUserFollowList(followUserId, pageParam);
     }
 
-    public List<UserFollowDTO> queryUserFansList(Long userId, PageParam pageParam) {
+    /**
+     * 查询用户的粉丝列表，即关注userId的用户
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    public List<UserFollowDTO> listUserFans(Long userId, PageParam pageParam) {
         return baseMapper.queryUserFansList(userId, pageParam);
     }
 

@@ -24,7 +24,11 @@ public class PageParam {
     private long limit;
 
     public static PageParam newPageInstance() {
-        return newPageInstance(DEFAULT_PAGE_NUM ,DEFAULT_PAGE_SIZE);
+        return newPageInstance(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE);
+    }
+
+    public static PageParam newPageInstance(Integer pageNum, Integer pageSize) {
+        return newPageInstance(pageNum.longValue(), pageSize.longValue());
     }
 
     public static PageParam newPageInstance(Long pageNum, Long pageSize) {

@@ -186,6 +186,23 @@ CREATE TABLE `user_relation`
     KEY              `key_follow_user_id` (`follow_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户关系表';
 
+-- 消息通知列表
+
+CREATE TABLE `notify_msg`
+(
+    `id`              int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `related_id`      int unsigned NOT NULL default '0' COMMENT '关联的主键',
+    `notify_user_id`  int unsigned NOT NULL default '0' COMMENT '通知的用户id',
+    `operate_user_id` int unsigned NOT NULL default '0' COMMENT '触发这个通知的用户id',
+    `msg`             varchar(1024) NOT NULL default '' COMMENT '消息内容',
+    `type`            tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '类型: 0-默认，1-评论，2-回复 3-点赞 4-收藏 5-关注 6-系统',
+    `state`           tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未读，1-已读',
+    `create_time`     timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`     timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    PRIMARY KEY (`id`),
+    KEY               `key_notify_user_id_type_state` (`notify_user_id`, `type`, `state`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='消息通知列表';
+
 -- 变更记录
 # alter table user_relation
 #     add `follow_state` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注';

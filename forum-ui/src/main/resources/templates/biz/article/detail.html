@@ -144,8 +144,9 @@
     // 点赞
     let praisedCount = [[${vo.article.count.praiseCount}]]
     let praised = [[${vo.article.praised}]]
-    const isLogin = [[${isLogin}]]
+    const isLogin = [[${global.isLogin}]]
     $("#praiseFloatBtn").click(function () {
+        console.log("登录了么！");
         if (!isLogin) {
             // 未登录，不执行相关操作
             return;

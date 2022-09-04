@@ -37,6 +37,11 @@ public class CommentReadServiceImpl implements CommentReadService {
     private CountService countService;
 
     @Override
+    public CommentDO queryComment(Long commentId) {
+        return commentDao.getById(commentId);
+    }
+
+    @Override
     public List<TopCommentDTO> getArticleComments(Long articleId, PageParam page) {
         // 1.查询一级评论
         List<CommentDO> comments = commentDao.listTopCommentList(articleId, page);
