@@ -4,7 +4,6 @@ package com.github.liuyueyi.forum.service.user.service;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 
@@ -35,17 +34,19 @@ public interface UserFootService {
      * 2. 若改评论为回复别人的评论，则针对父评论设置为已评论
      *
      * @param comment             保存评论入参
-     * @param article             文章信息
+     * @param articleAuthor       文章作者
+     * @param parentCommentAuthor 父评论作者
      */
-    void saveCommentFoot(CommentDO comment, ArticleDTO article);
+    void saveCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor);
 
     /**
      * 删除评论足迹
      *
      * @param comment             保存评论入参
-     * @param article             文章信息
+     * @param articleAuthor       文章作者
+     * @param parentCommentAuthor 父评论作者
      */
-    void removeCommentFoot(CommentDO comment, ArticleDTO article);
+    void removeCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor);
 
 
     /**

@@ -60,22 +60,22 @@ public class UserFootServiceImpl implements UserFootService {
 
 
     @Override
-    public void saveCommentFoot(CommentDO comment, ArticleDTO article) {
+    public void saveCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor) {
         // 保存文章对应的评论足迹
-        saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, article.getArticleId(), article.getAuthor(), comment.getUserId(), OperateTypeEnum.COMMENT);
+        saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, comment.getArticleId(), articleAuthor, comment.getUserId(), OperateTypeEnum.COMMENT);
         // 如果是子评论，则找到父评论的记录，然后设置为已评
         if (comment.getParentCommentId() != null &&comment.getParentCommentId() != 0) {
             // 如果需要展示父评论的子评论数量，authorId 需要传父评论的 userId
-            saveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, comment.getParentCommentId(), 0L, comment.getUserId(), OperateTypeEnum.COMMENT);
+            saveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, comment.getParentCommentId(), parentCommentAuthor, comment.getUserId(), OperateTypeEnum.COMMENT);
         }
     }
 
     @Override
-    public void removeCommentFoot(CommentDO comment, ArticleDTO article) {
-        saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, article.getArticleId(), article.getAuthor(), comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
+    public void removeCommentFoot(CommentDO comment, Long articleAuthor, Long parentCommentAuthor) {
+        saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, comment.getArticleId(), articleAuthor, comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
         if (comment.getParentCommentId() != null) {
             // 如果需要展示父评论的子评论数量，authorId 需要传父评论的 userId
-            saveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, comment.getParentCommentId(), 0L, comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
+            saveOrUpdateUserFoot(DocumentTypeEnum.COMMENT, comment.getParentCommentId(), parentCommentAuthor, comment.getUserId(), OperateTypeEnum.DELETE_COMMENT);
         }
     }
 
@@ -83,7 +83,7 @@ public class UserFootServiceImpl implements UserFootService {
     private boolean setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operate) {
         switch (operate) {
             case READ:
-                return true;
+                return compareAndUpdate(userFootDO::getReadStat, userFootDO::setReadStat, operate.getDbStatCode());
             case PRAISE:
             case CANCEL_PRAISE:
                 return compareAndUpdate(userFootDO::getPraiseStat, userFootDO::setPraiseStat, operate.getDbStatCode());

@@ -55,8 +55,8 @@
         <!-- 收藏 -->
         <div th:badge="${article.count.collectionCount > 0 ? article.count.collectionCount: ''}"
              th:class="'panel-btn ' + ${article.collected ? ' active': ''} + ${article.count.collectionCount > 0 ? ' with-badge': ''} "
-             th:data-target="${isLogin ? '' : '#loginModal'}"
-             th:data-toggle="${isLogin ? '' : 'modal'}"
+             th:data-target="${global.isLogin ? '' : '#loginModal'}"
+             th:data-toggle="${global.isLogin ? '' : 'modal'}"
              id="collectFloatBtn">
             <svg class="sprite-icon icon-collect">
                 <use xlink:href="#icon-collect"></use>

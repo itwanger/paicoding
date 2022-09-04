@@ -7,7 +7,6 @@ import com.github.liueyueyi.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
-import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.comment.converter.CommentConverter;
 import com.github.liuyueyi.forum.service.comment.repository.dao.CommentDao;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
@@ -51,8 +50,8 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     }
 
     private CommentDO addComment(CommentSaveReq commentSaveReq) {
-        // 0.校验父评论是否存在
-        getParentCommentUser(commentSaveReq.getParentCommentId());
+        // 0.获取父评论信息，校验是否存在
+        Long parentCommentUser = getParentCommentUser(commentSaveReq.getParentCommentId());
 
         // 1. 保存评论内容
         CommentDO commentDO = CommentConverter.toDo(commentSaveReq);
@@ -68,7 +67,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         }
 
         // 2. 保存足迹信息 : 文章的已评信息 + 评论的已评信息
-        userFootWriteService.saveCommentFoot(commentDO, articleDTO);
+        userFootWriteService.saveCommentFoot(commentDO, articleDTO.getAuthor(), parentCommentUser);
         return commentDO;
     }
 
@@ -99,7 +98,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
             throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章=" + commentDO.getArticleId());
         }
 
-        userFootWriteService.removeCommentFoot(commentDO, articleDTO);
+        userFootWriteService.removeCommentFoot(commentDO, articleDTO.getAuthor(), getParentCommentUser(commentDO.getParentCommentId()));
     }
 
 
