@@ -15,4 +15,4 @@ spring:
 
 view:
   site:
-    host: //forum.hhui.top
+    host:
