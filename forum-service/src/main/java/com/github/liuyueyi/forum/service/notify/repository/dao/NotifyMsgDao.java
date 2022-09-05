@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.notify.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.liueyueyi.forum.api.model.enums.NotifyStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
@@ -9,6 +10,7 @@ import com.github.liueyueyi.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.liuyueyi.forum.service.notify.repository.entity.NotifyMsgDO;
 import com.github.liuyueyi.forum.service.notify.repository.mapper.NotifyMsgMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,26 @@ import java.util.stream.Collectors;
  */
 @Repository
 public class NotifyMsgDao extends ServiceImpl<NotifyMsgMapper, NotifyMsgDO> {
+
+    /**
+     * 查询消息记录，用于幂等过滤
+     *
+     * @param msg
+     * @return
+     */
+    public NotifyMsgDO getByUserIdRelatedIdAndType(NotifyMsgDO msg) {
+        List<NotifyMsgDO> list = lambdaQuery().eq(NotifyMsgDO::getNotifyUserId, msg.getNotifyUserId())
+                .eq(NotifyMsgDO::getOperateUserId, msg.getOperateUserId())
+                .eq(NotifyMsgDO::getType, msg.getType())
+                .eq(NotifyMsgDO::getRelatedId, msg.getRelatedId())
+                .page(new Page<>(0, 1))
+                .getRecords();
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
+    }
+
 
     /**
      * 查询用户的消息通知数量
@@ -76,6 +98,11 @@ public class NotifyMsgDao extends ServiceImpl<NotifyMsgMapper, NotifyMsgDO> {
         }
     }
 
+    /**
+     * 设置消息为已读
+     *
+     * @param list
+     */
     public void updateNotifyMsgToRead(List<NotifyMsgDTO> list) {
         List<Long> ids = list.stream().filter(s -> s.getState() == NotifyStatEnum.UNREAD.getStat()).map(NotifyMsgDTO::getMsgId).collect(Collectors.toList());
         if (!ids.isEmpty()) {

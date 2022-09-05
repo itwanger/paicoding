@@ -80,7 +80,7 @@ public class CommentRestController {
     @Permission(role = UserRole.LOGIN)
     @RequestMapping(path = "delete")
     public ResVo<Boolean> delete(Long commentId) {
-        commentWriteService.deleteComment(commentId);
+        commentWriteService.deleteComment(commentId, ReqInfoContext.getReqInfo().getUserId());
         return ResVo.ok(true);
     }
 }

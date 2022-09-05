@@ -58,6 +58,6 @@ public class CommentDaoTest extends BasicTest {
 
     @Test
     public void testDeleteComment() throws Exception {
-        commentWriteService.deleteComment(58L);
+        commentWriteService.deleteComment(58L, 1L);
     }
 }
