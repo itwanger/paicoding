@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.front.user.rest;
+package com.github.liuyueyi.forum.web.front.login.rest;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
