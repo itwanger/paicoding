@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 
 <!-- 用户卡片 -->
-<div class="card" th:fragment="user_card(user)">
+<div class="card" th:fragment="user_card(user, followShow)">
     <div class="card-body">
         <div class="d-inline-flex p-2">
             <div class="d-flex">
@@ -23,9 +23,8 @@
             <li th:text="'获得点赞:' + ${user.praiseCount}">点赞数</li>
             <li th:text="'文章被阅读:' + ${user.readCount}">阅读数</li>
         </ul>
-        <a href="#" class="btn btn-primary">
-            关注
-        </a>
+
+        <button id="followBtn" th:if = "${followShow == true}" th:text="${user.followed == true ? '取消关注' : '关注'}" data-reply-id="" type="button" class="btn btn-primary">关注</button>
     </div>
 </div>
 
