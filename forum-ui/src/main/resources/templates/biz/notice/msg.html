@@ -26,37 +26,99 @@
         </div>
         <div class="container-bg-light"
              style="min-height: 700px;margin-bottom: 20px;">
-            <div th:if="${#strings.equalsIgnoreCase('comment',vo.selectType)}">
+            <div th:if="${#strings.equalsIgnoreCase('comment',vo.selectType)}" id="commentNotifyList">
                 <div th:each="msg: ${vo.list.list}">
-                    <div th:replace="plugins/notify-comment-item :: notify_commenet_item(${msg})"></div>
+                    <div th:replace="plugins/notify-comment-item :: notify_comment_item(${msg})"/>
                 </div>
             </div>
             <div th:if="${#strings.equalsIgnoreCase('reply',vo.selectType)}">
-                <div th:each="msg: ${vo.list.list}">
+                <div th:each="msg: ${vo.list.list}" id="replyNotifyList">
                     <div th:replace="plugins/notify-reply-item :: notify_reply_item(${msg})"></div>
                 </div>
             </div>
             <div th:if="${#strings.equalsIgnoreCase('praise',vo.selectType)}">
-                <div th:each="msg: ${vo.list.list}">
+                <div th:each="msg: ${vo.list.list}" id="praiseNotifyList">
                     <div th:replace="plugins/notify-praise-item :: notify_praise_item(${msg})"></div>
                 </div>
             </div>
             <div th:if="${#strings.equalsIgnoreCase('collect',vo.selectType)}">
-                <div th:each="msg: ${vo.list.list}">
+                <div th:each="msg: ${vo.list.list}" id="collectNotifyList">
                     <div th:replace="plugins/notify-collect-item :: notify_collect_item(${msg})"></div>
                 </div>
             </div>
+            <div th:if="${#strings.equalsIgnoreCase('follow',vo.selectType)}">
+                <div th:each="msg: ${vo.list.list}" id="followNotifyList">
+                    <div th:replace="plugins/notify-follow-item :: notify_follow_item(${msg})"></div>
+                </div>
+            </div>
             <div th:if="${#strings.equalsIgnoreCase('system',vo.selectType)}">
-                <div th:each="msg: ${vo.list.list}">
+                <div th:each="msg: ${vo.list.list}" id="systemNotifyList">
                     <div th:replace="plugins/notify-system-item :: notify_system_item(${msg})"></div>
                 </div>
             </div>
-
+            <div class="center">
+                <button th:if="${vo.list.hasMore}" id="loadMoreTag" class="btn btn-outline" th:text="加载更多">
+                </button>
+            </div>
         </div>
     </content>
 </div>
 
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
+<script th:inline="javascript">
+    const selectType = [[${vo.selectType}]].toLowerCase()
+
+    function getNotifyItemListTag() {
+
+    }
+
+    const tagList = document.getElementById(getNotifyItemListTag())
+    let nextPage = 2;
+    $('#loadMoreTag').click(function () {
+        $.get('/notice/api/list?type=' + selectType + '&page=' + nextPage + '', function (data) {
+            console.log("response: ", data);
+            const result = data.result;
+            let tag;
+            let append = '';// document.getElementById('commentNotifyList').innerHTML;
+            result.list.forEach(msg => {
+                append += `<div th:replace="plugins/notify-comment-item :: notify_comment_item(${msg})" ></div>`;
+                $('#commentNotifyList').html(append);
+                console.log("selectType>>>>>", selectType, append);
+            })
+            console.log(">>>", append);
+            // $('#commentNotifyList').html(append);
+            // $('#commentNotifyList').append(append)
+            // if (result.list && result.list.size > 0) {
+            //     if (selectType == 'comment') {
+            //         console.log("在这里");
+            //         tag = $('#commentNotifyList');
+            //         append = (`<div th:replace="plugins/notify-comment-item :: notify_comment_item(${msg})" th:each="msg: ${result.list}"></div>`);
+            //     } else if (selectType == 'reply') {
+            //         tag = $('#replyNotifyList');
+            //         append = (`<div th:replace="plugins/notify-reply-item :: notify_reply_item(${msg})" th:each="msg: ${result.list}"></div>`);
+            //     } else if (selectType == 'praise') {
+            //         tag = $('#praiseNotifyList');
+            //         append = (`<div th:replace="plugins/notify-praise-item :: notify_praise_item(${msg})" th:each="msg: ${result.list}"></div>`);
+            //     } else if (selectType == 'collect') {
+            //         tag = $('#collectNotifyList');
+            //         append = (`<div th:replace="plugins/notify-collect-item :: notify_collect_item(${msg})" th:each="msg: ${result.list}"></div>`);
+            //     } else if (selectType == 'follow') {
+            //         tag = $('#followNotifyList');
+            //         append = (`<div th:replace="plugins/notify-follow-item :: notify_follow_item(${msg})" th:each="msg: ${result.list}"></div>`);
+            //     } else if (selectType == 'system') {
+            //         tag = $('#systemNotifyList');
+            //         append = (`<div th:replace="plugins/notify-system-item :: notify_system_item(${msg})" th:each="msg: ${result.list}"></div>`);
+            //     }
+            // }
+            // console.log(append);
+            // $('#commentNotifyList').html(append);
+            if (!result.hasMore) {
+                $('#loadMoreTag').hide();
+            }
+        });
+    });
+
+</script>
 </body>
 </html>
