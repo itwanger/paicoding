@@ -98,6 +98,8 @@ public class LoginViewController extends BaseViewController {
     public void redirect2wx(@RequestParam("code") String code,
                             HttpServletResponse response) throws IOException {
         qrLoginHelper.scan(code);
+        String wx = globalViewConfig.getWxLoginUrl();
+        log.info("redirect:{}", wx);
         response.sendRedirect(globalViewConfig.getWxLoginUrl());
     }
 }
