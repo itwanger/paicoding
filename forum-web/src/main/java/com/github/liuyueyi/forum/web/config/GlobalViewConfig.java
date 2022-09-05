@@ -29,4 +29,10 @@ public class GlobalViewConfig {
 
     private String contactMeTitle;
 
+    /**
+     * 微信公众号登录url
+     */
+    private String wxLoginUrl;
+
+    private String host;
 }
