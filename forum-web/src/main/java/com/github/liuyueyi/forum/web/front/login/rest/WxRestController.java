@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 /**
  * 微信公众号登录相关
@@ -52,20 +51,33 @@ public class WxRestController {
     @PostMapping(path = "callback",
             consumes = {"application/xml", "text/xml"},
             produces = "application/xml;charset=utf-8")
-    public WxTxtMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) throws IOException {
+    public WxTxtMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
         String content = msg.getContent();
         WxTxtMsgResVo res = new WxTxtMsgResVo();
         res.setFromUserName(msg.getToUserName());
         res.setToUserName(msg.getFromUserName());
         res.setCreateTime(System.currentTimeMillis() / 1000);
         res.setMsgType("text");
-        if (loginSymbol(content)) {
-            res.setContent("登录验证码: 【" + loginService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
-        } else if (NumberUtils.isDigits(content)){
-            String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
-            qrLoginHelper.login(content, verifyCode);
+        if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
+            // 关注公众号
+            String key = msg.getEventKey();
+            if (StringUtils.isNotBlank(key) || key.startsWith("qrscene_")) {
+                String code = key.substring("qrscene_".length());
+                String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
+                qrLoginHelper.login(code, verifyCode);
+                res.setContent("登录成功");
+            } else {
+                res.setContent("欢迎关注公众号!");
+            }
         } else {
-            res.setContent("加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
+            if (loginSymbol(content)) {
+                res.setContent("登录验证码: 【" + loginService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
+            } else if (NumberUtils.isDigits(content)) {
+                String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
+                qrLoginHelper.login(content, verifyCode);
+            } else {
+                res.setContent("加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
+            }
         }
         return res;
     }
