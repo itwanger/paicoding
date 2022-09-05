@@ -65,7 +65,7 @@ public class WxRestController {
             String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
             qrLoginHelper.login(content, verifyCode);
         } else {
-            res.setContent("换个关键词吧");
+            res.setContent("加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
         }
         return res;
     }
