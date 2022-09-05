@@ -31,10 +31,10 @@
         </content>
     </left>
     <right>
-<!--        &lt;!&ndash; 登录用户信息 &ndash;&gt;-->
-<!--        <div th:if="${global.isLogin}">-->
-<!--            <div th:replace="plugins/user-card :: user_card(${global.user})"></div>-->
-<!--        </div>-->
+        <!-- 登录用户信息 -->
+        <div th:if="${global.isLogin}">
+            <div th:replace="plugins/user-card :: user_card(${user}, false)"></div>
+        </div>
 
         <!-- 公告 -->
         <div th:if="${!#lists.isEmpty(sideBarItems)}"

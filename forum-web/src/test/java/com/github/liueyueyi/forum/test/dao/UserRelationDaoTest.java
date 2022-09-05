@@ -27,31 +27,31 @@ public class UserRelationDaoTest extends BasicTest {
     @Test
     public void saveUserRelation() throws Exception {
 
-        UserRelationReq req1 = new UserRelationReq();
-        req1.setUserId(1L);
-        req1.setFollowUserId(2L);
-        req1.setFollowState(FollowStateEnum.FOLLOW.getCode());
-        userRelationService.saveUserRelation(req1);
-
-        UserRelationReq req2 = new UserRelationReq();
-        req2.setUserId(1L);
-        req2.setFollowUserId(3L);
-        req2.setFollowState(FollowStateEnum.FOLLOW.getCode());
-        userRelationService.saveUserRelation(req2);
-
-        UserRelationReq req3 = new UserRelationReq();
-        req3.setUserId(2L);
-        req3.setFollowUserId(1L);
-        req3.setFollowState(FollowStateEnum.FOLLOW.getCode());
-        userRelationService.saveUserRelation(req3);
+//        UserRelationReq req1 = new UserRelationReq();
+//        req1.setUserId(1L);
+//        req1.setFollowUserId(2L);
+//        req1.setFollowState(FollowStateEnum.FOLLOW.getCode());
+//        userRelationService.saveUserRelation(req1);
+//
+//        UserRelationReq req2 = new UserRelationReq();
+//        req2.setUserId(1L);
+//        req2.setFollowUserId(3L);
+//        req2.setFollowState(FollowStateEnum.FOLLOW.getCode());
+//        userRelationService.saveUserRelation(req2);
+//
+//        UserRelationReq req3 = new UserRelationReq();
+//        req3.setUserId(2L);
+//        req3.setFollowUserId(1L);
+//        req3.setFollowState(FollowStateEnum.FOLLOW.getCode());
+//        userRelationService.saveUserRelation(req3);
     }
 
     @Test
     public void testCancelUserRelation() throws Exception {
-        UserRelationReq req = new UserRelationReq();
-        req.setUserRelationId(7L);
-        req.setFollowState(FollowStateEnum.CANCEL_FOLLOW.getCode());
-        userRelationService.saveUserRelation(req);
+//        UserRelationReq req = new UserRelationReq();
+//        req.setUserRelationId(7L);
+//        req.setFollowState(FollowStateEnum.CANCEL_FOLLOW.getCode());
+//        userRelationService.saveUserRelation(req);
     }
 
     @Test

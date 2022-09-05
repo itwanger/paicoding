@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.service.user.service.user;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
@@ -13,6 +14,7 @@ import com.github.liuyueyi.forum.service.user.repository.dao.UserDao;
 import com.github.liuyueyi.forum.service.user.repository.dao.UserRelationDao;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
+import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,16 +106,26 @@ public class UserServiceImpl implements UserService {
             userHomeDTO.setCollectionCount(0);
         }
 
+        // 获取发布文章总数
+        int articleCount = articleReadService.queryArticleCount(userId);
+        userHomeDTO.setArticleCount(articleCount);
+
         // 获取关注数
         Long followCount = userRelationDao.queryUserFollowCount(userId);
         userHomeDTO.setFollowCount(followCount.intValue());
+
         // 粉丝数
         Long fansCount = userRelationDao.queryUserFansCount(userId);
         userHomeDTO.setFansCount(fansCount.intValue());
 
-        // 获取发布文章总数
-        int articleCount = articleReadService.queryArticleCount(userId);
-        userHomeDTO.setArticleCount(articleCount);
+        // 是否关注
+        Long followUserId = ReqInfoContext.getReqInfo().getUserId();
+        if (followUserId != null) {
+            UserRelationDO userRelationDO = userRelationDao.getUserRelationByUserId(userId, followUserId);
+            userHomeDTO.setFollowed((userRelationDO == null) ? Boolean.FALSE : Boolean.TRUE);
+        } else {
+            userHomeDTO.setFollowed(Boolean.FALSE);
+        }
         return userHomeDTO;
     }
 
