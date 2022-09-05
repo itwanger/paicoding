@@ -1,5 +1,7 @@
 package com.github.liuyueyi.forum.service.user.service.relation;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.FollowStateEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO;
@@ -54,15 +56,13 @@ public class UserRelationServiceImpl implements UserRelationService {
 
     @Override
     public void saveUserRelation(UserRelationReq req) {
-        if (NumUtil.nullOrZero(req.getUserRelationId())) {
+        // 查询是否存在
+        UserRelationDO userRelationDO = userRelationDao.getUserRelationRecord(req.getUserId(), ReqInfoContext.getReqInfo().getUserId());
+        if (userRelationDO == null) {
             userRelationDao.save(UserConverter.toDO(req));
             return;
         }
-
-        UserRelationDO userRelationDO = userRelationDao.getById(req.getUserRelationId());
-        if (userRelationDO == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "userRelationId=" + req.getUserRelationId());
-        }
-        userRelationDao.updateById(UserConverter.toDO(req));
+        userRelationDO.setFollowState(req.getFollowed() ? FollowStateEnum.FOLLOW.getCode() : FollowStateEnum.CANCEL_FOLLOW.getCode());
+        userRelationDao.updateById(userRelationDO);
     }
 }

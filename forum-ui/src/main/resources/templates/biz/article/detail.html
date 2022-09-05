@@ -34,7 +34,7 @@
     </left>
     <right>
         <!-- 用户相关信息 -->
-        <div th:replace="plugins/user-card :: user_card(${vo.author})"></div>
+        <div th:replace="plugins/user-card :: user_card(${vo.author}, true)"></div>
 
         <!-- 公告 -->
         <div th:if="${!#lists.isEmpty(sideBarItems)}"
@@ -203,6 +203,36 @@
             }
         });
     })
+
+    <!--    关注用户 -->
+    let userId = [[${vo.author.userId}]]
+    let followed = [[${vo.author.followed}]]
+    $('#followBtn').on('click', function () {
+        doFollowUser()
+    });
+
+    function doFollowUser() {
+        if (!isLogin) {
+            // 未登录，不执行相关操作
+
+            // TODO: 需要提示用户去登录  @一灰
+            return;
+        }
+
+        followed = !followed;
+
+        const params = {
+            "userId": userId,
+            "followed" : followed,
+        }
+        console.log(params);
+
+        post("/user/api/saveUserRelation", params, function (data) {
+            console.log("返回结果:", data);
+            // TODO：需要做成非刷新的方式，同目前的点赞效果 @前端小超
+            location.reload();
+        });
+    }
 
 </script>
 </body>

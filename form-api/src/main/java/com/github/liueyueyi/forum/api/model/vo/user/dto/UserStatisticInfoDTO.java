@@ -42,4 +42,9 @@ public class UserStatisticInfoDTO extends BaseUserInfoDTO {
      * 文章被收藏数
      */
     private Integer collectionCount;
+
+    /**
+     * 是否关注当前用户
+     */
+    private Boolean followed;
 }

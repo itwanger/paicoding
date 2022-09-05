@@ -1,5 +1,7 @@
 package com.github.liuyueyi.forum.service.user.converter;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.FollowStateEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
@@ -58,30 +60,10 @@ public class UserConverter {
             return null;
         }
         UserRelationDO userRelationDO = new UserRelationDO();
-        userRelationDO.setId(req.getUserRelationId());
         userRelationDO.setUserId(req.getUserId());
-        userRelationDO.setFollowUserId(req.getFollowUserId());
-        userRelationDO.setFollowState(req.getFollowState());
+        userRelationDO.setFollowUserId(ReqInfoContext.getReqInfo().getUserId());
+        userRelationDO.setFollowState(req.getFollowed() ? FollowStateEnum.FOLLOW.getCode() : FollowStateEnum.CANCEL_FOLLOW.getCode());
         return userRelationDO;
-    }
-
-    public static UserInfoDO toDO(BaseUserInfoDTO baseUserInfoDTO) {
-        if (baseUserInfoDTO == null) {
-            return null;
-        }
-        UserInfoDO userInfoDO = new UserInfoDO();
-        userInfoDO.setUserId(baseUserInfoDTO.getUserId());
-        userInfoDO.setUserName(baseUserInfoDTO.getUserName());
-        userInfoDO.setPhoto(baseUserInfoDTO.getPhoto());
-        userInfoDO.setProfile(baseUserInfoDTO.getProfile());
-        userInfoDO.setPosition(baseUserInfoDTO.getPosition());
-        userInfoDO.setCompany(baseUserInfoDTO.getCompany());
-        userInfoDO.setExtend(baseUserInfoDTO.getExtend());
-        userInfoDO.setDeleted(baseUserInfoDTO.getDeleted());
-        userInfoDO.setId(baseUserInfoDTO.getId());
-        userInfoDO.setCreateTime(baseUserInfoDTO.getCreateTime());
-        userInfoDO.setUpdateTime(baseUserInfoDTO.getUpdateTime());
-        return userInfoDO;
     }
 
     public static UserStatisticInfoDTO toUserHomeDTO(BaseUserInfoDTO baseUserInfoDTO) {

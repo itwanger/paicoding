@@ -33,7 +33,7 @@
     <right>
         <!-- 登录用户信息 -->
         <div th:if="${isLogin}">
-            <div th:replace="plugins/user-card :: user_card(${user})"></div>
+            <div th:replace="plugins/user-card :: user_card(${user}, false)"></div>
         </div>
 
         <!-- 公告 -->

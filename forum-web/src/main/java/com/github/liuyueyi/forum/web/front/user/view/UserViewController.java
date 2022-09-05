@@ -142,7 +142,7 @@ public class UserViewController {
     }
 
     private void initFollowFansList(UserHomeVo vo, long userId, PageParam pageParam) {
-        if (vo.getHomeSelectType().equals(FollowTypeEnum.FOLLOW.getCode())) {
+        if (vo.getFollowSelectType().equals(FollowTypeEnum.FOLLOW.getCode())) {
             UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
             vo.setFollowList(userFollowListDTO);
             vo.setFansList(UserFollowListDTO.emptyInstance());
