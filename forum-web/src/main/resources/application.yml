@@ -6,6 +6,9 @@ spring:
     active: dal,web,config
   main:
     allow-circular-references: true
+  mvc:
+    async:
+      request-timeout:
 
 # mybatis 相关统一配置
 mybatis-plus:

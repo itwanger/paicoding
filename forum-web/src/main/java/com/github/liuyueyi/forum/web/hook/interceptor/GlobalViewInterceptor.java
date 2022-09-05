@@ -43,7 +43,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
                 // 跳转到登录界面
-                response.sendRedirect("/login");
+                response.sendRedirect("/qrLogin");
                 return false;
             }
 
