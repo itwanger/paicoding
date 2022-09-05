@@ -24,6 +24,6 @@ public interface CommentWriteService {
      * @param commentId
      * @throws Exception
      */
-    void deleteComment(Long commentId);
+    void deleteComment(Long commentId, Long userId);
 
 }
