@@ -42,11 +42,14 @@ public class NoticeRestController {
      */
     @RequestMapping(path = "list")
     public ResVo<PageListVo<NotifyMsgDTO>> list(@RequestParam(name = "type") String type,
-                                                @RequestParam("page") Integer page,
-                                                @RequestParam(name = "pageSize") Integer pageSize) {
+                                                @RequestParam("page") Long page,
+                                                @RequestParam(name = "pageSize", required = false) Long pageSize) {
         NotifyTypeEnum typeEnum = NotifyTypeEnum.typeOf(type);
         if (typeEnum == null) {
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "type" + type + "非法");
+        }
+        if (pageSize == null) {
+            pageSize = PageParam.DEFAULT_PAGE_SIZE;
         }
         PageListVo<NotifyMsgDTO> vo = notifyService.queryUserNotices(ReqInfoContext.getReqInfo().getUserId(),
                 typeEnum, PageParam.newPageInstance(page, pageSize));

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 
 <!-- 消息通知 -->
-<div th:fragment="notify_commenet_item(msg)" class="notification">
+<div th:fragment="notify_comment_item(msg)" class="notification">
     <a th:href="'/user/home?userId=' + ${msg.operateUserId}"
        class="" target="_blank">
         <img th:src="${msg.operateUserPhoto}"
