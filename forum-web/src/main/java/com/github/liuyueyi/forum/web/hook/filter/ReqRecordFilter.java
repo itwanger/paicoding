@@ -79,6 +79,7 @@ public class ReqRecordFilter implements Filter {
     private void buildRequestLog(ReqInfoContext.ReqInfo req, HttpServletRequest request, long costTime) {
         // fixme 过滤不需要记录请求日志的场景
         if (request == null
+                || req == null
                 || request.getRequestURI().endsWith("css")
                 || request.getRequestURI().endsWith("js")
                 || request.getRequestURI().endsWith("png")
