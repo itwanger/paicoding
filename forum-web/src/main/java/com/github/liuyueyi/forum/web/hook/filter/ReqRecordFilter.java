@@ -5,6 +5,7 @@ import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
 import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.Globals;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import java.net.URLDecoder;
  * @date 2022/7/6
  */
 @Slf4j
-@WebFilter(urlPatterns = "/*", filterName = "reqRecordFilter")
+@WebFilter(urlPatterns = "/*", filterName = "reqRecordFilter", asyncSupported = true)
 public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
 

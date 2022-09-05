@@ -1,13 +1,16 @@
-package com.github.liuyueyi.forum.web.front.user.rest;
+package com.github.liuyueyi.forum.web.front.login.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.liuyueyi.forum.service.user.service.LoginService;
+import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * 微信公众号登录相关
@@ -20,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 public class WxRestController {
     @Autowired
     private LoginService loginService;
+    @Autowired
+    private QrLoginHelper qrLoginHelper;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -47,7 +52,7 @@ public class WxRestController {
     @PostMapping(path = "callback",
             consumes = {"application/xml", "text/xml"},
             produces = "application/xml;charset=utf-8")
-    public WxTxtMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
+    public WxTxtMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) throws IOException {
         String content = msg.getContent();
         WxTxtMsgResVo res = new WxTxtMsgResVo();
         res.setFromUserName(msg.getToUserName());
@@ -56,8 +61,11 @@ public class WxRestController {
         res.setMsgType("text");
         if (loginSymbol(content)) {
             res.setContent("登录验证码: 【" + loginService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
+        } else if (NumberUtils.isDigits(content)){
+            String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
+            qrLoginHelper.login(content, verifyCode);
         } else {
-            res.setContent("输入关键词不对!");
+            res.setContent("换个关键词吧");
         }
         return res;
     }

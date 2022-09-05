@@ -159,6 +159,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <a href="/qrLogin" type="button" class="btn btn-primary">公众号登录</a>
                     <button id="loginBtn" type="button" class="btn btn-primary">登录</button>
                     <!-- 非生产环境，使用模拟登陆  -->
                     <button th:if="${!#strings.equals(global.env, 'prod')}" id="getToken" type="button"
