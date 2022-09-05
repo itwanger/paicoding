@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 返回json格式数据
@@ -105,10 +106,9 @@ public class ArticleRestController {
         UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(),
                 ReqInfoContext.getReqInfo().getUserId(),
                 operate);
-        // 点赞消息
-        if (operate == OperateTypeEnum.PRAISE) {
-            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.PRAISE, foot));
-        }
+        // 点赞、收藏消息
+        NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
+        Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
         return ResVo.ok(true);
     }
 
