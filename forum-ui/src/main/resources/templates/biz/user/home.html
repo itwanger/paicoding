@@ -1,34 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+  <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
-</div>
+  </div>
 
-<body id="body">
-<!-- 导航栏 -->
-<div th:replace="layout/navbar :: header"></div>
+  <body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="layout/navbar :: header"></div>
 
-<div th:replace="layout/container :: container_left_sidebar(~{::left}, ~{::right})">
-    <left>
-        <div class="card">
-            <div class="card-body">
-                <div class="d-inline-flex p-2">
-                    <div class="d-flex">
-                        <img class="avatar avatar-xl mb-3 avatar-rounded"
-                             th:src="${vo.userHome.photo}" height="76"
-                             style="padding-right: 1em" alt="">
-                    </div>
-                    <div class="d-flex flex-column justify-content-center">
-                        <h5 class="card-title" th:text="${vo.userHome.userName}">一灰灰</h5>
-                    </div>
-                </div>
-                <ul>
-                    <li th:text="'关注数: ' + ${vo.userHome.fansCount}">关注数</li>
-                    <li th:text="'粉丝数: ' + ${vo.userHome.followCount}">粉丝数</li>
-                </ul>
-
+    <div
+      th:replace="layout/container :: container_left_sidebar(~{::left}, ~{::right})"
+    >
+      <left>
+        <div class="card user-wrap">
+          <div class="user-head-wrap">
+            <img th:src="${vo.userHome.photo}" alt="" class="user-head-img" />
+          </div>
+          <span class="user-head-name" th:text="${vo.userHome.userName}"></span>
+          <div class="user-num-wrap">
+            <div class="user-head-num-wrap">
+              <span class="user-head-num" th:text="${vo.userHome.fansCount}">
+                2
+              </span>
+              <span style="color: rgb(153, 153, 153)">关注数</span>
+            </div>
+            <div class="user-head-num-wrap">
+              <span class="user-head-num" th:text="${vo.userHome.followCount}">
+                2
+              </span>
+              <span style="color: rgb(153, 153, 153)">粉丝数</span>
+            </div>
+          </div>
+          <!-- <div class="card-body">
                 <ul class="navbar-nav my-md-0" th:if="${global.isLogin && (vo.userHome.userId == global.user.userId)}">
-                    <!--  跳出保存弹窗 -->
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">编辑个人资料</a>
                     </li>
@@ -37,145 +41,210 @@
                 <span id="userId" style="visibility: hidden"
                       th:text="${vo.userHome != null ? vo.userHome.userId: ''}">
                     </span>
-            </div>
+            </div> -->
         </div>
 
-        <div th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"></div>
-        <div th:replace="biz/user/process :: user_process(${vo.userHome})"></div>
-    </left>
+        <div
+          th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"
+        ></div>
+        <div
+          th:replace="biz/user/process :: user_process(${vo.userHome})"
+        ></div>
+      </left>
 
-    <right>
-
+      <right>
         <div class="card">
-            <div class="card-body">
-                <p class="card-text" th:text="${vo.userHome.profile}">个人简介</p>
-            </div>
+          <div class="card-body">
+            <p class="card-text" th:text="${vo.userHome.profile}">个人简介</p>
+          </div>
         </div>
 
-        <div class="modal fade" id="saveModel" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
-             aria-labelledby="loginModalDropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">编辑个人信息</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="input-group">
-                            <span class="form-label" style="padding-right: 1em">用户名</span>
-                            <input id="userName" type="text" class="form-control"
-                                   th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
-                                   placeholder="请输入用户名">
-                        </div>
-                        <div class="input-group">
-                            <span class="form-label" style="padding-right: 1em">用户图像</span>
-                            <input id="photo" type="text" class="form-control"
-                                   th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
-                                   placeholder="请输入用户图像">
-                        </div>
-                        <div class="input-group">
-                            <span class="form-label" style="padding-right: 1em">公司</span>
-                            <input id="company" type="text" class="form-control"
-                                   th:value="${vo.userHome != null ? vo.userHome.company: ''}"
-                                   placeholder="请输入公司">
-                        </div>
-                        <div class="input-group">
-                            <span class="form-label" style="padding-right: 1em">职位</span>
-                            <input id="position" type="text" class="form-control"
-                                   th:value="${vo.userHome != null ? vo.userHome.position: ''}"
-                                   placeholder="请输入职位">
-                        </div>
-                        <div class="input-group">
-                            <span class="form-label" style="padding-right: 1em">个人简介</span>
-                            <input id="profile" type="text" class="form-control"
-                                   th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
-                                   placeholder="请输入个人简介">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="publish" type="button" class="btn btn-primary">保存</button>
-                    </div>
+        <div
+          class="modal fade"
+          id="saveModel"
+          data-backdrop="static"
+          data-keyboard="false"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="loginModalDropLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">编辑个人信息</h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="input-group">
+                  <span class="form-label" style="padding-right: 1em">
+                    用户名
+                  </span>
+                  <input
+                    id="userName"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
+                    placeholder="请输入用户名"
+                  />
                 </div>
-            </div>
-        </div>
-
-        <div class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
-
-            <!-- 选择标签列表 -->
-            <div th:replace="plugins/home-select-tag :: select_tag(${vo.homeSelectTags}, ${vo.userHome.userId})"></div>
-
-            <!-- 文章列表 -->
-            <content>
-                <div class="container-bg-light" style=";min-height: 700px;margin-bottom: 20px;">
-
-                    <a th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}">
-                        <div th:each="article : ${vo.homeSelectList.articleList}">
-                            <div th:replace="plugins/user-article-card :: article_card(${article})">
-                                正文
-                            </div>
-                        </div>
-                    </a>
-
-                    <a th:if="${vo.homeSelectType == 'follow'}">
-
-                        <!-- 选择标签列表 -->
-                        <div th:replace="plugins/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"></div>
-
-                        <a th:if="${vo.followSelectType == 'follow'}">
-                            <div th:each="follow : ${vo.followList.userFollowList}">
-                                <div th:replace="plugins/user-follow-card :: follow_card(${follow})">
-                                    正文
-                                </div>
-                            </div>
-                        </a>
-
-                        <a th:if="${vo.followSelectType == 'fans'}">
-                            <div th:each="follow : ${vo.fansList.userFollowList}">
-                                <div th:replace="plugins/user-follow-card :: follow_card(${follow})">
-                                    正文
-                                </div>
-                            </div>
-                        </a>
-                    </a>
+                <div class="input-group">
+                  <span class="form-label" style="padding-right: 1em">
+                    用户图像
+                  </span>
+                  <input
+                    id="photo"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
+                    placeholder="请输入用户图像"
+                  />
                 </div>
-            </content>
+                <div class="input-group">
+                  <span class="form-label" style="padding-right: 1em">
+                    公司
+                  </span>
+                  <input
+                    id="company"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.company: ''}"
+                    placeholder="请输入公司"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label" style="padding-right: 1em">
+                    职位
+                  </span>
+                  <input
+                    id="position"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.position: ''}"
+                    placeholder="请输入职位"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label" style="padding-right: 1em">
+                    个人简介
+                  </span>
+                  <input
+                    id="profile"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
+                    placeholder="请输入个人简介"
+                  />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button id="publish" type="button" class="btn btn-primary">
+                  保存
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-    </right>
-    >
-</div>
 
-<div th:replace="layout/footer :: footer"></div>
+        <div
+          class="card"
+          style="
+            margin-bottom: 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+          "
+        >
+          <!-- 选择标签列表 -->
+          <div
+            th:replace="plugins/home-select-tag :: select_tag(${vo.homeSelectTags}, ${vo.userHome.userId})"
+          ></div>
 
-<script th:inline="javascript">
-    <!--    保存用户信息 -->
-    $('#publish').on('click', function () {
+          <!-- 文章列表 -->
+          <content>
+            <div
+              class="container-bg-light"
+              style="min-height: 700px; margin-bottom: 20px"
+            >
+              <a
+                th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}"
+              >
+                <div th:each="article : ${vo.homeSelectList.articleList}">
+                  <div
+                    th:replace="plugins/user-article-card :: article_card(${article})"
+                  >
+                    正文
+                  </div>
+                </div>
+              </a>
+
+              <a th:if="${vo.homeSelectType == 'follow'}">
+                <!-- 选择标签列表 -->
+                <div
+                  th:replace="plugins/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"
+                ></div>
+
+                <a th:if="${vo.followSelectType == 'follow'}">
+                  <div th:each="follow : ${vo.followList.userFollowList}">
+                    <div
+                      th:replace="plugins/user-follow-card :: follow_card(${follow})"
+                    >
+                      正文
+                    </div>
+                  </div>
+                </a>
+
+                <a th:if="${vo.followSelectType == 'fans'}">
+                  <div th:each="follow : ${vo.fansList.userFollowList}">
+                    <div
+                      th:replace="plugins/user-follow-card :: follow_card(${follow})"
+                    >
+                      正文
+                    </div>
+                  </div>
+                </a>
+              </a>
+            </div>
+          </content>
+        </div>
+      </right>
+      >
+    </div>
+
+    <div th:replace="layout/footer :: footer"></div>
+
+    <script th:inline="javascript">
+      $("#publish").on("click", function () {
         doPostUserInfo()
-    });
+      })
 
-    function doPostUserInfo() {
-        const userId = $('#userId').text();
-        const userName = $('#userName').val();
-        const photo = $('#photo').val();
-        const company = $('#company').val();
-        const position = $('#position').val();
-        const profile = $('#profile').val();
+      function doPostUserInfo() {
+        const userId = $("#userId").text()
+        const userName = $("#userName").val()
+        const photo = $("#photo").val()
+        const company = $("#company").val()
+        const position = $("#position").val()
+        const profile = $("#profile").val()
         const params = {
-            "userId": userId,
-            "userName": userName,
-            "photo": photo,
-            "company": company,
-            "position": position,
-            "profile": profile,
+          userId: userId,
+          userName: userName,
+          photo: photo,
+          company: company,
+          position: position,
+          profile: profile,
         }
-        console.log(params);
+        console.log(params)
 
         post("/user/api/saveUserInfo", params, function (data) {
-            console.log("返回结果:", data);
-            window.location.href = "/user/home?userId=" + userId;
-        });
-    }
-</script>
-</body>
+          console.log("返回结果:", data)
+          window.location.href = "/user/home?userId=" + userId
+        })
+      }
+    </script>
+  </body>
 </html>
