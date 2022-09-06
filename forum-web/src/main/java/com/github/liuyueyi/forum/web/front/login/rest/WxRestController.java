@@ -62,12 +62,14 @@ public class WxRestController {
             // 关注公众号
             String key = msg.getEventKey();
             if (StringUtils.isNotBlank(key) || key.startsWith("qrscene_")) {
+                // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
+                // fixme 带参数二维码需要 微信认证，个人公众号无权限
                 String code = key.substring("qrscene_".length());
                 String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
                 qrLoginHelper.login(code, verifyCode);
                 res.setContent("登录成功");
             } else {
-                res.setContent("欢迎关注公众号!");
+                res.setContent("欢迎关注公众号! 加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
             }
         } else {
             if (loginSymbol(content)) {

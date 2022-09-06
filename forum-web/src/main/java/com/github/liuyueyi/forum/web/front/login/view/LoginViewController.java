@@ -68,8 +68,11 @@ public class LoginViewController extends BaseViewController {
     public String wxLogin(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, WriterException {
         QrLoginVo vo = new QrLoginVo();
         vo.setCode(qrLoginHelper.genVerifyCode(request, response));
+//        下面这一行是准备做记录扫描二维码的状态，然而问题时重定向的二维码地址会被微信再次重定向到微信下载页
 //        String qrUrl = globalViewConfig.getHost() + "/api/wxlogin?code=" + vo.getCode();
-        String qrUrl = wxHelper.getLoginQrCode(vo.getCode());
+//        下面这一行是直接借助微信的带参数二维码来实现自动登录
+//        String qrUrl = wxHelper.getLoginQrCode(vo.getCode());
+        String qrUrl = globalViewConfig.getWxLoginUrl();
         String qrCode = QrCodeGenWrapper.of(qrUrl)
                 .setW(400)
                 .setDrawStyle(QrCodeOptions.DrawStyle.CIRCLE)
