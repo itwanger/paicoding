@@ -58,7 +58,6 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        // 重定向请求不需要添加
         if (!ObjectUtils.isEmpty(modelAndView)) {
             if (response.getStatus() != HttpStatus.OK.value()) {
                 try {

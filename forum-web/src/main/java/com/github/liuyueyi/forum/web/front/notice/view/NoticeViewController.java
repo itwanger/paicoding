@@ -2,7 +2,11 @@ package com.github.liuyueyi.forum.web.front.notice.view;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
+import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.notify.service.NotifyService;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 消息通知

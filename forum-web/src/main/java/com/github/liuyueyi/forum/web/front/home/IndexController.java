@@ -1,11 +1,14 @@
-package com.github.liuyueyi.forum.web.front;
+package com.github.liuyueyi.forum.web.front.home;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.core.util.MapUtils;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
+import com.github.liuyueyi.forum.service.user.service.UserService;
 import com.github.liuyueyi.forum.web.global.BaseViewController;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,9 @@ public class IndexController extends BaseViewController {
     @Autowired
     private ArticleReadService articleService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping(path = {"/", "", "/index"})
     public String index(Model model, HttpServletRequest request) {
         String activeTab = request.getParameter("category");
@@ -41,6 +47,7 @@ public class IndexController extends BaseViewController {
         homeCarouselList(model);
         sideBarItems(model);
         model.addAttribute("currentDomain", "article");
+        loginInfo(model);
         return "index";
     }
 
@@ -58,6 +65,14 @@ public class IndexController extends BaseViewController {
             sideBarItems(model);
         }
         return "biz/article/search";
+    }
+
+    private void loginInfo(Model model) {
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
+        if (userId != null) {
+            UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(userId);
+            model.addAttribute("user", user);
+        }
     }
 
     /**
