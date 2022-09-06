@@ -1,9 +1,11 @@
 package com.github.liuyueyi.forum.service.article.service;
 
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 public interface ArticleReadService {
@@ -61,6 +63,13 @@ public interface ArticleReadService {
      * @return
      */
     ArticleListDTO queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select);
+
+    /**
+     * 查询热门文章
+     * @param pageParam
+     * @return
+     */
+    PageListVo<RecommendArticleDTO> queryHotArticlesForRecommend(PageParam pageParam);
 
     /**
      * 查询作者的文章数

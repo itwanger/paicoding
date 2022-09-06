@@ -1,0 +1,120 @@
+package com.github.liuyueyi.forum.web.front.home.helper;
+
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.core.util.MapUtils;
+import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
+import com.github.liuyueyi.forum.service.article.service.CategoryService;
+import com.github.liuyueyi.forum.service.sidebar.service.SidebarService;
+import com.github.liuyueyi.forum.service.user.service.UserService;
+import com.github.liuyueyi.forum.web.front.home.vo.IndexVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 首页推荐相关
+ *
+ * @author YiHui
+ * @date 2022/9/6
+ */
+@Component
+public class IndexRecommendHelper {
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private ArticleReadService articleService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private SidebarService sidebarService;
+
+    public IndexVo buildIndexVo(String activeTab) {
+        IndexVo vo = new IndexVo();
+        Long categoryId = categories(activeTab, vo);
+        vo.setArticles(articleList(categoryId, 1L, 20L));
+        vo.setHomeCarouselList(homeCarouselList());
+        vo.setSideBarItems(sidebarService.queryHomeSidebarList());
+        vo.setCurrentArticle("article");
+        vo.setUser(loginInfo());
+        return vo;
+    }
+
+    public IndexVo buildSearchVo(String key) {
+        IndexVo vo = new IndexVo();
+        ArticleListDTO list = articleService.queryArticlesBySearchKey(key, PageParam.newPageInstance());
+        vo.setArticles(list);
+        vo.setSideBarItems(sidebarService.queryHomeSidebarList());
+        return vo;
+    }
+
+    /**
+     * 轮播图
+     *
+     * @return
+     */
+    private List<Map<String, Object>> homeCarouselList() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(MapUtils.create("imgUrl", "https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg", "name", "spring社区", "actionUrl", "https://spring.hhui.top/"));
+        list.add(MapUtils.create("imgUrl", "https://spring.hhui.top/spring-blog/imgs/220422/logo.jpg", "name", "一灰灰", "actionUrl", "https://blog.hhui.top/"));
+        return list;
+    }
+
+    /**
+     * 文章列表
+     */
+    private ArticleListDTO articleList(Long categoryId, Long page, Long size) {
+        if (page == null) page = PageParam.DEFAULT_PAGE_NUM;
+        if (size == null) size = 20L;
+        ArticleListDTO list = articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
+        return list;
+    }
+
+
+    /**
+     * 返回分类列表
+     *
+     * @param active
+     * @return
+     */
+    private Long categories(String active, IndexVo vo) {
+        List<CategoryDTO> list = categoryService.loadAllCategories();
+        list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, false));
+        Long selectCategoryId = null;
+        for (CategoryDTO c : list) {
+            if (c.getCategory().equalsIgnoreCase(active)) {
+                selectCategoryId = c.getCategoryId();
+                c.setSelected(true);
+            } else {
+                c.setSelected(false);
+            }
+        }
+
+        if (selectCategoryId == null) {
+            // 未匹配时，默认选全部
+            list.get(0).setSelected(true);
+        }
+        vo.setCategories(list);
+        return selectCategoryId;
+    }
+
+
+    private UserStatisticInfoDTO loginInfo() {
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
+        if (userId != null) {
+            return userService.queryUserInfoWithStatistic(userId);
+        }
+        return null;
+    }
+
+
+}
