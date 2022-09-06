@@ -2,10 +2,12 @@ package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
@@ -181,6 +183,12 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 作者信息
         dto.setAuthorName(userService.queryBasicUserInfo(dto.getAuthor()).getUserName());
         return dto;
+    }
+
+    @Override
+    public PageListVo<RecommendArticleDTO> queryHotArticlesForRecommend(PageParam pageParam) {
+        List<RecommendArticleDTO> list = articleDao.listHotArticles(pageParam);
+        return PageListVo.newVo(list, pageParam.getPageSize());
     }
 
     @Override

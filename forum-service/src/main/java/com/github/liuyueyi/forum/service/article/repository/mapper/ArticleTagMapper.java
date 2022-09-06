@@ -24,4 +24,6 @@ public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
      */
     List<TagDTO> listArticleTagDetails(@Param("articleId") Long articleId);
 
+
+
 }
