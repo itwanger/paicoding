@@ -22,6 +22,12 @@ public class WxTxtMsgReqVo {
     private Long createTime;
     @JacksonXmlProperty(localName = "MsgType")
     private String msgType;
+    @JacksonXmlProperty(localName = "Event")
+    private String event;
+    @JacksonXmlProperty(localName = "EventKey")
+    private String eventKey;
+    @JacksonXmlProperty(localName = "Ticket")
+    private String ticket;
     @JacksonXmlProperty(localName = "Content")
     private String content;
     @JacksonXmlProperty(localName = "MsgId")
