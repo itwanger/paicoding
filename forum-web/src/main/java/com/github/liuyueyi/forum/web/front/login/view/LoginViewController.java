@@ -7,6 +7,7 @@ import com.github.hui.quick.plugin.qrcode.wrapper.QrCodeOptions;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
+import com.github.liuyueyi.forum.web.front.login.WxHelper;
 import com.github.liuyueyi.forum.web.front.login.vo.QrLoginVo;
 import com.github.liuyueyi.forum.web.global.BaseViewController;
 import com.google.zxing.WriterException;
@@ -38,6 +39,8 @@ public class LoginViewController extends BaseViewController {
     private GlobalViewConfig globalViewConfig;
     @Autowired
     private QrLoginHelper qrLoginHelper;
+    @Autowired
+    private WxHelper wxHelper;
 
     /**
      * 这种是扫描二维码，输入[login/登录] 获取验证码，然后提交验证码来实现登录
@@ -65,7 +68,11 @@ public class LoginViewController extends BaseViewController {
     public String wxLogin(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException, WriterException {
         QrLoginVo vo = new QrLoginVo();
         vo.setCode(qrLoginHelper.genVerifyCode(request, response));
-        String qrUrl = globalViewConfig.getHost() + "/api/wxlogin?code=" + vo.getCode();
+//        下面这一行是准备做记录扫描二维码的状态，然而问题时重定向的二维码地址会被微信再次重定向到微信下载页
+//        String qrUrl = globalViewConfig.getHost() + "/api/wxlogin?code=" + vo.getCode();
+//        下面这一行是直接借助微信的带参数二维码来实现自动登录
+//        String qrUrl = wxHelper.getLoginQrCode(vo.getCode());
+        String qrUrl = globalViewConfig.getWxLoginUrl();
         String qrCode = QrCodeGenWrapper.of(qrUrl)
                 .setW(400)
                 .setDrawStyle(QrCodeOptions.DrawStyle.CIRCLE)

@@ -24,6 +24,18 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class QrLoginHelper {
+    public static final String ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx4a128c315d9b1228&secret=077e2d92dee69f04ba6d53a0ef4459f9";
+    /**
+     * 访问token
+     */
+    public static volatile String token = "";
+
+    /**
+     * 失效时间
+     */
+    public static volatile long expireTime = 0L;
+
+
     private final LoginService loginService;
     /**
      * key = 验证码, value = 长连接
