@@ -1,6 +1,6 @@
 package com.github.liuyueyi.forum.service.sidebar.service;
 
-import com.github.liueyueyi.forum.api.model.vo.sidebar.SideBarDto;
+import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ public interface SidebarService {
      *
      * @return
      */
-    List<SideBarDto> queryHomeSidebarList();
+    List<SideBarDTO> queryHomeSidebarList();
 }

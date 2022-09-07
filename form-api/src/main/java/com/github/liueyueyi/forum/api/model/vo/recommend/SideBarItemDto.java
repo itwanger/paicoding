@@ -1,4 +1,4 @@
-package com.github.liueyueyi.forum.api.model.vo.sidebar;
+package com.github.liueyueyi.forum.api.model.vo.recommend;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
