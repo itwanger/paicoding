@@ -1,10 +1,15 @@
-package com.github.liuyueyi.forum.core.util;
+package com.github.liuyueyi.forum.service.image.impl;
 
 import com.github.hui.quick.plugin.base.ImageLoadUtil;
 import com.github.hui.quick.plugin.base.ProcessUtil;
 import com.github.hui.quick.plugin.base.constants.MediaType;
+import com.github.liuyueyi.forum.core.config.ImageProperties;
+import com.github.liuyueyi.forum.core.util.LocalDateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -21,31 +26,17 @@ import java.util.Random;
  * @date 2022/9/7
  */
 @Slf4j
-public class ImageUtil {
+@Service
+@EnableConfigurationProperties(ImageProperties.class)
+public class ImageServiceImpl {
 
-    /**
-     * 存储路径
-     * TODO：需要可配置
-     */
-    public static final String ABS_TMP_PATH = "/Users/mengloulv/rubbish/";
-    public static final String WEB_IMG_PATH = "ximg/genimg/";
-
-    /**
-     * 上传文件的临时存储目录
-     */
-    public static final String TMP_UPLOAD_PATH = "/tmp/wx/";
+    @Autowired
+    private ImageProperties imageProperties;
 
     private static final MediaType[] STATIC_IMG_TYPE = new MediaType[]{MediaType.ImagePng, MediaType.ImageJpg, MediaType.ImageWebp};
 
-    private static Random random = new Random();
+    public BufferedImage getImg(HttpServletRequest request) {
 
-    /**
-     * 获取图片
-     *
-     * @param request
-     * @return
-     */
-    public static BufferedImage getImg(HttpServletRequest request) {
         MultipartFile file = null;
         if (request instanceof MultipartHttpServletRequest) {
             file = ((MultipartHttpServletRequest) request).getFile("image");
@@ -55,7 +46,7 @@ public class ImageUtil {
             try {
                 String image = request.getParameter("image");
                 if (StringUtils.isNotBlank(image) && !image.startsWith("/") && !image.startsWith("http")) {
-                    image = TMP_UPLOAD_PATH + image;
+                    image = imageProperties.getTmpUploadPath() + image;
                 }
                 return ImageLoadUtil.getImageByPath(image);
             } catch (IOException e) {
@@ -79,20 +70,14 @@ public class ImageUtil {
         }
     }
 
-    /**
-     * 图片本地保存
-     *
-     * @param bf
-     * @return
-     */
-    public static String saveImg(BufferedImage bf) {
+    public String saveImg(BufferedImage bf) {
         try {
             String path = genTmpImg("png");
-            File file = new File(ABS_TMP_PATH + path);
+            File file = new File(imageProperties.getAbsTmpPath() + path);
             mkDir(file.getParentFile());
             ImageIO.write(bf, "png", file);
 
-            ProcessUtil.instance().process("chmod -R 755 " + ABS_TMP_PATH + WEB_IMG_PATH);
+            ProcessUtil.instance().process("chmod -R 755 " + imageProperties.getAbsTmpPath() + imageProperties.getWebImgPath());
             return path;
         } catch (Exception e) {
             log.error("save file error!");
@@ -105,7 +90,8 @@ public class ImageUtil {
      *
      * @return
      */
-    private static String genTmpFileName() {
+    private String genTmpFileName() {
+        Random random = new Random();
         return System.currentTimeMillis() + "_" + random.nextInt(100);
     }
 
@@ -115,9 +101,9 @@ public class ImageUtil {
      * @param type
      * @return
      */
-    public static String genTmpImg(String type) {
+    public String genTmpImg(String type) {
         String time = genTmpFileName();
-        return WEB_IMG_PATH + LocalDateTimeUtil.getCurrentDateTime() + "/" + time + "." + type;
+        return imageProperties.getWebImgPath() + LocalDateTimeUtil.getCurrentDateTime() + "/" + time + "." + type;
     }
 
     /**
@@ -126,7 +112,7 @@ public class ImageUtil {
      * @param path 由目录创建的file对象
      * @throws FileNotFoundException
      */
-    private static void mkDir(File path) throws FileNotFoundException {
+    private void mkDir(File path) throws FileNotFoundException {
         if (path.getParentFile() == null) {
             path = path.getAbsoluteFile();
         }
@@ -155,7 +141,7 @@ public class ImageUtil {
      *
      * @param file
      */
-    private static void modifyFileAuth(File file) {
+    private void modifyFileAuth(File file) {
         boolean ans = file.setExecutable(true, false);
         ans = file.setReadable(true, false) && ans;
         ans = file.setWritable(true, false) && ans;
@@ -170,7 +156,7 @@ public class ImageUtil {
      * @param mime
      * @return
      */
-    private static boolean validateStaticImg(String mime) {
+    private boolean validateStaticImg(String mime) {
         if (mime.contains("jpg")) {
             mime = mime.replace("jpg", "jpeg");
         }
@@ -181,5 +167,4 @@ public class ImageUtil {
         }
         return false;
     }
-
 }

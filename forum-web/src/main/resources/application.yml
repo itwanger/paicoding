@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: dal,web,config
+    active: dal,web,config,image
   main:
     allow-circular-references: true
   mvc:
