@@ -2,12 +2,12 @@ package com.github.liuyueyi.forum.web.front.home.vo;
 
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
-import com.github.liueyueyi.forum.api.model.vo.sidebar.SideBarDto;
+import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
+import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author YiHui
@@ -37,10 +37,10 @@ public class IndexVo {
     /**
      * 侧边栏信息
      */
-    List<SideBarDto> sideBarItems;
+    List<SideBarDTO> sideBarItems;
 
     /**
-     * 轮播图，fixme 待调整
+     * 轮播图
      */
-    List<Map<String, Object>> homeCarouselList;
+    List<CarouseDTO> homeCarouselList;
 }

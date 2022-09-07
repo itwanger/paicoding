@@ -4,8 +4,8 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
-import com.github.liuyueyi.forum.core.util.MapUtils;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
 import com.github.liuyueyi.forum.service.sidebar.service.SidebarService;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 首页推荐相关
@@ -62,10 +61,10 @@ public class IndexRecommendHelper {
      *
      * @return
      */
-    private List<Map<String, Object>> homeCarouselList() {
-        List<Map<String, Object>> list = new ArrayList<>();
-        list.add(MapUtils.create("imgUrl", "https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg", "name", "spring社区", "actionUrl", "https://spring.hhui.top/"));
-        list.add(MapUtils.create("imgUrl", "https://spring.hhui.top/spring-blog/imgs/220422/logo.jpg", "name", "一灰灰", "actionUrl", "https://blog.hhui.top/"));
+    private List<CarouseDTO> homeCarouselList() {
+        List<CarouseDTO> list = new ArrayList<>();
+        list.add(new CarouseDTO().setName("Spring社区").setImgUrl("https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg").setActionUrl("https://spring.hhui.top"));
+        list.add(new CarouseDTO().setName("一灰灰社区").setImgUrl("https://spring.hhui.top/spring-blog/imgs/220422/logo.jpg").setActionUrl("https://hhui.top"));
         return list;
     }
 
