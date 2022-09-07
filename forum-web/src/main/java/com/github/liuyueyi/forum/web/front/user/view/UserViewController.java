@@ -3,12 +3,16 @@ package com.github.liuyueyi.forum.web.front.user.view;
 import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
 import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadServiceImpl;
+import com.github.liuyueyi.forum.service.user.service.UserRelationService;
+import com.github.liuyueyi.forum.service.user.service.UserService;
 import com.github.liuyueyi.forum.service.user.service.relation.UserRelationServiceImpl;
 import com.github.liuyueyi.forum.service.user.service.user.UserServiceImpl;
 import com.github.liuyueyi.forum.web.front.user.vo.UserHomeVo;
@@ -39,13 +43,13 @@ import java.util.List;
 public class UserViewController extends BaseViewController {
 
     @Resource
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @Resource
-    private UserRelationServiceImpl userRelationService;
+    private UserRelationService userRelationService;
 
     @Resource
-    private ArticleReadServiceImpl articleReadService;
+    private ArticleReadService articleReadService;
 
     private static final List<String> homeSelectTags = Arrays.asList("article", "read", "follow", "collection");
     private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
@@ -128,7 +132,7 @@ public class UserViewController extends BaseViewController {
             case ARTICLE:
             case READ:
             case COLLECTION:
-                ArticleListDTO dto = articleReadService.queryArticlesByUserAndType(userId, pageParam, select);
+                PageListVo<ArticleDTO> dto = articleReadService.queryArticlesByUserAndType(userId, pageParam, select);
                 vo.setHomeSelectList(dto);
                 return;
             case FOLLOW:

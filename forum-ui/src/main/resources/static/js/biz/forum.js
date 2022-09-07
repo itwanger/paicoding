@@ -42,3 +42,29 @@ const loadLink = function (url) {
     headHTML += '<link href="' + url + '" rel="stylesheet">';
     document.getElementsByTagName('head')[0].innerHTML = headHTML;
 };
+
+
+/**
+ * 翻页
+ * @param url 请求下一页的url
+ * @param params 传参
+ * @param listId 填充数据的标签
+ * @param btnId 下一页触发的按钮
+ * @param callback 回调方法
+ */
+const nextPage = function (url, params, listId, btnId, callback) {
+    $(`#${btnId}`).click(function () {
+        $.get(url, params, function (data) {
+            console.log("response: ", data);
+            const result = data.result;
+            $(`#${listId}`).append(result.html);
+            if (!result.hasMore) {
+                $(`#${btnId}`).hide();
+            }
+
+            if (callback) {
+                callback("true");
+            }
+        });
+    });
+}

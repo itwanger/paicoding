@@ -66,20 +66,20 @@
         </a>
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
             <ul class="navbar-nav mr-auto">
-                <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'article') ? ' selected-domain' : '')}"
+                <li th:class="${'nav-item' + (!#strings.equals(currentDomain, 'wiki') && !#strings.equals(currentDomain, 'follow') ? ' selected-domain' : '')}"
                     class="nav-item">
                     <a class="nav-link" href="/">首页</a>
                 </li>
-                <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'faq') ? ' selected-domain' : '')}"
+                <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'wiki') ? ' selected-domain' : '')}"
                     class="nav-item">
                     <a class="nav-link" href="/wiki">教程</a>
                 </li>
                 <li th:class="${'nav-item' + (#strings.equals(currentDomain, 'tools') ? ' selected-domain' : '')}"
                     class="nav-item">
-                    <a class="nav-link" href="https://tool.hhui.top">工具箱</a>
+                    <a class="nav-link" href="https://tool.hhui.top" target="_blank">工具箱</a>
                 </li>
                 <li th:if="${global.isLogin}"
-                    th:class="${'nav-item' + (#strings.equals(currentDomain, 'interest') ? ' selected-domain' : '')}"
+                    th:class="${'nav-item' + (#strings.equals(currentDomain, 'follow') ? ' selected-domain' : '')}"
                     class="nav-item">
                     <a class="nav-link" href="/follow">关注</a>
                 </li>

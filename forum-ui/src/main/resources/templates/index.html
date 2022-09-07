@@ -1,59 +1,70 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-  <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
-  </div>
+</div>
 
-  <body id="body">
-    <!-- 导航栏 -->
-    <div th:replace="layout/navbar :: header"></div>
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: header"></div>
 
-    <!-- 正文内容 -->
+<!-- 正文内容 -->
 
-    <div
-      th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})"
-    >
-      <left>
+<div
+        th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})"
+>
+    <left>
         <!--  轮播图  -->
         <div
-          th:replace="plugins/carousel :: carousel('main_carousel', ${homeCarouselList})"
+                th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"
         ></div>
 
         <!-- 类别筛选 -->
-        <div th:replace="plugins/categories :: category(${categories})"></div>
+        <div th:replace="plugins/categories :: category(${vo.categories})"></div>
 
         <!-- 文章列表 -->
         <content>
-          <div class="container-bg-light">
-            <div th:each="article : ${articles.articleList}">
-              <div
-                th:replace="plugins/article-card :: article_card(${article})"
-              >
-                正文
-              </div>
+            <div class="container-bg-light">
+                <div id="articleList">
+                    <div th:replace="biz/article/list">文章列表</div>
+                </div>
+                <button th:if="${vo.articles.hasMore}" id="loadMoreTag" type="button"
+                        class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多">
+                </button>
             </div>
-          </div>
         </content>
-      </left>
-      <right>
+    </left>
+    <right>
         <!-- 登录用户信息 -->
         <div th:if="${global.isLogin}">
-          <div
-            th:replace="plugins/user-card :: user_card(${user}, false)"
-          ></div>
+            <div
+                    th:replace="plugins/user-card :: user_card(${vo.user}, false)"
+            ></div>
         </div>
 
         <!-- 公告 -->
         <div
-          th:if="${!#lists.isEmpty(sideBarItems)}"
-          th:each="item : ${sideBarItems}"
+                th:if="${!#lists.isEmpty(vo.sideBarItems)}"
+                th:each="item : ${vo.sideBarItems}"
         >
-          <div th:replace="plugins/normal-card :: normal_card(${item})" />
+            <div th:replace="plugins/normal-card :: normal_card(${item})" />
         </div>
-      </right>
-    </div>
+    </right>
+</div>
 
-    <!-- 底部信息 -->
-    <div th:replace="layout/footer :: footer"></div>
-  </body>
+<!-- 底部信息 -->
+<div th:replace="layout/footer :: footer"></div>
+
+<script th:inline="javascript">
+    <!-- 下一页 -->
+    let category = [[${vo.currentCategory}]]
+    let params = {
+        "category": category ? category : '全部',
+        "page": 2
+    }
+    nextPage('/article/api/list', params, "articleList", "loadMoreTag", function () {
+        params['page'] = params['page'] + 1;
+    })
+</script>
+</body>
 </html>

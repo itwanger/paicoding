@@ -57,6 +57,11 @@ public class GlobalInitService {
         return vo;
     }
 
+    /**
+     * 初始化用户信息
+     *
+     * @param reqInfo
+     */
     public void initLoginUser(ReqInfoContext.ReqInfo reqInfo) {
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
