@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.web.front.home.vo;
 
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
@@ -16,31 +17,32 @@ import java.util.List;
 @Data
 public class IndexVo {
     /**
-     * 当前选中的分类
-     */
-    private String currentArticle;
-    /**
      * 分类列表
      */
-    List<CategoryDTO> categories;
+    private List<CategoryDTO> categories;
+
+    /**
+     * 当前选中的分类
+     */
+    private String currentCategory;
 
     /**
      * 文章列表
      */
-    ArticleListDTO articles;
+    private PageListVo<ArticleDTO> articles;
 
     /**
      * 登录用户信息
      */
-    UserStatisticInfoDTO user;
+    private UserStatisticInfoDTO user;
 
     /**
      * 侧边栏信息
      */
-    List<SideBarDTO> sideBarItems;
+    private  List<SideBarDTO> sideBarItems;
 
     /**
      * 轮播图
      */
-    List<CarouseDTO> homeCarouselList;
+    private List<CarouseDTO> homeCarouselList;
 }

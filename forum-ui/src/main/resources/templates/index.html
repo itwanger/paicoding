@@ -20,13 +20,13 @@
 
         <!-- 文章列表 -->
         <content>
-            <div class="container-bg-light"
-                 style=";min-height: 700px;margin-bottom: 20px;">
-                <div th:each="article : ${vo.articles.articleList}">
-                    <div th:replace="plugins/article-card :: article_card(${article})">
-                        正文
-                    </div>
+            <div class="container-bg-light" style=";min-height: 700px;margin-bottom: 20px;">
+                <div id="articleList">
+                    <div th:replace="biz/article/list">文章列表</div>
                 </div>
+                <button th:if="${vo.articles.hasMore}" id="loadMoreTag" type="button"
+                        class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多">
+                </button>
             </div>
         </content>
     </left>
@@ -38,7 +38,7 @@
 
         <!-- 公告 -->
         <div th:if="${!#lists.isEmpty(vo.sideBarItems)}"
-             th:each="item : ${sideBarItems}">
+             th:each="item : ${vo.sideBarItems}">
             <div th:replace="plugins/normal-card :: normal_card(${item})"/>
         </div>
     </right>
@@ -47,5 +47,17 @@
 
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
+
+<script th:inline="javascript">
+    <!-- 下一页 -->
+    let category = [[${vo.currentCategory}]]
+    let params = {
+        "category": category ? category : '全部',
+        "page": 2
+    }
+    nextPage('/article/api/list', params, "articleList", "loadMoreTag", function () {
+        params['page'] = params['page'] + 1;
+    })
+</script>
 </body>
 </html>

@@ -26,4 +26,6 @@ public interface CategoryService {
      * @return
      */
     List<CategoryDTO> loadAllCategories();
+
+    Long queryCategoryId(String category);
 }

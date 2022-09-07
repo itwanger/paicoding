@@ -5,7 +5,6 @@ import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
@@ -112,19 +111,19 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
 
     @Override
-    public ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page) {
+    public PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page) {
         List<ArticleDO> records = articleDao.listArticlesByCategoryId(categoryId, page);
         return buildArticleListVo(records, page.getPageSize());
     }
 
     @Override
-    public ArticleListDTO queryArticlesBySearchKey(String key, PageParam page) {
+    public PageListVo<ArticleDTO> queryArticlesBySearchKey(String key, PageParam page) {
         List<ArticleDO> records = articleDao.listArticlesByBySearchKey(key, page);
         return buildArticleListVo(records, page.getPageSize());
     }
 
     @Override
-    public ArticleListDTO queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select) {
+    public PageListVo<ArticleDTO> queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select) {
         List<ArticleDO> records = null;
         if (select == HomeSelectEnum.ARTICLE) {
             // 用户的文章列表
@@ -142,11 +141,18 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         }
 
         if (CollectionUtils.isEmpty(records)) {
-            return new ArticleListDTO();
+            return PageListVo.emptyVo();
         }
         return buildArticleListVo(records, pageParam.getPageSize());
     }
 
+    /**
+     * fixme @楼仔 这个排序逻辑看着像是有问题的样子
+     *
+     * @param articleIds
+     * @param records
+     * @return
+     */
     private List<ArticleDO> sortByIds(List<Long> articleIds, List<ArticleDO> records) {
         List<ArticleDO> articleDOS = new ArrayList<>();
         Map<Long, ArticleDO> articleDOMap = records.stream().collect(Collectors.toMap(ArticleDO::getId, t -> t));
@@ -158,12 +164,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return articleDOS;
     }
 
-    private ArticleListDTO buildArticleListVo(List<ArticleDO> records, long pageSize) {
+    private PageListVo<ArticleDTO> buildArticleListVo(List<ArticleDO> records, long pageSize) {
         List<ArticleDTO> result = records.stream().map(this::fillArticleRelatedInfo).collect(Collectors.toList());
-        ArticleListDTO dto = new ArticleListDTO();
-        dto.setArticleList(result);
-        dto.setIsMore(result.size() == pageSize);
-        return dto;
+        return PageListVo.newVo(result, pageSize);
     }
 
     /**
