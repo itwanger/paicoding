@@ -147,6 +147,9 @@ a {
 
 .foot {
   height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .foot-link {
@@ -522,6 +525,7 @@ a {
 }
 
 .container-fluid {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 170px);
   overflow: auto;
+  margin-bottom: 20px;
 }

@@ -10,17 +10,21 @@
 
 <!-- 正文内容 -->
 
-<div th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})">
+<div
+        th:replace="layout/container :: container_right_sidebar(~{::left}, ~{::right})"
+>
     <left>
         <!--  轮播图  -->
-        <div th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"></div>
+        <div
+                th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"
+        ></div>
 
         <!-- 类别筛选 -->
         <div th:replace="plugins/categories :: category(${vo.categories})"></div>
 
         <!-- 文章列表 -->
         <content>
-            <div class="container-bg-light" style=";min-height: 700px;margin-bottom: 20px;">
+            <div class="container-bg-light">
                 <div id="articleList">
                     <div th:replace="biz/article/list">文章列表</div>
                 </div>
@@ -33,17 +37,20 @@
     <right>
         <!-- 登录用户信息 -->
         <div th:if="${global.isLogin}">
-            <div th:replace="plugins/user-card :: user_card(${vo.user}, false)"></div>
+            <div
+                    th:replace="plugins/user-card :: user_card(${vo.user}, false)"
+            ></div>
         </div>
 
         <!-- 公告 -->
-        <div th:if="${!#lists.isEmpty(vo.sideBarItems)}"
-             th:each="item : ${vo.sideBarItems}">
-            <div th:replace="plugins/normal-card :: normal_card(${item})"/>
+        <div
+                th:if="${!#lists.isEmpty(vo.sideBarItems)}"
+                th:each="item : ${vo.sideBarItems}"
+        >
+            <div th:replace="plugins/normal-card :: normal_card(${item})" />
         </div>
     </right>
 </div>
-
 
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
