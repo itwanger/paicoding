@@ -1,9 +1,10 @@
 package com.github.liuyueyi.forum.service.article.service;
 
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 public interface ArticleReadService {
@@ -41,7 +42,7 @@ public interface ArticleReadService {
      * @param page
      * @return
      */
-    ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page);
+    PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page);
 
     /**
      * 根据查询条件查询文章列表，支持翻页
@@ -50,7 +51,7 @@ public interface ArticleReadService {
      * @param page
      * @return
      */
-    ArticleListDTO queryArticlesBySearchKey(String key, PageParam page);
+    PageListVo<ArticleDTO> queryArticlesBySearchKey(String key, PageParam page);
 
     /**
      * 查询用户的文章列表
@@ -60,7 +61,15 @@ public interface ArticleReadService {
      * @param select
      * @return
      */
-    ArticleListDTO queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select);
+    PageListVo<ArticleDTO> queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select);
+
+    /**
+     * 查询热门文章
+     *
+     * @param pageParam
+     * @return
+     */
+    PageListVo<RecommendArticleDTO> queryHotArticlesForRecommend(PageParam pageParam);
 
     /**
      * 查询作者的文章数
