@@ -1,8 +1,9 @@
 package com.github.liuyueyi.forum.web.front.home.helper;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -40,18 +41,17 @@ public class IndexRecommendHelper {
     public IndexVo buildIndexVo(String activeTab) {
         IndexVo vo = new IndexVo();
         Long categoryId = categories(activeTab, vo);
-        vo.setArticles(articleList(categoryId, 1L, 20L));
+        vo.setArticles(articleList(categoryId, PageParam.DEFAULT_PAGE_NUM, PageParam.DEFAULT_PAGE_SIZE));
         vo.setHomeCarouselList(homeCarouselList());
         vo.setSideBarItems(sidebarService.queryHomeSidebarList());
-        vo.setCurrentArticle("article");
+        vo.setCurrentCategory(categoryId == null ? "全部": activeTab);
         vo.setUser(loginInfo());
         return vo;
     }
 
     public IndexVo buildSearchVo(String key) {
         IndexVo vo = new IndexVo();
-        ArticleListDTO list = articleService.queryArticlesBySearchKey(key, PageParam.newPageInstance());
-        vo.setArticles(list);
+        vo.setArticles(articleService.queryArticlesBySearchKey(key, PageParam.newPageInstance()));
         vo.setSideBarItems(sidebarService.queryHomeSidebarList());
         return vo;
     }
@@ -71,11 +71,10 @@ public class IndexRecommendHelper {
     /**
      * 文章列表
      */
-    private ArticleListDTO articleList(Long categoryId, Long page, Long size) {
+    private PageListVo<ArticleDTO> articleList(Long categoryId, Long page, Long size) {
         if (page == null) page = PageParam.DEFAULT_PAGE_NUM;
-        if (size == null) size = 20L;
-        ArticleListDTO list = articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
-        return list;
+        if (size == null) size = PageParam.DEFAULT_PAGE_SIZE;
+        return articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
     }
 
 

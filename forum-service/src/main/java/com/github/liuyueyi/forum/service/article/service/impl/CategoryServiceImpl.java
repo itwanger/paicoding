@@ -84,4 +84,11 @@ public class CategoryServiceImpl implements CategoryService {
         categoryCaches.cleanUp();
         list.forEach(s -> categoryCaches.put(s.getId(), ArticleConverter.toDto(s)));
     }
+
+    @Override
+    public Long queryCategoryId(String category) {
+        return categoryCaches.asMap().values().stream()
+                .filter(s -> s.getCategory().equalsIgnoreCase(category))
+                .findFirst().map(CategoryDTO::getCategoryId).orElse(null);
+    }
 }

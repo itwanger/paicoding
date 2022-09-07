@@ -34,7 +34,8 @@
                     <div th:replace="biz/notice/notify-follow"></div>
                     <div th:replace="biz/notice/notify-system"></div>
                 </div>
-                <button th:if="${vo.list.hasMore}" id="loadMoreTag" type="button" class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多">
+                <button th:if="${vo.list.hasMore}" id="loadMoreTag" type="button"
+                        class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多">
                 </button>
             </div>
         </div>
@@ -45,18 +46,13 @@
 <div th:replace="layout/footer :: footer"></div>
 <script th:inline="javascript">
     const selectType = [[${vo.selectType}]].toLowerCase()
-    let nextPage = 2;
-    $('#loadMoreTag').click(function () {
-        $.get('/notice/api/items?type=' + selectType + '&page=' + nextPage + '', function (data) {
-            console.log("response: ", data);
-            const result = data.result;
-            $('#itemList').append(result.html);
-            if (!result.hasMore) {
-                $('#loadMoreTag').hide();
-            }
-        });
-    });
-
+    const params = {
+        "type": selectType,
+        "page": 2
+    }
+    nextPage("/notice/api/items", params, 'itemList', 'loadMoreTag', function () {
+        params['page'] = params['page'] + 1;
+    })
 </script>
 </body>
 </html>

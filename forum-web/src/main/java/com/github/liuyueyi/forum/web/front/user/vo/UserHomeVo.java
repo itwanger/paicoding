@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.web.front.user.vo;
 
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -14,13 +15,13 @@ import java.util.List;
  */
 @Data
 public class UserHomeVo {
-    String homeSelectType;
-    List<TagSelectDTO> homeSelectTags;
-    UserFollowListDTO fansList;
-    UserFollowListDTO followList;
-    String followSelectType;
-    List<TagSelectDTO> followSelectTags;
-    UserStatisticInfoDTO userHome;
+    private String homeSelectType;
+    private List<TagSelectDTO> homeSelectTags;
+    private UserFollowListDTO fansList;
+    private UserFollowListDTO followList;
+    private String followSelectType;
+    private List<TagSelectDTO> followSelectTags;
+    private UserStatisticInfoDTO userHome;
 
-    ArticleListDTO homeSelectList;
+    private PageListVo<ArticleDTO> homeSelectList;
 }

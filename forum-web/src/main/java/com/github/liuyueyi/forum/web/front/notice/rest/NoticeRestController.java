@@ -12,6 +12,7 @@ import com.github.liueyueyi.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.notify.service.NotifyService;
+import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
 import com.github.liuyueyi.forum.web.front.notice.vo.NoticeResVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 @RequestMapping(path = "notice/api")
 public class NoticeRestController {
     @Autowired
-    private SpringTemplateEngine templateEngine;
+    private TemplateEngineHelper templateEngineHelper;
 
     private NotifyService notifyService;
 
@@ -82,12 +83,10 @@ public class NoticeRestController {
                                        @RequestParam(name = "pageSize", required = false) Long pageSize) {
         type = type.toLowerCase().trim();
         PageListVo<NotifyMsgDTO> list = listItems(type, page, pageSize);
-        Context context = new Context();
         NoticeResVo vo = new NoticeResVo();
         vo.setList(list);
         vo.setSelectType(type);
-        context.setVariable("vo", vo);
-        String html = templateEngine.process("biz/notice/notify-" + type, context);
+        String html = templateEngineHelper.render("biz/notice/notify-" + type, vo);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
     }
 }
