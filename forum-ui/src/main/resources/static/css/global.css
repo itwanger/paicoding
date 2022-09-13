@@ -1,8 +1,8 @@
 body {
-  -webkit-font-smoothing: antialiased;
-  height: calc(100vh - 80px);
-  overflow: auto;
   background-color: #eeeeee;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
 }
 
 .custom-empty {
@@ -123,11 +123,6 @@ a {
 .list-group-item:last-child,
 .pagination {
   border-radius: 0;
-}
-
-/*  */
-html {
-  padding-top: 82px;
 }
 
 .posts-list-desc,
@@ -510,6 +505,11 @@ a {
     margin-right: 5px;
   }
 }
+
+#bodyNav {
+  position: sticky;
+}
+
 .parent-wrapper {
   display: flex;
   background: #f2f3f5;
@@ -522,10 +522,4 @@ a {
   font-size: 14px;
   color: #8a919f;
   margin-top: 8px;
-}
-
-.container-fluid {
-  height: calc(100vh - 170px);
-  overflow: auto;
-  margin-bottom: 20px;
 }
