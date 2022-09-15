@@ -6,7 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
@@ -189,8 +189,8 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     }
 
     @Override
-    public PageListVo<RecommendArticleDTO> queryHotArticlesForRecommend(PageParam pageParam) {
-        List<RecommendArticleDTO> list = articleDao.listHotArticles(pageParam);
+    public PageListVo<SimpleArticleDTO> queryHotArticlesForRecommend(PageParam pageParam) {
+        List<SimpleArticleDTO> list = articleDao.listHotArticles(pageParam);
         return PageListVo.newVo(list, pageParam.getPageSize());
     }
 

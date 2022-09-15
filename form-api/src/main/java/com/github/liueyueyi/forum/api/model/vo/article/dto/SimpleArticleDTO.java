@@ -12,7 +12,7 @@ import java.sql.Timestamp;
  * @date 2022/9/6
  */
 @Data
-public class RecommendArticleDTO implements Serializable {
+public class SimpleArticleDTO implements Serializable {
     private static final long serialVersionUID = 3646376715620165839L;
 
     private Long id;

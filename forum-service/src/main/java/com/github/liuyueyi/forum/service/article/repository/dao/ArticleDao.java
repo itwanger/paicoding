@@ -9,7 +9,7 @@ import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDetailDO;
@@ -173,7 +173,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     }
 
 
-    public List<RecommendArticleDTO> listHotArticles(PageParam pageParam) {
+    public List<SimpleArticleDTO> listHotArticles(PageParam pageParam) {
         return baseMapper.listArticlesByReadCounts(pageParam);
     }
 }

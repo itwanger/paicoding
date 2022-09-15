@@ -3,7 +3,7 @@ package com.github.liuyueyi.forum.service.sidebar.service;
 import com.github.liueyueyi.forum.api.model.enums.SidebarStyleEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarItemDto;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
@@ -56,7 +56,7 @@ public class SidebarServiceImpl implements SidebarService {
      * @return
      */
     private SideBarDTO hotArticles() {
-        PageListVo<RecommendArticleDTO> vo = articleReadService.queryHotArticlesForRecommend(PageParam.newPageInstance());
+        PageListVo<SimpleArticleDTO> vo = articleReadService.queryHotArticlesForRecommend(PageParam.newPageInstance());
         List<SideBarItemDto> items = vo.getList().stream().map(s -> new SideBarItemDto().setTitle(s.getTitle()).setUrl("/article/detail/" + s.getId()).setTime(s.getCreateTime().getTime())).collect(Collectors.toList());
         return new SideBarDTO().setTitle("热门推荐").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
     }
