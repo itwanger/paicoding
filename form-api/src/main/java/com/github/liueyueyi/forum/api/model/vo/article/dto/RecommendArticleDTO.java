@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
+ * 文章推荐
+ *
  * @author YiHui
  * @date 2022/9/6
  */
