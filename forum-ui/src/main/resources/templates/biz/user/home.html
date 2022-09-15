@@ -174,7 +174,7 @@
               <a
                 th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}"
               >
-                <div th:each="article : ${vo.homeSelectList.articleList}">
+                <div th:each="article : ${vo.homeSelectList.list}">
                   <div
                     th:replace="plugins/user-article-card :: article_card(${article})"
                   >
