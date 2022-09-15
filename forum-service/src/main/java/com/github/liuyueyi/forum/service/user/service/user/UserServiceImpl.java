@@ -2,12 +2,14 @@ package com.github.liuyueyi.forum.service.user.service.user;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.repository.dao.UserDao;
@@ -22,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 用户Service
@@ -43,6 +47,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CountService countService;
+
+    @Autowired
+    private ArticleDao articleDao;
 
 
     /**
@@ -126,7 +133,14 @@ public class UserServiceImpl implements UserService {
         } else {
             userHomeDTO.setFollowed(Boolean.FALSE);
         }
+
+        // 加入天数
+        Integer joinDayCount = (int) ((new Date()).getTime() - userHomeDTO.getCreateTime().getTime()) / (1000*3600*24);
+        userHomeDTO.setJoinDayCount(joinDayCount);
+
+        // 创作历程
+        List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
+        userHomeDTO.setYearArticleList(yearArticleDTOS);
         return userHomeDTO;
     }
-
 }

@@ -16,4 +16,15 @@
         <include refid="limit"/>
     </select>
 
+
+    <select id="listYearArticleByUserId"
+            resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO">
+        select DATE_FORMAT(create_time,"%Y") as year, count(*) as articleCount
+        from article
+        where user_id = #{userId}
+            and status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+            and deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+        group by year
+    </select>
+
 </mapper>
