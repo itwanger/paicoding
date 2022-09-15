@@ -35,4 +35,6 @@ public class GlobalVo {
      */
     private Integer msgNum;
 
+
+    private String currentDomain;
 }

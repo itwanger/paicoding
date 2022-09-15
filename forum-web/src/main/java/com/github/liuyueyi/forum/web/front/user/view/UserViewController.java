@@ -10,11 +10,8 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
-import com.github.liuyueyi.forum.service.article.service.impl.ArticleReadServiceImpl;
 import com.github.liuyueyi.forum.service.user.service.UserRelationService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
-import com.github.liuyueyi.forum.service.user.service.relation.UserRelationServiceImpl;
-import com.github.liuyueyi.forum.service.user.service.user.UserServiceImpl;
 import com.github.liuyueyi.forum.web.front.user.vo.UserHomeVo;
 import com.github.liuyueyi.forum.web.global.BaseViewController;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -64,6 +62,25 @@ public class UserViewController extends BaseViewController {
                               @RequestParam(name = "homeSelectType", required = false) String homeSelectType,
                               @RequestParam(name = "followSelectType", required = false) String followSelectType,
                               Model model) {
+        UserHomeVo vo = new UserHomeVo();
+        vo.setHomeSelectType(StringUtils.isBlank(homeSelectType) ? HomeSelectEnum.ARTICLE.getCode() : homeSelectType);
+        vo.setFollowSelectType(StringUtils.isBlank(followSelectType) ? FollowTypeEnum.FOLLOW.getCode() : followSelectType);
+
+        UserStatisticInfoDTO userInfo = userService.queryUserInfoWithStatistic(userId);
+        vo.setUserHome(userInfo);
+
+        List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType());
+        vo.setHomeSelectTags(homeSelectTags);
+
+        userHomeSelectList(vo, userId);
+        model.addAttribute("vo", vo);
+        return "biz/user/home";
+    }
+
+    @GetMapping(path = "/{userId}")
+    public String detail(@PathVariable(name = "userId") Long userId, @RequestParam(name = "homeSelectType", required = false) String homeSelectType,
+                         @RequestParam(name = "followSelectType", required = false) String followSelectType,
+                         Model model) {
         UserHomeVo vo = new UserHomeVo();
         vo.setHomeSelectType(StringUtils.isBlank(homeSelectType) ? HomeSelectEnum.ARTICLE.getCode() : homeSelectType);
         vo.setFollowSelectType(StringUtils.isBlank(followSelectType) ? FollowTypeEnum.FOLLOW.getCode() : followSelectType);
