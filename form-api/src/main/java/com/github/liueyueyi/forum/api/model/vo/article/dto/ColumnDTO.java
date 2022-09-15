@@ -1,5 +1,7 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
+import com.github.liueyueyi.forum.api.model.enums.ColumnStatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.ColumnFootCountDTO;
 import lombok.Data;
 
 /**
@@ -22,7 +24,7 @@ public class ColumnDTO {
     /**
      * 说明
      */
-    private String desc;
+    private String introduction;
 
     /**
      * 封面
@@ -35,6 +37,13 @@ public class ColumnDTO {
     private Long publishTime;
 
     /**
+     * 1 连载 2 完结
+     *
+     * @see ColumnStatusEnum#getCode()
+     */
+    private Integer state;
+
+    /**
      * 作者
      */
     private Long author;
@@ -42,10 +51,15 @@ public class ColumnDTO {
     /**
      * 作者名
      */
-    private Long authorName;
+    private String authorName;
 
     /**
      * 作者头像
      */
     private String authorAvatar;
+
+    /**
+     * 统计计数相关信息
+     */
+    private ColumnFootCountDTO count;
 }

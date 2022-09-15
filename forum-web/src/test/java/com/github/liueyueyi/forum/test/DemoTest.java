@@ -1,10 +1,14 @@
 package com.github.liueyueyi.forum.test;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /**

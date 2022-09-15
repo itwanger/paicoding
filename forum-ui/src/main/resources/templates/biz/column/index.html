@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
+</div>
+<style>
+    .home {
+        overflow: auto;
+        padding-top: 20px;
+        height: calc(100vh - 60px);
+    }
+
+    .home-wrap {
+        margin: 0 auto;
+        width: 80%;
+        display: flex;
+        margin-bottom: 20px;
+        min-height: calc(100% - 90px);
+    }
+
+    .home-body {
+        flex: 1;
+        margin-right: 20px;
+        border-radius: 20px;
+    }
+
+    .home-right {
+        width: 30%;
+        border-radius: 20px;
+    }
+
+    /* 首页右侧列表 */
+    .home-right-item-wrap {
+        background-color: #fff;
+        padding: 32px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        overflow: hidden;
+    }
+
+    .home-right-item-title {
+        margin-bottom: 24px;
+    }
+
+    .home-right-item-post-list span {
+        color: #adb5bd;
+        font-size: 14px;
+    }
+
+    .home-right-item-article-item, .home-right-item-post-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .home-right-item-article-title, .home-right-item-post-title {
+        flex: 1 1;
+        font-size: 16px;
+        color: #000;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        -webkit-line-clamp: 2;
+    }
+
+    .home-right-item-article-item i {
+        flex-shrink: 0;
+        font-size: 24px;
+        line-height: 160%;
+        width: 36px;
+        text-align: right;
+        color: rgba(0, 0, 0, .06);
+        margin-left: 8px;
+    }
+
+    .home-right-item-about-content {
+        text-align: justify;
+        font-size: 14px;
+        line-height: 180%;
+        color: #333;
+    }
+
+    .home-QR-title {
+        display: flex;
+        border-bottom: 1px #f0f0f0 solid;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+    }
+
+    .home-QR-title-img {
+        height: 24px;
+        width: 24px;
+        float: left;
+        margin-right: 6px;
+    }
+
+    .home-QR-title-code {
+        width: 57px;
+        height: 57px;
+    }
+
+    .home-QR-title-wrap {
+        flex: 1;
+    }
+
+    .home-QR-title-content {
+        font-size: 20px;
+        height: 24px;
+        line-height: 120%;
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .home-QR-title-content-other {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .home-QR-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .home-QR-content span {
+        font-size: 14px;
+        line-height: 25px;
+        color: #333;
+        margin-bottom: ;
+    }
+</style>
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: navbar"></div>
+
+<!-- 正文内容 -->
+<div class="home">
+    <div class="home-wrap">
+        <div class="home-body">
+            <!-- 文章列表 -->
+            <content>
+                <div class="container-bg-light">
+                    <div id="articleList">
+                        <div th:replace="biz/column/list">专栏列表</div>
+                    </div>
+                    <button
+                            th:if="${vo.hasMore}"
+                            id="loadMoreTag"
+                            type="button"
+                            class="btn btn-outline-primary btn-lg btn-block"
+                            th:text="加载更多"
+                    ></button>
+                </div>
+            </content>
+        </div>
+
+        <div class="home-right">
+            <div class="home-right-item-wrap">
+                <div class="home-right-item-title">
+                    <h4>公告</h4>
+                </div>
+                <div class="home-right-item-post-list">
+                    <a href="" class="home-right-item-post-item">
+                        <div class="home-right-item-post-title">大家都很棒</div>
+                        <span>2022-09-09</span>
+                    </a>
+                    <a href="" class="home-right-item-post-item">
+                        <div class="home-right-item-post-title">大家都很棒</div>
+                        <span>2022-09-09</span>
+                    </a>
+                    <a href="" class="home-right-item-post-item">
+                        <div class="home-right-item-post-title">大家都很棒</div>
+                        <span>2022-09-09</span>
+                    </a>
+                    <a href="" class="home-right-item-post-item">
+                        <div class="home-right-item-post-title">公告</div>
+                        <span>2022-09-09</span>
+                    </a>
+                </div>
+            </div>
+            <div class="home-right-item-wrap">
+                <div class="home-right-item-title">
+                    <h4>热门文章</h4>
+                </div>
+                <div class="home-right-item-article-list">
+                    <a href="" class="home-right-item-article-item">
+                        <div class="home-right-item-article-title">大家都很棒</div>
+                        <i>01</i>
+                    </a>
+                    <a href="" class="home-right-item-article-item">
+                        <div class="home-right-item-article-title">大家都很棒</div>
+                        <i>02</i>
+                    </a>
+                    <a href="" class="home-right-item-article-item">
+                        <div class="home-right-item-article-title">大家都很棒</div>
+                        <i>03</i>
+                    </a>
+                    <a href="" class="home-right-item-article-item">
+                        <div class="home-right-item-article-title">
+                            大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒大家都很棒
+                        </div>
+                        <i>04</i>
+                    </a>
+                </div>
+            </div>
+            <div class="home-right-item-wrap">
+                <div class="home-QR-title">
+                    <div class="home-QR-title-wrap">
+                        <div class="home-QR-title-content">
+                            <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                                 alt="" class="home-QR-title-img">
+                            <span>扫码进群</span>
+                        </div>
+                        <div class="home-QR-title-content-other">加入”技术圈创作者交流群“</div>
+                    </div>
+                    <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                         alt="" class="home-QR-title-code">
+                </div>
+                <div class="home-QR-content">
+                    <span>联系邮箱</span><span>panchaoheng@hao.com</span><span>panchaoheng@hao.com</span>
+                </div>
+            </div>
+            <div class="home-right-item-wrap">
+                <div class="home-right-item-title">
+                    <h4>关于社区</h4>
+                </div>
+                <div class="home-right-item-about-content">
+                    简单的社区描述
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 底部信息 -->
+    <div th:replace="layout/footer :: footer"></div>
+</div>
+
+</div>
+
+
+<script th:inline="javascript">
+</script>
+</body>
+</html>

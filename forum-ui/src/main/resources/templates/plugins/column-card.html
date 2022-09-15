@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 专栏详情 -->
+<div th:fragment="column_card(column)">
+    <a th:href="'/column/' + ${column.columnId}" target="_blank" rel="" class="item">
+        <div class="poster">
+            <img th:src="${column.cover}"
+                 th:alt="'「' + ${column.column} + '」封面'" class="lazy poster-img" style=""
+                 loading="lazy">
+        </div>
+        <div class="info">
+            <div class="title">
+                <span class="text-highlight" th:text="${column.column}">分布式专栏</span>
+            </div>
+            <span class="text-highlight desc" th:text="${column.introduction}">一个简单的分布式专栏</span>
+            <div class="author">
+                <div class="author-info">
+                    <object>
+                        <a th:href="'/user/' + ${column.author}" target="_blank" rel="" class="xiaoce-user">
+                            <img th:src="${column.authorAvatar}"
+                                 th:alt="${column.authorName}" class="lazy avatar hero"
+                                 loading="lazy">
+                            <a th:href="'/user/' + ${column.author}"
+                               target="_blank" rel=""
+                               class="username author-name">
+                                <span class="name" style="max-width: 128px;" th:text="${column.authorName}">一灰灰</span>
+                            </a>
+                        </a>
+                    </object>
+                </div>
+            </div>
+            <div class="other">
+                <div class="messages">
+                    <span class="message"><span th:text="'已更新' + ${column.count.articleCount} + '节'">已更新21小节</span></span>
+                    <span class="message"><span>520</span> <span>人已购买</span></span>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>
+</html>
