@@ -51,6 +51,7 @@ public class GlobalInitService {
             } else {
                 vo.setIsLogin(false);
             }
+            vo.setCurrentDomain("article");
         } catch (Exception e) {
             log.error("loginCheckError:", e);
         }
