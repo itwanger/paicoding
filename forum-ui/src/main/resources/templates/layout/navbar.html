@@ -76,16 +76,16 @@
       <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <ul class="navbar-nav mr-auto">
           <li
-            th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'wiki') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
+            th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
             class="nav-item"
           >
             <a class="nav-link" href="/">首页</a>
           </li>
           <li
-            th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'wiki') ? ' selected-domain' : '')}"
+            th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
             class="nav-item"
           >
-            <a class="nav-link" href="/wiki">教程</a>
+            <a class="nav-link" href="/column">教程</a>
           </li>
           <li
             th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"

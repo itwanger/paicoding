@@ -51,7 +51,14 @@ public class GlobalInitService {
             } else {
                 vo.setIsLogin(false);
             }
-            vo.setCurrentDomain("article");
+
+            HttpServletRequest request =
+                    ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            if (request.getRequestURI().startsWith("/column")) {
+                vo.setCurrentDomain("column");
+            } else {
+                vo.setCurrentDomain("article");
+            }
         } catch (Exception e) {
             log.error("loginCheckError:", e);
         }

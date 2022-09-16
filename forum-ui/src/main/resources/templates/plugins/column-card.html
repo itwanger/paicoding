@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <!-- 专栏详情 -->
 <div th:fragment="column_card(column)">
-    <a th:href="'/column/' + ${column.columnId}" target="_blank" rel="" class="item">
+    <a th:href="'/column/' + ${column.columnId} + '/1'" target="_blank" rel="" class="item">
         <div class="poster">
             <img th:src="${column.cover}"
                  th:alt="'「' + ${column.column} + '」封面'" class="lazy poster-img" style=""

@@ -58,6 +58,8 @@ public class ColumnDTO {
      */
     private String authorAvatar;
 
+    private String authorProfile;
+
     /**
      * 统计计数相关信息
      */

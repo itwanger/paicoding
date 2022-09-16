@@ -1,10 +1,12 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
+import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ColumnFootCountDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ColumnConvert;
@@ -60,6 +62,7 @@ public class ColumnServiceImpl implements ColumnService {
         BaseUserInfoDTO user = userService.queryBasicUserInfo(dto.getAuthor());
         dto.setAuthorName(user.getUserName());
         dto.setAuthorAvatar(user.getPhoto());
+        dto.setAuthorProfile(user.getProfile());
 
         // 统计计数，这里先只返回文章数
         ColumnFootCountDTO countDTO = new ColumnFootCountDTO();
@@ -76,8 +79,12 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    public Boolean checkColumnArticle(long columnId, long articleId) {
-        return columnDao.getColumnArticleId(columnId, articleId) != null;
+    public Long queryColumnArticle(long columnId, Integer section) {
+        Long articleId = columnDao.getColumnArticleId(columnId, section);
+        if (articleId == null) {
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "专栏还没有更新到这一章哦");
+        }
+        return articleId;
     }
 
     /**
