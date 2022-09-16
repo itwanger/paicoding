@@ -1,7 +1,10 @@
 package com.github.liueyueyi.forum.api.model.vo.user.dto;
 
+import com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.List;
 
 /**
  * 用户主页信息
@@ -22,6 +25,11 @@ public class UserStatisticInfoDTO extends BaseUserInfoDTO {
      * 粉丝数
      */
     private Integer fansCount;
+
+    /**
+     * 加入天数
+     */
+    private Integer joinDayCount;
 
     /**
      * 已发布文章数
@@ -47,4 +55,9 @@ public class UserStatisticInfoDTO extends BaseUserInfoDTO {
      * 是否关注当前用户
      */
     private Boolean followed;
+
+    /**
+     * 创造历程
+     */
+    private List<YearArticleDTO> yearArticleList;
 }
