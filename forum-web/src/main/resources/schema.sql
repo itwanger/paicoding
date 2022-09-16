@@ -226,7 +226,7 @@ CREATE TABLE `column_article`
     `id`          int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `column_id`   int unsigned NOT NULL default '0' COMMENT '专栏ID',
     `article_id`  int unsigned NOT NULL default '0' COMMENT '文章ID',
-    `order`       int unsigned NOT NULL default '0' COMMENT '排序，越小越靠前',
+    `section`       int unsigned NOT NULL default '0' COMMENT '文章顺序，越小越靠前',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),

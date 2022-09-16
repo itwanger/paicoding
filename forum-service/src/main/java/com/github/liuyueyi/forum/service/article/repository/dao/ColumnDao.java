@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -56,17 +55,10 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      * @return
      */
     public List<Long> listColumnArticles(Long columnId) {
-        LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(ColumnArticleDO::getColumnId, columnId).select(ColumnArticleDO::getArticleId)
-                .orderByAsc(ColumnArticleDO::getOrder);
-        List<ColumnArticleDO> list = columnArticleMapper.selectList(query);
-        return list.stream().map(ColumnArticleDO::getArticleId).collect(Collectors.toList());
+        return columnArticleMapper.listColumnArticles(columnId);
     }
 
-    public ColumnArticleDO getColumnArticleId(long columnId, long articleId) {
-        LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(ColumnArticleDO::getColumnId, columnId)
-                .eq(ColumnArticleDO::getArticleId, articleId);
-        return columnArticleMapper.selectOne(query);
+    public Long getColumnArticleId(long columnId, Integer section) {
+        return columnArticleMapper.getColumnArticle(columnId, section);
     }
 }

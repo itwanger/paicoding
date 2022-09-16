@@ -1,6 +1,15 @@
 <!-- 文章列表 -->
-<div th:each="article : ${vo.articles.list}">
-    <div th:replace="plugins/article-card :: article_card(${article})">
-        正文
-    </div>
+<div th:each="menu, itemStat : ${vo.articleList}">
+    <a th:href="'/column/' + ${vo.column} + '/' + ${itemStat.index + 1}" class="section">
+        <div class="center">
+            <div class="title">
+                <span class="font-weight-bold" th:text="${itemStat.index + 1}">
+                    1.
+                </span>
+                <span class="title-text" th:text="${menu.title}">
+                第一篇.xxx
+            </span>
+            </div>
+        </div>
+    </a>
 </div>

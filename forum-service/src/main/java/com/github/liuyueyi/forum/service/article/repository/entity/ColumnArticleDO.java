@@ -22,5 +22,5 @@ public class ColumnArticleDO extends BaseDO {
     /**
      * 顺序，越小越靠前
      */
-    private Integer order;
+    private Integer section;
 }

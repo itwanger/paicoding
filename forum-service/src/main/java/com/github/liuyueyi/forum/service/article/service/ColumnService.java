@@ -21,13 +21,13 @@ public interface ColumnService {
     PageListVo<ColumnDTO> listColumn(PageParam pageParam);
 
     /**
-     * 判断文章是否属于专栏内
+     * 获取专栏中的第N篇文章
      *
      * @param columnId
-     * @param articleId
+     * @param order
      * @return
      */
-    Boolean checkColumnArticle(long columnId, long articleId);
+    Long queryColumnArticle(long columnId, Integer order);
 
     /**
      * 专栏详情
