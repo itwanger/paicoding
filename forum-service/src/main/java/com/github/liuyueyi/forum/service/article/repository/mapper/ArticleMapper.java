@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.article.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import org.apache.ibatis.annotations.Param;
@@ -23,7 +23,7 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
      * @param pageParam
      * @return
      */
-    List<RecommendArticleDTO> listArticlesByReadCounts(@Param("pageParam") PageParam pageParam);
+    List<SimpleArticleDTO> listArticlesByReadCounts(@Param("pageParam") PageParam pageParam);
 
     /**
      * 根据用户ID获取创作历程

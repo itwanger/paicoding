@@ -11,7 +11,7 @@
       标题
     </div>
     <div>
-      <div class="detail-content-title-other-wrap">
+      <div class="detail-content-title-other-wrap" th:if="${author != null}">
         <img th:src="${author.photo}" class="detail-content-title-other-img" />
         <a
           th:href="${'/user/' + author.userId}"

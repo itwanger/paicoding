@@ -9,7 +9,7 @@
     </sql>
 
     <select id="listArticlesByReadCounts"
-            resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.RecommendArticleDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO">
         select rc.document_id as id, a.title as title, a.create_time as createTime
         from read_count as rc left join article as a on rc.document_id = a.id
         where rc.document_type = 1 order by rc.cnt desc
