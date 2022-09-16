@@ -47,7 +47,6 @@ public class UserRestController {
         return ResVo.ok(true);
     }
 
-
     /**
      * 保存用户详情
      *
@@ -66,5 +65,4 @@ public class UserRestController {
         userService.saveUserInfo(req);
         return ResVo.ok(true);
     }
-
 }
