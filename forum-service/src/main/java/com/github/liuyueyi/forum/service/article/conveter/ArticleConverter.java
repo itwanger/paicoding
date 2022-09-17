@@ -4,6 +4,8 @@ import com.github.liueyueyi.forum.api.model.enums.ArticleTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.SourceTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.article.CategoryReq;
+import com.github.liueyueyi.forum.api.model.vo.article.TagReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
@@ -90,5 +92,29 @@ public class ArticleConverter {
         dto.setCategoryId(category.getId());
         dto.setSelected(false);
         return dto;
+    }
+
+    public static List<CategoryDTO> toCategoryDtoList(List<CategoryDO> categorys) {
+        return categorys.stream().map(ArticleConverter::toDto).collect(Collectors.toList());
+    }
+
+    public static TagDO toDO(TagReq tagReq) {
+        if (tagReq == null) {
+            return null;
+        }
+        TagDO tagDO = new TagDO();
+        tagDO.setTagName(tagReq.getTagName());
+        tagDO.setTagType(tagReq.getTagType());
+        tagDO.setCategoryId(tagReq.getCategoryId());
+        return tagDO;
+    }
+
+    public static CategoryDO toDO(CategoryReq categoryReq) {
+        if (categoryReq == null) {
+            return null;
+        }
+        CategoryDO categoryDO = new CategoryDO();
+        categoryDO.setCategoryName(categoryReq.getCategoryName());
+        return categoryDO;
     }
 }

@@ -12,6 +12,7 @@ CREATE TABLE `article`
     `category_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '类目ID',
     `source`       tinyint      NOT NULL DEFAULT '1' COMMENT '来源：1-转载，2-原创，3-翻译',
     `source_url`   varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
+    `flag_bit`     int unsigned NOT NULL COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精',
     `status`       tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`      tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -233,6 +234,20 @@ CREATE TABLE `column_article`
     KEY           `column_id` (`column_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='专栏文章列表';
 
+CREATE TABLE `banner`
+(
+    `id`           int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `banner_name` varchar(64)  NOT NULL default '' COMMENT '名称',
+    `banner_url`  varchar(256) NOT NULL default '' COMMENT '图片url',
+    `banner_type` tinyint NOT NULL default '0' COMMENT '类型：1-首页，2-侧边栏，3-广告位',
+    `rank` tinyint NOT NULL default '0' COMMENT '排序',
+    `status`      tinyint NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `deleted`     tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='banner表';
+
 -- 变更记录
 # alter table user_relation
 #     add `follow_state` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注';
@@ -252,3 +267,6 @@ CREATE TABLE `column_article`
 # alter table user_foot  drop column comment_id;
 # alter table `comment` add column `top_comment_id` int not null default '0' comment '顶级评论ID'  after `content`;
 # alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`;
+
+-- 管理后台
+alter table article add column `flag_bit` int unsigned NOT NULL COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
