@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-
-<div th:fragment="select_tag(list, userId)" class="card" style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
-    <div class="card-body d-flex align-content-start flex-wrap type-box">
-        <a th:each="selectTag : ${list}"
-           th:text="${selectTag.selectDesc}"
-           th:href="${'?' + 'userId=' + userId + '&homeSelectType=' + selectTag.selectType}"
-           th:class="${'btn ' + (selectTag.selected ? 'btn-primary' : '')}"
-           th:style="${'margin: 0.5em;' + (selectTag.selected ? 'color: #fff;' : '')}"
-           style="margin: 0.1em;color: #fff;"
-           class="btn btn-primary">用户文章/浏览记录/关注/收藏</a>
+  <div th:fragment="select_tag(list, userId)" class="user-slect-tag">
+    <div class="user-select-tag-wrap">
+      <a
+        th:each="selectTag : ${list}"
+        th:text="${selectTag.selectDesc}"
+        th:href="${'?' + 'userId=' + userId + '&homeSelectType=' + selectTag.selectType}"
+        th:class="${'tag-select ' + (selectTag.selected ? 'tag-select-active' : ' ')}"
+      >
+        用户文章/浏览记录/关注/收藏
+      </a>
     </div>
-</div>
-
+  </div>
 </html>

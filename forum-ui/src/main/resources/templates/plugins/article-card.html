@@ -9,33 +9,15 @@
     <div class="article-wrap">
       <div class="article-title">
         <div class="article-title-wrap">
-          <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb" alt="" class="article-title-img">
+          <img
+            src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+            alt=""
+            class="article-title-img"
+          />
           <div class="article-title-other">
             <span class="article-title-other-name">一灰</span>
             <span>7小时前</span>
           </div>
-          <!-- <a
-            th:href="${'/user/home?userId=' + article.author}"
-            th:text="${article.authorName}"
-            rel=""
-            class="article-title-name"
-          ></a>
-          <span class="article-cell">|</span>
-          <span
-            th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.lastUpdateTime)}"
-          >
-            10小时前
-          </span>
-          <span class="article-cell">|</span>
-          <a
-            th:href="'/tag/' + ${tag.tag}"
-            th:text="${tag.tag}"
-            rel="article-tag"
-            th:each="tag : ${article.tags}"
-            class="article-tag-name"
-          >
-            Java
-          </a> -->
         </div>
 
         <div class="d-flex align-content-start">
@@ -65,14 +47,14 @@
         </a>
         <div class="article-item-tags">
           <a
-          th:href="'/tag/' + ${tag.tag}"
-          th:text="${tag.tag}"
-          rel="article-tag"
-          th:each="tag : ${article.tags}"
-          class="article-tag-name"
-        >
-          Java
-        </a>
+            th:href="'/tag/' + ${tag.tag}"
+            th:text="${tag.tag}"
+            rel="article-tag"
+            th:each="tag : ${article.tags}"
+            class="article-tag-name"
+          >
+            Java
+          </a>
         </div>
         <div class="article-other-wrap">
           <small
