@@ -1,6 +1,5 @@
 package com.github.liuyueyi.forum.service.user.service;
 
-
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
