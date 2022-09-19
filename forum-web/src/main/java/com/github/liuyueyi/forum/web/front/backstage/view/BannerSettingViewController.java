@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * Banner后台
+ *
  * @author LouZai
  * @date 2022/9/19
  */
 @RestController
 @RequestMapping(path = "backstage/banner/")
-public class BannerViewController {
+public class BannerSettingViewController {
 
     @Autowired
     private BannerSettingServiceImpl bannerSettingService;

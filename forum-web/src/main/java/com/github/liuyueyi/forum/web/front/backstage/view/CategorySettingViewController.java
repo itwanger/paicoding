@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 分类后台
+ *
  * @author LouZai
  * @date 2022/9/19
  */
 @RestController
 @RequestMapping(path = "backstage/category/")
-public class CategoryViewController {
+public class CategorySettingViewController {
 
     @Autowired
     private CategorySettingService categorySettingService;

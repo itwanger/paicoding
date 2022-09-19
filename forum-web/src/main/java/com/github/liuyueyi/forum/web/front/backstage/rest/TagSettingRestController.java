@@ -2,21 +2,21 @@ package com.github.liuyueyi.forum.web.front.backstage.rest;
 
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
-import com.github.liueyueyi.forum.api.model.vo.article.CategoryReq;
 import com.github.liueyueyi.forum.api.model.vo.article.TagReq;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
-import com.github.liuyueyi.forum.service.article.service.CategorySettingService;
 import com.github.liuyueyi.forum.service.article.service.TagSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 标签后台
+ *
  * @author LouZai
  * @date 2022/9/19
  */
 @RestController
 @RequestMapping(path = "backstage/tag/")
-public class TagRestController {
+public class TagSettingRestController {
 
     @Autowired
     private TagSettingService tagSettingService;

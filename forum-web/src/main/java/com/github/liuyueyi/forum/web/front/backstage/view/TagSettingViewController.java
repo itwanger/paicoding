@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 标签后台
+ *
  * @author LouZai
  * @date 2022/9/19
  */
 @RestController
 @RequestMapping(path = "backstage/tag/")
-public class TagViewController {
+public class TagSettingViewController {
 
     @Autowired
     private TagSettingService tagSettingService;
