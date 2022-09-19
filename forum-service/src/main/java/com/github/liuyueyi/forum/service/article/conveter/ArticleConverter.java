@@ -78,6 +78,7 @@ public class ArticleConverter {
         dto.setTag(tag.getTagName());
         dto.setTagId(tag.getId());
         dto.setCategoryId(tag.getCategoryId());
+        dto.setStatus(tag.getStatus());
         return dto;
     }
 
@@ -90,6 +91,7 @@ public class ArticleConverter {
         CategoryDTO dto = new CategoryDTO();
         dto.setCategory(category.getCategoryName());
         dto.setCategoryId(category.getId());
+        dto.setStatus(category.getStatus());
         dto.setSelected(false);
         return dto;
     }

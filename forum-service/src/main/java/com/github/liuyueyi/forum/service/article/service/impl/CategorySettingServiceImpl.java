@@ -30,7 +30,7 @@ public class CategorySettingServiceImpl implements CategorySettingService {
     private CategoryDao categoryDao;
 
     @Override
-    public void saveTag(CategoryReq categoryReq) {
+    public void saveCategory(CategoryReq categoryReq) {
         CategoryDO categoryDO = ArticleConverter.toDO(categoryReq);
         if (NumUtil.nullOrZero(categoryReq.getCategoryId())) {
             categoryDao.save(categoryDO);
@@ -41,7 +41,7 @@ public class CategorySettingServiceImpl implements CategorySettingService {
     }
 
     @Override
-    public void deleteTag(Integer categoryId) {
+    public void deleteCategory(Integer categoryId) {
         CategoryDO categoryDO = categoryDao.getById(categoryId);
         if (categoryDO != null){
             categoryDao.removeById(categoryDO);
@@ -49,7 +49,7 @@ public class CategorySettingServiceImpl implements CategorySettingService {
     }
 
     @Override
-    public void operateTag(Integer categoryId, Integer operateType) {
+    public void operateCategory(Integer categoryId, Integer operateType) {
         CategoryDO categoryDO = categoryDao.getById(categoryId);
         if (categoryDO != null){
             categoryDO.setStatus(operateType);

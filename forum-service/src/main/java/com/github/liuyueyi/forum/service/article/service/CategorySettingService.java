@@ -13,11 +13,11 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
  */
 public interface CategorySettingService {
 
-    void saveTag(CategoryReq categoryReq);
+    void saveCategory(CategoryReq categoryReq);
 
-    void deleteTag(Integer categoryId);
+    void deleteCategory(Integer categoryId);
 
-    void operateTag(Integer categoryId, Integer operateType);
+    void operateCategory(Integer categoryId, Integer operateType);
 
     /**
      * 获取category列表
