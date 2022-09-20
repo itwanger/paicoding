@@ -97,6 +97,16 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         articleDetailMapper.updateContent(articleId, content);
     }
 
+    /**
+     * 更新标记位
+     *
+     * @param articleId
+     * @param falgBit
+     */
+    public void updateArticleFlagBit(Long articleId, Integer falgBit) {
+        articleDetailMapper.updateFlagBit(articleId, falgBit);
+    }
+
     public List<ArticleDO> listArticlesByUserId(Long userId, PageParam pageParam) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
@@ -186,5 +196,32 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     public List<YearArticleDTO> listYearArticleByUserId(Long userId) {
         return baseMapper.listYearArticleByUserId(userId);
+    }
+
+    /**
+     * 文章列表（用于后台）
+     *
+     * @param pageParam
+     * @return
+     */
+    public List<ArticleDO> listArticles(PageParam pageParam) {
+        return lambdaQuery()
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId)
+                .list();
+    }
+
+    /**
+     * 文章总数（用于后台）
+     *
+     * @return
+     */
+    public Integer countArticle() {
+        return lambdaQuery()
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .count().intValue();
     }
 }
