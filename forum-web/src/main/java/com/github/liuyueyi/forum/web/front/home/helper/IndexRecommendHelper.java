@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.web.front.home.helper;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
@@ -86,7 +87,7 @@ public class IndexRecommendHelper {
      */
     private Long categories(String active, IndexVo vo) {
         List<CategoryDTO> list = categoryService.loadAllCategories();
-        list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, false));
+        list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, PushStatusEnum.ONLINE.getCode(), false));
         Long selectCategoryId = null;
         for (CategoryDTO c : list) {
             if (c.getCategory().equalsIgnoreCase(active)) {
