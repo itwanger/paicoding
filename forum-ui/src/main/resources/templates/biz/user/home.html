@@ -167,6 +167,57 @@
       color: #40a9ff;
       border-color: #40a9ff;
     }
+
+    /* 关注 */
+    .follow-select-tag {
+      padding: 0 24px;
+      color: #333;
+      border-right: 1px solid #e6e6e6;
+      margin: 0;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 500;
+    }
+
+    .follow-select-tag:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+
+    .follow-select-tag:hover,
+    .follow-select-tag-active {
+      color: #3973ff !important;
+    }
+    .follow-item {
+      display: flex;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 8px 0;
+      height: fit-content;
+      font-size: 18px;
+    }
+
+    .follow-item img {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      margin-right: 15px;
+      font-size: 18px;
+    }
+    .follow-item-icon {
+      width: 68px;
+      height: 24px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3973ff;
+      border: 1px solid #3973ff;
+      font-size: 12px;
+    }
   </style>
   <body id="body">
     <!-- 导航栏 -->
@@ -337,8 +388,20 @@
               <div
                 th:replace="plugins/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"
               ></div>
+              <div class="follow-list">
+                <a href="" class="follow-item">
+                  <div>
+                    <img
+                      src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                      alt=""
+                    />
+                    <span>潘超恒</span>
+                  </div>
+                  <span class="follow-item-icon">关注</span>
+                </a>
+              </div>
 
-              <a th:if="${vo.followSelectType == 'follow'}">
+              <!-- <a th:if="${vo.followSelectType == 'follow'}">
                 <div th:each="follow : ${vo.followList.userFollowList}">
                   <div
                     th:replace="plugins/user-follow-card :: follow_card(${follow})"
@@ -356,7 +419,7 @@
                     正文
                   </div>
                 </div>
-              </a>
+              </a> -->
             </a>
           </div>
         </div>
@@ -459,7 +522,6 @@
       $("#publish").on("click", function () {
         doPostUserInfo()
       })
-
       function doPostUserInfo() {
         const userId = $("#userId").text()
         const userName = $("#userName").val()
