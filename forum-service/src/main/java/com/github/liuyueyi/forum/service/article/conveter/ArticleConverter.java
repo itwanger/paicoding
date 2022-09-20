@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.article.conveter;
 
 import com.github.liueyueyi.forum.api.model.enums.ArticleTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.FlagBitEnum;
 import com.github.liueyueyi.forum.api.model.enums.SourceTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
@@ -58,14 +59,21 @@ public class ArticleConverter {
         articleDTO.setSourceType(SourceTypeEnum.formCode(articleDO.getSource()).getDesc());
         articleDTO.setSourceUrl(articleDO.getSourceUrl());
         articleDTO.setStatus(articleDO.getStatus());
+        articleDTO.setFlagBit(articleDO.getFlagBit());
         articleDTO.setCreateTime(articleDO.getCreateTime().getTime());
         articleDTO.setLastUpdateTime(articleDO.getUpdateTime().getTime());
+        articleDTO.setIsOffical((articleDO.getFlagBit() & FlagBitEnum.OFFICAL.getCode()) == 0 ? Boolean.FALSE : Boolean.TRUE);
+        articleDTO.setIsTopping((articleDO.getFlagBit() & FlagBitEnum.TOPPING.getCode()) == 0 ? Boolean.FALSE : Boolean.TRUE);
+        articleDTO.setIsCream((articleDO.getFlagBit() & FlagBitEnum.CREAM.getCode()) == 0 ? Boolean.FALSE : Boolean.TRUE);
 
         // 设置类目id
         articleDTO.setCategory(new CategoryDTO(articleDO.getCategoryId(), null));
         return articleDTO;
     }
 
+    public static List<ArticleDTO> toArticleDtoList(List<ArticleDO> articleDOS) {
+        return articleDOS.stream().map(ArticleConverter::toDto).collect(Collectors.toList());
+    }
 
     /**
      * do转换

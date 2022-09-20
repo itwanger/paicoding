@@ -269,4 +269,4 @@ CREATE TABLE `banner`
 # alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`;
 
 -- 管理后台
-alter table article add column `flag_bit` int unsigned NOT NULL COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
+alter table article add column `flag_bit` int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
