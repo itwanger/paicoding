@@ -78,6 +78,26 @@ public class ArticleDTO implements Serializable {
     private Integer status;
 
     /**
+     * 标记位（二进制）
+     */
+    private Integer flagBit;
+
+    /**
+     * 是否官方
+     */
+    private Boolean isOffical;
+
+    /**
+     * 是否置顶
+     */
+    private Boolean isTopping;
+
+    /**
+     * 是否加精
+     */
+    private Boolean isCream;
+
+    /**
      * 创建时间
      */
     private Long createTime;

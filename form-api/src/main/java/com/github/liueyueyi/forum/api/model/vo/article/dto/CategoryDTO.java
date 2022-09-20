@@ -1,5 +1,6 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,11 +25,14 @@ public class CategoryDTO implements Serializable {
 
     private String category;
 
+    private Integer status;
+
     private Boolean selected;
 
     public CategoryDTO(Long categoryId, String category) {
         this.categoryId = categoryId;
         this.category = category;
+        this.status = PushStatusEnum.ONLINE.getCode();
         this.selected = false;
     }
 }
