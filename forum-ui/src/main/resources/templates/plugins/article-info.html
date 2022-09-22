@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 文章内容 -->
-  <div th:fragment="article_info(article, author)" class="posts-box">
+  <div th:fragment="article_info(article, author)" class="article-info-wrap">
     <div
       id="postsTitle"
-      class="detail-content-title"
+      class="article-info-title"
       th:data-id="${article.articleId}"
       th:text="${article.title}"
     >
-      标题
+      > 标题
     </div>
     <div>
       <div class="detail-content-title-other-wrap" th:if="${author != null}">
