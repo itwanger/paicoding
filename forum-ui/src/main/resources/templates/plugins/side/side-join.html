@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 侧边栏 -->
+<div class="home-right-item-wrap" th:fragment="side_join(side)">
+    <div class="home-QR-title">
+        <div class="home-QR-title-wrap">
+            <div class="home-QR-title-content">
+                <img th:src="${side.icon}" th:if="${!#strings.isEmpty(side.icon)}"
+                     src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                     alt="" class="home-QR-title-img">
+                <span>扫码进群</span>
+            </div>
+            <div class="home-QR-title-content-other" th:text="${side.title}">加入”xxx社区“</div>
+        </div>
+        <img th:src="${side.img}"
+             src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+             alt="" class="home-QR-title-code">
+    </div>
+    <div class="home-QR-content">
+        <span th:utext="${side.content}">
+            文本内容
+        </span>
+    </div>
+</div>

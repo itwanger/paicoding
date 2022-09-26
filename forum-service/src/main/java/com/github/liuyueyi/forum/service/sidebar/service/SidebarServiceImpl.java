@@ -34,7 +34,11 @@ public class SidebarServiceImpl implements SidebarService {
     }
 
     private SideBarDTO recommendSideBar() {
-        return new SideBarDTO().setTitle("微信公众号扫码").setSubTitle("加入交流社区").setIcon("https://tool.hhui.top/icon.svg").setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg").setContent("联系信息:\n yihuihuiyi@gmail.com").setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
+        return new SideBarDTO().setTitle("微信公众号扫码").setSubTitle("加入交流社区")
+                .setIcon("https://tool.hhui.top/icon.svg")
+                .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
+                .setContent("联系信息:<br/> yihuihuiyi@gmail.com")
+                .setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
 
     }
 

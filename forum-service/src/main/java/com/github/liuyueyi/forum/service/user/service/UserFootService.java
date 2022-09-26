@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.service.user.service;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 
@@ -65,4 +66,12 @@ public interface UserFootService {
      * @return
      */
     List<Long> queryUserCollectionArticleList(Long userId, PageParam pageParam);
+
+    /**
+     * 查询文章的点赞用户信息
+     *
+     * @param articleId
+     * @return
+     */
+    List<SimpleUserInfoDTO> queryArticlePraisedUsers(Long articleId);
 }
