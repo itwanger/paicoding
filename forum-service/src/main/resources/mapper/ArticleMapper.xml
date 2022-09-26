@@ -16,6 +16,14 @@
         <include refid="limit"/>
     </select>
 
+    <select id="listArticlesByUserIdOrderByReadCounts"
+            resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select rc.document_id as id, a.title as title, a.create_time as createTime
+        from read_count as rc left join article as a on rc.document_id = a.id
+        where rc.document_type = 1 and a.user_id = #{userId} order by rc.cnt desc
+        <include refid="limit"/>
+    </select>
+
 
     <select id="listYearArticleByUserId"
             resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO">

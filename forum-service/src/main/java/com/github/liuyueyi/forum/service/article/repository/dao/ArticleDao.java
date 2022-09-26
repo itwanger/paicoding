@@ -18,6 +18,7 @@ import com.github.liuyueyi.forum.service.article.repository.entity.ReadCountDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleDetailMapper;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.liuyueyi.forum.service.article.repository.mapper.ReadCountMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -186,6 +187,10 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
 
     public List<SimpleArticleDTO> listHotArticles(PageParam pageParam) {
         return baseMapper.listArticlesByReadCounts(pageParam);
+    }
+
+    public List<SimpleArticleDTO> listAuthorHotArticles(long userId, PageParam pageParam) {
+        return baseMapper.listArticlesByUserIdOrderByReadCounts(userId, pageParam);
     }
 
     /**
