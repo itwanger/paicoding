@@ -58,6 +58,9 @@ public class ColumnDTO {
      */
     private String authorAvatar;
 
+    /**
+     * 个人简介
+     */
     private String authorProfile;
 
     /**

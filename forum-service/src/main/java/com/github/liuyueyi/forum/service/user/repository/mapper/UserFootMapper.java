@@ -3,7 +3,7 @@ package com.github.liuyueyi.forum.service.user.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
-import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import org.apache.ibatis.annotations.Param;
 
@@ -51,4 +51,16 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
      * @return
      */
     List<Long> listReadArticleByUserId(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
+
+    /**
+     * 查询文章的点赞列表
+     *
+     * @param documentId
+     * @param type
+     * @param size
+     * @return
+     */
+    List<SimpleUserInfoDTO> listSimpleUserInfosByArticleId(@Param("documentId") Long documentId,
+                                                           @Param("type") Integer type,
+                                                           @Param("size") int size);
 }

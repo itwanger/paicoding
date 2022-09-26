@@ -1,378 +1,381 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-  <link href="/css/content.css" rel="stylesheet" />
+<link href="/css/content.css" rel="stylesheet"/>
 
-  <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
-  </div>
+</div>
 
-  <style>
+<style>
     /* 暂时公用home业css */
     .home {
-      overflow: auto;
-      padding-top: 20px;
-      height: calc(100vh - 60px);
+        overflow: auto;
+        padding-top: 20px;
+        height: calc(100vh - 60px);
     }
+
     .home-wrap {
-      margin: 0 auto;
-      width: 80%;
-      display: flex;
-      margin-bottom: 20px;
-      min-height: calc(100% - 90px);
+        margin: 0 auto;
+        width: 80%;
+        display: flex;
+        margin-bottom: 20px;
+        min-height: calc(100% - 90px);
     }
 
     .home-body {
-      flex: 1;
-      margin-right: 20px;
-      border-radius: 20px;
-      background-color: #fff;
-      padding: 32px 48px 22px;
-      box-sizing: border-box;
+        flex: 1;
+        max-width: 75%;
+        margin-right: 20px;
+        border-radius: 20px;
+        background-color: #fff;
+        padding: 32px 48px 22px;
+        box-sizing: border-box;
     }
+
     .home-right {
-      width: 30%;
-      border-radius: 20px;
+        width: 30%;
+        border-radius: 20px;
     }
 
     /* 文章部分 */
     .detail-head-img {
-      width: 100%;
-      max-height: 432px;
-      object-fit: cover;
-      margin-bottom: 24px;
+        width: 100%;
+        max-height: 432px;
+        object-fit: cover;
+        margin-bottom: 24px;
     }
+
     .article-info-title {
-      color: rgba(0, 0, 0, 0.85);
-      font-size: 26px;
-      line-height: 31px;
-      vertical-align: bottom;
-      margin-bottom: 12px;
+        color: rgba(0, 0, 0, 0.85);
+        font-size: 26px;
+        line-height: 31px;
+        vertical-align: bottom;
+        margin-bottom: 12px;
     }
+
     /* 评论列表 */
     .comment-write-wrap {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 20px;
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 20px;
     }
+
     .comment-write-img {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      margin-right: 15px;
-      border-radius: 50%;
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        margin-right: 15px;
+        border-radius: 50%;
     }
 
     .common-write-content {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        flex: 1;
     }
+
     .comment-write-textarea {
-      width: 100%;
-      min-height: 100px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 8px 16px;
-      margin-bottom: 10px;
+        width: 100%;
+        min-height: 100px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px 16px;
+        margin-bottom: 10px;
     }
+
     .comment-write-btn {
-      height: 32px;
-      padding: 4px 16px;
-      font-size: 14px;
-      border-radius: 32px;
-      border: 1px solid #d9d9d9;
-      cursor: pointer;
+        height: 32px;
+        padding: 4px 16px;
+        font-size: 14px;
+        border-radius: 32px;
+        border: 1px solid #d9d9d9;
+        cursor: pointer;
     }
+
     .comment-item-wrap,
     .comment-item-wrap-second {
-      display: flex;
-      margin-bottom: 24px;
-      padding: 12px 0;
-      border-top: 1px solid #f5f5f7;
+        display: flex;
+        margin-bottom: 24px;
+        padding: 12px 0;
+        border-top: 1px solid #f5f5f7;
     }
 
     .comment-item-wrap-second {
-      margin-left: 50px;
-      background-color: #f7f8fa;
-      border-radius: 4px;
-      padding: 12px;
+        margin-left: 50px;
+        background-color: #f7f8fa;
+        border-radius: 4px;
+        padding: 12px;
     }
+
     .comment-item-img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
     }
+
     .common-item-content {
-      margin-left: 10px;
-      flex: 1;
-      padding-top: 8px;
+        margin-left: 10px;
+        flex: 1;
+        padding-top: 8px;
     }
+
     .common-item-content-head {
-      flex: 1;
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      line-height: 14px;
-      color: #999;
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        line-height: 14px;
+        color: #999;
     }
+
     .common-item-content-value {
-      min-height: 40px;
-      font-size: 14px;
-      line-height: 25px;
-      color: #333;
-      margin: 6px 0 0;
-      word-break: break-all;
-      white-space: pre-wrap;
+        min-height: 40px;
+        font-size: 14px;
+        line-height: 25px;
+        color: #333;
+        margin: 6px 0 0;
+        word-break: break-all;
+        white-space: pre-wrap;
     }
-  </style>
+</style>
 
-  <body id="body">
-    <!-- 导航栏 -->
-    <div th:replace="layout/navbar :: navbar"></div>
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: navbar"></div>
 
-    <div class="home">
-      <div class="home-wrap">
+<div class="home">
+    <div class="home-wrap">
         <div class="home-body">
-          <!-- 侧边tool -->
-          <div
-            th:replace="plugins/article-tool-bar :: tool_bar(${vo.article})"
-          ></div>
+            <!-- 侧边tool -->
+            <div
+                    th:replace="plugins/article-tool-bar :: tool_bar(${vo.article})"
+            ></div>
 
-          <!-- 正文 -->
-          <!--  图片  -->
-          <!-- <div
-            th:if="${!#strings.isEmpty(vo.article.cover)}"
-            class="carousel slide"
-          > -->
-          <!-- <img
-              th:src="${vo.article.cover}"
-              src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
-              class="img-fluid"
-            /> -->
-          <img
-            src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
-            class="detail-head-img"
-          />
-          <!-- </div> -->
-          <div
-            th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"
-          ></div>
+            <!-- 正文 -->
+            <!--  图片  -->
+            <div th:if="${!#strings.isEmpty(vo.article.cover)}">
+                <img
+                        th:src="${vo.article.cover}"
+                        src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
+                        class="detail-head-img"
+                />
+            </div>
+            <!-- </div> -->
+            <div
+                    th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"
+            ></div>
 
-          <!--  评论  -->
-          <div
-            th:replace="plugins/comment-list :: comment_list(${vo.comments}, ${vo.article})"
-          ></div>
+            <div th:replace="plugins/article/praise"></div>
+
+            <!--  评论  -->
+            <div
+                    th:replace="plugins/comment-list :: comment_list(${vo.comments}, ${vo.article})"
+            ></div>
         </div>
 
         <div class="home-right">
-          <!-- 用户相关信息 -->
-          <div
-            th:replace="plugins/user-card :: user_card(${vo.author}, true)"
-          ></div>
+            <!-- 用户相关信息 -->
+            <div
+                    th:replace="plugins/user-card :: user_card(${vo.author}, true)"
+            ></div>
 
-          <!-- 公告 -->
-          <div
-            th:if="${!#lists.isEmpty(sideBarItems)}"
-            th:each="item : ${sideBarItems}"
-          >
-            <div th:replace="plugins/normal-card :: normal_card(${item})" />
-          </div>
-
-          <!--  推荐阅读  -->
-          <!--  作者其他博文  -->
+            <!-- 公告 -->
+            <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
+                <div th:replace="biz/article/sidebars"></div>
+            </div>
         </div>
-      </div>
-      <!-- 底部信息 -->
-      <div th:replace="layout/footer :: footer"></div>
     </div>
+    <!-- 底部信息 -->
+    <div th:replace="layout/footer :: footer"></div>
+</div>
 
-    <script src="/js/marked.min.js"></script>
-    <script src="/js/biz/toolaction.js"></script>
-    <script th:inline="javascript">
-      // 内容渲染
-      const articleId = [[${vo.article.articleId}]];
-      const content = [[${vo.article.content}]];
-      document.getElementById('articleContent').innerHTML = marked.parse(content);
-      // 文章样式渲染
-      document.addEventListener('DOMContentLoaded', function (event) {
-          if (document.querySelectorAll('pre code').length === 0) {
-              return;
-          }
+<script src="/js/marked.min.js"></script>
+<script src="/js/biz/toolaction.js"></script>
+<script th:inline="javascript">
+    // 内容渲染
+    const articleId = [[${vo.article.articleId}]];
+    const content = [[${vo.article.content}]];
+    document.getElementById('articleContent').innerHTML = marked.parse(content);
+    // 文章样式渲染
+    document.addEventListener('DOMContentLoaded', function (event) {
+        if (document.querySelectorAll('pre code').length === 0) {
+            return;
+        }
 
-          // 加载 highlight 样式文件
-          loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
-          // 加载 highlight 脚本文件
-          loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
-              document.querySelectorAll('pre code').forEach(function (block) {
-                  hljs.highlightBlock(block);
-              });
-          });
-      });
+        // 加载 highlight 样式文件
+        loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
+        // 加载 highlight 脚本文件
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
+            document.querySelectorAll('pre code').forEach(function (block) {
+                hljs.highlightBlock(block);
+            });
+        });
+    });
 
-      // 评论相关
-      const commentContent = $("#commentContent");
-      commentContent.on('input propertychange', function () {
-          const val = $(this).val();
-          if (val) {
-              $("#commentBtn").attr("disabled", false);
-          } else {
-              $("#commentBtn").attr("disabled", true);
-          }
-      });
+    // 评论相关
+    const commentContent = $("#commentContent");
+    commentContent.on('input propertychange', function () {
+        const val = $(this).val();
+        if (val) {
+            $("#commentBtn").attr("disabled", false);
+        } else {
+            $("#commentBtn").attr("disabled", true);
+        }
+    });
 
-      // 直接评论
-      const commentBtn = $("#commentBtn");
-      commentBtn.click(function () {
-          const content = commentContent.val();
-          if (!content || content.length > 512) {
-              toastr.error("评论内容长度要求在[1,512]之间");
-              return;
-          }
-          // 提交评论
-          const params = {
-              // 文章id
-              "articleId": articleId,
-              // 评论内容
-              "commentContent": content
-          };
-          post("/comment/api/post", params, function (data) {
-              location.reload();
-          })
-      });
+    // 直接评论
+    const commentBtn = $("#commentBtn");
+    commentBtn.click(function () {
+        const content = commentContent.val();
+        if (!content || content.length > 512) {
+            toastr.error("评论内容长度要求在[1,512]之间");
+            return;
+        }
+        // 提交评论
+        const params = {
+            // 文章id
+            "articleId": articleId,
+            // 评论内容
+            "commentContent": content
+        };
+        post("/comment/api/post", params, function (data) {
+            location.reload();
+        })
+    });
 
-      // 回复评论
-      const replyContent = $('#replyContent');
-      const replyBtn = $('#replyBtn');
-      $('.reply-comment').on('click', function (e) {
-          $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
-          $('#repliedContent').html(this.dataset.replyContent);
-          replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
-          // 回复的评论ID
-          replyBtn.attr('data-reply-id', this.dataset.replyId);
-          // 回复的一级评论ID
-          replyBtn.attr('data-reply-top', this.dataset.replyTop);
-      });
+    // 回复评论
+    const replyContent = $('#replyContent');
+    const replyBtn = $('#replyBtn');
+    $('.reply-comment').on('click', function (e) {
+        $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
+        $('#repliedContent').html(this.dataset.replyContent);
+        replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
+        // 回复的评论ID
+        replyBtn.attr('data-reply-id', this.dataset.replyId);
+        // 回复的一级评论ID
+        replyBtn.attr('data-reply-top', this.dataset.replyTop);
+    });
 
-      replyBtn.on('click', function () {
-          if (!replyContent.val()) {
-              toastr.error('回复内容不能为空');
-              return;
-          }
-          // 提交评论
-          const params = {
-              // 文章id
-              "articleId": $('#postsTitle').attr("data-id"),
-              // 评论内容
-              "commentContent": replyContent.val(),
-              // 回复的评论id
-              "parentCommentId": replyBtn.attr('data-reply-id'),
-              // 回复的一级评论id
-              "topCommentId": replyBtn.attr('data-reply-top')
-          };
-          post("/comment/api/post", params, function (data) {
-              location.reload();
-          })
-      });
+    replyBtn.on('click', function () {
+        if (!replyContent.val()) {
+            toastr.error('回复内容不能为空');
+            return;
+        }
+        // 提交评论
+        const params = {
+            // 文章id
+            "articleId": $('#postsTitle').attr("data-id"),
+            // 评论内容
+            "commentContent": replyContent.val(),
+            // 回复的评论id
+            "parentCommentId": replyBtn.attr('data-reply-id'),
+            // 回复的一级评论id
+            "topCommentId": replyBtn.attr('data-reply-top')
+        };
+        post("/comment/api/post", params, function (data) {
+            location.reload();
+        })
+    });
 
-      // 跳转到评论的地方
-      $("#commentFloatBtn").click(function () {
-          document.getElementById("commentList").scrollIntoView(true);
-      })
+    // 跳转到评论的地方
+    $("#commentFloatBtn").click(function () {
+        document.getElementById("commentList").scrollIntoView(true);
+    })
 
-      // 点赞
-      let praisedCount = [[${vo.article.count.praiseCount}]]
-      let praised = [[${vo.article.praised}]]
-      const isLogin = [[${global.isLogin}]]
-      $("#praiseFloatBtn").click(function () {
-          console.log("登录了么！");
-          if (!isLogin) {
-              // 未登录，不执行相关操作
-              return;
-          }
+    // 点赞
+    let praisedCount = [[${vo.article.count.praiseCount}]]
+    let praised = [[${vo.article.praised}]]
+    const isLogin = [[${global.isLogin}]]
+    $("#praiseFloatBtn").click(function () {
+        console.log("登录了么！");
+        if (!isLogin) {
+            // 未登录，不执行相关操作
+            return;
+        }
 
-          praised = !praised;
+        praised = !praised;
 
-          praiseArticle(articleId, praised, function (data) {
-              if (praised) {
-                  // 点赞
-                  praisedCount += 1;
-                  $("#praiseFloatBtn").addClass("active")
-              } else {
-                  praisedCount -= 1;
-                  $("#praiseFloatBtn").removeClass("active")
-              }
+        praiseArticle(articleId, praised, function (data) {
+            if (praised) {
+                // 点赞
+                praisedCount += 1;
+                $("#praiseFloatBtn").addClass("active")
+            } else {
+                praisedCount -= 1;
+                $("#praiseFloatBtn").removeClass("active")
+            }
 
-              if (praisedCount > 0) {
-                  $("#praiseFloatBtn").addClass("with-badge")
-                  $('#praiseFloatBtn').attr("badge", praisedCount)
-              } else {
-                  $("#praiseFloatBtn").removeClass("with-badge")
-                  $('#praiseFloatBtn').removeAttr("badge")
-              }
-          });
-      })
+            if (praisedCount > 0) {
+                $("#praiseFloatBtn").addClass("with-badge")
+                $('#praiseFloatBtn').attr("badge", praisedCount)
+            } else {
+                $("#praiseFloatBtn").removeClass("with-badge")
+                $('#praiseFloatBtn').removeAttr("badge")
+            }
+        });
+    })
 
-      // 收藏
-      let collectionCount = [[${vo.article.count.collectionCount}]]
-      let collected = [[${vo.article.collected}]]
-      $("#collectFloatBtn").click(function () {
-          if (!isLogin) {
-              // 未登录，不执行相关操作
-              return;
-          }
+    // 收藏
+    let collectionCount = [[${vo.article.count.collectionCount}]]
+    let collected = [[${vo.article.collected}]]
+    $("#collectFloatBtn").click(function () {
+        if (!isLogin) {
+            // 未登录，不执行相关操作
+            return;
+        }
 
-          collected = !collected;
+        collected = !collected;
 
-          collectArticle(articleId, collected, function (data) {
-              if (collected) {
-                  // 点赞
-                  collectionCount += 1;
-                  $("#collectFloatBtn").addClass("active")
-              } else {
-                  collectionCount -= 1;
-                  $("#collectFloatBtn").removeClass("active")
-              }
+        collectArticle(articleId, collected, function (data) {
+            if (collected) {
+                // 点赞
+                collectionCount += 1;
+                $("#collectFloatBtn").addClass("active")
+            } else {
+                collectionCount -= 1;
+                $("#collectFloatBtn").removeClass("active")
+            }
 
-              if (collectionCount > 0) {
-                  $("#collectFloatBtn").addClass("with-badge")
-                  $('#collectFloatBtn').attr("badge", collectionCount)
-              } else {
-                  $("#collectFloatBtn").removeClass("with-badge")
-                  $('#collectFloatBtn').removeAttr("badge")
-              }
-          });
-      })
+            if (collectionCount > 0) {
+                $("#collectFloatBtn").addClass("with-badge")
+                $('#collectFloatBtn').attr("badge", collectionCount)
+            } else {
+                $("#collectFloatBtn").removeClass("with-badge")
+                $('#collectFloatBtn').removeAttr("badge")
+            }
+        });
+    })
 
-      <!--    关注用户 -->
-      let userId = [[${vo.author.userId}]]
-      let followed = [[${vo.author.followed}]]
-      $('#followBtn').on('click', function () {
-          doFollowUser()
-      });
+    <!--    关注用户 -->
+    let userId = [[${vo.author.userId}]]
+    let followed = [[${vo.author.followed}]]
+    $('#followBtn').on('click', function () {
+        doFollowUser()
+    });
 
-      function doFollowUser() {
-          if (!isLogin) {
-              // 未登录，不执行相关操作
+    function doFollowUser() {
+        if (!isLogin) {
+            // 未登录，不执行相关操作
 
-              // TODO: 需要提示用户去登录  @一灰
-              return;
-          }
+            // TODO: 需要提示用户去登录  @一灰
+            return;
+        }
 
-          followed = !followed;
+        followed = !followed;
 
-          const params = {
-              "userId": userId,
-              "followed" : followed,
-          }
-          console.log(params);
+        const params = {
+            "userId": userId,
+            "followed": followed,
+        }
+        console.log(params);
 
-          post("/user/api/saveUserRelation", params, function (data) {
-              console.log("返回结果:", data);
-              // TODO：需要做成非刷新的方式，同目前的点赞效果 @前端小超
-              location.reload();
-          });
-      }
-    </script>
-  </body>
+        post("/user/api/saveUserRelation", params, function (data) {
+            console.log("返回结果:", data);
+            // TODO：需要做成非刷新的方式，同目前的点赞效果 @前端小超
+            location.reload();
+        });
+    }
+</script>
+</body>
 </html>

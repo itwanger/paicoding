@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 侧边栏 -->
+<div class="home-right-item-wrap" th:fragment="side_notice(side)">
+    <div class="home-right-item-title">
+        <h4 th:text="${side.title}">公告</h4>
+    </div>
+    <div  class="home-right-item-post-list">
+        <a th:href="${item.url}" class="home-right-item-post-item" th:each="item : ${side.items} ">
+            <div class="home-right-item-post-title" th:text="${item.title}">大家都很棒</div>
+            <span th:src="${#dates.format(item.time, 'yyyy-MM-dd')}">2022-09-09</span>
+        </a>
+    </div>
+</div>

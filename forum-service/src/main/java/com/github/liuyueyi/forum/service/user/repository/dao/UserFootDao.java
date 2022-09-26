@@ -7,6 +7,7 @@ import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,10 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
                 .eq(UserFootDO::getDocumentType, type)
                 .eq(UserFootDO::getUserId, userId);
         return baseMapper.selectOne(query);
+    }
+
+    public List<SimpleUserInfoDTO> listDocumentPraisedUsers(Long documentId, Integer type, int size) {
+        return baseMapper.listSimpleUserInfosByArticleId(documentId, type, size);
     }
 
     /**
