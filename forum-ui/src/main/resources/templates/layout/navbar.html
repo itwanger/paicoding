@@ -73,9 +73,12 @@
           loading="lazy"
         /> -->
         <img
-          src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/public/img/tech-logo.png"
+          th:src="${global.siteInfo.websiteLogoUrl}"
+          th:alt="${global.siteInfo.websiteName}"
           alt=""
-          width="104px"
+          width="30"
+          height="30"
+          loading="lazy"
         />
       </a>
       <div class="collapse navbar-collapse" id="collapsibleNavbar">

@@ -8,6 +8,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleTagDao;
@@ -106,6 +107,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
         // 更新文章统计计数
         article.setCount(countService.queryArticleCountInfoByArticleId(articleId));
+
+        // 设置文章的点赞列表
+        article.setPraisedUsers(userFootService.queryArticlePraisedUsers(articleId));
         return article;
     }
 
@@ -184,7 +188,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 阅读计数统计
         dto.setCount(countService.queryArticleCountInfoByArticleId(record.getId()));
         // 作者信息
-        dto.setAuthorName(userService.queryBasicUserInfo(dto.getAuthor()).getUserName());
+        BaseUserInfoDTO author = userService.queryBasicUserInfo(dto.getAuthor());
+        dto.setAuthorName(author.getUserName());
+        dto.setAuthorAvatar(author.getPhoto());
         return dto;
     }
 

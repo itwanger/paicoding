@@ -18,12 +18,21 @@ import java.util.List;
 public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     /**
-     * 根据阅读次数获取人们文章
+     * 根据阅读次数获取热门文章
      *
      * @param pageParam
      * @return
      */
     List<SimpleArticleDTO> listArticlesByReadCounts(@Param("pageParam") PageParam pageParam);
+
+    /**
+     * 查询作者的热门文章
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    List<SimpleArticleDTO> listArticlesByUserIdOrderByReadCounts(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 
     /**
      * 根据用户ID获取创作历程
