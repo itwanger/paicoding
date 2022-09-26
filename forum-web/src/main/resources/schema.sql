@@ -83,7 +83,7 @@ CREATE TABLE `comment`
     PRIMARY KEY (`id`),
     KEY                 `idx_article_id_parent_comment_id` (`article_id`, `parent_comment_id`),
     KEY                 `idx_user_id` (`user_id`),
-    KEY                 `idx_article_id` (`top_comment_id`),
+    KEY                 `idx_article_id` (`top_comment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='评论表';
 
 
@@ -148,7 +148,7 @@ CREATE TABLE `user_foot`
     `create_time`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`      timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_user_document` (`user_id`,`document_id`,`document_type`,`comment_id`),
+    UNIQUE KEY `idx_user_document` (`user_id`,`document_id`,`document_type`),
     KEY                `idx_document_id` (`document_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户足迹表';
 
