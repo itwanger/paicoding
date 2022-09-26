@@ -4,10 +4,12 @@ import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.liuyueyi.forum.core.util.DateUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnInfoDO;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,7 +46,7 @@ public class ColumnConvert {
         columnInfoDO.setIntroduction(columnReq.getIntroduction());
         columnInfoDO.setCover(columnReq.getCover());
         columnInfoDO.setState(columnReq.getState());
-        columnInfoDO.setPublishTime(columnReq.getPublishTime());
+        columnInfoDO.setPublishTime(new Date(columnReq.getPublishTime()));
         return columnInfoDO;
     }
 

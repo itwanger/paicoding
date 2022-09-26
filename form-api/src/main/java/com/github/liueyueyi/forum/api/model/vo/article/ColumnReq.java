@@ -47,5 +47,5 @@ public class ColumnReq implements Serializable {
     /**
      * 上线时间
      */
-    private Date publishTime;
+    private Long publishTime;
 }
