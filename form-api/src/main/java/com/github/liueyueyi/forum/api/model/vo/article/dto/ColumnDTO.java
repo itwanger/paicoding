@@ -37,7 +37,7 @@ public class ColumnDTO {
     private Long publishTime;
 
     /**
-     * 1 连载 2 完结
+     * 0 未发布 1 连载 2 完结
      *
      * @see ColumnStatusEnum#getCode()
      */
