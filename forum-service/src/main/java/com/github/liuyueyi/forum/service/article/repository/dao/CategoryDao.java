@@ -40,6 +40,7 @@ public class CategoryDao extends ServiceImpl<CategoryMapper, CategoryDO> {
     public List<CategoryDTO> listCategory(PageParam pageParam) {
         List<CategoryDO> list = lambdaQuery()
                 .eq(CategoryDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last(PageParam.getLimitSql(pageParam))
                 .list();
         return ArticleConverter.toCategoryDtoList(list);
     }

@@ -37,6 +37,7 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
     public List<TagDTO> listTag(PageParam pageParam) {
         List<TagDO> list = lambdaQuery()
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last(PageParam.getLimitSql(pageParam))
                 .list();
         return ArticleConverter.toDtoList(list);
     }
