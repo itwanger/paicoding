@@ -187,7 +187,23 @@
             <div
                     th:replace="plugins/comment-list :: comment_list(${vo.comments}, ${vo.article})"
             ></div>
+            <hr/>
+            <div>
+                <!-- 关联推荐 -->
+                <h2>相关推荐</h2>
+                <div class="container-bg-light">
+                    <div id="articleList">
+                    </div>
+                    <button
+                            id="loadMoreTag"
+                            type="button"
+                            class="btn btn-outline-primary btn-lg btn-block"
+                            th:text="加载更多"
+                    ></button>
+                </div>
+            </div>
         </div>
+
 
         <div class="home-right">
             <!-- 用户相关信息 -->
@@ -302,8 +318,7 @@
     let praisedCount = [[${vo.article.count.praiseCount}]]
     let praised = [[${vo.article.praised}]]
     const isLogin = [[${global.isLogin}]]
-    $("#praiseFloatBtn").click(function () {
-        console.log("登录了么！");
+    function praiseFunc() {
         if (!isLogin) {
             // 未登录，不执行相关操作
             return;
@@ -329,7 +344,9 @@
                 $('#praiseFloatBtn').removeAttr("badge")
             }
         });
-    })
+    }
+    $("#praiseFloatBtn").on('click', function() {praiseFunc()})
+    $("#praiseBtn").on('click', function() {praiseFunc()})
 
     // 收藏
     let collectionCount = [[${vo.article.count.collectionCount}]]
@@ -362,14 +379,10 @@
         });
     })
 
-    <!--    关注用户 -->
+
     let userId = [[${vo.author.userId}]]
     let followed = [[${vo.author.followed}]]
     $('#followBtn').on('click', function () {
-        doFollowUser()
-    });
-
-    function doFollowUser() {
         if (!isLogin) {
             // 未登录，不执行相关操作
 
@@ -390,7 +403,20 @@
             // TODO：需要做成非刷新的方式，同目前的点赞效果 @前端小超
             location.reload();
         });
+    });
+
+
+    // 加载推荐列表
+    let params = {
+        "articleId": articleId,
+        "page": 1
     }
+    doGetNextPage('/article/api/recommend', params, "articleList", "loadMoreTag", function () {
+        params['page'] = params['page'] + 1;
+    })
+    nextPage('/article/api/recommend', params, "articleList", "loadMoreTag", function () {
+        params['page'] = params['page'] + 1;
+    })
 </script>
 </body>
 </html>
