@@ -318,8 +318,7 @@
     let praisedCount = [[${vo.article.count.praiseCount}]]
     let praised = [[${vo.article.praised}]]
     const isLogin = [[${global.isLogin}]]
-    $("#praiseFloatBtn").click(function () {
-        console.log("登录了么！");
+    function praiseFunc() {
         if (!isLogin) {
             // 未登录，不执行相关操作
             return;
@@ -345,7 +344,9 @@
                 $('#praiseFloatBtn').removeAttr("badge")
             }
         });
-    })
+    }
+    $("#praiseFloatBtn").on('click', function() {praiseFunc()})
+    $("#praiseBtn").on('click', function() {praiseFunc()})
 
     // 收藏
     let collectionCount = [[${vo.article.count.collectionCount}]]
