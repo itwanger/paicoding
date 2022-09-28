@@ -12,7 +12,9 @@
             resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO">
         select rc.document_id as id, a.title as title, a.create_time as createTime
         from read_count as rc left join article as a on rc.document_id = a.id
-        where rc.document_type = 1 order by rc.cnt desc
+        where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code} order by rc.cnt desc
         <include refid="limit"/>
     </select>
 
@@ -20,18 +22,37 @@
             resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO">
         select rc.document_id as id, a.title as title, a.create_time as createTime
         from read_count as rc left join article as a on rc.document_id = a.id
-        where rc.document_type = 1 and a.user_id = #{userId} order by rc.cnt desc
+        where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code} and a.user_id = #{userId} order
+        by rc.cnt desc
         <include refid="limit"/>
     </select>
 
+    <select id="listArticleByCategoryAndTags"
+            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
+        select a.*
+        from read_count as rc
+        left join article as a on rc.document_id = a.id
+        left join article_tag as t on rc.document_id = t.article_id
+        where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+        and a.category_id = #{categoryId} and t.tag_id in
+        <foreach collection="tags" item="tagId" open="(" close=")" separator=",">
+            #{tagId}
+        </foreach>
+        order by rc.cnt desc
+        <include refid="limit"/>
+    </select>
 
     <select id="listYearArticleByUserId"
             resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO">
-        select DATE_FORMAT(create_time,"%Y") as year, count(*) as articleCount
+        select DATE_FORMAT(create_time, "%Y") as year, count(*) as articleCount
         from article
         where user_id = #{userId}
-            and status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
-            and deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
+          and status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+          and deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
         group by year
     </select>
 

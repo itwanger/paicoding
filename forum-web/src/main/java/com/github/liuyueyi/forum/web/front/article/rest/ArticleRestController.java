@@ -18,10 +18,7 @@ import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
-import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
-import com.github.liuyueyi.forum.service.article.service.ArticleWriteService;
-import com.github.liuyueyi.forum.service.article.service.CategoryService;
-import com.github.liuyueyi.forum.service.article.service.TagService;
+import com.github.liuyueyi.forum.service.article.service.*;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
@@ -58,6 +55,9 @@ public class ArticleRestController {
     @Autowired
     private TemplateEngineHelper templateEngineHelper;
 
+    @Autowired
+    private ArticleRecommendService articleRecommendService;
+
     /**
      * 根据分类 & 标签查询文章列表
      *
@@ -78,6 +78,25 @@ public class ArticleRestController {
         size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
         Long categoryId = categoryService.queryCategoryId(category);
         PageListVo<ArticleDTO> articles = articleReadService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
+        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", articles);
+        return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
+    }
+
+    /**
+     * 文章的关联推荐
+     *
+     * @param articleId
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping(path = "recommend")
+    public ResVo<NextPageHtmlVo> recommend(@RequestParam(value = "articleId") Long articleId,
+                                           @RequestParam(name = "page") Long page,
+                                           @RequestParam(name = "size", required = false) Long size) {
+        size = Optional.ofNullable(size).orElse(PageParam.DEFAULT_PAGE_SIZE);
+        size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
+        PageListVo<ArticleDTO> articles = articleRecommendService.relatedRecommend(articleId, PageParam.newPageInstance(page, size));
         String html = templateEngineHelper.renderToVo("biz/article/list", "articles", articles);
         return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
     }

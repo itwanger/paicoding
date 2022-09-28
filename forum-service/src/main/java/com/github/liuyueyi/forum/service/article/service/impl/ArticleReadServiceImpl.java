@@ -168,7 +168,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return articleDOS;
     }
 
-    private PageListVo<ArticleDTO> buildArticleListVo(List<ArticleDO> records, long pageSize) {
+    public PageListVo<ArticleDTO> buildArticleListVo(List<ArticleDO> records, long pageSize) {
         List<ArticleDTO> result = records.stream().map(this::fillArticleRelatedInfo).collect(Collectors.toList());
         return PageListVo.newVo(result, pageSize);
     }
