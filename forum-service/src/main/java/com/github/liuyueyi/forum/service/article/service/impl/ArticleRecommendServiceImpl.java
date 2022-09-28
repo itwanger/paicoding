@@ -1,15 +1,21 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.SidebarStyleEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarItemDto;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
+import com.github.liuyueyi.forum.service.article.repository.dao.ArticleTagDao;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleTagDO;
+import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.ArticleRecommendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +29,10 @@ import java.util.stream.Collectors;
 public class ArticleRecommendServiceImpl implements ArticleRecommendService {
     @Autowired
     private ArticleDao articleDao;
+    @Autowired
+    private ArticleTagDao articleTagDao;
+    @Autowired
+    private ArticleReadService articleReadService;
 
     @Override
     public List<SideBarDTO> recommend(ArticleDTO articleDO) {
@@ -63,5 +73,29 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
                 .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
                 .setContent("联系信息:<br/> yihuihuiyi@gmail.com")
                 .setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
+    }
+
+
+    /**
+     * 查询文章关联推荐列表
+     *
+     * @param articleId
+     * @param page
+     * @return
+     */
+    @Override
+    public PageListVo<ArticleDTO> relatedRecommend(Long articleId, PageParam page) {
+        ArticleDO article = articleDao.getById(articleId);
+        if (article == null) {
+            return PageListVo.emptyVo();
+        }
+        List<Long> tagIds = articleTagDao.listArticleTags(articleId).stream()
+                .map(ArticleTagDO::getTagId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tagIds)) {
+            return PageListVo.emptyVo();
+        }
+
+        List<ArticleDO> recommendArticles = articleDao.listRelatedArticles(article.getCategoryId(), tagIds, page);
+        return articleReadService.buildArticleListVo(recommendArticles, page.getPageSize());
     }
 }
