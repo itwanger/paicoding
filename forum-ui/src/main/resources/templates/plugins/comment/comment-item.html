@@ -30,18 +30,7 @@
                 内容
             </div>
             <div>
-                <small
-                        th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
-                        data-toggle="modal"
-                        th:data-reply-top="${comment.commentId}"
-                        th:data-reply-id="${comment.commentId}"
-                        th:data-reply-nickname="${comment.userName}"
-                        th:data-reply-content="${comment.commentContent}"
-                        class="reply-comment"
-                >
-                    <i data-feather="message-circle"></i>
-                    回复
-                </small>
+                <div th:replace="plugins/comment/comment-action :: comment_action(${comment})"></div>
             </div>
         </div>
     </div>
@@ -75,18 +64,7 @@
                 <span th:text="${reply.parentContent}"> 回复的引用 </span>
             </small>
             <div>
-                <small
-                        th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
-                        data-toggle="modal"
-                        th:data-reply-top="${comment.commentId}"
-                        th:data-reply-id="${reply.commentId}"
-                        th:data-reply-nickname="${reply.userName}"
-                        th:data-reply-content="${reply.commentContent}"
-                        class="reply-comment"
-                >
-                    <i data-feather="message-circle"></i>
-                    回复
-                </small>
+                <div th:replace="plugins/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
             </div>
         </div>
     </div>
