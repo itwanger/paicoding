@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<!-- 文章内容 -->
+<!-- 一级评论及其回复 -->
 <div th:fragment="comment_item(comment)" class="comment-list-wrap">
     <div class="comment-item-wrap">
         <a th:href="${'/user/' + comment.userId}" target="_blank">

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<!-- 文章内容 -->
+<!-- 一级评论回复 -->
 <div th:fragment="comment_action(comment)" class="action-box">
     <div th:class="${comment.praised ? 'item dig-item active': 'item dig-item'}"
          th:data-target="${global.isLogin ? '' : '#loginModal'}"
@@ -30,7 +30,7 @@
     </div>
 </div>
 
-
+<!-- 子评论的回复 -->
 <div th:fragment="sub_comment_action(comment, reply)" class="action-box">
     <div
             th:class="${reply.praised ? 'item dig-item active': 'item dig-item'}"
