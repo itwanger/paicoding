@@ -2,13 +2,58 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <!-- 文章内容 -->
 <div
-        th:fragment="comment_list(comments, article)"
+        th:fragment="comment_list(hotComment, comments, article)"
         class="comment-list-wrap"
         id="commentList"
 >
+    <style>
+        .action-box {
+            margin-top: 8px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        .action-box .item,
+        .action-box {
+            display: flex;
+            align-items: center
+        }
+
+        .action-box .item {
+            margin-right: 16px;
+            line-height: 22px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #8a919f
+        }
+
+        .action-box .item svg {
+            fill: #8a919f;
+            margin-right: 4px
+        }
+
+        .action-box .item:hover {
+            color: #1171ee
+        }
+
+        .action-box .item:hover svg {
+            fill: #1171ee
+        }
+
+        .action-box .item.active {
+            color: #1e80ff
+        }
+
+        .action-box .item.active svg {
+            fill: #1e80ff
+        }
+    </style>
+
     <!-- 评论textarea -->
     <div class="ui-message">
-        <svg t="1664244890977" class="icon" viewBox="0 0 1024 1024"  version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+        <svg t="1664244890977" class="icon" viewBox="0 0 1024 1024"  version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
             <path d="M533.333333 640a21.333333 21.333333 0 0 1 21.333334 21.333333v42.666667a21.333333 21.333333 0 0 1-21.333334 21.333333h-42.666666a21.333333 21.333333 0 0 1-21.333334-21.333333v-42.666667a21.333333 21.333333 0 0 1 21.333334-21.333333h42.666666z m-2.986666-341.333333a21.333333 21.333333 0 0 1 21.290666 22.4l-13.013333 256a21.333333 21.333333 0 0 1-21.333333 20.266666h-12.501334a21.333333 21.333333 0 0 1-21.333333-20.266666l-12.970667-256a21.333333 21.333333 0 0 1 20.224-22.357334L530.346667 298.666667z" fill="#575C63" p-id="4046">
             </path>
         </svg>
@@ -50,95 +95,18 @@
                 th:include="plugins/custom-empty :: custom-empty('暂无评论')"
         ></div>
 
-        <!-- 列表 -->
-        <div th:each="comment : ${comments}" class="comment-list-wrap">
-            <div class="comment-item-wrap">
-                <a th:href="${'/user/' + comment.userId}" target="_blank">
-                    <img
-                            th:alt="${comment.userName}"
-                            th:src="${comment.userPhoto}"
-                            class="comment-item-img"
-                    />
-                </a>
-                <div class="common-item-content">
-                    <div class="common-item-content-head">
-              <span
-                      th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
-              >
-                作者
-              </span>
-                        <span
-                                th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(comment.commentTime)}"
-                        >
-                时间
-              </span>
-                    </div>
-                    <div
-                            class="common-item-content-value"
-                            th:text="${comment.commentContent}"
-                    >
-                        内容
-                    </div>
-                    <div>
-                        <small
-                                th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
-                                data-toggle="modal"
-                                th:data-reply-top="${comment.commentId}"
-                                th:data-reply-id="${comment.commentId}"
-                                th:data-reply-nickname="${comment.userName}"
-                                th:data-reply-content="${comment.commentContent}"
-                                class="reply-comment"
-                        >
-                            <i data-feather="message-circle"></i>
-                            回复
-                        </small>
-                    </div>
-                </div>
-            </div>
+        <!-- 热门评论  -->
+        <div th:if="${hotComment != null}" class="comment-list-wrap">
+            <h2>热门评论</h2>
+            <div th:replace="plugins/comment/comment-item :: comment_item(${hotComment})"></div>
+            <hr/>
+        </div>
 
-            <!-- 二级评论 -->
-            <div th:if="${!#lists.isEmpty(comment.childComments)}"
-                 th:each="reply : ${comment.childComments}"
-                 class="comment-item-wrap-second">
-                <a th:href="${'/user/' + comment.userId}" target="_blank">
-                    <img
-                            th:alt="${comment.userName}"
-                            th:src="${comment.userPhoto}"
-                            class="comment-item-img"
-                    />
-                </a>
-                <div class="common-item-content">
-                    <div class="common-item-content-head">
-                          <span>
-                            <a th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
-                               th:href="${'/user/' + reply.userId}" target="_blank"></a>
-                          </span>
-                        <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(reply.commentTime)}">
-                        回复时间
-                      </span>
-                    </div>
-                    <div class="common-item-content-value" th:text="${reply.commentContent}">
-                        回复内容
-                    </div>
-                    <small th:if="${!#strings.isEmpty(reply.parentContent)}"
-                           style=" display: flex;    background: #f2f3f5;    border: 1px solid #e4e6eb;    box-sizing: border-box;    border-radius: 4px;    padding: 0 12px;    line-height: 36px;    height: 36px;    font-size: 14px;    color: #8a919f;    margin-top: 8px;">
-                        <span th:text="${reply.parentContent}"> 回复的引用 </span>
-                    </small>
-                    <div>
-                        <small
-                                th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
-                                data-toggle="modal"
-                                th:data-reply-top="${comment.commentId}"
-                                th:data-reply-id="${reply.commentId}"
-                                th:data-reply-nickname="${reply.userName}"
-                                th:data-reply-content="${reply.commentContent}"
-                                class="reply-comment"
-                        >
-                            <i data-feather="message-circle"></i>
-                            回复
-                        </small>
-                    </div>
-                </div>
+        <!-- 全部评论列表 -->
+        <div th:if="${!#lists.isEmpty(comments)}">
+            <h2>全部评论</h2>
+            <div th:each="comment : ${comments}" class="comment-list-wrap">
+                <div th:replace="plugins/comment/comment-item :: comment_item(${comment})"></div>
             </div>
         </div>
     </div>

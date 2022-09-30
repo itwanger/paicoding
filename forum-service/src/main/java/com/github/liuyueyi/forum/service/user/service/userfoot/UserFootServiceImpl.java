@@ -141,4 +141,9 @@ public class UserFootServiceImpl implements UserFootService {
     public List<SimpleUserInfoDTO> queryArticlePraisedUsers(Long articleId) {
         return userFootDao.listDocumentPraisedUsers(articleId, DocumentTypeEnum.ARTICLE.getCode(), 10);
     }
+
+    @Override
+    public UserFootDO queryUserFoot(Long documentId, Integer type, Long userId) {
+        return userFootDao.getByDocumentAndUserId(documentId, type, userId);
+    }
 }

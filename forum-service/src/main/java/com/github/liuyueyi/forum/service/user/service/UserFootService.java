@@ -74,4 +74,15 @@ public interface UserFootService {
      * @return
      */
     List<SimpleUserInfoDTO> queryArticlePraisedUsers(Long articleId);
+
+
+    /**
+     * 查询用户记录，用于判断是否点过赞、是否评论、是否收藏过
+     *
+     * @param documentId
+     * @param type
+     * @param userId
+     * @return
+     */
+    UserFootDO queryUserFoot(Long documentId, Integer type, Long userId);
 }
