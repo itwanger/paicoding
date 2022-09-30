@@ -25,6 +25,11 @@ public class ArticleDetailVo {
     private List<TopCommentDTO> comments;
 
     /**
+     * 热门评论
+     */
+    private TopCommentDTO hotComment;
+
+    /**
      * 作者相关信息
      */
     private UserStatisticInfoDTO author;

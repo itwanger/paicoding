@@ -116,13 +116,17 @@ public class ArticleViewController extends BaseViewController {
         List<TopCommentDTO> comments = commentService.getArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
         vo.setComments(comments);
 
+        // 热门评论
+        TopCommentDTO hotComment = commentService.queryHotComment(articleId);
+        vo.setHotComment(hotComment);
+
         // 作者信息
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());
         articleDTO.setAuthorName(user.getUserName());
         articleDTO.setAuthorAvatar(user.getPhoto());
         vo.setAuthor(user);
 
-        // 获取作者的其他热门文章推荐
+        // 详情页的侧边推荐信息
         List<SideBarDTO> sideBars = articleRecommendService.recommend(articleDTO);
         vo.setSideBarItems(sideBars);
         model.addAttribute("vo", vo);

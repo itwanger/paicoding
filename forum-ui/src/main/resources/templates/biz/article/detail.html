@@ -185,7 +185,7 @@
 
             <!--  评论  -->
             <div
-                    th:replace="plugins/comment-list :: comment_list(${vo.comments}, ${vo.article})"
+                    th:replace="plugins/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"
             ></div>
             <hr/>
             <div>

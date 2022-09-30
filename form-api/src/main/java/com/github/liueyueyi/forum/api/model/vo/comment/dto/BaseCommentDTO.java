@@ -47,6 +47,11 @@ public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
      */
     private Integer praiseCount;
 
+    /**
+     * true 表示已经点赞
+     */
+    private Boolean praised;
+
     @Override
     public int compareTo(@NotNull BaseCommentDTO o) {
         return Long.compare(o.getCommentTime(), this.commentTime);
