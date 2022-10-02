@@ -248,6 +248,18 @@ CREATE TABLE `banner`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='banner表';
 
+CREATE TABLE `request_count`
+(
+    `id`            int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `host`          varchar(32)  NOT NULL COMMENT '机器IP',
+    `cnt`           int unsigned NOT NULL COMMENT '访问计数',
+    `date`          date NOT NULL COMMENT '当前日期',
+    `create_time`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_unique_id_date` (`date`,`host`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='请求计数表';
+
 -- 变更记录
 # alter table user_relation
 #     add `follow_state` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注';
