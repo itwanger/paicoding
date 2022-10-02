@@ -13,6 +13,13 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 public interface ArticleSettingService {
 
     /**
+     * 获取文章总数
+     *
+     * @return
+     */
+    public Integer getArticleCount();
+
+    /**
      * 获取文章列表
      *
      * @param pageParam
