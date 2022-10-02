@@ -35,4 +35,10 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectOne(query);
     }
+
+    public Integer getUserCount() {
+        return lambdaQuery()
+                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .count().intValue();
+    }
 }

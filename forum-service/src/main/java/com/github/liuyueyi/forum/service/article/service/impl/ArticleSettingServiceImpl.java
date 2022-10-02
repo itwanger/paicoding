@@ -27,6 +27,11 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     private ArticleDao articleDao;
 
     @Override
+    public Integer getArticleCount() {
+        return articleDao.countArticle();
+    }
+
+    @Override
     public PageVo<ArticleDTO> getArticleList(PageParam pageParam) {
         List<ArticleDO> articleDOS = articleDao.listArticles(pageParam);
         Integer totalCount = articleDao.countArticle();
