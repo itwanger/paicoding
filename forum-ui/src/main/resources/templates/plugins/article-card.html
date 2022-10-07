@@ -1,91 +1,88 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 文章卡片 -->
-  <div
-    class="list-group-item list-group-item-action article-list-wrap"
-    th:fragment="article_card(article)"
-  >
-    <!-- 文章 -->
-    <div class="article-wrap">
-      <div class="article-title">
-        <div class="article-title-wrap">
-          <a th:href="${'/user/' + article.author}">
+  <div class="article-list-wrap" th:fragment="article_card(article)">
+    <div class="user-article-item">
+      <div class="user-article-item-content">
+        <div class="user-article-item-title" th:text="${article.title}">
+          标题
+        </div>
+        <div class="user-article-item-value-wrap">
+          <div class="user-article-item-value">
+            <a th:href="${'/article/detail/' + article.articleId}">
+              <div
+                class="user-article-item-value-text"
+                th:text="${article.summary}"
+              >
+                文章内容
+              </div>
+            </a>
+            <div class="user-article-item-tag-wrap">
+              <a
+                th:href="'/tag/' + ${tag.tag}"
+                th:text="${tag.tag}"
+                rel="article-tag"
+                th:each="tag : ${article.tags}"
+                class="user-article-item-tag"
+              >
+                标签列表
+              </a>
+            </div>
+          </div>
+          <div class="user-article-img">
             <img
               src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
-              th:src="${article.authorAvatar}"
               alt=""
-              class="article-title-img"
+              class="user-article-item-img"
             />
-            <div class="article-title-other">
-              <span class="article-title-other-name" th:text="${article.authorName}">一灰</span>
-              <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.createTime)}">7小时前</span>
-            </div>
-          </a>
-        </div>
-
-        <div class="d-flex align-content-start">
-          <!-- <small th:if="true" class="posts-admin-tag posts-admin-tag-official">
-            官
-          </small>
-          <small th:if="true" class="posts-admin-tag posts-admin-tag-top">
-            顶
-          </small>
-          <small th:if="true" class="posts-admin-tag posts-admin-tag-marrow">
-            精
-          </small> -->
-          <a
-            th:text="${article.title}"
-            th:href="${'/article/detail/' + article.articleId}"
-            class="article-item-title"
-          >
-            第一个文章
-          </a>
-        </div>
-        <a
-          th:text="${article.summary}"
-          th:href="${'/article/detail/' + article.articleId}"
-          class="article-item-content"
-        >
-          文章简介
-        </a>
-        <div class="article-item-tags">
-          <a
-            th:href="'/tag/' + ${tag.tag}"
-            th:text="${tag.tag}"
-            rel="article-tag"
-            th:each="tag : ${article.tags}"
-            class="article-tag-name"
-          >
-            Java
-          </a>
-        </div>
-        <div class="article-other-wrap">
-          <small
-            class="text-muted"
-            th:text="'阅读: ' + ${article.count.readCount}"
-          >
-            阅读: 10
-          </small>
-          <small
-            class="text-muted"
-            th:text="'点赞: ' + ${article.count.praiseCount}"
-          >
-            点赞: 10
-          </small>
-          <small
-            class="text-muted"
-            th:text="'评论: ' + ${article.count.commentCount}"
-          >
-            评论: 10
-          </small>
+          </div>
         </div>
       </div>
-      <div class="article-img-wrap" th:if="${!#strings.isEmpty(article.cover)}">
-        <img
-          src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
-          class="article-img"
-          th:src="${article.cover}"
-        />
+      <div class="user-article-item-footer">
+        <div class="user-article-item-footer-left">
+          <div class="article-title-wrap">
+            <!-- <a th:href="${'/user/' + article.author}"> -->
+            <img
+              alt=""
+              th:src="${article.authorAvatar}"
+              class="article-title-img"
+            />
+            <!-- </a> -->
+            <div class="article-title-other">
+              <span
+                class="article-title-other-name"
+                th:text="${article.authorName}"
+              >
+                作者
+                <span class="attention-btn">+关注</span>
+              </span>
+              <span
+                th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(article.createTime)}"
+              >
+                发布时间
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-article-item-footer-right">
+          <div class="article-show-title">
+            <div class="article-show-wrap">
+              <span style="margin-right: 8px">图标</span>
+              <span>12</span>
+            </div>
+            <div class="article-show-wrap-cell"></div>
+            <div class="article-show-wrap">
+              <span style="margin-right: 8px">图标</span>
+              <span>12</span>
+            </div>
+            <div class="article-show-wrap-cell"></div>
+            <div class="article-show-wrap">
+              <span style="margin-right: 8px">图标</span>
+              <span>12</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
