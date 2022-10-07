@@ -316,7 +316,7 @@
                 >
                   正文
                 </div> -->
-                <div class="user-article-item">
+                <!-- <div class="user-article-item">
                   <div class="user-article-item-content">
                     <div class="user-article-item-title">标题</div>
                     <div class="user-article-item-value-wrap">
@@ -364,7 +364,21 @@
                     <div class="user-article-item-footer-right">
                       <div class="article-show-title">
                         <div class="article-show-wrap">
-                          <span style="margin-right: 8px">图标</span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class=""
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M8.89171 0.830916L9.01333 0.887911C9.82397 1.27873 11.0012 2.06767 11.0012 3.33425C11.0012 3.83643 10.7783 4.50245 10.3324 5.33231H12.8585C14.8478 5.33231 15.3046 7.08822 14.8478 8.40394L12.8585 13.6407C12.6904 14.2498 12.1306 14.6723 11.4918 14.6723H3.32843V5.33231H4.69307L7.65978 1.11199C7.84711 0.81396 8.35277 0.585483 8.89171 0.830916ZM2.33333 5.33333V14.6667H1V5.33333H2.33333ZM8.55916 2.15108L5.3856 6.66564H4.66176V13.339H11.4918C11.5331 13.339 11.5653 13.3147 11.5732 13.286L11.5899 13.2257L13.5938 7.95035C13.8572 7.17426 13.5944 6.66564 12.8585 6.66564H8.1023L9.15784 4.70121C9.50885 4.04796 9.66788 3.57289 9.66788 3.33425C9.66788 2.94739 9.25339 2.50982 8.55916 2.15108Z"
+                              fill="#86909C"
+                            ></path>
+                          </svg>
                           <span>12</span>
                         </div>
                         <div class="article-show-wrap-cell"></div>
@@ -380,6 +394,11 @@
                       </div>
                     </div>
                   </div>
+                </div> -->
+                <div
+                  th:replace="plugins/article-card :: article_card(${article})"
+                >
+                  正文
                 </div>
               </div>
             </a>
