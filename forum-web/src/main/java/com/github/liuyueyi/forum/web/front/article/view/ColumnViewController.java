@@ -10,9 +10,12 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.ColumnService;
 import com.github.liuyueyi.forum.service.comment.service.CommentReadService;
+import com.github.liuyueyi.forum.service.sidebar.service.SidebarService;
+import com.github.liuyueyi.forum.web.front.article.vo.ColumnVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,9 +40,16 @@ public class ColumnViewController {
     @Autowired
     private CommentReadService commentReadService;
 
+    @Autowired
+    private SidebarService sidebarService;
+
     @GetMapping(path = {"list", "/", ""})
     public String list(Model model) {
-        PageListVo<ColumnDTO> vo = columnService.listColumn(PageParam.newPageInstance());
+        PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance());
+        List<SideBarDTO> sidebars = sidebarService.queryHomeSidebarList();
+        ColumnVo vo = new ColumnVo();
+        vo.setColumns(columns);
+        vo.setSideBarItems(sidebars);
         model.addAttribute("vo", vo);
         return "biz/column/index";
     }

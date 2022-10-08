@@ -57,4 +57,16 @@
 
     </select>
 
+    <select id="listSimpleUserInfosByArticleId"
+            resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO">
+        SELECT ui.user_id as userId,
+               ui.user_name as name,
+               ui.photo as avatar
+        FROM user_foot uf
+                 left join user_info ui on uf.document_user_id = ui.user_id
+        WHERE uf.document_type = #{type}
+          AND uf.document_id = #{documentId}
+          AND uf.praise_stat = 1
+        order by uf.update_time desc limit #{size}
+    </select>
 </mapper>

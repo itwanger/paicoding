@@ -44,12 +44,12 @@ public class ColumnRestController {
         size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
         PageListVo<ColumnDTO> list = columnService.listColumn(PageParam.newPageInstance(page, size));
 
-        String html = templateEngineHelper.render("biz/column/list", list);
+        String html = templateEngineHelper.renderToVo("biz/column/list", "columns", list);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
     }
 
     /**
-     * 详情页的菜单栏
+     * 详情页的菜单栏(即专栏的文章列表)
      *
      * @param columnId
      * @return

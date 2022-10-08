@@ -1,9 +1,9 @@
 package com.github.liuyueyi.forum.service.user.service;
 
-
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 
@@ -66,4 +66,23 @@ public interface UserFootService {
      * @return
      */
     List<Long> queryUserCollectionArticleList(Long userId, PageParam pageParam);
+
+    /**
+     * 查询文章的点赞用户信息
+     *
+     * @param articleId
+     * @return
+     */
+    List<SimpleUserInfoDTO> queryArticlePraisedUsers(Long articleId);
+
+
+    /**
+     * 查询用户记录，用于判断是否点过赞、是否评论、是否收藏过
+     *
+     * @param documentId
+     * @param type
+     * @param userId
+     * @return
+     */
+    UserFootDO queryUserFoot(Long documentId, Integer type, Long userId);
 }

@@ -19,6 +19,7 @@ import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
+import com.github.liuyueyi.forum.service.user.service.help.UserRandomGenHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,11 +73,11 @@ public class UserServiceImpl implements UserService {
         userDao.saveUser(record);
         req.setUserId(record.getId());
 
-        // 初始化用户信息
+        // 初始化用户信息，随机生成用户昵称 + 头像
         UserInfoDO userInfo = new UserInfoDO();
         userInfo.setUserId(req.getUserId());
-        userInfo.setUserName(String.format("小侠%06d", (int) (Math.random() * 1000000)));
-        userInfo.setPhoto("");
+        userInfo.setUserName(UserRandomGenHelper.genNickName());
+        userInfo.setPhoto(UserRandomGenHelper.genAvatar());
         userDao.save(userInfo);
     }
 
@@ -135,7 +136,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 加入天数
-        Integer joinDayCount = (int) ((new Date()).getTime() - userHomeDTO.getCreateTime().getTime()) / (1000*3600*24);
+        Integer joinDayCount = (int) ((new Date()).getTime() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24);
         userHomeDTO.setJoinDayCount(joinDayCount);
 
         // 创作历程

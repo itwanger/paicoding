@@ -14,6 +14,12 @@ import java.util.List;
  */
 public interface CommentReadService {
 
+    /**
+     * 根据评论id查询评论信息
+     *
+     * @param commentId
+     * @return
+     */
     CommentDO queryComment(Long commentId);
 
     /**
@@ -24,6 +30,14 @@ public interface CommentReadService {
      * @return
      */
     List<TopCommentDTO> getArticleComments(Long articleId, PageParam page);
+
+    /**
+     * 查询热门评论
+     *
+     * @param articleId
+     * @return
+     */
+    TopCommentDTO queryHotComment(Long articleId);
 
     /**
      * 文章的有效评论数

@@ -45,6 +45,31 @@ const loadLink = function (url) {
 
 
 /**
+ * 请求获取下一页内容
+ * @param url
+ * @param params
+ * @param listId
+ * @param btnId
+ * @param callback
+ */
+const doGetNextPage = function (url, params, listId, btnId, callback) {
+    $.get(url, params, function (data) {
+        console.log("response: ", data);
+        const result = data.result;
+        $(`#${listId}`).append(result.html);
+        if (!result.hasMore) {
+            $(`#${btnId}`).hide();
+        } else {
+            $(`#${btnId}`).show();
+        }
+
+        if (callback) {
+            callback("true");
+        }
+    });
+}
+
+/**
  * 翻页
  * @param url 请求下一页的url
  * @param params 传参
@@ -54,17 +79,6 @@ const loadLink = function (url) {
  */
 const nextPage = function (url, params, listId, btnId, callback) {
     $(`#${btnId}`).click(function () {
-        $.get(url, params, function (data) {
-            console.log("response: ", data);
-            const result = data.result;
-            $(`#${listId}`).append(result.html);
-            if (!result.hasMore) {
-                $(`#${btnId}`).hide();
-            }
-
-            if (callback) {
-                callback("true");
-            }
-        });
+        doGetNextPage(url, params, listId, btnId, callback)
     });
 }

@@ -71,5 +71,10 @@ public class ArticleDO extends BaseDO {
      */
     private Integer status;
 
+    /**
+     * 标记位（二进制）
+     */
+    private Integer flagBit;
+
     private Integer deleted;
 }

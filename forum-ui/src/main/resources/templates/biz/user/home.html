@@ -3,226 +3,544 @@
   <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
   </div>
+  <style>
+    /* tag选择样式 */
+    .tag-select-active {
+      color: #3973ff !important;
+      border-bottom: 4px solid #3973ff;
+    }
+    .tag-select {
+      color: #000000;
+      font-weight: 500;
+      margin: 0 0 0 32px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 0;
+      font-size: 20px;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+    }
+    .tag-select:first-child {
+      margin-left: 0;
+    }
+    .user-select-tag-wrap {
+      border-bottom: 1px solid rgb(240 240 240);
+      margin-bottom: 16px;
+    }
 
+    /* 整体布局 */
+    .user {
+      overflow: auto;
+      padding-top: 140px;
+      height: calc(100vh - 60px);
+    }
+    .user-wrap {
+      margin: 0 auto;
+      width: 80%;
+      display: flex;
+      margin-bottom: 20px;
+      min-height: calc(100% - 90px);
+    }
+
+    .user-body {
+      flex: 1;
+      border-radius: 8px;
+      padding: 32px 32px 40px;
+      background-color: #fff;
+      z-index: 10;
+    }
+    .user-left {
+      z-index: 10;
+      width: 30%;
+      margin-right: 20px;
+      border-radius: 8px;
+    }
+
+    /* 文章 */
+    .user-article-item {
+      display: block;
+      box-shadow: inset 0 -1px 0 0 #f0f0f0;
+      padding: 16px 0;
+      cursor: pointer;
+    }
+    .user-article-item-content {
+      padding-bottom: 20px;
+    }
+    .user-article-item-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 26px;
+      color: rgba(0, 0, 0, 0.85);
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      -webkit-line-clamp: 1;
+    }
+    .user-article-item-value-wrap {
+      display: flex;
+      justify-content: space-between;
+    }
+    .user-article-item-value-text {
+      font-size: 16px;
+      line-height: 160%;
+      color: #333;
+      word-break: break-all;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      -webkit-line-clamp: 3;
+    }
+    .user-article-item-tag-wrap {
+      margin-top: 20px;
+      display: flex;
+    }
+    .user-article-item-tag {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 400;
+      margin-left: 8px;
+    }
+    .user-article-item-tag:first-child {
+      margin-left: 0;
+    }
+    .user-article-item-img {
+      object-fit: cover;
+      width: 258px;
+      height: 145px;
+      border-radius: 6px;
+      margin-left: 24px;
+    }
+    .user-article-item-footer {
+      display: flex;
+      justify-content: space-between;
+    }
+    .user-article-item-footer-right {
+      display: flex;
+      align-items: center;
+    }
+    .article-show-title {
+      display: flex;
+      flex: 1 1;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+    }
+    .article-show-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      color: #999;
+      cursor: pointer;
+      position: relative;
+    }
+    .article-show-wrap-cell {
+      width: 1px;
+      height: 16px;
+      background-color: rgba(0, 0, 0, 0.06);
+      margin: 0 16px;
+    }
+    .attention-btn {
+      border-radius: 78px;
+      padding: 2px 16px;
+      color: #3973ff;
+      border: 1px solid #3973ff;
+      font-weight: 400;
+      font-size: 10px;
+      line-height: 12px;
+      margin-left: 8px;
+    }
+    .attention-btn:hover {
+      color: #40a9ff;
+      border-color: #40a9ff;
+    }
+
+    /* 关注 */
+    .follow-select-tag {
+      padding: 0 24px;
+      color: #333;
+      border-right: 1px solid #e6e6e6;
+      margin: 0;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 500;
+    }
+
+    .follow-select-tag:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+
+    .follow-select-tag:hover,
+    .follow-select-tag-active {
+      color: #3973ff !important;
+    }
+    .follow-item {
+      display: flex;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 8px 0;
+      height: fit-content;
+      font-size: 18px;
+    }
+
+    .follow-item img {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      margin-right: 15px;
+      font-size: 18px;
+    }
+    .follow-item-icon {
+      width: 68px;
+      height: 24px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3973ff;
+      border: 1px solid #3973ff;
+      font-size: 12px;
+    }
+  </style>
   <body id="body">
     <!-- 导航栏 -->
     <div th:replace="layout/navbar :: navbar"></div>
 
-    <div
-      th:replace="layout/container :: container_left_sidebar(~{::left}, ~{::right})"
-    >
-      <left>
-        <div class="card user-wrap">
-          <div class="user-head-wrap">
-            <img th:src="${vo.userHome.photo}" alt="" class="user-head-img" />
-          </div>
-          <span class="user-head-name" th:text="${vo.userHome.userName}"></span>
-          <div class="user-num-wrap">
-            <div class="user-head-num-wrap">
-              <span class="user-head-num" th:text="${vo.userHome.fansCount}">
-                2
-              </span>
-              <span style="color: rgb(153, 153, 153)">关注数</span>
+    <!-- 正文内容 -->
+    <div class="user">
+      <img
+        src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview
+/dist/static/perBack.7b03b339.png"
+        _nk="dIYE21"
+        style="width: 100%; position: absolute; top: -60px"
+      />
+      <div class="user-wrap">
+        <!-- 左侧内容 -->
+        <div class="user-left">
+          <div class="user-left-wrap">
+            <div class="user-head-wrap">
+              <img th:src="${vo.userHome.photo}" alt="" class="user-head-img" />
             </div>
-            <div class="user-head-num-wrap">
-              <span class="user-head-num" th:text="${vo.userHome.followCount}">
-                2
-              </span>
-              <span style="color: rgb(153, 153, 153)">粉丝数</span>
-            </div>
-          </div>
-          <!-- <div class="card-body">
-                <ul class="navbar-nav my-md-0" th:if="${global.isLogin && (vo.userHome.userId == global.user.userId)}">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#saveModel">编辑个人资料</a>
-                    </li>
-                </ul>
-
-                <span id="userId" style="visibility: hidden"
-                      th:text="${vo.userHome != null ? vo.userHome.userId: ''}">
-                    </span>
-            </div> -->
-        </div>
-
-        <div
-          th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"
-        ></div>
-        <div
-          th:replace="biz/user/process :: user_process(${vo.userHome})"
-        ></div>
-      </left>
-
-      <right>
-        <div class="card">
-          <div class="card-body">
-            <p class="card-text" th:text="${vo.userHome.profile}">个人简介</p>
-          </div>
-        </div>
-
-        <div
-          class="modal fade"
-          id="saveModel"
-          data-backdrop="static"
-          data-keyboard="false"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="loginModalDropLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">编辑个人信息</h5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
+            <span
+              class="user-head-name"
+              th:text="${vo.userHome.userName}"
+            ></span>
+            <div class="user-num-wrap">
+              <div class="user-head-num-wrap">
+                <span class="user-head-num" th:text="${vo.userHome.fansCount}">
+                  2
+                </span>
+                <span style="color: rgb(153, 153, 153)">关注数</span>
+              </div>
+              <div class="user-head-num-wrap">
+                <span
+                  class="user-head-num"
+                  th:text="${vo.userHome.followCount}"
                 >
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div class="input-group">
-                  <span class="form-label" style="padding-right: 1em">
-                    用户名
-                  </span>
-                  <input
-                    id="userName"
-                    type="text"
-                    class="form-control"
-                    th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
-                    placeholder="请输入用户名"
-                  />
-                </div>
-                <div class="input-group">
-                  <span class="form-label" style="padding-right: 1em">
-                    用户图像
-                  </span>
-                  <input
-                    id="photo"
-                    type="text"
-                    class="form-control"
-                    th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
-                    placeholder="请输入用户图像"
-                  />
-                </div>
-                <div class="input-group">
-                  <span class="form-label" style="padding-right: 1em">
-                    公司
-                  </span>
-                  <input
-                    id="company"
-                    type="text"
-                    class="form-control"
-                    th:value="${vo.userHome != null ? vo.userHome.company: ''}"
-                    placeholder="请输入公司"
-                  />
-                </div>
-                <div class="input-group">
-                  <span class="form-label" style="padding-right: 1em">
-                    职位
-                  </span>
-                  <input
-                    id="position"
-                    type="text"
-                    class="form-control"
-                    th:value="${vo.userHome != null ? vo.userHome.position: ''}"
-                    placeholder="请输入职位"
-                  />
-                </div>
-                <div class="input-group">
-                  <span class="form-label" style="padding-right: 1em">
-                    个人简介
-                  </span>
-                  <input
-                    id="profile"
-                    type="text"
-                    class="form-control"
-                    th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
-                    placeholder="请输入个人简介"
-                  />
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button id="publish" type="button" class="btn btn-primary">
-                  保存
-                </button>
+                  2
+                </span>
+                <span style="color: rgb(153, 153, 153)">粉丝数</span>
               </div>
             </div>
           </div>
+          <div
+            th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"
+          ></div>
+          <div
+            th:replace="biz/user/process :: user_process(${vo.userHome})"
+          ></div>
+          <!-- <div class="card-body">
+            <ul
+              class="navbar-nav my-md-0"
+              th:if="${global.isLogin && (vo.userHome.userId == global.user.userId)}"
+            >
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  href="#"
+                  data-toggle="modal"
+                  data-target="#saveModel"
+                >
+                  编辑个人资料
+                </a>
+              </li>
+            </ul>
+
+            <span
+              id="userId"
+              style="visibility: hidden"
+              th:text="${vo.userHome != null ? vo.userHome.userId: ''}"
+            ></span>
+          </div> -->
         </div>
 
-        <div
-          class="card"
-          style="
-            margin-bottom: 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-          "
-        >
+        <!-- 主要内容 -->
+        <div class="user-body">
+          <!-- <div class="card">
+            <div class="card-body">
+              <p class="card-text" th:text="${vo.userHome.profile}">个人简介</p>
+            </div>
+          </div> -->
+
           <!-- 选择标签列表 -->
           <div
             th:replace="plugins/home-select-tag :: select_tag(${vo.homeSelectTags}, ${vo.userHome.userId})"
           ></div>
 
           <!-- 文章列表 -->
-          <content>
-            <div
-              class="container-bg-light"
-              style="min-height: 700px; margin-bottom: 20px"
+          <div class="user-article-wrap">
+            <!-- 文章列表 待传旨 -->
+            <a
+              th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}"
             >
-              <a
-                th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}"
-              >
-                <div th:each="article : ${vo.homeSelectList.list}">
+              <div th:each="article : ${vo.homeSelectList.list}">
+                <!-- <div
+                  th:replace="plugins/user-article-card :: article_card(${article})"
+                >
+                  正文
+                </div> -->
+                <!-- <div class="user-article-item">
+                  <div class="user-article-item-content">
+                    <div class="user-article-item-title">标题</div>
+                    <div class="user-article-item-value-wrap">
+                      <div class="user-article-item-value">
+                        <div class="user-article-item-value-text">
+                          文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容
+                          文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容
+                          文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容
+                          文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容
+                          文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容
+                          文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容文章内容
+                        </div>
+                        <div class="user-article-item-tag-wrap">
+                          <a href="" class="user-article-item-tag">Java</a>
+                          <a href="" class="user-article-item-tag">2</a>
+                          <a href="" class="user-article-item-tag">3</a>
+                        </div>
+                      </div>
+                      <div class="user-article-img">
+                        <img
+                          src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                          alt=""
+                          class="user-article-item-img"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="user-article-item-footer">
+                    <div class="user-article-item-footer-left">
+                      <div class="article-title-wrap">
+                        <img
+                          src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                          alt=""
+                          class="article-title-img"
+                        />
+                        <div class="article-title-other">
+                          <span class="article-title-other-name">
+                            一灰
+                            <span class="attention-btn">+关注</span>
+                          </span>
+                          <span>7小时前</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="user-article-item-footer-right">
+                      <div class="article-show-title">
+                        <div class="article-show-wrap">
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class=""
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M8.89171 0.830916L9.01333 0.887911C9.82397 1.27873 11.0012 2.06767 11.0012 3.33425C11.0012 3.83643 10.7783 4.50245 10.3324 5.33231H12.8585C14.8478 5.33231 15.3046 7.08822 14.8478 8.40394L12.8585 13.6407C12.6904 14.2498 12.1306 14.6723 11.4918 14.6723H3.32843V5.33231H4.69307L7.65978 1.11199C7.84711 0.81396 8.35277 0.585483 8.89171 0.830916ZM2.33333 5.33333V14.6667H1V5.33333H2.33333ZM8.55916 2.15108L5.3856 6.66564H4.66176V13.339H11.4918C11.5331 13.339 11.5653 13.3147 11.5732 13.286L11.5899 13.2257L13.5938 7.95035C13.8572 7.17426 13.5944 6.66564 12.8585 6.66564H8.1023L9.15784 4.70121C9.50885 4.04796 9.66788 3.57289 9.66788 3.33425C9.66788 2.94739 9.25339 2.50982 8.55916 2.15108Z"
+                              fill="#86909C"
+                            ></path>
+                          </svg>
+                          <span>12</span>
+                        </div>
+                        <div class="article-show-wrap-cell"></div>
+                        <div class="article-show-wrap">
+                          <span style="margin-right: 8px">图标</span>
+                          <span>12</span>
+                        </div>
+                        <div class="article-show-wrap-cell"></div>
+                        <div class="article-show-wrap">
+                          <span style="margin-right: 8px">图标</span>
+                          <span>12</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+                <div
+                  th:replace="plugins/article-card :: article_card(${article})"
+                >
+                  正文
+                </div>
+              </div>
+            </a>
+
+            <a th:if="${vo.homeSelectType == 'follow'}">
+              <div
+                th:replace="plugins/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"
+              ></div>
+              <div class="follow-list">
+                <a href="" class="follow-item">
+                  <div>
+                    <img
+                      src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                      alt=""
+                    />
+                    <span>潘超恒</span>
+                  </div>
+                  <span class="follow-item-icon">关注</span>
+                </a>
+              </div>
+
+              <!-- <a th:if="${vo.followSelectType == 'follow'}">
+                <div th:each="follow : ${vo.followList.userFollowList}">
                   <div
-                    th:replace="plugins/user-article-card :: article_card(${article})"
+                    th:replace="plugins/user-follow-card :: follow_card(${follow})"
                   >
                     正文
                   </div>
                 </div>
               </a>
 
-              <a th:if="${vo.homeSelectType == 'follow'}">
-                <!-- 选择标签列表 -->
-                <div
-                  th:replace="plugins/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"
-                ></div>
-
-                <a th:if="${vo.followSelectType == 'follow'}">
-                  <div th:each="follow : ${vo.followList.userFollowList}">
-                    <div
-                      th:replace="plugins/user-follow-card :: follow_card(${follow})"
-                    >
-                      正文
-                    </div>
+              <a th:if="${vo.followSelectType == 'fans'}">
+                <div th:each="follow : ${vo.fansList.userFollowList}">
+                  <div
+                    th:replace="plugins/user-follow-card :: follow_card(${follow})"
+                  >
+                    正文
                   </div>
-                </a>
-
-                <a th:if="${vo.followSelectType == 'fans'}">
-                  <div th:each="follow : ${vo.fansList.userFollowList}">
-                    <div
-                      th:replace="plugins/user-follow-card :: follow_card(${follow})"
-                    >
-                      正文
-                    </div>
-                  </div>
-                </a>
-              </a>
-            </div>
-          </content>
+                </div>
+              </a> -->
+            </a>
+          </div>
         </div>
-      </right>
-      >
-    </div>
+      </div>
+      <div th:replace="layout/footer :: footer"></div>
 
-    <div th:replace="layout/footer :: footer"></div>
+      <!-- 登录弹窗 -->
+      <div
+        class="modal fade"
+        id="saveModel"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="loginModalDropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">编辑个人信息</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="input-group">
+                <span class="form-label" style="padding-right: 1em">
+                  用户名
+                </span>
+                <input
+                  id="userName"
+                  type="text"
+                  class="form-control"
+                  th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
+                  placeholder="请输入用户名"
+                />
+              </div>
+              <div class="input-group">
+                <span class="form-label" style="padding-right: 1em">
+                  用户图像
+                </span>
+                <input
+                  id="photo"
+                  type="text"
+                  class="form-control"
+                  th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
+                  placeholder="请输入用户图像"
+                />
+              </div>
+              <div class="input-group">
+                <span class="form-label" style="padding-right: 1em">公司</span>
+                <input
+                  id="company"
+                  type="text"
+                  class="form-control"
+                  th:value="${vo.userHome != null ? vo.userHome.company: ''}"
+                  placeholder="请输入公司"
+                />
+              </div>
+              <div class="input-group">
+                <span class="form-label" style="padding-right: 1em">职位</span>
+                <input
+                  id="position"
+                  type="text"
+                  class="form-control"
+                  th:value="${vo.userHome != null ? vo.userHome.position: ''}"
+                  placeholder="请输入职位"
+                />
+              </div>
+              <div class="input-group">
+                <span class="form-label" style="padding-right: 1em">
+                  个人简介
+                </span>
+                <input
+                  id="profile"
+                  type="text"
+                  class="form-control"
+                  th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
+                  placeholder="请输入个人简介"
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button id="publish" type="button" class="btn btn-primary">
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script th:inline="javascript">
       $("#publish").on("click", function () {
         doPostUserInfo()
       })
-
       function doPostUserInfo() {
         const userId = $("#userId").text()
         const userName = $("#userName").val()
@@ -245,6 +563,20 @@
           window.location.href = "/user/home?userId=" + userId
         })
       }
+
+      // 切换关注按钮
+      $(".attention-btn").click(function (e) {
+        e.stopPropagation()
+        if ($(this)[0].innerText === "+关注") {
+          $(this)[0].innerText = "已关注"
+        } else {
+          $(this)[0].innerText = "+关注"
+        }
+      })
+      // 文章跳转
+      $(".user-article-item").click((e) => {
+        alert("文章跳转")
+      })
     </script>
   </body>
 </html>

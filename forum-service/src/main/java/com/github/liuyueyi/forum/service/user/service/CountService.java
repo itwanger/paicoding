@@ -1,6 +1,9 @@
 package com.github.liuyueyi.forum.service.user.service;
 
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+
+import java.util.List;
 
 /**
  * 计数统计相关
@@ -9,6 +12,14 @@ import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
  * @date 2022/9/2
  */
 public interface CountService {
+    /**
+     * 查询文章的点赞用户头像
+     *
+     * @param articleId
+     * @return
+     */
+    List<SimpleUserInfoDTO> queryPraiseUserInfosByArticleId(Long articleId);
+
     /**
      * 根据文章ID查询文章计数
      *

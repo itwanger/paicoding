@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.web.hook.filter;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liuyueyi.forum.core.util.CrossUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
+import com.github.liuyueyi.forum.service.statistics.service.StatisticsSettingService;
 import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.Globals;
@@ -33,6 +34,9 @@ public class ReqRecordFilter implements Filter {
 
     @Autowired
     private GlobalInitService globalInitService;
+
+    @Autowired
+    private StatisticsSettingService statisticsSettingService;
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -108,6 +112,9 @@ public class ReqRecordFilter implements Filter {
         msg.append("; payload=").append(req.getPayload());
         msg.append("; cost=").append(costTime);
         REQ_LOG.info("{}", msg);
+
+        // 保存请求计数
+        statisticsSettingService.saveRequestCount(req.getClientIp());
     }
 
 
