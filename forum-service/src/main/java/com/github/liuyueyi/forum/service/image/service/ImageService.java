@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.image;
+package com.github.liuyueyi.forum.service.image.service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;

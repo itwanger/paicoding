@@ -97,6 +97,19 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         articleDetailMapper.updateContent(articleId, content);
     }
 
+    /**
+     * 更新标记位
+     *
+     * @param articleId
+     * @param falgBit
+     */
+    public void updateArticleFlagBit(Long articleId, Integer falgBit) {
+        articleDetailMapper.updateFlagBit(articleId, falgBit);
+    }
+
+
+    // ------------- 文章列表查询 --------------
+
     public List<ArticleDO> listArticlesByUserId(Long userId, PageParam pageParam) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
@@ -174,9 +187,38 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     }
 
 
+    /**
+     * 热门文章推荐，适用于首页的侧边栏
+     *
+     * @param pageParam
+     * @return
+     */
     public List<SimpleArticleDTO> listHotArticles(PageParam pageParam) {
         return baseMapper.listArticlesByReadCounts(pageParam);
     }
+
+    /**
+     * 作者的热门文章推荐，适用于作者的详情页侧边栏
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    public List<SimpleArticleDTO> listAuthorHotArticles(long userId, PageParam pageParam) {
+        return baseMapper.listArticlesByUserIdOrderByReadCounts(userId, pageParam);
+    }
+
+    /**
+     * 根据相同的类目 + 标签进行推荐
+     *
+     * @param categoryId
+     * @param tagIds
+     * @return
+     */
+    public List<ArticleDO> listRelatedArticles(Long categoryId, List<Long> tagIds, PageParam pageParam) {
+        return baseMapper.listArticleByCategoryAndTags(categoryId, tagIds, pageParam);
+    }
+
 
     /**
      * 根据用户ID获取创作历程
@@ -186,5 +228,32 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     public List<YearArticleDTO> listYearArticleByUserId(Long userId) {
         return baseMapper.listYearArticleByUserId(userId);
+    }
+
+    /**
+     * 文章列表（用于后台）
+     *
+     * @param pageParam
+     * @return
+     */
+    public List<ArticleDO> listArticles(PageParam pageParam) {
+        return lambdaQuery()
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId)
+                .list();
+    }
+
+    /**
+     * 文章总数（用于后台）
+     *
+     * @return
+     */
+    public Integer countArticle() {
+        return lambdaQuery()
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .count().intValue();
     }
 }

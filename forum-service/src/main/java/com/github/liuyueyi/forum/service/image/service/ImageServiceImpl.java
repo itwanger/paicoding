@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.image.impl;
+package com.github.liuyueyi.forum.service.image.service;
 
 import com.github.hui.quick.plugin.base.ImageLoadUtil;
 import com.github.hui.quick.plugin.base.ProcessUtil;

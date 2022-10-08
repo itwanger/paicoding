@@ -7,6 +7,8 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
+import java.util.List;
+
 public interface ArticleReadService {
 
     /**
@@ -62,6 +64,15 @@ public interface ArticleReadService {
      * @return
      */
     PageListVo<ArticleDTO> queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select);
+
+    /**
+     * 文章实体补齐统计、作者、分类标签等信息
+     *
+     * @param records
+     * @param pageSize
+     * @return
+     */
+    PageListVo<ArticleDTO> buildArticleListVo(List<ArticleDO> records, long pageSize);
 
     /**
      * 查询热门文章

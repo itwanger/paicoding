@@ -1,0 +1,98 @@
+<style>
+    .article-heart {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+        margin-top: 30px
+    }
+
+    .article-heart .praise-box {
+        font-size: 30px;
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        text-align: center;
+        border-radius: 30px;
+        cursor: pointer;
+        border: 1px solid #939aa3;
+        color: #939aa3;
+        margin-bottom: 7.5px
+    }
+
+    .article-heart .approval-tips-line {
+        position: relative;
+        margin-bottom: 15px
+    }
+
+    .article-heart .approval-tips-line:before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: -115px;
+        height: 2px;
+        width: 105px;
+        background: linear-gradient(270deg, #004fc4, #fff)
+    }
+
+    .article-heart .approval-tips-line:after {
+        content: "";
+        position: absolute;
+        top: 10px;
+        right: -115px;
+        height: 2px;
+        width: 105px;
+        background: linear-gradient(90deg, #004fc4, #fff)
+    }
+
+    .article-heart .approval-img {
+        display: inline-block;
+        width: 25px;
+        height: 25px;
+        margin-right: 7.5px;
+        border-radius: 50%;
+        cursor: pointer;
+        text-align: center;
+        border: 1px solid #f4f4f4
+    }
+
+    .article-heart .approval-img:last-child {
+        margin-right: 0
+    }
+
+    .article-heart .approval-img img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%
+    }
+
+    .sprite-icon {
+        vertical-align: -0.125em;
+    }
+</style>
+
+<div class="article-heart">
+    <div class="praise-box" id="praiseBtn">
+        <svg class="sprite-icon icon-zan">
+            <use xlink:href="#icon-zan"></use>
+        </svg>
+
+    </div>
+    <div th:if="${vo.article.count.praiseCount > 0}">
+        <p class="approval-tips-line" th:text="${vo.article.count.praiseCount} + '人已点赞'">
+            7人已点赞
+        </p>
+        <div class="approval-box">
+        <span class="g-user-popover approval-img" th:each="item: ${vo.article.praisedUsers}">
+            <a th:href="'/user/' + ${item.userId}">
+            <img
+                    th:src="${item.avatar}"
+                    alt=""
+                    class="">
+            </a>
+        </span>
+        </div>
+    </div>
+</div>

@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
@@ -134,5 +135,15 @@ public class UserFootServiceImpl implements UserFootService {
     @Override
     public List<Long> queryUserCollectionArticleList(Long userId, PageParam pageParam) {
         return userFootDao.listCollectedArticlesByUserId(userId, pageParam);
+    }
+
+    @Override
+    public List<SimpleUserInfoDTO> queryArticlePraisedUsers(Long articleId) {
+        return userFootDao.listDocumentPraisedUsers(articleId, DocumentTypeEnum.ARTICLE.getCode(), 10);
+    }
+
+    @Override
+    public UserFootDO queryUserFoot(Long documentId, Integer type, Long userId) {
+        return userFootDao.getByDocumentAndUserId(documentId, type, userId);
     }
 }

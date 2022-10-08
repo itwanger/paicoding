@@ -3,7 +3,7 @@
   <div th:fragment="navbar">
     <style>
       #bodyNav {
-        padding: 0 24px;
+        padding: 0 10%;
       }
       .nav-link {
         font-size: 18px;
@@ -63,13 +63,21 @@
     >
       <a class="navbar-brand">
         <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
-        <img
+        <!-- <img
           th:src="${global.siteInfo.websiteLogoUrl}"
           th:alt="${global.siteInfo.websiteName}"
           src="https://static.developers.pub/logo.jpeg"
           width="30"
           height="30"
           alt=""
+          loading="lazy"
+        /> -->
+        <img
+          th:src="${global.siteInfo.websiteLogoUrl}"
+          th:alt="${global.siteInfo.websiteName}"
+          alt=""
+          width="30"
+          height="30"
           loading="lazy"
         />
       </a>

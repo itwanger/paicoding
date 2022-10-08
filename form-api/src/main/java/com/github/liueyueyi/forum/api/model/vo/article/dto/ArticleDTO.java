@@ -1,6 +1,7 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -34,6 +35,11 @@ public class ArticleDTO implements Serializable {
      * 作者名
      */
     private String authorName;
+
+    /**
+     * 作者头像
+     */
+    private String authorAvatar;
 
     /**
      * 文章标题
@@ -78,6 +84,26 @@ public class ArticleDTO implements Serializable {
     private Integer status;
 
     /**
+     * 标记位（二进制）
+     */
+    private Integer flagBit;
+
+    /**
+     * 是否官方
+     */
+    private Boolean isOffical;
+
+    /**
+     * 是否置顶
+     */
+    private Boolean isTopping;
+
+    /**
+     * 是否加精
+     */
+    private Boolean isCream;
+
+    /**
      * 创建时间
      */
     private Long createTime;
@@ -116,4 +142,9 @@ public class ArticleDTO implements Serializable {
      * 文章对应的统计计数
      */
     private ArticleFootCountDTO count;
+
+    /**
+     * 点赞用户信息
+     */
+    private List<SimpleUserInfoDTO> praisedUsers;
 }

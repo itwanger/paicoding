@@ -3,7 +3,12 @@ package com.github.liuyueyi.forum.service.article.repository.dao;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
+import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
+import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.CategoryMapper;
 import org.springframework.stereotype.Repository;
 
@@ -25,5 +30,30 @@ public class CategoryDao extends ServiceImpl<CategoryMapper, CategoryDO> {
                 .eq(CategoryDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .eq(CategoryDO::getStatus, PushStatusEnum.ONLINE.getCode())
                 .list();
+    }
+
+    /**
+     * 获取所有 Categorys 列表（分页）
+     *
+     * @return
+     */
+    public List<CategoryDTO> listCategory(PageParam pageParam) {
+        List<CategoryDO> list = lambdaQuery()
+                .eq(CategoryDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .list();
+        return ArticleConverter.toCategoryDtoList(list);
+    }
+
+    /**
+     * 获取所有 Categorys 总数（分页）
+     *
+     * @return
+     */
+    public Integer countCategory() {
+        return lambdaQuery()
+                .eq(CategoryDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .count()
+                .intValue();
     }
 }
