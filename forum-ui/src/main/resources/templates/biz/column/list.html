@@ -703,7 +703,7 @@
 </style>
 
 <div th:each="column : ${vo.columns.list}">
-    <div th:replace="plugins/column-card :: column_card(${column})">
-        正文
+    <div th:replace="plugins/column/column-card :: column_card(${column})">
+        专栏详情
     </div>
 </div>

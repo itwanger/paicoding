@@ -26,4 +26,13 @@ public class DateUtil {
     public static String time2day(Timestamp timestamp) {
         return time2day(timestamp.getTime());
     }
+
+    public static String time2date(long timestamp) {
+        DateTimeFormatter ftf = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+        return ftf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault()));
+    }
+
+    public static String time2date(Timestamp timestamp) {
+        return time2date(timestamp.getTime());
+    }
 }
