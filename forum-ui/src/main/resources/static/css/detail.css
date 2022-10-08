@@ -95,3 +95,7 @@
   border: 1px solid #3973ff;
   cursor: pointer;
 }
+.detail-content-title-edit a {
+  color: #3973ff;
+  padding-left: 1em;
+}
