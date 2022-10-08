@@ -30,8 +30,9 @@
         </div>
       </div>
       <a th:href="${'/article/detail/' + article.articleId}">
-        <div class="user-article-img">
+        <div class="user-article-img" th:if="${!#strings.isEmpty(article.cover)}">
           <img
+                  th:src="${article.cover}"
                   src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
                   alt=""
                   class="user-article-item-img"
@@ -76,7 +77,7 @@
                   alt=""
                   style="height: 16px; width: 16px; margin-right: 8px"
           />
-          <span>12</span>
+          <span th:text="${article.count.readCount}">12</span>
         </div>
         <div class="article-show-wrap-cell"></div>
         <div class="article-show-wrap">
@@ -85,7 +86,7 @@
                   alt=""
                   style="height: 16px; width: 16px; margin-right: 8px"
           />
-          <span>12</span>
+          <span th:text="${article.count.commentCount}">12</span>
         </div>
         <div class="article-show-wrap-cell"></div>
         <div class="article-show-wrap">
@@ -95,7 +96,7 @@
                   alt=""
                   style="height: 16px; width: 16px; margin-right: 8px"
           />
-          <span>12</span>
+          <span th:text="${article.count.praiseCount}">12</span>
         </div>
       </div>
     </div>
