@@ -27,6 +27,11 @@ public class ColumnArticlesDTO {
     private List<TopCommentDTO> comments;
 
     /**
+     * 热门评论
+     */
+    private TopCommentDTO hotComment;
+
+    /**
      * 文章目录列表
      */
     private List<SimpleArticleDTO> articleList;

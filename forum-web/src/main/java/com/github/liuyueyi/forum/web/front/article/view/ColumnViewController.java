@@ -43,6 +43,12 @@ public class ColumnViewController {
     @Autowired
     private SidebarService sidebarService;
 
+    /**
+     * 专栏列表
+     *
+     * @param model
+     * @return
+     */
     @GetMapping(path = {"list", "/", ""})
     public String list(Model model) {
         PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance());
@@ -90,12 +96,16 @@ public class ColumnViewController {
         // 评论信息
         List<TopCommentDTO> comments = commentReadService.getArticleComments(articleId, PageParam.newPageInstance());
 
+        // 热门评论
+        TopCommentDTO hotComment = commentReadService.queryHotComment(articleId);
+
         // 文章列表
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
         vo.setArticle(articleDTO);
         vo.setComments(comments);
+        vo.setHotComment(hotComment);
         vo.setColumn(columnId);
         vo.setArticleList(articles);
         model.addAttribute("vo", vo);
