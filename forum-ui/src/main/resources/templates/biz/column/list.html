@@ -1,709 +1,80 @@
-<!-- 文章列表 -->
 <style>
-    .tooltip {
-        cursor: pointer;
-        min-height: 20px;
-        line-height: 20px;
-        padding: 2px 6px;
-        border-radius: 2px;
-        background-color: #ff5e41;
-        color: #fff;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        white-space: nowrap;
-        position: absolute
-    }
-
-    @media (max-width: 720px) {
-        .tooltip {
-            min-height:16px;
-            line-height: 16px
-        }
-    }
-
-    .tooltip.left:before {
-        left: 20px;
-        border-width: 0 5px 5px
-    }
-
-    .tooltip.left:before,.tooltip.right:before {
-        content: "";
-        position: absolute;
-        top: -5px;
-        width: 0;
-        height: 0;
-        border-color: transparent transparent #ff5e41;
-        border-style: solid
-    }
-
-    .tooltip.right:before {
-        right: 20px;
-        border-width: 0 3px 5px
-    }
-
-    .tooltip .pre-text {
-        display: inline-flex;
-        align-items: center
-    }
-
-    .tooltip .pre-text img.gift {
-        width: 16px;
-        margin-right: 3px
-    }
-
-    .tooltip .pre-text.is-count-down:after {
-        content: "·";
-        display: inline-block;
-        vertical-align: middle;
-        padding-left: 5px;
-        padding-right: 5px
-    }
-
-    .tooltip .count-down {
-        display: inline-flex;
-        align-items: center
-    }
-
-    .tooltip .count-down .ms {
-        min-width: 20px;
-        display: inline-block
-    }
-
-    @media (max-width: 640px) {
-        .break-text {
-            flex-direction:column
-        }
-
-        .break-text .pre-text:after {
-            display: none
-        }
-    }
-
-    .video-label[data-v-5e209804] {
-        font-size: 12px;
-        display: inline-block;
-        background: rgba(0,0,0,.6);
-        padding: 2px 6px;
-        color: #fff;
-        font-weight: 500;
-        position: absolute;
-        right: 8px;
-        bottom: 8px;
-        border-radius: 2px;
-        z-index: 10
-    }
-
-    @-webkit-keyframes skeleton-keyframes-data-v-51afd9f7 {
-        0% {
-            background-position: 0 0
-        }
-
-        to {
-            background-position: 480px 0
-        }
-    }
-
-    body {
-        --forum-layer-golden-1: #faf3e5;
-        --forum-layer-golden-2: #f6e7cb;
-        --forum-component-hover: #e4e6eb;
-        --forum-gradientgold_normal_start: #fde8c3;
-        --forum-gradientgold_normal_end: #edd3a7;
-        --forum-gradientgold_hover_start: #f1dfc0;
-        --forum-gradientgold_hover_end: #e6c99b;
-        --forum-gradientgold_click_start: #e9d5b3;
-        --forum-gradientgold_click_end: #dac29a;
-        --forum-layer_loading_start: rgba(228,230,235,0);
-        --forum-layer_loading_end: rgba(228,230,235,0.5);
-        --forum-layer_golden_2: #faf3e5;
-        --forum-font_golden_4: #7e5d25;
-        --forum-font-golden-1: #7e5d25;
-        --forum-font-golden-2: #8a795c;
-        --forum-font-golden-3: #d6b885;
-        --forum-gray-0: #fff;
-        --forum-gray-1-1: #e4e6eb;
-        --forum-gray-1-2: rgba(228,230,235,0.5);
-        --forum-gray-1-3: #e4e6eb;
-        --forum-gray-2: #f2f3f5;
-        --forum-gray-3: #f7f8fa;
-        --forum-background: #f2f3f5;
-        --forum-layer-1: #fff;
-        --forum-layer-2-1: #f7f8fa;
-        --forum-layer-2-2: rgba(247,248,250,0.7);
-        --forum-layer-3-fill: #f2f3f5;
-        --forum-layer-3-border: #e4e6eb;
-        --forum-layer-4-dropdown: #fff;
-        --forum-layer-5: #fff;
-        --forum-brand-1-normal: #1e80ff;
-        --forum-brand-2-hover: #1171ee;
-        --forum-brand-3-click: #0060dd;
-        --forum-brand-4-disable: #abcdff;
-        --forum-brand-5-light: #eaf2ff;
-        --forum-mask-1: rgba(0,0,0,0.4);
-        --forum-mask-2: #fff;
-        --forum-mask-3: none;
-        --forum-brand-fill1-normal: rgba(30,128,255,0.05);
-        --forum-brand-fill2-hover: rgba(30,128,255,0.1);
-        --forum-brand-fill3-click: rgba(30,128,255,0.2);
-        --forum-brand-stroke1-normal: rgba(30,128,255,0.3);
-        --forum-brand-stroke2-hover: rgba(30,128,255,0.45);
-        --forum-brand-stroke3-click: rgba(30,128,255,0.6);
-        --forum-font_danger: #ff5132;
-        --forum-font-1: #252933;
-        --forum-font-2: #515767;
-        --forum-font-3: #8a919f;
-        --forum-font-4: #c2c8d1;
-        --forum-font-brand1-normal: #1e80ff;
-        --forum-font-brand2-hover: #1171ee;
-        --forum-font-brand3-click: #0060dd;
-        --forum-font-brand4-disable: #abcdff;
-        --forum-font-success: #2bb91b;
-        --forum-font-warning: #ff8412;
-        --forum-font-danger: #ff5132;
-        --forum-font-white-disable: #fff;
-        --forum-font-white: #fff;
-        --forum-success-1-normal: #00b453;
-        --forum-success-2-deep: #00964e;
-        --forum-success-3-light: #e2faed;
-        --forum-warning-1-normal: #ff7426;
-        --forum-warning-2-deep: #e05e00;
-        --forum-warning-3-light: #fff3e5;
-        --forum-danger-1-normal: #f64242;
-        --forum-danger-2-deep: #cb2634;
-        --forum-danger-3-light: #fff2ff;
-        --forum-sub-1-purple: #9f54ff;
-        --forum-sub-2-blue: #57a0ff;
-        --forum-sub-3-cyan: #5ad7ff;
-        --forum-sub-4-green: #33d790;
-        --forum-sub-5-yellow: #ffcc15;
-        --forum-sub-6-orange: #ff834e;
-        --forum-sub-7-red: #ff5e54;
-        --forum-coupon_1_button: #f64242;
-        --forum-coupon_1_button_disable: #faa0a0;
-        --forum-coupon_2_card: rgba(255,245,244,0.7);
-        --forum-coupon_3_stroke: rgba(246,66,66,0.2);
-        --forum-navigation: #fff;
-        --forum-shade-1: rgba(0,0,0,0.4);
-        --forum-shade-2: rgba(0,0,0,0.6);
-        --forum-popup: #fff;
-        --forum-popover: rgba(0,0,0,0.8);
-        --forum-sheets: #f7f8fa;
-        --forum-coupon-button: #f64242;
-        --forum-coupon-button-disable: #faa0a0;
-        --forum-coupon-card: rgba(255,245,244,0.7);
-        --forum-layer-loading-start: #e4e6eb;
-        --forum-layer-loading-end: rgba(228,230,235,0.5);
-        --forum-font-priv-hint: #916be1;
-        --forum-background-jscore-radar: #232323
-    }
-
-    @keyframes skeleton-keyframes-data-v-51afd9f7 {
-        0% {
-            background-position: 0 0
-        }
-
-        to {
-            background-position: 480px 0
-        }
-    }
-
-    body[data-theme=dark] {
-        --forum-layer-golden-1: rgba(209,171,97,0.23);
-        --forum-layer-golden-2: rgba(237,211,167,0.4);
-        --forum-component-hover: hsla(0,0%,100%,0.2);
-        --forum-gradientgold_normal_start: #fde8c3;
-        --forum-gradientgold_normal_end: #edd3a7;
-        --forum-gradientgold_hover_start: #f1dfc0;
-        --forum-gradientgold_hover_end: #e6c99b;
-        --forum-gradientgold_click_start: #e9d5b3;
-        --forum-gradientgold_click_end: #dac29a;
-        --forum-layer_loading_start: hsla(0,0%,100%,0);
-        --forum-layer_loading_end: hsla(0,0%,100%,0.2);
-        --forum-layer_golden_2: rgba(209,171,97,0.12);
-        --forum-font_golden_4: #7e5d25;
-        --forum-font-golden-1: #edd3a7;
-        --forum-font-golden-2: #bea985;
-        --forum-font-golden-3: #8e7f64;
-        --forum-gray-0: #000;
-        --forum-gray-1-1: hsla(0,0%,100%,0.2);
-        --forum-gray-1-2: hsla(0,0%,100%,0.1);
-        --forum-gray-1-3: #464646;
-        --forum-gray-2: hsla(0,0%,100%,0.12);
-        --forum-gray-3: hsla(0,0%,100%,0.08);
-        --forum-background: #000;
-        --forum-layer-1: #181818;
-        --forum-layer-2-1: hsla(0,0%,100%,0.08);
-        --forum-layer-2-2: hsla(0,0%,100%,0.08);
-        --forum-layer-3-fill: hsla(0,0%,100%,0.08);
-        --forum-layer-3-border: hsla(0,0%,100%,0.2);
-        --forum-layer-4-dropdown: #2f2f2f;
-        --forum-layer-5: hsla(0,0%,100%,0.12);
-        --forum-brand-1-normal: #2986ff;
-        --forum-brand-2-hover: #1473ed;
-        --forum-brand-3-click: #0563dd;
-        --forum-brand-4-disable: rgba(41,134,255,0.4);
-        --forum-brand-5-light: rgba(30,128,255,0.2);
-        --forum-mask-1: hsla(0,0%,100%,0.4);
-        --forum-mask-2: #282828;
-        --forum-mask-3: rgba(0,0,0,0.05);
-        --forum-brand-fill1-normal: rgba(41,134,255,0.15);
-        --forum-brand-fill2-hover: rgba(20,115,237,0.25);
-        --forum-brand-fill3-click: rgba(5,99,221,0.35);
-        --forum-brand-stroke1-normal: rgba(41,134,255,0.4);
-        --forum-brand-stroke2-hover: rgba(20,115,237,0.6);
-        --forum-brand-stroke3-click: rgba(5,99,221,0.6);
-        --forum-font_danger: #f85959;
-        --forum-font-1: hsla(0,0%,100%,0.9);
-        --forum-font-2: hsla(0,0%,100%,0.7);
-        --forum-font-3: hsla(0,0%,100%,0.55);
-        --forum-font-4: hsla(0,0%,100%,0.45);
-        --forum-font-brand1-normal: #4495ff;
-        --forum-font-brand2-hover: #2b88ff;
-        --forum-font-brand3-click: #1371ec;
-        --forum-font-brand4-disable: rgba(19,113,236,0.4);
-        --forum-font-success: #40c17b;
-        --forum-font-warning: #ff8541;
-        --forum-font-danger: #c62633;
-        --forum-font-white-disable: hsla(0,0%,100%,0.6);
-        --forum-font-white: #fff;
-        --forum-success-1-normal: #40c17b;
-        --forum-success-2-deep: #008445;
-        --forum-success-3-light: rgba(64,193,123,0.2);
-        --forum-warning-1-normal: #ff8541;
-        --forum-warning-2-deep: #d85c02;
-        --forum-warning-3-light: rgba(255,133,65,0.2);
-        --forum-danger-1-normal: #f85959;
-        --forum-danger-2-deep: #c62633;
-        --forum-danger-3-light: rgba(248,89,89,0.2);
-        --forum-sub-1-purple: #a965ff;
-        --forum-sub-2-blue: #68a9ff;
-        --forum-sub-3-cyan: #74f4ed;
-        --forum-sub-4-green: #50e68c;
-        --forum-sub-5-yellow: #ffd748;
-        --forum-sub-6-orange: #ff8f60;
-        --forum-sub-7-red: #ff6e65;
-        --forum-coupon_1_button: rgba(251,86,83,0.8);
-        --forum-coupon_1_button_disable: #782928;
-        --forum-coupon_2_card: rgba(255,176,176,0.08);
-        --forum-coupon_3_stroke: rgba(246,66,66,0.18);
-        --forum-navigation: #181818;
-        --forum-shade-1: rgba(0,0,0,0.6);
-        --forum-shade-2: rgba(0,0,0,0.7);
-        --forum-popup: #282828;
-        --forum-popover: #323232;
-        --forum-sheets: #222;
-        --forum-coupon-button: rgba(251,86,83,0.8);
-        --forum-coupon-button-disable: #782928;
-        --forum-coupon-card: rgba(255,176,176,0.08);
-        --forum-layer-loading-start: #fff;
-        --forum-layer-loading-end: hsla(0,0%,100%,0.2);
-        --forum-font-priv-hint: #916be1;
-        --forum-background-jscore-radar: #232323
-    }
-
-    .text-highlight .keyword {
-        background-color: #fff;
-        color: #f03535
-    }
-
-    .item {
-        display: flex;
-        padding: 25px;
-        box-sizing: border-box;
-        background-color: var(--forum-layer-1);
-        position: relative
-    }
-
-    .item:after {
-        display: table;
-        content: "";
-        clear: both
-    }
-
-    .item:not(:last-child) {
-        border-bottom: 1px solid #e6e8e8
-    }
-
-    .item:hover {
-        background-color: var(--forum-gray-3)
-    }
-
-    .poster {
-        width: 100px;
-        height: 140px;
-        flex-shrink: 0;
-        box-shadow: 3px 4px 12px 0 rgba(0,0,0,.2);
-        overflow: hidden;
-        background-color: var(--forum-layer-loading-end);
-        position: relative
-    }
-
-    .poster .poster-img {
-        height: 100%;
-        width: 100%
-    }
-
-    .info {
-        position: relative;
-        flex-grow: 1;
-        overflow: hidden;
-        box-sizing: border-box;
-        font-size: 14px;
-        color: #2e3135;
-        padding-left: 22px
-    }
-
-    .info .title {
-        color: var(--forum-font-1);
-        font-size: 20px;
-        font-weight: 400
-    }
-
-    .info .title:hover {
-        color: var(--forum-font-brand2-hover)
-    }
-
-    .info .title .presale {
-        padding-left: 6px;
-        padding-right: 6px;
-        color: #fff;
-        cursor: default;
-        margin-right: 8px;
-        background-color: #f64242
-    }
-
-    .info .title .presale,.info .title .vip-icon {
-        display: inline-block;
-        vertical-align: middle;
-        height: 20px;
-        transform: translateY(-3px);
-        line-height: 20px;
-        font-size: 12px;
-        border-radius: 2px
-    }
-
-    .info .title .vip-icon {
-        margin-right: 6px;
-        font-weight: 500;
-        padding: 0 6px;
-        color: var(--forum-font-golden-1);
-        background: linear-gradient(90deg,#fde8c3,#edd3a7)
-    }
-
-    .info .desc {
-        margin-top: 5px;
-        line-height: 20px;
-        height: 20px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        color: var(--forum-font-2)
-    }
-
-    .info .author {
-        display: flex;
-        align-items: center;
-        margin-top: 6px;
-        overflow: hidden;
-        white-space: nowrap
-    }
-
-    .info .author .author-info {
-        flex-shrink: 0;
-        display: flex;
-        align-items: center
-    }
-
-    .info .author .xiaoce-user {
-        display: inline-flex;
-        align-items: center;
-        color: #000
-    }
-
-    .info .author .hero {
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        margin-right: 8px;
-        background-position: 50%;
-        background-size: cover;
-        background-repeat: no-repeat
-    }
-
-    .info .author .author-desc {
-        color: var(--forum-font-2);
-        flex-grow: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis
-    }
-
-    .info .author .author-desc .self-description {
-        margin-left: 10px;
-        margin-right: 10px
-    }
-
-    .info .author .author-name {
-        color: var(--forum-font-1);
-        font-weight: 400
-    }
-
-    .info .other {
-        margin-top: 6px;
-        display: flex;
-        align-items: center
-    }
-
-    .info .other .price {
-        color: var(--forum-font-warning);
-        font-size: 18px;
-        margin-right: 15px;
-        display: inline-flex;
-        align-items: center
-    }
-
-    .info .other .price .yuanjia {
-        text-decoration: line-through;
-        margin-left: 5px;
-        font-size: 14px;
-        color: #aaa
-    }
-
-    .info .other .price.bought {
-        font-size: 14px
-    }
-
-    .info .other span.message {
-        opacity: .6;
-        font-size: 13px;
-        color: var(--forum-font-3)
-    }
-
-    .info .other span.message.presale {
-        color: #f64242
-    }
-
-    .info .other span.message:not(:last-child):after {
-        content: "·";
-        color: var(--forum-font-3);
-        margin-left: 5px;
-        margin-right: 5px
-    }
-
-    .info .footer-bar {
-        height: 26px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end
-    }
-
-    .info .review {
-        margin-top: 5px;
-        color: #007fff
-    }
-
-    .m-aside {
-        min-width: 80px;
-        margin-left: 10px;
-        flex-shrink: 0;
-        align-self: center;
-        display: none;
-        z-index: 3
-    }
-
-    .m-aside .price {
-        height: 30px;
-        line-height: 30px;
-        padding-left: 15px;
-        padding-right: 15px;
-        border-radius: 15px;
-        background-color: #f0f7ff;
-        font-size: 14px;
-        font-weight: 500;
-        text-align: center;
-        color: #07f;
-        position: relative;
-        z-index: 2
-    }
-
-    .m-aside .price.bought {
-        background-color: transparent;
-        background-color: initial;
-        color: #b8b8b8
-    }
-
-    .m-aside .price .tooltip {
-        right: 0;
-        top: calc(100% + 5px)
-    }
-
-    .m-aside .price .tooltip:before {
-        right: 30px
-    }
-
-    .more {
-        height: 30px;
-        align-self: flex-end;
-        position: relative;
-        display: flex;
-        align-items: center
-    }
-
-    .more .more-icon {
-        width: 20px;
-        height: 20px
-    }
-
-    .more .more-list {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        min-width: 8rem;
-        white-space: nowrap;
-        color: #8f969c;
-        background-color: #fff;
-        box-shadow: 0 1px 2px 0 #e0e4e9;
-        border: 1px solid rgba(217,222,224,.99);
-        display: none;
-        z-index: 10
-    }
-
-    .more .more-list:before {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 100%;
-        height: 1rem
-    }
-
-    .more .more-list .item {
-        padding: .5rem .9rem
-    }
-
-    .more .more-list .item:hover {
-        background-color: #f7f8fa
-    }
-
-    .more.open .more-list {
-        display: block
-    }
-
-    @media (max-width: 700px) {
-        .info .full-link {
-            position:absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1
-        }
-
-        .info .recommend-award,.more {
-            display: none
-        }
-
-        .info.hasSale {
-            padding-bottom: 0
-        }
-
-        .m-aside {
-            display: block
-        }
-
-        .item {
-            padding: 16px 14px
-        }
-
-        .item:not(:last-child) {
-            border-bottom: none
-        }
-
-        .item:not(:last-child):before {
-            content: " ";
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            height: 0;
-            border-bottom: 1px solid #e6e8e8;
-            transform-origin: 0 0;
-            transform: scaleY(.5);
-            z-index: 2
-        }
-
-        .item .poster {
-            width: 52px;
-            height: 72px
-        }
-
-        .item .info {
-            padding-left: 16px
-        }
-
-        .item .info .title {
-            font-size: 16px;
-            font-weight: 700
-        }
-
-        .item .info .author-desc,.item .info .desc,.item .info .hero,.item .info .price {
-            display: none
-        }
-
-        .item .other {
-            flex-direction: column;
-            align-items: flex-start
-        }
-
-        .item .footer-bar,.item .other .read-duration {
-            display: none
-        }
-    }
-
-    .item.search .title {
-        font-size: 16px;
-        font-weight: 700
-    }
-
-    .item.search .title:hover {
-        color: #2e3135;
-        text-decoration: underline
-    }
-
-    .item.search .other {
-        margin-top: 20px
-    }
-
-    .item.search .hero {
-        width: 18px;
-        height: 18px
-    }
-
-    .item.search .info,.item.search .username {
-        font-size: 12px
-    }
-
-    .item.search .poster {
-        width: 90px;
-        height: 126px
-    }
-
-    .item.search .go-to-list {
-        flex-grow: 1;
-        text-align: right
-    }
-
-    .item.search .go-to-list:hover {
-        color: #0371df
-    }
-
+  .item {
+    display: flex;
+    padding: 25px;
+    box-sizing: border-box;
+    background-color: var(--juejin-layer-1);
+    position: relative;
+  }
+  .item:hover {
+    background-color: #f7f8fa;
+  }
+  .poster {
+    width: 100px;
+    height: 140px;
+    flex-shrink: 0;
+    box-shadow: 3px 4px 12px 0 rgb(0 0 0 / 20%);
+    overflow: hidden;
+    position: relative;
+  }
+  .poster img {
+    width: 100%;
+    height: 100%;
+  }
+  .info {
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #2e3135;
+    padding-left: 22px;
+  }
+  .title {
+    color: #252933;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .info .desc {
+    margin-top: 5px;
+    line-height: 20px;
+    height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    color: #515767;
+  }
+  .user {
+    display: inline-flex;
+    align-items: center;
+    color: #000;
+  }
+  .user img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background-position: 50%;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .other {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    color: #8a919f;
+    font-style: 13px;
+  }
+  .author {
+    margin-top: 6px;
+  }
 </style>
 
 <div th:each="column : ${vo.columns.list}">
-    <div th:replace="plugins/column/column-card :: column_card(${column})">
-        专栏详情
-    </div>
+  <div th:replace="plugins/column/column-card :: column_card(${column})">
+    专栏详情
+  </div>
 </div>
