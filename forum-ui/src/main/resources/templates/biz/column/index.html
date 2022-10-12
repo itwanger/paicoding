@@ -38,20 +38,18 @@
     <div class="home-wrap">
         <div class="home-body">
             <!-- 文章列表 -->
-            <content>
-                <div class="container-bg-light">
-                    <div id="articleList">
-                        <div th:replace="biz/column/list">专栏列表</div>
-                    </div>
-                    <button
-                            th:if="${vo.columns.hasMore}"
-                            id="loadMoreTag"
-                            type="button"
-                            class="btn btn-outline-primary btn-lg btn-block"
-                            th:text="加载更多"
-                    ></button>
+            <div class="container-bg-light">
+                <div id="articleList">
+                    <div th:replace="biz/column/list">专栏列表</div>
                 </div>
-            </content>
+                <button
+                        th:if="${vo.columns.hasMore}"
+                        id="loadMoreTag"
+                        type="button"
+                        class="btn btn-outline-primary btn-lg btn-block"
+                        th:text="加载更多"
+                ></button>
+            </div>
         </div>
 
         <div class="home-right">
