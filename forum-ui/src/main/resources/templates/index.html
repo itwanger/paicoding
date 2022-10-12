@@ -45,20 +45,18 @@
                     th:replace="plugins/categories :: category(${vo.categories})"
             ></div>
             <!-- 文章列表 -->
-            <content>
-                <div class="container-bg-light">
-                    <div id="articleList">
-                        <div th:replace="biz/article/list">文章列表</div>
-                    </div>
-                    <button
-                            th:if="${vo.articles.hasMore}"
-                            id="loadMoreTag"
-                            type="button"
-                            class="btn btn-outline-primary btn-lg btn-block"
-                            th:text="加载更多"
-                    ></button>
+            <div class="container-bg-light">
+                <div id="articleList">
+                    <div th:replace="biz/article/list">文章列表</div>
                 </div>
-            </content>
+                <button
+                        th:if="${vo.articles.hasMore}"
+                        id="loadMoreTag"
+                        type="button"
+                        class="btn btn-outline-primary btn-lg btn-block"
+                        th:text="加载更多"
+                ></button>
+            </div>
         </div>
 
         <div class="home-right">
