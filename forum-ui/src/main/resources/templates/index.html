@@ -10,6 +10,7 @@
         height: calc(100vh - 60px);
         background-color: #f4f5f5;
     }
+
     .home-wrap {
         margin: 0 auto;
         width: 80%;
@@ -23,74 +24,80 @@
         margin-right: 20px;
         border-radius: 8px;
     }
+
     .home-right {
         width: 30%;
         border-radius: 20px;
     }
-    
 </style>
+
 <body id="body">
-<!-- 导航栏 -->
-<div th:replace="layout/navbar :: navbar"></div>
+    <!-- 导航栏 -->
+    <div th:replace="layout/navbar :: navbar"></div>
 
-<!-- 正文内容 -->
-<div class="home">
-    <div class="home-wrap">
-        <div class="home-body">
-            <!--  轮播图  -->
-            <div
-                    th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"
-            ></div>
+    <!-- 正文内容 -->
+    <div class="home">
+        <div class="home-wrap">
+            <div class="home-body">
+                <!--  轮播图  -->
+                <div th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"></div>
 
-            <!-- 类别筛选 -->
-            <div
-                    th:replace="plugins/categories :: category(${vo.categories})"
-            ></div>
-            <!-- 文章列表 -->
-            <div class="container-bg-light">
-                <div id="articleList">
-                    <div th:replace="biz/article/list">文章列表</div>
+                <!-- 类别筛选 -->
+                <div th:replace="plugins/categories :: category(${vo.categories})"></div>
+                <!-- 文章列表 -->
+                <div class="container-bg-light">
+                    <div id="articleList">
+                        <div th:replace="biz/article/list">文章列表</div>
+                    </div>
+                    <!-- <button th:if="${vo.articles.hasMore}" id="loadMoreTag" type="button"
+                        class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多"></button> -->
                 </div>
-                <button
-                        th:if="${vo.articles.hasMore}"
-                        id="loadMoreTag"
-                        type="button"
-                        class="btn btn-outline-primary btn-lg btn-block"
-                        th:text="加载更多"
-                ></button>
-            </div>
-        </div>
-
-        <div class="home-right">
-            <!-- 登录用户信息 -->
-            <div th:if="${global.isLogin}">
-                <div
-                        th:replace="plugins/user-card :: user_card(${vo.user}, false)"
-                ></div>
             </div>
 
-            <!-- 公告 -->
-            <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
-                <div th:replace="biz/article/sidebars"></div>
+            <div class="home-right">
+                <!-- 登录用户信息 -->
+                <div th:if="${global.isLogin}">
+                    <div th:replace="plugins/user-card :: user_card(${vo.user}, false)"></div>
+                </div>
+
+                <!-- 公告 -->
+                <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
+                    <div th:replace="biz/article/sidebars"></div>
+                </div>
             </div>
         </div>
+        <!-- 底部信息 -->
+        <div th:replace="layout/footer :: footer"></div>
     </div>
-    <!-- 底部信息 -->
-    <div th:replace="layout/footer :: footer"></div>
-</div>
 
-</div>
+    </div>
 
-<script th:inline="javascript">
-    <!-- 下一页 -->
-    let category = [[${vo.currentCategory}]]
-    let params = {
-        "category": category ? category : '全部',
-        "page": 2
-    }
-    nextPage('/article/api/list', params, "articleList", "loadMoreTag", function () {
-        params['page'] = params['page'] + 1;
-    })
-</script>
+    <script th:inline="javascript">
+        const handleScroll = () => {
+            const scrollEle = document.querySelector('.home')
+            const category = [[${ vo.currentCategory }]]
+            const params = {
+                "category": category ? category : '全部',
+                "page": 2
+            }
+            const scrollTop = scrollEle.scrollTop
+            //变量windowHeight是可视区的高度
+            const windowHeight = scrollEle.clientHeight
+            //变量scrollHeight是滚动条的总高度
+            const scrollHeight = scrollEle.scrollHeight
+            console.log();
+            //一般来说需要提前触发:scrollTop+windowHeight + 200 >=scrollHeight
+            if (scrollTop + windowHeight + 100 >= scrollHeight) {
+                // 模拟加载新的数据
+                nextPageText('/article/api/list', params, "articleList", () => {
+                    params['page'] = params['page'] + 1;
+                })
+            }
+        }
+        window.addEventListener('scroll', handleScroll, true)
+        // //变量scrollTop是滚动条滚动时，距离顶部的距离
+
+    </script>
 </body>
+
 </html>
