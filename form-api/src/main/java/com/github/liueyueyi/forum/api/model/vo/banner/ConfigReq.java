@@ -11,27 +11,37 @@ import java.io.Serializable;
  * @date 2022/9/17
  */
 @Data
-public class BannerReq implements Serializable {
+public class ConfigReq implements Serializable {
 
     /**
      * ID
      */
-    private Long bannerId;
+    private Long configId;
 
     /**
-     * 图片名称
+     * 类型
      */
-    private String bannerName;
+    private Integer type;
 
     /**
-     * 图片url
+     * 名称
+     */
+    private String name;
+
+    /**
+     * 图片链接
      */
     private String bannerUrl;
 
     /**
-     * 图片类型
+     * 跳转链接
      */
-    private Integer bannerType;
+    private String jumpUrl;
+
+    /**
+     * 内容
+     */
+    private String content;
 
     /**
      * 排序

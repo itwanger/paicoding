@@ -1,15 +1,19 @@
 package com.github.liuyueyi.forum.web.front.home.helper;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.ConfigTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
+import com.github.liuyueyi.forum.service.config.service.ConfigService;
+import com.github.liuyueyi.forum.service.config.service.ConfigSettingService;
 import com.github.liuyueyi.forum.service.sidebar.service.SidebarService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import com.github.liuyueyi.forum.web.front.home.vo.IndexVo;
@@ -39,6 +43,9 @@ public class IndexRecommendHelper {
     @Autowired
     private SidebarService sidebarService;
 
+    @Autowired
+    private ConfigService configService;
+
     public IndexVo buildIndexVo(String activeTab) {
         IndexVo vo = new IndexVo();
         Long categoryId = categories(activeTab, vo);
@@ -63,9 +70,12 @@ public class IndexRecommendHelper {
      * @return
      */
     private List<CarouseDTO> homeCarouselList() {
+        List<ConfigDTO> configDTOS = configService.getConfigList(ConfigTypeEnum.HOME_PAGE);
+
         List<CarouseDTO> list = new ArrayList<>();
-        list.add(new CarouseDTO().setName("Spring社区").setImgUrl("https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg").setActionUrl("https://spring.hhui.top"));
-        list.add(new CarouseDTO().setName("一灰灰社区").setImgUrl("https://spring.hhui.top/spring-blog/imgs/220422/logo.jpg").setActionUrl("https://hhui.top"));
+        configDTOS.forEach(configDTO -> {
+            list.add(new CarouseDTO().setName(configDTO.getName()).setImgUrl(configDTO.getBannerUrl()).setActionUrl(configDTO.getJumpUrl()));
+        });
         return list;
     }
 
