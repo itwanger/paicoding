@@ -49,8 +49,6 @@ public class CategoryServiceImpl implements CategoryService {
                 return new CategoryDTO(categoryId, category.getCategoryName());
             }
         });
-        // 预热全量缓存
-        refreshCache();
     }
 
     /**

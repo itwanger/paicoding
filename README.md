@@ -12,6 +12,8 @@ quick-forum
 
 ## 本地部署教程
 
+> [本地开发环境手把手教程](docs/本地开发环境配置教程.md)
+
 - 本项目可运行在 JDK 8 之上版本（比如说 JDK 11、JDK 13、JDK 17）
 - 本项目采用 Maven 构建，需提前安装好 Maven 环境
 - 本项目源代码完全开源，可通过 Git 命令行/GitHub 桌面版拉取源代码到本地（https://github.com/liuyueyi/quick-forum）
