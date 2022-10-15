@@ -44,7 +44,7 @@ public class SidebarServiceImpl implements SidebarService {
         return new SideBarDTO().setTitle("加入\"社区技术交流群\"").setSubTitle("")
                 .setIcon("https://tool.hhui.top/icon.svg")
                 .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
-                .setContent("创始人微信：<br/> lml200701158（楼仔）<br/> qing_gee（沉默王二）")
+                .setContent("群主微信：<br/> lml200701158（楼仔）<br/> qing_gee（沉默王二）")
                 .setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
     }
 

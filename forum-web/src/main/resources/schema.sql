@@ -284,6 +284,7 @@ CREATE TABLE `request_count`
 -- 管理后台
 # alter table article add column `flag_bit` int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
 
+-- 配置信息
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://hhui.top/', '', 2, 1);
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
