@@ -1,25 +1,32 @@
 package com.github.liuyueyi.forum.service.user.service.user;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
 import com.github.liuyueyi.forum.service.user.repository.dao.UserDao;
 import com.github.liuyueyi.forum.service.user.repository.dao.UserRelationDao;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
+import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
+import com.github.liuyueyi.forum.service.user.service.help.UserRandomGenHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 用户Service
@@ -42,6 +49,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private CountService countService;
 
+    @Autowired
+    private ArticleDao articleDao;
+
 
     /**
      * 用户存在时，直接返回；不存在时，则初始化
@@ -63,11 +73,11 @@ public class UserServiceImpl implements UserService {
         userDao.saveUser(record);
         req.setUserId(record.getId());
 
-        // 初始化用户信息
+        // 初始化用户信息，随机生成用户昵称 + 头像
         UserInfoDO userInfo = new UserInfoDO();
         userInfo.setUserId(req.getUserId());
-        userInfo.setUserName(String.format("小侠%06d", (int) (Math.random() * 1000000)));
-        userInfo.setPhoto("");
+        userInfo.setUserName(UserRandomGenHelper.genNickName());
+        userInfo.setPhoto(UserRandomGenHelper.genAvatar());
         userDao.save(userInfo);
     }
 
@@ -104,17 +114,34 @@ public class UserServiceImpl implements UserService {
             userHomeDTO.setCollectionCount(0);
         }
 
+        // 获取发布文章总数
+        int articleCount = articleReadService.queryArticleCount(userId);
+        userHomeDTO.setArticleCount(articleCount);
+
         // 获取关注数
         Long followCount = userRelationDao.queryUserFollowCount(userId);
         userHomeDTO.setFollowCount(followCount.intValue());
+
         // 粉丝数
         Long fansCount = userRelationDao.queryUserFansCount(userId);
         userHomeDTO.setFansCount(fansCount.intValue());
 
-        // 获取发布文章总数
-        int articleCount = articleReadService.queryArticleCount(userId);
-        userHomeDTO.setArticleCount(articleCount);
+        // 是否关注
+        Long followUserId = ReqInfoContext.getReqInfo().getUserId();
+        if (followUserId != null) {
+            UserRelationDO userRelationDO = userRelationDao.getUserRelationByUserId(userId, followUserId);
+            userHomeDTO.setFollowed((userRelationDO == null) ? Boolean.FALSE : Boolean.TRUE);
+        } else {
+            userHomeDTO.setFollowed(Boolean.FALSE);
+        }
+
+        // 加入天数
+        Integer joinDayCount = (int) ((new Date()).getTime() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24);
+        userHomeDTO.setJoinDayCount(joinDayCount);
+
+        // 创作历程
+        List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
+        userHomeDTO.setYearArticleList(yearArticleDTOS);
         return userHomeDTO;
     }
-
 }

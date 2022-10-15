@@ -1,7 +1,8 @@
 package com.github.liueyueyi.forum.test.dao;
 
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.test.BasicTest;
 import com.github.liuyueyi.forum.service.article.repository.dao.CategoryDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.TagDao;
@@ -49,7 +50,7 @@ public class ArticleDaoTest extends BasicTest {
 
     @Test
     public void testArticle() {
-        ArticleListDTO articleListDTO = articleService.queryArticlesByCategory(1L, PageParam.newPageInstance(1L, 10L));
+        PageListVo<ArticleDTO> articleListDTO = articleService.queryArticlesByCategory(1L, PageParam.newPageInstance(1L, 10L));
         log.info("articleListDTO: {}", articleListDTO);
     }
 

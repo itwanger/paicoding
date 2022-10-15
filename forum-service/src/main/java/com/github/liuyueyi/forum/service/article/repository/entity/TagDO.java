@@ -37,5 +37,8 @@ public class TagDO extends BaseDO {
      */
     private Integer status;
 
+    /**
+     * 是否删除
+     */
     private Integer deleted;
 }

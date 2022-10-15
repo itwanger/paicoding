@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 侧边栏 -->
+<div class="home-right-item-wrap" th:fragment="side_articles(side)">
+    <div class="home-right-item-title">
+        <h4 th:text="${side.title}">热门推荐</h4>
+    </div>
+    <div  class="home-right-item-article-list">
+        <a th:href="${item.url}" class="home-right-item-article-item" th:each="item, itemStat : ${side.items} ">
+            <div class="home-right-item-article-title" th:text="${item.title}">推荐文章</div>
+            <i th:text="${T(java.lang.String).format('%02d', itemStat.index + 1)}">01</i>
+        </a>
+    </div>
+</div>

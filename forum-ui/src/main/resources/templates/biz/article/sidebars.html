@@ -1,0 +1,112 @@
+<!-- 侧边栏 -->
+<style>
+    /* 首页右侧列表 */
+    .home-right-item-wrap {
+        background-color: #fff;
+        padding: 32px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        overflow: hidden;
+    }
+    .home-right-item-title {
+        margin-bottom: 24px;
+    }
+    .home-right-item-post-list span {
+        color: #adb5bd;
+        font-size: 14px;
+    }
+    .home-right-item-article-item,.home-right-item-post-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .home-right-item-article-title,.home-right-item-post-title {
+        flex: 1 1;
+        font-size: 16px;
+        color: #000;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        -webkit-line-clamp: 2;
+    }
+    .home-right-item-article-item i {
+        flex-shrink: 0;
+        font-size: 24px;
+        line-height: 160%;
+        width: 36px;
+        text-align: right;
+        color: rgba(0,0,0,.06);
+        margin-left: 8px;
+    }
+    .home-right-item-about-content {
+        text-align: justify;
+        font-size: 14px;
+        line-height: 180%;
+        color: #333;
+    }
+    .home-QR-title {
+        display: flex;
+        border-bottom: 1px #f0f0f0 solid;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+    }
+    .home-QR-title-img {
+        height: 24px;
+        width: 24px;
+        float: left;
+        margin-right: 6px;
+    }
+    .home-QR-title-code {
+        width: 57px;
+        height: 57px;
+    }
+    .home-QR-title-wrap {
+        flex: 1;
+    }
+    .home-QR-title-content {
+        font-size: 20px;
+        height: 24px;
+        line-height: 120%;
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    .home-QR-title-content-other {
+        font-size: 14px;
+        color: #333;
+    }
+    .home-QR-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .home-QR-content span {
+        font-size: 14px;
+        line-height: 25px;
+        color: #333;
+    }
+</style>
+<div th:each="sidebar : ${vo.sideBarItems}">
+    <div th:switch="${sidebar.style}">
+        <div th:case="1">
+            <div th:replace="plugins/side/side-notice :: side_notice(${sidebar})">
+                通知
+            </div>
+        </div>
+        <div th:case="2">
+            <div th:replace="plugins/side/side-articles :: side_articles(${sidebar})">
+                推荐
+            </div>
+        </div>
+        <div th:case="3">
+            <div th:replace="plugins/side/side-join :: side_join(${sidebar})">
+                加入
+            </div>
+        </div>
+        <div th:case="4">
+            <div th:replace="plugins/side/side-about :: side_about(${sidebar})">
+                关于
+            </div>
+        </div>
+    </div>
+</div>

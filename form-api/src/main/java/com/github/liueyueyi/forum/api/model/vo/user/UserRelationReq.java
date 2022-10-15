@@ -12,11 +12,6 @@ import lombok.Data;
 public class UserRelationReq {
 
     /**
-     * 用户关系ID
-     */
-    private Long userRelationId;
-
-    /**
      * 用户ID
      */
     private Long userId;
@@ -27,7 +22,7 @@ public class UserRelationReq {
     private Long followUserId;
 
     /**
-     * 关注状态: 0-未关注，1-已关注，2-取消关注
+     * 是否关注当前用户
      */
-    private Integer followState;
+    private Boolean followed;
 }

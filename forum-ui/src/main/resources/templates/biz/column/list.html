@@ -1,0 +1,80 @@
+<style>
+  .item {
+    display: flex;
+    padding: 25px;
+    box-sizing: border-box;
+    background-color: var(--juejin-layer-1);
+    position: relative;
+  }
+  .item:hover {
+    background-color: #f7f8fa;
+  }
+  .poster {
+    width: 100px;
+    height: 140px;
+    flex-shrink: 0;
+    box-shadow: 3px 4px 12px 0 rgb(0 0 0 / 20%);
+    overflow: hidden;
+    position: relative;
+  }
+  .poster img {
+    width: 100%;
+    height: 100%;
+  }
+  .info {
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #2e3135;
+    padding-left: 22px;
+  }
+  .title {
+    color: #252933;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .info .desc {
+    margin-top: 5px;
+    line-height: 20px;
+    height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    color: #515767;
+  }
+  .user {
+    display: inline-flex;
+    align-items: center;
+    color: #000;
+  }
+  .user img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background-position: 50%;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .other {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    color: #8a919f;
+    font-style: 13px;
+  }
+  .author {
+    margin-top: 6px;
+  }
+</style>
+
+<div th:each="column : ${vo.columns.list}">
+  <div th:replace="plugins/column/column-card :: column_card(${column})">
+    专栏详情
+  </div>
+</div>

@@ -7,9 +7,11 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.comment.repository.mapper.CommentMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author YiHui
@@ -59,6 +61,15 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
                 .eq(CommentDO::getArticleId, articleId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectCount(queryWrapper).intValue();
+    }
+
+    public CommentDO getHotComment(Long articleId) {
+        Map<String, Object> map = baseMapper.getHotTopCommentId(articleId);
+        if (CollectionUtils.isEmpty(map)) {
+            return null;
+        }
+
+        return baseMapper.selectById(Long.parseLong(String.valueOf(map.get("top_comment_id"))));
     }
 
 }
