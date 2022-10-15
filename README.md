@@ -5,17 +5,24 @@ quick-forum
 
 ## 结构说明
 
-- forum-web: web入口，权限身份校验，全局异常处理等
+- forum-web: Web前端入口，包括权限身份校验、全局异常处理等
 - forum-ui：前端资源包
 - forum-service: 核心的服务包，db操作，服务封装在这里
 - forum-core: 通用模块，如工具包util， 如通用的组件放在这个模块（以包路径对模块功能进行拆分，如搜索、缓存、推荐等）
 
-## 初始化说明
+## 本地部署教程
 
-- 创建数据库, 命名为 forum
-- 初始化表结构和demo数据, 可以直接导入 [test-data.sql](forum-web/src/main/resources/test-data.sql)
+- 本项目可运行在 JDK 8 之上版本（比如说 JDK 11、JDK 13、JDK 17）
+- 本项目采用 Maven 构建，需提前安装好 Maven 环境
+- 本项目源代码完全开源，可通过 Git 命令行/GitHub 桌面版拉取源代码到本地（https://github.com/liuyueyi/quick-forum）
+- 将源码导入到 Intellij IDEA/其他 IDE
+- 本项目采用 MySQL 数据库
+- 可通过 Navicat（一款图形化数据库管理）/MySQL 命令行创建数据库, 命名为 forum
+- 导入 [test-data.sql](forum-web/src/main/resources/test-data.sql)初始化表结构和demo数据
+- 运行 main 主类（/forum-web/src/main/java/com/github/liuyueyi/forum/web/QuickForumApplication.java）
+- 可直接在 Console 面板中点击 localhost:8080 启动项目/或在浏览器中直接打开即可访问项目主页了
 
-## 部署教程
+## 云服务器部署教程
 
 - [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 
