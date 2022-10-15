@@ -8,7 +8,6 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.TagMapper;
-import com.github.liuyueyi.forum.service.banner.repository.entity.BannerDO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

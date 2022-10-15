@@ -5,7 +5,6 @@ import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.banner.dto.BannerDTO;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.article.service.ColumnSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
