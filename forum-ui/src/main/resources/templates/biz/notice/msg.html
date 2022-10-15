@@ -1,58 +1,96 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<link href="/css/notifycation.css" rel="stylesheet">
-<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+  <link href="/css/notifycation.css" rel="stylesheet" />
+  <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
-</div>
+  </div>
 
-<body id="body">
-<!-- 导航栏 -->
-<div th:replace="layout/navbar :: navbar"></div>
+  <body id="body">
+    <style>
+      .notice-wrap {
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        background-color: #f4f5f5;
+      }
+      .notice-nav {
+        position: sticky;
+        top: 0;
+        margin-bottom: 10px;
+        background-color: #fff;
+        border-top: 1px solid #f1f1f1;
+      }
+      .notice-nav-inner {
+        width: 70%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+      }
+      .notice-nav-item {
+        padding: 14px 0;
+        margin-right: 36px;
+        color: #515767;
+      }
+      .notice-nav-item--active {
+        padding: 14px 0;
+        margin-right: 36px;
+        color: #1e80ff;
+      }
+      .notice-content {
+        width: 50%;
+        margin: 0 auto;
+      }
+      .notification {
+        margin-bottom: 12px;
+      }
+    </style>
+    <!-- 导航栏 -->
+    <div th:replace="layout/navbar :: navbar"></div>
 
-<!-- 正文内容 -->
-<div th:replace="layout/container :: container_all(~{::content})">
-    <content>
-        <!-- 文章列表 -->
-        <div th:fragment="category(list)" class="card"
-             style="margin-bottom: 0;border-bottom: 1px solid rgba(0,0,0,.125);">
-            <div class="card-body d-flex align-content-start flex-wrap type-box">
-                <a th:each="type: ${vo.unreadCountMap}"
-                   th:href="'/notice/' + ${type.key}"
-                   th:class="'btn' + ${#strings.equalsIgnoreCase(type.key,vo.selectType) ? ' btn-primary ': ''}"
-                   th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}">
-                    <small th:text="${type.value}">未读数</small>
-                </a>
-            </div>
+    <!-- 正文内容 -->
+    <div class="notice-wrap">
+      <!-- 文章列表 -->
+      <div th:fragment="category(list)" class="notice-nav">
+        <div class="notice-nav-inner">
+          <a
+            th:each="type: ${vo.unreadCountMap}"
+            th:href="'/notice/' + ${type.key}"
+            th:class="${#strings.equalsIgnoreCase(type.key,vo.selectType) ? 'notice-nav-item--active': 'notice-nav-item'}"
+            th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"
+          >
+            <small th:text="${type.value}">未读数</small>
+          </a>
         </div>
-        <div class="container-bg-light" style="min-height: 700px;margin-bottom: 20px;">
-            <div class="center">
-                <div id="itemList">
-                    <div th:replace="biz/notice/notify-comment"></div>
-                    <div th:replace="biz/notice/notify-reply"></div>
-                    <div th:replace="biz/notice/notify-praise"></div>
-                    <div th:replace="biz/notice/notify-collect"></div>
-                    <div th:replace="biz/notice/notify-follow"></div>
-                    <div th:replace="biz/notice/notify-system"></div>
-                </div>
-                <button th:if="${vo.list.hasMore}" id="loadMoreTag" type="button"
-                        class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多">
-                </button>
-            </div>
+      </div>
+      <div class="notice-content">
+        <div id="itemList">
+          <div th:replace="biz/notice/notify-comment"></div>
+          <div th:replace="biz/notice/notify-reply"></div>
+          <div th:replace="biz/notice/notify-praise"></div>
+          <div th:replace="biz/notice/notify-collect"></div>
+          <div th:replace="biz/notice/notify-follow"></div>
+          <div th:replace="biz/notice/notify-system"></div>
         </div>
-    </content>
-</div>
+        <button
+          th:if="${vo.list.hasMore}"
+          id="loadMoreTag"
+          type="button"
+          class="btn btn-outline-primary btn-lg btn-block"
+          th:text="加载更多"
+        ></button>
+      </div>
+    </div>
 
-<!-- 底部信息 -->
-<div th:replace="layout/footer :: footer"></div>
-<script th:inline="javascript">
-    const selectType = [[${vo.selectType}]].toLowerCase()
-    const params = {
-        "type": selectType,
-        "page": 2
-    }
-    nextPage("/notice/api/items", params, 'itemList', 'loadMoreTag', function () {
-        params['page'] = params['page'] + 1;
-    })
-</script>
-</body>
+    <!-- 底部信息 -->
+    <!-- <div th:replace="layout/footer :: footer"></div> -->
+    <script th:inline="javascript">
+      const selectType = [[${vo.selectType}]].toLowerCase()
+      const params = {
+          "type": selectType,
+          "page": 2
+      }
+      nextPage("/notice/api/items", params, 'itemList', 'loadMoreTag', function () {
+          params['page'] = params['page'] + 1;
+      })
+    </script>
+  </body>
 </html>
