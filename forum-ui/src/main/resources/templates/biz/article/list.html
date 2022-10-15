@@ -1,0 +1,6 @@
+<!-- 文章列表 -->
+<div th:each="article : ${vo.articles.list}">
+    <div th:replace="plugins/article-card :: article_card(${article})">
+        正文
+    </div>
+</div>

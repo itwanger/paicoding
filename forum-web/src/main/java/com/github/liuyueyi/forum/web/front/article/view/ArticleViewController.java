@@ -5,10 +5,12 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
+import com.github.liuyueyi.forum.service.article.service.ArticleRecommendService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
 import com.github.liuyueyi.forum.service.article.service.TagService;
 import com.github.liuyueyi.forum.service.comment.service.CommentReadService;
@@ -57,6 +59,9 @@ public class ArticleViewController extends BaseViewController {
 
     @Autowired
     private CommentReadService commentService;
+
+    @Autowired
+    private ArticleRecommendService articleRecommendService;
 
     /**
      * 文章编辑页
@@ -111,10 +116,19 @@ public class ArticleViewController extends BaseViewController {
         List<TopCommentDTO> comments = commentService.getArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
         vo.setComments(comments);
 
+        // 热门评论
+        TopCommentDTO hotComment = commentService.queryHotComment(articleId);
+        vo.setHotComment(hotComment);
+
         // 作者信息
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());
         articleDTO.setAuthorName(user.getUserName());
+        articleDTO.setAuthorAvatar(user.getPhoto());
         vo.setAuthor(user);
+
+        // 详情页的侧边推荐信息
+        List<SideBarDTO> sideBars = articleRecommendService.recommend(articleDTO);
+        vo.setSideBarItems(sideBars);
         model.addAttribute("vo", vo);
         return "biz/article/detail";
     }

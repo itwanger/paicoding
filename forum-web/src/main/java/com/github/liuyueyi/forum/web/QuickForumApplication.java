@@ -5,6 +5,9 @@ import com.github.liuyueyi.forum.web.hook.interceptor.GlobalViewInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,7 +16,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 入口
+ * 入口，直接运行即可
  *
  * @author yihui
  * @date 2022/7/6

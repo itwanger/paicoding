@@ -1,12 +1,14 @@
 package com.github.liuyueyi.forum.service.user.service.count;
 
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.liuyueyi.forum.service.comment.service.CommentReadService;
 import com.github.liuyueyi.forum.service.user.repository.dao.UserFootDao;
 import com.github.liuyueyi.forum.service.user.service.CountService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 计数服务，后续计数相关的可以考虑基于redis来做
@@ -24,6 +26,11 @@ public class CountServiceImpl implements CountService {
 
     public CountServiceImpl(UserFootDao userFootDao) {
         this.userFootDao = userFootDao;
+    }
+
+    @Override
+    public List<SimpleUserInfoDTO> queryPraiseUserInfosByArticleId(Long articleId) {
+        return null;
     }
 
     @Override

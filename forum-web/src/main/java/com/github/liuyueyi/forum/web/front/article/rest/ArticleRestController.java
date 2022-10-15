@@ -4,8 +4,12 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
+import com.github.liueyueyi.forum.api.model.vo.NextPageHtmlVo;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
+import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
@@ -14,12 +18,11 @@ import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
-import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
-import com.github.liuyueyi.forum.service.article.service.ArticleWriteService;
-import com.github.liuyueyi.forum.service.article.service.CategoryService;
-import com.github.liuyueyi.forum.service.article.service.TagService;
+import com.github.liuyueyi.forum.service.article.service.*;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
+import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 返回json格式数据
@@ -38,7 +42,7 @@ import java.util.List;
 @RestController
 public class ArticleRestController {
     @Autowired
-    private ArticleReadService articleService;
+    private ArticleReadService articleReadService;
     @Autowired
     private UserFootService userFootService;
     @Autowired
@@ -48,13 +52,60 @@ public class ArticleRestController {
     @Autowired
     private ArticleWriteService articleWriteService;
 
+    @Autowired
+    private TemplateEngineHelper templateEngineHelper;
+
+    @Autowired
+    private ArticleRecommendService articleRecommendService;
+
+    /**
+     * 根据分类 & 标签查询文章列表
+     *
+     * @param category
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping(path = "list")
+    public ResVo<NextPageHtmlVo> list(@RequestParam(value = "category", required = false) String category,
+                                      @RequestParam(value = "tag", required = false) String tag,
+                                      @RequestParam(name = "page") Long page,
+                                      @RequestParam(name = "size", required = false) Long size) {
+        if (StringUtils.isBlank(category) && StringUtils.isBlank(tag)) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "category|tag miss!");
+        }
+        size = Optional.ofNullable(size).orElse(PageParam.DEFAULT_PAGE_SIZE);
+        size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
+        Long categoryId = categoryService.queryCategoryId(category);
+        PageListVo<ArticleDTO> articles = articleReadService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
+        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", articles);
+        return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
+    }
+
+    /**
+     * 文章的关联推荐
+     *
+     * @param articleId
+     * @param page
+     * @param size
+     * @return
+     */
+    @RequestMapping(path = "recommend")
+    public ResVo<NextPageHtmlVo> recommend(@RequestParam(value = "articleId") Long articleId,
+                                           @RequestParam(name = "page") Long page,
+                                           @RequestParam(name = "size", required = false) Long size) {
+        size = Optional.ofNullable(size).orElse(PageParam.DEFAULT_PAGE_SIZE);
+        size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
+        PageListVo<ArticleDTO> articles = articleRecommendService.relatedRecommend(articleId, PageParam.newPageInstance(page, size));
+        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", articles);
+        return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
+    }
 
     /**
      * 查询所有的标签
      *
      * @return
      */
-    @ResponseBody
     @GetMapping(path = "tag/list")
     public ResVo<List<TagDTO>> queryTags(Long categoryId) {
         if (categoryId == null || categoryId <= 0L) {
@@ -70,7 +121,6 @@ public class ArticleRestController {
      *
      * @return
      */
-    @ResponseBody
     @GetMapping(path = "category/list")
     public ResVo<List<CategoryDTO>> getCategoryList(@RequestParam(name = "categoryId", required = false) Long categoryId) {
         List<CategoryDTO> list = categoryService.loadAllCategories();
@@ -86,7 +136,6 @@ public class ArticleRestController {
      * @param type      取值来自于 OperateTypeEnum#code
      * @return
      */
-    @ResponseBody
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "favor")
     public ResVo<Boolean> favor(@RequestParam(name = "articleId") Long articleId,
@@ -97,7 +146,7 @@ public class ArticleRestController {
         }
 
         // 要求文章必须存在
-        ArticleDO article = articleService.queryBasicArticle(articleId);
+        ArticleDO article = articleReadService.queryBasicArticle(articleId);
         if (article == null) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
         }
@@ -105,10 +154,9 @@ public class ArticleRestController {
         UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(),
                 ReqInfoContext.getReqInfo().getUserId(),
                 operate);
-        // 点赞消息
-        if (operate == OperateTypeEnum.PRAISE) {
-            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.PRAISE, foot));
-        }
+        // 点赞、收藏消息
+        NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
+        Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
         return ResVo.ok(true);
     }
 
@@ -122,7 +170,6 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
-    @ResponseBody
     @Transactional(rollbackFor = Exception.class)
     public ResVo<Long> post(@RequestBody ArticlePostReq req, HttpServletResponse response) throws IOException {
         Long id = articleWriteService.saveArticle(req, ReqInfoContext.getReqInfo().getUserId());

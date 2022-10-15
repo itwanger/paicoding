@@ -17,4 +17,6 @@ public class TagDTO implements Serializable {
     private Long tagId;
 
     private String tag;
+
+    private Integer status;
 }

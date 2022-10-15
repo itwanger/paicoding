@@ -1,17 +1,57 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-
-<!-- 用户卡片 -->
-<div class="card" th:fragment="user_achievement(user)">
-    <div class="card-body">
-        <h5 class="card-title" th:text="${'个人成就'}">标题</h5>
-        <ul>
-            <li th:text="'已发布文章: ' + ${user.articleCount} + ' 篇'">已发布文章</li>
-            <li th:text="'文章被点赞: ' + ${user.praiseCount} + ' 次'">文章被点赞</li>
-            <li th:text="'文章被阅读: ' + ${user.readCount} + ' 次'">文章被阅读</li>
-            <li th:text="'文章被收藏: ' + ${user.collectionCount} + ' 次'">文章被收藏</li>
-        </ul>
+  <!-- 用户卡片 -->
+  <div class="card" th:fragment="user_achievement(user)">
+    <div class="card-body achievement-wrap">
+      <div class="achievement-title" th:text="${'个人成就'}">标题</div>
+      <div class="achievement-item">
+        <div>
+          <img
+            src="data:image/png;base64,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"
+            class="iconSize___29n8N"
+            _nk="oLTI31"
+            style="height: 100%"
+          />
+          已发布文章
+        </div>
+        <span th:text=" ${user.articleCount} + ' 篇'"></span>
+      </div>
+      <div class="achievement-item">
+        <div>
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAALtSURBVHgB7Zm/bhNBEMa/tY1ydCnp8BsQCiQ7DeYJeISEJ8AhIMokJQXYLR15AkIHFabCdKaDKuYNTIF0gdwNs3ZOsqwknjnf+vaU/Umn5Oyx5f12dv4dEAgEAoFAIBAI3EgMPKDTpc2zOt7zv1v2noATNHA0fGXGcEwNHvC3jh7/6fC1aS/elV1zjtPtPTqEY7wQgHd899LXazhoP6ceHOKFANdC6Lr0hNJjQKtLTVPH6TI7SvBo2DcDFEz5HlBHU2LGIh3AAaULYGaBT0LHZgsUTPkeQHgoNf0DmbdoKF8AM8v9EmoN3EXBlCpA6yU1Mcv/pVGqALXzy/P/lfYJJiiY0gSwu88F0FPNZzYI31EwpQjw4AVtcan7GfIMYIPleNA3hXtAA2vEpjGu+7uU6nM6e8sADlibAO1n1D0z04XnyuXcF5zAAapSeNq2GrSMwb0UiBbfJ8LP24SPi67a3ifr7h04hhcz4t/VH742x4rPyLjo2Xd4kct2MI5SvM1E2N6nQ3ZfJ2XsVaSEvW9vTF9iKw6CducFi7dEcR2Psxte/A7WTI2PmrRsFgtABnektrzqedsm1s/m/CZch1gAU8MG5EQoGd4wUcqUC5DgNyoE1xmiokl+BAgxqsOIhydjiaFcABRfhzuD5EWTWIB6UiEPIHnRJBaAS9iqCDD52jNfpMZyD6jIEUiVPYNYgOhWNTzAQNczyNvhfxU5AgnE7m8RC+CiF3eAOP1lqAYibOy3F5B+ZqASIDHeC6CeGagEMOR1OaxKfxk6AVJ/U2Gac2SmG4p6fAS06S9DJYDXDZEy/WXogqCv1SCPzLXpL0MlQMPTfmCVkbnuCHjaEXJ2eoecqASI8h0B58cmT/rLUAlgy2HRrC3Bj7m7ERxCK+y+Rf1skGeDH5aYxLHBp+yGj80TuPOCCRcAR1gBtQDTaJvimK9fC2/FNhrH/FBkNNc4WXsW4T5Q6KOtiQ189nvzRv9AIBAIBAKBQOCG8x9ntuvPar+/zgAAAABJRU5ErkJggg=="
+            class="iconSize___29n8N"
+            _nk="oLTI31"
+            style="height: 100%"
+          />
+          文章被点赞
+        </div>
+        <span th:text=" ${user.praiseCount} + ' 篇'"></span>
+      </div>
+      <div class="achievement-item">
+        <div>
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAOZSURBVHgB7ZpNSFRRFMf/740DWkrWqiJQkNZGtcsvJAzaSC5s15CtokiQMlzkONNCUhEmgnbWtMuF0cJFEKGOtikIt0UwEmarGkhTmmZe58wHWbyZ9+59782Q7/5gmOe8M849//txzj33AQqFQqHwL1qpG4Zh6NhDaJqWNft8TzkpgxIAPkcJAJ+jBIDPUQLA5/hegBpUiK7b6PyVRWuGLjUDJ+ijA/RqLNxOUU6+ltWQDAAL1C2ry/ewiArg6V7g7AiadzIIZbO4gT/O2iVJrVtsqEXkxV2swSGl9gKeCMC9/TOLMAx0wg00xJ0KUREB+sfQuL6FsGHketx9HAjhuQBtNzFIvzAK8aEuSrJGR2RpAk9EvuSZANzrn7YwQwtbLyoJjYZj+zE0O4aULXMvBOBF7kcar+iyCdUh2VCHbjtTwnUBcgtdBnOQGPLUaBw/Chw+lP974yvw7iNkSQU0DCQm8byckasCtN9CKGNgBoKw4/3t9Oqg69q/7218A+bfALMJYHMbwlBjh5anECt13zUB2oYRprg+CkGOUG8/uErvB8vbsRDXH+ZHhQTR11OImN1wRQBZ57nnHw9ZO1+ERQhNuzsSHBdFedjLOM8M9Nh3nmFbnioykJfTHcO4ZNfelgCdI5TDS8z5IudPQ5iLJEB9HaSgPccjbrMdW1uhLp3GM0hysiU/BUQpRgpZqM1z5+5Yh2dLAbbTubRWOs4XQ50MItPGhGZaQwatjFRBxMqgLoj79Ca9C/siF85ycDRwQJLWkJiVkaUAL8eRDAZxAZK8/wx8lwhnDrNDUJv77KTItqbA4jhWOd2EBBzLObsTZf4tpKHd4mVusx1b22sA5drxgG6eZVnxNCGW2bHt7BKkoMxOaKsstAgmJhCVEYFHwTWb6S3bsO3mDoRh51emEBX8jjnlNkOF4sc0BOHE5kpPPjH6NzfgdYJHCve8jPM87Mv1vOvbYUqNewvZoVQFiBOk3dvhD+tyjhMpPYA+qyqyKoh48YQIh8h9QXTTZRyVhkti9TjltGTuWlH0DO0WqRochvejIaVriCxP5hI023j+jNAKhUmvRwP1Vox6vUXUeYv/aY6Tg5HC2sC1gxDcYYEWuqiT47KKngwV2SVEF8SnBp8Xxih0xv+7ozEzCsdlrQZd6gaa6L0Zuw5HkXd4wdCwqntwOFp1AaqNelCyBEoA+BwlAHyOEgA+RwkAn+N7ARQKhULhZ34DPuFecOoQA9AAAAAASUVORK5CYII="
+            class="iconSize___29n8N"
+            _nk="oLTI31"
+            style="height: 100%"
+          />
+          文章被阅读
+        </div>
+        <span th:text="${user.readCount} + ' 篇'"></span>
+      </div>
+      <div class="achievement-item">
+        <div>
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAANUSURBVHgB7ZpRbtNAEIb/cQLtY2+AewLSB0TKS9MbcIO2JyBtqXhs+ohQaXoCwgngBrQvEImHlhOQI+SlUkGNh5nURaFAsrYna1fdT7JiWRvb8+/s7sysgUAgEAgEAvcVQkk82eNGPcGRnl9F2P76hs5RAhFKQoz/ID8tPfS81eYllEApAjzb5Y78xBOX4ssIL1AC3odA8xXHdIVP+FMAZbgwwvJJl4bwiHcPiK6wj7+NV5bK8AKvHpD2/vdpbbiO5f5rGsATXj0g7f2piEDv4BFvHuDS+zfwCOv9Lp3AA948IEvPUm22p1jhRYDmDm/ies13pdVsc5b2ufEiAFH2HhUv8DIXzF2AtPdjZCd+usNtzJm5ToLNXW7JA7QnY+RjKHnC+jzzBDMBZMzG4k9q8GO5a0Mu6WEV32t0eA6Wg3AqogysRMksgCYtFw8QRwnWiNGIxFi+7uEykpkTFSUhDGiEb4siUtZQ2kkANfpHJBMZ4Tnyu7MXxKDzRI7FEbZdxKjDgZ+1cd6+iTuAeGNDRGhIh6nx27PaO60CXI57F4Kv56GZuC6D73HHEC84dmnnJMCXQ/ooinZwR2BGR9/ZpW2mVaD5kvdl5u+gwqjx/bd04No+8zJYZRGyGq/kCoSqKEIe45XckeDqLvfkZwMVQIzofT6kLeSgUChcBRGKGJ/+vxhS4j5juK251mjUJ8avoACF0+GHUr7SF4Fn9Jn6bBTEJBtMc4UzuVsMHzAGCwlWLPYQTAoi4xeh2XG3FUmEttUGSml7g1XBTABJQR/BF2w31MwEiNjT+Dd+lt0QIH8CJFRBAchjpShCBQVgv6WyGEaYCJB+3eGzarRk9UWJiQCXNf+h8IWRF5gIQCXUDGs12X8wwESAHDHAUPN3nThlK3xZags9DW+z3MCqUOtUFp/FeF12yyrU8O5iguNboezWeGepjg1KpPzusMxZxQImAmB2Cfp/hv+m3x1/FqMVnQPdUBU996cJYRULmAigcwD/4zrr1pUULPqHlKmsLqWtnv5vmhDiASYTr4kAYugAE0URNVxcudM/olMUYFIIEWGDJj6ySMUtjIkACyNsST1goBOTTmhFDb/NjRCre7wmk+amnA90OCEQCAQCgUAgEAgEcvILMQITVEXPSAUAAAAASUVORK5CYII="
+            class="iconSize___29n8N"
+            _nk="oLTI31"
+            style="height: 100%"
+          />
+          文章被收藏
+        </div>
+        <span th:text="${user.collectionCount} + ' 篇'"></span>
+      </div>
     </div>
-</div>
-
+  </div>
 </html>

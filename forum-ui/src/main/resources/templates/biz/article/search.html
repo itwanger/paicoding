@@ -6,7 +6,7 @@
 
 <body id="body">
 <!-- 导航栏 -->
-<div th:replace="layout/navbar :: header"></div>
+<div th:replace="layout/navbar :: navbar"></div>
 
 <!-- 正文内容 -->
 <div th:replace="layout/container :: container_all(~{::content})">
@@ -14,13 +14,13 @@
     <content>
         <div class="container-bg-light"
              style=";min-height: 700px;margin-bottom: 20px;">
-            <div th:each="article : ${articles.articleList}">
+            <div th:each="article : ${vo.articles.list}">
                 <div th:replace="plugins/article-card :: article_card(${article})">
                     正文
                 </div>
             </div>
 
-            <div th:if="${#lists.isEmpty(articles.articleList)}">
+            <div th:if="${#lists.isEmpty(vo.articles.list)}">
                 <a>没有查询到任何记录。</a>
             </div>
         </div>

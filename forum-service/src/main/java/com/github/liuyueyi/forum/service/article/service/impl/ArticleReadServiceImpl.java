@@ -2,11 +2,13 @@ package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleListDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleTagDao;
@@ -105,24 +107,27 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
         // 更新文章统计计数
         article.setCount(countService.queryArticleCountInfoByArticleId(articleId));
+
+        // 设置文章的点赞列表
+        article.setPraisedUsers(userFootService.queryArticlePraisedUsers(articleId));
         return article;
     }
 
 
     @Override
-    public ArticleListDTO queryArticlesByCategory(Long categoryId, PageParam page) {
+    public PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page) {
         List<ArticleDO> records = articleDao.listArticlesByCategoryId(categoryId, page);
         return buildArticleListVo(records, page.getPageSize());
     }
 
     @Override
-    public ArticleListDTO queryArticlesBySearchKey(String key, PageParam page) {
+    public PageListVo<ArticleDTO> queryArticlesBySearchKey(String key, PageParam page) {
         List<ArticleDO> records = articleDao.listArticlesByBySearchKey(key, page);
         return buildArticleListVo(records, page.getPageSize());
     }
 
     @Override
-    public ArticleListDTO queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select) {
+    public PageListVo<ArticleDTO> queryArticlesByUserAndType(Long userId, PageParam pageParam, HomeSelectEnum select) {
         List<ArticleDO> records = null;
         if (select == HomeSelectEnum.ARTICLE) {
             // 用户的文章列表
@@ -140,11 +145,18 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         }
 
         if (CollectionUtils.isEmpty(records)) {
-            return new ArticleListDTO();
+            return PageListVo.emptyVo();
         }
         return buildArticleListVo(records, pageParam.getPageSize());
     }
 
+    /**
+     * fixme @楼仔 这个排序逻辑看着像是有问题的样子
+     *
+     * @param articleIds
+     * @param records
+     * @return
+     */
     private List<ArticleDO> sortByIds(List<Long> articleIds, List<ArticleDO> records) {
         List<ArticleDO> articleDOS = new ArrayList<>();
         Map<Long, ArticleDO> articleDOMap = records.stream().collect(Collectors.toMap(ArticleDO::getId, t -> t));
@@ -156,12 +168,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return articleDOS;
     }
 
-    private ArticleListDTO buildArticleListVo(List<ArticleDO> records, long pageSize) {
+    public PageListVo<ArticleDTO> buildArticleListVo(List<ArticleDO> records, long pageSize) {
         List<ArticleDTO> result = records.stream().map(this::fillArticleRelatedInfo).collect(Collectors.toList());
-        ArticleListDTO dto = new ArticleListDTO();
-        dto.setArticleList(result);
-        dto.setIsMore(result.size() == pageSize);
-        return dto;
+        return PageListVo.newVo(result, pageSize);
     }
 
     /**
@@ -179,8 +188,16 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 阅读计数统计
         dto.setCount(countService.queryArticleCountInfoByArticleId(record.getId()));
         // 作者信息
-        dto.setAuthorName(userService.queryBasicUserInfo(dto.getAuthor()).getUserName());
+        BaseUserInfoDTO author = userService.queryBasicUserInfo(dto.getAuthor());
+        dto.setAuthorName(author.getUserName());
+        dto.setAuthorAvatar(author.getPhoto());
         return dto;
+    }
+
+    @Override
+    public PageListVo<SimpleArticleDTO> queryHotArticlesForRecommend(PageParam pageParam) {
+        List<SimpleArticleDTO> list = articleDao.listHotArticles(pageParam);
+        return PageListVo.newVo(list, pageParam.getPageSize());
     }
 
     @Override

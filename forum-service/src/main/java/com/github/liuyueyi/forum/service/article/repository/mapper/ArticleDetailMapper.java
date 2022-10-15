@@ -23,4 +23,13 @@ public interface ArticleDetailMapper extends BaseMapper<ArticleDetailDO> {
     @Update("update article_detail set `content` = #{content}, `version` = `version` + 1 where article_id = #{articleId} and `deleted`=0 order by `version` desc limit 1")
     int updateContent(long articleId, String content);
 
+
+    /**
+     * 更新标记位
+     * @param articleId
+     * @param falgBit
+     * @return
+     */
+    @Update("update article set `flag_bit` = #{falgBit} where id = #{articleId} and `deleted`=0")
+    int updateFlagBit(long articleId, Integer falgBit);
 }

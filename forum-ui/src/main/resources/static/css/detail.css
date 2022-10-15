@@ -1,0 +1,101 @@
+.detail-user-wrap {
+  background-color: #fff;
+  padding: 32px;
+  border-radius: 8px;
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.detail-user-head-wrap {
+  display: flex;
+  align-items: center;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.detail-user-name {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 130%;
+  color: #333;
+  flex: 1 1;
+  word-break: break-all;
+}
+.detail-user-look {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 28px;
+  padding: 0 11px;
+  height: 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #3973ff;
+  border: 1px solid #3973ff;
+  cursor: pointer;
+}
+.detail-user-head {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.detail-user-head-list {
+  color: #666;
+}
+
+.detail-user-head-list div {
+  margin-bottom: 8px;
+}
+
+/* 详情主体样式 */
+.detail-content-title {
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 26px;
+  line-height: 31px;
+  vertical-align: bottom;
+  margin-bottom: 12px;
+}
+
+.detail-content-title-other-wrap {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  color: #999;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-content-title-other-img {
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+}
+.detail-content-title-other-name {
+  color: #62749f;
+  margin-left: 8px;
+  margin-right: 16px;
+}
+.detail-content-title-other-time {
+  margin-right: 16px;
+}
+
+.detail-content-title-other-look {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 28px;
+  padding: 0 11px;
+  height: 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #3973ff;
+  border: 1px solid #3973ff;
+  cursor: pointer;
+}
+.detail-content-title-edit a {
+  color: #3973ff;
+  padding-left: 1em;
+}
