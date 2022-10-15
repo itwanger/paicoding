@@ -234,19 +234,21 @@ CREATE TABLE `column_article`
     KEY           `column_id` (`column_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='专栏文章列表';
 
-CREATE TABLE `banner`
+CREATE TABLE `config`
 (
     `id`           int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `banner_name` varchar(64)  NOT NULL default '' COMMENT '名称',
-    `banner_url`  varchar(256) NOT NULL default '' COMMENT '图片url',
-    `banner_type` tinyint NOT NULL default '0' COMMENT '类型：1-首页，2-侧边栏，3-广告位',
+    `type` tinyint NOT NULL default '0' COMMENT '配置类型：1-首页，2-侧边栏，3-广告位，4-公告',
+    `name` varchar(64)  NOT NULL default '' COMMENT '名称',
+    `banner_url`  varchar(256) NOT NULL default '' COMMENT '图片链接',
+    `jump_url`  varchar(256) NOT NULL default '' COMMENT '跳转链接',
+    `content`  varchar(256) NOT NULL default '' COMMENT '内容',
     `rank` tinyint NOT NULL default '0' COMMENT '排序',
     `status`      tinyint NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`     tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='banner表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='配置表';
 
 CREATE TABLE `request_count`
 (
@@ -279,6 +281,11 @@ CREATE TABLE `request_count`
 # alter table user_foot  drop column comment_id;
 # alter table `comment` add column `top_comment_id` int not null default '0' comment '顶级评论ID'  after `content`;
 # alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`;
-
 -- 管理后台
-alter table article add column `flag_bit` int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
+# alter table article add column `flag_bit` int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
+
+-- 配置信息
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://hhui.top/', '', 2, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);

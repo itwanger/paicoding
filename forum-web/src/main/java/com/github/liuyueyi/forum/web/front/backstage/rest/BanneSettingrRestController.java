@@ -2,9 +2,9 @@ package com.github.liuyueyi.forum.web.front.backstage.rest;
 
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
-import com.github.liueyueyi.forum.api.model.vo.banner.BannerReq;
+import com.github.liueyueyi.forum.api.model.vo.banner.ConfigReq;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
-import com.github.liuyueyi.forum.service.banner.service.impl.BannerSettingServiceImpl;
+import com.github.liuyueyi.forum.service.config.service.impl.ConfigSettingServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,19 +19,19 @@ import org.springframework.web.bind.annotation.*;
 public class BanneSettingrRestController {
 
     @Autowired
-    private BannerSettingServiceImpl bannerSettingService;
+    private ConfigSettingServiceImpl bannerSettingService;
 
     @ResponseBody
     @PostMapping(path = "save")
-    public ResVo<String> save(@RequestBody BannerReq bannerReq) {
-        bannerSettingService.saveBanner(bannerReq);
+    public ResVo<String> save(@RequestBody ConfigReq configReq) {
+        bannerSettingService.saveConfig(configReq);
         return ResVo.ok("ok");
     }
 
     @ResponseBody
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "bannerId") Integer bannerId) {
-        bannerSettingService.deleteBanner(bannerId);
+        bannerSettingService.deleteConfig(bannerId);
         return ResVo.ok("ok");
     }
 
@@ -42,7 +42,7 @@ public class BanneSettingrRestController {
         if (operateType != PushStatusEnum.OFFLINE.getCode() && operateType!= PushStatusEnum.ONLINE.getCode()) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
-        bannerSettingService.operateBanner(bannerId, operateType);
+        bannerSettingService.operateConfig(bannerId, operateType);
         return ResVo.ok("ok");
     }
 }
