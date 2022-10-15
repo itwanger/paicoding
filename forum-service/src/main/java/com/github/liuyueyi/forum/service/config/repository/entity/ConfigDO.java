@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.service.config.repository.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import lombok.Data;
@@ -15,9 +16,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("config")
 public class ConfigDO extends BaseDO {
-
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = -6122208316544171303L;
     /**
      * 类型
      */
@@ -26,6 +25,7 @@ public class ConfigDO extends BaseDO {
     /**
      * 名称
      */
+    @TableField("`name`")
     private String name;
 
     /**
@@ -46,6 +46,7 @@ public class ConfigDO extends BaseDO {
     /**
      * 排序
      */
+    @TableField("`rank`")
     private Integer rank;
 
     /**

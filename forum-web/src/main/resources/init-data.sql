@@ -151,6 +151,12 @@ values ('1', 'Java', '1', '1', '1', '0'),
        ('136', 'json', '1', '3', '1', '0');
 
 
+-- 配置相关信息
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://hhui.top/', '', 2, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
+
 -- 初始化文章
 -- fixme 下面这个文章后续使用论坛的介绍进行替换
 
