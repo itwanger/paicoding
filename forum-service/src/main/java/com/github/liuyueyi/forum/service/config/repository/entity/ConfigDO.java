@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.service.banner.repository.entity;
+package com.github.liuyueyi.forum.service.config.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
@@ -13,25 +13,35 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("banner")
-public class BannerDO extends BaseDO {
+@TableName("config")
+public class ConfigDO extends BaseDO {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 图片名称
+     * 类型
      */
-    private String bannerName;
+    private Integer type;
 
     /**
-     * 图片url
+     * 名称
+     */
+    private String name;
+
+    /**
+     * 图片链接
      */
     private String bannerUrl;
 
     /**
-     * 图片类型
+     * 跳转链接
      */
-    private Integer bannerType;
+    private String jumpUrl;
+
+    /**
+     * 内容
+     */
+    private String content;
 
     /**
      * 排序
