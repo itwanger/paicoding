@@ -68,6 +68,9 @@ public class CategoryServiceImpl implements CategoryService {
      * @return
      */
     public List<CategoryDTO> loadAllCategories() {
+        if (categoryCaches.size() <= 5) {
+            refreshCache();
+        }
         List<CategoryDTO> list = new ArrayList<>(categoryCaches.asMap().values());
         list.sort(Comparator.comparingLong(CategoryDTO::getCategoryId));
         return list;

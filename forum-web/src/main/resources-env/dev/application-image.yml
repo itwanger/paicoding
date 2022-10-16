@@ -1,4 +1,5 @@
 image:
-  abs-tmp-path: /Users/mengloulv/storage
-  web-img-path: forum/imge/
+  abs-tmp-path: /tmp/storage/
+  web-img-path: /forum/image/
   tmp-upload-path: /tmp/forum/
+  cdn-host: file:///D:${image.abs-tmp-path}

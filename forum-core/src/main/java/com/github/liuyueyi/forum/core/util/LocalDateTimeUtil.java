@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class LocalDateTimeUtil {
 
-    public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HH:mm");
+    public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     public static String getCurrentDateTime() {
         return getCurrentDateTime(DEFAULT_FORMATTER);
