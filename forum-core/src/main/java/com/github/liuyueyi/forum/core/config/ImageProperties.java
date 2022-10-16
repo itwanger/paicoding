@@ -29,4 +29,9 @@ public class ImageProperties {
      * 上传文件的临时存储目录
      */
     private String tmpUploadPath;
+
+    /**
+     * 访问图片的host
+     */
+    private String cdnHost;
 }
