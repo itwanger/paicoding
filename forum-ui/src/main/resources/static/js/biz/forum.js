@@ -78,10 +78,10 @@ const doGetNextPageText = function (url, params, listId, callback) {
     const result = data.result
     $(`#${listId}`).append(result.html)
     if (!result.hasMore) {
-      alert("没有更多了")
+      callback(false)
     }
     if (callback) {
-      callback("true")
+      callback(true)
     }
   })
 }
