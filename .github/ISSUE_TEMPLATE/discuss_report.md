@@ -1,11 +1,11 @@
 ---
 name: 讨论
-about: 文明讨论，和谐互助.
+about: 文明讨论，和谐互助
 title: ''
 labels: 'discuss'
 assignees: ''
 
 ---
 
-**主题**
+**讨论主题**
 
