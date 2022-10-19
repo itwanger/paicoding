@@ -1,8 +1,8 @@
 ---
-name: Custom issue template
-about: Describe this issue template's purpose here.
+name: 讨论
+about: 文明讨论，和谐互助.
 title: ''
-labels: ''
+labels: 'discuss'
 assignees: ''
 
 ---
