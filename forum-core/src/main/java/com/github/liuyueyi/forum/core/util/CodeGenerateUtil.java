@@ -11,6 +11,6 @@ public class CodeGenerateUtil {
     private static final Random random = new Random();
 
     public static String genCode() {
-        return String.format("%06d", random.nextInt(1000_000));
+        return String.format("%04d", random.nextInt(10000));
     }
 }

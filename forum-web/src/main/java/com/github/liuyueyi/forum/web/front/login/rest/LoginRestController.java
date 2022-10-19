@@ -6,15 +6,16 @@ import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.user.service.LoginService;
+import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
+import com.github.liuyueyi.forum.web.front.login.vo.QrLoginVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -28,7 +29,18 @@ import java.util.Optional;
 public class LoginRestController {
     @Autowired
     private LoginService loginService;
+    @Autowired
+    private QrLoginHelper qrLoginHelper;
 
+    /**
+     * 适用于输入验证码的登录流程；
+     * 现在使用公众号回调方式登录, 不会走到这个接口
+     *
+     * @param code
+     * @param response
+     * @return
+     */
+    @Deprecated
     @PostMapping("/login")
     public ResVo<Boolean> login(@RequestParam(name = "code") String code,
                                 HttpServletResponse response) {
@@ -47,5 +59,42 @@ public class LoginRestController {
     public ResVo<Boolean> logOut() {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
         return ResVo.ok(true);
+    }
+
+    /**
+     * 获取登录的验证码
+     *
+     * @return
+     */
+    @GetMapping(path = "/login/code")
+    public ResVo<QrLoginVo> qrLogin(HttpServletRequest request, HttpServletResponse response) {
+        QrLoginVo vo = new QrLoginVo();
+        vo.setCode(qrLoginHelper.genVerifyCode(request, response));
+        return ResVo.ok(vo);
+    }
+
+
+    /**
+     * 刷新验证码
+     *
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @GetMapping(path = "/login/refresh")
+    public ResVo<QrLoginVo> refresh(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        QrLoginVo vo = new QrLoginVo();
+        String code = qrLoginHelper.refreshCode(request, response);
+        if (StringUtils.isBlank(code)) {
+            // 刷新失败，之前的连接已失效，重新建立连接
+            code = qrLoginHelper.genVerifyCode(request, response);
+            vo.setCode(code);
+            vo.setReconnect(true);
+        } else {
+            vo.setCode(code);
+            vo.setReconnect(false);
+        }
+        return ResVo.ok(vo);
     }
 }
