@@ -66,86 +66,58 @@
             padding: 0;
         }
     </style>
-    <nav
-            id="bodyNav"
-            th:data-islogin="${global.isLogin}"
-            class="navbar navbar-expand-md container-bg-light fixed-top"
-    >
+    <nav id="bodyNav" th:data-islogin="${global.isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
         <a class="navbar-brand">
             <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
             <!-- <img
-              th:src="${global.siteInfo.websiteLogoUrl}"
-              th:alt="${global.siteInfo.websiteName}"
-              src="https://static.developers.pub/logo.jpeg"
-              width="30"
-              height="30"
-              alt=""
-              loading="lazy"
-            /> -->
-            <img
-                    th:src="${global.siteInfo.websiteLogoUrl}"
-                    th:alt="${global.siteInfo.websiteName}"
-                    alt=""
-                    width="30"
-                    height="30"
-                    loading="lazy"
-            />
+                  th:src="${global.siteInfo.websiteLogoUrl}"
+                  th:alt="${global.siteInfo.websiteName}"
+                  src="https://static.developers.pub/logo.jpeg"
+                  width="30"
+                  height="30"
+                  alt=""
+                  loading="lazy"
+                /> -->
+            <img th:src="${global.siteInfo.websiteLogoUrl}" th:alt="${global.siteInfo.websiteName}" alt="" width="30"
+                 height="30" loading="lazy"/>
         </a>
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
             <ul class="navbar-nav mr-auto">
-                <li
-                        th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
-                        class="nav-item"
-                >
+                <li th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
+                    class="nav-item">
                     <a class="nav-link" href="/">首页</a>
                 </li>
-                <li
-                        th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
-                        class="nav-item"
-                >
+                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
+                    class="nav-item">
                     <a class="nav-link" href="/column">教程</a>
                 </li>
-                <li
-                        th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"
-                        class="nav-item"
-                >
+                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"
+                    class="nav-item">
                     <a class="nav-link" href="https://tool.hhui.top" target="_blank">
                         工具箱
                     </a>
                 </li>
-                <li
-                        th:if="${global.isLogin}"
-                        th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
-                        class="nav-item"
-                >
+                <li th:if="${global.isLogin}"
+                    th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
+                    class="nav-item">
                     <a class="nav-link" href="/follow">关注</a>
                 </li>
             </ul>
             <form class="form-inline my-md-0" action="/search" method="get">
                 <div class="input-icon">
-                    <input
-                            name="key"
-                            required
-                            type="text"
-                            class="form-control nav-search"
-                            placeholder="找文章/找标签/找技术大神"
-                            aria-label="Recipient's username"
-                            aria-describedby="basic-addon2"
-                    />
+                    <input name="key" required type="text" class="form-control nav-search" placeholder="找文章/找标签/找技术大神"
+                           aria-label="Recipient's username" aria-describedby="basic-addon2"/>
                 </div>
             </form>
-            <button type="button" class="btn btn-primary nav-article">
+            <button type="button" class="btn btn-primary nav-article"
+                    th:data-target="${global.isLogin ? '' : '#loginModal'}"
+                    th:data-toggle="${global.isLogin ? '' : 'modal'}">
                 写文章
             </button>
             <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
                 <!--  待登录 -->
                 <li class="nav-item">
-                    <a
-                            class="nav-link"
-                            href="#"
-                            data-toggle="modal"
-                            data-target="#loginModal"
-                    >
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">
                         登录
                     </a>
                 </li>
@@ -154,26 +126,12 @@
                 <!--  已登录 -->
                 <li class="nav-item nav-notice">
                     <a class="nav-link navbar-count-msg-box" href="/notice/comment">
-              <span
-                      th:if="${global.msgNum != null && global.msgNum > 0}"
-                      class="navbar-count-msg"
-              ></span>
-                        <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="icon"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                stroke-width="2"
-                                stroke="currentColor"
-                                fill="none"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                        >
+                        <span th:if="${global.msgNum != null && global.msgNum > 0}" class="navbar-count-msg"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path
-                                    d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"
-                            ></path>
+                            <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
                             <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
                         </svg>
                     </a>
@@ -181,21 +139,14 @@
                 <!-- Dropdown -->
                 <li class="nav-item dropdown nav-login-head">
                     <!-- <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"> -->
-                    <img
-                            class="nav-login-img dropdown-toggle"
-                            th:src="${global.user.photo}"
-                            data-toggle="dropdown"
-                            src="https://static.developers.pub/static/img/logo.b2ff606.jpeg"
-                            alt=""
-                            loading="lazy"
-                    />
+                    <img class="nav-login-img dropdown-toggle" th:src="${global.user.photo}" data-toggle="dropdown"
+                         src="https://static.developers.pub/static/img/logo.b2ff606.jpeg" alt="" loading="lazy"/>
                     <!-- </a> -->
                     <div class="dropdown-menu nav-login-menu">
-                        <a
-                                th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
-                                href="/admin"
-                                target="_blank"
-                                class="dropdown-item"
+                        <a th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                           href="/admin"
+                           target="_blank"
+                           class="dropdown-item"
                         >
                             管理后台
                         </a>
@@ -248,10 +199,10 @@
                                 style="max-width: 80%; padding-left: 10%"
                         />
                         <small>
-                            <bold>关注微信公众号，输入下面的验证码</bold>
-                            <span style="color:red;font-size: 2em" th:text="''"></span>
+                            <bold>关注微信公众号，输入右边的验证码</bold>
+                            <span id="code" style="color:red;font-size: 2em" th:text="''"></span>
                             <br/>
-                            <div id="state" style="color: blue; font-size: 2.2em">
+                            <div id="state" style="color: blue;">
                             </div>
                             <br/>
                             <button id="refreshCode" class="btn btn-primary">刷新</button>
@@ -273,78 +224,85 @@
 
     <script src="/js/jquery.min.js"></script>
     <script src="/js/biz/login.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-    <script
-            src="/js/mock.js"
-            th:if="${!#strings.equals(global.env, 'prod')}"
-    ></script>
+    <script src="/js/bootstrap.min.js" th:if="${!global.isLogin}"></script>
+    <script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
     <script th:inline="javascript">
+        const isLogin = [[${global.isLogin}]];
         $(".nav-article").click(() => {
-            window.location.href = "/article/edit"
-        })
-
-        /**
-         * 建立半长连接，用于实现自动登录
-         * @param code
-         */
-        function buildConnect(code) {
-            console.log("开始建立连接: ", code);
-            const stateTag = document.getElementById('state');
-            const subscribeUrl = "/subscribe?id=" + code;
-            const source = new EventSource(subscribeUrl);
-            source.onmessage = function (event) {
-                let text = event.data;
-                console.log("receive: " + text);
-                if (text.startsWith('refresh#')) {
-                    // 刷新验证码
-                    const newCode = text.substring(8).trim();
-                    stateTag.innerText = '二维码已刷新，请在五分钟内输入微信公众号内输入验证码：【' + text.substring(8).trim() + '】';
-                    stateTag.style.display = 'block';
-                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
-                        document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
-                    }
-                } else if (text === 'scan') {
-                    // 二维码扫描
-                    stateTag.innerText = '二维码已扫描，请在五分钟内输入微信公众号内输入验证码：【' + code + '】';
-                    stateTag.style.display = 'block';
-                } else if (text.startsWith('login#')) {
-                    // 登录格式为 login#cookie
-                    document.cookie = text.substring(6);
-                    source.close();
-                    window.location.href = "/";
-                }
-            };
-
-            source.onopen = function (evt) {
-                console.log("开始订阅");
+            if (isLogin) {
+                window.location.href = "/article/edit"
+            } else {
+                toastr.warn("请先登录!");
             }
-            stateTag.innerText = '请在五分钟内输入微信公众号内输入验证码：【' + code + '】';
+        })
+
+        if (!isLogin) {
+            /**
+             * 建立半长连接，用于实现自动登录
+             * @param code
+             */
+            function buildConnect(code) {
+                console.log("开始建立连接: ", code);
+                const stateTag = document.getElementById('state');
+                const codeTag = document.getElementById('code');
+                const subscribeUrl = "/subscribe?id=" + code;
+                const source = new EventSource(subscribeUrl);
+                source.onmessage = function (event) {
+                    let text = event.data;
+                    console.log("receive: " + text);
+                    if (text.startsWith('refresh#')) {
+                        // 刷新验证码
+                        const newCode = text.substring(8).trim();
+                        codeTag.innerText = newCode;
+                        stateTag.innerText = '已刷新';
+                        stateTag.style.display = 'block';
+                        if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                            document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
+                        }
+                    } else if (text === 'scan') {
+                        // 二维码扫描
+                        stateTag.innerText = '已扫描';
+                        stateTag.style.display = 'block';
+                    } else if (text.startsWith('login#')) {
+                        // 登录格式为 login#cookie
+                        document.cookie = text.substring(6);
+                        source.close();
+                        window.location.href = "/";
+                    }
+                };
+
+                source.onopen = function (evt) {
+                    console.log("开始订阅");
+                }
+                codeTag.innerText = code;
+                stateTag.innerText = '请在五分钟内输入微信公众号内输入验证码';
+            }
+
+            $('#loginModal').on('show.bs.modal', function () {
+                console.log("登录弹窗已展示!");
+                $.ajax({
+                    url: "/login/code", dataType: "json", type: "get", success: function (data) {
+                        const code = data['result']['code'];
+                        buildConnect(code);
+                        if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                            document.getElementById('mockLogin').setAttribute('data-verify-code', code);
+                        }
+                    }
+                })
+            })
+
+            $('#refreshCode').click(() => {
+                $.ajax({
+                    url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
+                        const code = data['result']['code'];
+                        const reconnect = data['result']['reconnect']
+                        if (reconnect) {
+                            buildConnect(code)
+                        }
+                    }
+                })
+            })
         }
-
-        $('#loginModal').on('show.bs.modal', function () {
-            console.log("登录弹窗已展示!");
-            $.ajax({
-                url: "/login/code", dataType: "json", type: "get", success: function (data) {
-                    const code = data['result']['code'];
-                    buildConnect(code);
-                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
-                        document.getElementById('mockLogin').setAttribute('data-verify-code', code);
-                    }
-                }
-            })
-        })
-
-        $('#refreshCode').click(() => {
-            $.ajax({
-                url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
-                    const code = data['result']['code'];
-                    const reconnect = data['result']['reconnect']
-                    if (reconnect) {
-                        buildConnect(code)
-                    }
-                }
-            })
-        })
     </script>
 </div>
 </html>
