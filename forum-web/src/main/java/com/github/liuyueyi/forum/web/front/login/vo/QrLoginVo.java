@@ -18,4 +18,9 @@ public class QrLoginVo {
      */
     private String qr;
 
+    /**
+     * true 表示需要重新建立连接
+     */
+    private boolean reconnect;
+
 }

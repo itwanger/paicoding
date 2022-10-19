@@ -74,9 +74,13 @@ public class WxRestController {
         } else {
             if (loginSymbol(content)) {
                 res.setContent("登录验证码: 【" + loginService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
-            } else if (NumberUtils.isDigits(content)) {
+            } else if (NumberUtils.isDigits(content) && content.length() == 4) {
                 String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
-                qrLoginHelper.login(content, verifyCode);
+                if (qrLoginHelper.login(content, verifyCode)) {
+                    res.setContent("登录成功!");
+                } else {
+                    res.setContent("验证码过期了，刷新登录页面重试一下吧");
+                }
             } else {
                 res.setContent("加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
             }
