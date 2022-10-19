@@ -73,23 +73,29 @@
     </div>
 
     <script th:inline="javascript">
+        const category = [[${ vo.currentCategory }]]
+        const params = {
+            "category": category ? category : '全部',
+            "page": 2
+        }
+        let isNeedMore = true
         const handleScroll = () => {
             const scrollEle = document.querySelector('.home')
-            const category = [[${ vo.currentCategory }]]
-            const params = {
-                "category": category ? category : '全部',
-                "page": 2
-            }
+
             const scrollTop = scrollEle.scrollTop
             //变量windowHeight是可视区的高度
             const windowHeight = scrollEle.clientHeight
             //变量scrollHeight是滚动条的总高度
             const scrollHeight = scrollEle.scrollHeight
-            console.log();
+            if(!isNeedMore) return false
+        
             //一般来说需要提前触发:scrollTop+windowHeight + 200 >=scrollHeight
-            if (scrollTop + windowHeight + 100 >= scrollHeight) {
+            if(scrollTop + windowHeight + 100 >= scrollHeight) {
                 // 模拟加载新的数据
-                nextPageText('/article/api/list', params, "articleList", () => {
+                nextPageText('/article/api/list', params, "articleList", (hasMore) => {
+                    if(!hasMore){
+                        isNeedMore = false
+                    }
                     params['page'] = params['page'] + 1;
                 })
             }

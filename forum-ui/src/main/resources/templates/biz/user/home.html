@@ -225,12 +225,12 @@
 
     <!-- 正文内容 -->
     <div class="user">
-      <img
+      <!-- <img
         src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview
 /dist/static/perBack.7b03b339.png"
         _nk="dIYE21"
         style="width: 100%; position: absolute; top: -60px"
-      />
+      /> -->
       <div class="user-wrap">
         <!-- 左侧内容 -->
         <div class="user-left">
@@ -245,7 +245,7 @@
             <div class="user-num-wrap">
               <div class="user-head-num-wrap">
                 <span class="user-head-num" th:text="${vo.userHome.fansCount}">
-                  2
+                  0
                 </span>
                 <span style="color: rgb(153, 153, 153)">关注数</span>
               </div>
@@ -254,41 +254,42 @@
                   class="user-head-num"
                   th:text="${vo.userHome.followCount}"
                 >
-                  2
+                  0
                 </span>
                 <span style="color: rgb(153, 153, 153)">粉丝数</span>
               </div>
             </div>
+            <div class="card-body">
+              <ul
+                class="navbar-nav my-md-0"
+                th:if="${global.isLogin && (vo.userHome.userId == global.user.userId)}"
+              >
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#saveModel"
+                  >
+                    编辑个人资料
+                  </a>
+                </li>
+              </ul>
+
+              <span
+                id="userId"
+                style="visibility: hidden"
+                th:text="${vo.userHome != null ? vo.userHome.userId: ''}"
+              ></span>
+            </div>
           </div>
+
           <div
             th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"
           ></div>
           <div
             th:replace="biz/user/process :: user_process(${vo.userHome})"
           ></div>
-          <!-- <div class="card-body">
-            <ul
-              class="navbar-nav my-md-0"
-              th:if="${global.isLogin && (vo.userHome.userId == global.user.userId)}"
-            >
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#saveModel"
-                >
-                  编辑个人资料
-                </a>
-              </li>
-            </ul>
-
-            <span
-              id="userId"
-              style="visibility: hidden"
-              th:text="${vo.userHome != null ? vo.userHome.userId: ''}"
-            ></span>
-          </div> -->
         </div>
 
         <!-- 主要内容 -->
