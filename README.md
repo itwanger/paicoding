@@ -19,35 +19,44 @@ quick-forum
 > [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 > [服务器启动教程](docs/服务器启动教程.md)
 
-## todo
+## 项目结构说明
 
-1. 权限限制（包括菜单权限）
+**当前项目工程模块**
 
-- controller 很多接口，有一些是需要登录的，要有校验
-    - @Auth(role = "login")
-    - @AUth(role = "admin")
+- [forum-api](forum-api): 定义一些通用的枚举、实体类定义、DO\DTO\VO等
+- [forum-core](forum-core): 核心工具组件相关的模块
+- [forum-service](forum-service): 服务模块，业务相关的主要逻辑，db的操作都在这里
+- [forum-ui](forum-ui): html前端资源
+- [forum-web](forum-web): web模块，http入口，项目启动的入口
 
-2. 文章阅读之后，各种计数、 评论目前还没有串起来 @楼仔
+**环境配置说明**
 
-- 第一版mysql
-- 第二版mongodb
-- 第三版redis
+资源配置都放在 `forum-web` 模块的资源路径下，通过maven的env进行环境选择切换
 
-3. 用户登录、登出 （不存在用户注销） @一灰
+当前提供了四种开发环境
 
-- 个人公众号登录，只能拿到uuid，拿不到用户信息(用户名 + 头像) --》 随机分配一个，头像用户名，跳转用户详情
-- 扫公众号二维码，关注之后，输入 “关键词”， 我们返回一串 数字， 然后在登录界面输入数字之后，登录
+- resources-env/dev: 本地开发环境，也是默认环境
+- resources-env/test: 测试环境
+- resources-env/pre: 预发环境
+- resources-env/prod: 生产环境
 
-5. 图片上传 -- 需要一个独立的图片上传接口 （直接使用七牛云的oss） --> @楼仔
-6. 搜索  `一期可以考虑使用db的like语法` @楼仔
-- 第一版mysql
-- 第二版es
+环境切换命令
 
+```bash
+# 如切换生产环境
+mvn clean install -DskipTests=true -Pprod
+```
 
-7. 消息模块
-8. 文章排序规则（目前只提供了按照时间的排序，后续需要添加热度、xxx排序）@一灰
-9. 公告侧边栏：先整一个写死的几个板块 @一灰
-10. admin后台 -- 先设计（前后端分离）
-11. 添加文章时，自动保存，历史版本
-12. 定时发布 --> 定时任务 + 时间轮 + 延迟消息 
-13. 评论前端页面
+**配置文件说明**
+
+- resources
+  - application.yml: 主配置文件入口
+  - application-config.yml: 全局的站点信息配置文件
+  - logback-spring.xml: 日志打印相关配置文件
+  - schema-all.sql: 项目中所有表结构定义sql文件
+  - init-data.sql: 初始化数据sql文件
+  - schema.sql, test-data.sql: 开发阶段的sql文件，后续会删除，不用关注
+- resources-env
+  - xxx/application-dal.yml: 定义数据库相关的配置信息
+  - xxx/application-image.yml: 定义上传图片的相关配置信息
+  - xxx/application-web.yml: 定义web相关的配置信息
