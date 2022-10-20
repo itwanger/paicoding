@@ -22,9 +22,10 @@ $('#loginBtn').click(function () {
                 toastr.error(data.status.msg);
             } else {
                 // 登录成功，刷新
-                if (window.location.pathname == "/login") {
+                if (window.location.pathname === "/login") {
                     window.location.href = "/";
                 } else {
+                    // 刷新当前页面
                     window.location.reload();
                 }
                 toastr.success("登录成功");

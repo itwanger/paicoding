@@ -227,82 +227,87 @@
     <script src="/js/bootstrap.min.js" th:if="${!global.isLogin}"></script>
     <script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
     <script th:inline="javascript">
-        const isLogin = [[${global.isLogin}]];
         $(".nav-article").click(() => {
-            if (isLogin) {
+            if ([[${global.isLogin}]]) {
                 window.location.href = "/article/edit"
             } else {
                 toastr.warn("请先登录!");
             }
         })
 
-        if (!isLogin) {
-            /**
-             * 建立半长连接，用于实现自动登录
-             * @param code
-             */
-            function buildConnect(code) {
-                console.log("开始建立连接: ", code);
-                const stateTag = document.getElementById('state');
-                const codeTag = document.getElementById('code');
-                const subscribeUrl = "/subscribe?id=" + code;
-                const source = new EventSource(subscribeUrl);
-                source.onmessage = function (event) {
-                    let text = event.data;
-                    console.log("receive: " + text);
-                    if (text.startsWith('refresh#')) {
-                        // 刷新验证码
-                        const newCode = text.substring(8).trim();
-                        codeTag.innerText = newCode;
-                        stateTag.innerText = '已刷新';
-                        stateTag.style.display = 'block';
-                        if ([[${!#strings.equals(global.env, 'prod')}]]) {
-                            document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
-                        }
-                    } else if (text === 'scan') {
-                        // 二维码扫描
-                        stateTag.innerText = '已扫描';
-                        stateTag.style.display = 'block';
-                    } else if (text.startsWith('login#')) {
-                        // 登录格式为 login#cookie
-                        document.cookie = text.substring(6);
-                        source.close();
+        /**
+         * 建立半长连接，用于实现自动登录
+         * @param code
+         */
+        function buildConnect(code) {
+            console.log("开始建立连接: ", code);
+            const stateTag = document.getElementById('state');
+            const codeTag = document.getElementById('code');
+            const subscribeUrl = "/subscribe?id=" + code;
+            const source = new EventSource(subscribeUrl);
+            source.onmessage = function (event) {
+                let text = event.data;
+                console.log("receive: " + text);
+                if (text.startsWith('refresh#')) {
+                    // 刷新验证码
+                    const newCode = text.substring(8).trim();
+                    codeTag.innerText = newCode;
+                    stateTag.innerText = '已刷新';
+                    stateTag.style.display = 'block';
+                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                        document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
+                    }
+                } else if (text === 'scan') {
+                    // 二维码扫描
+                    stateTag.innerText = '已扫描';
+                    stateTag.style.display = 'block';
+                } else if (text.startsWith('login#')) {
+                    // 登录格式为 login#cookie
+                    console.log("登录成功,保存cookie")
+                    document.cookie = text.substring(6);
+                    source.close();
+                    if (window.location.pathname === "/login") {
+                        // 登录成功，跳转首页
                         window.location.href = "/";
+                    } else {
+                        // 刷新当前页面
+                        window.location.reload();
                     }
-                };
-
-                source.onopen = function (evt) {
-                    console.log("开始订阅");
+                    toastr.success("登录成功");
                 }
-                codeTag.innerText = code;
-                stateTag.innerText = '请在五分钟内输入微信公众号内输入验证码';
+            };
+
+            source.onopen = function (evt) {
+                console.log("开始订阅");
             }
-
-            $('#loginModal').on('show.bs.modal', function () {
-                console.log("登录弹窗已展示!");
-                $.ajax({
-                    url: "/login/code", dataType: "json", type: "get", success: function (data) {
-                        const code = data['result']['code'];
-                        buildConnect(code);
-                        if ([[${!#strings.equals(global.env, 'prod')}]]) {
-                            document.getElementById('mockLogin').setAttribute('data-verify-code', code);
-                        }
-                    }
-                })
-            })
-
-            $('#refreshCode').click(() => {
-                $.ajax({
-                    url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
-                        const code = data['result']['code'];
-                        const reconnect = data['result']['reconnect']
-                        if (reconnect) {
-                            buildConnect(code)
-                        }
-                    }
-                })
-            })
+            codeTag.innerText = code;
+            stateTag.innerText = '请在五分钟内输入微信公众号内输入验证码';
         }
+
+        $('#loginModal').on('show.bs.modal', function () {
+            console.log("登录弹窗已展示!");
+            $.ajax({
+                url: "/login/code", dataType: "json", type: "get", success: function (data) {
+                    const code = data['result']['code'];
+                    buildConnect(code);
+                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                        document.getElementById('mockLogin').setAttribute('data-verify-code', code);
+                    }
+                }
+            })
+        })
+
+        $('#refreshCode').click(() => {
+            $.ajax({
+                url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
+                    const code = data['result']['code'];
+                    const reconnect = data['result']['reconnect']
+                    if (reconnect) {
+                        buildConnect(code)
+                    }
+                }
+            })
+        })
     </script>
 </div>
 </html>

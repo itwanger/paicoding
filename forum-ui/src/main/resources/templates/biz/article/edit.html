@@ -8,176 +8,174 @@
 
 <body id="body">
 <!-- 正文内容 -->
-<div th:replace="layout/container :: container_all(~{::content})">
-  <!-- 正文 -->
-  <content>
-    <nav
-            id="bodyNav"
-            class="navbar navbar-expand-md container-bg-light fixed-top"
-    >
-      <div class="navbar-wrap">
-        <button
-                class="navbar-toggler"
-                type="button"
-                data-toggle="collapse"
-                data-target="#collapsibleNavbar"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="collapsibleNavbar">
-          <form class="input-group my-md-0" action="/save" method="get">
-            <input
-                    id="title"
-                    type="text"
-                    class="form-control"
-                    th:value="${vo.article != null ? vo.article.title: ''}"
-                    placeholder="请输入文章标题"
-            />
-          </form>
+<content>
+  <nav
+          id="bodyNav"
+          class="navbar navbar-expand-md container-bg-light fixed-top"
+  >
+    <div class="navbar-wrap">
+      <button
+              class="navbar-toggler"
+              type="button"
+              data-toggle="collapse"
+              data-target="#collapsibleNavbar"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <form class="input-group my-md-0" action="/save" method="get">
+          <input
+                  id="title"
+                  type="text"
+                  class="form-control"
+                  th:value="${vo.article != null ? vo.article.title: ''}"
+                  placeholder="请输入文章标题"
+          />
+        </form>
 
-          <ul class="navbar-nav my-md-0">
-            <!--  跳出保存弹窗 -->
-            <li class="nav-item">
-              <a
-                      class="nav-link"
-                      href="#"
-                      data-toggle="modal"
-                      data-target="#saveModel"
-              >
-                保存
-              </a>
-            </li>
-          </ul>
-        </div>
+        <ul class="navbar-nav my-md-0">
+          <!--  跳出保存弹窗 -->
+          <li class="nav-item">
+            <a
+                    class="nav-link"
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#saveModel"
+            >
+              保存
+            </a>
+          </li>
+        </ul>
       </div>
-    </nav>
-    <div class="form-group">
+    </div>
+  </nav>
+  <div class="form-group">
           <span
                   id="articleId"
                   style="visibility: hidden"
                   th:text="${vo.article != null ? vo.article.articleId: ''}"
           ></span>
-      <textarea
-              class="form-control"
-              name="example-textarea-input"
-              rows="12"
-              id="content"
-              style="min-height: 700px; width: 100%"
-              th:text="${vo.article != null ? vo.article.content: ''}"
-      ></textarea>
-    </div>
+    <textarea
+            class="form-control"
+            name="example-textarea-input"
+            rows="12"
+            id="content"
+            style="min-height: 700px; width: 100%"
+            th:text="${vo.article != null ? vo.article.content: ''}"
+    ></textarea>
+  </div>
 
-    <div
-            class="modal fade"
-            id="saveModel"
-            data-backdrop="static"
-            data-keyboard="false"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="loginModalDropLabel"
-            aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">发布文章</h5>
-            <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="input-group">
+  <div
+          class="modal fade"
+          id="saveModel"
+          data-backdrop="static"
+          data-keyboard="false"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="loginModalDropLabel"
+          aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">发布文章</h5>
+          <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
                   <span class="form-label" style="padding-right: 1em">
                     短标题
                   </span>
-              <input
-                      id="subTitle"
-                      type="text"
-                      class="form-control"
-                      th:value="${vo.article != null ? vo.article.shortTitle: ''}"
-                      placeholder="请输入文章短标题"
-              />
-            </div>
-            <div class="mb-12">
-              <label class="form-label">文章分类</label>
-              <div class="form-selectgroup">
-                <label
-                        class="form-selectgroup-item"
-                        th:each="category : ${vo.categories}"
-                        id="categoryList"
+            <input
+                    id="subTitle"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.article != null ? vo.article.shortTitle: ''}"
+                    placeholder="请输入文章短标题"
+            />
+          </div>
+          <div class="mb-12">
+            <label class="form-label">文章分类</label>
+            <div class="form-selectgroup">
+              <label
+                      class="form-selectgroup-item"
+                      th:each="category : ${vo.categories}"
+                      id="categoryList"
+              >
+                <input
+                        type="radio"
+                        name="category"
+                        th:value="${category.categoryId}"
+                        class="form-selectgroup-input"
+                        th:checked="${category.selected}"
+                />
+                <span
+                        class="form-selectgroup-label"
+                        th:text="${category.category}"
                 >
-                  <input
-                          type="radio"
-                          name="category"
-                          th:value="${category.categoryId}"
-                          class="form-selectgroup-input"
-                          th:checked="${category.selected}"
-                  />
-                  <span
-                          class="form-selectgroup-label"
-                          th:text="${category.category}"
-                  >
                         后端
                       </span>
-                </label>
-              </div>
+              </label>
             </div>
-            <br/>
-            <div class="input-group">
-              <!-- fixme                            这里改成复选框-->
-              <span class="form-label" style="padding-right: 1em">
+          </div>
+          <br/>
+          <div class="input-group">
+            <!-- fixme                            这里改成复选框-->
+            <span class="form-label" style="padding-right: 1em">
                     文章标签
                   </span>
-              <select class="form-select" id="tagList">
-                <option
-                        th:if="${tag != null}"
-                        th:each="tag : ${vo.tags}"
-                        th:value="${tag.tagId}"
-                        th:text="${tag.tag}"
-                >
-                  Java
-                </option>
-              </select>
+            <select class="form-select" id="tagList">
+              <option
+                      th:if="${tag != null}"
+                      th:each="tag : ${vo.tags}"
+                      th:value="${tag.tagId}"
+                      th:text="${tag.tag}"
+              >
+                Java
+              </option>
+            </select>
+          </div>
+          <br/>
+          <div class="input-group">
+            <label class="form-label" style="padding-right: 1em">
+              文章封面
+            </label>
+            <div class="form-selectgroup">
+              <input type="file" id="uploadFile" name="myfile" onchange="fileSelect()"/>
+              <img th:src="${vo.article != null ? vo.article.cover: ''}" id="coverPreview">
             </div>
-            <br/>
-            <div class="input-group">
-              <label class="form-label" style="padding-right: 1em">
-                文章封面
+          </div>
+          <div class="input-group">
+            <label class="form-label" style="padding-right: 1em">
+              文章类型
+            </label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item" id="sourceType">
+                <input
+                        type="radio"
+                        name="source"
+                        value="ORIGINAL"
+                        class="form-selectgroup-input"
+                        th:checked="${vo.article != null && vo.article.sourceType == '原创'}"
+                />
+                <span
+                        class="form-selectgroup-label"
+                        th:text="原创"
+                ></span>
               </label>
-              <div class="form-selectgroup">
-                <input type="file" id="uploadFile" name="myfile" onchange="fileSelect()"/>
-                <img th:src="${vo.article.cover}" id="coverPreview">
-              </div>
             </div>
-            <div class="input-group">
-              <label class="form-label" style="padding-right: 1em">
-                文章类型
-              </label>
-              <div class="form-selectgroup">
-                <label class="form-selectgroup-item" id="sourceType">
-                  <input
-                          type="radio"
-                          name="source"
-                          value="ORIGINAL"
-                          class="form-selectgroup-input"
-                          th:checked="${vo.article != null && vo.article.sourceType == '原创'}"
-                  />
-                  <span
-                          class="form-selectgroup-label"
-                          th:text="原创"
-                  ></span>
-                </label>
-              </div>
-            </div>
-            <br/>
-            <div class="input-group">
-              <label class="form-label">文章摘要</label>
-              <div class="col-12">
+          </div>
+          <br/>
+          <div class="input-group">
+            <label class="form-label">文章摘要</label>
+            <div class="col-12">
                     <textarea
                             id="summary"
                             class="form-control"
@@ -191,33 +189,33 @@
                       "
                             th:text="${vo.article != null ?  vo.article.summary: ''}"
                     ></textarea>
-              </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button id="publish" type="button" class="btn btn-primary">
-              发布
-            </button>
-            <button
-                    id="tmpSave"
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                    data-toggle="modal"
-                    data-target="#registerModal"
-            >
-              存草稿
-            </button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="publish" type="button" class="btn btn-primary">
+            发布
+          </button>
+          <button
+                  id="tmpSave"
+                  type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal"
+                  data-toggle="modal"
+                  data-target="#registerModal"
+          >
+            存草稿
+          </button>
         </div>
       </div>
     </div>
-  </content>
-</div>
+  </div>
+</content>
+
 <!-- 底部信息 -->
 <div th:replace="layout/footer :: footer"></div>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<script src="//cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <script th:inline="javascript">
   // https://github.com/sparksuite/simplemde-markdown-editor
   var simplemde = new SimpleMDE({
@@ -242,7 +240,7 @@
   })
 
   // 封面
-  let cover = [[ ${vo.article.cover}]];
+  let cover = [[ ${vo.article != null ? vo.article.cover: ''}]];
   let newCover = "";
   let uploaded = false;
 
@@ -293,10 +291,23 @@
 
 
   function doPostArticle(action) {
-    const title = $("#title").val()
-    const subTitle = $("#subTitle").val()
+    const title = $("#title").val();
+    const subTitle = $("#subTitle").val();
     // const content = $("#content").val()
-    const content = simplemde.value()
+    const content = simplemde.value();
+    if(title.length <= 5) {
+      toastr.warn("文章标题太短!")
+      return;
+    }
+    if (title.length > 120) {
+      toastr.warn("文章标题太长了!");
+      return;
+    }
+    if (content.length <= 6) {
+      toastr.warn("文章内容太短了！");
+      return;
+    }
+
     const category = getChooseCategoryId()
     const tags = $("#tagList option:selected").val()
     const summary = $("#summary").val()
@@ -320,7 +331,7 @@
     if (uploaded) {
       uploadFile();
       if (newCover === "") {
-        console.log("封面上传失败！");
+        toastr.error("封面上传失败，请重试!");
         return;
       }
     }

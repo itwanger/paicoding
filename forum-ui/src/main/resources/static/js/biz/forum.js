@@ -72,7 +72,7 @@ const doGetNextPage = function (url, params, listId, btnId, callback) {
     }
   })
 }
-const doGetNextPageText = function (url, params, listId, callback) {
+const doGetNextPageText = function (url, params, listId, callback, errorCallBack) {
   $.get(url, params, function (data) {
     console.log("response: ", data)
     const result = data.result
@@ -83,7 +83,7 @@ const doGetNextPageText = function (url, params, listId, callback) {
     if (callback) {
       callback(true)
     }
-  })
+  }).fail(errorCallBack)
 }
 
 /**
@@ -99,6 +99,6 @@ const nextPage = function (url, params, listId, btnId, callback) {
     doGetNextPage(url, params, listId, btnId, callback)
   })
 }
-const nextPageText = function (url, params, listId, callback) {
-  doGetNextPageText(url, params, listId, callback)
+const nextPageText = function (url, params, listId, callback, errorCallback) {
+  doGetNextPageText(url, params, listId, callback, errorCallback)
 }
