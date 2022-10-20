@@ -12,7 +12,7 @@ spring:
 
 # 默认的数据库名
 database:
-  name: forum_bk
+  name: forum
 
 # mybatis 相关统一配置
 mybatis-plus:
