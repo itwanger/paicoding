@@ -169,10 +169,13 @@ public class QrLoginHelper {
      */
     public String initDeviceId(HttpServletRequest request, HttpServletResponse response) {
         String deviceId = null;
-        for (Cookie cookie : request.getCookies()) {
-            if (LoginService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
-                deviceId = cookie.getValue();
-                break;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (LoginService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
+                    deviceId = cookie.getValue();
+                    break;
+                }
             }
         }
         if (deviceId == null) {

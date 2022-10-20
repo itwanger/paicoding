@@ -3,16 +3,16 @@
 CREATE TABLE `article`
 (
     `id`           int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `user_id`      int unsigned NOT NULL COMMENT '用户ID',
+    `user_id`      int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
     `article_type` tinyint      NOT NULL DEFAULT '1' COMMENT '文章类型：1-博文，2-问答',
-    `title`        varchar(120) NOT NULL COMMENT '文章标题',
-    `short_title`  varchar(120) NOT NULL COMMENT '短标题',
+    `title`        varchar(120) NOT NULL DEFAULT '' COMMENT '文章标题',
+    `short_title`  varchar(120) NOT NULL DEFAULT '' COMMENT '短标题',
     `picture`      varchar(128) NOT NULL DEFAULT '' COMMENT '文章头图',
     `summary`      varchar(300) NOT NULL DEFAULT '' COMMENT '文章摘要',
     `category_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '类目ID',
     `source`       tinyint      NOT NULL DEFAULT '1' COMMENT '来源：1-转载，2-原创，3-翻译',
     `source_url`   varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
-    `flag_bit`     int unsigned NOT NULL COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精',
+    `flag_bit`     int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精',
     `status`       tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`      tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -27,8 +27,8 @@ CREATE TABLE `article`
 CREATE TABLE `article_detail`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `article_id`  int unsigned NOT NULL COMMENT '文章ID',
-    `version`     int unsigned NOT NULL COMMENT '版本号',
+    `article_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
+    `version`     int unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
     `content`     text COMMENT '文章内容',
     `deleted`     tinyint   NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -75,7 +75,7 @@ CREATE TABLE `banner`
 CREATE TABLE `category`
 (
     `id`            int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `category_name` varchar(64) NOT NULL COMMENT '类目名称',
+    `category_name` varchar(64) NOT NULL DEFAULT '' COMMENT '类目名称',
     `status`        tinyint     NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`       tinyint     NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -122,11 +122,11 @@ CREATE TABLE `column_info`
 CREATE TABLE `comment`
 (
     `id`                int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `article_id`        int unsigned NOT NULL COMMENT '文章ID',
-    `user_id`           int unsigned NOT NULL COMMENT '用户ID',
+    `article_id`        int unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
+    `user_id`           int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
     `content`           varchar(300) NOT NULL DEFAULT '' COMMENT '评论内容',
     `top_comment_id`    int          NOT NULL DEFAULT '0' COMMENT '顶级评论ID',
-    `parent_comment_id` int unsigned NOT NULL COMMENT '父评论ID',
+    `parent_comment_id` int unsigned NOT NULL DEFAULT '0' COMMENT '父评论ID',
     `deleted`           tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -159,9 +159,9 @@ CREATE TABLE `notify_msg`
 CREATE TABLE `read_count`
 (
     `id`            int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `document_id`   int unsigned NOT NULL COMMENT '文档ID（文章/评论）',
+    `document_id`   int unsigned NOT NULL DEFAULT '0' COMMENT '文档ID（文章/评论）',
     `document_type` tinyint   NOT NULL DEFAULT '1' COMMENT '文档类型：1-文章，2-评论',
-    `cnt`           int unsigned NOT NULL COMMENT '访问计数',
+    `cnt`           int unsigned NOT NULL DEFAULT '0' COMMENT '访问计数',
     `create_time`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
@@ -174,8 +174,8 @@ CREATE TABLE `read_count`
 CREATE TABLE `request_count`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `host`        varchar(32) NOT NULL COMMENT '机器IP',
-    `cnt`         int unsigned NOT NULL COMMENT '访问计数',
+    `host`        varchar(32) NOT NULL DEFAULT '' COMMENT '机器IP',
+    `cnt`         int unsigned NOT NULL DEFAULT '0' COMMENT '访问计数',
     `date`        date        NOT NULL COMMENT '当前日期',
     `create_time` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -221,8 +221,8 @@ CREATE TABLE `user`
 CREATE TABLE `user_foot`
 (
     `id`               int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `user_id`          int unsigned NOT NULL COMMENT '用户ID',
-    `document_id`      int unsigned NOT NULL COMMENT '文档ID（文章/评论）',
+    `user_id`          int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+    `document_id`      int unsigned NOT NULL DEFAULT '0' COMMENT '文档ID（文章/评论）',
     `document_type`    tinyint   NOT NULL DEFAULT '1' COMMENT '文档类型：1-文章，2-评论',
     `document_user_id` int unsigned NOT NULL DEFAULT '0' COMMENT '发布该文档的用户ID',
     `collection_stat`  tinyint unsigned NOT NULL DEFAULT '0' COMMENT '收藏状态: 0-未收藏，1-已收藏，2-取消收藏',
@@ -242,7 +242,7 @@ CREATE TABLE `user_foot`
 CREATE TABLE `user_info`
 (
     `id`          int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `user_id`     int unsigned NOT NULL COMMENT '用户ID',
+    `user_id`     int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
     `user_name`   varchar(50)   NOT NULL DEFAULT '' COMMENT '用户名',
     `photo`       varchar(128)  NOT NULL DEFAULT '' COMMENT '用户图像',
     `position`    varchar(50)   NOT NULL DEFAULT '' COMMENT '职位',
@@ -262,8 +262,8 @@ CREATE TABLE `user_info`
 CREATE TABLE `user_relation`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `user_id`        int unsigned NOT NULL COMMENT '用户ID',
-    `follow_user_id` int unsigned NOT NULL COMMENT '关注用户ID',
+    `user_id`        int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
+    `follow_user_id` int unsigned NOT NULL DEFAULT '0' COMMENT '关注用户ID',
     `follow_state`   tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注',
     `create_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -277,16 +277,16 @@ CREATE TABLE `user_relation`
 
 CREATE TABLE `config`
 (
-    `id`           int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `type` tinyint NOT NULL default '0' COMMENT '配置类型：1-首页，2-侧边栏，3-广告位，4-公告',
-    `name` varchar(64)  NOT NULL default '' COMMENT '名称',
+    `id`          int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `type`        tinyint      NOT NULL default '0' COMMENT '配置类型：1-首页，2-侧边栏，3-广告位，4-公告',
+    `name`        varchar(64)  NOT NULL default '' COMMENT '名称',
     `banner_url`  varchar(256) NOT NULL default '' COMMENT '图片链接',
-    `jump_url`  varchar(256) NOT NULL default '' COMMENT '跳转链接',
-    `content`  varchar(256) NOT NULL default '' COMMENT '内容',
-    `rank` tinyint NOT NULL default '0' COMMENT '排序',
-    `status`      tinyint NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
-    `deleted`     tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
-    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    `jump_url`    varchar(256) NOT NULL default '' COMMENT '跳转链接',
+    `content`     varchar(256) NOT NULL default '' COMMENT '内容',
+    `rank`        tinyint      NOT NULL default '0' COMMENT '排序',
+    `status`      tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `deleted`     tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
+    `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='配置表';
