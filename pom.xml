@@ -8,7 +8,7 @@
         <module>forum-web</module>
         <module>forum-service</module>
         <module>forum-core</module>
-        <module>form-api</module>
+        <module>forum-api</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -33,7 +33,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.github.liuyueyi.quick-forum</groupId>
-                <artifactId>form-api</artifactId>
+                <artifactId>forum-api</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 

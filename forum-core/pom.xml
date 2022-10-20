@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>com.github.liuyueyi.quick-forum</groupId>
-            <artifactId>form-api</artifactId>
+            <artifactId>forum-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.liuyueyi.media</groupId>
