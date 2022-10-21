@@ -27,12 +27,13 @@ LOG_BACKUP_FOLDER="logs/"
 
 function stop() {
     # kill
-    echo "应用线下：======"
+    echo "--- 应用线下 ---"
     if [ -f "${PID_FILE_NAME}" ]; then
         pid=$(cat ${PID_FILE_NAME})
         echo "kill -9 ${pid}"
         kill -9 ${pid}
     fi
+    echo "----------------"
 }
 
 function start() {
@@ -46,9 +47,9 @@ function start() {
 
     chmod 755 ${EXECUTABLE_JAR_NAME}
     # run
-    echo "启动脚本：==========="
+    echo "===== 启动脚本：====="
     echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
-    echo "==========="
+    echo "==================="
     nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow  -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
     echo $! > ${PID_FILE_NAME}
 }
@@ -58,9 +59,9 @@ function restart() {
   cd ${work_dir}
   stop
   # run
-  echo "应用重启：==========="
+  echo "===== 启动重启：====="
   echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
-  echo "==========="
+  echo "==================="
   nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow  -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
   echo $! > ${PID_FILE_NAME}
 }
@@ -77,6 +78,7 @@ function compile() {
     if [[ ${ret} -ne 0 ]] ; then
         return 1
     fi
+    echo "---------- jar包构建完成 -------------"
 }
 
 function upload() {
