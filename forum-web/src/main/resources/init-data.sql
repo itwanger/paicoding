@@ -152,8 +152,8 @@ values ('1', 'Java', '1', '1', '1', '0'),
 
 
 -- 配置相关信息
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://hhui.top/', '', 2, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://imgs.hhui.top/forum/banner/01.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://imgs.hhui.top/forum/banner/01.png', 'https://hhui.top/', '', 2, 1);
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
 
@@ -166,7 +166,7 @@ VALUES(1, 'a7cb7228-0f85-4dd5-845c-7c5df3746e92', 0, 0);
 
 INSERT INTO user_info
 (id, user_id, user_name, photo, `position`, company, profile, extend, deleted)
-VALUES(1, 1, '管理员', 'http://img.hhui.top/forum/avatar/0002.png', 'java', 'xm', '码农', '', 0);
+VALUES(1, 1, '管理员', 'https://imgs.hhui.top/forum/avatar/0066.png', 'java', 'xm', '码农', '', 0);
 
 
 

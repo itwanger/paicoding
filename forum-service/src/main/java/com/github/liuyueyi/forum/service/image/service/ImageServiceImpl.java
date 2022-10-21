@@ -58,7 +58,7 @@ public class ImageServiceImpl {
             }
             return imageProperties.getCdnHost() + path;
         } catch (IOException e) {
-            log.error("WxImgCreateAction!Parse img from httpRequest to BuferedImage error! e: {}", e);
+            log.error("Parse img from httpRequest to BufferedImage error! e:", e);
             throw new IllegalArgumentException("不支持的图片类型!");
         }
     }
@@ -148,7 +148,7 @@ public class ImageServiceImpl {
      * @return
      */
     private MediaType validateStaticImg(String mime) {
-        if (mime.contains("jpg")) {
+        if (mime.contains(MediaType.ImageJpg.getExt())) {
             mime = mime.replace("jpg", "jpeg");
         }
         for (MediaType type : STATIC_IMG_TYPE) {
