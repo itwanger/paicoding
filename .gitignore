@@ -1,4 +1,3 @@
-HELP.md
 !.gitignore
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -35,3 +34,7 @@ build/
 
 ## ignore logs
 logs/
+pid.log
+*.jar
+*.jar.bak
+*.jar.tmp
