@@ -9,7 +9,7 @@ function start() {
 
     # 杀掉之前的进程
     cat pid.log| xargs -I {} kill {}
-    mv ${JAR_NAME} ${JAR_NAME}_bk
+    mv ${JAR_NAME} ${JAR_NAME}.bak
 
     mvn clean install -Dmaven.test.skip=True -Pprod
     cd ${WEB_PATH}
