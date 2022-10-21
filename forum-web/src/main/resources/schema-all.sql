@@ -29,7 +29,7 @@ CREATE TABLE `article_detail`
     `id`          int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `article_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
     `version`     int unsigned NOT NULL DEFAULT '0' COMMENT '版本号',
-    `content`     text COMMENT '文章内容',
+    `content`     longtext COMMENT '文章内容',
     `deleted`     tinyint   NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',

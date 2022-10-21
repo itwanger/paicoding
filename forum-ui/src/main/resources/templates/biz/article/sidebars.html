@@ -94,8 +94,10 @@
             </div>
         </div>
         <div th:case="2">
-            <div th:replace="plugins/side/side-articles :: side_articles(${sidebar})">
-                推荐
+            <div th:if="${!#lists.isEmpty(sidebar.items)}">
+                <div th:replace="plugins/side/side-articles :: side_articles(${sidebar})">
+                    推荐
+                </div>
             </div>
         </div>
         <div th:case="3">
