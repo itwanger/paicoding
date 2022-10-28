@@ -53,6 +53,7 @@ public class IndexRecommendHelper {
         vo.setHomeCarouselList(homeCarouselList());
         vo.setSideBarItems(sidebarService.queryHomeSidebarList());
         vo.setCurrentCategory(categoryId == null ? "全部": activeTab);
+        vo.setCategoryId(categoryId == null ? 0: categoryId);
         vo.setUser(loginInfo());
         return vo;
     }

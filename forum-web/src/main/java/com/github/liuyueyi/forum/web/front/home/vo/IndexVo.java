@@ -27,6 +27,11 @@ public class IndexVo {
     private String currentCategory;
 
     /**
+     * 当前选中的类目id
+     */
+    private Long categoryId;
+
+    /**
      * 文章列表
      */
     private PageListVo<ArticleDTO> articles;

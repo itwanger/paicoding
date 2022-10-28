@@ -91,17 +91,17 @@
                     class="nav-item">
                     <a class="nav-link" href="/column">教程</a>
                 </li>
-                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"
-                    class="nav-item">
-                    <a class="nav-link" href="https://tool.hhui.top" target="_blank">
-                        工具箱
-                    </a>
-                </li>
-                <li th:if="${global.isLogin}"
-                    th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
-                    class="nav-item">
-                    <a class="nav-link" href="/follow">关注</a>
-                </li>
+<!--                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"-->
+<!--                    class="nav-item">-->
+<!--                    <a class="nav-link" href="https://tool.hhui.top" target="_blank">-->
+<!--                        工具箱-->
+<!--                    </a>-->
+<!--                </li>-->
+<!--                <li th:if="${global.isLogin}"-->
+<!--                    th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"-->
+<!--                    class="nav-item">-->
+<!--                    <a class="nav-link" href="/follow">关注</a>-->
+<!--                </li>-->
             </ul>
             <form class="form-inline my-md-0" action="/search" method="get">
                 <div class="input-icon">

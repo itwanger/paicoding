@@ -151,6 +151,27 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return baseMapper.selectList(query);
     }
 
+    /**
+     * 通过关键词，从标题中找出相似的进行推荐，只返回主键 + 标题
+     *
+     * @param key
+     * @return
+     */
+    public List<ArticleDO> listSimpleArticlesByBySearchKey(String key) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .and(!StringUtils.isEmpty(key),
+                        v -> v.like(ArticleDO::getTitle, key)
+                                .or()
+                                .like(ArticleDO::getShortTitle, key)
+                );
+        query.select(ArticleDO::getId, ArticleDO::getTitle, ArticleDO::getShortTitle)
+                .last("limit 10")
+                .orderByDesc(ArticleDO::getId);;
+        return baseMapper.selectList(query);
+    }
+
 
     /**
      * 阅读计数
@@ -215,7 +236,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      * @param tagIds
      * @return
      */
-    public List<ArticleDO> listRelatedArticles(Long categoryId, List<Long> tagIds, PageParam pageParam) {
+    public List<ArticleDO> listRelatedArticlesOrderByReadCount(Long categoryId, List<Long> tagIds, PageParam pageParam) {
         return baseMapper.listArticleByCategoryAndTags(categoryId, tagIds, pageParam);
     }
 
