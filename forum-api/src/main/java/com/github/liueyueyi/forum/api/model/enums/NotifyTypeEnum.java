@@ -17,11 +17,15 @@ public enum NotifyTypeEnum {
     COLLECT(4, "收藏"),
     FOLLOW(5, "关注消息"),
     SYSTEM(6, "系统消息"),
-    DELETE_COMMENT(11, "删除评论"),
-    DELETE_REPLY(12, "删除回复"),
-    CANCEL_PRAISE(13, "取消点赞"),
-    CANCEL_COLLECT(14, "取消收藏"),
-    CANCEL_FOLLOW(15, "取消关注"),
+    DELETE_COMMENT(1, "删除评论"),
+    DELETE_REPLY(2, "删除回复"),
+    CANCEL_PRAISE(3, "取消点赞"),
+    CANCEL_COLLECT(4, "取消收藏"),
+    CANCEL_FOLLOW(5, "取消关注"),
+
+    // 注册、登录添加系统相关提示消息
+    REGISTER(6, "用户注册"),
+    LOGIN(6, "用户登录"),
     ;
 
 

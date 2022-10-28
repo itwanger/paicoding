@@ -63,12 +63,18 @@
       </div>
       <div class="notice-content">
         <div id="itemList">
-          <div th:replace="biz/notice/notify-comment"></div>
-          <div th:replace="biz/notice/notify-reply"></div>
-          <div th:replace="biz/notice/notify-praise"></div>
-          <div th:replace="biz/notice/notify-collect"></div>
-          <div th:replace="biz/notice/notify-follow"></div>
-          <div th:replace="biz/notice/notify-system"></div>
+          <div th:if="${#lists.isEmpty(vo.list.list)}">
+            <div class="notification" th:text="暂无通知消息">
+            </div>
+          </div>
+          <div th:if="${!#lists.isEmpty(vo.list.list)}">
+            <div th:replace="biz/notice/notify-comment"></div>
+            <div th:replace="biz/notice/notify-reply"></div>
+            <div th:replace="biz/notice/notify-praise"></div>
+            <div th:replace="biz/notice/notify-collect"></div>
+            <div th:replace="biz/notice/notify-follow"></div>
+            <div th:replace="biz/notice/notify-system"></div>
+          </div>
         </div>
         <button
           th:if="${vo.list.hasMore}"
@@ -81,7 +87,7 @@
     </div>
 
     <!-- 底部信息 -->
-    <!-- <div th:replace="layout/footer :: footer"></div> -->
+    <div th:replace="layout/footer :: footer"></div>
     <script th:inline="javascript">
       const selectType = [[${vo.selectType}]].toLowerCase()
       const params = {
