@@ -18,17 +18,6 @@
         <include refid="limit"/>
     </select>
 
-    <select id="listArticlesByUserIdOrderByReadCounts"
-            resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO">
-        select rc.document_id as id, a.title as title, a.create_time as createTime
-        from read_count as rc left join article as a on rc.document_id = a.id
-        where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
-        and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
-        and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code} and a.user_id = #{userId} order
-        by rc.cnt desc
-        <include refid="limit"/>
-    </select>
-
     <select id="listArticleByCategoryAndTags"
             resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
         select a.*
@@ -38,11 +27,27 @@
         where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
         and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
         and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
-        and a.category_id = #{categoryId} and t.tag_id in
-        <foreach collection="tags" item="tagId" open="(" close=")" separator=",">
-            #{tagId}
-        </foreach>
+        <if test="categoryId != null">
+            and a.category_id = #{categoryId}
+        </if>
+        and t.tag_id in
+        <if test="tags != null and tags.size > 0">
+            <foreach collection="tags" item="tagId" open="(" close=")" separator=",">
+                #{tagId}
+            </foreach>
+        </if>
         order by rc.cnt desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="listArticlesByUserIdOrderByReadCounts"
+            resultType="com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select rc.document_id as id, a.title as title, a.create_time as createTime
+        from read_count as rc left join article as a on rc.document_id = a.id
+        where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code} and a.user_id = #{userId} order
+        by rc.cnt desc
         <include refid="limit"/>
     </select>
 

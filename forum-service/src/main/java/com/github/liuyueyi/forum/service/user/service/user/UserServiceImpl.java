@@ -1,14 +1,17 @@
 package com.github.liuyueyi.forum.service.user.service.user;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.liueyueyi.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.UserSaveReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.user.converter.UserConverter;
@@ -65,6 +68,9 @@ public class UserServiceImpl implements UserService {
         if (record != null) {
             // 用户存在，不需要注册
             req.setUserId(record.getId());
+
+            // 用户登录事件
+            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.LOGIN, record.getId()));
             return;
         }
 
@@ -79,6 +85,9 @@ public class UserServiceImpl implements UserService {
         userInfo.setUserName(UserRandomGenHelper.genNickName());
         userInfo.setPhoto(UserRandomGenHelper.genAvatar());
         userDao.save(userInfo);
+
+        // 用户注册事件
+        SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REGISTER, userInfo.getUserId()));
     }
 
     @Override

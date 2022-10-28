@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 /**
+ * 专栏入口
+ *
  * @author YiHui
  * @date 2022/9/15
  */

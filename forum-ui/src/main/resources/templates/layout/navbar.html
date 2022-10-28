@@ -72,7 +72,7 @@
       th:data-islogin="${global.isLogin}"
       class="navbar navbar-expand-md container-bg-light fixed-top"
     >
-      <a class="navbar-brand">
+      <a class="navbar-brand" href="/">
         <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
         <!-- <img
                   th:src="${global.siteInfo.websiteLogoUrl}"
@@ -106,21 +106,17 @@
           >
             <a class="nav-link" href="/column">教程</a>
           </li>
-          <li
-            th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"
-            class="nav-item"
-          >
-            <a class="nav-link" href="https://tool.hhui.top" target="_blank">
-              工具箱
-            </a>
-          </li>
-          <li
-            th:if="${global.isLogin}"
-            th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
-            class="nav-item"
-          >
-            <a class="nav-link" href="/follow">关注</a>
-          </li>
+          <!--                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"-->
+          <!--                    class="nav-item">-->
+          <!--                    <a class="nav-link" href="https://tool.hhui.top" target="_blank">-->
+          <!--                        工具箱-->
+          <!--                    </a>-->
+          <!--                </li>-->
+          <!--                <li th:if="${global.isLogin}"-->
+          <!--                    th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"-->
+          <!--                    class="nav-item">-->
+          <!--                    <a class="nav-link" href="/follow">关注</a>-->
+          <!--                </li>-->
         </ul>
         <form class="form-inline my-md-0" action="/search" method="get">
           <div class="input-icon">
@@ -300,47 +296,47 @@
           }
       })
 
-      /**
-       * 建立半长连接，用于实现自动登录
-       * @param code
-       */
-      function buildConnect(code) {
-          console.log("开始建立连接: ", code);
-          const stateTag = document.getElementById('state');
-          const codeTag = document.getElementById('code');
-          const subscribeUrl = "/subscribe?id=" + code;
-          const source = new EventSource(subscribeUrl);
-          source.onmessage = function (event) {
-              let text = event.data;
-              console.log("receive: " + text);
-              if (text.startsWith('refresh#')) {
-                  // 刷新验证码
-                  const newCode = text.substring(8).trim();
-                  codeTag.innerText = newCode;
-                  stateTag.innerText = '已刷新';
-                  stateTag.style.display = 'block';
-                  if ([[${!#strings.equals(global.env, 'prod')}]]) {
-                      document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
-                  }
-              } else if (text === 'scan') {
-                  // 二维码扫描
-                  stateTag.innerText = '已扫描';
-                  stateTag.style.display = 'block';
-              } else if (text.startsWith('login#')) {
-                  // 登录格式为 login#cookie
-                  console.log("登录成功,保存cookie")
-                  document.cookie = text.substring(6);
-                  source.close();
-                  if (window.location.pathname === "/login") {
-                      // 登录成功，跳转首页
-                      window.location.href = "/";
-                  } else {
-                      // 刷新当前页面
-                      window.location.reload();
-                  }
-                  toastr.success("登录成功");
-              }
-          };
+        /**
+         * 建立半长连接，用于实现自动登录
+         * @param code
+         */
+        function buildConnect(code) {
+            console.log("开始建立连接: ", code);
+            const stateTag = document.getElementById('state');
+            const codeTag = document.getElementById('code');
+            const subscribeUrl = "/subscribe?id=" + code;
+            const source = new EventSource(subscribeUrl);
+            source.onmessage = function (event) {
+                let text = event.data;
+                console.log("receive: " + text);
+                if (text.startsWith('refresh#')) {
+                    // 刷新验证码
+                    const newCode = text.substring(8).trim();
+                    codeTag.innerText = newCode;
+                    stateTag.innerText = '已刷新';
+                    stateTag.style.display = 'block';
+                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                        document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
+                    }
+                } else if (text === 'scan') {
+                    // 二维码扫描
+                    stateTag.innerText = '已扫描';
+                    stateTag.style.display = 'block';
+                } else if (text.startsWith('login#')) {
+                    // 登录格式为 login#cookie
+                    console.log("登录成功,保存cookie", text)
+                    document.cookie = text.substring(6);
+                    source.close();
+                    if (window.location.pathname === "/login") {
+                        // 登录成功，跳转首页
+                        window.location.href = "/";
+                    } else {
+                        // 刷新当前页面
+                        window.location.reload();
+                    }
+                    toastr.success("登录成功");
+                }
+            };
 
           source.onopen = function (evt) {
               console.log("开始订阅");

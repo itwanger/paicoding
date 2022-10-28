@@ -27,5 +27,11 @@ public interface CategoryService {
      */
     List<CategoryDTO> loadAllCategories();
 
+    /**
+     * 查询类目id
+     *
+     * @param category
+     * @return
+     */
     Long queryCategoryId(String category);
 }
