@@ -59,30 +59,6 @@ public class ArticleRestController {
     private ArticleRecommendService articleRecommendService;
 
     /**
-     * 根据分类 & 标签查询文章列表
-     *
-     * @param category
-     * @param page
-     * @param size
-     * @return
-     */
-    @RequestMapping(path = "list")
-    public ResVo<NextPageHtmlVo> list(@RequestParam(value = "category", required = false) String category,
-                                      @RequestParam(value = "tag", required = false) String tag,
-                                      @RequestParam(name = "page") Long page,
-                                      @RequestParam(name = "size", required = false) Long size) {
-        if (StringUtils.isBlank(category) && StringUtils.isBlank(tag)) {
-            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "category|tag miss!");
-        }
-        size = Optional.ofNullable(size).orElse(PageParam.DEFAULT_PAGE_SIZE);
-        size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
-        Long categoryId = categoryService.queryCategoryId(category);
-        PageListVo<ArticleDTO> articles = articleReadService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
-        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", articles);
-        return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
-    }
-
-    /**
      * 文章的关联推荐
      *
      * @param articleId

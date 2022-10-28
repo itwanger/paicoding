@@ -19,7 +19,7 @@
         </a>
         <div class="user-article-item-tag-wrap">
           <a
-                  th:href="'/tag/' + ${tag.tag}"
+                  th:href="'/article/tag/' + ${tag.tag}"
                   th:text="${tag.tag}"
                   rel="article-tag"
                   th:each="tag : ${article.tags}"

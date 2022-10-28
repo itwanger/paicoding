@@ -47,6 +47,23 @@ public interface ArticleReadService {
     PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page);
 
     /**
+     * 查询某个标签下的文章，支持翻页
+     *
+     * @param tagId
+     * @param page
+     * @return
+     */
+    PageListVo<ArticleDTO> queryArticlesByTag(Long tagId, PageParam page);
+
+    /**
+     * 根据关键词匹配标题，查询用于推荐的文章列表，只返回 articleId + title
+     *
+     * @param key
+     * @return
+     */
+    List<SimpleArticleDTO> querySimpleArticleBySearchKey(String key);
+
+    /**
      * 根据查询条件查询文章列表，支持翻页
      *
      * @param key

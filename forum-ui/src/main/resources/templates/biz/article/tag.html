@@ -39,47 +39,24 @@
 <div class="home">
     <div class="home-wrap">
         <div class="home-body">
-            <!--  轮播图  -->
-            <div th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"></div>
-
-            <!-- 类别筛选 -->
-            <div th:replace="plugins/categories :: category(${vo.categories})"></div>
             <!-- 文章列表 -->
             <div class="container-bg-light">
                 <div id="articleList">
                     <div th:replace="biz/article/list">文章列表</div>
                 </div>
-                <!-- <button th:if="${vo.articles.hasMore}" id="loadMoreTag" type="button"
-                    class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多"></button> -->
-            </div>
-        </div>
-
-        <div class="home-right">
-            <!-- 登录用户信息 -->
-            <div th:if="${global.isLogin}">
-                <div th:replace="plugins/user-card :: user_card(${vo.user}, false)"></div>
-            </div>
-
-            <!-- 公告 -->
-            <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
-                <div th:replace="biz/article/sidebars"></div>
             </div>
         </div>
     </div>
     <!-- 底部信息 -->
     <div th:replace="layout/footer :: footer"></div>
 </div>
-
-</div>
 <script src="/js/biz/loadMore.js"></script>
 <script th:inline="javascript">
-    const archiveId = [[${vo.categoryId}]]
-    const category = [[${ vo.currentCategory }]]
+    const archiveId = [[${ vo.archiveId }]]
     const params = {
-        "category": category ? category : '全部',
         "page": 2
     }
-    loadMore(".home", '/article/api/list/category/' + archiveId, params, "articleList");
+    loadMore(".home", '/article/api/list/tag/' + archiveId, params, "articleList");
 </script>
 </body>
 
