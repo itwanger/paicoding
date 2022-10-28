@@ -6,7 +6,6 @@ import com.github.liuyueyi.forum.core.util.IpUtil;
 import com.github.liuyueyi.forum.service.statistics.service.StatisticsSettingService;
 import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.Globals;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +60,12 @@ public class ReqRecordFilter implements Filter {
     }
 
     private HttpServletRequest initReqInfo(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/js/") || uri.startsWith("/css/")) {
+            // 静态资源直接放行
+            return request;
+        }
+
         try {
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
             reqInfo.setHost(request.getHeader("host"));

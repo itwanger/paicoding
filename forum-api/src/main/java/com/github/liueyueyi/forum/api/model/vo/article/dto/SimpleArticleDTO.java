@@ -1,6 +1,7 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -12,6 +13,7 @@ import java.sql.Timestamp;
  * @date 2022/9/6
  */
 @Data
+@Accessors(chain = true)
 public class SimpleArticleDTO implements Serializable {
     private static final long serialVersionUID = 3646376715620165839L;
 

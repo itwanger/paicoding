@@ -95,7 +95,7 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
             return PageListVo.emptyVo();
         }
 
-        List<ArticleDO> recommendArticles = articleDao.listRelatedArticles(article.getCategoryId(), tagIds, page);
+        List<ArticleDO> recommendArticles = articleDao.listRelatedArticlesOrderByReadCount(article.getCategoryId(), tagIds, page);
         return articleReadService.buildArticleListVo(recommendArticles, page.getPageSize());
     }
 }

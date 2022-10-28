@@ -19,6 +19,7 @@ import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -118,6 +119,24 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     public PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page) {
         List<ArticleDO> records = articleDao.listArticlesByCategoryId(categoryId, page);
         return buildArticleListVo(records, page.getPageSize());
+    }
+
+    @Override
+    public PageListVo<ArticleDTO> queryArticlesByTag(Long tagId, PageParam page) {
+        List<ArticleDO> records = articleDao.listRelatedArticlesOrderByReadCount(null, Arrays.asList(tagId), page);
+        return buildArticleListVo(records, page.getPageSize());
+    }
+
+    @Override
+    public List<SimpleArticleDTO> querySimpleArticleBySearchKey(String key) {
+        // todo 当key为空时，返回热门推荐
+        if (StringUtils.isBlank(key)) {
+            return Collections.emptyList();
+        }
+        key = key.trim();
+        List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
+        return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
+                .collect(Collectors.toList());
     }
 
     @Override
