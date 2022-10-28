@@ -148,7 +148,8 @@ public class QrLoginHelper {
             try {
                 // 登录成功，写入session
                 sseEmitter.send(session);
-                sseEmitter.send("login#" + LoginService.SESSION_KEY + "=" + session);
+                // 设置cookie的路径
+                sseEmitter.send("login#" + LoginService.SESSION_KEY + "=" + session + ";path=/;");
                 return true;
             } catch (Exception e) {
                 log.error("登录异常: {}, {}", loginCode, verifyCode, e);

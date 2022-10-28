@@ -56,8 +56,10 @@ public class LoginRestController {
 
     @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
-    public ResVo<Boolean> logOut() {
+    public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
+        // 重定向到首页
+        response.sendRedirect("/");
         return ResVo.ok(true);
     }
 
