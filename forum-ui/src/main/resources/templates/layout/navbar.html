@@ -67,7 +67,7 @@
         }
     </style>
     <nav id="bodyNav" th:data-islogin="${global.isLogin}" class="navbar navbar-expand-md container-bg-light fixed-top">
-        <a class="navbar-brand">
+        <a class="navbar-brand" href="/">
             <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
             <!-- <img
                   th:src="${global.siteInfo.websiteLogoUrl}"
@@ -263,7 +263,7 @@
                     stateTag.style.display = 'block';
                 } else if (text.startsWith('login#')) {
                     // 登录格式为 login#cookie
-                    console.log("登录成功,保存cookie")
+                    console.log("登录成功,保存cookie", text)
                     document.cookie = text.substring(6);
                     source.close();
                     if (window.location.pathname === "/login") {
