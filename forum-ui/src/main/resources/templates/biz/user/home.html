@@ -218,6 +218,44 @@
       border: 1px solid #3973ff;
       font-size: 12px;
     }
+    #saveModel .modal-dialog {
+      max-width: 900px;
+    }
+    /* 个人信息编辑弹窗 */
+    #saveModel .input-group {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #eaeaea;
+    }
+    #saveModel .input-group:last-child {
+      border: 0;
+    }
+    #saveModel .form-label {
+      width: 80px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 14px;
+      color: #333;
+      text-align: left;
+    }
+
+    #saveModel .form-control {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      color: #1d2129;
+      background: #fafafa;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    #saveModel .modal-body {
+      display: flex;
+      padding: 20px;
+    }
+    .person-info {
+      width: 70%;
+    }
   </style>
   <body id="body">
     <!-- 导航栏 -->
@@ -460,7 +498,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">编辑个人信息</h5>
+              <h5 class="modal-title">编辑个人资料</h5>
               <button
                 type="button"
                 class="close"
@@ -471,62 +509,59 @@
               </button>
             </div>
             <div class="modal-body">
-              <div class="input-group">
-                <span class="form-label" style="padding-right: 1em">
-                  用户名
-                </span>
-                <input
-                  id="userName"
-                  type="text"
-                  class="form-control"
-                  th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
-                  placeholder="请输入用户名"
-                />
+              <div class="person-info">
+                <div class="input-group">
+                  <span class="form-label">用户名</span>
+                  <input
+                    id="userName"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
+                    placeholder="请输入用户名"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">用户图像</span>
+                  <input
+                    id="photo"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
+                    placeholder="请输入用户图像"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">公司</span>
+                  <input
+                    id="company"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.company: ''}"
+                    placeholder="请输入公司"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">职位</span>
+                  <input
+                    id="position"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.position: ''}"
+                    placeholder="请输入职位"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">个人简介</span>
+                  <input
+                    id="profile"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
+                    placeholder="请输入个人简介"
+                  />
+                </div>
               </div>
-              <div class="input-group">
-                <span class="form-label" style="padding-right: 1em">
-                  用户图像
-                </span>
-                <input
-                  id="photo"
-                  type="text"
-                  class="form-control"
-                  th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
-                  placeholder="请输入用户图像"
-                />
-              </div>
-              <div class="input-group">
-                <span class="form-label" style="padding-right: 1em">公司</span>
-                <input
-                  id="company"
-                  type="text"
-                  class="form-control"
-                  th:value="${vo.userHome != null ? vo.userHome.company: ''}"
-                  placeholder="请输入公司"
-                />
-              </div>
-              <div class="input-group">
-                <span class="form-label" style="padding-right: 1em">职位</span>
-                <input
-                  id="position"
-                  type="text"
-                  class="form-control"
-                  th:value="${vo.userHome != null ? vo.userHome.position: ''}"
-                  placeholder="请输入职位"
-                />
-              </div>
-              <div class="input-group">
-                <span class="form-label" style="padding-right: 1em">
-                  个人简介
-                </span>
-                <input
-                  id="profile"
-                  type="text"
-                  class="form-control"
-                  th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
-                  placeholder="请输入个人简介"
-                />
-              </div>
+              <div class="person-img"></div>
             </div>
             <div class="modal-footer">
               <button id="publish" type="button" class="btn btn-primary">
@@ -557,7 +592,6 @@
           position: position,
           profile: profile,
         }
-        console.log(params)
 
         post("/user/api/saveUserInfo", params, function (data) {
           console.log("返回结果:", data)
@@ -578,6 +612,9 @@
       $(".user-article-item").click((e) => {
         alert("文章跳转")
       })
+
+      //弹窗展示
+      // $("#saveModel").show()
     </script>
   </body>
 </html>

@@ -1,14 +1,17 @@
 .category--item {
-    padding: 8px 24px;
-    color: #71777c;
-    font-weight: 500;
+  padding: 8px 24px;
+  color: #71777c;
+  font-weight: 500;
+}
+.category--item:first-child {
+  padding-left: 0;
 }
 .category--active {
-    color: #007fff;
+  color: #007fff;
 }
 .category-wrap {
-    padding: 12px 0;
+  padding: 12px 0;
 }
 a:hover {
-    text-decoration: none !important;
+  text-decoration: none !important;
 }
