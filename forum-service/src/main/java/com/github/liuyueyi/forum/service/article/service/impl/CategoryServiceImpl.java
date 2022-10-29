@@ -67,6 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
      *
      * @return
      */
+    @Override
     public List<CategoryDTO> loadAllCategories() {
         if (categoryCaches.size() <= 5) {
             refreshCache();

@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.service.article.service;
 
+import com.github.liueyueyi.forum.api.model.enums.OperateArticleEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
@@ -32,7 +33,7 @@ public interface ArticleSettingService {
      * 操作文章
      *
      * @param articleId
-     * @param operateType
+     * @param operate
      */
-    void operateArticle(Long articleId, Integer operateType);
+    void operateArticle(Long articleId, OperateArticleEnum operate);
 }

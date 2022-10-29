@@ -12,7 +12,9 @@ CREATE TABLE `article`
     `category_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '类目ID',
     `source`       tinyint      NOT NULL DEFAULT '1' COMMENT '来源：1-转载，2-原创，3-翻译',
     `source_url`   varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
-    `flag_bit`     int unsigned NOT NULL COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精',
+    `offical_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '官方状态：0-非官方，1-官方',
+    `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶',
+    `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精',
     `status`       tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`      tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -283,9 +285,14 @@ CREATE TABLE `request_count`
 # alter table `comment` add column `deleted` tinyint not null default '0' comment '0有效1删除'  after `parent_comment_id`;
 -- 管理后台
 # alter table article add column `flag_bit` int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精';
-
 -- 配置信息
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://hhui.top/', '', 2, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
+# insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
+# insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://dd-static.jd.com/ddimg/jfs/t1/137799/13/29857/2810787/634a8665E6af62b35/b33e3e66b2a47221.png', 'https://hhui.top/', '', 2, 1);
+# insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
+# insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
+
+-- 文章标签
+alter table article add column `offical_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '官方状态：0-非官方，1-官方';
+alter table article add column `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶';
+alter table article add column `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精';
+alter table article drop column `flag_bit`;
