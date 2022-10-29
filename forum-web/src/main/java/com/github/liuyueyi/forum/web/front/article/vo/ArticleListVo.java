@@ -4,6 +4,8 @@ import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author YiHui
  * @date 2022/10/28
