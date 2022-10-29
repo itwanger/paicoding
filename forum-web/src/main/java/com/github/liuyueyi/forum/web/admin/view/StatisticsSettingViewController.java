@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.front.backstage.view;
+package com.github.liuyueyi.forum.web.admin.view;
 
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsCountDTO;
@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "backstage/statistics/")
+@RequestMapping(path = "admin/statistics/")
 public class StatisticsSettingViewController {
 
     @Autowired

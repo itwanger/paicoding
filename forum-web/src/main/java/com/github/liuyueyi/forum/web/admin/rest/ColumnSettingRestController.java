@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.front.backstage.rest;
+package com.github.liuyueyi.forum.web.admin.rest;
 
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
@@ -20,7 +20,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "backstage/column/")
+@RequestMapping(path = "admin/column/")
 public class ColumnSettingRestController {
 
     @Autowired

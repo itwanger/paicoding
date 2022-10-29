@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.front.backstage.view;
+package com.github.liuyueyi.forum.web.admin.view;
 
 import com.github.liuyueyi.forum.service.user.service.UserSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "backstage/user/")
+@RequestMapping(path = "admin/user/")
 public class UserSettingViewController {
 
     @Autowired

@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.front.backstage.rest;
+package com.github.liuyueyi.forum.web.admin.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liuyueyi.forum.service.article.service.ArticleSettingService;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "backstage/article/")
+@RequestMapping(path = "admin/article/")
 public class ArticleSettingRestController {
 
     @Autowired
