@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
-import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
-import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
@@ -120,10 +118,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
         Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
         query.last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ArticleDO::getId);
+                .orderByDesc(ArticleDO::getOfficalStat, ArticleDO::getToppingStat);
         return baseMapper.selectList(query);
     }
-
 
     public List<ArticleDO> listArticlesByBySearchKey(String key, PageParam pageParam) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();

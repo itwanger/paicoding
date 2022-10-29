@@ -50,6 +50,7 @@ public class IndexRecommendHelper {
         IndexVo vo = new IndexVo();
         Long categoryId = categories(activeTab, vo);
         vo.setArticles(articleList(categoryId, PageParam.DEFAULT_PAGE_NUM, PageParam.DEFAULT_PAGE_SIZE));
+        vo.setTopArticles(topArticleList(categoryId));
         vo.setHomeCarouselList(homeCarouselList());
         vo.setSideBarItems(sidebarService.queryHomeSidebarList());
         vo.setCurrentCategory(categoryId == null ? "全部": activeTab);
@@ -89,6 +90,12 @@ public class IndexRecommendHelper {
         return articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(page, size));
     }
 
+    /**
+     * top 文章列表
+     */
+    private List<ArticleDTO> topArticleList(Long categoryId) {
+        return articleService.queryTopArticlesByCategory(categoryId);
+    }
 
     /**
      * 返回分类列表

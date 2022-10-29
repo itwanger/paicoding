@@ -46,6 +46,14 @@ public interface ArticleReadService {
      */
     PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page);
 
+
+    /**
+     * 获取 Top 文章
+     * @param categoryId
+     * @return
+     */
+    List<ArticleDTO> queryTopArticlesByCategory(Long categoryId);
+
     /**
      * 查询某个标签下的文章，支持翻页
      *

@@ -32,6 +32,11 @@ public class IndexVo {
     private Long categoryId;
 
     /**
+     * top 文章列表
+     */
+    private List<ArticleDTO> topArticles;
+
+    /**
      * 文章列表
      */
     private PageListVo<ArticleDTO> articles;
