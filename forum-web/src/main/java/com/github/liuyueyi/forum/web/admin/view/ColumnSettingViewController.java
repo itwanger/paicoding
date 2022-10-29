@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.front.backstage.view;
+package com.github.liuyueyi.forum.web.admin.view;
 
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
@@ -19,7 +19,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "backstage/column/")
+@RequestMapping(path = "admin/column/")
 public class ColumnSettingViewController {
 
     @Autowired

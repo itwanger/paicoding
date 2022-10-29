@@ -1,48 +1,48 @@
-package com.github.liuyueyi.forum.web.front.backstage.rest;
+package com.github.liuyueyi.forum.web.admin.rest;
 
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
-import com.github.liueyueyi.forum.api.model.vo.article.CategoryReq;
+import com.github.liueyueyi.forum.api.model.vo.article.TagReq;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
-import com.github.liuyueyi.forum.service.article.service.CategorySettingService;
+import com.github.liuyueyi.forum.service.article.service.TagSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 分类后台
+ * 标签后台
  *
  * @author LouZai
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "backstage/category/")
-public class CategorySettingRestController {
+@RequestMapping(path = "admin/tag/")
+public class TagSettingRestController {
 
     @Autowired
-    private CategorySettingService categorySettingService;
+    private TagSettingService tagSettingService;
 
     @ResponseBody
     @PostMapping(path = "save")
-    public ResVo<String> save(@RequestBody CategoryReq req) {
-        categorySettingService.saveCategory(req);
+    public ResVo<String> save(@RequestBody TagReq req) {
+        tagSettingService.saveTag(req);
         return ResVo.ok("ok");
     }
 
     @ResponseBody
     @GetMapping(path = "delete")
-    public ResVo<String> delete(@RequestParam(name = "categoryId") Integer categoryId) {
-        categorySettingService.deleteCategory(categoryId);
+    public ResVo<String> delete(@RequestParam(name = "tagId") Integer tagId) {
+        tagSettingService.deleteTag(tagId);
         return ResVo.ok("ok");
     }
 
     @ResponseBody
     @GetMapping(path = "operate")
-    public ResVo<String> operate(@RequestParam(name = "categoryId") Integer categoryId,
+    public ResVo<String> operate(@RequestParam(name = "tagId") Integer tagId,
                                  @RequestParam(name = "operateType") Integer operateType) {
         if (operateType != PushStatusEnum.OFFLINE.getCode() || operateType!= PushStatusEnum.ONLINE.getCode()) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
-        categorySettingService.operateCategory(categoryId, operateType);
+        tagSettingService.operateTag(tagId, operateType);
         return ResVo.ok("ok");
     }
 }
