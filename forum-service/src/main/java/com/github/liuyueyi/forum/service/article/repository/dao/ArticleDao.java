@@ -97,17 +97,6 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         articleDetailMapper.updateContent(articleId, content);
     }
 
-    /**
-     * 更新标记位
-     *
-     * @param articleId
-     * @param falgBit
-     */
-    public void updateArticleFlagBit(Long articleId, Integer falgBit) {
-        articleDetailMapper.updateFlagBit(articleId, falgBit);
-    }
-
-
     // ------------- 文章列表查询 --------------
 
     public List<ArticleDO> listArticlesByUserId(Long userId, PageParam pageParam) {

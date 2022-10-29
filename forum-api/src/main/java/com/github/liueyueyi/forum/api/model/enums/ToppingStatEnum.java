@@ -3,19 +3,18 @@ package com.github.liueyueyi.forum.api.model.enums;
 import lombok.Getter;
 
 /**
- * 操作文章
+ * 置顶状态枚举
  *
  * @author louzai
  * @since 2022/7/19
  */
 @Getter
-public enum FlagBitEnum {
+public enum ToppingStatEnum {
 
-    OFFICAL(1, "官方"), // 1 > 0
-    TOPPING(2, "置顶"), // 1 >> 1
-    CREAM(4, "加精"); // 1 >> 2
+    NOT_TOPPING(0, "不置顶"),
+    TOPPING(1, "置顶");
 
-    FlagBitEnum(Integer code, String desc) {
+    ToppingStatEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }
@@ -23,12 +22,12 @@ public enum FlagBitEnum {
     private final Integer code;
     private final String desc;
 
-    public static FlagBitEnum formCode(Integer code) {
-        for (FlagBitEnum value : FlagBitEnum.values()) {
+    public static ToppingStatEnum formCode(Integer code) {
+        for (ToppingStatEnum value : ToppingStatEnum.values()) {
             if (value.getCode().equals(code)) {
                 return value;
             }
         }
-        return FlagBitEnum.OFFICAL;
+        return ToppingStatEnum.NOT_TOPPING;
     }
 }

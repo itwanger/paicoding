@@ -72,9 +72,19 @@ public class ArticleDO extends BaseDO {
     private Integer status;
 
     /**
-     * 标记位（二进制）
+     * 是否官方
      */
-    private Integer flagBit;
+    private Integer officalStat;
+
+    /**
+     * 是否置顶
+     */
+    private Integer toppingStat;
+
+    /**
+     * 是否加精
+     */
+    private Integer creamStat;
 
     private Integer deleted;
 }
