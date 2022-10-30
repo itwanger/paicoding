@@ -145,6 +145,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-top: 1px solid #dee2e6;
 }
 
 .foot-link {
@@ -248,7 +249,7 @@ a {
 }
 
 .selected-domain a {
-  color: #3973ff;
+  /* color: #3973ff; */
 }
 
 .user-info-box {
@@ -504,10 +505,6 @@ a {
   .message-block {
     margin-right: 5px;
   }
-}
-
-#bodyNav {
-  position: sticky;
 }
 
 .parent-wrapper {
