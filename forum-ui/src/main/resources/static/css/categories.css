@@ -1,3 +1,6 @@
+.home-nav-classify {
+  background-color: #fff;
+}
 .category--item {
   padding: 8px 24px;
   color: #71777c;
@@ -10,6 +13,8 @@
   color: #007fff;
 }
 .category-wrap {
+  width: 1200px;
+  margin: 0 auto;
   padding: 12px 0;
 }
 a:hover {

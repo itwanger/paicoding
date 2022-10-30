@@ -2,18 +2,21 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <div th:fragment="navbar">
     <style>
-      #bodyNav {
-        padding: 0 10%;
-        border-bottom: 1px solid #dee2e6;
+      .navbar {
+        height: 60px;
+        /* border-bottom: 1px solid #dee2e6; */
+        position: sticky;
+        background-color: #000;
+      }
+      .nav-body {
+        display: flex;
+        min-width: 1200px;
+        margin: 0 auto;
       }
 
       .nav-link {
         font-size: 18px;
         font-weight: 500;
-      }
-
-      .navbar {
-        height: 60px;
       }
 
       .nav-search {
@@ -24,7 +27,7 @@
       }
 
       .nav-article {
-        background-color: #1f80ff !important;
+        background-color: #383d41 !important;
         color: #fff;
         font-weight: 500;
         height: 32px;
@@ -32,6 +35,7 @@
         border-radius: 4px;
         display: flex;
         align-items: center;
+        border-color: #000;
       }
 
       .nav-article:hover {
@@ -66,157 +70,163 @@
         align-items: center;
         padding: 0;
       }
+      .nav-link {
+        color: #fff;
+      }
     </style>
     <nav
-      id="bodyNav"
       th:data-islogin="${global.isLogin}"
       class="navbar navbar-expand-md container-bg-light fixed-top"
     >
-      <a class="navbar-brand" href="/">
-        <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
-        <!-- <img
-                  th:src="${global.siteInfo.websiteLogoUrl}"
-                  th:alt="${global.siteInfo.websiteName}"
-                  src="https://static.developers.pub/logo.jpeg"
-                  width="30"
-                  height="30"
-                  alt=""
-                  loading="lazy"
-                /> -->
-        <img
-          th:src="${global.siteInfo.websiteLogoUrl}"
-          th:alt="${global.siteInfo.websiteName}"
-          alt=""
-          width="30"
-          height="30"
-          loading="lazy"
-        />
-      </a>
-      <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav mr-auto">
-          <li
-            th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
-            class="nav-item"
-          >
-            <a class="nav-link" href="/">首页</a>
-          </li>
-          <li
-            th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
-            class="nav-item"
-          >
-            <a class="nav-link" href="/column">教程</a>
-          </li>
-          <!--                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"-->
-          <!--                    class="nav-item">-->
-          <!--                    <a class="nav-link" href="https://tool.hhui.top" target="_blank">-->
-          <!--                        工具箱-->
-          <!--                    </a>-->
-          <!--                </li>-->
-          <!--                <li th:if="${global.isLogin}"-->
-          <!--                    th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"-->
-          <!--                    class="nav-item">-->
-          <!--                    <a class="nav-link" href="/follow">关注</a>-->
-          <!--                </li>-->
-        </ul>
-        <form class="form-inline my-md-0" action="/search" method="get">
-          <div class="input-icon">
-            <input
-              name="key"
-              required
-              type="text"
-              class="form-control nav-search"
-              placeholder="找文章/找标签/找技术大神"
-              aria-label="Recipient's username"
-              aria-describedby="basic-addon2"
-            />
-          </div>
-        </form>
-        <button
-          type="button"
-          class="btn btn-primary nav-article"
-          th:data-target="${global.isLogin ? '' : '#loginModal'}"
-          th:data-toggle="${global.isLogin ? '' : 'modal'}"
-        >
-          写文章
-        </button>
-        <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
-          <!--  待登录 -->
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              href="#"
-              data-toggle="modal"
-              data-target="#loginModal"
+      <div class="nav-body">
+        <a class="navbar-brand" href="/">
+          <!--        <a class="navbar-brand" th:href="${'/article/detail/6'}">-->
+          <!-- <img
+                    th:src="${global.siteInfo.websiteLogoUrl}"
+                    th:alt="${global.siteInfo.websiteName}"
+                    src="https://static.developers.pub/logo.jpeg"
+                    width="30"
+                    height="30"
+                    alt=""
+                    loading="lazy"
+                  /> -->
+          <img
+            th:src="${global.siteInfo.websiteLogoUrl}"
+            th:alt="${global.siteInfo.websiteName}"
+            alt=""
+            width="30"
+            height="30"
+            style="border-radius: 50%"
+            loading="lazy"
+          />
+        </a>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+          <ul class="navbar-nav mr-auto">
+            <li
+              th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
+              class="nav-item"
             >
-              登录
-            </a>
-          </li>
-        </ul>
-        <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
-          <!--  已登录 -->
-          <li class="nav-item nav-notice">
-            <a class="nav-link navbar-count-msg-box" href="/notice/comment">
-              <span
-                th:if="${global.msgNum != null && global.msgNum > 0}"
-                class="navbar-count-msg"
-              ></span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="icon"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path
-                  d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"
-                ></path>
-                <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
-              </svg>
-            </a>
-          </li>
-          <!-- Dropdown -->
-          <li class="nav-item dropdown nav-login-head">
-            <!-- <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"> -->
-            <img
-              class="nav-login-img dropdown-toggle"
-              th:src="${global.user.photo}"
-              data-toggle="dropdown"
-              src="https://static.developers.pub/static/img/logo.b2ff606.jpeg"
-              alt=""
-              loading="lazy"
-            />
-            <!-- </a> -->
-            <div class="dropdown-menu nav-login-menu">
-              <a
-                th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
-                href="/admin"
-                target="_blank"
-                class="dropdown-item"
-              >
-                管理后台
-              </a>
-              <div
-                th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
-                class="dropdown-divider"
-              ></div>
-              <a
-                th:href="${'/user/home?userId=' + global.user.userId}"
-                class="dropdown-item"
-                target="_blank"
-                href="#"
-              >
-                个人主页
-              </a>
-              <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
+              <a class="nav-link" href="/">首页</a>
+            </li>
+            <li
+              th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
+              class="nav-item"
+            >
+              <a class="nav-link" href="/column">教程</a>
+            </li>
+            <!--                <li th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'tools') ? ' selected-domain' : '')}"-->
+            <!--                    class="nav-item">-->
+            <!--                    <a class="nav-link" href="https://tool.hhui.top" target="_blank">-->
+            <!--                        工具箱-->
+            <!--                    </a>-->
+            <!--                </li>-->
+            <!--                <li th:if="${global.isLogin}"-->
+            <!--                    th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"-->
+            <!--                    class="nav-item">-->
+            <!--                    <a class="nav-link" href="/follow">关注</a>-->
+            <!--                </li>-->
+          </ul>
+          <form class="form-inline my-md-0" action="/search" method="get">
+            <div class="input-icon">
+              <input
+                name="key"
+                required
+                type="text"
+                class="form-control nav-search"
+                placeholder="找文章/找标签/找技术大神"
+                aria-label="Recipient's username"
+                aria-describedby="basic-addon2"
+              />
             </div>
-          </li>
-        </ul>
+          </form>
+          <button
+            type="button"
+            class="btn btn-primary nav-article"
+            th:data-target="${global.isLogin ? '' : '#loginModal'}"
+            th:data-toggle="${global.isLogin ? '' : 'modal'}"
+          >
+            写文章
+          </button>
+          <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
+            <!--  待登录 -->
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="#"
+                data-toggle="modal"
+                data-target="#loginModal"
+              >
+                登录
+              </a>
+            </li>
+          </ul>
+          <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
+            <!--  已登录 -->
+            <li class="nav-item nav-notice">
+              <a class="nav-link navbar-count-msg-box" href="/notice/comment">
+                <span
+                  th:if="${global.msgNum != null && global.msgNum > 0}"
+                  class="navbar-count-msg"
+                ></span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path
+                    d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"
+                  ></path>
+                  <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+                </svg>
+              </a>
+            </li>
+            <!-- Dropdown -->
+            <li class="nav-item dropdown nav-login-head">
+              <!-- <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"> -->
+              <img
+                class="nav-login-img dropdown-toggle"
+                style="border-radius: 50%"
+                th:src="${global.user.photo}"
+                data-toggle="dropdown"
+                src="https://static.developers.pub/static/img/logo.b2ff606.jpeg"
+                alt=""
+                loading="lazy"
+              />
+              <!-- </a> -->
+              <div class="dropdown-menu nav-login-menu">
+                <a
+                  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                  href="/admin"
+                  target="_blank"
+                  class="dropdown-item"
+                >
+                  管理后台
+                </a>
+                <div
+                  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                  class="dropdown-divider"
+                ></div>
+                <a
+                  th:href="${'/user/home?userId=' + global.user.userId}"
+                  class="dropdown-item"
+                  target="_blank"
+                  href="#"
+                >
+                  个人主页
+                </a>
+                <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
     <!-- 登录 Modal -->
