@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 用户卡片 -->
-  <div class="card" th:fragment="user_card(user, followShow)">
+  <div class="card" th:fragment="user_card(user, userId, followShow)">
     <div class="detail-user-wrap">
       <div class="detail-user-head-wrap">
         <img class="detail-user-head" th:src="${user.photo}" alt="" />
         <span th:text="${user.userName}" class="detail-user-name"></span>
         <span
           class="detail-user-look"
+          th:data-user-id="${userId}"
+          th:data-followed="${user.followed}"
+          onclick="followAction(this)"
           th:if="${followShow == true}"
           th:text="${user.followed == true ? '取消关注' : '关注'}"
         >

@@ -6,9 +6,9 @@ import com.github.liueyueyi.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.liuyueyi.forum.service.config.repository.entity.ConfigDO;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Banner转换
@@ -18,16 +18,14 @@ import java.util.List;
  */
 public class ConfigConverter {
 
-    public static List<ConfigDTO> ToDTOS(List<ConfigDO> configDOS) {
-        if (CollectionUtils.isEmpty(configDOS)){
+    public static List<ConfigDTO> toDTOS(List<ConfigDO> records) {
+        if (CollectionUtils.isEmpty(records)) {
             return Collections.emptyList();
         }
-        List<ConfigDTO> configDTOS = new ArrayList<>(configDOS.size());
-        configDOS.forEach(v -> configDTOS.add(ToDTO(v)));
-        return configDTOS;
+        return records.stream().map(ConfigConverter::toDTO).collect(Collectors.toList());
     }
 
-    public static ConfigDTO ToDTO(ConfigDO configDO) {
+    public static ConfigDTO toDTO(ConfigDO configDO) {
         if (configDO == null) {
             return null;
         }
@@ -40,12 +38,13 @@ public class ConfigConverter {
         configDTO.setRank(configDO.getRank());
         configDTO.setStatus(configDO.getStatus());
         configDTO.setId(configDO.getId());
+        configDTO.setTags(configDO.getTags());
         configDTO.setCreateTime(configDO.getCreateTime());
         configDTO.setUpdateTime(configDO.getUpdateTime());
         return configDTO;
     }
 
-    public static ConfigDO ToDO(ConfigReq configReq) {
+    public static ConfigDO toDO(ConfigReq configReq) {
         if (configReq == null) {
             return null;
         }
@@ -57,6 +56,7 @@ public class ConfigConverter {
         configDO.setContent(configReq.getContent());
         configDO.setRank(configReq.getRank());
         configDO.setStatus(PushStatusEnum.OFFLINE.getCode());
+        configDO.setTags(configReq.getTags());
         return configDO;
     }
 }

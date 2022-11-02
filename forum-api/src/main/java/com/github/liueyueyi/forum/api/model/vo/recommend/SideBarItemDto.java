@@ -3,6 +3,8 @@ package com.github.liueyueyi.forum.api.model.vo.recommend;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * 侧边推广信息
  *
@@ -18,4 +20,9 @@ public class SideBarItemDto {
     private String url;
 
     private Long time;
+
+    /**
+     * tag列表
+     */
+    private List<Integer> tags;
 }

@@ -102,3 +102,25 @@ const nextPage = function (url, params, listId, btnId, callback) {
 const nextPageText = function (url, params, listId, callback, errorCallback) {
   doGetNextPageText(url, params, listId, callback, errorCallback)
 }
+
+/**
+ * 关注or取消关注
+ */
+const followAction = function(e) {
+  const targetUserId = e.dataset.userId;
+  let followed = e.dataset.followed !== 'true';
+  const params = {
+    "userId": targetUserId,
+    "followed": followed ,
+  }
+  console.log("点击关注or取消:", e.dataset);
+  post("/user/api/saveUserRelation", params, function (data) {
+    console.log("返回结果:", data);
+    if (followed) {
+      e.innerText = "取消关注";
+    } else {
+      e.innerText = "关注";
+    }
+    e.dataset.followed = String(followed);
+  });
+}

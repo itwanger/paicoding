@@ -154,8 +154,8 @@ values ('1', 'Java', '1', '1', '1', '0'),
 -- 配置相关信息
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://imgs.hhui.top/forum/banner/01.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://imgs.hhui.top/forum/banner/01.png', 'https://hhui.top/', '', 2, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`, `tags`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1, '1,2,3');
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`, `tags`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1, '1,2,3');
 
 -- 初始化文章
 -- fixme 下面这个文章后续使用论坛的介绍进行替换

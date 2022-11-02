@@ -29,7 +29,7 @@ public class ConfigSettingServiceImpl implements ConfigSettingService {
 
     @Override
     public void saveConfig(ConfigReq configReq) {
-        ConfigDO configDO = ConfigConverter.ToDO(configReq);
+        ConfigDO configDO = ConfigConverter.toDO(configReq);
         if (NumUtil.nullOrZero(configReq.getConfigId())) {
             configDao.save(configDO);
         } else {
