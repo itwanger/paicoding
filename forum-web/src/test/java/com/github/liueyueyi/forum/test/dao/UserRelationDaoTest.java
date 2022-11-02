@@ -1,10 +1,9 @@
 package com.github.liueyueyi.forum.test.dao;
 
-import com.github.liueyueyi.forum.api.model.enums.FollowStateEnum;
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.liueyueyi.forum.test.BasicTest;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liuyueyi.forum.service.user.service.UserRelationService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,10 +55,10 @@ public class UserRelationDaoTest extends BasicTest {
 
     @Test
     public void testUserRelation() {
-        UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(1L, PageParam.newPageInstance(1L, 10L));
+        PageListVo<FollowUserInfoDTO> userFollowListDTO = userRelationService.getUserFollowList(1L, PageParam.newPageInstance(1L, 10L));
         log.info("query userFollowDTOS: {}", userFollowListDTO);
 
-        UserFollowListDTO userFansListDTO = userRelationService.getUserFansList(1L, PageParam.newPageInstance(1L, 10L));
+        PageListVo<FollowUserInfoDTO> userFansListDTO = userRelationService.getUserFansList(1L, PageParam.newPageInstance(1L, 10L));
         log.info("query userFansList: {}", userFansListDTO);
     }
 }
