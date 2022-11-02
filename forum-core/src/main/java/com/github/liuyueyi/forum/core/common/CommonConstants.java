@@ -30,26 +30,26 @@ public class CommonConstants {
         {
             put(CATEGORY_ALL, new ArrayList<String>() {
                 {
-                    add("https://img11.360buyimg.com/ddimg/jfs/t1/162174/33/32061/33072/63606ca7E49793979/852ba88a7ae8a0c7.webp");
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/182698/4/29623/19646/636255b3Ecb930e42/00606f148e71d345.webp");
                     add("https://img13.360buyimg.com/ddimg/jfs/t1/216869/6/23184/32776/63606c72E8edb111e/a4de234440299448.webp");
-                    add("https://img12.360buyimg.com/ddimg/jfs/t1/169217/34/31577/31440/63606c72E7a4f58b3/a72b7df2ec84d79f.webp");
                     add("https://img11.360buyimg.com/ddimg/jfs/t1/130773/36/28029/41932/63606c72E8e68370b/72f322b90eb6f146.webp");
+                    add("https://img12.360buyimg.com/ddimg/jfs/t1/169217/34/31577/31440/63606c72E7a4f58b3/a72b7df2ec84d79f.webp");
                 }
             });
             put(CATEGORY_BACK_EMD, new ArrayList<String>() {
-                {
-                    add("https://img14.360buyimg.com/ddimg/jfs/t1/143513/1/30950/11464/6360767bEada4a5db/eb24093e34dd6991.webp");
-                    add("https://img12.360buyimg.com/ddimg/jfs/t1/100700/30/30797/18850/6360767bE752105f6/df6b065028fd0344.webp");
-                    add("https://img14.360buyimg.com/ddimg/jfs/t1/177012/28/29445/19784/6360767bE4a30481e/fecfcd7cfd87c692.webp");
-                    add("https://img11.360buyimg.com/ddimg/jfs/t1/32179/19/18630/11418/6360767fEfb0a2215/299fe71933c4427b.webp");
-                }
-            });
-            put(CATEGORY_FORNT_END, new ArrayList<String>() {
                 {
                     add("https://img12.360buyimg.com/ddimg/jfs/t1/144729/17/31034/367421/636076adE5b5f7c6b/fa4de8bb58f74a63.gif");
                     add("https://img14.360buyimg.com/ddimg/jfs/t1/138738/8/31452/12286/636076f0Ef18f77d8/fde4de8bbf0b5380.webp");
                     add("https://img12.360buyimg.com/ddimg/jfs/t1/69814/7/22820/21218/636076f0Ed6dea845/f53aaf828ec9c135.webp");
                     add("https://img12.360buyimg.com/ddimg/jfs/t1/23649/3/19923/65450/636076f0Ec39e3fd9/763afa10946ef984.webp");
+                }
+            });
+            put(CATEGORY_FORNT_END, new ArrayList<String>() {
+                {
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/143513/1/30950/11464/6360767bEada4a5db/eb24093e34dd6991.webp");
+                    add("https://img12.360buyimg.com/ddimg/jfs/t1/100700/30/30797/18850/6360767bE752105f6/df6b065028fd0344.webp");
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/177012/28/29445/19784/6360767bE4a30481e/fecfcd7cfd87c692.webp");
+                    add("https://img11.360buyimg.com/ddimg/jfs/t1/32179/19/18630/11418/6360767fEfb0a2215/299fe71933c4427b.webp");
                 }
             });
             put(CATEGORY_ANDROID, new ArrayList<String>() {
