@@ -299,4 +299,6 @@ alter table article add column `cream_stat`   int unsigned NOT NULL DEFAULT '0' 
 alter table article drop column `flag_bit`;
 
 -- 推荐侧边栏配置，添加config_tag，用于显示 火、热门、官方等小标签
-alter table `config` add column `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐' after `status`
+alter table `config` add column `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐' after `status`;
+-- 设置公告有标签，用于查看样式
+update `config` set tags='1,2,3' where `type` = 4;
