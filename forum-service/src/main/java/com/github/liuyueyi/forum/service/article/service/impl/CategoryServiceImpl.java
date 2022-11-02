@@ -73,6 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
             refreshCache();
         }
         List<CategoryDTO> list = new ArrayList<>(categoryCaches.asMap().values());
+        list.removeIf(s -> s.getCategoryId() <= 0);
         list.sort(Comparator.comparingLong(CategoryDTO::getCategoryId));
         return list;
     }

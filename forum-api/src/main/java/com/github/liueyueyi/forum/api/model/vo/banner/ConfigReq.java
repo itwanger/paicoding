@@ -47,4 +47,9 @@ public class ConfigReq implements Serializable {
      * 排序
      */
     private Integer rank;
+
+    /**
+     * 标签
+     */
+    private String tags;
 }

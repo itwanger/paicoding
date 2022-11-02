@@ -4,6 +4,9 @@
 <div class="user-article-item" th:fragment="article_card(article)">
   <div class="user-article-item-content">
     <a th:href="${'/article/detail/' + article.articleId}">
+      <small th:if="${article.officalStat == 1}" class="posts-admin-tag posts-admin-tag-official">官</small>
+      <small th:if="${article.toppingStat == 1}" class="posts-admin-tag posts-admin-tag-top">顶</small>
+      <small th:if="${article.creamStat == 1}" class="posts-admin-tag posts-admin-tag-marrow">精</small>
       <div class="user-article-item-title" th:text="${article.title}">标题</div>
     </a>
     <div class="user-article-item-value-wrap">
@@ -13,7 +16,7 @@
                   class="user-article-item-value-text"
                   th:text="${article.summary}"
           >
-            文章内容
+            文章简介
           </div>
         </a>
         <div class="user-article-item-tag-wrap">
