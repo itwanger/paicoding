@@ -10,11 +10,14 @@ import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarItemDto;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.config.service.ConfigService;
+import com.google.common.base.Splitter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,10 +57,21 @@ public class SidebarServiceImpl implements SidebarService {
      * @return
      */
     private SideBarDTO noticeSideBar() {
-        List<ConfigDTO> configDTOS = configService.getConfigList(ConfigTypeEnum.NOTICE);
-        List<SideBarItemDto> items = new ArrayList<>();
-        configDTOS.forEach(configDTO -> {
-            items.add(new SideBarItemDto().setTitle(configDTO.getContent()).setUrl(configDTO.getJumpUrl()).setTime(configDTO.getCreateTime().getTime()));
+        List<ConfigDTO> noticeList = configService.getConfigList(ConfigTypeEnum.NOTICE);
+        List<SideBarItemDto> items = new ArrayList<>(noticeList.size());
+        noticeList.forEach(configDTO -> {
+            List<Integer> configTags ;
+            if (StringUtils.isBlank(configDTO.getTags())) {
+                configTags = Collections.emptyList();
+            } else {
+                configTags = Splitter.on(",").splitToStream(configDTO.getTags()).map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
+            }
+            items.add(new SideBarItemDto()
+                    .setTitle(configDTO.getContent())
+                    .setUrl(configDTO.getJumpUrl())
+                    .setTime(configDTO.getCreateTime().getTime())
+                    .setTags(configTags)
+            );
         });
         return new SideBarDTO().setTitle("公告").setItems(items).setStyle(SidebarStyleEnum.NOTICE.getStyle());
     }

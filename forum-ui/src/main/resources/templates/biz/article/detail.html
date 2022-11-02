@@ -113,7 +113,7 @@
         <div class="home-right">
           <!-- 用户相关信息 -->
           <div
-            th:replace="plugins/user-card :: user_card(${vo.author}, true)"
+            th:replace="plugins/user-card :: user_card(${vo.author}, ${vo.article.author}, ${global.isLogin})"
           ></div>
 
           <!-- 公告 -->
@@ -285,30 +285,29 @@
       })
 
 
-      let userId = [[${vo.author.userId}]]
-      let followed = [[${vo.author.followed}]]
-      $('#followBtn').on('click', function () {
-          if (!isLogin) {
-              // 未登录，不执行相关操作
-
-              // TODO: 需要提示用户去登录  @一灰
-              return;
-          }
-
-          followed = !followed;
-
-          const params = {
-              "userId": userId,
-              "followed": followed,
-          }
-          console.log(params);
-
-          post("/user/api/saveUserRelation", params, function (data) {
-              console.log("返回结果:", data);
-              // TODO：需要做成非刷新的方式，同目前的点赞效果 @前端小超
-              location.reload();
-          });
-      });
+      // let userId = [[${vo.author.userId}]]
+      // let followed = [[${vo.author.followed}]]
+      // $('#followBtn').on('click', function () {
+      //     if (!isLogin) {
+      //         // 未登录，不执行相关操作
+      //         toastr.warning("请登录之后再关注用户哦");
+      //         return;
+      //     }
+      //
+      //     followed = !followed;
+      //
+      //     const params = {
+      //         "userId": userId,
+      //         "followed": followed,
+      //     }
+      //     console.log(params);
+      //
+      //     post("/user/api/saveUserRelation", params, function (data) {
+      //         console.log("返回结果:", data);
+      //         // TODO：需要做成非刷新的方式，同目前的点赞效果 @前端小超
+      //         location.reload();
+      //     });
+      // });
 
 
       // 加载推荐列表

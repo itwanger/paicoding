@@ -12,7 +12,7 @@ import lombok.Data;
 public class PageParam {
 
     public static final Long DEFAULT_PAGE_NUM = 1L;
-    public static final Long DEFAULT_PAGE_SIZE = 3L;
+    public static final Long DEFAULT_PAGE_SIZE = 20L;
 
 
     /**
