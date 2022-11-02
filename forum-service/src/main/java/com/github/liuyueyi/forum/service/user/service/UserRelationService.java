@@ -1,8 +1,9 @@
 package com.github.liuyueyi.forum.service.user.service;
 
+import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 
 /**
  * 用户关系Service接口
@@ -19,7 +20,7 @@ public interface UserRelationService {
      * @param pageParam
      * @return
      */
-    UserFollowListDTO getUserFollowList(Long userId, PageParam pageParam);
+    PageListVo<FollowUserInfoDTO> getUserFollowList(Long userId, PageParam pageParam);
 
 
     /**
@@ -29,7 +30,15 @@ public interface UserRelationService {
      * @param pageParam
      * @return
      */
-    UserFollowListDTO getUserFansList(Long userId, PageParam pageParam);
+    PageListVo<FollowUserInfoDTO> getUserFansList(Long userId, PageParam pageParam);
+
+    /**
+     * 更新当前登录用于与列表中的用户的关注关系
+     *
+     * @param followList
+     * @param loginUserId
+     */
+    void updateUserFollowRelationId(PageListVo<FollowUserInfoDTO> followList, Long loginUserId);
 
 
     /**
