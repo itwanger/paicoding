@@ -1,9 +1,8 @@
 package com.github.liueyueyi.forum.api.model.vo.banner.dto;
 
 import com.github.liueyueyi.forum.api.model.entity.BaseDTO;
+import com.github.liueyueyi.forum.api.model.enums.ConfigTagEnum;
 import lombok.Data;
-
-import java.util.Date;
 
 /**
  * Banner
@@ -48,4 +47,11 @@ public class ConfigDTO extends BaseDTO {
      * 状态：0-未发布，1-已发布
      */
     private Integer status;
+
+    /**
+     * 配置相关的标签：如 火，推荐，精选 等等，英文逗号分隔
+     *
+     * @see ConfigTagEnum#getCode()
+     */
+    private String tags;
 }

@@ -246,6 +246,7 @@ CREATE TABLE `config`
     `content`  varchar(256) NOT NULL default '' COMMENT '内容',
     `rank` tinyint NOT NULL default '0' COMMENT '排序',
     `status`      tinyint NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐',
     `deleted`     tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -296,3 +297,6 @@ alter table article add column `offical_stat` int unsigned NOT NULL DEFAULT '0' 
 alter table article add column `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶';
 alter table article add column `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精';
 alter table article drop column `flag_bit`;
+
+-- 推荐侧边栏配置，添加config_tag，用于显示 火、热门、官方等小标签
+alter table `config` add column `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐' after `status`

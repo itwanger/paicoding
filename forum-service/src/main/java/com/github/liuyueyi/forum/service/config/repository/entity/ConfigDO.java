@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.service.config.repository.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
+import com.github.liueyueyi.forum.api.model.enums.ConfigTagEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -58,4 +59,11 @@ public class ConfigDO extends BaseDO {
      * 0未删除 1 已删除
      */
     private Integer deleted;
+
+    /**
+     * 配置对应的标签，英文逗号分隔
+     *
+     * @see ConfigTagEnum#getCode()
+     */
+    private String tags;
 }

@@ -1,18 +1,15 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.OperateArticleEnum;
-import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.article.dto.FlagBitDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleSettingService;
-import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +39,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     public PageVo<ArticleDTO> getArticleList(PageParam pageParam) {
         List<ArticleDO> articleDOS = articleDao.listArticles(pageParam);
         Integer totalCount = articleDao.countArticle();
-        return PageVo.build(ArticleConverter.toArticleDtoList(articleDOS),pageParam.getPageSize(), pageParam.getPageNum(),totalCount);
+        return PageVo.build(ArticleConverter.toArticleDtoList(articleDOS), pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
     }
 
     @Override
