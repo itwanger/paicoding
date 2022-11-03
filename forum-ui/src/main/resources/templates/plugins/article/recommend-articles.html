@@ -65,11 +65,10 @@
         transform: translateY(-4px);
     }
 </style>
-<div class="home-carouse-wrap">
+<div class="home-carouse-wrap" id="carouseWrap">
     <div class="home-carouse-inter-wrap">
-        <div class="home-carouse-item" th:each="article : ${vo.topArticles}">
-            <img th:src="${article.cover}"
-                 alt="">
+        <div class="home-carouse-item" th:each="article,iter : ${vo.topArticles}">
+            <img th:src="${article.cover}" crossorigin="anonymous" th:id="'cover' + ${iter.index}">
             <div class="home-carouse-item-body">
                 <a th:href="${'/article/detail/' + article.articleId}">
                     <div class="home-carouse-item-title" th:text="${article.title}"></div>
@@ -91,3 +90,25 @@
         </div>
     </div>
 </div>
+
+<script src="/js/color-thief.umd.js"></script>
+<script>
+    // https://lokeshdhakar.com/projects/color-thief/#getting-started
+    const colorThief = new ColorThief();
+    const img = document.getElementById('cover0');
+    console.log("img:", img);
+
+    if (img.complete) {
+        let color = colorThief.getColor(img);
+        console.log("newColor: ", color);
+        let span = document.getElementById('carouseWrap');
+        span.style.background = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
+    } else {
+        img.addEventListener('load', function () {
+            let color = colorThief.getColor(img);
+            console.log("eNewColor: ", color);
+            let span = document.getElementById('carouseWrap')
+            span.style.background = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+        });
+    }
+</script>
