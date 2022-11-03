@@ -20,8 +20,8 @@ CREATE TABLE `article`
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
-    KEY            `idx_category_id` (`category_id`)
-        KEY `idx_title` (`title`)
+    KEY            `idx_category_id` (`category_id`),
+        KEY `idx_title` (`title`),
         KEY `idx_short_title` (`short_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章表';
 
