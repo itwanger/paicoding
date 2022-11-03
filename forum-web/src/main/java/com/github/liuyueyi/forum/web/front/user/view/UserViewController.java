@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.web.front.user.view;
 
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
 import com.github.liueyueyi.forum.api.model.enums.FollowTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
@@ -7,8 +8,10 @@ import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.user.service.UserRelationService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
@@ -27,6 +30,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -53,10 +57,11 @@ public class UserViewController extends BaseViewController {
     private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
 
     /**
-     * 获取用户主页信息
+     * 获取用户主页信息，通常只有作者本人才能进入这个页面
      *
      * @return
      */
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "home")
     public String getUserHome(@RequestParam(name = "userId") Long userId,
                               @RequestParam(name = "homeSelectType", required = false) String homeSelectType,
@@ -77,6 +82,15 @@ public class UserViewController extends BaseViewController {
         return "biz/user/home";
     }
 
+    /**
+     * 访问其他用户的主页
+     *
+     * @param userId
+     * @param homeSelectType
+     * @param followSelectType
+     * @param model
+     * @return
+     */
     @GetMapping(path = "/{userId}")
     public String detail(@PathVariable(name = "userId") Long userId, @RequestParam(name = "homeSelectType", required = false) String homeSelectType,
                          @RequestParam(name = "followSelectType", required = false) String followSelectType,
@@ -164,14 +178,20 @@ public class UserViewController extends BaseViewController {
     }
 
     private void initFollowFansList(UserHomeVo vo, long userId, PageParam pageParam) {
+        PageListVo<FollowUserInfoDTO> followList;
+        boolean needUpdateRelation = false;
         if (vo.getFollowSelectType().equals(FollowTypeEnum.FOLLOW.getCode())) {
-            UserFollowListDTO userFollowListDTO = userRelationService.getUserFollowList(userId, pageParam);
-            vo.setFollowList(userFollowListDTO);
-            vo.setFansList(UserFollowListDTO.emptyInstance());
+            followList = userRelationService.getUserFollowList(userId, pageParam);
         } else {
-            UserFollowListDTO userFollowListDTO = userRelationService.getUserFansList(userId, pageParam);
-            vo.setFansList(userFollowListDTO);
-            vo.setFollowList(UserFollowListDTO.emptyInstance());
+            // 查询粉丝列表时，只能确定粉丝关注了userId，但是不能反向判断，因此需要再更新下映射关系，判断userId是否有关注这个用户
+            followList = userRelationService.getUserFansList(userId, pageParam);
+            needUpdateRelation = true;
         }
+
+        Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
+        if (!Objects.equals(loginUserId, userId) || needUpdateRelation) {
+            userRelationService.updateUserFollowRelationId(followList, userId);
+        }
+        vo.setFollowList(followList);
     }
 }

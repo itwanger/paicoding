@@ -12,14 +12,18 @@ CREATE TABLE `article`
     `category_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '类目ID',
     `source`       tinyint      NOT NULL DEFAULT '1' COMMENT '来源：1-转载，2-原创，3-翻译',
     `source_url`   varchar(128) NOT NULL DEFAULT '1' COMMENT '原文链接',
-    `flag_bit`     int unsigned NOT NULL DEFAULT '0' COMMENT '标记位（二进制）：1-官方，2-置顶，4-加精',
+    `offical_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '官方状态：0-非官方，1-官方',
+    `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶',
+    `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精',
     `status`       tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
     `deleted`      tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
-    KEY            `idx_category_id` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  COMMENT='文章表';
+    KEY            `idx_category_id` (`category_id`),
+        KEY `idx_title` (`title`),
+        KEY `idx_short_title` (`short_title`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章表';
 
 
 -- forum.article_detail definition
@@ -263,7 +267,7 @@ CREATE TABLE `user_relation`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id`        int unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `follow_user_id` int unsigned NOT NULL DEFAULT '0' COMMENT '关注用户ID',
+    `follow_user_id` int unsigned NOT NULL COMMENT '关注userId的用户id，即粉丝userId',
     `follow_state`   tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注',
     `create_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -285,6 +289,7 @@ CREATE TABLE `config`
     `content`     varchar(256) NOT NULL default '' COMMENT '内容',
     `rank`        tinyint      NOT NULL default '0' COMMENT '排序',
     `status`      tinyint      NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `tags`        varchar(64)  not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐',
     `deleted`     tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',

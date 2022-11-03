@@ -1,5 +1,6 @@
 package com.github.liueyueyi.forum.api.model.vo.recommend;
 
+import com.github.liueyueyi.forum.api.model.enums.SidebarStyleEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -29,6 +30,8 @@ public class SideBarDTO {
 
     /**
      * 侧边栏样式
+     *
+     * @see SidebarStyleEnum#getStyle()
      */
     private Integer style;
 }

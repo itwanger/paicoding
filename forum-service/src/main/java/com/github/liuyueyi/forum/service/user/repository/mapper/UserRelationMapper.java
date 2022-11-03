@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.service.user.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,7 +22,7 @@ public interface UserRelationMapper extends BaseMapper<UserRelationDO> {
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> queryUserFollowList(@Param("followUserId") Long followUserId, @Param("pageParam") PageParam pageParam);
+    List<FollowUserInfoDTO> queryUserFollowList(@Param("followUserId") Long followUserId, @Param("pageParam") PageParam pageParam);
 
     /**
      * 关注我的粉丝
@@ -30,5 +30,5 @@ public interface UserRelationMapper extends BaseMapper<UserRelationDO> {
      * @param pageParam
      * @return
      */
-    List<UserFollowDTO> queryUserFansList(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
+    List<FollowUserInfoDTO> queryUserFansList(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 }

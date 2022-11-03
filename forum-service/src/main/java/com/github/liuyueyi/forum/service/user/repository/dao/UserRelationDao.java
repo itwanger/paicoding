@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.liueyueyi.forum.api.model.enums.FollowStateEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.repository.mapper.UserRelationMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ public class UserRelationDao extends ServiceImpl<UserRelationMapper, UserRelatio
      * @param pageParam
      * @return
      */
-    public List<UserFollowDTO> listUserFollows(Long followUserId, PageParam pageParam) {
+    public List<FollowUserInfoDTO> listUserFollows(Long followUserId, PageParam pageParam) {
         return baseMapper.queryUserFollowList(followUserId, pageParam);
     }
 
@@ -38,8 +39,20 @@ public class UserRelationDao extends ServiceImpl<UserRelationMapper, UserRelatio
      * @param pageParam
      * @return
      */
-    public List<UserFollowDTO> listUserFans(Long userId, PageParam pageParam) {
+    public List<FollowUserInfoDTO> listUserFans(Long userId, PageParam pageParam) {
         return baseMapper.queryUserFansList(userId, pageParam);
+    }
+
+    /**
+     * 查询followUserId与给定的用户列表的关联关旭
+     *
+     * @param followUserId
+     * @param targetUserId
+     * @return
+     */
+    public List<UserRelationDO> listUserRelations(Long followUserId, Collection<Long> targetUserId) {
+        return lambdaQuery().eq(UserRelationDO::getFollowUserId, followUserId)
+                .in(UserRelationDO::getUserId, targetUserId).list();
     }
 
     public Long queryUserFollowCount(Long userId) {
@@ -61,8 +74,8 @@ public class UserRelationDao extends ServiceImpl<UserRelationMapper, UserRelatio
     /**
      * 获取关注信息
      *
-     * @param userId  登录用户
-     * @param followUserId  关注的用户
+     * @param userId       登录用户
+     * @param followUserId 关注的用户
      * @return
      */
     public UserRelationDO getUserRelationByUserId(Long userId, Long followUserId) {
@@ -77,8 +90,8 @@ public class UserRelationDao extends ServiceImpl<UserRelationMapper, UserRelatio
     /**
      * 获取关注记录
      *
-     * @param userId  登录用户
-     * @param followUserId  关注的用户
+     * @param userId       登录用户
+     * @param followUserId 关注的用户
      * @return
      */
     public UserRelationDO getUserRelationRecord(Long userId, Long followUserId) {

@@ -10,6 +10,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.liuyueyi.forum.core.common.CommonConstants;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
 import com.github.liuyueyi.forum.service.config.service.ConfigService;
@@ -94,7 +95,25 @@ public class IndexRecommendHelper {
      * top 文章列表
      */
     private List<ArticleDTO> topArticleList(Long categoryId) {
-        return articleService.queryTopArticlesByCategory(categoryId);
+        List<ArticleDTO> articleDTOS = articleService.queryTopArticlesByCategory(categoryId);
+
+        String categoryName = CommonConstants.CATEGORY_ALL;
+        if (categoryId != null && categoryId >= 0) {
+            categoryName = categoryService.queryCategoryName(categoryId);
+        }
+
+        List<String> topPicList = CommonConstants.HOMEPAGE_TOP_PIC_MAP.get(CommonConstants.CATEGORY_ALL);
+        if (CommonConstants.HOMEPAGE_TOP_PIC_MAP.containsKey(categoryName)) {
+            topPicList = CommonConstants.HOMEPAGE_TOP_PIC_MAP.get(categoryName);
+        }
+
+        // 替换头图
+        Integer index = 0;
+        for (ArticleDTO articleDTO : articleDTOS) {
+            articleDTO.setCover(topPicList.get(index));
+            index++;
+        }
+        return articleDTOS;
     }
 
     /**

@@ -7,15 +7,16 @@
         </if>
     </sql>
 
+    <!-- 查询用户的关注列表，即粉丝id是自己   -->
     <select id="queryUserFollowList"
-            resultType="com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO">
 
         SELECT
             u.user_id as userId,
             u.user_name as userName,
-            u.photo as photo,
-            u.profile as profile,
-            r.id as userRelationId
+            u.photo as avatar,
+            r.id as relationId,
+            true as followed
         FROM user_relation as r
             left join user_info as u on r.user_id = u.user_id
         WHERE
@@ -26,14 +27,13 @@
     </select>
 
     <select id="queryUserFansList"
-            resultType="com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowDTO">
+            resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO">
 
         SELECT
             u.user_id as userId,
             u.user_name as userName,
-            u.photo as photo,
-            u.profile as profile,
-            r.id as userRelationId
+            u.photo as avatar,
+            r.id as relationId
             FROM user_relation as r
             left join user_info as u on r.follow_user_id = u.user_id
         WHERE

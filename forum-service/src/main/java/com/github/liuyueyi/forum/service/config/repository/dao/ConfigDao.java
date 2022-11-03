@@ -34,7 +34,7 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
                 .eq(ConfigDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .orderByAsc(ConfigDO::getRank)
                 .list();
-        return ConfigConverter.ToDTOS(configDOS);
+        return ConfigConverter.toDTOS(configDOS);
     }
 
     /**
@@ -54,7 +54,7 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
                 .orderByDesc(ConfigDO::getCreateTime)
                 .last(PageParam.getLimitSql(pageParam))
                 .list();
-        return ConfigConverter.ToDTOS(configDOS);
+        return ConfigConverter.toDTOS(configDOS);
     }
 
     /**
@@ -87,7 +87,7 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
                 .orderByDesc(ConfigDO::getCreateTime)
                 .last(PageParam.getLimitSql(pageParam))
                 .list();
-        return ConfigConverter.ToDTOS(configDOS);
+        return ConfigConverter.toDTOS(configDOS);
     }
 
     /**

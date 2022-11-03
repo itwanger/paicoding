@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 用户卡片 -->
+<div class="user-left-wrap" th:fragment="user_info(userHome)">
+    <div class="user-head-wrap">
+        <img th:src="${userHome.photo}" alt="" class="user-head-img"/>
+    </div>
+    <span
+            class="user-head-name"
+            th:text="${userHome.userName}"
+    ></span>
+    <div class="user-num-wrap">
+        <div class="user-head-num-wrap">
+                <span class="user-head-num" th:text="${userHome.fansCount}">
+                  0
+                </span>
+            <span style="color: rgb(153, 153, 153)">关注数</span>
+        </div>
+        <div class="user-head-num-wrap">
+                <span
+                        class="user-head-num"
+                        th:text="${userHome.followCount}"
+                >
+                  0
+                </span>
+            <span style="color: rgb(153, 153, 153)">粉丝数</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <ul
+                class="navbar-nav my-md-0"
+                th:if="${global.isLogin && (userHome.userId == global.user.userId)}"
+        >
+            <li class="nav-item">
+                <a
+                        class="nav-link"
+                        href="#"
+                        data-toggle="modal"
+                        data-target="#saveModel"
+                >
+                    编辑个人资料
+                </a>
+            </li>
+        </ul>
+
+        <span
+                id="userId"
+                style="visibility: hidden"
+                th:text="${userHome != null ? userHome.userId: ''}"
+        ></span>
+    </div>
+</div>
+</html>

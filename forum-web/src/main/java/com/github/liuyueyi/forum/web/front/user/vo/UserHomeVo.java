@@ -1,9 +1,10 @@
 package com.github.liuyueyi.forum.web.front.user.vo;
 
+import com.github.liueyueyi.forum.api.model.enums.FollowSelectEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagSelectDTO;
-import com.github.liueyueyi.forum.api.model.vo.comment.dto.UserFollowListDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import lombok.Data;
 
@@ -17,11 +18,19 @@ import java.util.List;
 public class UserHomeVo {
     private String homeSelectType;
     private List<TagSelectDTO> homeSelectTags;
-    private UserFollowListDTO fansList;
-    private UserFollowListDTO followList;
+    /**
+     * 关注列表/粉丝列表
+     */
+    private PageListVo<FollowUserInfoDTO> followList;
+    /**
+     * @see FollowSelectEnum#getCode()
+     */
     private String followSelectType;
     private List<TagSelectDTO> followSelectTags;
     private UserStatisticInfoDTO userHome;
 
+    /**
+     * 文章列表
+     */
     private PageListVo<ArticleDTO> homeSelectList;
 }

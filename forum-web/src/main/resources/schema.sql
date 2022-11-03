@@ -181,7 +181,7 @@ CREATE TABLE `user_relation`
 (
     `id`             int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id`        int unsigned NOT NULL COMMENT '用户ID',
-    `follow_user_id` int unsigned NOT NULL COMMENT '关注用户ID',
+    `follow_user_id` int unsigned NOT NULL COMMENT '关注userId的用户id，即粉丝userId',
     `follow_state`   tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '阅读状态: 0-未关注，1-已关注，2-取消关注',
     `create_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -246,6 +246,7 @@ CREATE TABLE `config`
     `content`  varchar(256) NOT NULL default '' COMMENT '内容',
     `rank` tinyint NOT NULL default '0' COMMENT '排序',
     `status`      tinyint NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐',
     `deleted`     tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -296,3 +297,8 @@ alter table article add column `offical_stat` int unsigned NOT NULL DEFAULT '0' 
 alter table article add column `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶';
 alter table article add column `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精';
 alter table article drop column `flag_bit`;
+
+-- 推荐侧边栏配置，添加config_tag，用于显示 火、热门、官方等小标签
+alter table `config` add column `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐' after `status`;
+-- 设置公告有标签，用于查看样式
+update `config` set tags='1' where `type` = 4;

@@ -118,7 +118,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
         Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
         query.last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ArticleDO::getOfficalStat, ArticleDO::getToppingStat);
+                .orderByDesc(ArticleDO::getOfficalStat, ArticleDO::getToppingStat, ArticleDO::getCreateTime);
         return baseMapper.selectList(query);
     }
 
