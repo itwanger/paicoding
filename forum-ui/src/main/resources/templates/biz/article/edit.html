@@ -227,6 +227,17 @@
 
   .custom-file {
     position: relative;
+    height: 80px;
+  }
+
+  .article-tag-wrap {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+  }
+
+  .form-check {
+    margin-right: 20px;
   }
 </style>
 
@@ -279,11 +290,32 @@
           <div class="input-group">
             <!-- fixme                            这里改成复选框-->
             <span class="form-label">文章标签:</span>
-            <select class="form-select" id="tagList">
+            <!-- <select class="form-select" id="tagList">
               <option th:if="${tag != null}" th:each="tag : ${vo.tags}" th:value="${tag.tagId}" th:text="${tag.tag}">
                 Java
               </option>
-            </select>
+            </select> -->
+
+            <div class="article-tag-wrap">
+              <div class="form-check">
+                <input class="form-check-input" name="article-tag" type="checkbox" value="1" id="defaultCheck1">
+                <label class="form-check-label" for="defaultCheck1">
+                  java
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" name="article-tag" type="checkbox" value="2" id="defaultCheck2">
+                <label class="form-check-label" for="defaultCheck2">
+                  js
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" name="article-tag" type="checkbox" value="3" id="defaultCheck3">
+                <label class="form-check-label" for="defaultCheck3">
+                  go
+                </label>
+              </div>
+            </div>
           </div>
           <div class="input-group">
             <label class="form-label">文章封面:</label>
@@ -387,6 +419,15 @@
 
     //  发表文章
     $("#publish").on("click", function () {
+      // 处理标签
+      var arr = new Array();
+      $("input:checkbox[name='article-tag']:checked").each(function () {
+        arr.push($(this).val()); //向数组中添加元素  
+      }); //获取界面复选框的所有值
+
+      arrType = arr.join(','); //把复选框的值以数组形式存放
+      alert(arrType);
+
       doPostArticle("post")
       localStorage.removeItem('articleTitle')
     })
