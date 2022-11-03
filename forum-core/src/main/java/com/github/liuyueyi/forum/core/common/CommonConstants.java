@@ -30,9 +30,9 @@ public class CommonConstants {
         {
             put(CATEGORY_ALL, new ArrayList<String>() {
                 {
-                    add("https://img14.360buyimg.com/ddimg/jfs/t1/182698/4/29623/19646/636255b3Ecb930e42/00606f148e71d345.webp");
-                    add("https://img13.360buyimg.com/ddimg/jfs/t1/216869/6/23184/32776/63606c72E8edb111e/a4de234440299448.webp");
                     add("https://img11.360buyimg.com/ddimg/jfs/t1/130773/36/28029/41932/63606c72E8e68370b/72f322b90eb6f146.webp");
+                    add("https://img13.360buyimg.com/ddimg/jfs/t1/216869/6/23184/32776/63606c72E8edb111e/a4de234440299448.webp");
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/182698/4/29623/19646/636255b3Ecb930e42/00606f148e71d345.webp");
                     add("https://img12.360buyimg.com/ddimg/jfs/t1/169217/34/31577/31440/63606c72E7a4f58b3/a72b7df2ec84d79f.webp");
                 }
             });
