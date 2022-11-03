@@ -49,72 +49,6 @@
         border-radius: 0;
     }
 
-    .home-carouse-wrap {
-        background-color: #346;
-        padding: 20px;
-    }
-
-    .home-carouse-inter-wrap {
-        width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .home-carouse-item {
-        height: 370px;
-        flex: 1;
-        transition: all .2s ease 0s;
-        box-shadow: 0 6px 12px 0 rgb(0 0 0 / 25%);
-    }
-
-    .home-carouse-item img {
-        width: 100%;
-        height: 150px;
-    }
-
-    .home-carouse-item-body {
-        background-color: #fff;
-        padding: 20px;
-        height: 220px;
-    }
-
-    .home-carouse-item-title {
-        font-size: 25px;
-        font-weight: 700;
-        height: 110px;
-        margin-bottom: 20px;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-
-    }
-
-    .home-carouse-item-dot {
-        display: inline-block;
-        background-color: #a2a2a2;
-        border-radius: 100%;
-        height: 8px;
-        width: 8px;
-        margin-right: 4px;
-    }
-
-    .home-carouse-item-tag {
-        display: flex;
-        align-items: center;
-        color: #a2a2a2;
-    }
-
-    .home-carouse-item-first-text {
-        font-weight: 900;
-    }
-
-    .home-carouse-item:hover {
-        transform: translateY(-4px);
-    }
-
     /* 覆盖文章样式 */
     .user-article-item {
         display: block;
@@ -130,96 +64,24 @@
 <body id="body">
     <!-- 导航栏 -->
     <div th:replace="layout/navbar :: navbar"></div>
-  
+
 
     <!-- 正文内容 -->
     <div class="home">
         <!-- 类别筛选 -->
         <div th:replace="plugins/categories :: category(${vo.categories})"></div>
-        <div class="home-carouse-wrap">
-            <div class="home-carouse-inter-wrap">
-                <div class="home-carouse-item">
-                    <img src="https://img0.baidu.com/it/u=224070524,717848523&fm=253&fmt=auto&app=120&f=JPEG?w=700&h=419"
-                        alt="">
-                    <div class="home-carouse-item-body">
-                        <div class="home-carouse-item-title">比Webpack快700倍的Turbopack，到底快在哪？</div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span
-                                class="home-carouse-item-first-text">JAVASCRIPT</span>
-                        </div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span style='font-weight:500'>楼仔，</span>2022/10/28
-                        </div>
-                    </div>
-                </div>
-                <div class="home-carouse-item">
-                    <img src="https://img0.baidu.com/it/u=224070524,717848523&fm=253&fmt=auto&app=120&f=JPEG?w=700&h=419"
-                        alt="">
-                    <div class="home-carouse-item-body">
-                        <div class="home-carouse-item-title">比Webpack快700倍的Turbopack，到底快在哪？比Webpack快700倍的Turbopack，到底快在哪？</div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span
-                                class="home-carouse-item-first-text">JAVASCRIPT</span>
-                        </div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span style='font-weight:500'>楼仔，</span>2022/10/28
-                        </div>
-                    </div>
-                </div>
-                <div class="home-carouse-item">
-                    <img src="https://img0.baidu.com/it/u=224070524,717848523&fm=253&fmt=auto&app=120&f=JPEG?w=700&h=419"
-                        alt="">
-                    <div class="home-carouse-item-body">
-                        <div class="home-carouse-item-title">比Webpack快700倍的Turbopack，到底快在哪？</div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span
-                                class="home-carouse-item-first-text">JAVASCRIPT</span>
-                        </div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span style='font-weight:500'>楼仔，</span>2022/10/28
-                        </div>
-                    </div>
-                </div>
-                <div class="home-carouse-item">
-                    <img src="https://img0.baidu.com/it/u=224070524,717848523&fm=253&fmt=auto&app=120&f=JPEG?w=700&h=419"
-                        alt="">
-                    <div class="home-carouse-item-body">
-                        <div class="home-carouse-item-title">比Webpack快700倍的Turbopack，到底快在哪？</div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span
-                                class="home-carouse-item-first-text">JAVASCRIPT</span>
-                        </div>
-                        <div class="home-carouse-item-tag">
-                            <span class="home-carouse-item-dot"></span><span style='font-weight:500'>楼仔，</span>2022/10/28
-                        </div>
-                    </div>
-                </div>
-            </div>
-           
-        </div>
+        <div th:replace="plugins/article/recommend-articles">精选列表</div>
+
         <div class="home-wrap">
            <div class="home-inter-wrap">
             <div class="home-body">
-                <!--  轮播图(需求变更：1028)  -->
-                <!-- <div th:replace="plugins/carousel :: carousel('main_carousel', ${vo.homeCarouselList})"></div> -->
-                
-                <!-- 文章列表 -->
-                <!-- <div class="container-bg-light"> -->
-                    <div id="articleList">
-                        <div th:replace="biz/article/list" class="test">文章列表</div>
-                    </div>
-                    <!-- <button th:if="${vo.articles.hasMore}" id="loadMoreTag" type="button"
-                    class="btn btn-outline-primary btn-lg btn-block" th:text="加载更多"></button> -->
-                <!-- </div> -->
+                <div id="articleList">
+                    <div th:replace="biz/article/list" class="test">文章列表</div>
+                </div>
             </div>
 
             <div class="home-right">
-                <!-- 登录用户信息 -->
-                <!-- <div th:if="${global.isLogin}">
-                    <div th:replace="plugins/user-card :: user_card(${vo.user}, false)"></div>
-                </div> -->
-
-                <!-- 公告 -->
+                <!-- 侧边公告 -->
                 <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
                     <div th:replace="biz/article/sidebars"></div>
                 </div>

@@ -154,8 +154,8 @@ values ('1', 'Java', '1', '1', '1', '0'),
 -- 配置相关信息
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区1', 'https://imgs.hhui.top/forum/banner/01.png', 'https://blog.csdn.net/qing_gee', '', 1, 1);
 insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(1, '加入社区2', 'https://imgs.hhui.top/forum/banner/01.png', 'https://hhui.top/', '', 2, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1);
-insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`, `tags`) values(4, '社区上线公告', '', '', '技术社区正式上线啦！', 1, 1, '1,2,3');
+insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`, `tags`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1, '1,2,3');
 
 -- 初始化文章
 -- fixme 下面这个文章后续使用论坛的介绍进行替换
@@ -179,14 +179,14 @@ VALUES(1, '一灰灰的专栏', 1, '这里是小灰灰的技术专栏，欢迎�
 -- 添加专栏文章
 
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted, create_time, update_time, flag_bit)
-VALUES(100, 1, 1, '分布式系统的38个知识点', '38个知识点', '', '分布式系统的38个精选知识点', 1, 2, '', 1, 0, '2022-10-08 19:12:32', '2022-10-08 19:12:32', 0);
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted, create_time, update_time)
+VALUES(100, 1, 1, '分布式系统的38个知识点', '38个知识点', '', '分布式系统的38个精选知识点', 1, 2, '', 1, 0, '2022-10-08 19:12:32', '2022-10-08 19:12:32');
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted, create_time, update_time, flag_bit)
-VALUES(101, 1, 1, '分布式系统的8个谬误', '8个经典谬误', '', '分布式系统常见的8个理解偏差', 1, 2, '', 1, 0, '2022-10-08 19:13:38', '2022-10-08 19:13:38', 0);
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted, create_time, update_time)
+VALUES(101, 1, 1, '分布式系统的8个谬误', '8个经典谬误', '', '分布式系统常见的8个理解偏差', 1, 2, '', 1, 0, '2022-10-08 19:13:38', '2022-10-08 19:13:38');
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted, create_time, update_time, flag_bit)
-VALUES(102, 1, 1, '分布式系统的特征、瓶颈以及性能指标介绍', '分布式系统概要', 'https://spring.hhui.top/spring-blog/imgs/220819/logo.jpg', '什么是分布式系统，特点是什么，问题又有哪些？', 1, 2, '', 1, 0, '2022-10-08 19:14:17', '2022-10-08 19:14:17', 0);
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted, create_time, update_time, offical_stat)
+VALUES(102, 1, 1, '分布式系统的特征、瓶颈以及性能指标介绍', '分布式系统概要', 'https://spring.hhui.top/spring-blog/imgs/220819/logo.jpg', '什么是分布式系统，特点是什么，问题又有哪些？', 1, 2, '', 1, 0, '2022-10-08 19:14:17', '2022-10-08 19:14:17', 1);
 
 INSERT INTO article_tag
 (article_id, tag_id, deleted, create_time, update_time)
