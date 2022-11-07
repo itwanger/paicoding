@@ -67,25 +67,22 @@
 <div class="home-carouse-wrap" id="carouseWrap">
   <div class="home-carouse-inter-wrap">
     <div class="home-carouse-item" th:each="article,iter : ${vo.topArticles}">
-      <object>
-        <a th:href="${'/article/detail/' + article.articleId}">
-          <img
-            th:src="${article.cover}"
-            crossorigin="anonymous"
-            th:id="'cover' + ${iter.index}"
-          />
-          <div class="home-carouse-item-body">
-            <div
-              class="home-carouse-item-title"
-              th:text="${article.title}"
-            ></div>
-            <div class="home-carouse-item-tag" th:each="tag: ${article.tags}">
-              <span class="home-carouse-item-dot"></span>
+      <a th:href="${'/article/detail/' + article.articleId}">
+        <img
+          th:src="${article.cover}"
+          crossorigin="anonymous"
+          th:id="'cover' + ${iter.index}"
+        />
+        <div class="home-carouse-item-body">
+          <div class="home-carouse-item-title" th:text="${article.title}"></div>
+          <div class="home-carouse-item-tag" th:each="tag: ${article.tags}">
+            <span class="home-carouse-item-dot"></span>
 
-              <span class="home-carouse-item-first-text" th:text="${tag.tag}">
-                JAVASCRIPT
-              </span>
-            </div>
+            <span class="home-carouse-item-first-text" th:text="${tag.tag}">
+              JAVASCRIPT
+            </span>
+          </div>
+          <object>
             <div class="home-carouse-item-tag">
               <span class="home-carouse-item-dot"></span>
               <a th:href="${'/user/' + article.author}">
@@ -99,9 +96,9 @@
                 2022/10/28
               </span>
             </div>
-          </div>
-        </a>
-      </object>
+          </object>
+        </div>
+      </a>
     </div>
   </div>
 </div>
