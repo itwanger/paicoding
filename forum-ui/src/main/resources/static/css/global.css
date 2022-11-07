@@ -96,7 +96,6 @@ html,
 .page-link:hover,
 .btn-outline-primary,
 .posts-admin-tag-official,
-a:hover,
 .custom-font-color {
   color: #007fff;
 }
@@ -104,7 +103,10 @@ a:hover,
 a {
   color: #212529;
 }
-
+a:hover {
+  text-decoration: none !important;
+  color: #212529 !important;
+}
 .dropdown-menu,
 .card {
   border: 0;
