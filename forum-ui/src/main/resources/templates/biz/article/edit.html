@@ -146,12 +146,40 @@
     cursor: pointer;
   }
 
-  .form-selectgroup-item--active {
+  .form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    background-color: #ccc;
+    height: 30px;
+    border-radius: 4px;
+    margin-right: 10px;
+    background-color: #f8f9fa;
+    color: #919aa6;
+    cursor: pointer;
+    position: relative;
+    padding-left: 0;
+  }
+
+  .form-check-input {
+    margin: 0;
+    left: 0;
+    top: 0;
+    height: 30px;
+    width: 70px;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .form-selectgroup-item--active,
+  .form-check--active {
     background-color: #e2f3fe;
     color: #237ffa;
   }
 
-  .form-selectgroup-item:hover {
+  .form-selectgroup-item:hover,
+  .form-check:hover {
     background-color: #e2f3fe;
   }
 
@@ -227,6 +255,13 @@
 
   .custom-file {
     position: relative;
+    height: 80px;
+  }
+
+  .article-tag-wrap {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
   }
 </style>
 
@@ -279,11 +314,32 @@
           <div class="input-group">
             <!-- fixme                            这里改成复选框-->
             <span class="form-label">文章标签:</span>
-            <select class="form-select" id="tagList">
+            <!-- <select class="form-select" id="tagList">
               <option th:if="${tag != null}" th:each="tag : ${vo.tags}" th:value="${tag.tagId}" th:text="${tag.tag}">
                 Java
               </option>
-            </select>
+            </select> -->
+
+            <div class="article-tag-wrap">
+              <div class="form-check">
+                <input class="form-check-input" name="article-tag" type="checkbox" value="1" id="defaultCheck1">
+                <label class="form-check-label" for="defaultCheck1">
+                  java
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" name="article-tag" type="checkbox" value="2" id="defaultCheck2">
+                <label class="form-check-label" for="defaultCheck2">
+                  js
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" name="article-tag" type="checkbox" value="3" id="defaultCheck3">
+                <label class="form-check-label" for="defaultCheck3">
+                  go
+                </label>
+              </div>
+            </div>
           </div>
           <div class="input-group">
             <label class="form-label">文章封面:</label>
@@ -291,12 +347,12 @@
               <img class="upload-img" id="pic"
                 src="https://png.pngtree.com/png-vector/20190115/ourlarge/pngtree-vector-cloud-upload-icon-png-image_316794.jpg">
               <input type="file" accept="image/*" id="upload" class="logo-img-add">
-              <div class="res-upload-wrap hide">
+              <!-- <div class="res-upload-wrap hide">
                 <img
                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAeFBMVEX///8AAACGhoavr6+1tbXt7e0JCQnX19d1dXWNjY0NDQ3h4eHb29tZWVn8/Pw/Pz/z8/NISEjn5+e9vb0XFxc2NjampqZsbGxiYmJQUFDw8PAtLS0lJSWfn5/R0dHExMSVlZWHh4ccHBxUVFRycnJoaGg8PDx+fn7dDVfOAAAD60lEQVR4nO2di3KqMBBAi+/6Llqtikrtw///wwt2UDdctZVswuA5M53OuJDssZSE5z49AQAAAAAAAAAAAAAAVJnhth53OvOEt4TBkY/FgdMHgyT8lSz22anNJj3faf+WMH4N7mQ+GfrO/jbbwb16B6bx2LfBdXrF/A6Oa98S14gL+6WMQt8elxh+WBFMmPhW+T/Nu3cweUq5pTZX9gSDIPatk2doVTAI6r6FchTfiRpsfBsZrG0LBlG5BsbQumAQ7H1LCd4UDIO2b6sz2hqCwYdvrTPyf8Lpfr2eJdQTGkcmP5w+aKTxdLl13Mkr9n17HRmbqUV3TUoaLaOZ8vwnzozM5ne2MzZmRdPSHEstZGJvdze0NL6qsoyJ465Iq1vgm69Lw9hWigUx9qSNAk0NI0tbg10mIqtdobnIXrQ1spViQeSM7atQW/LbKsvM7Vlk9V6orb5oq9W0lGJBaiKr50JtScMAQ0dg+Bcw9MP7gxnGhdrqScOllQRvIucZpcLS2fHa7Z58gSGGGPoHQwwx9A+GGD6MYfVn3iayE+VDOLkBObq6Lw2VD+FKYKh80hZDFTC0CoYqPJqh8rV2DFXA0CoYqoChVUpgqNwZhipgaBUMVcDQKhiqgKFVMFThmmHY7mfk1mueYrnJ7PJSrHSG81MgZ3GWbO5SwNkt7O1LK5XD8PTkS/6W/dO9xPl7fxsYYmgVDDHEUAQwVAFDDDEUAQxVwBBDDEUAQxUwxBBDEcBQBQwxxFAEMFQBQwwxFAEMVcAQQwxFAEMVMMQQQxHAUAUMMcRQBDBUAUMMMRQBDFXAsNqG1X/eIuxfeWamf/mZmfGlWOkMrYOhChhaBUMVMLQKhipgaBUMVXg0w+q/Ran6htV/b2L1Dav/HmHld0HvfRjKgo7KNW1lregitRX/gKwWOtPtTG4wW93OMmRd22/VvrbSUOkd7CZGDe67KuP+FqO6rGZXZxh1R3eK+5pYdjXQ60lg1I4NRmpDolloeK3VkUmuwLRO3d7hp9mPs0JzG7PnYDELmweWy+U4Yygw05dk6yTrL39a2uTLajgsnvuS6zyj1epOp9Moilar1WvKKOPFIPv8+7BYsngU7ZJVW2Zx7jMcjRUp28tZKPLiTtCcaThCefYkaXoQdFxLvn47I8usXJeSd15ep+dYUFztdYHOkHudL5eCDgeKMxxuqD7+gimN26lZYeGoaO5/CJ2Mi8rH2DfYXp7AWaLmva7zJncEYJHdWvlk5S/ZxIPXw7R5Ou1mtDL+IpQun66cNLRbjToNRyctfsnPwU/zSJj9PtK7SrrE4fgr+Umb8u0DAAAAAAAAAAAAAACu+QfTYl3cKsliwgAAAABJRU5ErkJggg=="
                   alt="" class="upload-img-delete hide" />
                 <img class="upload-img res-upload-img" src="">
-              </div>
+              </div> -->
               <!-- <input
                   type="file"
                   class="custom-file-input"
@@ -387,6 +443,8 @@
 
     //  发表文章
     $("#publish").on("click", function () {
+      
+
       doPostArticle("post")
       localStorage.removeItem('articleTitle')
     })
@@ -405,12 +463,11 @@
 
     function uploadFile() {
       // 获取上传后的文件信息
-      const file = document.getElementById('uploadFile').files[0];
+      const file =document.getElementById('upload').files[0];
       // 处理文件转换成formData格式
       const formdata = new FormData();
       // 这里只是基本设置，对应接口需求设置响应的类型属性值
       formdata.set('image', file);
-
       // 接口调用
       let xml = new XMLHttpRequest();
       xml.open('POST', "/image/upload", false) // 第三个值指定接口是否异步
@@ -444,28 +501,33 @@
       alert("封面上传失败，请稍后再试!");
     }
 
-
+    // 获取表单类容
     function doPostArticle(action) {
       const title = $("#title").val();
       const subTitle = $("#subTitle").val();
       // const content = $("#content").val()
       const content = simplemde.value();
       if (title.length <= 5) {
-        toastr.warn("文章标题太短!")
+        toastr.error("文章标题太短!")
         return;
       }
       if (title.length > 120) {
-        toastr.warn("文章标题太长了!");
+        toastr.error("文章标题太长了!");
         return;
       }
       if (content.length <= 6) {
-        toastr.warn("文章内容太短了！");
+        toastr.error("文章内容太短了！");
         return;
       }
 
       const category = getChooseCategoryId()
-      const tags = $("#tagList option:selected").val()
+      // const tags = $("#tagList option:selected").val()
       const summary = $("#summary").val()
+      // 处理标签
+      const tagsAll = [];
+      $("input:checkbox[name='article-tag']:checked").each(function () {
+        tagsAll.push($(this).val());
+      }); 
       const articleId = $("#articleId").text()
       const params = {
         articleId: articleId,
@@ -473,7 +535,7 @@
         subTitle: subTitle,
         content: content,
         categoryId: category,
-        tagIds: [tags],
+        tagIds: tagsAll,
         summary: summary,
         articleType: "BLOG",
         source: 2,
@@ -532,6 +594,7 @@
       $('.form-textarea-limit').text(len + '/128')
     }
 
+    // 控制文章分类的选择
     $('.form-selectgroup-item').each(function (index) {
       (function (index) {
         $('.form-selectgroup-item').eq(index).on('click', function () {
@@ -540,10 +603,25 @@
         })
       })(index)
     })
+
+    // 控制文章标签选择
+    $('.form-check').each(function (index) {
+      (function (index) {
+        $('.form-check').eq(index).on('click', function () {
+          if($('.form-check').eq(index).is('.form-check--active')){
+            $(this).removeClass('form-check--active') 
+          }else{
+            $(this).addClass('form-check--active')
+          }
+        })
+      })(index)
+    })
+
     // 处理按钮隐藏时不可编辑
     $('.edit-save').click(() => {
       if (!showSaveBtn) return false
     })
+
     // 处理title输入保存以及按钮显隐的问题
     const checkTitle = () => {
       const value = $('#title').val()
@@ -587,11 +665,12 @@
         $("#upload").click(); //隐藏了input:file样式后，点击头像就可以本地上传
         $("#upload").on("change", function () {
           var objUrl = getObjectURL(this.files[0]); //获取图片的路径，该路径不是图片在本地的路径
+          console.log({ objUrl });
           if (objUrl) {
             $("#pic").attr("src", objUrl); //将图片路径存入src中，显示出图片
-            uploadImg(() => this.value = null);
+            // uploadImg(() => this.value = null);
+            fileSelect()
           }
-
         });
       });
     });
@@ -610,29 +689,27 @@
     }
 
     //上传头像到服务器
-    function uploadImg(callback) {
-      var pic = $('#upload')[0].files[0];
-      var file = new FormData();
-      file.append('image', pic);
-      $.ajax({
-        url: "/image/upload",
-        type: "post",
-        data: file,
-        cache: false,
-        contentType: false,
-        processData: false,
-        success: function (data) {
-          console.log({ data });
-          const { result: { imagePath } } = data || {}
-          var res = data;
-          // 替换掉默认图片@yihui
-          $(".res-upload-img").attr("src", imagePath)
-          $('.res-upload-wrap').removeClass('hide')
-          callback()
-        }
-      });
-
-    }
+    // function uploadImg(callback) {
+    //   var pic = $('#upload')[0].files[0];
+    //   var file = new FormData();
+    //   file.append('image', pic);
+    //   $.ajax({
+    //     url: "/image/upload",
+    //     type: "post",
+    //     data: file,
+    //     cache: false,
+    //     contentType: false,
+    //     processData: false,
+    //     success: function (data) {
+    //       const { result: { imagePath } } = data || {}
+    //       var res = data;
+    //       // 替换掉默认图片@yihui
+    //       $(".res-upload-img").attr("src", imagePath)
+    //       $('.res-upload-wrap').removeClass('hide')
+    //       callback()
+    //     }
+    //   });
+    // }
 
   </script>
 </body>
