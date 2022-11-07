@@ -108,6 +108,10 @@
   padding: 16px 0;
   cursor: pointer;
 }
+.user-article-item:hover {
+  background-color: #fafafa;
+}
+
 .user-article-item-content {
   padding-bottom: 20px;
 }
