@@ -1,114 +1,128 @@
 <style>
-    .home-carouse-wrap {
-        background-color: #346;
-        padding: 20px;
-    }
+  .home-carouse-wrap {
+    background-color: #346;
+    padding: 20px;
+  }
 
-    .home-carouse-inter-wrap {
-        width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
+  .home-carouse-inter-wrap {
+    width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-    .home-carouse-item {
-        height: 370px;
-        flex: 1;
-        transition: all .2s ease 0s;
-        box-shadow: 0 6px 12px 0 rgb(0 0 0 / 25%);
-    }
+  .home-carouse-item {
+    height: 370px;
+    flex: 1;
+    transition: all 0.2s ease 0s;
+    box-shadow: 0 6px 12px 0 rgb(0 0 0 / 25%);
+  }
 
-    .home-carouse-item img {
-        width: 100%;
-        height: 150px;
-    }
+  .home-carouse-item img {
+    width: 100%;
+    height: 150px;
+  }
 
-    .home-carouse-item-body {
-        background-color: #fff;
-        padding: 20px;
-        height: 220px;
-    }
+  .home-carouse-item-body {
+    background-color: #fff;
+    padding: 20px;
+    height: 220px;
+  }
 
-    .home-carouse-item-title {
-        font-size: 25px;
-        font-weight: 700;
-        height: 110px;
-        margin-bottom: 20px;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
+  .home-carouse-item-title {
+    font-size: 22px;
+    font-weight: 700;
+    height: 70px;
+    margin-bottom: 60px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
 
-    }
+  .home-carouse-item-dot {
+    display: inline-block;
+    background-color: #a2a2a2;
+    border-radius: 100%;
+    height: 8px;
+    width: 8px;
+    margin-right: 4px;
+  }
 
-    .home-carouse-item-dot {
-        display: inline-block;
-        background-color: #a2a2a2;
-        border-radius: 100%;
-        height: 8px;
-        width: 8px;
-        margin-right: 4px;
-    }
+  .home-carouse-item-tag {
+    display: flex;
+    align-items: center;
+    color: #a2a2a2;
+  }
 
-    .home-carouse-item-tag {
-        display: flex;
-        align-items: center;
-        color: #a2a2a2;
-    }
+  .home-carouse-item-first-text {
+    font-weight: 900;
+  }
 
-    .home-carouse-item-first-text {
-        font-weight: 900;
-    }
-
-    .home-carouse-item:hover {
-        transform: translateY(-4px);
-    }
+  .home-carouse-item:hover {
+    transform: translateY(-4px);
+  }
 </style>
 <div class="home-carouse-wrap" id="carouseWrap">
-    <div class="home-carouse-inter-wrap">
-        <div class="home-carouse-item" th:each="article,iter : ${vo.topArticles}">
-            <img th:src="${article.cover}" crossorigin="anonymous" th:id="'cover' + ${iter.index}">
-            <div class="home-carouse-item-body">
-                <a th:href="${'/article/detail/' + article.articleId}">
-                    <div class="home-carouse-item-title" th:text="${article.title}"></div>
-                </a>
-                <div class="home-carouse-item-tag" th:each="tag: ${article.tags}">
-                    <span class="home-carouse-item-dot"></span>
-                    <a th:href="'/article/tag/' + ${tag.tag}">
-                        <span class="home-carouse-item-first-text" th:text="${tag.tag}">JAVASCRIPT</span>
-                    </a>
-                </div>
-                <div class="home-carouse-item-tag">
-                    <span class="home-carouse-item-dot"></span>
-                    <a th:href="${'/user/' + article.author}">
-                        <span th:text="${article.authorName}" style='font-weight:500'>楼仔，</span>
-                    </a>
-                    <span th:text="'，' + ${#dates.format(article.createTime, 'yyyy/MM/dd')}">2022/10/28</span>
-                </div>
+  <div class="home-carouse-inter-wrap">
+    <div class="home-carouse-item" th:each="article,iter : ${vo.topArticles}">
+      <a th:href="${'/article/detail/' + article.articleId}">
+        <img
+          th:src="${article.cover}"
+          crossorigin="anonymous"
+          th:id="'cover' + ${iter.index}"
+        />
+        <div class="home-carouse-item-body">
+          <div class="home-carouse-item-title" th:text="${article.title}"></div>
+          <div class="home-carouse-item-tag" th:each="tag: ${article.tags}">
+            <span class="home-carouse-item-dot"></span>
+
+            <span class="home-carouse-item-first-text" th:text="${tag.tag}">
+              JAVASCRIPT
+            </span>
+          </div>
+          <object>
+            <div class="home-carouse-item-tag">
+              <span class="home-carouse-item-dot"></span>
+              <a th:href="${'/user/' + article.author}">
+                <span th:text="${article.authorName}" style="font-weight: 500">
+                  楼仔，
+                </span>
+              </a>
+              <span
+                th:text="'，' + ${#dates.format(article.createTime, 'yyyy/MM/dd')}"
+              >
+                2022/10/28
+              </span>
             </div>
+          </object>
         </div>
+      </a>
     </div>
+  </div>
 </div>
 
 <script src="/js/color-thief.umd.js"></script>
 <script>
-    // https://lokeshdhakar.com/projects/color-thief/#getting-started
-    const colorThief = new ColorThief();
-    const img = document.getElementById('cover0');
-    console.log("img:", img);
+  // https://lokeshdhakar.com/projects/color-thief/#getting-started
+  const colorThief = new ColorThief()
+  const img = document.getElementById("cover0")
+  console.log("img:", img)
 
-    if (img.complete) {
-        let color = colorThief.getColor(img);
-        console.log("newColor: ", color);
-        let span = document.getElementById('carouseWrap');
-        span.style.background = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
-    } else {
-        img.addEventListener('load', function () {
-            let color = colorThief.getColor(img);
-            console.log("eNewColor: ", color);
-            let span = document.getElementById('carouseWrap')
-            span.style.background = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
-        });
-    }
+  if (img.complete) {
+    let color = colorThief.getColor(img)
+    console.log("newColor: ", color)
+    let span = document.getElementById("carouseWrap")
+    span.style.background =
+      "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+  } else {
+    img.addEventListener("load", function () {
+      let color = colorThief.getColor(img)
+      console.log("eNewColor: ", color)
+      let span = document.getElementById("carouseWrap")
+      span.style.background =
+        "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+    })
+  }
 </script>
