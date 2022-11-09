@@ -47,6 +47,11 @@ a:hover {
   line-height: 2.4rem;
 }
 
+.hover\:bg-gray-400:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgba(127,125,131,var(--tw-bg-opacity));
+}
+
 .search-result-block .search-no-result mark {
   font-size: 1.2rem;
 }
