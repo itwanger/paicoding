@@ -6,7 +6,8 @@
         height: 60px;
         /* border-bottom: 1px solid #dee2e6; */
         position: sticky;
-        background-color: #000;
+        --tw-bg-opacity: 1;
+        background-color: rgba(36,41,47,var(--tw-bg-opacity));
       }
       .nav-body {
         display: flex;
@@ -126,19 +127,7 @@
             <!--                    <a class="nav-link" href="/follow">关注</a>-->
             <!--                </li>-->
           </ul>
-          <form class="form-inline my-md-0" action="/search" method="get">
-            <div class="input-icon">
-              <input
-                name="key"
-                required
-                type="text"
-                class="form-control nav-search"
-                placeholder="搜索技术社区"
-                aria-label="Recipient's username"
-                aria-describedby="basic-addon2"
-              />
-            </div>
-          </form>
+
           <button
             type="button"
             class="btn btn-primary nav-article"
