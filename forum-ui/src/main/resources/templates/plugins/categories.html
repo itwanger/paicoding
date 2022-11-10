@@ -25,8 +25,9 @@
                   <a class="my-0 border-b py-1 px-2 border-gray-400 hover:bg-gray-400 block"
                      href="/article/detail/">
                     <span class="text-white text-sm hover:text-primary-200">
+                      <span class="title pre">技术派</span>
                       <mark class="text-primary-300 bg-transparent">关键字</mark>
-                      <span class="title">技术派，就是牛</span>
+                      <span class="title last">就是牛</span>
                     </span>
                   </a>
                 </li>
@@ -130,8 +131,20 @@
                     $("a", li).attr("href", href + value.id);
 
                     // 找到关键字，高亮
-                    $("mark", li).text(text);
-                    $("span.title", li).text(value.title);
+                    var title = value.title;
+                    var index =  title.indexOf(text);
+                    // 对标题进行切割
+                    // 表明 pre 就是关键字
+                    if (index <= 0) {
+                      $("span.pre", li).text("");
+                      $("mark", li).text(text);
+                      $("span.last", li).text(title.substring(text.length, title.length));
+                    } else {
+                      $("span.pre", li).text(title.substring(0, index));
+                      $("mark", li).text(text);
+                      $("span.last", li).text(title.substring(index + text.length, title.length));
+                    }
+
                     ul.append(li);
                   });
 
