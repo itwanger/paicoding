@@ -113,9 +113,12 @@
   if (img.complete) {
     let color = colorThief.getColor(img)
     console.log("newColor: ", color)
+
+    let rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
     let span = document.getElementById("carouseWrap")
-    span.style.background =
-      "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+    span.style.background = rgb;
+    // fix 4
+    $(".home-carouse-item-dot").css("background", rgb);
   } else {
     img.addEventListener("load", function () {
       let color = colorThief.getColor(img)
