@@ -65,7 +65,7 @@ a:hover {
 }
 
 .category-search-btn:hover, .category-cancel-btn:hover {
-  color: #007fff;
+  color: var(--pai-brand-2-hover);
 }
 
 .svg-inline--fa, svg:not(:root).svg-inline--fa {
