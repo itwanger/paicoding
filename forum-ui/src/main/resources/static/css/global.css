@@ -1,4 +1,8 @@
 body {
+  --pai-brand-1-normal: #1e80ff;
+  --pai-brand-2-hover: #1171ee;
+  --pai-brand-3-click: #0060dd;
+  --pai-brand-4-disable: #abcdff;
   background-color: #eeeeee;
   height: 100vh;
   margin: 0;
@@ -77,19 +81,13 @@ html,
 .btn-primary,
 .btn-primary:active,
 .btn-primary:focus,
-.btn-primary:hover,
 .current-page {
-  background-color: #007fff !important;
+  background-color: var(--pai-brand-1-normal) !important;
 }
 
-.btn-outline-primary:hover,
-.page-item.active .page-link,
-.btn-primary,
-.btn-primary:active,
-.btn-primary:focus,
-.btn-primary:hover,
-.btn-outline-primary {
-  border-color: #007fff;
+
+.btn-primary:focus {
+  border-color: var(--pai-brand-2-hover) !important;
 }
 
 .page-link,

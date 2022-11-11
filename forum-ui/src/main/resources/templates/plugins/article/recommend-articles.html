@@ -13,7 +13,6 @@
   }
 
   .home-carouse-item {
-    height: 370px;
     flex: 1;
     transition: all 0.2s ease 0s;
     box-shadow: 0 6px 12px 0 rgb(0 0 0 / 25%);
@@ -27,14 +26,14 @@
   .home-carouse-item-body {
     background-color: #fff;
     padding: 20px;
-    height: 220px;
+    height: 180px;
   }
 
   .home-carouse-item-title {
     font-size: 22px;
     font-weight: 700;
     height: 70px;
-    margin-bottom: 60px;
+    margin-bottom: 10px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -58,6 +57,25 @@
 
   .home-carouse-item-first-text {
     font-weight: 900;
+    padding: 0 8px;
+    align-items: center;
+    position: relative;
+  }
+
+  .home-carouse-item-tag .home-carouse-item-first-text:not(:last-child):after {
+    position: absolute;
+    right: -1px;
+    display: block;
+    content: " ";
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: #4e5969;
+  }
+
+  .home-carouse-item-tag .author {
+    padding-left: 8px;
+    color: #a2a2a2;
   }
 
   .home-carouse-item:hover {
@@ -75,10 +93,10 @@
         />
         <div class="home-carouse-item-body">
           <div class="home-carouse-item-title" th:text="${article.title}"></div>
-          <div class="home-carouse-item-tag" th:each="tag: ${article.tags}">
-            <span class="home-carouse-item-dot"></span>
+          <div class="home-carouse-item-tag">
+            <span class="home-carouse-item-dot tag"></span>
 
-            <span class="home-carouse-item-first-text" th:text="${tag.tag}">
+            <span class="home-carouse-item-first-text d-flex" th:each="tag: ${article.tags}" th:text="${tag.tag}">
               JAVASCRIPT
             </span>
           </div>
@@ -86,7 +104,7 @@
             <div class="home-carouse-item-tag">
               <span class="home-carouse-item-dot"></span>
               <a th:href="${'/user/' + article.author}">
-                <span th:text="${article.authorName}" style="font-weight: 500">
+                <span th:text="${article.authorName}" class="author">
                   楼仔，
                 </span>
               </a>
@@ -110,22 +128,23 @@
   const img = document.getElementById("cover0")
   console.log("img:", img)
 
-  if (img.complete) {
+  function setColor() {
     let color = colorThief.getColor(img)
     console.log("newColor: ", color)
 
     let rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
     let span = document.getElementById("carouseWrap")
     span.style.background = rgb;
-    // fix 4
-    $(".home-carouse-item-dot").css("background", rgb);
+    // fix bug excel id 4
+    $(".home-carouse-item-dot.tag").css("background", rgb);
+  }
+
+
+  if (img.complete) {
+    setColor();
   } else {
     img.addEventListener("load", function () {
-      let color = colorThief.getColor(img)
-      console.log("eNewColor: ", color)
-      let span = document.getElementById("carouseWrap")
-      span.style.background =
-        "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+      setColor();
     })
   }
 </script>
