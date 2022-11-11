@@ -4,24 +4,20 @@
   <div class="user-article-item" th:fragment="article_card(article)">
     <a th:href="${'/article/detail/' + article.articleId}">
       <div class="user-article-item-content">
-        <small
-          th:if="${article.officalStat == 1}"
-          class="posts-admin-tag posts-admin-tag-official"
-        >
-          官
+        <small th:if="${article.officalStat == 1}" class="posts-admin-tag posts-admin-tag-official">
+          <img class="topImg___1vt9X" src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview/dist/static/commandImg.99adc700.svg" _nk="DTRw21">
+<!--          官-->
         </small>
-        <small
-          th:if="${article.toppingStat == 1}"
-          class="posts-admin-tag posts-admin-tag-top"
-        >
-          顶
+        <small th:if="${article.toppingStat == 1}" class="posts-admin-tag posts-admin-tag-top">
+          <img class="topImg___1vt9X" src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview/dist/static/commandImg.99adc700.svg" _nk="DTRw21">
+<!--          顶-->
         </small>
-        <small
-          th:if="${article.creamStat == 1}"
-          class="posts-admin-tag posts-admin-tag-marrow"
-        >
-          精
-        </small>
+<!--        <small-->
+<!--          th:if="${article.creamStat == 1}"-->
+<!--          class="posts-admin-tag posts-admin-tag-marrow"-->
+<!--        >-->
+<!--          精-->
+<!--        </small>-->
         <div class="user-article-item-title" th:text="${article.title}">
           标题
         </div>
