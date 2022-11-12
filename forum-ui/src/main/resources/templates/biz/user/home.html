@@ -1,445 +1,459 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
-  <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
-</div>
-<style>
-  /* tag选择样式 */
-  .tag-select-active {
-    color: #3973ff !important;
-    border-bottom: 4px solid #3973ff;
-  }
-  .tag-select {
-    color: #000000;
-    font-weight: 500;
-    margin: 0 0 0 32px;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    padding: 12px 0;
-    font-size: 20px;
-    background: transparent;
-    outline: none;
-    cursor: pointer;
-  }
-  .tag-select:first-child {
-    margin-left: 0;
-  }
-  .user-select-tag-wrap {
-    border-bottom: 1px solid rgb(240 240 240);
-    margin-bottom: 16px;
-  }
-
-  /* 整体布局 */
-  .user {
-    overflow: auto;
-    padding-top: 140px;
-    height: calc(100vh - 60px);
-  }
-  .user-wrap {
-    margin: 0 auto;
-    width: 1200px;
-    display: flex;
-    margin-bottom: 20px;
-    min-height: calc(100% - 90px);
-  }
-
-  .user-body {
-    flex: 1;
-    border-radius: 8px;
-    padding: 32px 32px 40px;
-    background-color: #fff;
-    z-index: 10;
-  }
-  .user-left {
-    z-index: 10;
-    width: 30%;
-    margin-right: 20px;
-    border-radius: 8px;
-  }
-
-  /* 文章 */
-  .user-article-item {
-    display: block;
-    box-shadow: inset 0 -1px 0 0 #f0f0f0;
-    cursor: pointer;
-    background: #fff;
-    margin-bottom: 20px;
-    padding: 14px;
-  }
-  .user-article-item-content {
-    padding-bottom: 20px;
-  }
-  .user-article-item-title {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-    font-weight: 600;
-    font-size: 22px;
-    line-height: 26px;
-    color: rgba(0, 0, 0, 0.85);
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    -webkit-line-clamp: 1;
-  }
-  .user-article-item-value-wrap {
-    display: flex;
-    justify-content: space-between;
-  }
-  .user-article-item-value-text {
-    font-size: 16px;
-    line-height: 160%;
-    color: #333;
-    word-break: break-all;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    -webkit-line-clamp: 3;
-  }
-  .user-article-item-tag-wrap {
-    margin-top: 20px;
-    display: flex;
-  }
-  .user-article-item-tag {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 4px 12px;
-    border-radius: 50px;
-    font-size: 14px;
-    line-height: 17px;
-    font-weight: 400;
-    margin-left: 8px;
-  }
-  .user-article-item-tag:first-child {
-    margin-left: 0;
-  }
-  .user-article-item-img {
-    object-fit: cover;
-    width: 258px;
-    height: 145px;
-    border-radius: 6px;
-    margin-left: 24px;
-  }
-  .user-article-item-footer {
-    display: flex;
-    justify-content: space-between;
-  }
-  .user-article-item-footer-right {
-    display: flex;
-    align-items: center;
-  }
-  .article-show-title {
-    display: flex;
-    flex: 1 1;
-    align-items: center;
-    justify-content: space-between;
-    height: 48px;
-  }
-  .article-show-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    color: #999;
-    cursor: pointer;
-    position: relative;
-  }
-  .article-show-wrap-cell {
-    width: 1px;
-    height: 16px;
-    background-color: rgba(0, 0, 0, 0.06);
-    margin: 0 16px;
-  }
-  .attention-btn {
-    border-radius: 78px;
-    padding: 2px 16px;
-    color: #3973ff;
-    border: 1px solid #3973ff;
-    font-weight: 400;
-    font-size: 10px;
-    line-height: 12px;
-    margin-left: 8px;
-  }
-  .attention-btn:hover {
-    color: #40a9ff;
-    border-color: #40a9ff;
-  }
-
-  /* 关注 */
-  .follow-select-tag {
-    padding: 0 24px;
-    color: #333;
-    border-right: 1px solid #e6e6e6;
-    margin: 0;
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 22px;
-    font-weight: 500;
-  }
-
-  .follow-select-tag:last-child {
-    padding-right: 0;
-    border-right: 0;
-  }
-
-  .follow-select-tag:hover,
-  .follow-select-tag-active {
-    color: #3973ff !important;
-  }
-  .follow-item {
-    display: flex;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 16px 8px 0;
-    height: fit-content;
-    font-size: 18px;
-  }
-
-  .follow-item img {
-    width: 66px;
-    height: 66px;
-    border-radius: 50%;
-    margin-right: 15px;
-    font-size: 18px;
-  }
-  .follow-item-icon {
-    width: 68px;
-    height: 24px;
-    border-radius: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3973ff;
-    border: 1px solid #3973ff;
-    font-size: 12px;
-  }
-  #saveModel .modal-dialog {
-    max-width: 900px;
-  }
-  /* 个人信息编辑弹窗 */
-  #saveModel .input-group {
-    height: 70px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #eaeaea;
-  }
-  #saveModel .input-group:last-child {
-    border: 0;
-  }
-  #saveModel .form-label {
-    width: 80px;
-    text-align: left;
-    font-weight: 500;
-    font-size: 14px;
-    color: #333;
-    text-align: left;
-  }
-
-  #saveModel .form-control {
-    height: 32px;
-    display: flex;
-    align-items: center;
-    color: #1d2129;
-    background: #fafafa;
-    border: 1px solid #ddd;
-    font-size: 14px;
-  }
-  #saveModel .modal-body {
-    display: flex;
-    padding: 20px;
-  }
-  .person-info {
-    width: 70%;
-  }
-</style>
-<body id="body">
-<!-- 导航栏 -->
-<div th:replace="layout/navbar :: navbar"></div>
-
-<!-- 正文内容 -->
-<div class="user">
-  <div class="user-wrap">
-    <!-- 左侧内容 -->
-    <div class="user-left">
-      <div
-              th:replace="biz/user/user-info :: user_info(${vo.userHome})"
-      ></div>
-
-      <div
-              th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"
-      ></div>
-      <div
-              th:replace="biz/user/process :: user_process(${vo.userHome})"
-      ></div>
-    </div>
-
-    <!-- 主要内容 -->
-    <div class="user-body">
-      <!-- 选择标签列表 -->
-      <div th:replace="plugins/home/home-select-tag :: select_tag(${vo.homeSelectTags}, ${vo.userHome.userId})"></div>
-
-      <!-- 文章列表 -->
-      <div class="user-article-wrap">
-        <!-- 文章列表 待传旨 -->
-        <a th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}">
-          <div th:each="article : ${vo.homeSelectList.list}">
-            <div th:replace="plugins/article-card :: article_card(${article})">
-              正文
-            </div>
-          </div>
-        </a>
-
-        <a th:if="${vo.homeSelectType == 'follow'}">
-          <div th:replace="plugins/home/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"></div>
-          <div th:if="${!#lists.isEmpty(vo.followList.list)}">
-            <div class="follow-list" th:each="follow : ${vo.followList.list}">
-              <div th:replace="plugins/follow/follow-card :: follow_card(${follow})"> 关注列表 </div>
-            </div>
-          </div>
-          <div th:if="${#lists.isEmpty(vo.followList.list)}">
-            <div style="color: gray">
-              列表为空~
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
+  <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
   </div>
-  <div th:replace="layout/footer :: footer"></div>
-
-  <!-- 个人信息修改弹窗 -->
-  <div
-          class="modal fade"
-          id="saveModel"
-          data-backdrop="static"
-          data-keyboard="false"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="loginModalDropLabel"
-          aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">编辑个人资料</h5>
-          <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="person-info">
-            <div class="input-group">
-              <span class="form-label">用户名</span>
-              <input
-                      id="userName"
-                      type="text"
-                      class="form-control"
-                      th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
-                      placeholder="请输入用户名"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">用户图像</span>
-              <input
-                      id="photo"
-                      type="text"
-                      class="form-control"
-                      th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
-                      placeholder="请输入用户图像"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">公司</span>
-              <input
-                      id="company"
-                      type="text"
-                      class="form-control"
-                      th:value="${vo.userHome != null ? vo.userHome.company: ''}"
-                      placeholder="请输入公司"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">职位</span>
-              <input
-                      id="position"
-                      type="text"
-                      class="form-control"
-                      th:value="${vo.userHome != null ? vo.userHome.position: ''}"
-                      placeholder="请输入职位"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">个人简介</span>
-              <input
-                      id="profile"
-                      type="text"
-                      class="form-control"
-                      th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
-                      placeholder="请输入个人简介"
-              />
-            </div>
-          </div>
-          <div class="person-img"></div>
-        </div>
-        <div class="modal-footer">
-          <button id="publish" type="button" class="btn btn-primary">
-            保存
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script th:inline="javascript">
-  $("#publish").on("click", function () {
-    doPostUserInfo()
-  })
-  function doPostUserInfo() {
-    const userId = $("#userId").text()
-    const userName = $("#userName").val()
-    const photo = $("#photo").val()
-    const company = $("#company").val()
-    const position = $("#position").val()
-    const profile = $("#profile").val()
-    const params = {
-      userId: userId,
-      userName: userName,
-      photo: photo,
-      company: company,
-      position: position,
-      profile: profile,
+  <style>
+    /* tag选择样式 */
+    .tag-select-active {
+      color: #3973ff !important;
+      border-bottom: 4px solid #3973ff;
+    }
+    .tag-select {
+      color: #000000;
+      font-weight: 500;
+      margin: 0 0 0 32px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 0;
+      font-size: 20px;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+    }
+    .tag-select:first-child {
+      margin-left: 0;
+    }
+    .user-select-tag-wrap {
+      border-bottom: 1px solid rgb(240 240 240);
+      margin-bottom: 16px;
     }
 
-    post("/user/api/saveUserInfo", params, function (data) {
-      console.log("返回结果:", data)
-      window.location.href = "/user/home?userId=" + userId
-    })
-  }
-
-  // 切换关注按钮
-  $(".attention-btn").click(function (e) {
-    e.stopPropagation()
-    if ($(this)[0].innerText === "+关注") {
-      $(this)[0].innerText = "已关注"
-    } else {
-      $(this)[0].innerText = "+关注"
+    /* 整体布局 */
+    .user {
+      overflow: auto;
+      padding-top: 140px;
+      height: calc(100vh - 60px);
     }
-  })
-  //弹窗展示
-  // $("#saveModel").show()
-</script>
-</body>
+    .user-wrap {
+      margin: 0 auto;
+      width: 1200px;
+      display: flex;
+      margin-bottom: 20px;
+      min-height: calc(100% - 90px);
+    }
+
+    .user-body {
+      flex: 1;
+      border-radius: 8px;
+      padding: 32px 32px 40px;
+      background-color: #fff;
+      z-index: 10;
+    }
+    .user-left {
+      z-index: 10;
+      width: 30%;
+      margin-right: 20px;
+      border-radius: 8px;
+    }
+
+    /* 文章 */
+    .user-article-item {
+      display: block;
+      box-shadow: inset 0 -1px 0 0 #f0f0f0;
+      cursor: pointer;
+      background: #fff;
+      margin-bottom: 20px;
+      padding: 14px;
+    }
+    .user-article-item-content {
+      padding-bottom: 20px;
+    }
+    .user-article-item-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-weight: 600;
+      font-size: 22px;
+      line-height: 26px;
+      color: rgba(0, 0, 0, 0.85);
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      -webkit-line-clamp: 1;
+    }
+    .user-article-item-value-wrap {
+      display: flex;
+      justify-content: space-between;
+    }
+    .user-article-item-value-text {
+      font-size: 16px;
+      line-height: 160%;
+      color: #333;
+      word-break: break-all;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      -webkit-line-clamp: 3;
+    }
+    .user-article-item-tag-wrap {
+      margin-top: 20px;
+      display: flex;
+    }
+    .user-article-item-tag {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 400;
+      margin-left: 8px;
+    }
+    .user-article-item-tag:first-child {
+      margin-left: 0;
+    }
+    .user-article-item-img {
+      object-fit: cover;
+      width: 258px;
+      height: 145px;
+      border-radius: 6px;
+      margin-left: 24px;
+    }
+    .user-article-item-footer {
+      display: flex;
+      justify-content: space-between;
+    }
+    .user-article-item-footer-right {
+      display: flex;
+      align-items: center;
+    }
+    .article-show-title {
+      display: flex;
+      flex: 1 1;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+    }
+    .article-show-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      color: #999;
+      cursor: pointer;
+      position: relative;
+    }
+    .article-show-wrap-cell {
+      width: 1px;
+      height: 16px;
+      background-color: rgba(0, 0, 0, 0.06);
+      margin: 0 16px;
+    }
+    .attention-btn {
+      border-radius: 78px;
+      padding: 2px 16px;
+      color: #3973ff;
+      border: 1px solid #3973ff;
+      font-weight: 400;
+      font-size: 10px;
+      line-height: 12px;
+      margin-left: 8px;
+    }
+    .attention-btn:hover {
+      color: #40a9ff;
+      border-color: #40a9ff;
+    }
+
+    /* 关注 */
+    .follow-select-tag {
+      padding: 0 24px;
+      color: #333;
+      border-right: 1px solid #e6e6e6;
+      margin: 0;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 22px;
+      font-weight: 500;
+    }
+
+    .follow-select-tag:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+
+    .follow-select-tag:hover,
+    .follow-select-tag-active {
+      color: #3973ff !important;
+    }
+    .follow-item {
+      display: flex;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 8px 0;
+      height: fit-content;
+      font-size: 18px;
+    }
+
+    .follow-item img {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      margin-right: 15px;
+      font-size: 18px;
+    }
+    .follow-item-icon {
+      width: 68px;
+      height: 24px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3973ff;
+      border: 1px solid #3973ff;
+      font-size: 12px;
+    }
+    #saveModel .modal-dialog {
+      max-width: 900px;
+    }
+    /* 个人信息编辑弹窗 */
+    #saveModel .input-group {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #eaeaea;
+    }
+    #saveModel .input-group:last-child {
+      border: 0;
+    }
+    #saveModel .form-label {
+      width: 80px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 14px;
+      color: #333;
+      text-align: left;
+    }
+
+    #saveModel .form-control {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      color: #1d2129;
+      background: #fafafa;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+    #saveModel .modal-body {
+      display: flex;
+      padding: 20px;
+    }
+    .person-info {
+      width: 70%;
+    }
+  </style>
+  <body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="layout/navbar :: navbar"></div>
+
+    <!-- 正文内容 -->
+    <div class="user">
+      <!-- <img src="/img/mine-bg.png" alt="" /> -->
+      <div class="user-wrap">
+        <!-- 左侧内容 -->
+        <div class="user-left">
+          <div
+            th:replace="biz/user/user-info :: user_info(${vo.userHome})"
+          ></div>
+
+          <div
+            th:replace="biz/user/achievement :: user_achievement(${vo.userHome})"
+          ></div>
+          <div
+            th:replace="biz/user/process :: user_process(${vo.userHome})"
+          ></div>
+        </div>
+
+        <!-- 主要内容 -->
+        <div class="user-body">
+          <!-- 选择标签列表 -->
+          <div
+            th:replace="plugins/home/home-select-tag :: select_tag(${vo.homeSelectTags}, ${vo.userHome.userId})"
+          ></div>
+
+          <!-- 文章列表 -->
+          <div class="user-article-wrap">
+            <!-- 文章列表 待传旨 -->
+            <a
+              th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}"
+            >
+              <div th:each="article : ${vo.homeSelectList.list}">
+                <div
+                  th:replace="plugins/article-card :: article_card(${article})"
+                >
+                  正文
+                </div>
+              </div>
+            </a>
+
+            <a th:if="${vo.homeSelectType == 'follow'}">
+              <div
+                th:replace="plugins/home/follow-select-tag :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"
+              ></div>
+              <div th:if="${!#lists.isEmpty(vo.followList.list)}">
+                <div
+                  class="follow-list"
+                  th:each="follow : ${vo.followList.list}"
+                >
+                  <div
+                    th:replace="plugins/follow/follow-card :: follow_card(${follow})"
+                  >
+                    关注列表
+                  </div>
+                </div>
+              </div>
+              <div th:if="${#lists.isEmpty(vo.followList.list)}">
+                <div style="color: gray">列表为空~</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div th:replace="layout/footer :: footer"></div>
+
+      <!-- 个人信息修改弹窗 -->
+      <div
+        class="modal fade"
+        id="saveModel"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="loginModalDropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">编辑个人资料</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="person-info">
+                <div class="input-group">
+                  <span class="form-label">用户名</span>
+                  <input
+                    id="userName"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
+                    placeholder="请输入用户名"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">用户图像</span>
+                  <input
+                    id="photo"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
+                    placeholder="请输入用户图像"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">公司</span>
+                  <input
+                    id="company"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.company: ''}"
+                    placeholder="请输入公司"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">职位</span>
+                  <input
+                    id="position"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.position: ''}"
+                    placeholder="请输入职位"
+                  />
+                </div>
+                <div class="input-group">
+                  <span class="form-label">个人简介</span>
+                  <input
+                    id="profile"
+                    type="text"
+                    class="form-control"
+                    th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
+                    placeholder="请输入个人简介"
+                  />
+                </div>
+              </div>
+              <div class="person-img"></div>
+            </div>
+            <div class="modal-footer">
+              <button id="publish" type="button" class="btn btn-primary">
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      $("#publish").on("click", function () {
+        doPostUserInfo()
+      })
+      function doPostUserInfo() {
+        const userId = $("#userId").text()
+        const userName = $("#userName").val()
+        const photo = $("#photo").val()
+        const company = $("#company").val()
+        const position = $("#position").val()
+        const profile = $("#profile").val()
+        const params = {
+          userId: userId,
+          userName: userName,
+          photo: photo,
+          company: company,
+          position: position,
+          profile: profile,
+        }
+
+        post("/user/api/saveUserInfo", params, function (data) {
+          console.log("返回结果:", data)
+          window.location.href = "/user/home?userId=" + userId
+        })
+      }
+
+      // 切换关注按钮
+      $(".attention-btn").click(function (e) {
+        e.stopPropagation()
+        if ($(this)[0].innerText === "+关注") {
+          $(this)[0].innerText = "已关注"
+        } else {
+          $(this)[0].innerText = "+关注"
+        }
+      })
+      //弹窗展示
+      // $("#saveModel").show()
+    </script>
+  </body>
 </html>
