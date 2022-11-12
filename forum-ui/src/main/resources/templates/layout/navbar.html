@@ -7,7 +7,7 @@
         /* border-bottom: 1px solid #dee2e6; */
         position: sticky;
         --tw-bg-opacity: 1;
-        background-color: rgba(36,41,47,var(--tw-bg-opacity));
+        background-color: rgba(36, 41, 47, var(--tw-bg-opacity));
       }
       .nav-body {
         display: flex;
@@ -19,7 +19,9 @@
         font-size: 18px;
         font-weight: 500;
       }
-
+      .nav-link:hover {
+        color: #fff !important;
+      }
       .nav-article {
         color: #fff;
         font-weight: 500;
@@ -27,7 +29,14 @@
         font-size: 14px;
         display: flex;
         align-items: center;
-        border-color: #000;
+        border: none;
+        background-color: #383d41;
+        border-radius: 8px;
+      }
+
+      .nav-article:hover {
+        color: #fff;
+        background-color: #000;
       }
 
       .nav-notice {
@@ -117,7 +126,7 @@
 
           <button
             type="button"
-            class="btn btn-primary nav-article"
+            class="btn nav-article"
             th:data-target="${global.isLogin ? '' : '#loginModal'}"
             th:data-toggle="${global.isLogin ? '' : 'modal'}"
           >
