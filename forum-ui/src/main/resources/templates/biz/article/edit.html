@@ -360,7 +360,6 @@
 </div>
 
 <!-- 底部信息 -->
-<!-- <div th:replace="layout/footer :: footer"></div> -->
 <link rel="stylesheet" href="/css/simplemde.min.css"/>
 <script src="/js/simplemde.min.js"></script>
 <script src="/js/jquery.min.js"></script>
@@ -490,7 +489,10 @@
   function checkArea() {
     var obj = $('#summary')
     len = obj.val().length
-    console.log({len: len + '/128'})
+    if (len > 128) {
+      len = 128;
+      obj.value = obj.value.substring(0, 128);
+    }
     $('.form-textarea-limit').text(len + '/128')
   }
 
@@ -616,6 +618,7 @@
         $(".res-upload-img").attr("src", imagePath)
         $('.res-upload-wrap').removeClass('hide')
         callback()
+        toastr.info("图片上传成功!")
       }
     });
   }
