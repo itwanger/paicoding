@@ -15,6 +15,9 @@
         th:each="item : ${side.items}"
       >
         <div class="home-right-item-post-title">
+          <span class="home-right-item-post-title-txt" th:text="${item.title}">
+            公告标题
+          </span>
           <span
             class="home-right-item-icon-wrap"
             th:if="${!#lists.isEmpty(item.tags)}"
@@ -39,11 +42,11 @@
               alt="推荐"
             />
           </span>
-          <span class="home-right-item-post-title-txt" th:text="${item.title}">
-            公告标题
-          </span>
         </div>
-        <span th:src="${#dates.format(item.time, 'yyyy/MM/dd')}">
+        <span
+          th:src="${#dates.format(item.time, 'yyyy/MM/dd')}"
+          class="home-right-item-post-time"
+        >
           2022/09/09
         </span>
       </a>

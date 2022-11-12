@@ -11,7 +11,7 @@
         class="home-right-item-article-item"
         th:each="item, itemStat : ${side.items} "
       >
-        <div class="home-right-item-post-title-txt" th:text="${item.title}">
+        <div class="home-right-item-article-title-txt" th:text="${item.title}">
           推荐文章
         </div>
         <i th:text="${T(java.lang.String).format('%02d', itemStat.index + 1)}">
