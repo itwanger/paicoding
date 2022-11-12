@@ -19,4 +19,6 @@ public class TagDTO implements Serializable {
     private String tag;
 
     private Integer status;
+
+    private Boolean selected;
 }
