@@ -29,14 +29,7 @@
         font-size: 14px;
         display: flex;
         align-items: center;
-        border: none;
-        background-color: #383d41;
-        border-radius: 8px;
-      }
-
-      .nav-article:hover {
-        color: #fff;
-        background-color: #000;
+        border-radius: 4px;
       }
 
       .nav-notice {
@@ -126,7 +119,7 @@
 
           <button
             type="button"
-            class="btn nav-article"
+            class="btn btn-primary nav-article"
             th:data-target="${global.isLogin ? '' : '#loginModal'}"
             th:data-toggle="${global.isLogin ? '' : 'modal'}"
           >
