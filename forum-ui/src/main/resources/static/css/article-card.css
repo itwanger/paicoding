@@ -113,12 +113,20 @@
 }
 
 .user-article-item-content {
-  padding-bottom: 20px;
+  padding-bottom: 8px;
 }
-.user-article-item-title {
+
+.user-article-item-title-wrap {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.article-card-top-img {
+  margin-right: 12px;
+}
+
+.user-article-item-title {
   font-weight: 600;
   font-size: 22px;
   line-height: 26px;
@@ -129,10 +137,12 @@
   overflow: hidden;
   -webkit-line-clamp: 1;
 }
+
 .user-article-item-value-wrap {
   display: flex;
   justify-content: space-between;
 }
+
 .user-article-item-value-text {
   font-size: 16px;
   line-height: 160%;
