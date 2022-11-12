@@ -4,6 +4,7 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 文章
@@ -87,7 +90,10 @@ public class ArticleViewController extends BaseViewController {
                 s.setSelected(s.getCategoryId().equals(article.getCategory().getCategoryId()));
             });
             vo.setCategories(categoryList);
-            vo.setTags(tagService.queryTagsByCategoryId(article.getCategory().getCategoryId()));
+            List<TagDTO> tagList = tagService.queryTagsByCategoryId(article.getCategory().getCategoryId());
+            Set<Long> selectedTags = article.getTags().stream().map(TagDTO::getTagId).collect(Collectors.toSet());
+            tagList.forEach(s-> s.setSelected(selectedTags.contains(s.getTagId())));
+            vo.setTags(tagList);
         } else {
             List<CategoryDTO> categoryList = categoryService.loadAllCategories();
             vo.setCategories(categoryList);
