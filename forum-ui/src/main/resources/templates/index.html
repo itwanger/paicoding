@@ -12,7 +12,7 @@
 
     .home-wrap {
         min-height: calc(100% - 90px);
-        padding-top: 30px;
+        padding-top: 20px;
         background-color: #f5f5f7;
     }
     .home-inter-wrap {
@@ -23,7 +23,8 @@
     .home-body {
         flex: 1;
         margin-right: 20px;
-        border-radius: 8px;
+        background-color: #fff;
+        padding-left: 20px;
     }
     .home-body-nav {
         color: #262626;
@@ -48,17 +49,6 @@
         border-bottom: 1px solid #f2f3f5;
         border-radius: 0;
     }
-
-    /* 覆盖文章样式 */
-    .user-article-item {
-        display: block;
-        box-shadow: inset 0 -1px 0 0 #f0f0f0;
-        cursor: pointer;
-        padding: 16px;
-        border-radius: 8px;
-        background-color: #fff;
-        margin-bottom: 20px;
-    }
 </style>
 
 <body id="body">
@@ -75,7 +65,7 @@
         <div class="home-wrap">
            <div class="home-inter-wrap">
             <div class="home-body">
-                <div id="articleList">
+                <div id="articleList" class="cdc-article-panel__list">
                     <div th:replace="biz/article/list" class="test">文章列表</div>
                 </div>
             </div>
