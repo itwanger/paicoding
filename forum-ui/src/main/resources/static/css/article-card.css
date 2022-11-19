@@ -283,4 +283,6 @@
   padding-top: 54.6667%;
 }
 
-
+.cdc-article-panel:hover .user-article-item-title {
+  color: var(--pai-brand-2-hover);
+}
