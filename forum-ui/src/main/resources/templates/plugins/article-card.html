@@ -10,9 +10,8 @@
       <div class="user-article-item-content cdc-article-panel__main">
         <div class="user-article-item-title-wrap cdc-article-panel__title">
           <img class="article-card-top-img"
-               th:if="${article.toppingStat == 1}"
+               th:if="${article.toppingStat == 1 && #httpServletRequest != null && #httpServletRequest.requestURI == '/'}"
                src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview/dist/static/commandImg.99adc700.svg"
-               nk="DTRw21"
           />
           <span th:text="${article.title}"
                 class="user-article-item-title">

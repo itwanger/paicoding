@@ -29,6 +29,7 @@
             <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(msg.createTime)}">4天前</span>
             <div class="action">
                 <div class="action-item">
+                    <a th:href="'/article/detail/' + ${msg.relatedId}">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                          xmlns="http://www.w3.org/2000/svg" class="">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -36,8 +37,10 @@
                               fill="#86909C"></path>
                     </svg>
                     <span class="action-text" data-article-id="${msg.relatedId}">点赞</span>
+                    </a>
                 </div>
                 <div class="action-item">
+                    <a th:href="'/article/detail/' + ${msg.relatedId} + '#commentList'">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                          xmlns="http://www.w3.org/2000/svg" class="">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -45,6 +48,7 @@
                               fill="#86909C"></path>
                     </svg>
                     <span class="action-text">回复</span>
+                    </a>
                 </div>
             </div>
         </div>

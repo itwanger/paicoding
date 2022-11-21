@@ -210,7 +210,7 @@
       </div>
     </nav>
     <!-- 登录 Modal -->
-    <div
+    <div th:if="${!global.isLogin}"
       class="modal fade"
       id="loginModal"
       data-backdrop="static"
@@ -281,8 +281,6 @@
       $(".nav-article").click(() => {
           if ([[${global.isLogin}]]) {
               window.location.href = "/article/edit"
-          } else {
-              toastr.warning("请先登录!");
           }
       })
 
@@ -324,7 +322,6 @@
                         // 刷新当前页面
                         window.location.reload();
                     }
-                    toastr.success("登录成功");
                 }
             };
 

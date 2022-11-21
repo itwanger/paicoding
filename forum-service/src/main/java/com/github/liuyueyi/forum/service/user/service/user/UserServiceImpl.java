@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveUserInfo(UserInfoSaveReq req) {
         UserInfoDO userInfoDO = UserConverter.toDO(req);
-        userDao.updateById(userInfoDO);
+        userDao.updateUserInfo(userInfoDO);
     }
 
     @Override
