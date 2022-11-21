@@ -75,15 +75,13 @@
             ></div>
 
             <!-- 正文 -->
-            <!--  图片  -->
+            <!--  封面图  -->
             <div th:if="${!#strings.isEmpty(vo.article.cover)}">
-                <img
-                        th:src="${vo.article.cover}"
+                <img th:src="${vo.article.cover}"
                         src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
                         class="detail-head-img"
                 />
             </div>
-            <!-- </div> -->
             <div
                     th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"
             ></div>
