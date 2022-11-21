@@ -95,7 +95,8 @@ public class UserFootServiceImpl implements UserFootService {
     private boolean setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operate) {
         switch (operate) {
             case READ:
-                return compareAndUpdate(userFootDO::getReadStat, userFootDO::setReadStat, operate.getDbStatCode());
+                // 需要更新时间，用于浏览记录
+                return true;
             case PRAISE:
             case CANCEL_PRAISE:
                 return compareAndUpdate(userFootDO::getPraiseStat, userFootDO::setPraiseStat, operate.getDbStatCode());
