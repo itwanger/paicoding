@@ -10,8 +10,10 @@ body {
   --pai-brand-4-disable: #abcdff;
   /*备用色 非常深的颜色*/
   --pai-brand-5-bak: #fe6617;
-  /*前景色*/
-  --pai-front-1-normal: #fff;
+  /*颜色白色*/
+  --pai-color-1-normal: #fff;
+  /*浅灰色*/
+  --pai-color-2-gray: #999;
   /*背景色*/
   --pai-bg-white: #eeeeee;
   /*背景色浅一点*/
@@ -1117,7 +1119,7 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  color: #999;
+  color: var(--pai-color-2-gray);
   cursor: pointer;
   position: relative;
   margin-right: 24px;
@@ -1336,7 +1338,7 @@ input:focus {
   font-size: 14px;
   display: flex;
   align-items: center;
-  color: #999;
+  color: var(--pai-color-2-gray);
   padding-bottom: 16px;
   margin-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
@@ -1624,6 +1626,15 @@ input:focus {
   border: 1px solid #d1d4db;
 }
 
+.join-days {
+  font-size: 12px;
+  color: var(--pai-color-2-gray);
+}
+
+a:hover .join-days {
+  color: inherit;
+}
+
 /*取消关注*/
 .com-author-intro-btns .c-btn {
   min-width: 88px;
@@ -1671,11 +1682,11 @@ input:focus {
 .com-author-intro-info {
   display: inline-block;
   vertical-align: top;
-  width: 50%;
+  width: 24%;
   text-align: center;
   font-size: 12px;
   line-height: 20px;
-  color: #999;
+  color: var(--pai-color-2-gray);
   padding-top: 5px;
   padding-bottom: 5px;
 }
