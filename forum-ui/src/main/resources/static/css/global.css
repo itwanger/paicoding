@@ -628,6 +628,7 @@ a {
   font-size: 14px;
   display: flex;
   align-items: center;
+  border-radius: 2px;
 }
 
 .nav-notice {
