@@ -3,33 +3,6 @@
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
-<style>
-    .home {
-        overflow: auto;
-        padding-top: 20px;
-        height: calc(100vh - 60px);
-        background-color: #f4f5f5;
-    }
-
-    .home-wrap {
-        margin: 0 auto;
-        width: 80%;
-        display: flex;
-        margin-bottom: 20px;
-        min-height: calc(100% - 90px);
-    }
-
-    .home-body {
-        flex: 1;
-        margin-right: 20px;
-        border-radius: 8px;
-    }
-
-    .home-right {
-        width: 30%;
-        border-radius: 20px;
-    }
-</style>
 
 <body id="body">
 <!-- 导航栏 -->
