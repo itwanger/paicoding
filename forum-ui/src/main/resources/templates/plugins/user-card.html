@@ -1,26 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-  <!-- 用户卡片 -->
-  <div class="card" th:fragment="user_card(user, userId, followShow)">
-    <div class="detail-user-wrap">
-      <div class="detail-user-head-wrap">
-        <img class="detail-user-head" th:src="${user.photo}" alt="" />
-        <span th:text="${user.userName}" class="detail-user-name"></span>
-        <span
-          class="detail-user-look"
-          th:data-user-id="${userId}"
-          th:data-followed="${user.followed}"
-          onclick="followAction(this)"
-          th:if="${followShow == true}"
-          th:text="${user.followed == true ? '取消关注' : '关注'}"
-        >
-          关注
-        </span>
-      </div>
-      <div class="detail-user-head-list">
-        <div th:text="'获得点赞数:    ' + ${user.praiseCount}">点赞数</div>
-        <div th:text="'文章被阅读:    ' + ${user.readCount}">阅读数</div>
-      </div>
-    </div>
-  </div>
+<!-- 用户卡片 -->
+<div th:fragment="user_card(user, userId, followShow)">
+    <section class="com-2-panel side J-authorPanel">
+        <header class="com-2-panel-hd"><h3 class="com-2-panel-title">作者介绍</h3></header>
+        <div class="com-2-panel-bd">
+            <div class="com-author-intro">
+                <div class="com-author-intro-object">
+                    <a th:href="${'/user/' + user.id}"
+                       class="com-author-intro-avatar"
+                       th:style="'background-image:url('+${user.photo}+');'"
+                       target="_blank"></a></div>
+                <h3 class="com-author-intro-name">
+                    <a th:href="${'/user/' + user.id}"
+                       class="com-author-intro-name-inner"
+                       th:title="${user.userName}"
+                       th:text="${user.userName}">ShowMeAI</a></h3>
+                <div class="com-author-intro-btns">
+                    <button type="button"
+                            class="c-btn c-btn"
+                            th:data-user-id="${userId}"
+                            th:data-followed="${user.followed}"
+                            th:if="${followShow == true}"
+                            th:text="${user.followed == true ? '取消关注' : '关注'}"
+                            onclick="followAction(this)">
+                        <span class="text">关注</span>
+                    </button>
+                    <a href="/column"
+                       class="c-btn c-btn-hole">
+                        <span class="text">教程</span>
+                    </a>
+                </div>
+                <ul class="com-author-intro-infos">
+                    <li class="com-author-intro-info">
+                        <a href="/developer/user/8934644"
+                           class="com-author-intro-info-link">
+                            <div class="com-author-intro-info-title">文章阅读量</div>
+                            <div class="com-author-intro-info-num" th:text="${user.readCount}">51.1K</div>
+                        </a>
+                    </li>
+                    <li class="com-author-intro-info">
+                        <a href="/developer/user/8934644"
+                           class="com-author-intro-info-link">
+                            <div class="com-author-intro-info-title">文章获赞数</div>
+                            <div class="com-author-intro-info-num" th:text="${user.praiseCount}">757</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</div>
 </html>

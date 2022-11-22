@@ -6,117 +6,48 @@
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
 
-<style>
-    /* 暂时公用home业css */
-    .home {
-        overflow: auto;
-        padding-top: 20px;
-        height: calc(100vh - 60px);
-    }
-
-    .home-wrap {
-        margin: 0 auto;
-        width: 80%;
-        display: flex;
-        margin-bottom: 20px;
-        min-height: calc(100% - 90px);
-    }
-
-    .home-body {
-        flex: 1;
-        max-width: 75%;
-        margin-right: 20px;
-        border-radius: 8px;
-        background-color: #fff;
-        padding: 32px 48px 22px;
-        box-sizing: border-box;
-    }
-
-    .home-right {
-        width: 30%;
-        border-radius: 20px;
-    }
-
-    /* 文章部分 */
-    .detail-head-img {
-        width: 100%;
-        max-height: 432px;
-        object-fit: cover;
-        margin-bottom: 24px;
-    }
-
-    .article-info-title {
-        color: rgba(0, 0, 0, 0.85);
-        font-size: 26px;
-        line-height: 31px;
-        vertical-align: bottom;
-        margin-bottom: 12px;
-    }
-
-    /* 相关推荐 */
-    .user-article-item {
-        /* padding: 0; */
-        background-color: #f9f9f9;
-        border-radius: 4px;
-        box-shadow: none;
-    }
-</style>
-
 <body id="body">
 <!-- 导航栏 -->
 <div th:replace="layout/navbar :: navbar"></div>
 
-<div class="home">
-    <div class="home-wrap">
-        <div class="home-body">
-            <!-- 侧边tool -->
-            <div
-                    th:replace="plugins/article-tool-bar :: tool_bar(${vo.article})"
-            ></div>
+<div class="home bg-color">
+    <div class="col-body pg-2-article">
+        <div class="com-3-layout">
+            <div class="layout-main">
+                <!-- 侧边tool -->
+                <div th:replace="plugins/article-tool-bar :: tool_bar(${vo.article})"></div>
 
-            <!-- 正文 -->
-            <!--  封面图  -->
-            <div th:if="${!#strings.isEmpty(vo.article.cover)}">
-                <img th:src="${vo.article.cover}"
-                        src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
-                        class="detail-head-img"
-                />
-            </div>
-            <div
-                    th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"
-            ></div>
+                <!-- 正文 -->
+                <div th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"></div>
 
-            <div th:replace="plugins/article/praise"></div>
+                <div th:replace="plugins/article/praise"></div>
 
-            <!--  评论  -->
-            <div
-                    th:replace="plugins/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"
-            ></div>
-            <hr/>
-            <div>
-                <!-- 关联推荐 -->
-                <h4>相关推荐</h4>
-                <div class="container-bg-light">
-                    <div id="articleList"></div>
-                    <button
-                            id="loadMoreTag"
-                            type="button"
-                            class="btn btn-outline-primary btn-lg btn-block"
-                            th:text="加载更多"
-                    ></button>
+                <!--  评论  -->
+                <div th:replace="plugins/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"></div>
+                <hr/>
+                <div>
+                    <!-- 关联推荐 -->
+                    <h4>相关推荐</h4>
+                    <div class="container-bg-light">
+                        <div id="articleList"></div>
+                        <button
+                                id="loadMoreTag"
+                                type="button"
+                                class="btn btn-outline-primary btn-lg btn-block"
+                                th:text="加载更多"
+                        ></button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="home-right">
-            <!-- 用户相关信息 -->
-            <div
-                    th:replace="plugins/user-card :: user_card(${vo.author}, ${vo.article.author}, ${global.isLogin})"
-            ></div>
+            <div class="layout-side">
+                <!-- 用户相关信息 -->
+                <div th:replace="plugins/user-card :: user_card(${vo.author}, ${vo.article.author}, ${global.isLogin})"></div>
 
-            <!-- 公告 -->
-            <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
-                <div th:replace="biz/article/sidebars"></div>
+                <!-- 公告 -->
+                <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
+                    <div th:replace="biz/article/sidebars"></div>
+                </div>
             </div>
         </div>
     </div>
