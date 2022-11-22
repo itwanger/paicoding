@@ -35,6 +35,17 @@
         margin-right: 36px;
         color: #1e80ff;
       }
+      .unread-count {
+        display: inline-block;
+        color: #fff;
+        transform: scale(.8);
+        font-size: 12px;
+        padding: 2px 5px;
+        background: #f64242;
+        border-radius: 100px;
+        border: 2px solid #fff;
+        text-align: center;
+      }
       .notice-content {
         width: 1000px;
         margin: 0 auto;
@@ -89,15 +100,17 @@
 
     <!-- 底部信息 -->
     <div th:replace="layout/footer :: footer"></div>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/biz/forum.js"></script>
+    <script src="/js/biz/loadMore.js"></script>
     <script th:inline="javascript">
       const selectType = [[${vo.selectType}]].toLowerCase()
       const params = {
           "type": selectType,
           "page": 2
       }
-      nextPage("/notice/api/items", params, 'itemList', 'loadMoreTag', function () {
-          params['page'] = params['page'] + 1;
-      })
+      loadMore(".notice-wrap", "/notice/api/items", params, "itemList")
     </script>
   </body>
 </html>
