@@ -3,67 +3,19 @@
 <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
-<style>
-    .home {
-        overflow: auto;
-        height: calc(100vh - 60px);
-        background-color: #fff;
-    }
-
-    .home-wrap {
-        min-height: calc(100% - 90px);
-        padding-top: 20px;
-        background-color: #f5f5f7;
-    }
-    .home-inter-wrap {
-        width: 1200px;
-        margin: 0 auto;
-        display: flex;
-    }
-    .home-body {
-        flex: 1;
-        margin-right: 20px;
-        background-color: #fff;
-        padding-left: 20px;
-    }
-    .home-body-nav {
-        color: #262626;
-    }
-    .home-right {
-        width: 24%;
-        border-radius: 20px;
-        position: relative;
-    }
-    /* .home-right::before {
-        content: '';
-        display: block;
-        position: absolute;
-        height: 90%;
-        width: 1px;
-        top: 20px;
-        left: -10px;
-        background: #f2f3f5;
-    } */
-    .home-right .card,.home-right .home-right-item-wrap{
-        margin-bottom: 0;
-        border-bottom: 1px solid #f2f3f5;
-        border-radius: 0;
-    }
-</style>
 
 <body id="body">
-    <!-- 导航栏 -->
-    <div th:replace="layout/navbar :: navbar"></div>
+<!-- 导航栏 -->
+<div th:replace="layout/navbar :: navbar"></div>
 
+<!-- 正文内容 -->
+<div class="home">
+    <!-- 类别筛选 -->
+    <div th:replace="plugins/categories :: category(${vo.categories})"></div>
+    <div th:replace="plugins/article/recommend-articles">精选列表</div>
 
-    <!-- 正文内容 -->
-    <div class="home">
-        <!-- 类别筛选 -->
-        <div th:replace="plugins/categories :: category(${vo.categories})"></div>
-        <div th:replace="plugins/article/recommend-articles">精选列表</div>
-
-        <div class="home-wrap">
-           <div class="home-inter-wrap">
+    <div class="home-wrap">
+        <div class="home-inter-wrap">
             <div class="home-body">
                 <div id="articleList" class="cdc-article-panel__list">
                     <div th:replace="biz/article/list" class="test">文章列表</div>
@@ -76,14 +28,18 @@
                     <div th:replace="biz/article/sidebars"></div>
                 </div>
             </div>
-           </div>
         </div>
-        <!-- 底部信息 -->
-        <div th:replace="layout/footer :: footer"></div>
     </div>
-
+    <!-- 底部信息 -->
+    <div th:replace="layout/footer :: footer"></div>
 </div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <script src="/js/biz/loadMore.js"></script>
+<script src="/js/toastr.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<script src="/js/biz/forum.js"></script>
 <script th:inline="javascript">
     const archiveId = [[${vo.categoryId}]]
     const category = [[${ vo.currentCategory }]]
