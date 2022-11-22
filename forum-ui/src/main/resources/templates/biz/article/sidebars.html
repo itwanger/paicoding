@@ -3,22 +3,22 @@
   /* 首页右侧列表 */
   .home-right-item-wrap {
     background-color: #fff;
-    padding: 20px;
-    margin-bottom: 20px !important;
     overflow: hidden;
+    padding: 20px;
+    margin-bottom:20px !important;;
   }
   .home-right-item-icon {
-    height: 15px;
-    width: 15px;
-    margin-right: 4px;
+    height: 18px;
+    width: 18px;
     position: relative;
-    top: -2px;
   }
   .home-right-item-first {
     padding-top: 16px;
   }
   .home-right-item-title {
     margin-bottom: 24px;
+    left: 20px;
+    top: 16px;
   }
 
   .home-right-item-article-item,
@@ -31,9 +31,6 @@
   .home-right-item-post-title {
     flex: 1 1;
   }
-  .home-right-item-post-title-txt {
-    color: #000;
-  }
   .home-right-item-post-time {
     color: #adb5bd;
     font-size: 14px;
@@ -41,7 +38,6 @@
   .home-right-item-article-title-txt {
     flex: 1 1;
     font-size: 16px;
-    color: #000;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -51,12 +47,9 @@
 
   .home-right-item-article-item i {
     flex-shrink: 0;
-    font-size: 24px;
-    line-height: 160%;
-    width: 36px;
-    text-align: right;
+    font-size: 16px;
     color: rgba(0, 0, 0, 0.06);
-    margin-left: 8px;
+    margin-right: 8px;
   }
   .home-right-item-about-content {
     text-align: justify;
@@ -104,6 +97,39 @@
     line-height: 25px;
     color: #333;
   }
+
+  .home-right-item-wrap.hot-article,.home-right-item-wrap.notice {
+    padding: 0px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255,255,255,var(--tw-bg-opacity));
+  }
+
+  .hot-article-bg, .notice-bg {
+    height:74px;
+    margin-top:-10px;
+  }
+  .hot-article .home-right-item-article-list .home-right-item-article-item:nth-child(-n+3) i {
+    background: #f25d8e;
+  }
+
+  .hot-article .home-right-item-article-list .home-right-item-article-item i {
+    height: 18px;
+    width: 18px;
+    line-height: 18px;
+    background: #ccd0d7;
+    color: #fff;
+    display: inline-block;
+    text-align: center;
+}
+
+  .hot-article-content,.notice-content {
+    padding: 20px;
+    margin-top: -20px;
+  }
+
+  .home-right-item-post-list a:hover, .home-right-item-article-list a:hover {
+    color: var(--pai-brand-2-hover);
+}
 </style>
 <div th:each="sidebar : ${vo.sideBarItems}">
   <div th:switch="${sidebar.style}">

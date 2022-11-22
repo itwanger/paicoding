@@ -103,7 +103,7 @@ a {
 }
 a:hover {
   text-decoration: none !important;
-  color: #212529 !important;
+  color: #212529;
 }
 .dropdown-menu,
 .card {

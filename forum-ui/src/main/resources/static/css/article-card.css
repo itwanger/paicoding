@@ -11,7 +11,8 @@
   border-bottom: 1px solid #d6dbe3;
   position: relative;
   cursor: pointer;
-  max-width: 782px;
+  max-width: 872px;
+  padding-right: 20px;
 }
 
 /*首页文章跳转详情链接*/
