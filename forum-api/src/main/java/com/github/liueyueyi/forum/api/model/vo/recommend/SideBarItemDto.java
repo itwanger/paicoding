@@ -21,9 +21,9 @@ public class SideBarItemDto {
 
     private String url;
 
-    private Long time;
-
     private String img;
+
+    private Long time;
 
     /**
      * tag列表
