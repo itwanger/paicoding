@@ -1438,7 +1438,9 @@ input:focus {
 }
 .home-right-item-article-title-txt {
   flex: 1 1;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -1629,18 +1631,33 @@ input:focus {
   margin-bottom: 0;
 }
 
+.com-2-side-activity .com-media-object {
+  width: 60px;
+  vertical-align: middle;
+}
+
+.column-content .com-side-topic-title {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 22px;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .com-media-object {
   display: table-cell;
   vertical-align: middle;
-  padding-right: 20px;
   box-sizing: content-box;
   width: 40px;
 }
 
 .com-side-topic .com-media-object {
-  padding-right: 12px;
   width: 60px;
   vertical-align: middle;
+  padding-right: 20px;
 }
 
 .com-media-body {
@@ -1663,15 +1680,15 @@ input:focus {
 }
 
 .com-side-topic .com-thumbnail {
-  width: 60px;
-  height: 60px;
+  width: 71px;
+  height: 100px;
+  border-radius: 2px;
 }
 
 .com-side-topic-title {
   font-size: 14px;
   line-height: 24px;
   font-weight: 400;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1686,6 +1703,27 @@ input:focus {
   -webkit-line-clamp: 2;
   overflow: hidden;
   max-height: 48px;
+}
+
+.column .vip-free-tag {
+  width: 30px;
+  height: 20px;
+  line-height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 3px;
+  transform: translateY(-1px);
+  background: linear-gradient(90deg,#fde8c3,#edd3a7);
+  border-radius: 2px;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 500;
+  color: #7e5d25;
+  white-space: nowrap;
+}
+
+.column-title {
+  margin-right: 30px;
 }
 
 /*首页侧边栏*/
