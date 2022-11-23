@@ -30,12 +30,6 @@
                     <h4>相关推荐</h4>
                     <div class="container-bg-light">
                         <div id="articleList"></div>
-                        <button
-                                id="loadMoreTag"
-                                type="button"
-                                class="btn btn-outline-primary btn-lg btn-block"
-                                th:text="加载更多"
-                        ></button>
                     </div>
                 </div>
             </div>
@@ -56,7 +50,10 @@
 </div>
 
 <script src="/js/marked.min.js"></script>
+<script src="/js/biz/forum.js"></script>
+<script src="/js/biz/loadMore.js"></script>
 <script src="/js/biz/toolaction.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css" rel="stylesheet">
 <script th:inline="javascript">
     // 内容渲染
     const articleId = [[${vo.article.articleId}]];
@@ -69,7 +66,7 @@
         }
 
         // 加载 highlight 样式文件
-        loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
+        // loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
         // 加载 highlight 脚本文件
         loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
             document.querySelectorAll('pre code').forEach(function (block) {
@@ -237,12 +234,7 @@
         "articleId": articleId,
         "page": 1
     }
-    doGetNextPage('/article/api/recommend', params, "articleList", "loadMoreTag", function () {
-        params['page'] = params['page'] + 1;
-    })
-    nextPage('/article/api/recommend', params, "articleList", "loadMoreTag", function () {
-        params['page'] = params['page'] + 1;
-    })
+    loadMore(".layout-main", "/article/api/recommend", params, "articleList");
 </script>
 </body>
 </html>

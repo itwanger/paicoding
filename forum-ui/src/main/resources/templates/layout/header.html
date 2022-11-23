@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <head th:fragment="head(title, links, scripts)">
-    <title th:replace="${title}"
-           th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}">
+    <title
+      th:replace="${title}"
+      th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}"
+    >
       技术派
     </title>
     <!-- Required meta tags -->
