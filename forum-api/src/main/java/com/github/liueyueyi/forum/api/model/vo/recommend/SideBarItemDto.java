@@ -17,9 +17,13 @@ public class SideBarItemDto {
 
     private String title;
 
+    private String name;
+
     private String url;
 
     private Long time;
+
+    private String img;
 
     /**
      * tag列表

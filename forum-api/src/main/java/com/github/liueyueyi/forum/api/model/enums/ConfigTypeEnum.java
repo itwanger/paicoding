@@ -15,7 +15,8 @@ public enum ConfigTypeEnum {
     HOME_PAGE(1, "首页Banner"),
     SIDE_PAGE(2, "侧边Banner"),
     ADVERTISEMENT(3, "广告Banner"),
-    NOTICE(4, "公告");
+    NOTICE(4, "公告"),
+    COLUMN(5, "教程");
 
     ConfigTypeEnum(Integer code, String desc) {
         this.code = code;
