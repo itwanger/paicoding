@@ -59,6 +59,31 @@ public class SidebarServiceImpl implements SidebarService {
         return new SideBarDTO().setTitle("\uD83D\uDC8E 精选教程").setItems(items).setStyle(SidebarStyleEnum.COLUMN.getStyle());
     }
 
+    /**
+     * PDF 优质资源
+     * @return
+     */
+    public SideBarDTO pdfSideBar() {
+        List<ConfigDTO> pdfList = configService.getConfigList(ConfigTypeEnum.PDF);
+        List<SideBarItemDto> items = new ArrayList<>(pdfList.size());
+        pdfList.forEach(configDTO -> {
+
+        });
+        // TODO PDF 优质资源
+        items.add(new SideBarItemDto()
+                .setName("4天实战轻松玩转Docker")
+                .setUrl("docker")
+                .setImg("https://cdn.sanity.io/images/708bnrs8/production/ec8688d3f0426bf5cd5e99122b19c6791853564d-832x1042.png")
+        );
+
+        items.add(new SideBarItemDto()
+                .setName("Java开发手册（嵩山版）")
+                .setUrl("docker")
+                .setImg("https://cdn.sanity.io/images/708bnrs8/production/6038f68c4a4ffa4e2e36837d4efc0d70734fb287-1021x1278.jpg")
+        );
+        return new SideBarDTO().setTitle("优质PDF").setItems(items).setStyle(SidebarStyleEnum.PDF.getStyle());
+    }
+
     private SideBarDTO recommendSideBar() {
         return new SideBarDTO().setTitle("加入\"社区技术交流群\"").setSubTitle("")
                 .setIcon("https://tool.hhui.top/icon.svg")

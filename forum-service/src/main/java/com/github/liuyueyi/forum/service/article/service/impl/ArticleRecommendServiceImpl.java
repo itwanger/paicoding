@@ -1,10 +1,12 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
+import com.github.liueyueyi.forum.api.model.enums.ConfigTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.SidebarStyleEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarItemDto;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
@@ -13,10 +15,13 @@ import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleTagDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.ArticleRecommendService;
+import com.github.liuyueyi.forum.service.sidebar.service.SidebarService;
+import com.github.liuyueyi.forum.service.sidebar.service.SidebarServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,18 +38,19 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
     private ArticleTagDao articleTagDao;
     @Autowired
     private ArticleReadService articleReadService;
+    @Autowired
+    private SidebarService sidebarService;
 
     @Override
     public List<SideBarDTO> recommend(ArticleDTO articleDO) {
         // 推荐文章
         SideBarDTO recommend = recommendByAuthor(articleDO.getAuthor(), articleDO.getArticleId(), PageParam.DEFAULT_PAGE_SIZE);
 
-        // 社区圈子
-        SideBarDTO join = joinUs();
+        // PDF
+        SideBarDTO pdf = sidebarService.pdfSideBar();
 
-        return Arrays.asList(recommend, join);
+        return Arrays.asList(recommend, pdf);
     }
-
 
     /**
      * 作者的文章列表推荐

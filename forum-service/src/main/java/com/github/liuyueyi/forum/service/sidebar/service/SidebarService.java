@@ -16,4 +16,11 @@ public interface SidebarService {
      * @return
      */
     List<SideBarDTO> queryHomeSidebarList();
+
+    /**
+     * 查询 PDF 的侧边栏
+     *
+     * @return
+     */
+    SideBarDTO pdfSideBar();
 }

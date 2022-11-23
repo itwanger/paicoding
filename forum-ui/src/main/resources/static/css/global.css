@@ -1385,6 +1385,10 @@ input:focus {
   padding-left: 1em;
 }
 
+.article-detail .home-right-item-wrap .com-2-panel-title {
+  font-size: 16px;
+}
+
 <!-- 文章详情 -->
 
 /*category 文件中的*/
@@ -1504,7 +1508,8 @@ input:focus {
 /*侧边栏的背景图*/
 .home-right-item-wrap.hot-article,
 .home-right-item-wrap.notice,
-.home-right-item-wrap.column{
+.home-right-item-wrap.column,
+.home-right-item-wrap.pdf{
   padding: 0;
   --tw-bg-opacity: 1;
   background-color: rgba(255,255,255,var(--tw-bg-opacity));
@@ -1512,7 +1517,8 @@ input:focus {
 
 .hot-article-bg,
 .notice-bg,
-.column-bg {
+.column-bg,
+.pdf-bg {
   height:74px;
   margin-top:-10px;
 }
@@ -1722,7 +1728,7 @@ input:focus {
   white-space: nowrap;
 }
 
-.column-title {
+.column .column-title {
   margin-right: 30px;
 }
 
@@ -2037,6 +2043,71 @@ a:hover .join-days {
   text-align: center;
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+/*电子书的星标*/
+.ebook-home-stars {
+  align-items: center;
+}
+
+.ebook-def-star {
+  height: 16px;
+  width: 92px;
+  background: url(../img/star.png) no-repeat 0/auto 100%;
+  position: relative;
+}
+
+.ebook-home-stars .ebook-star-count {
+  font-size: 16px;
+  line-height: 22px;
+  margin-left: 6px;
+}
+
+.ebook-home-stars .ebook-def-star .ebook-cur-star {
+  height: 16px;
+  background: url(../img/star-lighten.png) no-repeat 0/auto 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.ebook-home-info .ebook-home-view {
+  font-size: 13px;
+  color: var(--pai-color-2-gray);
+  line-height: 18px;
+  padding-left: 20px;
+  background: url(../img/eye.png) no-repeat 0/16px auto;
+}
+
+.ebook-home-info .ebook-home-download {
+  font-size: 13px;
+  color: var(--pai-color-2-gray);
+  line-height: 18px;
+  padding-left: 16px;
+  margin-left: 16px;
+  background: url(../img/download.png) no-repeat 0/12.5px auto;
+}
+
+.rank-box-item-right {
+  flex: 1;
+  overflow: hidden;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pdf .com-thumbnail:after {
+  content: "立即下载";
+  width: 60px;
+  height: 20px;
+  background-image: linear-gradient(270deg,#ffa400,#ff791a);
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+  text-align: center;
+  line-height: 20px;
+  position: absolute;
 }
 
 
