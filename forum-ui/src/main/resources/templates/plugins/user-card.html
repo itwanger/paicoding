@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <!-- 用户卡片 -->
 <div th:fragment="user_card(user, userId, followShow)">
-    <section class="com-2-panel side J-authorPanel">
+    <section class="com-2-panel side J-authorPanel internal">
         <header class="com-2-panel-hd"><h3 class="com-2-panel-title">作者介绍</h3></header>
         <div class="com-2-panel-bd">
             <div class="com-author-intro">
@@ -14,13 +14,16 @@
                 <h3 class="com-author-intro-name">
                     <a th:href="${'/user/' + user.userId}"
                        class="com-author-intro-name-inner"
-                       th:title="${user.userName}">
-                        <span class="user-name"
-                              th:text="${user.userName}"></span>
-                        <span class="join-days"
-                              th:text="'已加入'+ ${user.joinDayCount} + '天'"></span>
+                       th:title="${user.userName}"
+                       th:text="${user.userName}">
                     </a>
                 </h3>
+                <div class="com-author-intro-desc">
+                    <span th:text="'已加入'+ ${user.joinDayCount} + '天'"></span>
+                    <div class="c-bubble-trigger com-verification">
+                        <i class="verified"></i>
+                    </div>
+                </div>
                 <div class="com-author-intro-btns">
                     <button type="button"
                             class="c-btn c-btn"
@@ -40,14 +43,7 @@
                     <li class="com-author-intro-info">
                         <a th:href="${'/user/' + user.userId}"
                            class="com-author-intro-info-link">
-                            <div class="com-author-intro-info-title">粉丝数量</div>
-                            <div class="com-author-intro-info-num" th:text="${user.fansCount}">51.1K</div>
-                        </a>
-                    </li>
-                    <li class="com-author-intro-info">
-                        <a th:href="${'/user/' + user.userId}"
-                           class="com-author-intro-info-link">
-                            <div class="com-author-intro-info-title">文章数量</div>
+                            <div class="com-author-intro-info-title">文章数</div>
                             <div class="com-author-intro-info-num" th:text="${user.articleCount}">757</div>
                         </a>
                     </li>
@@ -63,6 +59,13 @@
                            class="com-author-intro-info-link">
                             <div class="com-author-intro-info-title">收藏数</div>
                             <div class="com-author-intro-info-num" th:text="${user.collectionCount}">757</div>
+                        </a>
+                    </li>
+                    <li class="com-author-intro-info">
+                        <a th:href="${'/user/' + user.userId}"
+                           class="com-author-intro-info-link">
+                            <div class="com-author-intro-info-title">粉丝数</div>
+                            <div class="com-author-intro-info-num" th:text="${user.fansCount}">51.1K</div>
                         </a>
                     </li>
                 </ul>

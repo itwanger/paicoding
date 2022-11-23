@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <head th:fragment="head(title, links, scripts)">
-    <title
-      th:replace="${title}"
-      th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}"
-    >
-      Quick社区
+    <title th:replace="${title}"
+           th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}">
+      技术派
     </title>
     <!-- Required meta tags -->
     <meta
       name="keywords"
-      content="quick-forum，二维码，图片，开发工具，开发者社区，开源社区，spring boot开源社区，Java开源社区，社区文章，社区问答"
+      content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis"
     />
-    <meta name="description" content="quick-forum社区" />
+    <meta name="description" content="技术派" />
     <meta charset="utf-8" />
     <meta
       name="viewport"
