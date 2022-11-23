@@ -1,57 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-  <link href="/css/content.css" rel="stylesheet" />
 
   <div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">专栏详情页</title>
   </div>
-
-  <style>
-    /* 暂时公用home业css */
-    .home {
-      padding-top: 20px;
-      width: calc(100vw - 320px);
-      height: calc(100vh - 60px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      margin-left: 320px;
-      background-color: #e5e5e5;
-    }
-
-    .home-wrap {
-      margin: 0 auto;
-      width: 70%;
-      display: flex;
-      margin-bottom: 20px;
-      background-color: #fff;
-    }
-
-    .home-body {
-      flex: 1;
-      max-width: 100%;
-      margin-right: 20px;
-      border-radius: 8px;
-      background-color: #fff;
-      padding: 32px 48px 22px;
-      box-sizing: border-box;
-    }
-
-    /* 文章标题 */
-    .article-info-title {
-      color: rgba(0, 0, 0, 0.85);
-      font-size: 26px;
-      line-height: 31px;
-      vertical-align: bottom;
-      margin-bottom: 12px;
-    }
-
-    .article-wrap {
-      position: relative;
-    }
-    .article-info-wrap {
-      word-wrap: break-word;
-    }
-  </style>
 
   <body id="body">
     <!-- 导航栏 -->

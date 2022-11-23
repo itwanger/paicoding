@@ -49,7 +49,7 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
         // PDF
         SideBarDTO pdf = sidebarService.pdfSideBar();
 
-        return Arrays.asList(recommend, pdf);
+        return Arrays.asList(pdf, recommend);
     }
 
     /**
