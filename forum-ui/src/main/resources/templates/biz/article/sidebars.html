@@ -25,5 +25,10 @@
         关于
       </div>
     </div>
+    <div th:case="5">
+      <div th:replace="plugins/side/side-column :: side_column(${sidebar})">
+        教程
+      </div>
+    </div>
   </div>
 </div>

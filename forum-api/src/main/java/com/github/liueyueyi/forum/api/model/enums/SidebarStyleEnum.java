@@ -12,7 +12,8 @@ public enum SidebarStyleEnum {
     NOTICE(1),
     ARTICLES(2),
     RECOMMEND(3),
-    ABOUT(4);
+    ABOUT(4),
+    COLUMN(5);
 
     private int style;
 

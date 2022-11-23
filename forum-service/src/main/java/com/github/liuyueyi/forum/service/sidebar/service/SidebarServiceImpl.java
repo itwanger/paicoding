@@ -36,11 +36,27 @@ public class SidebarServiceImpl implements SidebarService {
 
     @Override
     public List<SideBarDTO> queryHomeSidebarList() {
-        return Arrays.asList(noticeSideBar(), hotArticles(), recommendSideBar(), aboutSideBar());
+        return Arrays.asList(noticeSideBar(), columnSideBar(), hotArticles());
     }
 
     private SideBarDTO aboutSideBar() {
         return new SideBarDTO().setTitle("关于社区").setContent("技术社区是一个技术学习交流平台，你可以从中获取到大量的学习资料，甚至从 0 到 1 搭建该社区的全套教程，无论是工作、学习，还是面试，都能给予非常大的帮助，同时该平台也能帮你答疑解惑，一个人可以走得很快，但是一群人才能走得更远，欢迎加入我们！").setStyle(SidebarStyleEnum.ABOUT.getStyle());
+    }
+
+    private SideBarDTO columnSideBar() {
+        List<ConfigDTO> columnList = configService.getConfigList(ConfigTypeEnum.COLUMN);
+        List<SideBarItemDto> items = new ArrayList<>(columnList.size());
+        columnList.forEach(configDTO -> {
+
+        });
+        // TODO 精选教程的
+        items.add(new SideBarItemDto()
+                .setName("Java程序员进阶之路")
+                .setTitle("这是一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。")
+                .setUrl("/column/1/1")
+                .setImg("https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4ba0bc79579c488eb79df93cecd12390~tplv-k3u1fbpfcp-watermark.image")
+        );
+        return new SideBarDTO().setTitle("\uD83D\uDC8E 精选教程").setItems(items).setStyle(SidebarStyleEnum.COLUMN.getStyle());
     }
 
     private SideBarDTO recommendSideBar() {
@@ -67,13 +83,20 @@ public class SidebarServiceImpl implements SidebarService {
                 configTags = Splitter.on(",").splitToStream(configDTO.getTags()).map(s -> Integer.parseInt(s.trim())).collect(Collectors.toList());
             }
             items.add(new SideBarItemDto()
+                    .setName(configDTO.getName())
                     .setTitle(configDTO.getContent())
                     .setUrl(configDTO.getJumpUrl())
                     .setTime(configDTO.getCreateTime().getTime())
                     .setTags(configTags)
             );
         });
-        return new SideBarDTO().setTitle("公告").setItems(items).setStyle(SidebarStyleEnum.NOTICE.getStyle());
+        return new SideBarDTO()
+                .setTitle("\uD83D\uDC4F 关于技术派")
+                // TODO 知识星球的
+                .setImg("https://paicoding-oss.oss-cn-hangzhou.aliyuncs.com/paicoding-zsxq.jpg")
+                .setUrl("https://www.yuque.com/itwanger/ydx81p/nksgcaox959w7ie9")
+                .setItems(items)
+                .setStyle(SidebarStyleEnum.NOTICE.getStyle());
     }
 
     /**
@@ -84,6 +107,6 @@ public class SidebarServiceImpl implements SidebarService {
     private SideBarDTO hotArticles() {
         PageListVo<SimpleArticleDTO> vo = articleReadService.queryHotArticlesForRecommend(PageParam.newPageInstance(1,5));
         List<SideBarItemDto> items = vo.getList().stream().map(s -> new SideBarItemDto().setTitle(s.getTitle()).setUrl("/article/detail/" + s.getId()).setTime(s.getCreateTime().getTime())).collect(Collectors.toList());
-        return new SideBarDTO().setTitle("热门推荐").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
+        return new SideBarDTO().setTitle("\uD83D\uDC4D 热门文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
     }
 }
