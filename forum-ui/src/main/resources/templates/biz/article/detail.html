@@ -21,10 +21,10 @@
 
                 <!--  评论  -->
                 <div th:replace="plugins/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"></div>
-                <hr/>
-                <div>
+
+                <div class="correlation-article bg-color-white">
                     <!-- 关联推荐 -->
-                    <h4>相关推荐</h4>
+                    <h4 class="correlation-article-title">相关推荐</h4>
                     <div class="container-bg-light">
                         <div id="articleList"></div>
                     </div>
@@ -72,9 +72,11 @@
     commentContent.on('input propertychange', function () {
         const val = $(this).val();
         if (val) {
-            $("#commentBtn").attr("disabled", false);
+            $("#commentBtn").attr("disabled", false)
+                .removeClass("c-btn-disabled");
         } else {
-            $("#commentBtn").attr("disabled", true);
+            $("#commentBtn").attr("disabled", true)
+                .addClass("c-btn-disabled");
         }
     });
 
@@ -94,6 +96,7 @@
             "commentContent": content
         };
         post("/comment/api/post", params, function (data) {
+            // 使用 Ajax 的方式
             let url = location.href;
             if (url.indexOf("#commentList") === -1) {
                 location.href = url + "#commentList";

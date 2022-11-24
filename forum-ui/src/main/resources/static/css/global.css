@@ -20,6 +20,8 @@ body {
   --pai-color-3-gray: #8a919f;
   /*另外一种灰 深一点*/
   --pai-color-4-gray: #515767;
+  /*disable 的灰*/
+  --pai-color-5-gray: #ddd;
   /*偏黑色*/
   --pai-color-3-black: #212529;
   /*背景色*/
@@ -60,6 +62,24 @@ a {
 a:hover {
   text-decoration: none;
   color: var(--pai-brand-2-hover);
+}
+
+input:focus {
+  border: 1px solid var(--pai-brand-3-click);
+  outline: none;
+}
+
+textarea {
+  resize: none;
+}
+
+input::placeholder, textarea::placeholder {
+  font-size: 14px;
+}
+
+textarea:focus {
+  border: 1px solid var(--pai-brand-3-click);
+  outline: none;
 }
 
 /*需要背景色主动添加，一种浅灰色，腾讯云社区的背景色*/
@@ -862,11 +882,6 @@ a:hover {
 
 .border-search {
   border-width: 1px;
-}
-
-input:focus {
-  border: 1px solid var(--pai-brand-3-click);
-  outline: 1px solid var(--pai-brand-3-click);
 }
 
 .svg-inline--fa.fa-w-10 {
@@ -2525,6 +2540,183 @@ a:hover .join-days {
 
 /*点赞区域*/
 
+/* 评论列表 */
+.common-item-content {
+  margin-left: 10px;
+  flex: 1;
+  padding-top: 8px;
+}
+
+.common-item-content-head {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 14px;
+  color: #999;
+}
+
+.common-item-content-value {
+  font-size: 14px;
+  line-height: 24px;
+  color: #333;
+  margin: 10px 0 0;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.comment-write-wrap {
+  display: flex;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+.comment-write-img {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+  border-radius: 50%;
+}
+
+.common-write-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 1;
+}
+
+.comment-write-textarea {
+  width: 100%;
+  border: 1px solid var(--pai-color-2-gray);
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+}
+
+.comment-write-btn {
+  border-radius: 32px;
+}
+
+.c-btn-disabled, .c-btn-disabled:hover {
+  background-color: var(--pai-color-5-gray);
+  border-color: var(--pai-color-5-gray);
+  color: var(--pai-color-2-gray);
+  cursor: default;
+}
+
+.comment-item-wrap,
+.comment-item-wrap-second {
+  display: flex;
+  margin-bottom: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pai-hr-color-1);
+}
+
+.comment-item-wrap-second {
+  margin-left: 50px;
+  background-color: #f7f8fa;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.comment-item-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 1px solid var(--pai-color-5-gray);
+}
+
+.ui-message {
+  box-shadow: inset 0 0 0 1px #a9d5de, 0 0 0 0 transparent;
+  background: #f8f8f9;
+  border-radius: 0.28571429rem;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.4285em;
+  margin: 1em 0;
+  min-height: 1em;
+  padding: 1em 1.5em;
+  position: relative;
+  transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease,
+  box-shadow 0.1s ease;
+  color: #276f86;
+  font-size: 0.8em;
+}
+
+/*全部评论*/
+.all-comment {
+  padding: 20px;
+}
+
+.all-comment-title {
+  font-size: 18px;
+  border-bottom: 1px solid var(--pai-hr-color-1);
+  padding-bottom: 12px;
+}
+
+.all-comment-title em {
+  font-weight: 500;
+  color: var(--pai-brand-1-normal);
+}
+
+/* 评论的点赞回复 */
+.action-box {
+  margin-top: 8px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.action-box .item,
+.action-box {
+  display: flex;
+  align-items: center;
+}
+
+.action-box .item {
+  margin-right: 16px;
+  line-height: 22px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--pai-color-2-gray);
+}
+
+.action-box .item svg {
+  fill: #8a919f;
+  margin-right: 4px;
+}
+
+.action-box .item:hover {
+  color: #1171ee;
+}
+
+.action-box .item:hover svg {
+  fill: #1171ee;
+}
+
+.action-box .item.active {
+  color: #1e80ff;
+}
+
+.action-box .item.active svg {
+  fill: #1e80ff;
+}
+
+/*文章评论*/
+
+.correlation-article {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.correlation-article-title {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+/*文章相关推荐*/
 
 /*文章详情页*/
 
