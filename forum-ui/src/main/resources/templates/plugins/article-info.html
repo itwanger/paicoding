@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <!-- 文章内容 -->
-<section th:fragment="article_info(article, author)" class="article-info-wrap com-2-panel col-2-article J-articlePanel">
+<section th:fragment="article_info(article, author)"
+         class="article-info-wrap com-2-panel col-2-article J-articlePanel">
   <span class="com-2-mark-triangle article-mark"><span class="mark-cnt">原创</span></span>
   <div id="postsTitle"
        class="article-info-title"
@@ -34,12 +35,15 @@
   <div th:if="${!#strings.isEmpty(article.cover)}">
     <img th:src="${article.cover}"
          src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
-         class="detail-head-img"
-    />
+         class="detail-head-img"/>
   </div>
 
   <div id="articleContent"
        class="article-content"></div>
+
+  <!--  点赞放这里-->
+  <div th:replace="plugins/article/praise :: praise(${article})"></div>
+
   <!-- 再次确认 Modal -->
   <div class="modal fade"
           id="deleteModal"
@@ -48,8 +52,7 @@
           tabindex="-1"
           role="dialog"
           aria-labelledby="deleteModalDropLabel"
-          aria-hidden="true"
-  >
+          aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

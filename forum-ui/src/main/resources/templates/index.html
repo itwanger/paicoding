@@ -34,12 +34,6 @@
     <div th:replace="layout/footer :: footer"></div>
 </div>
 
-<script src="/js/jquery.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/biz/loadMore.js"></script>
-<script src="/js/toastr.min.js"></script>
-<script src="/js/md5.min.js"></script>
-<script src="/js/biz/forum.js"></script>
 <script th:inline="javascript">
     const archiveId = [[${vo.categoryId}]]
     const category = [[${ vo.currentCategory }]]

@@ -19,8 +19,6 @@
                 <!-- 正文 -->
                 <div th:replace="plugins/article-info :: article_info(${vo.article}, ${vo.author})"></div>
 
-                <div th:replace="plugins/article/praise"></div>
-
                 <!--  评论  -->
                 <div th:replace="plugins/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"></div>
                 <hr/>
@@ -48,11 +46,6 @@
     <div th:replace="layout/footer :: footer"></div>
 </div>
 
-<script src="/js/marked.min.js"></script>
-<script src="/js/biz/forum.js"></script>
-<script src="/js/biz/loadMore.js"></script>
-<script src="/js/biz/toolaction.js"></script>
-<link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css" rel="stylesheet">
 <script th:inline="javascript">
     // 内容渲染
     const articleId = [[${vo.article.articleId}]];
@@ -173,10 +166,10 @@
             if (praised) {
                 // 点赞
                 praisedCount += 1;
-                $("#praiseFloatBtn").addClass("active")
+                $("#praiseFloatBtn, #praiseBtn").addClass("active")
             } else {
                 praisedCount -= 1;
-                $("#praiseFloatBtn").removeClass("active")
+                $("#praiseFloatBtn, #praiseBtn").removeClass("active")
             }
 
             if (praisedCount > 0) {
@@ -189,12 +182,10 @@
         });
     }
 
-    $("#praiseFloatBtn").on('click', function () {
-        praiseFunc()
-    })
-    $("#praiseBtn").on('click', function () {
-        praiseFunc()
-    })
+    // 点赞
+    $("#praiseFloatBtn, #praiseBtn").on('click', function () {
+        praiseFunc();
+    });
 
     // 收藏
     let collectionCount = [[${vo.article.count.collectionCount}]]

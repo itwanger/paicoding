@@ -3,14 +3,21 @@
   <footer th:fragment="footer" class="footer-wrap">
     <div class="foot">
       <span th:text="${global.siteInfo.websiteRecord}">鄂ICP备18017282号</span>
-      <a
-        class="text-reset"
+      <a class="text-reset"
         href="https://www.hhui.top"
         th:text="'© 2016-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 技术派'"
-        target="_blank"
-      >
+        target="_blank">
         © 2016-2022 技术派
       </a>
     </div>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/toastr.min.js"></script>
+    <script src="/js/md5.min.js"></script>
+    <script src="/js/marked.min.js"></script>
+    <script src="/js/biz/forum.js"></script>
+    <script src="/js/biz/loadMore.js"></script>
+    <script src="/js/biz/toolaction.js"></script>
   </footer>
 </html>

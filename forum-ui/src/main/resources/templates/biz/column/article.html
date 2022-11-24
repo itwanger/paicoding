@@ -148,11 +148,12 @@
               }
 
               if (praisedCount > 0) {
-                  $("#praiseFloatBtn").addClass("with-badge")
-                  $('#praiseFloatBtn').attr("badge", praisedCount)
+                $(".approval-tips-line").append("<img src=''>");
+                $("#praiseFloatBtn").addClass("with-badge")
+                $('#praiseFloatBtn').attr("badge", praisedCount)
               } else {
-                  $("#praiseFloatBtn").removeClass("with-badge")
-                  $('#praiseFloatBtn').removeAttr("badge")
+                $("#praiseFloatBtn").removeClass("with-badge")
+                $('#praiseFloatBtn').removeAttr("badge")
               }
           });
       })
