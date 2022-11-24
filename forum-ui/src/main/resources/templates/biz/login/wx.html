@@ -40,9 +40,6 @@
 </div>
 
 <div th:replace="layout/footer :: footer"></div>
-<script src="/js/jquery.min.js"></script>
-<script src="/js/biz/login.js"></script>
-<script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
 
 <script th:inline="javascript">
     const stateTag = document.getElementById('state');

@@ -13,9 +13,9 @@ body {
   /*消息提醒点*/
   --pai-brand-6-mq: #f85959;
   /*颜色白色*/
-  --pai-color-1-normal: #fff;
+  --pai-color-fff-normal: #fff;
   /*浅灰色*/
-  --pai-color-2-gray: #999;
+  --pai-color-999-gray: #999;
   /*另外一种灰*/
   --pai-color-3-gray: #8a919f;
   /*另外一种灰 深一点*/
@@ -25,7 +25,9 @@ body {
   /*偏黑色*/
   --pai-color-3-black: #212529;
   /*背景色*/
-  --pai-bg-white-1: #fff;
+  --pai-bg-white-fff: #fff;
+  /*边框颜色*/
+  --pai-border-color-1: #d2d9e7;
   --pai-bg-light-1: #eeeeee;
   /*浅一点的颜色*/
   --pai-bg-light-2: #f7f8fa;
@@ -89,7 +91,7 @@ textarea:focus {
 
 /*纯白色*/
 .bg-color-white {
-  background-color: var(--pai-bg-white-1);
+  background-color: var(--pai-bg-white-fff);
 }
 
 .home {
@@ -131,6 +133,59 @@ textarea:focus {
   border-bottom: 1px solid #f2f3f5;
   border-radius: 0;
 }
+
+
+
+.com-widget-global {
+  position: fixed;
+  right: 40px;
+  bottom: 80px;
+  z-index: 300;
+  width: 46px;
+}
+
+.com-widget-global {
+  right: 20px;
+}
+
+.com-widget-global .widget-btn {
+  box-sizing: border-box;
+  margin-top: -1px;
+  width: 46px;
+  height: 44px;
+  border: 1px solid var(--pai-border-color-1);
+  text-align: center;
+  background-color: #fff;
+  font-size: 12px;
+  line-height: 42px;
+  color: var(--pai-color-999-gray);
+}
+
+.com-widget-global .widget-back2top {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: 0;
+  border-color: transparent;
+  background-color: #f3f5f9;
+  transition: all .2s ease-in-out;
+  outline: none;
+}
+
+.com-widget-global .widget-back2top:before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  width: 22px;
+  height: 12px;
+  background-image: url(../img/widget-top_2e4.svg);
+}
+
+.com-widget-global .widget-back2top:hover {
+  background-color: rgba(255,105,0,0.15);
+}
+
+/*回到顶部*/
 
 /*评论*/
 .custom-empty {
@@ -1155,7 +1210,7 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   cursor: pointer;
   position: relative;
   margin-right: 24px;
@@ -1374,7 +1429,7 @@ textarea:focus {
   font-size: 14px;
   display: flex;
   align-items: center;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   padding-bottom: 16px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--pai-hr-color-1);
@@ -1901,7 +1956,7 @@ textarea:focus {
   margin-top: 4px;
   font-size: 14px;
   line-height: 24px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -1932,7 +1987,7 @@ textarea:focus {
   margin-top: 20px;
   margin-bottom: 12px;
   line-height: 20px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
 }
 
 .com-2-panel-subhd:before {
@@ -2052,7 +2107,7 @@ textarea:focus {
   margin-top: 4px;
   font-size: 14px;
   line-height: 24px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -2194,7 +2249,7 @@ textarea:focus {
 
 .join-days {
   font-size: 12px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
 }
 
 a:hover .join-days {
@@ -2227,7 +2282,7 @@ a:hover .join-days {
   padding-right: 20px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2309,7 +2364,7 @@ a:hover .join-days {
   text-align: center;
   font-size: 12px;
   line-height: 20px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   padding-top: 5px;
   padding-bottom: 5px;
 }
@@ -2422,7 +2477,7 @@ a:hover .join-days {
 
 .ebook-home-info .ebook-home-view {
   font-size: 13px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   line-height: 18px;
   padding-left: 20px;
   background: url(../img/eye.png) no-repeat 0/16px auto;
@@ -2430,7 +2485,7 @@ a:hover .join-days {
 
 .ebook-home-info .ebook-home-download {
   font-size: 13px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   line-height: 18px;
   padding-left: 16px;
   margin-left: 16px;
@@ -2491,7 +2546,7 @@ a:hover .join-days {
 .article-heart .approval-tips-line {
   position: relative;
   margin-bottom: 15px;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   font-size: 14px;
 }
 
@@ -2502,7 +2557,7 @@ a:hover .join-days {
   left: -115px;
   height: 2px;
   width: 105px;
-  background: linear-gradient(270deg, var(--pai-brand-1-normal), var(--pai-color-1-normal))
+  background: linear-gradient(270deg, var(--pai-brand-1-normal), var(--pai-color-fff-normal))
 }
 
 .article-heart .approval-tips-line:after {
@@ -2512,7 +2567,7 @@ a:hover .join-days {
   right: -115px;
   height: 2px;
   width: 105px;
-  background: linear-gradient(90deg, var(--pai-brand-1-normal), var(--pai-color-1-normal))
+  background: linear-gradient(90deg, var(--pai-brand-1-normal), var(--pai-color-fff-normal))
 }
 
 .article-heart .approval-img {
@@ -2588,7 +2643,7 @@ a:hover .join-days {
 
 .comment-write-textarea {
   width: 100%;
-  border: 1px solid var(--pai-color-2-gray);
+  border: 1px solid var(--pai-color-999-gray);
   border-radius: 4px;
   padding: 8px 16px;
   margin-bottom: 10px;
@@ -2601,7 +2656,7 @@ a:hover .join-days {
 .c-btn-disabled, .c-btn-disabled:hover {
   background-color: var(--pai-color-5-gray);
   border-color: var(--pai-color-5-gray);
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
   cursor: default;
 }
 
@@ -2680,7 +2735,7 @@ a:hover .join-days {
   line-height: 22px;
   font-size: 12px;
   cursor: pointer;
-  color: var(--pai-color-2-gray);
+  color: var(--pai-color-999-gray);
 }
 
 .action-box .item svg {
