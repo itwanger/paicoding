@@ -1,57 +1,61 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
-<!-- 消息通知 -->
-<div th:fragment="notify_comment_item(msg)" class="notification">
-    <a th:href="'/user/home?userId=' + ${msg.operateUserId}"
-       class="" target="_blank">
-        <img th:src="${msg.operateUserPhoto}"
-             class="lazy avatar"
-             loading="lazy"></a>
-    <div class="right">
-        <div class="top">
-            <div class="content">
-                <div class="profile">
-                    <a th:href="'/user/home?userId=' + ${msg.operateUserId}"
-                       class=""
-                       target="_blank">
-                        <span class="name" th:text="${msg.operateUserName}">一灰灰</span>
-                    </a>
-                    评论了你的文章
-                    <a th:href="'/article/detail/' + ${msg.relatedId}" style="color:blue">
-                        <span th:text="${msg.relatedInfo}" class="title-article">万字总结：分布式系统的38个知识点</span>
-                    </a>
-                </div>
-                <div class="comment" th:text="${msg.msg}">m</div>
-            </div>
+  <!-- 消息通知 -->
+  <div th:fragment="notify_comment_item(msg)" class="notification">
+    <a
+      th:href="'/user/home?userId=' + ${msg.operateUserId}"
+      class=""
+      target="_blank"
+    >
+      <img
+        th:src="${msg.operateUserPhoto}"
+        class="notification-img"
+        loading="lazy"
+      />
+    </a>
+    <div class="notification-right">
+      <div class="notification-content">
+        <div class="profile">
+          <a
+            th:href="'/user/home?userId=' + ${msg.operateUserId}"
+            class=""
+            target="_blank"
+          >
+            <span class="name" th:text="${msg.operateUserName}">一灰灰</span>
+          </a>
+          评论了你的文章
+          <a th:href="'/article/detail/' + ${msg.relatedId}">
+            <span th:text="${msg.relatedInfo}" class="title-article">
+              万字总结：分布式系统的38个知识点
+            </span>
+          </a>
         </div>
-        <div class="bottom">
-            <span th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(msg.createTime)}">4天前</span>
-            <div class="action">
-                <div class="action-item">
-                    <a th:href="'/article/detail/' + ${msg.relatedId}">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                         xmlns="http://www.w3.org/2000/svg" class="">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M8.89171 0.830916L9.01333 0.887911C9.82397 1.27873 11.0012 2.06767 11.0012 3.33425C11.0012 3.83643 10.7783 4.50245 10.3324 5.33231H12.8585C14.8478 5.33231 15.3046 7.08822 14.8478 8.40394L12.8585 13.6407C12.6904 14.2498 12.1306 14.6723 11.4918 14.6723H3.32843V5.33231H4.69307L7.65978 1.11199C7.84711 0.81396 8.35277 0.585483 8.89171 0.830916ZM2.33333 5.33333V14.6667H1V5.33333H2.33333ZM8.55916 2.15108L5.3856 6.66564H4.66176V13.339H11.4918C11.5331 13.339 11.5653 13.3147 11.5732 13.286L11.5899 13.2257L13.5938 7.95035C13.8572 7.17426 13.5944 6.66564 12.8585 6.66564H8.1023L9.15784 4.70121C9.50885 4.04796 9.66788 3.57289 9.66788 3.33425C9.66788 2.94739 9.25339 2.50982 8.55916 2.15108Z"
-                              fill="#86909C"></path>
-                    </svg>
-                    <span class="action-text" data-article-id="${msg.relatedId}">点赞</span>
-                    </a>
-                </div>
-                <div class="action-item">
-                    <a th:href="'/article/detail/' + ${msg.relatedId} + '#commentList'">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                         xmlns="http://www.w3.org/2000/svg" class="">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M14 1C14.3682 1 14.6667 1.29848 14.6667 1.66667V12.3333C14.6667 12.7015 14.3682 13 14 13H10.5923L8.44597 14.932C8.19243 15.1601 7.80755 15.1601 7.55402 14.932L5.40733 13H1.99999C1.63181 13 1.33333 12.7015 1.33333 12.3333V1.66667C1.33333 1.29848 1.63181 1 1.99999 1H14ZM13.3333 2.33333H2.66667V11.6667H5.91897L7.99997 13.5395L10.0806 11.6667H13.3333V2.33333ZM11.3333 6.66667C11.3333 6.48257 11.1841 6.33333 11 6.33333H5C4.81591 6.33333 4.66667 6.48257 4.66667 6.66667V7.33333C4.66667 7.51743 4.81591 7.66667 5 7.66667H11C11.1841 7.66667 11.3333 7.51743 11.3333 7.33333V6.66667Z"
-                              fill="#86909C"></path>
-                    </svg>
-                    <span class="action-text">回复</span>
-                    </a>
-                </div>
-            </div>
+      </div>
+      <div class="notification-comment" th:text="${msg.msg}">m</div>
+      <div class="notification-bottom">
+        <span
+          class="notification-time"
+          th:text="${T(com.github.liuyueyi.forum.core.util.DateUtil).time2day(msg.createTime)}"
+        >
+          4天前
+        </span>
+        <div class="notification-action">
+          <div class="notification-action-item">
+            <img
+              class="read-comment-praise"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJ9SURBVHgB7VZNbtNQEP7GP7AkN8DcoJyA5gRNTwCR2kqsUm9YEKEaoZRl0hUSBLWcAHOCpjdIT1AfIewgTjzM+AccxwHXLRYS/STnvbyxZ743b34e8L+DcEMMhu+fERk7DLTAuAwRjjz3eVD1+xsROD75eARmr7AczDlsVyVhoCbeDt85mXHmqLtkbst0Ko9jk31aVU9tAgvYW7FxYNJ3D85eufuTOZtKYiZu3X4z/LBdRU9tAia4E0+YL7I1z+3OmPEpkWOrip7aBED0RAcb7K8KeBb/alD+LQIa+TI48kxfuAfTVSlVMlybgAafpN1RYgujopwIOzpGEhuogGuloTc8bd2j5TmS8/VfHu7t5uUaeCaRygORPaqi00JFJAVn2UuNa667xXfEeJZ+rePR+Kool7gIQg67+RpBJTvo5QMoZHPXxFLW8Tld2lhoUqMOfg/JlKjdT2Pnpwf0bDlx3worG1EnPlENF0m5OayO5+7NyjRLHXgMfCsNQhumrBviRfRAhnqyu0KAYXmpcX/BfKKekL+dvBIheOUddkuNK7QO6A43ycXDvolYr5OtGTnlD3VU41rVZLdfccvIipMYDdYINAHZZJyicgR+4wQ0hbVH6Px7RBeNE9BM0lGbVxorTRNImhcxf8mvNxcDafOywBM0TUCqqEa/I09QbF6NECDQdjKuN6hGCJSlX2MENqXfGgFKS6hlmA9wi7hvLJ/qWEy/DL96AfMlEXWkU/mD0XiCkjud7kRk56iOltwRYz3ShM7KXlhpx4PheBR3qxzS6zbSi0YtyOZe9919D38ioNC2vIDl6NyQC2bWtzWVomvf93gWwg7KXH+HfwY/AGsn+Lf3Dim6AAAAAElFTkSuQmCC"
+            />
+            <span class="action-text">点赞</span>
+          </div>
+          <div class="notification-action-item">
+            <img
+              class="read-comment-praise"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKRSURBVHgB7VZNbtpQEJ55BlR15RvUOUHTG5ATJD1BQ9NU6gq8JKiKoyrJ0u2qUmkFOUGaE5TegJwg7gnqLRh7MvMwwiDbYHCUDZ9kHph5M9+bN38AO+zwzEAoiEv3xz4v/KAFiK/0S6J/qPCBoui+Y38cFlC3HgHH7Zk1FTXZUIt/mivEPVY6GFFw4difPNiWwNW3X+dLhj1iA3JqProXq7EQ8TVoz4A1147OWfPkAjYhcO1+twirt7FSEexPiG4+26cDyMEXt1s3AI7Z+LsZ4TEFB1newBzjf2B6Gi8kaqwyvEpHFgmVtjmxcTgm401R44I2G0M2KjpEV5W9KbG0koC+8znrt47d8GFDCAk+gJCQwNyvwqS1LLNwBbHbHuQ7G99bJ4rXgY4LRPGqz4T2koda8EAERl2zIrory7hArlBnDmdSDSbHyf8WrwDVNHKV0YOyQdGNXhAPMwlgnHKjaHQPJUNBOEjamL9fhI7SMt0/Q3uu08wjoJGWLk+FZQKefLyEwIKSETcxwTCbANFfWQLAIygZCFifrjkEQq73WgixCaUziHWi+p1JIC65Hj/mpdt1oCQkq2u7+f4uk4BAGo8minguFQy2hFRXvlonqTuXgK5aRLqHc/m8vXK7LdgCE6hYskolTGtqqWnYsU+dmITJrnCvv/7sOXKSDVCBiScrJgeVBHInIokDuYqEsB5KQqgMl7uk1A4DwrpCkFLLExL0x1HAWfXCr2H4X2TOWh+wEAGB7pBQcRITzgwymvmxEilcVtp+cX1cfs20Drv2VKyDSVUPI4Ij3lRPEfFJclzXEvIQlXhioZ4QYaNjn/Q3IrAMiQmDA0wB+QGEflr/ENK6xXOXFS8QRQdFx/YdnhyP1D0hcwr1KvEAAAAASUVORK5CYII="
+            />
+            <span class="action-text">回复</span>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 </html>
