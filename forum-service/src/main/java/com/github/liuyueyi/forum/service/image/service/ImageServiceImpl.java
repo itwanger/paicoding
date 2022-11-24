@@ -1,9 +1,12 @@
 package com.github.liuyueyi.forum.service.image.service;
 
+import com.github.hui.quick.plugin.base.ImageLoadUtil;
 import com.github.hui.quick.plugin.base.constants.MediaType;
 import com.github.liuyueyi.forum.core.config.ImageProperties;
 import com.github.liuyueyi.forum.core.util.LocalDateTimeUtil;
+import com.github.liuyueyi.forum.core.util.MdImgLoader;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -25,7 +29,7 @@ import java.util.Random;
 @Slf4j
 @Service
 @EnableConfigurationProperties(ImageProperties.class)
-public class ImageServiceImpl {
+public class ImageServiceImpl implements ImageService {
 
     @Autowired
     private ImageProperties imageProperties;
@@ -33,6 +37,7 @@ public class ImageServiceImpl {
     private static final MediaType[] STATIC_IMG_TYPE = new MediaType[]{MediaType.ImagePng, MediaType.ImageJpg, MediaType.ImageWebp};
 
 
+    @Override
     public String saveImg(HttpServletRequest request) {
         MultipartFile file = null;
         if (request instanceof MultipartHttpServletRequest) {
@@ -63,6 +68,39 @@ public class ImageServiceImpl {
         }
     }
 
+    @Override
+    public String mdImgReplace(String content) {
+        List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
+        for (MdImgLoader.MdImg img : imgList) {
+            // fixme 下面可以调整为并发转存
+            if (img.getUrl().startsWith(imageProperties.getCdnHost()) ||
+                    !img.getUrl().startsWith("http")) {
+                // 已经转存过，不需要再次转存；非http图片，不处理
+                continue;
+            }
+
+            String newImg = imageProperties.getCdnHost() + saveImg(img.getUrl());
+            content = StringUtils.replace(content, img.getOrigin(), "![" + img.getDesc() + "](" + newImg + ")");
+        }
+        return content;
+    }
+
+    /**
+     * 外网图片转存
+     *
+     * @param img
+     * @return
+     */
+    public String saveImg(String img) {
+        try {
+            BufferedImage bufferedImage = ImageLoadUtil.getImageByPath(img);
+            return saveImg(bufferedImage, MediaType.ImagePng);
+        } catch (Exception e) {
+            log.error("外网图片转存异常! img:{}", img, e);
+            return null;
+        }
+    }
+
     public String saveImg(BufferedImage bf, MediaType mediaType) {
         try {
             String path = genTmpImg(mediaType.getExt());
@@ -71,7 +109,7 @@ public class ImageServiceImpl {
             ImageIO.write(bf, mediaType.getExt(), file);
             return path;
         } catch (Exception e) {
-            log.error("save file error!");
+            log.error("save file error!", e);
             return null;
         }
     }
