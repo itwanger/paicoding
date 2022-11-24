@@ -23,15 +23,18 @@ body {
   /*偏黑色*/
   --pai-color-3-black: #212529;
   /*背景色*/
-  --pai-bg-white: #eeeeee;
+  --pai-bg-white-1: #fff;
+  --pai-bg-light-1: #eeeeee;
   /*浅一点的颜色*/
-  --pai-bg-light: #f7f8fa;
+  --pai-bg-light-2: #f7f8fa;
   /*背景色浅一点*/
   --pai-bg-dark-1: #373d41;
   /*主题色深一点*/
   --pai-bg-dark-2: #2c3134;
   /*主题色更深一点*/
   --pai-bg-dark-3: #000000;
+  /*横线的颜色*/
+  --pai-hr-color-1: #f0f0f0;
   /*高度*/
   height: 100vh;
   /*外边距*/
@@ -50,10 +53,6 @@ li {
   list-style: none;
 }
 
-html, .custom-bg-color {
-  background-color: var(--pai-bg-white);
-}
-
 a {
   color: var(--pai-color-3-black);
 }
@@ -63,9 +62,14 @@ a:hover {
   color: var(--pai-brand-2-hover);
 }
 
-/*需要背景色主动添加*/
+/*需要背景色主动添加，一种浅灰色，腾讯云社区的背景色*/
 .bg-color {
-  background-color: var(--pai-bg-light);
+  background-color: var(--pai-bg-light-2);
+}
+
+/*纯白色*/
+.bg-color-white {
+  background-color: var(--pai-bg-white-1);
 }
 
 .home {
@@ -1305,7 +1309,7 @@ input:focus {
   align-items: center;
   padding-bottom: 18px;
   margin-bottom: 18px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--pai-hr-color-1);
 }
 .detail-user-name {
   font-size: 20px;
@@ -1358,7 +1362,7 @@ input:focus {
   color: var(--pai-color-2-gray);
   padding-bottom: 16px;
   margin-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--pai-hr-color-1);
 }
 
 .detail-content-title-other-img {
@@ -1510,7 +1514,7 @@ input:focus {
 
 .article-suspended-panel {
   position: fixed;
-  margin-left: -4rem;
+  margin-left: -80px;
   top: 140px;
   z-index: 2;
 }
@@ -1537,10 +1541,6 @@ input:focus {
 
 .panel-btn:hover .sprite-icon {
   color: var(--pai-color-4-gray);
-}
-
-.panel-btn:not(.share-btn).active .sprite-icon {
-  color: #1e80ff;
 }
 
 .panel-btn:not(.share-btn).active .sprite-icon.icon-collect {
@@ -1792,7 +1792,7 @@ input:focus {
 }
 .home-QR-title {
   display: flex;
-  border-bottom: 1px #f0f0f0 solid;
+  border-bottom: 1px var(--pai-hr-color-1) solid;
   margin-bottom: 20px;
   padding-bottom: 20px;
 }
@@ -2443,6 +2443,87 @@ a:hover .join-days {
   line-height: 20px;
   position: absolute;
 }
+
+/*文章底部的点赞*/
+.article-heart {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+  border-top: 1px solid var(--pai-hr-color-1);
+  padding-top: 30px;
+}
+
+.article-heart .praise-box.active {
+  color: var(--pai-brand-3-click);
+  border: 1px solid var(--pai-brand-3-click);
+}
+
+.article-heart .praise-box {
+  font-size: 27px;
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  border-radius: 30px;
+  cursor: pointer;
+  border: 1px solid var(--pai-color-3-gray);
+  color: var(--pai-color-3-gray);
+  margin-bottom: 7.5px;
+}
+
+.article-heart .approval-tips-line {
+  position: relative;
+  margin-bottom: 15px;
+  color: var(--pai-color-2-gray);
+  font-size: 14px;
+}
+
+.article-heart .approval-tips-line:before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -115px;
+  height: 2px;
+  width: 105px;
+  background: linear-gradient(270deg, var(--pai-brand-1-normal), var(--pai-color-1-normal))
+}
+
+.article-heart .approval-tips-line:after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: -115px;
+  height: 2px;
+  width: 105px;
+  background: linear-gradient(90deg, var(--pai-brand-1-normal), var(--pai-color-1-normal))
+}
+
+.article-heart .approval-img {
+  display: inline-block;
+  width: 25px;
+  margin-right: 7.5px;
+  border-radius: 50%;
+  cursor: pointer;
+  text-align: center;
+}
+
+.praise-photos {
+  text-align: center;
+}
+
+.article-heart .approval-img:last-child {
+  margin-right: 0
+}
+
+.article-heart .approval-img img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%
+}
+
+/*点赞区域*/
 
 
 /*文章详情页*/
