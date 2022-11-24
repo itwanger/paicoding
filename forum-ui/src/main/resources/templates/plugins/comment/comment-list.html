@@ -3,158 +3,10 @@
   <!-- 评论列表 -->
   <div
     th:fragment="comment_list(hotComment, comments, article)"
-    class="comment-list-wrap"
-    id="commentList"
-  >
-    <style>
-      /* 评论列表 */
-      .common-item-content {
-        margin-left: 10px;
-        flex: 1;
-        padding-top: 8px;
-      }
-
-      .common-item-content-head {
-        flex: 1;
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        line-height: 14px;
-        color: #999;
-      }
-
-      .common-item-content-value {
-        min-height: 40px;
-        font-size: 14px;
-        line-height: 25px;
-        color: #333;
-        margin: 6px 0 0;
-        word-break: break-all;
-        white-space: pre-wrap;
-      }
-
-      .comment-write-wrap {
-        display: flex;
-        justify-content: flex-start;
-        margin-bottom: 20px;
-      }
-
-      .comment-write-img {
-        font-size: 64px;
-        width: 64px;
-        height: 64px;
-        margin-right: 15px;
-        border-radius: 50%;
-      }
-
-      .common-write-content {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        flex: 1;
-      }
-
-      .comment-write-textarea {
-        width: 100%;
-        min-height: 100px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 8px 16px;
-        margin-bottom: 10px;
-      }
-
-      .comment-write-btn {
-        height: 32px;
-        padding: 4px 16px;
-        font-size: 14px;
-        border-radius: 32px;
-        border: 1px solid #d9d9d9;
-        cursor: pointer;
-      }
-
-      .comment-item-wrap,
-      .comment-item-wrap-second {
-        display: flex;
-        margin-bottom: 24px;
-        padding: 12px 0;
-        border-top: 1px solid #f5f5f7;
-      }
-
-      .comment-item-wrap-second {
-        margin-left: 50px;
-        background-color: #f7f8fa;
-        border-radius: 4px;
-        padding: 12px;
-      }
-
-      .comment-item-img {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-      }
-
-      .ui-message {
-        box-shadow: inset 0 0 0 1px #a9d5de, 0 0 0 0 transparent;
-        background: #f8f8f9;
-        border-radius: 0.28571429rem;
-        color: rgba(0, 0, 0, 0.87);
-        line-height: 1.4285em;
-        margin: 1em 0;
-        min-height: 1em;
-        padding: 1em 1.5em;
-        position: relative;
-        transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease,
-          box-shadow 0.1s ease;
-        color: #276f86;
-        font-size: 0.8em;
-      }
-
-      /* 评论的点赞回复 */
-      .action-box {
-        margin-top: 8px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      .action-box .item,
-      .action-box {
-        display: flex;
-        align-items: center;
-      }
-
-      .action-box .item {
-        margin-right: 16px;
-        line-height: 22px;
-        font-size: 14px;
-        cursor: pointer;
-        color: #8a919f;
-      }
-
-      .action-box .item svg {
-        fill: #8a919f;
-        margin-right: 4px;
-      }
-
-      .action-box .item:hover {
-        color: #1171ee;
-      }
-
-      .action-box .item:hover svg {
-        fill: #1171ee;
-      }
-
-      .action-box .item.active {
-        color: #1e80ff;
-      }
-
-      .action-box .item.active svg {
-        fill: #1e80ff;
-      }
-    </style>
-
+    class="comment-list-wrap bg-color-white"
+    id="commentList">
     <div class="comment-write-wrap">
+
       <img
         th:if="${global.isLogin}"
         th:alt="${global.user.userName}"
@@ -174,9 +26,8 @@
         <button
           id="commentBtn"
           type="button"
-          class="comment-write-btn"
-          disabled
-        >
+          class="comment-write-btn c-btn c-btn-disabled"
+          disabled>
           评论
         </button>
       </div>
@@ -184,33 +35,18 @@
 
     <!-- 评论列表 -->
     <div th:class="${(#lists.isEmpty(comments) ? ' no-comment-box' : '')}">
-      <!-- 暂无评论 -->
-      <div
-        th:if="${#lists.isEmpty(comments)}"
-        th:include="plugins/custom-empty :: custom-empty('暂无评论')"
-      ></div>
-
       <!-- 热门评论  -->
       <div th:if="${hotComment != null}" class="comment-list-wrap">
         <h4>
           热门评论
-
-          <img src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview/dist/static/hotImg.899405d3.png" _nk="FpHZ31" width="30" height="30" viewBox="0 0 1024 1024">
-<!--          <svg-->
-<!--            t="1667839474132"-->
-<!--            class="icon"-->
-<!--            viewBox="0 0 1024 1024"-->
-<!--            version="1.1"-->
-<!--            xmlns="http://www.w3.org/2000/svg"-->
-<!--            p-id="2617"-->
-<!--            width="30"-->
-<!--            height="30"-->
-<!--          >-->
-            <path
-              d="M336 972.8c-60.8-128-28.8-201.6 19.2-268.8 51.2-76.8 64-150.4 64-150.4s41.6 51.2 25.6 134.4c70.4-80 83.2-208 73.6-256 160 112 230.4 358.4 137.6 537.6 492.8-281.6 121.6-700.8 57.6-745.6 22.4 48 25.6 128-19.2 166.4-73.6-281.6-256-336-256-336 22.4 144-76.8 300.8-172.8 419.2-3.2-57.6-6.4-96-38.4-153.6-6.4 105.6-86.4 188.8-108.8 294.4C89.6 758.4 140.8 860.8 336 972.8L336 972.8z"
+          <img src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview/dist/static/hotImg.899405d3.png" _
+               nk="FpHZ31"
+               width="30"
+               height="30"
+               viewBox="0 0 1024 1024">
+            <path d="M336 972.8c-60.8-128-28.8-201.6 19.2-268.8 51.2-76.8 64-150.4 64-150.4s41.6 51.2 25.6 134.4c70.4-80 83.2-208 73.6-256 160 112 230.4 358.4 137.6 537.6 492.8-281.6 121.6-700.8 57.6-745.6 22.4 48 25.6 128-19.2 166.4-73.6-281.6-256-336-256-336 22.4 144-76.8 300.8-172.8 419.2-3.2-57.6-6.4-96-38.4-153.6-6.4 105.6-86.4 188.8-108.8 294.4C89.6 758.4 140.8 860.8 336 972.8L336 972.8z"
               p-id="2618"
-              fill="#d81e06"
-            ></path>
+              fill="#d81e06"></path>
           </svg>
         </h4>
 
@@ -221,12 +57,13 @@
       </div>
 
       <!-- 全部评论列表 -->
-      <div th:if="${!#lists.isEmpty(comments)}">
-        <h4>全部评论</h4>
-        <div th:each="comment : ${comments}" class="comment-list-wrap">
-          <div
-            th:replace="plugins/comment/comment-item :: comment_item(${comment})"
-          ></div>
+      <div class="all-comment bg-color-white" th:if="${!#lists.isEmpty(comments)}">
+        <h4 class="all-comment-title">
+          <em th:text="${#lists.size(comments)}"></em>
+          条评论
+        </h4>
+        <div class="all-comment-item" th:each="comment : ${comments}">
+          <div th:replace="plugins/comment/comment-item :: comment_item(${comment})"></div>
         </div>
       </div>
     </div>
@@ -240,8 +77,7 @@
       tabindex="-1"
       role="dialog"
       aria-labelledby="commentModalDropLabel"
-      aria-hidden="true"
-    >
+      aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
