@@ -1849,8 +1849,16 @@ input:focus {
   margin-top:-10px;
 }
 
-.hot-article .home-right-item-article-list .home-right-item-article-item:nth-child(-n+3) i {
+.hot-article .home-right-item-article-list .home-right-item-article-item:nth-child(1) i {
+  background: var(--pai-brand-6-mq);
+}
+
+.hot-article .home-right-item-article-list .home-right-item-article-item:nth-child(2) i {
   background: var(--pai-brand-5-bak);
+}
+
+.hot-article .home-right-item-article-list .home-right-item-article-item:nth-child(3) i {
+  background: var(--pai-brand-3-click);
 }
 
 .hot-article .home-right-item-article-list .home-right-item-article-item i {
