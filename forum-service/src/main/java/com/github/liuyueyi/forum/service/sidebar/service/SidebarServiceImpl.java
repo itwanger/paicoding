@@ -56,7 +56,7 @@ public class SidebarServiceImpl implements SidebarService {
                 .setUrl("/column/1/1")
                 .setImg("https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4ba0bc79579c488eb79df93cecd12390~tplv-k3u1fbpfcp-watermark.image")
         );
-        return new SideBarDTO().setTitle("\uD83D\uDC8E 精选教程").setItems(items).setStyle(SidebarStyleEnum.COLUMN.getStyle());
+        return new SideBarDTO().setTitle("精选教程").setItems(items).setStyle(SidebarStyleEnum.COLUMN.getStyle());
     }
 
     /**
@@ -116,7 +116,7 @@ public class SidebarServiceImpl implements SidebarService {
             );
         });
         return new SideBarDTO()
-                .setTitle("\uD83D\uDC4F 关于技术派")
+                .setTitle("关于技术派")
                 // TODO 知识星球的
                 .setImg("https://paicoding-oss.oss-cn-hangzhou.aliyuncs.com/paicoding-zsxq.jpg")
                 .setUrl("https://www.yuque.com/itwanger/ydx81p/nksgcaox959w7ie9")
@@ -132,6 +132,6 @@ public class SidebarServiceImpl implements SidebarService {
     private SideBarDTO hotArticles() {
         PageListVo<SimpleArticleDTO> vo = articleReadService.queryHotArticlesForRecommend(PageParam.newPageInstance(1,5));
         List<SideBarItemDto> items = vo.getList().stream().map(s -> new SideBarItemDto().setTitle(s.getTitle()).setUrl("/article/detail/" + s.getId()).setTime(s.getCreateTime().getTime())).collect(Collectors.toList());
-        return new SideBarDTO().setTitle("\uD83D\uDC4D 热门文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
+        return new SideBarDTO().setTitle("热门文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
     }
 }
