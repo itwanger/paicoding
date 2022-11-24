@@ -44,6 +44,7 @@
     </div>
     <div class="com-widget-global">
         <button class="widget-btn widget-back2top"
+                id="scrolltop"
             title="返回顶部">返回顶部</button>
     </div>
 
@@ -51,7 +52,6 @@
     <div th:replace="layout/footer :: footer"></div>
 
 </div>
-<script src="/js/jquery.min.js"></script>
 <script th:inline="javascript">
     // 内容渲染
     const articleId = [[${vo.article.articleId}]];
