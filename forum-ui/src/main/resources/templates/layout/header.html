@@ -30,6 +30,19 @@
     <link href="/css/global.css" rel="stylesheet" />
     <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/simplemde.min.css"/>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/toastr.min.js"></script>
+    <script src="/js/jquery.scrollUp.min.js"></script>
+    <script src="/js/md5.min.js"></script>
+    <script src="/js/marked.min.js"></script>
+    <script src="/js/biz/forum.js"></script>
+    <script src="/js/biz/loadMore.js"></script>
+    <script src="/js/biz/toolaction.js"></script>
+    <script src="/js/biz/login.js"></script>
+    <script src="/js/simplemde.min.js"></script>
+    <script src="/js/mock.js"
+            th:if="${!#strings.equals(global.env, 'prod')}"></script>
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />
   </head>
