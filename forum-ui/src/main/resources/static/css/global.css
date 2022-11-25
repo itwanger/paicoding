@@ -81,6 +81,46 @@ textarea:focus {
   outline: none;
 }
 
+button:focus {
+  outline: none;
+}
+
+/*接下来是 ID 的*/
+#scrollUp {
+  bottom: 82px;
+  right: 20px;
+  width: 46px;
+  height: 44px;
+  position: absolute;
+  border-color: transparent;
+  background-color: var(--pai-color-fff-normal);
+  transition: all .2s ease-in-out;
+  outline: none;
+  padding-top: 8px;
+  padding-left: 12px;
+}
+
+#scrollUp:before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  width: 22px;
+  height: 12px;
+  background-image: url(../img/widget-top_2e4.svg);
+}
+
+#scrollUp:hover {
+  background-color: rgba(255,105,0,0.15);
+}
+
+#scrollUp-active {
+  display: none;
+}
+
+/*回到顶部*/
+
+/*接下来是 class 的*/
+
 /*需要背景色主动添加，一种浅灰色，腾讯云社区的背景色*/
 .bg-color {
   background-color: var(--pai-bg-light-2);
@@ -131,39 +171,6 @@ textarea:focus {
   border-bottom: 1px solid #f2f3f5;
   border-radius: 0;
 }
-
-#scrollUp {
-  bottom: 82px;
-  right: 20px;
-  width: 46px;
-  height: 44px;
-  position: absolute;
-  border-color: transparent;
-  background-color: var(--pai-color-fff-normal);
-  transition: all .2s ease-in-out;
-  outline: none;
-  padding-top: 8px;
-  padding-left: 12px;
-}
-
-#scrollUp:before {
-  content: "";
-  display: inline-block;
-  vertical-align: middle;
-  width: 22px;
-  height: 12px;
-  background-image: url(../img/widget-top_2e4.svg);
-}
-
-#scrollUp:hover {
-  background-color: rgba(255,105,0,0.15);
-}
-
-#scrollUp-active {
-  display: none;
-}
-
-/*回到顶部*/
 
 /*评论*/
 .custom-empty {
