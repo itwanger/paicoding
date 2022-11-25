@@ -85,6 +85,7 @@ button:focus {
   outline: none;
 }
 
+
 /*接下来是 ID 的*/
 #scrollUp {
   bottom: 82px;
@@ -129,6 +130,16 @@ button:focus {
 /*纯白色*/
 .bg-color-white {
   background-color: var(--pai-bg-white-fff);
+}
+
+/*下拉菜单的颜色覆盖*/
+.dropdown-item.active, .dropdown-item:active {
+  color: var(--pai-color-fff-normal);
+  background-color: var(--pai-brand-3-click);
+}
+
+.dropdown-item:focus, .dropdown-item:hover {
+  color: var(--pai-brand-2-hover);
 }
 
 .home {
