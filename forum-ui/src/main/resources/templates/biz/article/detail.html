@@ -5,11 +5,11 @@
     <title th:text="${global.siteInfo.websiteName}">QuickFrom社区</title>
 </div>
 
-<body id="body">
+<body id="body" class="bg-color">
 <!-- 导航栏 -->
 <div th:replace="layout/navbar :: navbar"></div>
 
-<div class="home bg-color article-detail">
+<div class="home article-detail">
     <div class="col-body pg-2-article">
         <div class="com-3-layout">
             <div class="layout-main">
@@ -41,11 +41,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="com-widget-global">
-        <button class="widget-btn widget-back2top"
-                id="scrolltop"
-            title="返回顶部">返回顶部</button>
     </div>
 
     <!-- 底部信息 -->
@@ -234,6 +229,17 @@
         "page": 1
     }
     loadMore(".layout-main", "/article/api/recommend", params, "articleList");
+
+    // 回到顶端
+    $.scrollUp({
+        animation: 'fade',
+        activeOverlay: '#00FFFF',
+        scrollImg: {
+            active: true,
+            type: 'background',
+            src: '/img/top.png'
+        }
+    });
 </script>
 </body>
 </html>
