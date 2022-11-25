@@ -39,12 +39,9 @@ body {
   --pai-bg-dark-3: #000000;
   /*横线的颜色*/
   --pai-hr-color-1: #f0f0f0;
-  /*高度*/
-  height: 100vh;
   /*外边距*/
   margin: 0;
   /*溢出后隐藏*/
-  overflow: hidden;
 }
 
 /*全局的色调往前面放*/
@@ -95,7 +92,8 @@ textarea:focus {
 }
 
 .home {
-  overflow: auto;
+  /*修复返回顶部时不起效的 bug overflow 必须默认*/
+  /*overflow: auto;*/
   height: calc(100vh - 60px);
 }
 
@@ -134,45 +132,21 @@ textarea:focus {
   border-radius: 0;
 }
 
-
-
-.com-widget-global {
-  position: fixed;
-  right: 40px;
-  bottom: 80px;
-  z-index: 300;
-  width: 46px;
-}
-
-.com-widget-global {
+#scrollUp {
+  bottom: 82px;
   right: 20px;
-}
-
-.com-widget-global .widget-btn {
-  box-sizing: border-box;
-  margin-top: -1px;
   width: 46px;
   height: 44px;
-  border: 1px solid var(--pai-border-color-1);
-  text-align: center;
-  background-color: #fff;
-  font-size: 12px;
-  line-height: 42px;
-  color: var(--pai-color-999-gray);
-}
-
-.com-widget-global .widget-back2top {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  font-size: 0;
   border-color: transparent;
-  background-color: #f3f5f9;
+  background-color: var(--pai-color-fff-normal);
   transition: all .2s ease-in-out;
   outline: none;
+  padding-top: 8px;
+  padding-left: 12px;
 }
 
-.com-widget-global .widget-back2top:before {
+#scrollUp:before {
   content: "";
   display: inline-block;
   vertical-align: middle;
@@ -181,8 +155,12 @@ textarea:focus {
   background-image: url(../img/widget-top_2e4.svg);
 }
 
-.com-widget-global .widget-back2top:hover {
+#scrollUp:hover {
   background-color: rgba(255,105,0,0.15);
+}
+
+#scrollUp-active {
+  display: none;
 }
 
 /*回到顶部*/
