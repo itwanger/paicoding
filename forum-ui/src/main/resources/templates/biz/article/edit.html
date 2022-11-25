@@ -359,7 +359,14 @@
   </div>
 </div>
 
-<!-- 底部信息 -->
+<!-- TODO 去掉后会导致弹窗打不开灯问题，后续调整 -->
+<link rel="stylesheet" href="/css/simplemde.min.css"/>
+<script src="/js/simplemde.min.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/toastr.min.js"></script>
+<script src="/js/md5.min.js"></script>
+<script src="/js/biz/forum.js"></script>
 <script th:inline="javascript">
   // https://github.com/sparksuite/simplemde-markdown-editor
   var simplemde = new SimpleMDE({
