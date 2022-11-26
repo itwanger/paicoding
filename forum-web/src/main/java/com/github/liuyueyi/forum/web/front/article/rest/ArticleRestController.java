@@ -73,7 +73,7 @@ public class ArticleRestController {
         size = Optional.ofNullable(size).orElse(PageParam.DEFAULT_PAGE_SIZE);
         size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
         PageListVo<ArticleDTO> articles = articleRecommendService.relatedRecommend(articleId, PageParam.newPageInstance(page, size));
-        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", articles);
+        String html = templateEngineHelper.renderToVo("components/article/list", "articles", articles);
         return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
     }
 

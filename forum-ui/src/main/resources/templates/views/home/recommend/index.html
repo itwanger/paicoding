@@ -1,0 +1,66 @@
+<div class="home-carouse-wrap" id="carouseWrap">
+  <div class="home-carouse-inter-wrap">
+    <div class="home-carouse-item" th:each="article,iter : ${vo.topArticles}">
+      <a th:href="${'/article/detail/' + article.articleId}">
+        <img
+          th:src="${article.cover}"
+          crossorigin="anonymous"
+          th:id="'cover' + ${iter.index}"
+        />
+        <div class="home-carouse-item-body">
+          <div class="home-carouse-item-title" th:text="${article.title}"></div>
+          <div class="home-carouse-item-tag">
+            <span class="home-carouse-item-dot tag"></span>
+
+            <span class="home-carouse-item-first-text d-flex" th:each="tag: ${article.tags}" th:text="${tag.tag}">
+              JAVASCRIPT
+            </span>
+          </div>
+          <object>
+            <div class="home-carouse-item-tag">
+              <span class="home-carouse-item-dot"></span>
+              <a th:href="${'/user/' + article.author}">
+                <span th:text="${article.authorName}" class="author">
+                  楼仔，
+                </span>
+              </a>
+              <span
+                th:text="'，' + ${#dates.format(article.createTime, 'yyyy/MM/dd')}"
+              >
+                2022/10/28
+              </span>
+            </div>
+          </object>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/color-thief.umd.js"></script>
+<script>
+  // https://lokeshdhakar.com/projects/color-thief/#getting-started
+  const colorThief = new ColorThief()
+  const img = document.getElementById("cover0")
+  console.log("img:", img)
+
+  function setColor() {
+    let color = colorThief.getColor(img)
+    console.log("newColor: ", color)
+
+    let rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
+    let span = document.getElementById("carouseWrap")
+    span.style.background = rgb;
+    // fix bug excel id 4
+    $(".home-carouse-item-dot.tag").css("background", rgb);
+  }
+
+
+  if (img.complete) {
+    setColor();
+  } else {
+    img.addEventListener("load", function () {
+      setColor();
+    })
+  }
+</script>

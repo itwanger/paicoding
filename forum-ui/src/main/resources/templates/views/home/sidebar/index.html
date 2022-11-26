@@ -1,0 +1,39 @@
+<!-- 侧边栏 -->
+<div th:each="sidebar : ${vo.sideBarItems}">
+  <div th:switch="${sidebar.style}">
+    <div th:case="1">
+      <div th:replace="components/side/side-notice :: side_notice(${sidebar})">
+        通知
+      </div>
+    </div>
+    <div th:case="2">
+      <div th:if="${!#lists.isEmpty(sidebar.items)}">
+        <div
+          th:replace="components/side/side-articles :: side_articles(${sidebar})"
+        >
+          推荐
+        </div>
+      </div>
+    </div>
+    <div th:case="3">
+      <div th:replace="components/side/side-join :: side_join(${sidebar})">
+        加入
+      </div>
+    </div>
+    <div th:case="4">
+      <div th:replace="components/side/side-about :: side_about(${sidebar})">
+        关于
+      </div>
+    </div>
+    <div th:case="5">
+      <div th:replace="components/side/side-column :: side_column(${sidebar})">
+        教程
+      </div>
+    </div>
+    <div th:case="6">
+      <div th:replace="components/side/side-pdf :: side_pdf(${sidebar})">
+        PDF
+      </div>
+    </div>
+  </div>
+</div>
