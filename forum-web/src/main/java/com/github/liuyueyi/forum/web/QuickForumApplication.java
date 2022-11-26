@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.web;
 
+import com.github.liuyueyi.forum.core.util.SocketUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import com.github.liuyueyi.forum.web.global.ForumExceptionHandler;
@@ -9,7 +10,10 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -27,6 +31,7 @@ import java.util.List;
 @ServletComponentScan
 @SpringBootApplication
 public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunner {
+    private Integer webPort = null;
 
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
@@ -45,9 +50,30 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         SpringApplication.run(QuickForumApplication.class, args);
     }
 
+    /**
+     * 兼容本地启动时8080端口被占用的场景; 只有dev启动方式才做这个逻辑
+     *
+     * @return
+     */
+    @Bean
+    @ConditionalOnExpression(value = "#{'dev'.equals(environment.getProperty('env.name'))}")
+    public TomcatConnectorCustomizer customServerPortTomcatConnectorCustomizer() {
+        // 开发环境时，首先判断8080d端口是否可用；若可用则直接使用，否则选择一个可用的端口号启动
+        int port = SocketUtil.findAvailableTcpPort(8000, 10000, 8080);
+        if (port != 8080) {
+            log.info("默认8080端口号被占用，随机启用新端口号: {}", port);
+            webPort = port;
+        }
+        return connector -> connector.setPort(port);
+    }
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // 应用启动之后执行
-        log.info("启动成功，点击进入首页: {}", SpringUtil.getBean(GlobalViewConfig.class).getHost());
+        GlobalViewConfig config = SpringUtil.getBean(GlobalViewConfig.class);
+        if (webPort != null) {
+            config.setHost("http://127.0.0.1:" + webPort);
+        }
+        log.info("启动成功，点击进入首页: {}", config.getHost());
     }
 }
