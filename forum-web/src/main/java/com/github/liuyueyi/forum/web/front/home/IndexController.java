@@ -24,6 +24,6 @@ public class IndexController extends BaseViewController {
         String activeTab = request.getParameter("category");
         IndexVo vo = indexRecommendHelper.buildIndexVo(activeTab);
         model.addAttribute("vo", vo);
-        return "index";
+        return "views/home/index";
     }
 }

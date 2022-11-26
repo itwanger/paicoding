@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<!-- 左边内容，右边侧边栏 -->
+<div th:fragment="container_right_sidebar(left, right)" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-0 col-md-1 col-lg-1 col-xl-1 custom-bg-color"></div>
+        <div class="col-sm-12 col-md-7 col-lg-7 col-xl-7 custom-bg-color custom-by-both">
+            <th:block th:replace="${left}"/>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3 col-xl-3 custom-bg-color custom-by-both">
+            <th:block th:replace="${right}"/>
+        </div>
+        <div class="col-sm-0 col-md-1 col-lg-1 col-xl-1 custom-bg-color"></div>
+    </div>
+</div>
+
+<!-- 左侧边栏，右边内容 -->
+<div th:fragment="container_left_sidebar(left, right)" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-0 col-md-1 col-lg-1 col-xl-1 custom-bg-color"></div>
+        <div class="col-sm-12 col-md-3 col-lg-3 col-xl-3 custom-bg-color custom-by-both">
+            <th:block th:replace="${left}"/>
+        </div>
+        <div class="col-sm-12 col-md-7 col-lg-7 col-xl-7 custom-bg-color custom-by-both">
+            <th:block th:replace="${right}"/>
+        </div>
+        <div class="col-sm-0 col-md-1 col-lg-1 col-xl-1 custom-bg-color"></div>
+    </div>
+</div>
+
+<!-- 无侧边栏 -->
+<div th:fragment="container_all(content)" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-0 col-md-1 col-lg-1 col-xl-1 custom-bg-color"></div>
+        <div class="col-sm-12 col-md-10 col-lg-10 col-xl-10 custom-bg-color custom-by-both">
+            <th:block th:replace="${content}"/>
+        </div>
+        <div class="col-sm-0 col-md-1 col-lg-1 col-xl-1 custom-bg-color"></div>
+    </div>
+</div>
+
+</html>

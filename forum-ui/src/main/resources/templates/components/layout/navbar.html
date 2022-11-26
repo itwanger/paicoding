@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="navbar">
+    <nav
+            th:data-islogin="${global.isLogin}"
+            class="navbar navbar-expand-md container-bg-light fixed-top"
+    >
+        <div class="nav-body">
+            <a class="navbar-brand" href="/">
+                <!--          <img-->
+                <!--              th:src="${global.siteInfo.websiteLogoUrl}"-->
+                <!--              th:alt="${global.siteInfo.websiteName}"-->
+                <!--              src="/logo.svg"-->
+                <!--              width="30"-->
+                <!--              height="30"-->
+                <!--              alt=""-->
+                <!--              loading="lazy"-->
+                <!--            />-->
+                <img class="logo" src="/logo.svg"/>
+            </a>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav mr-auto">
+                    <li
+                            th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
+                            class="nav-item"
+                    >
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li
+                            th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
+                            class="nav-item"
+                    >
+                        <a class="nav-link" href="/column">教程</a>
+                    </li>
+                </ul>
+
+                <button
+                        type="button"
+                        class="btn btn-primary nav-article"
+                        th:data-target="${global.isLogin ? '' : '#loginModal'}"
+                        th:data-toggle="${global.isLogin ? '' : 'modal'}"
+                >
+                    写文章
+                </button>
+                <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
+                    <!--  待登录 -->
+                    <li class="nav-item">
+                        <a
+                                class="nav-link"
+                                href="#"
+                                data-toggle="modal"
+                                data-target="#loginModal"
+                        >
+                            登录
+                        </a>
+                    </li>
+                </ul>
+                <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
+                    <!--  已登录 -->
+                    <li class="nav-item nav-notice">
+                        <a class="nav-link navbar-count-msg-box" href="/notice/comment">
+                <span
+                        th:if="${global.msgNum != null && global.msgNum > 0}"
+                        class="navbar-count-msg"
+                ></span>
+                            <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="icon"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                            >
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path
+                                        d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"
+                                ></path>
+                                <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+                            </svg>
+                        </a>
+                    </li>
+                    <!-- Dropdown -->
+                    <li class="nav-item dropdown nav-login-head">
+                        <!-- <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown"> -->
+                        <img
+                                class="nav-login-img dropdown-toggle"
+                                style="border-radius: 50%"
+                                th:src="${global.user.photo}"
+                                data-toggle="dropdown"
+                                src="https://static.developers.pub/static/img/logo.b2ff606.jpeg"
+                                alt=""
+                                loading="lazy"
+                        />
+                        <!-- </a> -->
+                        <div class="dropdown-menu nav-login-menu">
+                            <a
+                                    th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                                    href="/admin"
+                                    target="_blank"
+                                    class="dropdown-item"
+                            >
+                                管理后台
+                            </a>
+                            <div
+                                    th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                                    class="dropdown-divider"
+                            ></div>
+                            <a
+                                    th:href="${'/user/home?userId=' + global.user.userId}"
+                                    class="dropdown-item"
+                                    target="_blank"
+                                    href="#"
+                            >
+                                个人主页
+                            </a>
+                            <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- 登录 Modal -->
+    <div th:if="${!global.isLogin}"
+         class="modal fade"
+         id="loginModal"
+         data-backdrop="static"
+         data-keyboard="false"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="loginModalDropLabel"
+         aria-hidden="true"
+    >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalDropLabel">二维码登录</h5>
+                    <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <img
+                                src="https://blog.hhui.top/hexblog/imgs/info/wx.jpg"
+                                style="max-width: 80%; padding-left: 10%"
+                        />
+                        <small>
+                            <bold>关注微信公众号，输入右边的验证码</bold>
+                            <span
+                                    id="code"
+                                    style="color: red; font-size: 2em"
+                                    th:text="''"
+                            ></span>
+                            <br/>
+                            <div id="state" style="color: blue"></div>
+                            <br/>
+                            <button id="refreshCode" class="btn btn-primary">刷新</button>
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- 非生产环境，使用模拟登陆  -->
+                    <button
+                            th:if="${!#strings.equals(global.env, 'prod')}"
+                            id="mockLogin"
+                            type="button"
+                            th:data-verify-code="''"
+                            class="btn btn-danger"
+                    >
+                        一键登录(测试用)
+                    </button>
+                </div>
+                <div id="testOutput"></div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        $(".nav-article").click(() => {
+            if ([[${global.isLogin}]]) {
+                window.location.href = "/article/edit"
+            }
+        })
+
+        /**
+         * 建立半长连接，用于实现自动登录
+         * @param code
+         */
+        function buildConnect(code) {
+            console.log("开始建立连接: ", code);
+            const stateTag = document.getElementById('state');
+            const codeTag = document.getElementById('code');
+            const subscribeUrl = "/subscribe?id=" + code;
+            const source = new EventSource(subscribeUrl);
+            source.onmessage = function (event) {
+                let text = event.data;
+                console.log("receive: " + text);
+                if (text.startsWith('refresh#')) {
+                    // 刷新验证码
+                    const newCode = text.substring(8).trim();
+                    codeTag.innerText = newCode;
+                    stateTag.innerText = '已刷新';
+                    stateTag.style.display = 'block';
+                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                        document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
+                    }
+                } else if (text === 'scan') {
+                    // 二维码扫描
+                    stateTag.innerText = '已扫描';
+                    stateTag.style.display = 'block';
+                } else if (text.startsWith('login#')) {
+                    // 登录格式为 login#cookie
+                    console.log("登录成功,保存cookie", text)
+                    document.cookie = text.substring(6);
+                    source.close();
+                    if (window.location.pathname === "/login") {
+                        // 登录成功，跳转首页
+                        window.location.href = "/";
+                    } else {
+                        // 刷新当前页面
+                        window.location.reload();
+                    }
+                }
+            };
+
+            source.onopen = function (evt) {
+                console.log("开始订阅");
+            }
+            codeTag.innerText = code;
+            stateTag.innerText = '请在五分钟内输入微信公众号内输入验证码';
+        }
+
+        $('#loginModal').on('show.bs.modal', function () {
+            console.log("登录弹窗已展示!");
+            $.ajax({
+                url: "/login/code", dataType: "json", type: "get", success: function (data) {
+                    const code = data['result']['code'];
+                    buildConnect(code);
+                    if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                        document.getElementById('mockLogin').setAttribute('data-verify-code', code);
+                    }
+                }
+            })
+        })
+
+        $('#refreshCode').click(() => {
+            $.ajax({
+                url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
+                    const code = data['result']['code'];
+                    const reconnect = data['result']['reconnect']
+                    if (reconnect) {
+                        buildConnect(code)
+                    }
+                }
+            })
+        })
+    </script>
+</div>
+</html>

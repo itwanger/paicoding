@@ -32,7 +32,7 @@ public class SearchViewController {
             IndexVo vo = indexRecommendHelper.buildSearchVo(key);
             model.addAttribute("vo", vo);
         }
-        return "biz/article/search";
+        return "views/article-search-list/index";
     }
 
 }

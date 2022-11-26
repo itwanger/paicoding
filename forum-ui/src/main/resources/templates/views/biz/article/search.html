@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+</div>
+<style>
+    .search-wrap-out {
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+    .search-wrap {
+        width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .search-list {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+</style>
+<body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="layout/navbar :: navbar"></div>
+
+    <!-- 正文内容 -->
+    <div class="search-wrap-out">
+        <div class="search-wrap">
+            <!-- 文章列表 -->
+            <div class="search-list" th:each="article : ${vo.articles.list}">
+                <div th:replace="plugins/article-card :: article_card(${article})">
+                    正文
+                </div>
+            </div>
+    
+            <div th:if="${#lists.isEmpty(vo.articles.list)}">
+                <a>没有查询到任何记录。</a>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+    <!-- 底部信息 -->
+    <!-- <div th:replace="layout/footer :: footer"></div> -->
+</body>
+
+</html>
