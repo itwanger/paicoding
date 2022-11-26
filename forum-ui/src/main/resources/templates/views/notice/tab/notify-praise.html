@@ -1,0 +1,5 @@
+<div th:if="${#strings.equalsIgnoreCase('praise',vo.selectType)}" th:each="msg: ${vo.list.list}">
+    <div th:replace="components/notice/notify-praise-item :: notify_praise_item(${msg})">
+        消息通知列表
+    </div>
+</div>
