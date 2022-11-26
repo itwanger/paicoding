@@ -22,7 +22,6 @@ import com.github.liuyueyi.forum.service.article.service.*;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +72,7 @@ public class ArticleRestController {
         size = Optional.ofNullable(size).orElse(PageParam.DEFAULT_PAGE_SIZE);
         size = Math.min(size, PageParam.DEFAULT_PAGE_SIZE);
         PageListVo<ArticleDTO> articles = articleRecommendService.relatedRecommend(articleId, PageParam.newPageInstance(page, size));
-        String html = templateEngineHelper.renderToVo("components/article/list", "articles", articles);
+        String html = templateEngineHelper.renderToVo("views/article-detail/article/list", "articles", articles);
         return ResVo.ok(new NextPageHtmlVo(html, articles.getHasMore()));
     }
 

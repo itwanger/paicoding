@@ -27,7 +27,6 @@
     <script src="/js/biz/toolaction.js"></script>
     <script src="/js/biz/login.js"></script>
     <script src="/js/simplemde.min.js"></script>
-    <script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />
   </head>

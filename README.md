@@ -50,13 +50,39 @@ mvn clean install -DskipTests=true -Pprod
 **配置文件说明**
 
 - resources
-  - application.yml: 主配置文件入口
-  - application-config.yml: 全局的站点信息配置文件
-  - logback-spring.xml: 日志打印相关配置文件
-  - schema-all.sql: 项目中所有表结构定义sql文件
-  - init-data.sql: 初始化数据sql文件
-  - schema.sql, test-data.sql: 开发阶段的sql文件，后续会删除，不用关注
+    - application.yml: 主配置文件入口
+    - application-config.yml: 全局的站点信息配置文件
+    - logback-spring.xml: 日志打印相关配置文件
+    - schema-all.sql: 项目中所有表结构定义sql文件
+    - init-data.sql: 初始化数据sql文件
+    - schema.sql, test-data.sql: 开发阶段的sql文件，后续会删除，不用关注
 - resources-env
-  - xxx/application-dal.yml: 定义数据库相关的配置信息
-  - xxx/application-image.yml: 定义上传图片的相关配置信息
-  - xxx/application-web.yml: 定义web相关的配置信息
+    - xxx/application-dal.yml: 定义数据库相关的配置信息
+    - xxx/application-image.yml: 定义上传图片的相关配置信息
+    - xxx/application-web.yml: 定义web相关的配置信息
+
+### 前端工程结构说明
+
+前端页面都放在 ui 模块中
+
+- resources/static: 静态资源文件，如css/js/image，放在这里
+- resources/templates: html相关页面
+  - views: 业务相关的页面
+    - 定义： 
+      - 页面/index.html:  这个index.html表示的是这个业务对应的主页面
+      - 页面/模块/xxx.html:  若主页面又可以拆分为多个模块页面进行组合，则在这个页面下，新建一个模块目录，下面放对应的html文件
+    - article-category-list: 对应 分类文章列表页面，
+    - article-detail: 对应文章详情页
+      - side-float-action-bar: 文章详情，左边的点赞/收藏/评论浮窗
+      - side-recommend-bar: 文章详情右边侧边栏的sidebar
+    - article-edit: 对应文章发布页
+    - article-search-list: 对应文章搜索页
+    - article-tag-list: 对应标签文章列表
+    - column-detail：对应专栏阅读详情页
+    - column-home: 对应专栏首页
+    - home: 全站主页
+    - login: 登录页面
+    - notice: 通知页面
+    - user: 用户个人页
+  - error: 错误页面
+  - components: 公用的前端页面组件
