@@ -30,8 +30,6 @@ $('#mockLogin').click(function () {
             console.log("data", data);
             if (!data) {
                 toastr.error(data.message);
-            } else {
-                toastr.info("登录成功！");
             }
         },
         error: function (data) {
