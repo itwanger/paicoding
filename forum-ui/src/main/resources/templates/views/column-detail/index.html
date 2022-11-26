@@ -129,8 +129,8 @@
       let praisedCount = [[${vo.article.count.praiseCount}]]
       let praised = [[${vo.article.praised}]]
       const isLogin = [[${global.isLogin}]]
-      const currentUserId = isLogin ? [[${global.user.userId}]] : '';
-      const currentUserAvatar = isLogin ? [[${global.user.photo}]] : '';
+      const currentUserId = isLogin ? [[${global.user != null ? global.user.userId: ''}]] : '';
+      const currentUserAvatar = isLogin ? [[${global.user != null ? global.user.photo: ''}]] : '';
       $("#praiseBtn").on('click', function () {
         if (!isLogin) {
           // 未登录，不执行相关操作
