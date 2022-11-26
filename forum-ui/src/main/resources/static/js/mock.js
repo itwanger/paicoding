@@ -19,6 +19,7 @@ $('#getToken').click(function () {
 })
 
 $('#mockLogin').click(function () {
+    console.log("mock loign 登录！！！");
     const code = this.dataset.verifyCode;
     $.ajax({
         method: 'POST',

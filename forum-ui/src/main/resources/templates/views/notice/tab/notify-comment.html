@@ -1,0 +1,10 @@
+<div
+  th:if="${#strings.equalsIgnoreCase('comment',vo.selectType)}"
+  th:each="msg: ${vo.list.list}"
+>
+  <div
+    th:replace="components/notice/notify-comment-item :: notify_comment_item(${msg})"
+  >
+    消息通知列表
+  </div>
+</div>

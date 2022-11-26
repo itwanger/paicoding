@@ -100,7 +100,7 @@ public class ArticleViewController extends BaseViewController {
             vo.setTags(Collections.emptyList());
         }
         model.addAttribute("vo", vo);
-        return "biz/article/edit";
+        return "views/article-edit/index";
     }
 
 
@@ -136,7 +136,7 @@ public class ArticleViewController extends BaseViewController {
         List<SideBarDTO> sideBars = articleRecommendService.recommend(articleDTO);
         vo.setSideBarItems(sideBars);
         model.addAttribute("vo", vo);
-        return "biz/article/detail";
+        return "views/article-detail/index";
     }
 
 
