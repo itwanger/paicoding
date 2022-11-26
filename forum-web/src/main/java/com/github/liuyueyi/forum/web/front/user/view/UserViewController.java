@@ -79,7 +79,7 @@ public class UserViewController extends BaseViewController {
 
         userHomeSelectList(vo, userId);
         model.addAttribute("vo", vo);
-        return "biz/user/home";
+        return "views/user/index";
     }
 
     /**
@@ -107,7 +107,7 @@ public class UserViewController extends BaseViewController {
 
         userHomeSelectList(vo, userId);
         model.addAttribute("vo", vo);
-        return "biz/user/home";
+        return "views/user/index";
     }
 
     /**

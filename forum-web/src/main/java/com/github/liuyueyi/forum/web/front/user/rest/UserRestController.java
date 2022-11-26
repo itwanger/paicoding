@@ -100,7 +100,7 @@ public class UserRestController {
         if (pageSize == null) pageSize = PageParam.DEFAULT_PAGE_SIZE;
         PageParam pageParam = PageParam.newPageInstance(page, pageSize);
         PageListVo<ArticleDTO> dto = articleReadService.queryArticlesByUserAndType(userId, pageParam, select);
-        String html = templateEngineHelper.renderToVo("biz/user/article-list", "homeSelectList", dto);
+        String html = templateEngineHelper.renderToVo("views/user/articles/index", "homeSelectList", dto);
         return ResVo.ok(new NextPageHtmlVo(html, dto.getHasMore()));
     }
 
@@ -125,7 +125,7 @@ public class UserRestController {
         if (!Objects.equals(loginUserId, userId) || needUpdateRelation) {
             userRelationService.updateUserFollowRelationId(followList, userId);
         }
-        String html = templateEngineHelper.renderToVo("biz/user/follow-list", "followList", followList);
+        String html = templateEngineHelper.renderToVo("views/user/follows/index", "followList", followList);
         return ResVo.ok(new NextPageHtmlVo(html, followList.getHasMore()));
     }
 }

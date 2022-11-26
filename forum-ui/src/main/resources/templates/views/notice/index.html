@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+  </div>
+
+  <body id="body">
+    <style>
+      .notice-wrap {
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        background-color: #f4f5f5;
+      }
+      .notice-nav {
+        position: sticky;
+        top: 0;
+        margin-bottom: 10px;
+        background-color: #fff;
+        border-top: 1px solid #f1f1f1;
+      }
+      .notice-nav-inner {
+        width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+      }
+      .notice-nav-item {
+        padding: 14px 0;
+        margin-right: 36px;
+        color: #515767;
+      }
+      .notice-nav-item--active {
+        padding: 14px 0;
+        margin-right: 36px;
+        color: #1e80ff;
+      }
+      .notice-content {
+        width: 1000px;
+        margin: 0 auto;
+      }
+      .notification {
+        margin-bottom: 12px;
+        display: flex;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+      }
+      .notification-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 24px;
+      }
+      .notification-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .notification-content {
+        display: flex;
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+      .notification-comment {
+        font-size: 14px;
+        width: 100%;
+        min-height: 40px;
+        background-color: #fafbfc;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #f1f1f2;
+        margin-bottom: 8px;
+      }
+      .notification a {
+        color: #007fff;
+      }
+      .notification a:hover {
+        color: #007fff !important;
+      }
+      .notification-bottom {
+        display: flex;
+        justify-content: space-between;
+      }
+      .notification-time {
+        font-size: 12px;
+        color: #ccc;
+      }
+      .notification-action {
+        display: flex;
+      }
+      .notification-action-item {
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        margin-right: 8px;
+        cursor: pointer;
+        color: #999;
+      }
+    </style>
+    <!-- 导航栏 -->
+    <div th:replace="components/layout/navbar :: navbar"></div>
+
+    <!-- 正文内容 -->
+    <div class="notice-wrap">
+      <!-- 文章列表 -->
+      <div th:fragment="category(list)" class="notice-nav">
+        <div class="notice-nav-inner">
+          <a
+            th:each="type: ${vo.unreadCountMap}"
+            th:href="'/notice/' + ${type.key}"
+            th:class="${#strings.equalsIgnoreCase(type.key,vo.selectType) ? 'notice-nav-item--active': 'notice-nav-item'}"
+            th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"
+          >
+            <small th:text="${type.value}">未读数</small>
+          </a>
+        </div>
+      </div>
+      <div class="notice-content">
+        <div id="itemList">
+          <div th:if="${#lists.isEmpty(vo.list.list)}">
+            <div class="notification" th:text="暂无通知消息"></div>
+          </div>
+          <div th:if="${!#lists.isEmpty(vo.list.list)}">
+            <div th:replace="views/notice/tab/notify-comment"></div>
+            <div th:replace="views/notice/tab/notify-reply"></div>
+            <div th:replace="views/notice/tab/notify-praise"></div>
+            <div th:replace="views/notice/tab/notify-collect"></div>
+            <div th:replace="views/notice/tab/notify-follow"></div>
+            <div th:replace="views/notice/tab/notify-system"></div>
+          </div>
+        </div>
+        <button
+          th:if="${vo.list.hasMore}"
+          id="loadMoreTag"
+          type="button"
+          class="btn btn-outline-primary btn-lg btn-block"
+          th:text="加载更多"
+        ></button>
+      </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div th:replace="components/layout/footer :: footer"></div>
+    <script th:inline="javascript">
+      const selectType = [[${vo.selectType}]].toLowerCase()
+      const params = {
+          "type": selectType,
+          "page": 2
+      }
+      nextPage("/notice/api/items", params, 'itemList', 'loadMoreTag', function () {
+          params['page'] = params['page'] + 1;
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+<!--关注or粉丝列表-->
+<div th:if="${!#lists.isEmpty(vo.followList.list)}">
+    <div class="follow-list" th:each="follow : ${vo.followList.list}">
+        <div th:replace="components/follow/follow-card :: follow_card(${follow})">
+            关注列表
+        </div>
+    </div>
+</div>
