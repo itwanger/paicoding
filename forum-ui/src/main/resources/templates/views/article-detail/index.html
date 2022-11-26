@@ -157,6 +157,8 @@
     let praisedCount = [[${vo.article.count.praiseCount}]]
     let praised = [[${vo.article.praised}]]
     const isLogin = [[${global.isLogin}]]
+    const currentUserId = isLogin ? [[${global.user.userId}]] : '';
+    const currentUserAvatar = isLogin ? [[${global.user.photo}]] : '';
 
     function praiseFunc() {
         if (!isLogin) {
@@ -167,21 +169,44 @@
         praised = !praised;
 
         praiseArticle(articleId, praised, function (data) {
+            let avatarList = $('#praiseUsers')
             if (praised) {
                 // 点赞
                 praisedCount += 1;
                 $("#praiseFloatBtn, #praiseBtn").addClass("active")
+
+                // 添加当前点赞用户的头像
+                avatarList.prepend('' +
+                    '            <a class="g-user-popover approval-img" href="/user/' + currentUserId + '">\n' +
+                    '                <img src="' + currentUserAvatar + '">\n' +
+                    '            </a>')
             } else {
+                // 取消点赞
                 praisedCount -= 1;
                 $("#praiseFloatBtn, #praiseBtn").removeClass("active")
+
+                // 移除当前点赞用户的头像
+                let subItems = avatarList.children();
+                for (let i = 0; i < subItems.length; i++) {
+                    let target = subItems[i];
+                    if (target.innerHTML.indexOf(currentUserAvatar) >= 0) {
+                        // 移除当前用户头像
+                        target.remove();
+                        break;
+                    }
+                }
             }
+
 
             if (praisedCount > 0) {
                 $("#praiseFloatBtn").addClass("with-badge")
                 $('#praiseFloatBtn').attr("badge", praisedCount)
+                $('#praiseDesc').text(String(praisedCount) + '人已点赞');
+
             } else {
                 $("#praiseFloatBtn").removeClass("with-badge")
                 $('#praiseFloatBtn').removeAttr("badge")
+                $('#praiseDesc').text('真诚点赞，诚不我欺');
             }
         });
     }
