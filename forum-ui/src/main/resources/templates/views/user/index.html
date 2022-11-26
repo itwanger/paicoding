@@ -226,14 +226,14 @@
             "followSelectType": [[${vo.followSelectType}]].toLowerCase(),
             "page": 2
         }
-        loadMore(".user-body", "/user/api/followList", params, "followList");
+        loadMore("#followList", "/user/api/followList", params, "followList");
     } else {
         const params = {
             "userId": userId,
             "homeSelectType": selectType,
             "page": 2
         }
-        loadMore(".user-body", "/user/api/articleList", params, "articleList");
+        loadMore("#articleList", "/user/api/articleList", params, "articleList");
     }
 </script>
 </body>

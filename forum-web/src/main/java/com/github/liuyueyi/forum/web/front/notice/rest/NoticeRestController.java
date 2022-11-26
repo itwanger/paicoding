@@ -86,7 +86,7 @@ public class NoticeRestController {
         NoticeResVo vo = new NoticeResVo();
         vo.setList(list);
         vo.setSelectType(type);
-        String html = templateEngineHelper.render("views/notice/notify-" + type, vo);
+        String html = templateEngineHelper.render("views/notice/tab/notify-" + type, vo);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
     }
 }

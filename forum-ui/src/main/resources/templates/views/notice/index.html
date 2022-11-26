@@ -34,6 +34,17 @@
         margin-right: 36px;
         color: #1e80ff;
       }
+      .unread-count {
+        display: inline-block;
+        color: #fff;
+        transform: scale(.8);
+        font-size: 12px;
+        padding: 2px 5px;
+        background: #f64242;
+        border-radius: 100px;
+        border: 2px solid #fff;
+        text-align: center;
+      }
       .notice-content {
         width: 1000px;
         margin: 0 auto;
@@ -130,13 +141,6 @@
             <div th:replace="views/notice/tab/notify-system"></div>
           </div>
         </div>
-        <button
-          th:if="${vo.list.hasMore}"
-          id="loadMoreTag"
-          type="button"
-          class="btn btn-outline-primary btn-lg btn-block"
-          th:text="加载更多"
-        ></button>
       </div>
     </div>
 
@@ -148,9 +152,7 @@
           "type": selectType,
           "page": 2
       }
-      nextPage("/notice/api/items", params, 'itemList', 'loadMoreTag', function () {
-          params['page'] = params['page'] + 1;
-      })
+      loadMore("#itemList", "/notice/api/items", params, "itemList")
     </script>
   </body>
 </html>

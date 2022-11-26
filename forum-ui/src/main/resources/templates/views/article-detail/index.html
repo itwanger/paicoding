@@ -228,7 +228,7 @@
         "articleId": articleId,
         "page": 1
     }
-    loadMore(".layout-main", "/article/api/recommend", params, "articleList");
+    loadMore("#articleList", "/article/api/recommend", params, "articleList");
 
     // 回到顶端
     $.scrollUp({
