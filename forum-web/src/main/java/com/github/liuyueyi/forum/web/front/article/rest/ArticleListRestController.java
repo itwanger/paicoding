@@ -44,7 +44,7 @@ public class ArticleListRestController extends BaseViewController {
                                               @RequestParam(name = "size", required = false) Long size) {
         PageParam pageParam = buildPageParam(page, size);
         PageListVo<ArticleDTO> list = articleService.queryArticlesByCategory(categoryId, pageParam);
-        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", list);
+        String html = templateEngineHelper.renderToVo("components/article/list", "articles", list);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
     }
 
@@ -62,7 +62,7 @@ public class ArticleListRestController extends BaseViewController {
                                          @RequestParam(name = "size", required = false) Long size) {
         PageParam pageParam = buildPageParam(page, size);
         PageListVo<ArticleDTO> list = articleService.queryArticlesByTag(tagId, pageParam);
-        String html = templateEngineHelper.renderToVo("biz/article/list", "articles", list);
+        String html = templateEngineHelper.renderToVo("components/article/list", "articles", list);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
     }
 }

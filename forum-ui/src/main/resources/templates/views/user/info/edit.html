@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 个人信息修改弹窗 -->
+<div class="modal fade"
+     id="saveModel"
+     data-backdrop="static"
+     data-keyboard="false"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="loginModalDropLabel"
+     aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑个人资料</h5>
+                <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="person-info">
+                    <div class="input-group">
+                        <span class="form-label">用户名</span>
+                        <input
+                                id="userName"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
+                                placeholder="请输入用户名"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">用户图像</span>
+                        <input
+                                id="photo"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
+                                placeholder="请输入用户图像"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">公司</span>
+                        <input
+                                id="company"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.company: ''}"
+                                placeholder="请输入公司"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">职位</span>
+                        <input
+                                id="position"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.position: ''}"
+                                placeholder="请输入职位"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">个人简介</span>
+                        <input
+                                id="profile"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
+                                placeholder="请输入个人简介"
+                        />
+                    </div>
+                </div>
+                <div class="person-img"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="publish" type="button" class="btn btn-primary">
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    $("#publish").on("click", function () {
+        doPostUserInfo()
+    })
+
+    function doPostUserInfo() {
+        const userId = $("#userId").text()
+        const userName = $("#userName").val()
+        const photo = $("#photo").val()
+        const company = $("#company").val()
+        const position = $("#position").val()
+        const profile = $("#profile").val()
+        const params = {
+            userId: userId,
+            userName: userName,
+            photo: photo,
+            company: company,
+            position: position,
+            profile: profile,
+        }
+
+        post("/user/api/saveUserInfo", params, function (data) {
+            console.log("返回结果:", data)
+            window.location.href = "/user/home?userId=" + userId
+        })
+    }
+</script>
+</html>

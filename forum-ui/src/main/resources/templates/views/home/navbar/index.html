@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:fragment="navbar(list)" class="home-nav-classify">
+    <div class="card-body d-flex category-wrap type-box">
+      <div class="d-flex align-content-start w-full category-list">
+        <a th:each="category : ${list}"
+                th:text="${category.category}"
+                th:href="${'?category=' + category.category}"
+                th:class="'category--item pt-2 pr-5 ' + ${(category.selected ? 'category--active' : '')}">
+          全部
+        </a>
+      </div>
+      <div class="d-flex justify-center invisible hidden w-0 category-search-input">
+        <div class="relative w-full lg:max-w-lg">
+          <form class="relative d-flex bg-transparent text-white lg:text-primary-900 m-0 z-50">
+            <input class="search-input lg:bg-transparent border-search border-gray-400 focus:border-primary-400 px-2.5 py-1.5 lg:py-1 m-1 w-full text-sm focus:outline-none "
+                   type="text"
+                   placeholder="搜你想搜..."
+                   aria-label="搜你想搜" maxlength="100" value="">
+          </form>
+          <div class="hidden search-result-block">
+            <div class="ais-Hits Hits search-has-result">
+              <ul class="ais-Hits-list">
+                <li class="ais-Hits-item">
+                  <a class="my-0 border-b py-1 px-2 border-gray-400 hover:bg-gray-400 block"
+                     href="/article/detail/">
+                    <span class="text-white text-sm hover:text-primary-200">
+                      <span class="title pre">技术派</span>
+                      <mark class="text-primary-300 bg-transparent">关键字</mark>
+                      <span class="title last">就是牛</span>
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="HitCount search-no-result text-center px-4 border-b border-gray-500 text-white">
+              <p class="mb-0">嗯... 没有找到你想要的内容，换个关键字试试吧:
+                <em>
+                  <mark class="bg-transparent font-bold text-primary-300"></mark>
+                </em>
+              </p>
+              <span class="inline-block font-medium mb-2" aria-hidden="true">¯\_(ツ)_/¯</span>
+            </div>
+          </div>
+        </div>
+        <div class="px-3 pt-2">
+          <button class="right-8 px-1 ml-1 category-cancel-btn">
+            <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="times"
+                 class="svg-inline--fa fa-times fa-w-14 fa-lg" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+              <path fill="currentColor" d="M207.6 256l107.72-107.72c6.23-6.23 6.23-16.34 0-22.58l-25.03-25.03c-6.23-6.23-16.34-6.23-22.58 0L160 208.4 52.28 100.68c-6.23-6.23-16.34-6.23-22.58 0L4.68 125.7c-6.23 6.23-6.23 16.34 0 22.58L112.4 256 4.68 363.72c-6.23 6.23-6.23 16.34 0 22.58l25.03 25.03c6.23 6.23 16.34 6.23 22.58 0L160 303.6l107.72 107.72c6.23 6.23 16.34 6.23 22.58 0l25.03-25.03c6.23-6.23 6.23-16.34 0-22.58L207.6 256z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button class="right-8 px-3 ml-4 category-search-btn">
+        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search"
+             class="svg-inline--fa fa-search fa-w-16 "
+             role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+        </svg>
+      </button>
+
+      <script  th:inline="javascript">
+        var searchBtn = $(".category-search-btn"), categoryList = $(".category-list"),
+                categorySearchInput = $(".category-search-input"),
+                cancelBtn = $(".category-cancel-btn"),
+                searchInput = $(".search-input"),
+                searchResultBlock = $(".search-result-block");
+
+        // 模板，临时变量，方便保存样式
+        var searchHasResultUl = $(".search-has-result ul", searchResultBlock),
+                searchHasResultLiTemplate = $("li",searchHasResultUl);
+        var searchNoResultTemplate = $(".search-no-result", searchResultBlock);
+
+        searchBtn.click(() => {
+          searchBtn.addClass("hidden");
+          categoryList.removeClass("w-full").addClass("hidden invisible w-0");
+          categorySearchInput.removeClass("hidden invisible w-0").addClass("w-full");
+        });
+        cancelBtn.click(() => {
+          searchBtn.removeClass("hidden");
+          categoryList.removeClass("hidden invisible w-0").addClass("w-full");
+          categorySearchInput.removeClass("w-full").addClass("hidden invisible w-0");
+        });
+
+        searchInput.on('input', function() {
+          var text = searchInput.val();
+          searchResultBlock.removeClass("hidden")
+                  .addClass("border-w-1 border-gray-400 absolute left-0 pt-1 bg-gray-500 z-10 w-full text-gray-100 overflow-hidden");
+          $(".search-no-result mark", searchResultBlock).text(text);
+
+          $.ajax({
+            url: "/search/api/hint?key=" + text,    //请求的url地址
+            dataType: "json",   //返回格式为json
+            async: false,//请求是否异步，默认为异步，这也是ajax重要特性
+            type: "GET",   //请求方式
+            success: function (data) {
+              //请求成功时处理
+              console.log("response data:", data);
+              if (!data || !data.status || data.status.code !== 0) {
+                toastr.error(data.status.msg);
+              } else {
+                var items = data.result.items;
+                if (items.length == 0) {
+                  console.log("没数据");
+                  // 重新把之前的显示出来
+                  // 有数据的 div 删除
+                  $(".search-has-result ul", searchResultBlock).empty();
+                  // 清掉没有搜索结果的模板
+                  $(".search-no-result", searchResultBlock).remove();
+
+                  // copy 新的
+                  var noResult = searchNoResultTemplate.clone();
+                  $("mark", noResult).text(text);
+                  searchResultBlock.append(noResult);
+                } else {
+                  // 有数据
+                  console.log("有数据" + items.length);
+                  // 先把没数据的模板（或者之前查找没有数据时的结果）隐藏掉
+                  $(".search-no-result", searchResultBlock).remove();
+                  // 再把有数据的 ul 里面的内容清掉
+                  $(".search-has-result ul", searchResultBlock).remove();
+
+                  // 创新一个新的结果集，遍历完一起显示
+                  var ul = searchHasResultUl.clone();
+                  ul.empty();
+
+                  $.each(items, function(key, value){
+                    var li = searchHasResultLiTemplate.clone();
+                    var href = $("a", li).attr("href");
+                    $("a", li).attr("href", href + value.id);
+
+                    // 找到关键字，高亮
+                    var title = value.title;
+                    var index =  title.indexOf(text);
+                    // 对标题进行切割
+                    // 表明 pre 就是关键字
+                    if (index <= 0) {
+                      $("span.pre", li).text("");
+                      $("mark", li).text(text);
+                      $("span.last", li).text(title.substring(text.length, title.length));
+                    } else {
+                      $("span.pre", li).text(title.substring(0, index));
+                      $("mark", li).text(text);
+                      $("span.last", li).text(title.substring(index + text.length, title.length));
+                    }
+
+                    ul.append(li);
+                  });
+
+                  ul.appendTo($(".search-has-result", searchResultBlock));
+
+                }
+              }
+            }, error: function () {
+              //请求出错处理
+              toastr.error("搜索出错啦");
+            }
+          });
+
+        });
+      </script>
+    </div>
+  </div>
+
+
+</html>
+

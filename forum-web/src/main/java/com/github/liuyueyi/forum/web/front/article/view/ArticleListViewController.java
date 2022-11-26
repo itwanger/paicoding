@@ -45,7 +45,7 @@ public class ArticleListViewController extends BaseViewController {
         vo.setArchiveId(categoryId);
         vo.setArticles(list);
         model.addAttribute("vo", vo);
-        return "biz/article/category";
+        return "views/article-category-list/index";
     }
 
     /**
@@ -64,6 +64,6 @@ public class ArticleListViewController extends BaseViewController {
         vo.setArchiveId(tagId);
         vo.setArticles(list);
         model.addAttribute("vo", vo);
-        return "biz/article/tag";
+        return "views/article-tag-list/index";
     }
 }

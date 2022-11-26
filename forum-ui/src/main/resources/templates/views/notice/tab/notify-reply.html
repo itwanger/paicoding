@@ -1,0 +1,5 @@
+<div th:if="${#strings.equalsIgnoreCase('reply',vo.selectType)}" th:each="msg: ${vo.list.list}">
+    <div th:replace="components/notice/notify-reply-item :: notify_reply_item(${msg})">
+        消息通知列表
+    </div>
+</div>
