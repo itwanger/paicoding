@@ -1,28 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <head th:fragment="head(title, links, scripts)">
-    <title
-      th:replace="${title}"
-      th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}"
-    >
+    <title th:replace="${title}" th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}">
       技术派
     </title>
-    <!-- Required meta tags -->
-    <meta
-      name="keywords"
-      content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis"
-    />
+    <meta name="keywords" content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis"/>
     <meta name="description" content="技术派" />
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no"
-    />
-    <link
-      rel="icon"
-      th:href="${global.siteInfo == null ? '' : global.siteInfo.websiteFaviconIconUrl}"
-      href="https://hhui.top/imgs/info/ico.png"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no"/>
+    <link rel="icon" href="/icon.png"/>
 
     <!-- cdn server -->
     <link href="/css/bootstrap.min.css" rel="stylesheet" />
