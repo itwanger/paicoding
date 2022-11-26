@@ -14,16 +14,16 @@
 
     <div class="praise-photos">
         <p class="approval-tips-line"
+           id="praiseDesc"
            data-defult-text="真诚点赞 诚不我欺"
            th:text="${vo.article.count.praiseCount > 0} ? ${vo.article.count.praiseCount} + '人已点赞' : '真诚点赞 诚不我欺' ">
             真诚点赞 诚不我欺
         </p>
-        <div class="approval-box">
-
-        <span class="g-user-popover approval-img"
-              th:each="item: ${vo.article.praisedUsers}">
-            <img th:src="${item.avatar}">
-        </span>
+        <div class="approval-box" id="praiseUsers">
+            <a class="g-user-popover approval-img" th:href="'/user/' + ${item.userId}"
+                  th:each="item: ${vo.article.praisedUsers}">
+                <img th:src="${item.avatar}">
+            </a>
         </div>
     </div>
 </div>

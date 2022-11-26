@@ -124,39 +124,56 @@
           document.getElementById("commentList").scrollIntoView(true);
       })
 
+
       // 点赞
       let praisedCount = [[${vo.article.count.praiseCount}]]
       let praised = [[${vo.article.praised}]]
       const isLogin = [[${global.isLogin}]]
-      $("#praiseFloatBtn").click(function () {
-          console.log("登录了么！");
-          if (!isLogin) {
-              // 未登录，不执行相关操作
-              return;
+      const currentUserId = isLogin ? [[${global.user.userId}]] : '';
+      const currentUserAvatar = isLogin ? [[${global.user.photo}]] : '';
+      $("#praiseBtn").on('click', function () {
+        if (!isLogin) {
+          // 未登录，不执行相关操作
+          return;
+        }
+        praised = !praised;
+        praiseArticle(articleId, praised, function (data) {
+          let avatarList = $('#praiseUsers')
+          if (praised) {
+            // 点赞
+            praisedCount += 1;
+            $("#praiseBtn").addClass("active")
+
+            // 添加当前点赞用户的头像
+            avatarList.prepend('' +
+                    '            <a class="g-user-popover approval-img" href="/user/' + currentUserId + '">\n' +
+                    '                <img src="' + currentUserAvatar + '">\n' +
+                    '            </a>')
+          } else {
+            // 取消点赞
+            praisedCount -= 1;
+            $("#praiseBtn").removeClass("active")
+
+            // 移除当前点赞用户的头像
+            let subItems = avatarList.children();
+            for (let i = 0; i < subItems.length; i++) {
+              let target = subItems[i];
+              if (target.innerHTML.indexOf(currentUserAvatar) >= 0) {
+                // 移除当前用户头像
+                target.remove();
+                break;
+              }
+            }
           }
 
-          praised = !praised;
 
-          praiseArticle(articleId, praised, function (data) {
-              if (praised) {
-                  // 点赞
-                  praisedCount += 1;
-                  $("#praiseFloatBtn").addClass("active")
-              } else {
-                  praisedCount -= 1;
-                  $("#praiseFloatBtn").removeClass("active")
-              }
-
-              if (praisedCount > 0) {
-                $(".approval-tips-line").append("<img src=''>");
-                $("#praiseFloatBtn").addClass("with-badge")
-                $('#praiseFloatBtn').attr("badge", praisedCount)
-              } else {
-                $("#praiseFloatBtn").removeClass("with-badge")
-                $('#praiseFloatBtn').removeAttr("badge")
-              }
-          });
-      })
+          if (praisedCount > 0) {
+            $('#praiseDesc').text(String(praisedCount) + '人已点赞');
+          } else {
+            $('#praiseDesc').text('真诚点赞，诚不我欺');
+          }
+        });
+      });
 
       // 收藏
       let collectionCount = [[${vo.article.count.collectionCount}]]

@@ -115,6 +115,7 @@ public class ArticleViewController extends BaseViewController {
     @GetMapping("detail/{articleId}")
     public String detail(@PathVariable(name = "articleId") Long articleId, Model model) {
         ArticleDetailVo vo = new ArticleDetailVo();
+        // 文章相关信息
         ArticleDTO articleDTO = articleService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
         vo.setArticle(articleDTO);
 

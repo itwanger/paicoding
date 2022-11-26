@@ -63,7 +63,7 @@
                ui.user_name as name,
                ui.photo as avatar
         FROM user_foot uf
-                 left join user_info ui on uf.document_user_id = ui.user_id
+                 left join user_info ui on uf.user_id = ui.user_id
         WHERE uf.document_type = #{type}
           AND uf.document_id = #{documentId}
           AND uf.praise_stat = 1

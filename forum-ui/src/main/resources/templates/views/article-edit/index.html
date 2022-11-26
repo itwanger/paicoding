@@ -362,11 +362,6 @@
 <!-- TODO 去掉后会导致弹窗打不开灯问题，后续调整 -->
 <link rel="stylesheet" href="/css/simplemde.min.css"/>
 <script src="/js/simplemde.min.js"></script>
-<script src="/js/jquery.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/toastr.min.js"></script>
-<script src="/js/md5.min.js"></script>
-<script src="/js/biz/forum.js"></script>
 <script th:inline="javascript">
   // https://github.com/sparksuite/simplemde-markdown-editor
   var simplemde = new SimpleMDE({
@@ -382,6 +377,17 @@
   });
 
   simplemde.toggleSideBySide();//打开实时全屏预览
+
+  // 自动从文章内提取前128个字符作为文章简介
+  $('#saveModel').on('show.bs.modal', function () {
+    let summary =  $("#summary").val();
+    if (summary.trim().length <= 0) {
+      const content = simplemde.value();
+      const size = content.length > 128? 128: content.length;
+      $("#summary").text(content.substring(0, size));
+      checkArea();
+    }
+  });
 
   //  发表文章
   $("#publish").on("click", function () {
@@ -431,6 +437,11 @@
     }
 
     const summary = $("#summary").val()
+    if(summary.length < 64 || summary.length > 128) {
+      toastr.error("简介文字字数应该在64-128之间哦!");
+      return;
+    }
+
     const articleId = $("#articleId").text()
     const params = {
       articleId: articleId,
