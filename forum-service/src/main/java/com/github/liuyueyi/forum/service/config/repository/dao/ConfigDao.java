@@ -47,6 +47,9 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
         typeList.add(ConfigTypeEnum.HOME_PAGE.getCode());
         typeList.add(ConfigTypeEnum.SIDE_PAGE.getCode());
         typeList.add(ConfigTypeEnum.ADVERTISEMENT.getCode());
+        typeList.add(ConfigTypeEnum.NOTICE.getCode());
+        typeList.add(ConfigTypeEnum.COLUMN.getCode());
+        typeList.add(ConfigTypeEnum.PDF.getCode());
 
         List<ConfigDO> configDOS = lambdaQuery()
                 .in(ConfigDO::getType, typeList)
@@ -62,11 +65,14 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
      *
      * @return
      */
-    public Integer countBanner() {
+    public Integer countConfig() {
         List<Integer> typeList = new ArrayList<>();
         typeList.add(ConfigTypeEnum.HOME_PAGE.getCode());
         typeList.add(ConfigTypeEnum.SIDE_PAGE.getCode());
         typeList.add(ConfigTypeEnum.ADVERTISEMENT.getCode());
+        typeList.add(ConfigTypeEnum.NOTICE.getCode());
+        typeList.add(ConfigTypeEnum.COLUMN.getCode());
+        typeList.add(ConfigTypeEnum.PDF.getCode());
 
         return lambdaQuery()
                 .in(ConfigDO::getType, typeList)

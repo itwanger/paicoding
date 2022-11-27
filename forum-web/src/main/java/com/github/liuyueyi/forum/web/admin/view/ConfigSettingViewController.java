@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "admin/banner/")
-public class BannerSettingViewController {
+@RequestMapping(path = "admin/config/")
+public class ConfigSettingViewController {
 
     @Autowired
-    private ConfigSettingServiceImpl bannerSettingService;
+    private ConfigSettingServiceImpl configSettingService;
 
     @ResponseBody
     @GetMapping(path = "list")
@@ -28,7 +28,7 @@ public class BannerSettingViewController {
                                          @RequestParam(name = "pageSize", required = false) Integer pageSize) {
         pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
         pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<ConfigDTO> bannerDTOPageVo = bannerSettingService.getBannerList(PageParam.newPageInstance(pageNumber, pageSize));
+        PageVo<ConfigDTO> bannerDTOPageVo = configSettingService.getConfigList(PageParam.newPageInstance(pageNumber, pageSize));
         return ResVo.ok(bannerDTOPageVo);
     }
 }

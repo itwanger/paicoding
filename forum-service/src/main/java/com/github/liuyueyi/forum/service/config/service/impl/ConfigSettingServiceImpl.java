@@ -48,18 +48,18 @@ public class ConfigSettingServiceImpl implements ConfigSettingService {
     }
 
     @Override
-    public void operateConfig(Integer configId, Integer operateType) {
+    public void operateConfig(Integer configId, Integer pushStatus) {
         ConfigDO configDO = configDao.getById(configId);
         if (configDO != null){
-            configDO.setStatus(operateType);
+            configDO.setStatus(pushStatus);
             configDao.updateById(configDO);
         }
     }
 
     @Override
-    public PageVo<ConfigDTO> getBannerList(PageParam pageParam) {
+    public PageVo<ConfigDTO> getConfigList(PageParam pageParam) {
         List<ConfigDTO> configDTOS = configDao.listBanner(pageParam);
-        Integer totalCount = configDao.countBanner();
+        Integer totalCount = configDao.countConfig();
         return PageVo.build(configDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
     }
 

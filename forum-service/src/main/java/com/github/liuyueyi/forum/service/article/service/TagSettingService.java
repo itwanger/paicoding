@@ -17,7 +17,7 @@ public interface TagSettingService {
 
     void deleteTag(Integer tagId);
 
-    void operateTag(Integer tagId, Integer operateType);
+    void operateTag(Integer tagId, Integer pushStatus);
 
     /**
      * 获取tag列表

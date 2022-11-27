@@ -17,7 +17,7 @@ public interface CategorySettingService {
 
     void deleteCategory(Integer categoryId);
 
-    void operateCategory(Integer categoryId, Integer operateType);
+    void operateCategory(Integer categoryId, Integer pushStatus);
 
     /**
      * 获取category列表

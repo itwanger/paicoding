@@ -32,7 +32,7 @@ public interface ConfigSettingService {
      *
      * @param bannerId
      */
-    void operateConfig(Integer bannerId, Integer operateType);
+    void operateConfig(Integer bannerId, Integer pushStatus);
 
     /**
      * 获取 Banner 列表
@@ -40,7 +40,7 @@ public interface ConfigSettingService {
      * @param pageParam
      * @return
      */
-    PageVo<ConfigDTO> getBannerList(PageParam pageParam);
+    PageVo<ConfigDTO> getConfigList(PageParam pageParam);
 
     /**
      * 获取公告列表
