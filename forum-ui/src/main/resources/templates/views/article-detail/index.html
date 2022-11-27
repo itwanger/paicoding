@@ -35,6 +35,9 @@
                 <!-- 用户相关信息 -->
                 <div th:replace="components/user/user-card :: user_card(${vo.author}, ${vo.article.author}, ${global.isLogin})"></div>
 
+                <!-- 文章菜单  -->
+                <div id="contentMenu" class="toc">
+                </div>
                 <!-- 活动推荐 -->
                 <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
                     <div th:replace="views/article-detail/side-recommend-bar/index">侧边通知板块</div>
@@ -67,6 +70,9 @@
             });
         });
     });
+
+    // 生成菜单
+    genTocMenu('#articleContent', '#contentMenu')
 
     // 评论相关
     const commentContent = $("#commentContent");
