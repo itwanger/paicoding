@@ -38,11 +38,11 @@ public class TagSettingRestController {
     @ResponseBody
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "tagId") Integer tagId,
-                                 @RequestParam(name = "operateType") Integer operateType) {
-        if (operateType != PushStatusEnum.OFFLINE.getCode() || operateType!= PushStatusEnum.ONLINE.getCode()) {
+                                 @RequestParam(name = "pushStatus") Integer pushStatus) {
+        if (pushStatus != PushStatusEnum.OFFLINE.getCode() && pushStatus!= PushStatusEnum.ONLINE.getCode()) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
-        tagSettingService.operateTag(tagId, operateType);
+        tagSettingService.operateTag(tagId, pushStatus);
         return ResVo.ok("ok");
     }
 }

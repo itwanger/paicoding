@@ -38,11 +38,11 @@ public class CategorySettingRestController {
     @ResponseBody
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "categoryId") Integer categoryId,
-                                 @RequestParam(name = "operateType") Integer operateType) {
-        if (operateType != PushStatusEnum.OFFLINE.getCode() || operateType!= PushStatusEnum.ONLINE.getCode()) {
+                                 @RequestParam(name = "pushStatus") Integer pushStatus) {
+        if (pushStatus != PushStatusEnum.OFFLINE.getCode() && pushStatus!= PushStatusEnum.ONLINE.getCode()) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
-        categorySettingService.operateCategory(categoryId, operateType);
+        categorySettingService.operateCategory(categoryId, pushStatus);
         return ResVo.ok("ok");
     }
 }

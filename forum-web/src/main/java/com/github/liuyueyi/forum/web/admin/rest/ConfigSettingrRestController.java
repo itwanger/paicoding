@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
-@RequestMapping(path = "admin/banner/")
-public class BanneSettingrRestController {
+@RequestMapping(path = "admin/config/")
+public class ConfigSettingrRestController {
 
     @Autowired
     private ConfigSettingServiceImpl bannerSettingService;
@@ -30,19 +30,19 @@ public class BanneSettingrRestController {
 
     @ResponseBody
     @GetMapping(path = "delete")
-    public ResVo<String> delete(@RequestParam(name = "bannerId") Integer bannerId) {
-        bannerSettingService.deleteConfig(bannerId);
+    public ResVo<String> delete(@RequestParam(name = "configId") Integer configId) {
+        bannerSettingService.deleteConfig(configId);
         return ResVo.ok("ok");
     }
 
     @ResponseBody
     @GetMapping(path = "operate")
-    public ResVo<String> operate(@RequestParam(name = "bannerId") Integer bannerId,
-                                 @RequestParam(name = "operateType") Integer operateType) {
-        if (operateType != PushStatusEnum.OFFLINE.getCode() && operateType!= PushStatusEnum.ONLINE.getCode()) {
+    public ResVo<String> operate(@RequestParam(name = "configId") Integer configId,
+                                 @RequestParam(name = "pushStatus") Integer pushStatus) {
+        if (pushStatus != PushStatusEnum.OFFLINE.getCode() && pushStatus!= PushStatusEnum.ONLINE.getCode()) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
-        bannerSettingService.operateConfig(bannerId, operateType);
+        bannerSettingService.operateConfig(configId, pushStatus);
         return ResVo.ok("ok");
     }
 }
