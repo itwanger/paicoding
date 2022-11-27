@@ -1,0 +1,241 @@
+/*<!-- 个人主页 -->*/
+.user-left-wrap {
+  background: linear-gradient(
+      203.77deg,
+      rgba(44, 128, 255, 0.2) -31.27%,
+      rgba(44, 128, 255, 0) 54.55%
+    ),
+    linear-gradient(
+      35.19deg,
+      rgba(255, 203, 154, 0.7) -24.65%,
+      rgba(255, 255, 255, 0) 38.1%
+    ),
+    rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding-top: 27px;
+  padding-bottom: 24px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-head-img {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+}
+
+.user-head-name {
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 120%;
+  color: rgb(51, 51, 51);
+  margin: 8px 0px;
+}
+
+.user-num-wrap {
+  margin: 40px auto;
+  width: 192px;
+  height: 63px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.user-head-num-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.user-head-num {
+  font-weight: 600;
+  font-size: 32px;
+  height: 42px;
+  line-height: 42px;
+  color: rgb(51, 51, 51);
+  margin-bottom: 4px;
+  text-align: center;
+}
+.achievement-wrap,
+.process-wrap {
+  background-color: rgb(255, 255, 255);
+  padding: 32px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.achievement-title,
+.process-title {
+  font-size: 20px;
+  line-height: 24px;
+  color: rgb(51, 51, 51);
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+.achievement-item {
+  height: 32px;
+  line-height: 32px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.achievement-item span {
+  font-weight: 500;
+}
+
+/* tag选择样式 */
+.tag-select-active {
+  color: #3973ff !important;
+  border-bottom: 4px solid #3973ff;
+}
+
+.tag-select {
+  color: #000000;
+  font-weight: 500;
+  margin: 0 0 0 32px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 0;
+  font-size: 20px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+.tag-select:first-child {
+  margin-left: 0;
+}
+
+.user-select-tag-wrap {
+  border-bottom: 1px solid rgb(240 240 240);
+  margin-bottom: 16px;
+}
+
+/* 整体布局 */
+.user {
+  overflow: auto;
+  padding-top: 140px;
+  height: calc(100vh - 60px);
+}
+
+.user-wrap {
+  margin: 0 auto;
+  width: 1200px;
+  display: flex;
+  margin-bottom: 20px;
+  min-height: calc(100% - 90px);
+}
+
+.user-body {
+  flex: 1;
+  border-radius: 8px;
+  padding: 32px 32px 40px;
+  background-color: #fff;
+  z-index: 10;
+}
+
+.user-left {
+  z-index: 10;
+  width: 30%;
+  margin-right: 20px;
+  border-radius: 8px;
+}
+
+/* 关注 */
+.follow-select-tag {
+  padding: 0 24px;
+  color: #333;
+  border-right: 1px solid #e6e6e6;
+  margin: 0;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.follow-select-tag:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.follow-select-tag:hover,
+.follow-select-tag-active {
+  color: #3973ff !important;
+}
+
+.follow-item {
+  display: flex;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 8px 0;
+  height: fit-content;
+  font-size: 18px;
+}
+
+.follow-item img {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  margin-right: 15px;
+  font-size: 18px;
+}
+
+.follow-item-icon {
+  width: 68px;
+  height: 24px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3973ff;
+  border: 1px solid #3973ff;
+  font-size: 12px;
+}
+
+#saveModel .modal-dialog {
+  max-width: 900px;
+}
+
+/* 个人信息编辑弹窗 */
+#saveModel .input-group {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eaeaea;
+}
+
+#saveModel .input-group:last-child {
+  border: 0;
+}
+
+#saveModel .form-label {
+  width: 80px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+}
+
+#saveModel .form-control {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  color: #1d2129;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+#saveModel .modal-body {
+  display: flex;
+  padding: 20px;
+}
+
+.person-info {
+  width: 70%;
+}

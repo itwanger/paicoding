@@ -1,0 +1,125 @@
+.home {
+  /*修复返回顶部时不起效的 bug overflow 必须默认*/
+  /*overflow: auto;*/
+  height: calc(100vh - 60px);
+}
+
+.home-wrap {
+  min-height: calc(100% - 90px);
+  padding-top: 20px;
+}
+
+.home-inter-wrap {
+  width: 1200px;
+  margin: 0 auto;
+  display: flex;
+}
+
+.home-body {
+  flex: 1;
+  margin-right: 20px;
+  background-color: #fff;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+.home-body-nav {
+  color: #262626;
+}
+
+.home-right {
+  width: 24%;
+  border-radius: 20px;
+  position: relative;
+}
+
+.home-right .card,
+.home-right .home-right-item-wrap {
+  margin-bottom: 0;
+  border-bottom: 1px solid #f2f3f5;
+  border-radius: 0;
+}
+/* 头部导航 */
+.category--item {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 2.3rem;
+  white-space: nowrap;
+}
+
+.category--item:hover {
+  color: var(--pai-brand-2-hover);
+}
+
+.category--item:first-child {
+  padding-left: 0;
+}
+
+.category--active {
+  color: var(--pai-brand-1-normal);
+}
+
+.category-wrap {
+  width: 1200px;
+  margin: 0 auto;
+  padding: 4px 0;
+}
+
+/* 头部搜索 */
+.search-has-result ul {
+  margin-bottom: 0;
+  list-style-type: none;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.77778rem;
+  margin-top: 0;
+}
+
+.search-has-result ul li a {
+  --tw-border-opacity: 1;
+  border: 0 solid;
+  border-bottom-width: 1px;
+  border-color: rgba(127, 125, 131, var(--tw-border-opacity));
+}
+
+.search-has-result ul li span.text-sm {
+  line-height: 2.4rem;
+}
+
+.hover\:bg-gray-400:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgba(127, 125, 131, var(--tw-bg-opacity));
+}
+
+.search-result-block .search-no-result mark {
+  font-size: 1.2rem;
+}
+
+.category-search-btn,
+.category-cancel-btn {
+  align-self: center;
+  justify-items: center;
+  background-color: transparent;
+  background-image: none;
+  border: none;
+}
+
+.category-search-btn:hover,
+.category-cancel-btn:hover {
+  color: var(--pai-brand-2-hover);
+}
+
+.svg-inline--fa,
+svg:not(:root).svg-inline--fa {
+  overflow: visible;
+}
+
+.svg-inline--fa.fa-w-16 {
+  width: 1.2em;
+}
+
+.svg-inline--fa.fa-w-14 {
+  width: 1em;
+}
