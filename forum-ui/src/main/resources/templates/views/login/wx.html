@@ -40,7 +40,7 @@
 </div>
 
 <div th:replace="components/layout/footer :: footer"></div>
-
+<script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
 <script th:inline="javascript">
     const stateTag = document.getElementById('state');
     const code = [[${vo.code}]];
