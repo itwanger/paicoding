@@ -124,3 +124,52 @@ const followAction = function(e) {
     e.dataset.followed = String(followed);
   });
 }
+
+
+/**
+ * 生成目录
+ * @param selector markdown对应的html内容标签
+ * @param el 生成的目录应该放的位置
+ */
+const genTocMenu = function genToc(selector, el) {
+  const tocs = document.querySelector(selector).children
+  const reg = new RegExp('[H]\\d')
+  const list = document.createDocumentFragment()
+  const style = document.createElement('style')
+  style.innerHTML = `
+    .toc{
+      height: 100%;
+      color:$menuTextActive;
+      padding:12px;
+    }
+    .toc h1 {cursor: pointer;margin-bottom: 10px;font-size: 20px;}
+    .toc h2 {cursor: pointer; padding-left: 12px;margin-bottom: 5px;font-size: 18px;}
+    .toc h3 {cursor: pointer; padding-left: 24px;margin-bottom: 5px;font-size: 16px;}
+    .toc h4 {cursor: pointer; padding-left: 36px;margin-bottom: 5px;font-size: 14px;}
+    .toc h5 {cursor: pointer; padding-left: 48px;margin-bottom: 5px;font-size: 12px;}
+    .toc h6 {cursor: pointer; padding-left: 60px;margin-bottom: 5px;font-size: 12px;}
+    .toc h1:hover {text-decoration: underline;}
+    .toc h2:hover {text-decoration: underline;}
+    .toc h3:hover {text-decoration: underline;}
+    .toc h4:hover {text-decoration: underline;}
+    .toc h5:hover {text-decoration: underline;}
+    .toc h6:hover {text-decoration: underline;}
+  `
+  for (let index = 0; index < tocs.length; index++) {
+    const item = tocs[index]
+    if (reg.test(item.nodeName)) {
+      list.appendChild(item.cloneNode(true))
+    }
+  }
+  document.querySelector(el).appendChild(style)
+  document.querySelector(el).appendChild(list)
+  document.querySelector(el).addEventListener('click', function(e) {
+    if (reg.test(e.target.nodeName)) {
+      const id = e.target.children[0].id
+      document.getElementById(id).scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
+  })
+}
