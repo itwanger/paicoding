@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.web.component;
 
 import com.github.liuyueyi.forum.core.util.MapUtils;
+import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
@@ -15,6 +16,9 @@ public class TemplateEngineHelper {
     @Autowired
     private SpringTemplateEngine springTemplateEngine;
 
+    @Autowired
+    private GlobalInitService globalInitService;
+
     /**
      * 模板渲染
      *
@@ -27,6 +31,7 @@ public class TemplateEngineHelper {
     public <T> String render(String template, String attrName, T attrVal) {
         Context context = new Context();
         context.setVariable(attrName, attrVal);
+        context.setVariable("global", globalInitService.globalAttr());
         return springTemplateEngine.process(template, context);
     }
 

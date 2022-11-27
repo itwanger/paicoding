@@ -22,10 +22,12 @@
             ></div>
 
             <!--  评论  -->
-            <div
-              th:replace="components/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"
-            >
-              评论列表
+            <div id="commentDiv">
+              <div
+                th:replace="components/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"
+              >
+                评论列表
+              </div>
             </div>
           </div>
         </div>
@@ -81,7 +83,7 @@
               "commentContent": content
           };
           post("/comment/api/post", params, function (data) {
-              location.reload();
+              document.getElementById("commentDiv").innerHTML = data;
           })
       });
 
@@ -115,7 +117,8 @@
               "topCommentId": replyBtn.attr('data-reply-top')
           };
           post("/comment/api/post", params, function (data) {
-              location.reload();
+            document.getElementById("commentDiv").innerHTML = data;
+            location.reload();
           })
       });
 

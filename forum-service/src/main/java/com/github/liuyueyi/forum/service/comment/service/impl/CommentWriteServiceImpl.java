@@ -74,7 +74,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         // 3. 发布添加/回复评论事件
         SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.COMMENT, commentDO));
         if (NumUtil.upZero(parentCommentUser)) {
-            // 评论
+            // 评论回复事件
             SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REPLY, commentDO));
         }
         return commentDO;

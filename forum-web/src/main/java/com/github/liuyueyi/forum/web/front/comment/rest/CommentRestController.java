@@ -14,11 +14,16 @@ import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
+import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
 import com.github.liuyueyi.forum.service.comment.service.CommentReadService;
 import com.github.liuyueyi.forum.service.comment.service.CommentWriteService;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
+import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
+import com.github.liuyueyi.forum.web.front.article.vo.ArticleDetailVo;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +40,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "comment/api")
 public class CommentRestController {
+    @Autowired
+    private ArticleReadService articleReadService;
 
     @Autowired
     private CommentReadService commentReadService;
@@ -44,6 +51,9 @@ public class CommentRestController {
 
     @Autowired
     private UserFootService userFootService;
+
+    @Autowired
+    private TemplateEngineHelper templateEngineHelper;
 
     /**
      * 评论列表页
@@ -72,14 +82,32 @@ public class CommentRestController {
     @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
     @ResponseBody
-    public ResVo<Boolean> save(@RequestBody CommentSaveReq req) {
+    public ResVo<String> save(@RequestBody CommentSaveReq req) {
         if (req.getArticleId() == null) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章id为空");
         }
+        ArticleDO article = articleReadService.queryBasicArticle(req.getArticleId());
+        if (article == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
+        }
+
+        // 保存评论
         req.setUserId(ReqInfoContext.getReqInfo().getUserId());
         req.setCommentContent(StringEscapeUtils.escapeHtml3(req.getCommentContent()));
-        Long commentId = commentWriteService.saveComment(req);
-        return ResVo.ok(NumUtil.upZero(commentId));
+        commentWriteService.saveComment(req);
+
+        // 返回新的评论信息，用于实时更新详情也的评论列表
+        ArticleDetailVo vo = new ArticleDetailVo();
+        vo.setArticle(ArticleConverter.toDto(article));
+        // 评论信息
+        List<TopCommentDTO> comments = commentReadService.getArticleComments(req.getArticleId(), PageParam.newPageInstance());
+        vo.setComments(comments);
+
+        // 热门评论
+        TopCommentDTO hotComment = commentReadService.queryHotComment(req.getArticleId());
+        vo.setHotComment(hotComment);
+        String content = templateEngineHelper.render("views/article-detail/comment/index", vo);
+        return ResVo.ok(content);
     }
 
     /**
