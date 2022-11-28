@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnReq;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
@@ -110,7 +111,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
-        return columnService.queryColumnArticles(columnId);
+    public List<ArticleDTO> queryColumnArticles(long columnId) {
+        return columnService.queryColumnArticlesDetail(columnId);
     }
 }
