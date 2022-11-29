@@ -1,0 +1,16 @@
+.tag-wrap-out {
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+.tag-wrap {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.tag-list {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+}

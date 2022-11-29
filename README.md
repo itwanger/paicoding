@@ -86,3 +86,19 @@ mvn clean install -DskipTests=true -Pprod
     - user: 用户个人页
   - error: 错误页面
   - components: 公用的前端页面组件
+
+
+  前端 css 全部放在 static/css 中
+
+- components: 公共组件的css
+  - navbar: 导航栏样式
+  - footer: 底部样式
+  - article-item: 文章块展示样式
+  - article-footer: 文章底部（点赞、评论等）
+  - side-column: 侧边栏（公告等）
+
+- home: 主页样式（直接在views/home/index.html内部引入）
+- article-detail: 详情页样式
+
+- common: 公共组件的css集合 （直接在公共组件components/layout/header/index.html内引入）
+- global: 全局样式（全局的样式控制，注意覆盖问题，直接在公共组件header/index.html内引入）
