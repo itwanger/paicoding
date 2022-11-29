@@ -253,7 +253,6 @@
   }
   
   /*文章评论*/
-  
   .correlation-article {
     padding: 20px;
     margin-top: 20px;
@@ -263,3 +262,138 @@
     font-size: 24px;
     font-weight: 400;
   }
+
+  /* 点赞 */
+  
+.panel-btn {
+  position: relative;
+  margin-bottom: 1.667rem;
+  width: 3rem;
+  height: 3rem;
+  background-color: #fff;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  text-align: center;
+  font-size: 1.67rem;
+}
+
+.panel-btn .sprite-icon {
+  color: var(--pai-color-3-gray);
+  height: 100%;
+}
+
+.panel-btn:hover .sprite-icon {
+  color: var(--pai-color-4-gray);
+}
+
+.panel-btn:not(.share-btn).active .sprite-icon.icon-collect {
+  color: var(--pai-brand-3-click);
+}
+
+.panel-btn:not(.share-btn).active .sprite-icon {
+  color: var(--pai-brand-3-click);
+}
+
+.panel-btn:not(.share-btn).active.with-badge:after {
+  background-color: var(--pai-brand-6-mq);
+}
+
+.panel-btn.with-badge:after {
+  content: attr(badge);
+  position: absolute;
+  top: 0;
+  left: 75%;
+  height: 17px;
+  line-height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #c2c8d1;
+  color: #fff;
+}
+
+.panel-btn.share-btn:after {
+  display: block;
+  content: " ";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 50%;
+}
+
+.panel-btn.share-btn:hover .share-popup {
+  display: flex;
+}
+
+.panel-btn.share-btn .share-popup {
+  display: none;
+  position: absolute;
+  top: 0;
+  flex-direction: column;
+  left: calc(100% + 14px);
+  z-index: 30;
+  background: #fff;
+  border-radius: 4px;
+  padding: 9px 0;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  box-shadow: 0 8px 24px rgba(81, 87, 103, 0.16);
+}
+
+.panel-btn.share-btn .share-popup:after {
+  position: absolute;
+  width: 0;
+  height: 0;
+  content: " ";
+  right: 100%;
+  top: 14px;
+  border: 12px solid transparent;
+  border-right-color: #fff;
+}
+
+.panel-btn.share-btn .share-popup .share-item {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 15px;
+}
+
+.panel-btn.share-btn .share-popup .share-item:hover {
+  background-color: #f2f3f5;
+}
+
+.panel-btn.share-btn .share-popup .share-item:hover.wechat .wechat-qrcode {
+  display: flex;
+}
+
+.panel-btn.share-btn .share-popup .share-item:hover .share-icon {
+  color: #515767;
+}
+
+.panel-btn.share-btn .share-popup .share-item .share-item-title {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #515767;
+}
+
+.panel-btn.share-btn .share-popup .share-item .share-icon {
+  color: #8a919f;
+  width: 20px;
+  height: 20px;
+  font-size: 1.67rem;
+}
+
+.sprite-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  vertical-align: middle;
+  transition: all 0.15s linear;
+}
