@@ -3,24 +3,8 @@
 <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">技术派</title>
 </div>
-<style>
-    .tag-wrap-out {
-        height: calc(100vh - 60px);
-        overflow-y: auto;
-    }
 
-    .tag-wrap {
-        width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .tag-list {
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-    }
-</style>
+<link rel="stylesheet" href="/css/views/article-tag.css">
 
 <body id="body">
 <!-- 导航栏 -->
