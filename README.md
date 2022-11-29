@@ -63,7 +63,7 @@ mvn clean install -DskipTests=true -Pprod
 
 ### 前端工程结构说明
 
-前端页面都放在 ui 模块中
+#### 前端页面都放在 ui 模块中
 
 - resources/static: 静态资源文件，如css/js/image，放在这里
 - resources/templates: html相关页面
@@ -88,7 +88,7 @@ mvn clean install -DskipTests=true -Pprod
   - components: 公用的前端页面组件
 
 
-  前端 css 全部放在 static/css 中
+#### 前端 css 全部放在 static/css 中
 
 - components: 公共组件的css
   - navbar: 导航栏样式
@@ -96,9 +96,12 @@ mvn clean install -DskipTests=true -Pprod
   - article-item: 文章块展示样式
   - article-footer: 文章底部（点赞、评论等）
   - side-column: 侧边栏（公告等）
-
-- home: 主页样式（直接在views/home/index.html内部引入）
-- article-detail: 详情页样式
-
+- views: 主页面css(直接在主页面内部引入)
+  - home: 主页样式
+  - article-detail: 详情页样式
+  - ...
+- three: 第三方css
+  - index: 第三方css集合
+  - ...
 - common: 公共组件的css集合 （直接在公共组件components/layout/header/index.html内引入）
-- global: 全局样式（全局的样式控制，注意覆盖问题，直接在公共组件header/index.html内引入）
+- global: 全局样式（全局的样式控制，注意覆盖问题，直接在公共组件components/layout/header/index.html内引入）
