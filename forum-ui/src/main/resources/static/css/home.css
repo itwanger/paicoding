@@ -123,3 +123,90 @@ svg:not(:root).svg-inline--fa {
 .svg-inline--fa.fa-w-14 {
   width: 1em;
 }
+
+
+
+/*主要文章详情页 头部图片*/
+.home-carouse-wrap {
+  background-color: #346;
+  padding: 20px;
+}
+
+.home-carouse-inter-wrap {
+  width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.home-carouse-item {
+  flex: 1;
+  transition: all 0.2s ease 0s;
+  box-shadow: 0 6px 12px 0 rgb(0 0 0 / 25%);
+}
+
+.home-carouse-item img {
+  width: 100%;
+  height: 150px;
+}
+
+.home-carouse-item-body {
+  background-color: #fff;
+  padding: 20px;
+  height: 160px;
+}
+
+.home-carouse-item-title {
+  font-size: 18px;
+  font-weight: 700;
+  height: 58px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.home-carouse-item-dot {
+  display: inline-block;
+  background-color: #a2a2a2;
+  border-radius: 100%;
+  height: 8px;
+  width: 8px;
+  margin-right: 4px;
+}
+
+.home-carouse-item-tag {
+  display: flex;
+  align-items: center;
+  color: #a2a2a2;
+  font-size: 14px;
+}
+
+.home-carouse-item-first-text {
+  font-weight: 900;
+  padding: 0 8px;
+  align-items: center;
+  position: relative;
+}
+
+.home-carouse-item-tag .home-carouse-item-first-text:not(:last-child):after {
+  position: absolute;
+  right: -1px;
+  display: block;
+  content: " ";
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #4e5969;
+}
+
+.home-carouse-item-tag .author {
+  padding-left: 8px;
+  color: #a2a2a2;
+}
+
+.home-carouse-item:hover {
+  transform: translateY(-4px);
+}
