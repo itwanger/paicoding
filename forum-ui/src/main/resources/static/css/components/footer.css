@@ -1,0 +1,31 @@
+.foot {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: #fff;
+}
+
+.foot-link {
+  list-style: none;
+  padding: 25px 0;
+  width: 80%;
+  margin: 0 auto;
+  text-align: left;
+  font-size: 0;
+}
+
+.foot li {
+  font-size: 14px;
+  padding: 0 10px;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1em;
+}
+
+.foot li:last-child {
+  border-left: none;
+  float: right;
+  padding-right: 0;
+}
