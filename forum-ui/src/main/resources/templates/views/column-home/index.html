@@ -3,32 +3,9 @@
 <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
     <title th:text="${global.siteInfo.websiteName}">专栏首页</title>
 </div>
-<style>
-    .home {
-        overflow: auto;
-        padding-top: 20px;
-        height: calc(100vh - 60px);
-    }
 
-    .home-wrap {
-        width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        margin-bottom: 20px;
-        min-height: calc(100% - 90px);
-    }
+<link rel="stylesheet" href="/css/column-home.css">
 
-    .home-body {
-        flex: 1;
-        margin-right: 20px;
-        border-radius: 8px;
-    }
-
-    .home-right {
-        width: 30%;
-        border-radius: 20px;
-    }
-</style>
 <body id="body">
 <!-- 导航栏 -->
 <div th:replace="components/layout/navbar :: navbar"></div>
