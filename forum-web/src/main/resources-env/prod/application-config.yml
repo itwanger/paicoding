@@ -1,7 +1,7 @@
 view:
   site:
     websiteName: 技术派
-    websiteLogoUrl: /logo.svg
+    websiteLogoUrl: /img/logo.svg
     websiteFaviconIconUrl: https://blog.hhui.top/hexblog/images/avatar.jpg
     contactMeTitle: 联系我 - liuyueyi25
     contactMeWxQrCode: https://blog.hhui.top/hexblog/imgs/info/wx.jpg

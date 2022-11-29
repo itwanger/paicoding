@@ -244,10 +244,6 @@
 /*标签的图标*/
 .cdc-tag-links__icon {
   display: block;
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  background: url(../media/icon-tag.89f130c4.svg) 50% no-repeat;
   margin-right: 8px;
 }
 
