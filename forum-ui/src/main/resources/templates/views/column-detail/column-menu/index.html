@@ -1,12 +1,10 @@
 <div class="book-summary">
   <div class="book-summary-inner">
-    <div class="buy-sticky"></div>
+    <!-- <div class="buy-sticky"></div> -->
     <div
       class="book-directory-comp beautify-scrollbar-warp book-directory"
       cur-index="-1"
     >
-      <div style="padding: 0px 15px"></div>
-
       <div class="section-list">
         <div th:each="menu, itemStat : ${vo.articleList}">
           <a
@@ -64,14 +62,3 @@
     </div>
   </div>
 </div>
-
-<script>
-  $("#qrIconTag").click(function () {
-    const tag = $("#qrTipsTag")
-    if (tag.hasClass("show")) {
-      tag.removeClass("show")
-    } else {
-      tag.addClass("show")
-    }
-  })
-</script>
