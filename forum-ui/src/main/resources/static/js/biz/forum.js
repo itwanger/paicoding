@@ -198,6 +198,21 @@ const genTocMenu1 = function genToc1(selector, el) {
 
   initCatalog()
 
+  window.addEventListener('scroll', function() {
+    debounce(setHighlight, DEFAULT.delay)()
+    debounce(resetStatus, DEFAULT.delay)()
+  }, false)
+
+  if (catalogLength > maxCatalogCount) {
+    window.addEventListener('scroll', function() {
+      debounce(scrollCatalog, DEFAULT.delay)()
+    }, false)
+  }
+
+  window.addEventListener('resize', function(e) {
+    debounce(initCatalog, DEFAULT.delay)()
+  }, false)
+
   function initCatalog() {
     let tempHeight = window.innerHeight
 
@@ -230,6 +245,17 @@ const genTocMenu1 = function genToc1(selector, el) {
           scrollToDest(currTop + window.pageYOffset - DEFAULT.toTopDistance)
         }, false)
       });
+    }
+  }
+
+  // 防抖：触发高频事件 n 秒后只会执行一次，如果 n 秒内事件再次触发，则会重新计时。
+  function debounce(fn, delay = 200) {
+    return function(args) {
+      const _this = this
+      clearTimeout(fn.id)
+      fn.id = setTimeout(function() {
+        fn.apply(_this, args)
+      }, delay)
     }
   }
 
@@ -273,6 +299,33 @@ const genTocMenu1 = function genToc1(selector, el) {
     $(el).append(retStr);
   }
 
+  // 自动滚动目录树，使得当前高亮目录在可视范围内
+  function scrollCatalog() {
+    let currentCatalog = document.querySelector('.arCatalog .on');
+
+    let curr = currentCatalog.getBoundingClientRect(),
+        list = catalogDl.getBoundingClientRect();
+
+    if (defaultDirec === 'bottom') {  // 向下滚动
+      if (curr.bottom + (maxCatalogCount / 2) * DEFAULT.lineHeight <= bodyBCR.bottom) {  // 上半部分
+        // 不滚动
+      } else if (curr.bottom - bodyMidBottom < list.bottom - bodyBCR.bottom) {  // 中位以下
+        marginTop += -Math.floor((curr.bottom - bodyMidBottom ) / DEFAULT.lineHeight) * DEFAULT.lineHeight
+      } else if (bodyBCR.bottom <= list.bottom) {  // 当剩余滚动距离
+        marginTop = bodyBCR.bottom - initDlBottom
+      }
+    } else {  // 向上滚动
+      if (bodyBCR.top + (maxCatalogCount / 2) * DEFAULT.lineHeight <= curr.top) {
+        // 不滚动
+      } else if (bodyMidBottom - curr.top < bodyBCR.top - list.top) {
+        marginTop += Math.floor((bodyMidBottom - curr.top) / DEFAULT.lineHeight) * DEFAULT.lineHeight
+      } else if (list.top <= bodyBCR.top) {
+        marginTop = 0
+      }
+    }
+    catalogDl.style.marginTop = marginTop + 'px'
+  }
+
   // 动画实现滚动到目标位置
   function scrollToDest(destScrollTop) {
     let startTime;
@@ -291,6 +344,72 @@ const genTocMenu1 = function genToc1(selector, el) {
       }
     }
     window.requestAnimationFrame(step)
+  }
+
+  // 高亮当前目录s
+  function setHighlight(){
+    defaultDirec = getScrollDirection()
+
+    if (hasStopSetHighlight) {
+      return
+    }
+    let {
+      scrollTop,
+    } = document.scrollingElement;
+
+    let curr = document.querySelector('.arCatalog .on')
+
+    let onIndex = [].indexOf.call(catalogDd, curr),  // 当前高亮索引
+        nextOnIndex = onIndex;  // 滚动后高亮索引
+    curr.classList.remove('on')
+
+    let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
+    if (arContentAnchor[catalogLength - 1].getBoundingClientRect().top <= DEFAULT.toTopDistance ||
+        window.innerHeight + window.pageYOffset === scrollHeight) {  // 尾部
+      lastOnIndex = catalogLength - 1
+      catalogDd[lastOnIndex].classList.add('on')
+    } else if (scrollTop <= firstDdTop) {  // 顶部
+      catalogDd[0].classList.add('on')
+      lastOnIndex = 0
+    } else {  // 中间：使用缓存，直接从上一次索引（onIndex）位置开始查找
+      if (defaultDirec === 'bottom') {
+        while (nextOnIndex < catalogLength) {
+          let currTop = arContentAnchor[nextOnIndex].getBoundingClientRect().top
+          if ( currTop > DEFAULT.toTopDistance && nextOnIndex > 0){
+            nextOnIndex--
+            break
+          }
+          nextOnIndex++
+        }
+      } else {
+        while (nextOnIndex >= 0) {
+          let currTop = arContentAnchor[nextOnIndex].getBoundingClientRect().top
+          if ( currTop <= DEFAULT.toTopDistance){
+            break
+          }
+          nextOnIndex--
+        }
+      }
+      nextOnIndex = nextOnIndex === catalogLength ? nextOnIndex - 1 : nextOnIndex < 0 ? 0 : nextOnIndex
+      lastOnIndex = nextOnIndex
+      catalogDd[nextOnIndex].classList.add('on')
+    }
+  }
+
+  // 获取最近一次页面的滚动方向
+  function getScrollDirection() {
+    let sh = window.pageYOffset, ret = 'bottom'
+    if (sh < lastSH) {
+      ret = 'top'
+    }
+    lastSH = sh
+    return ret
+  }
+
+  function resetStatus() {
+    if (hasStopSetHighlight) {
+      hasStopSetHighlight = false
+    }
   }
 
 
