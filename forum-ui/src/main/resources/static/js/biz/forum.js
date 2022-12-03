@@ -132,44 +132,166 @@ const followAction = function(e) {
  * @param el 生成的目录应该放的位置
  */
 const genTocMenu = function genToc(selector, el) {
-  const tocs = document.querySelector(selector).children
-  const reg = new RegExp('[H]\\d')
-  const list = document.createDocumentFragment()
-  const style = document.createElement('style')
-  style.innerHTML = `
-    .toc{
-      height: 100%;
-      color:$menuTextActive;
-      padding:12px;
+  // tocs
+  const reg = new RegExp('[H]\\d');
+  const list = $("<ul class='com-nav-bar-menu'></ul>");
+  $(selector).children().each(function (index, element) {
+    if(reg.test(element.nodeName)) {
+      list.append($("<div class='"+element.nodeName.toLowerCase() +"'>" +
+          "<a href='javascript:;' data-id='"+$(element).attr("id")+"'> "+
+          $(element).text()+"</a></div>"));
     }
-    .toc h1 {cursor: pointer;margin-bottom: 10px;font-size: 20px;}
-    .toc h2 {cursor: pointer; padding-left: 12px;margin-bottom: 5px;font-size: 18px;}
-    .toc h3 {cursor: pointer; padding-left: 24px;margin-bottom: 5px;font-size: 16px;}
-    .toc h4 {cursor: pointer; padding-left: 36px;margin-bottom: 5px;font-size: 14px;}
-    .toc h5 {cursor: pointer; padding-left: 48px;margin-bottom: 5px;font-size: 12px;}
-    .toc h6 {cursor: pointer; padding-left: 60px;margin-bottom: 5px;font-size: 12px;}
-    .toc h1:hover {text-decoration: underline;}
-    .toc h2:hover {text-decoration: underline;}
-    .toc h3:hover {text-decoration: underline;}
-    .toc h4:hover {text-decoration: underline;}
-    .toc h5:hover {text-decoration: underline;}
-    .toc h6:hover {text-decoration: underline;}
-  `
-  for (let index = 0; index < tocs.length; index++) {
-    const item = tocs[index]
-    if (reg.test(item.nodeName)) {
-      list.appendChild(item.cloneNode(true))
+  });
+
+  $(el).append(list);
+
+  // 跳转
+  $(el).find("a").on("click",function(){
+    $(this).parent().addClass("active").siblings().removeClass("active");
+    var id =  $(this).data("id");
+    console.log(id);
+    document.getElementById(id).scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  })
+}
+
+const genTocMenu1 = function genToc1(selector, el) {
+  let DEFAULT = {
+    lineHeight: 28,           // 每个菜单的行高是 28
+    moreHeight: 10,           // 菜单左侧的线比菜单多出的高度
+    surplusHeight: 180,       // 除了菜单高度+留白高度
+    delay: 200,               // 防抖的延迟时间
+    duration: 200,            // 滚动的动画持续时间
+    toTopDistance: 80,        // 距离视口顶部多少高度之内时候触发高亮
+    selector: '.headerlink',  // 文章内容中标题标签的 selector
+  }
+
+  // tocs
+  const reg = new RegExp('[H]\\d');
+  const list = $("<ul class='com-nav-bar-menu'></ul>");
+  $(selector).children().each(function (index, element) {
+    if(reg.test(element.nodeName)) {
+      $(element).append($("<a href='javascript:;' class='headerlink' title='" +
+          $(element).text() + "'></a>"));
+    }
+  });
+
+  let arContentAnchor = document.querySelectorAll(DEFAULT.selector),
+      catalogLength = arContentAnchor.length,
+      maxCatalogCount = 0,          // 视口内能容纳的最大目录个数
+      viewPortHeight = 0,           // 当前视口的高度
+      marginTop = 0,                // 菜单的初始滚动距离
+      defaultDirec = 'bottom',      // 默认滚动方向
+      lastSH = 0,                   // 获取页面初始滚动距离
+      lastOnIndex = 0,              // 上次高亮的目录索引
+      catalogBody = [],             // .arCatalog-body
+      catalogDl = null,             // .arCatalog-body dl
+      catalogDd = [],			      // .arCatalog-body dd
+      initBodyTop = 0,              // 目录可视区域的 top
+      initDlBottom = 0,             // 目录 dl 的 bottom
+      firstDdTop = 0,               // 第一个 dd 的 top
+      bodyMidBottom = 0,            // 目录可视区域的中间位置的 dd 的 bottom
+      bodyBCR = null,	              // 目录可视区域的边界值
+      hasStopSetHighlight = false;  // 在点击目录子项的时候直接高亮当前目录，而不通过 scroll 事件触发 setHighlight 函数
+
+  initCatalog()
+
+  function initCatalog() {
+    let tempHeight = window.innerHeight
+
+    if (viewPortHeight !== tempHeight) {
+      viewPortHeight = tempHeight
+      maxCatalogCount = Math.floor((viewPortHeight - DEFAULT.surplusHeight) / DEFAULT.lineHeight)
+
+      generateCatalog()
+
+      catalogLength = arContentAnchor.length
+      lastSH = window.pageYOffset
+      catalogBody = document.querySelector('.arCatalog-body')
+      catalogDl = document.querySelector('.arCatalog dl')
+      catalogDd = document.querySelectorAll('.arCatalog dd')
+      bodyBCR = catalogBody.getBoundingClientRect()
+      initBodyTop = bodyBCR.top
+      initDlBottom = initDlBottom || catalogDl.getBoundingClientRect().bottom
+      firstDdTop = firstDdTop || catalogDd[0].getBoundingClientRect().top,
+          bodyMidBottom = initBodyTop + Math.ceil((maxCatalogCount / 2 )) * DEFAULT.lineHeight
+
+      // 给目录子项绑定事件
+      catalogDd.forEach((curr, index) => {
+        curr.addEventListener('click', function(e) {
+          e.preventDefault()
+          hasStopSetHighlight = true
+          document.querySelector('.arCatalog .on').classList.remove('on')
+          catalogDd[index].classList.add('on')
+          lastOnIndex = index
+          let currTop = arContentAnchor[index].getBoundingClientRect().top
+          scrollToDest(currTop + window.pageYOffset - DEFAULT.toTopDistance)
+        }, false)
+      });
     }
   }
-  document.querySelector(el).appendChild(style)
-  document.querySelector(el).appendChild(list)
-  document.querySelector(el).addEventListener('click', function(e) {
-    if (reg.test(e.target.nodeName)) {
-      const id = e.target.children[0].id
-      document.getElementById(id).scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      })
+
+
+  function generateCatalog() {
+    let catalogHeight = arContentAnchor.length > maxCatalogCount ? maxCatalogCount * DEFAULT.lineHeight : arContentAnchor.length * DEFAULT.lineHeight;
+
+    let retStr = `
+						<div class="arCatalog">
+							<div class="arCatalog-line" style="height: ${catalogHeight + DEFAULT.moreHeight}px"></div>
+							<div class="arCatalog-body" style="max-height: ${catalogHeight}px; height: ${catalogHeight}px">
+								<dl style="margin-top: ${marginTop}px">`
+    let h2Index = 0,
+        h3Index = 1,
+        acIndex = '',
+        tagName = '',
+        index = 0;
+
+    for (let currNode of arContentAnchor) {
+      tagName = currNode.parentElement.tagName
+      if (tagName === 'H2') {
+        acIndex = ++h2Index
+        h3Index = 1
+        className = 'arCatalog-tack1'
+      } else if (tagName === 'H3') {
+        acIndex = `${h2Index}.${h3Index++}`
+        className = 'arCatalog-tack2'
+      } else {
+        acIndex = ''
+        className = 'arCatalog-tack3'
+      }
+      retStr += `
+						<dd class="${className} ${index++ === lastOnIndex ? 'on' : ''}">
+							<a href="#">${currNode.title}</a>
+							<span class="arCatalog-dot"></span>
+						</dd>`
     }
-  })
+    ;
+    retStr += `</dl></div></div>`
+
+    $(el).append(retStr);
+  }
+
+  // 动画实现滚动到目标位置
+  function scrollToDest(destScrollTop) {
+    let startTime;
+    let currScrollTop = window.pageYOffset;
+    function step(timestamp) {
+      if (!startTime) {
+        startTime = timestamp
+      }
+      const elapsed = Math.round(timestamp - startTime)
+      const distance = elapsed * ((Math.floor(destScrollTop) - currScrollTop) / DEFAULT.duration) + currScrollTop
+
+      document.documentElement.scrollTop = document.body.scrollTop = distance
+
+      if (elapsed < DEFAULT.duration) {
+        window.requestAnimationFrame(step)
+      }
+    }
+    window.requestAnimationFrame(step)
+  }
+
+
 }
