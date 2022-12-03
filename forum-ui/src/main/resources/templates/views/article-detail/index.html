@@ -29,7 +29,7 @@
                 <div class="correlation-article bg-color-white">
                     <!-- 关联推荐 -->
                     <h4 class="correlation-article-title">相关推荐</h4>
-                    <div class="container-bg-light">
+                    <div class="bg-color-white">
                         <div id="articleList"></div>
                     </div>
                 </div>
@@ -39,12 +39,18 @@
                 <!-- 用户相关信息 -->
                 <div th:replace="components/user/user-card :: user_card(${vo.author}, ${vo.article.author}, ${global.isLogin})"></div>
 
-                <!-- 文章菜单  -->
-                <div id="contentMenu" class="toc">
-                </div>
                 <!-- 活动推荐 -->
                 <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
                     <div th:replace="views/article-detail/side-recommend-bar/index">侧边通知板块</div>
+                </div>
+
+                <!-- 文章菜单  -->
+                <div class="right-container">
+                    <div class="widget">
+                        <h3 class="com-nav-bar-title">目录</h3>
+                        <div id="contentMenu" class="toc">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,7 +82,7 @@
     });
 
     // 生成菜单
-    genTocMenu('#articleContent', '#contentMenu')
+    genTocMenu1('#articleContent', '#contentMenu')
 
     // 评论相关
     const commentContent = $("#commentContent");

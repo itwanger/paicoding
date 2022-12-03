@@ -393,8 +393,7 @@
   .com-2-panel {
     margin-bottom: 20px;
     box-sizing: border-box;
-    background-color: #fff;
-    border: 1px solid #e5e8ed;
+    background-color: var(--pai-color-fff-normal);
     padding: 32px;
     box-shadow: 0 2px 4px 0 rgb(3 27 78 / 6%);
   }
@@ -472,7 +471,7 @@
     position: absolute;
     width: 111px;
     height: 138px;
-    background: url(../img/icon-decorate_edc.svg) 50% no-repeat;
+    background: url(../../img/icon-decorate_edc.svg) 50% no-repeat;
     top: -2px;
     right: -20px;
   }
@@ -520,7 +519,7 @@
     display: inline-block;
     width: 100%;
     height: 100%;
-    background-image: url(../img/icon-verified_804.svg);
+    background-image: url(../../img/icon-verified_804.svg);
   }
   
   /*取消关注*/
@@ -668,7 +667,7 @@
   .ebook-def-star {
     height: 16px;
     width: 92px;
-    background: url(../img/star.png) no-repeat 0 / auto 100%;
+    background: url(../../img/star.png) no-repeat 0 / auto 100%;
     position: relative;
   }
   
@@ -680,7 +679,7 @@
   
   .ebook-home-stars .ebook-def-star .ebook-cur-star {
     height: 16px;
-    background: url(../img/star-lighten.png) no-repeat 0 / auto 100%;
+    background: url(../../img/star-lighten.png) no-repeat 0 / auto 100%;
     position: absolute;
     left: 0;
     top: 0;
@@ -691,7 +690,7 @@
     color: var(--pai-color-999-gray);
     line-height: 18px;
     padding-left: 20px;
-    background: url(../img/eye.png) no-repeat 0/16px auto;
+    background: url(../../img/eye.png) no-repeat 0/16px auto;
   }
   
   .ebook-home-info .ebook-home-download {
@@ -700,7 +699,7 @@
     line-height: 18px;
     padding-left: 16px;
     margin-left: 16px;
-    background: url(../img/download.png) no-repeat 0/12.5px auto;
+    background: url(../../img/download.png) no-repeat 0/12.5px auto;
   }
   
   .rank-box-item-right {
