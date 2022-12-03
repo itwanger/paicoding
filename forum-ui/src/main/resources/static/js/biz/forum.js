@@ -198,6 +198,7 @@ const genTocMenu1 = function genToc1(selector, el) {
 
   initCatalog()
 
+
   window.addEventListener('scroll', function() {
     debounce(setHighlight, DEFAULT.delay)()
     debounce(resetStatus, DEFAULT.delay)()
@@ -296,7 +297,7 @@ const genTocMenu1 = function genToc1(selector, el) {
     ;
     retStr += `</dl></div></div>`
 
-    $(el).append(retStr);
+    $(el).html(retStr);
   }
 
   // 自动滚动目录树，使得当前高亮目录在可视范围内
@@ -309,11 +310,13 @@ const genTocMenu1 = function genToc1(selector, el) {
     if (defaultDirec === 'bottom') {  // 向下滚动
       if (curr.bottom + (maxCatalogCount / 2) * DEFAULT.lineHeight <= bodyBCR.bottom) {  // 上半部分
         // 不滚动
-      } else if (curr.bottom - bodyMidBottom < list.bottom - bodyBCR.bottom) {  // 中位以下
+      } else if (curr.bottom - bodyMidBottom < list.bottom - bodyBCR.bottom) {
+        // 中位以下
         marginTop += -Math.floor((curr.bottom - bodyMidBottom ) / DEFAULT.lineHeight) * DEFAULT.lineHeight
       } else if (bodyBCR.bottom <= list.bottom) {  // 当剩余滚动距离
         marginTop = bodyBCR.bottom - initDlBottom
       }
+
     } else {  // 向上滚动
       if (bodyBCR.top + (maxCatalogCount / 2) * DEFAULT.lineHeight <= curr.top) {
         // 不滚动
@@ -322,7 +325,14 @@ const genTocMenu1 = function genToc1(selector, el) {
       } else if (list.top <= bodyBCR.top) {
         marginTop = 0
       }
+
+      console.log(curr.top)
+
+      if (curr.top < 60 && $(".widget").parent().hasClass("right-container")) {
+        $(".widget").parent().removeClass("right-container");
+      }
     }
+
     catalogDl.style.marginTop = marginTop + 'px'
   }
 
