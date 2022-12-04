@@ -11,10 +11,11 @@
   border-top: 1px solid #f1f1f1;
 }
 .notice-nav-inner {
-  width: 1200px;
+  width: 1000px;
   margin: 0 auto;
   display: flex;
   align-items: center;
+  padding-left: 20px;
 }
 .notice-nav-item {
   padding: 14px 0;
@@ -29,7 +30,7 @@
 .unread-count {
   display: inline-block;
   color: #fff;
-  transform: scale(.8);
+  transform: scale(0.8);
   font-size: 12px;
   padding: 2px 5px;
   background: #f64242;
