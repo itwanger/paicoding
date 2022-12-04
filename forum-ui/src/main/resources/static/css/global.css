@@ -83,8 +83,9 @@ textarea:focus {
   outline: none;
 }
 
-button:focus {
+button,button:focus {
   outline: none;
+  box-shadow: none !important;
 }
 
 /*接下来是 ID 的*/
