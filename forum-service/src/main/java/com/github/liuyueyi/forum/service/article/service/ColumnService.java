@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 
 import java.util.List;
 
@@ -52,5 +53,5 @@ public interface ColumnService {
      * @param columnId
      * @return
      */
-    List<ArticleDTO> queryColumnArticlesDetail(long columnId);
+    List<ColumnArticleDO> queryColumnArticlesDetail(long columnId);
 }
