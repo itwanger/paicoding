@@ -67,5 +67,5 @@ public interface ColumnSettingService {
      * @param columnId
      * @return
      */
-    List<ArticleDTO> queryColumnArticles(long columnId);
+    List<SimpleArticleDTO> queryColumnArticles(long columnId);
 }

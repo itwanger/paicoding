@@ -28,5 +28,10 @@ public class CategoryDO extends BaseDO {
      */
     private Integer status;
 
+    /**
+     * 排序
+     */
+    private Integer rank;
+
     private Integer deleted;
 }

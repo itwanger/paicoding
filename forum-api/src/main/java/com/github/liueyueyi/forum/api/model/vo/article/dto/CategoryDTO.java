@@ -25,6 +25,8 @@ public class CategoryDTO implements Serializable {
 
     private String category;
 
+    private Integer rank;
+
     private Integer status;
 
     private Boolean selected;
@@ -33,6 +35,7 @@ public class CategoryDTO implements Serializable {
         this.categoryId = categoryId;
         this.category = category;
         this.status = PushStatusEnum.ONLINE.getCode();
+        this.rank = 0;
         this.selected = false;
     }
 }

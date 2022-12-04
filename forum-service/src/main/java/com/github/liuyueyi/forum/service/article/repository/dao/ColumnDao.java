@@ -53,9 +53,17 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         return columnArticleMapper.selectCount(query).intValue();
     }
 
-//    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId) {
-//        return columnArticleMapper.selectList();
-//    }
+    /**
+     * 根据专栏ID查询文章信息列表
+     *
+     * @param columnId
+     * @return
+     */
+    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId) {
+        LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ColumnArticleDO::getColumnId, columnId);
+        return columnArticleMapper.selectList(query);
+    }
 
     /**
      * 获取文章列表

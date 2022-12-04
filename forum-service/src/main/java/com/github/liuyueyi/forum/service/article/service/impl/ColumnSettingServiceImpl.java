@@ -10,6 +10,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.core.util.NumUtil;
+import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.conveter.ColumnConvert;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ColumnDao;
@@ -111,7 +112,20 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public List<ArticleDTO> queryColumnArticles(long columnId) {
-        return columnService.queryColumnArticlesDetail(columnId);
+    public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
+        List<SimpleArticleDTO> simpleArticleDTOS = new ArrayList<>();
+        List<ColumnArticleDO> columnArticleDOS = columnService.queryColumnArticlesDetail(columnId);
+        for (ColumnArticleDO columnArticleDO : columnArticleDOS) {
+            ArticleDO articleDO = articleDao.getById(columnArticleDO.getArticleId());
+            if (articleDO == null) {
+                continue;
+            }
+            SimpleArticleDTO simpleArticleDTO = new SimpleArticleDTO();
+            simpleArticleDTO.setId(articleDO.getId());
+            simpleArticleDTO.setTitle(articleDO.getTitle());
+            simpleArticleDTO.setSort(columnArticleDO.getSection());
+            simpleArticleDTOS.add(simpleArticleDTO);
+        }
+        return simpleArticleDTOS;
     }
 }

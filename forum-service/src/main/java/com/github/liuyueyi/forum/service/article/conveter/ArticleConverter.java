@@ -97,6 +97,7 @@ public class ArticleConverter {
         CategoryDTO dto = new CategoryDTO();
         dto.setCategory(category.getCategoryName());
         dto.setCategoryId(category.getId());
+        dto.setRank(category.getRank());
         dto.setStatus(category.getStatus());
         dto.setSelected(false);
         return dto;
@@ -123,6 +124,7 @@ public class ArticleConverter {
         }
         CategoryDO categoryDO = new CategoryDO();
         categoryDO.setCategoryName(categoryReq.getCategoryName());
+        categoryDO.setRank(categoryReq.getRank());
         return categoryDO;
     }
 }
