@@ -2,6 +2,7 @@ package com.github.liuyueyi.forum.service.article.service;
 
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 
@@ -44,4 +45,12 @@ public interface ColumnService {
      * @return
      */
     List<SimpleArticleDTO> queryColumnArticles(long columnId);
+
+    /**
+     * 专栏 + 文章列表详情
+     *
+     * @param columnId
+     * @return
+     */
+    List<ArticleDTO> queryColumnArticlesDetail(long columnId);
 }

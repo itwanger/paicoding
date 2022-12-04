@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.liueyueyi.forum.api.model.enums.ColumnStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnArticlesDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnInfoDO;
@@ -51,6 +52,10 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         query.eq(ColumnArticleDO::getColumnId, columnId);
         return columnArticleMapper.selectCount(query).intValue();
     }
+
+//    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId) {
+//        return columnArticleMapper.selectList();
+//    }
 
     /**
      * 获取文章列表

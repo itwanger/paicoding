@@ -4,11 +4,13 @@ import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ColumnFootCountDTO;
+import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.conveter.ColumnConvert;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ColumnDao;
@@ -109,4 +111,16 @@ public class ColumnServiceImpl implements ColumnService {
         return articleList;
     }
 
+    /**
+     * 查询专栏的文章详情
+     *
+     * @param columnId
+     * @return
+     */
+    @Override
+    public List<ArticleDTO> queryColumnArticlesDetail(long columnId) {
+        List<Long> articleIds = columnDao.listColumnArticles(columnId);
+        List<ArticleDO> articles = articleDao.listByIds(articleIds);
+        return ArticleConverter.toArticleDtoList(articles);
+    }
 }

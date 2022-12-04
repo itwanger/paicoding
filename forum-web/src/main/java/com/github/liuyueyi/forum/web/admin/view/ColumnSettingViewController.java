@@ -35,10 +35,10 @@ public class ColumnSettingViewController {
         return ResVo.ok(columnDTOPageVo);
     }
 
-    @ResponseBody
-    @GetMapping(path = "listColumnArticle")
-    public ResVo<List<SimpleArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId) {
-        List<SimpleArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId);
-        return ResVo.ok(simpleArticleDTOS);
-    }
+//    @ResponseBody
+//    @GetMapping(path = "listColumnArticle")
+//    public ResVo<List<SimpleArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId) {
+//        List<SimpleArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId);
+//        return ResVo.ok(simpleArticleDTOS);
+//    }
 }

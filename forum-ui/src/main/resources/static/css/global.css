@@ -86,27 +86,6 @@ button:focus {
   outline: none;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*接下来是 ID 的*/
 #scrollUp {
   bottom: 82px;
@@ -401,10 +380,6 @@ button:focus {
   margin-top: 15px;
   padding-left: 40px;
   padding-right: 40px;
-}
-
-.container-bg-light {
-  background: #ffffff;
 }
 
 .input-icon {
@@ -730,11 +705,4 @@ button:focus {
 .inline-block {
   display: inline-block;
 }
-
-
-
-
-
-
-
 
