@@ -132,32 +132,6 @@ const followAction = function(e) {
  * @param el 生成的目录应该放的位置
  */
 const genTocMenu = function genToc(selector, el) {
-  // tocs
-  const reg = new RegExp('[H]\\d');
-  const list = $("<ul class='com-nav-bar-menu'></ul>");
-  $(selector).children().each(function (index, element) {
-    if(reg.test(element.nodeName)) {
-      list.append($("<div class='"+element.nodeName.toLowerCase() +"'>" +
-          "<a href='javascript:;' data-id='"+$(element).attr("id")+"'> "+
-          $(element).text()+"</a></div>"));
-    }
-  });
-
-  $(el).append(list);
-
-  // 跳转
-  $(el).find("a").on("click",function(){
-    $(this).parent().addClass("active").siblings().removeClass("active");
-    var id =  $(this).data("id");
-    console.log(id);
-    document.getElementById(id).scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    })
-  })
-}
-
-const genTocMenu1 = function genToc1(selector, el) {
   let DEFAULT = {
     lineHeight: 28,           // 每个菜单的行高是 28
     moreHeight: 10,           // 菜单左侧的线比菜单多出的高度
@@ -170,13 +144,14 @@ const genTocMenu1 = function genToc1(selector, el) {
 
   // tocs
   const reg = new RegExp('[H]\\d');
-  const list = $("<ul class='com-nav-bar-menu'></ul>");
   $(selector).children().each(function (index, element) {
     if(reg.test(element.nodeName)) {
       $(element).append($("<a href='javascript:;' class='headerlink' title='" +
           $(element).text() + "'></a>"));
     }
   });
+
+
 
   let arContentAnchor = document.querySelectorAll(DEFAULT.selector),
       catalogLength = arContentAnchor.length,
@@ -195,6 +170,11 @@ const genTocMenu1 = function genToc1(selector, el) {
       bodyMidBottom = 0,            // 目录可视区域的中间位置的 dd 的 bottom
       bodyBCR = null,	              // 目录可视区域的边界值
       hasStopSetHighlight = false;  // 在点击目录子项的时候直接高亮当前目录，而不通过 scroll 事件触发 setHighlight 函数
+
+  if (catalogLength === 0) {
+    $(".toc-container").remove();
+    return;
+  }
 
   initCatalog()
 
