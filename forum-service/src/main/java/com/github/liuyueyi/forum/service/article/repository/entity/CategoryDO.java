@@ -1,5 +1,6 @@
 package com.github.liuyueyi.forum.service.article.repository.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class CategoryDO extends BaseDO {
     /**
      * 排序
      */
+    @TableField("`rank`")
     private Integer rank;
 
     private Integer deleted;
