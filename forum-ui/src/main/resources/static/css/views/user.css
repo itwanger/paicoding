@@ -80,8 +80,8 @@
 
 /* tag选择样式 */
 .tag-select-active {
-  color: #3973ff !important;
-  border-bottom: 4px solid #3973ff;
+  color: var(--pai-brand-2-hover) !important;
+  border-bottom: 4px solid var(--pai-brand-2-hover);
 }
 
 .tag-select {
