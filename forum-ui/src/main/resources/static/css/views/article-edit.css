@@ -107,6 +107,7 @@ blockquote {
 
 .input-group {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   position: relative;
   margin-bottom: 32px;
@@ -142,11 +143,11 @@ blockquote {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 70px;
+  min-width: 70px;
   background-color: #ccc;
   height: 30px;
   border-radius: 4px;
-  margin-right: 10px;
+  /* margin-right: 10px; */
   background-color: #f8f9fa;
   color: #919aa6;
   cursor: pointer;
@@ -159,11 +160,13 @@ blockquote {
   left: 0;
   top: 0;
   height: 30px;
-  width: 70px;
+  min-width: 70px;
   opacity: 0;
   cursor: pointer;
 }
-
+.form-check-label {
+  padding: 10px;
+}
 .form-selectgroup-item--active,
 .form-check--active {
   background-color: #e2f3fe;
@@ -202,6 +205,7 @@ blockquote {
   margin-right: 8px;
   padding: 0;
   align-items: flex-start;
+  flex-shrink: 0;
 }
 
 .input-textarea {
@@ -252,6 +256,8 @@ blockquote {
 
 .article-tag-wrap {
   display: flex;
+  flex-wrap: wrap;
   min-height: 40px;
   align-items: center;
+  gap: 8px;
 }

@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="input-group">
-          <span class="form-label">文章标签:</span>
+          <div class="form-label">文章标签:</div>
           <div class="article-tag-wrap" id="tagList">
             <div th:class="'form-check' + ${tag.selected != null && tag.selected? ' form-check--active': ''} "
                  th:each="tag, iter: ${vo.tags}" onclick="tagSelected(this)">
