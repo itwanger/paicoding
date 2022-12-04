@@ -32,4 +32,12 @@ public class ArticleSettingRestController {
         articleSettingService.operateArticle(articleId, operate);
         return ResVo.ok("ok");
     }
+
+    @ResponseBody
+    @GetMapping(path = "delete")
+    public ResVo<String> delete(@RequestParam(name = "articleId") Long articleId) {
+        articleSettingService.deleteArticle(articleId);
+        return ResVo.ok("ok");
+    }
+
 }

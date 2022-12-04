@@ -62,6 +62,7 @@ CREATE TABLE `category`
     `id`            int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `category_name` varchar(64) NOT NULL COMMENT '类目名称',
     `status`        tinyint     NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `rank`          tinyint NOT NULL default '0' COMMENT '排序',
     `deleted`       tinyint     NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -307,12 +308,15 @@ CREATE TABLE `dict_common` (
 # insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `status`) values(4, '二哥博客公告', '', 'https://blog.csdn.net/qing_gee/category_9264687.html', '戳这里，访问二哥的博客！', 2, 1);
 
 -- 文章标签
-alter table article add column `offical_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '官方状态：0-非官方，1-官方';
-alter table article add column `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶';
-alter table article add column `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精';
-alter table article drop column `flag_bit`;
+# alter table article add column `offical_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '官方状态：0-非官方，1-官方';
+# alter table article add column `topping_stat` int unsigned NOT NULL DEFAULT '0' COMMENT '置顶状态：0-不置顶，1-置顶';
+# alter table article add column `cream_stat`   int unsigned NOT NULL DEFAULT '0' COMMENT '加精状态：0-不加精，1-加精';
+# alter table article drop column `flag_bit`;
 
 -- 推荐侧边栏配置，添加config_tag，用于显示 火、热门、官方等小标签
-alter table `config` add column `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐' after `status`;
--- 设置公告有标签，用于查看样式
-update `config` set tags='1' where `type` = 4;
+# alter table `config` add column `tags` varchar(64) not null default '' comment '配置关联标签，英文逗号分隔 1 火 2 官方 3 推荐' after `status`;
+# -- 设置公告有标签，用于查看样式
+# update `config` set tags='1' where `type` = 4;
+
+-- 添加分类排序
+alter table category add `rank` tinyint NOT NULL default '0' COMMENT '排序';

@@ -15,6 +15,7 @@ import com.github.liuyueyi.forum.service.article.conveter.ColumnConvert;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ColumnDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.liuyueyi.forum.service.article.service.ColumnService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
@@ -118,9 +119,7 @@ public class ColumnServiceImpl implements ColumnService {
      * @return
      */
     @Override
-    public List<ArticleDTO> queryColumnArticlesDetail(long columnId) {
-        List<Long> articleIds = columnDao.listColumnArticles(columnId);
-        List<ArticleDO> articles = articleDao.listByIds(articleIds);
-        return ArticleConverter.toArticleDtoList(articles);
+    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId) {
+        return columnDao.listColumnArticlesDetail(columnId);
     }
 }
