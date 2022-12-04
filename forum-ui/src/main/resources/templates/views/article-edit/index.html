@@ -119,6 +119,11 @@
 <script src="/js/simplemde.min.js"></script>
 <script th:inline="javascript">
   // https://github.com/sparksuite/simplemde-markdown-editor
+  let vo = [[${vo}]]
+  let uid = "forumId";
+  if (vo && vo.article) {
+    uid = uid + "_" + vo.article.articleId
+  }
   var simplemde = new SimpleMDE({
     element: document.getElementById("content"),
     toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list","link","image","table","horizontal-rule","side-by-side"],
@@ -126,12 +131,11 @@
     spellChecker: false,
     autosave: {
       enabled: true,
-      uniqueId: "forumId",
+      uniqueId: uid,
       delay: 1000,
     },
     placeholder: "Type here...",
   });
-
   simplemde.toggleSideBySide(); //打开实时全屏预览
 
   // 自动从文章内提取前128个字符作为文章简介
