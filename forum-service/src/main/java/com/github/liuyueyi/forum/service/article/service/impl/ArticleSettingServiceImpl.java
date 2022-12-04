@@ -1,15 +1,18 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.OperateArticleEnum;
+import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleSettingService;
+import com.github.liuyueyi.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     @Autowired
     private ArticleDao articleDao;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public Integer getArticleCount() {
         return articleDao.countArticle();
@@ -38,8 +44,22 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     @Override
     public PageVo<ArticleDTO> getArticleList(PageParam pageParam) {
         List<ArticleDO> articleDOS = articleDao.listArticles(pageParam);
+        List<ArticleDTO> articleDTOS = ArticleConverter.toArticleDtoList(articleDOS);
+        articleDTOS.forEach(articleDTO -> {
+            BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
+            articleDTO.setAuthorName(user.getUserName());
+        });
         Integer totalCount = articleDao.countArticle();
-        return PageVo.build(ArticleConverter.toArticleDtoList(articleDOS), pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+        return PageVo.build(articleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+    }
+
+    @Override
+    public void deleteArticle(Long articleId) {
+        ArticleDO dto = articleDao.getById(articleId);
+        if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
+            dto.setDeleted(YesOrNoEnum.YES.getCode());
+            articleDao.updateById(dto);
+        }
     }
 
     @Override

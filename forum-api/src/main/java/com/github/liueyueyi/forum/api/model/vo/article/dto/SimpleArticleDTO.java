@@ -17,9 +17,23 @@ import java.sql.Timestamp;
 public class SimpleArticleDTO implements Serializable {
     private static final long serialVersionUID = 3646376715620165839L;
 
+    /**
+     * 文章ID
+     */
     private Long id;
 
+    /**
+     * 文章标题
+     */
     private String title;
 
+    /**
+     * 文章排序
+     */
+    private Integer sort;
+
+    /**
+     * 创建时间
+     */
     private Timestamp createTime;
 }

@@ -124,7 +124,7 @@ public class IndexRecommendHelper {
      */
     private Long categories(String active, IndexVo vo) {
         List<CategoryDTO> list = categoryService.loadAllCategories();
-        list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, PushStatusEnum.ONLINE.getCode(), false));
+        list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, PushStatusEnum.ONLINE.getCode(), 0, false));
         Long selectCategoryId = null;
         for (CategoryDTO c : list) {
             if (c.getCategory().equalsIgnoreCase(active)) {
