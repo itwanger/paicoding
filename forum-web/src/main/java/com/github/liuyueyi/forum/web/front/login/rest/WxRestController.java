@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.web.front.login.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgResVo;
-import com.github.liuyueyi.forum.service.user.service.LoginService;
+import com.github.liuyueyi.forum.service.user.service.SessionService;
 import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class WxRestController {
     @Autowired
-    private LoginService loginService;
+    private SessionService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
 
@@ -65,7 +65,7 @@ public class WxRestController {
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
                 // fixme 带参数二维码需要 微信认证，个人公众号无权限
                 String code = key.substring("qrscene_".length());
-                String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
+                String verifyCode = sessionService.getVerifyCode(msg.getFromUserName());
                 qrLoginHelper.login(code, verifyCode);
                 res.setContent("登录成功");
             } else {
@@ -73,9 +73,9 @@ public class WxRestController {
             }
         } else {
             if (loginSymbol(content)) {
-                res.setContent("登录验证码: 【" + loginService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
+                res.setContent("登录验证码: 【" + sessionService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
             } else if (NumberUtils.isDigits(content) && content.length() == 4) {
-                String verifyCode = loginService.getVerifyCode(msg.getFromUserName());
+                String verifyCode = sessionService.getVerifyCode(msg.getFromUserName());
                 if (qrLoginHelper.login(content, verifyCode)) {
                     res.setContent("登录成功!");
                 } else {
@@ -100,7 +100,7 @@ public class WxRestController {
         }
 
         msg = msg.trim();
-        for (String key : LoginService.LOGIN_CODE_KEY) {
+        for (String key : SessionService.LOGIN_CODE_KEY) {
             if (msg.equalsIgnoreCase(key)) {
                 return true;
             }

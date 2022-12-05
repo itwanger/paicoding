@@ -22,6 +22,7 @@ import com.github.liuyueyi.forum.service.user.repository.entity.UserInfoDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
+import com.github.liuyueyi.forum.service.user.service.help.UserPwdEncoder;
 import com.github.liuyueyi.forum.service.user.service.help.UserRandomGenHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ArticleDao articleDao;
 
+    @Autowired
+    private UserPwdEncoder userPwdEncoder;
+
+    @Override
+    public BaseUserInfoDTO passwordLogin(String userName, String password) {
+        UserDO user = userDao.getByUserName(userName);
+        if (user == null) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + userName);
+        }
+
+        if (!userPwdEncoder.match(password, user.getPassword())) {
+            throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
+        }
+
+        return queryBasicUserInfo(user.getId());
+    }
 
     /**
      * 用户存在时，直接返回；不存在时，则初始化
