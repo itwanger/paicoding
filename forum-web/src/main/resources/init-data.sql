@@ -161,8 +161,8 @@ insert into config(`type`,`name`,`banner_url`,`jump_url`,`content`,`rank`, `stat
 -- fixme 下面这个文章后续使用论坛的介绍进行替换
 
 INSERT INTO `user`
-(id, third_account_id, login_type, deleted)
-VALUES(1, 'a7cb7228-0f85-4dd5-845c-7c5df3746e92', 0, 0);
+(id, third_account_id, `user_name`, `password`, login_type, deleted)
+VALUES(1, 'a7cb7228-0f85-4dd5-845c-7c5df3746e92', 'admin', 'df3a4143b663a086d1c006c8084db1b1', 0, 0);
 
 INSERT INTO user_info
 (id, user_id, user_name, photo, `position`, company, profile, extend, deleted)
