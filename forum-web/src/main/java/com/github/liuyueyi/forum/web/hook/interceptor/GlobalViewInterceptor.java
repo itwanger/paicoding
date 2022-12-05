@@ -47,7 +47,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 return false;
             }
 
-            if (permission.role() == UserRole.ADMIN && !"admin".equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
+            if (permission.role() == UserRole.ADMIN && !UserRole.ADMIN.name().equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
                 // 设置为无权限
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 return false;

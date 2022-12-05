@@ -32,4 +32,14 @@ public class UserDO extends BaseDO {
      * 删除标记
      */
     private Integer deleted;
+
+    /**
+     * 登录用户名
+     */
+    private String userName;
+
+    /**
+     * 登录密码，密文存储
+     */
+    private String password;
 }
