@@ -32,12 +32,18 @@ public class XmlWebConfig implements WebMvcConfigurer {
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.favorParameter(true)
-                .defaultContentType(MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML)
+                .defaultContentType(MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN, MediaType.TEXT_EVENT_STREAM, MediaType.APPLICATION_OCTET_STREAM, MediaType.MULTIPART_FORM_DATA, MediaType.MULTIPART_MIXED, MediaType.MULTIPART_RELATED)
+                // 当下面的配置为false（默认值）时，通过浏览器访问后端接口，会根据acceptHeader协商进行返回，返回结果都是xml格式；与我们日常习惯不太匹配
+                // 因此禁用请求头的AcceptHeader，在需要进行xml交互的接口上，手动加上 consumer, produces 属性； 因为本项目中，只有微信的交互是采用的xml进行传参、返回，其他的是通过json进行交互，所以只在微信的 WxRestController 中需要特殊处理；其他的默认即可
+                .ignoreAcceptHeader(true)
                 .parameterName("mediaType")
                 .mediaType("json", MediaType.APPLICATION_JSON)
                 .mediaType("xml", MediaType.APPLICATION_XML)
                 .mediaType("html", MediaType.TEXT_HTML)
                 .mediaType("text", MediaType.TEXT_PLAIN)
+                .mediaType("text/event-stream", MediaType.TEXT_EVENT_STREAM)
+                .mediaType("application/octet-stream", MediaType.APPLICATION_OCTET_STREAM)
+                .mediaType("multipart/form-data", MediaType.MULTIPART_FORM_DATA)
         ;
     }
 }
