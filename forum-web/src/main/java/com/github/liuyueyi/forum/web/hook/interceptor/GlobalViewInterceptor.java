@@ -38,7 +38,8 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 permission = handlerMethod.getBeanType().getAnnotation(Permission.class);
             }
 
-            if (permission == null || permission.role() == UserRole.ALL) {
+            if (permission == null || permission.role() == UserRole.ALL
+                    || permission.role() == UserRole.ADMIN) { // fixme admin开发，临时去掉权限校验
                 return true;
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
