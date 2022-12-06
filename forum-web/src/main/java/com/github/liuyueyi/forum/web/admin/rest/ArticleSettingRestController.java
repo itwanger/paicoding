@@ -4,6 +4,8 @@ import com.github.liueyueyi.forum.api.model.enums.OperateArticleEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.service.ArticleSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
+@Permission(role = UserRole.ADMIN)
 @RequestMapping(path = "admin/article/")
 public class ArticleSettingRestController {
 

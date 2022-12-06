@@ -22,8 +22,27 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     @Resource
     private UserMapper userMapper;
 
+    /**
+     * 三方账号登录方式
+     *
+     * @param accountId
+     * @return
+     */
     public UserDO getByThirdAccountId(String accountId) {
         return userMapper.getByThirdAccountId(accountId);
+    }
+
+    /**
+     * 用户名登录
+     *
+     * @param userName
+     * @return
+     */
+    public UserDO getByUserName(String userName) {
+        LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
+        query.eq(UserDO::getUserName, userName)
+                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userMapper.selectOne(query);
     }
 
     public void saveUser(UserDO user) {

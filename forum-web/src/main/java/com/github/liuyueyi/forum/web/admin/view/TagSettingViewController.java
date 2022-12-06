@@ -4,6 +4,8 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.article.service.TagSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
+@Permission(role = UserRole.ADMIN)
 @RequestMapping(path = "admin/tag/")
 public class TagSettingViewController {
 
