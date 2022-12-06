@@ -4,8 +4,6 @@
   <div th:fragment="column_card(column)">
     <a
       th:href="'/column/' + ${column.columnId} + '/1'"
-      target="_blank"
-      rel=""
       class="item"
     >
       <div class="poster">
@@ -29,8 +27,6 @@
           <object>
             <a
               th:href="'/user/' + ${column.author}"
-              target="_blank"
-              rel=""
               class="user"
             >
               <img th:src="${column.authorAvatar}"
