@@ -320,3 +320,6 @@ CREATE TABLE `dict_common` (
 
 -- 添加分类排序
 alter table category add `rank` tinyint NOT NULL default '0' COMMENT '排序';
+
+-- 支持用户名密码登录
+alter table `user` add user_name varchar(64) not null default '' comment '用户名', add password varchar(128) not null default '' comment '密码';

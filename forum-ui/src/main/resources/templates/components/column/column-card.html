@@ -19,13 +19,12 @@
       </div>
       <div class="info">
         <div class="title">
+          <span class="new-tag-wrap tag">上新</span>
           <span class="text-highlight" th:text="${column.column}">
             分布式专栏
           </span>
         </div>
-        <span class="text-highlight desc" th:text="${column.introduction}">
-          一个简单的分布式专栏
-        </span>
+
         <div class="author">
           <object>
             <a
@@ -41,10 +40,17 @@
               />
               <span
                 class="name"
-                style="max-width: 128px"
                 th:text="${column.authorName}"
               >
                 一灰
+              </span>
+
+              <span class="self-description">
+                |
+              </span>
+
+              <span class="self-description" th:text="${column.authorProfile}">
+                前端技术专家
               </span>
             </a>
           </object>
@@ -52,12 +58,26 @@
         <div class="other">
           <div class="messages">
             <span class="message">
-              <span th:text="'已更新 ' + ${column.count.articleCount} + ' 小节'">
+              <span class="article-count"
+                    th:text="'已更新 ' + ${column.count.articleCount} + ' 小节'">
                 已更新21小节
+              </span>
+              <span class="read-count" th:text="${column.count.readCount} + ' 人已阅读'">
+                多少人阅读
+              </span>
+            </span>
+            <span class="sale-tooltip">
+              限时免费
+              <span class="count-down-text">
+              剩余 1 天 12:50:43.92
               </span>
             </span>
           </div>
         </div>
+
+        <span class="text-highlight desc" th:text="${column.introduction}">
+          一个简单的分布式专栏
+        </span>
       </div>
     </a>
   </div>
