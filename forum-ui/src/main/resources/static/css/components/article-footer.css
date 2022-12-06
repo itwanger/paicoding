@@ -136,7 +136,7 @@
   .comment-write-textarea {
     width: 100%;
     border: 1px solid var(--pai-color-999-gray);
-    border-radius: 4px;
+    border-radius: 2px;
     padding: 8px 16px;
     margin-bottom: 10px;
   }
