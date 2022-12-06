@@ -1,14 +1,19 @@
 package com.github.liuyueyi.forum.service.config.service.impl;
 
+import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.DictCommonDTO;
 import com.github.liuyueyi.forum.core.util.MapUtils;
+import com.github.liuyueyi.forum.service.article.service.CategoryService;
+import com.github.liuyueyi.forum.service.article.service.impl.CategorySettingServiceImpl;
 import com.github.liuyueyi.forum.service.config.converter.DictCommonConverter;
 import com.github.liuyueyi.forum.service.config.repository.dao.DictCommonDao;
 import com.github.liuyueyi.forum.service.config.service.DictCommonService;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +28,9 @@ public class DictCommonServiceImpl implements DictCommonService {
 
     @Resource
     private DictCommonDao dictCommonDao;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public Map<String, Object> getDict() {
@@ -39,6 +47,12 @@ public class DictCommonServiceImpl implements DictCommonService {
                 }
                 codeMap.put(dictCommon.getDictCode(), dictCommon.getDictDesc());
         }
+
+        // 获取分类的字典信息
+        List<CategoryDTO> categoryDTOS = categoryService.loadAllCategories();
+        Map<String, String> codeMap = new HashMap<>();
+        categoryDTOS.forEach(categoryDTO -> codeMap.put(categoryDTO.getCategoryId().toString(), categoryDTO.getCategory()));
+        dictCommonMap.put("CategoryType", codeMap);
 
         result.putAll(dictCommonMap);
         return result;
