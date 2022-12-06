@@ -162,7 +162,7 @@
   }
   
   .comment-item-wrap-second {
-    margin-left: 50px;
+    margin-left: 30px;
     background-color: #f7f8fa;
     border-radius: 4px;
     padding: 12px;
@@ -193,11 +193,11 @@
   }
   
   /*全部评论*/
-  .all-comment {
+  .all-comment,.hot-comment {
     padding: 20px;
   }
   
-  .all-comment-title {
+  .all-comment-title,.hot-comment-title {
     font-size: 18px;
     border-bottom: 1px solid var(--pai-hr-color-1);
     padding-bottom: 12px;
