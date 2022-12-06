@@ -123,7 +123,7 @@ public class ArticleConverter {
             return null;
         }
         CategoryDO categoryDO = new CategoryDO();
-        categoryDO.setCategoryName(categoryReq.getCategoryName());
+        categoryDO.setCategoryName(categoryReq.getCategory());
         categoryDO.setRank(categoryReq.getRank());
         return categoryDO;
     }
