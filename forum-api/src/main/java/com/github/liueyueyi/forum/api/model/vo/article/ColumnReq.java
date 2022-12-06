@@ -43,9 +43,4 @@ public class ColumnReq implements Serializable {
      * 状态
      */
     private Integer state;
-
-    /**
-     * 上线时间
-     */
-    private Long publishTime;
 }

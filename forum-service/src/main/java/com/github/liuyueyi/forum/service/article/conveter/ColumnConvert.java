@@ -46,7 +46,6 @@ public class ColumnConvert {
         columnInfoDO.setIntroduction(columnReq.getIntroduction());
         columnInfoDO.setCover(columnReq.getCover());
         columnInfoDO.setState(columnReq.getState());
-        columnInfoDO.setPublishTime(new Date(columnReq.getPublishTime()));
         return columnInfoDO;
     }
 
