@@ -112,7 +112,7 @@ public class ArticleConverter {
             return null;
         }
         TagDO tagDO = new TagDO();
-        tagDO.setTagName(tagReq.getTagName());
+        tagDO.setTagName(tagReq.getTag());
         tagDO.setCategoryId(tagReq.getCategoryId());
         return tagDO;
     }

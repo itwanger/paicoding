@@ -41,7 +41,7 @@ public class ColumnConvert {
             return null;
         }
         ColumnInfoDO columnInfoDO = new ColumnInfoDO();
-        columnInfoDO.setColumnName(columnReq.getColumnName());
+        columnInfoDO.setColumnName(columnReq.getColumn());
         columnInfoDO.setUserId(columnReq.getUserId());
         columnInfoDO.setIntroduction(columnReq.getIntroduction());
         columnInfoDO.setCover(columnReq.getCover());
