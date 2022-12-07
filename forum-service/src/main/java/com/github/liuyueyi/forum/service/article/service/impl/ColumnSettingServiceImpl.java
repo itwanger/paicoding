@@ -112,20 +112,27 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
+    public PageVo<SimpleArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) {
         List<SimpleArticleDTO> simpleArticleDTOS = new ArrayList<>();
-        List<ColumnArticleDO> columnArticleDOS = columnService.queryColumnArticlesDetail(columnId);
+        List<ColumnArticleDO> columnArticleDOS = columnDao.listColumnArticlesDetail(columnId, pageParam);
         for (ColumnArticleDO columnArticleDO : columnArticleDOS) {
             ArticleDO articleDO = articleDao.getById(columnArticleDO.getArticleId());
             if (articleDO == null) {
+                continue;
+            }
+            ColumnInfoDO columnInfoDO = columnDao.getById(columnArticleDO.getColumnId());
+            if (columnInfoDO == null) {
                 continue;
             }
             SimpleArticleDTO simpleArticleDTO = new SimpleArticleDTO();
             simpleArticleDTO.setId(articleDO.getId());
             simpleArticleDTO.setTitle(articleDO.getTitle());
             simpleArticleDTO.setSort(columnArticleDO.getSection());
+            simpleArticleDTO.setColumnId(columnArticleDO.getColumnId());
+            simpleArticleDTO.setColumn(columnInfoDO.getColumnName());
             simpleArticleDTOS.add(simpleArticleDTO);
         }
-        return simpleArticleDTOS;
+        Integer totalCount = columnDao.countColumnArticles(columnId);
+        return PageVo.build(simpleArticleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
     }
 }

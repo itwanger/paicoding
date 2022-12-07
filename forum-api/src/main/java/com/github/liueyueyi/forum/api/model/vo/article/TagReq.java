@@ -21,7 +21,7 @@ public class TagReq implements Serializable {
     /**
      * 标签名称
      */
-    private String tagName;
+    private String tag;
 
     /**
      * 类目ID

@@ -28,6 +28,16 @@ public class SimpleArticleDTO implements Serializable {
     private String title;
 
     /**
+     * 专栏ID
+     */
+    private Long columnId;
+
+    /**
+     * 专栏标题
+     */
+    private String column;
+
+    /**
      * 文章排序
      */
     private Integer sort;

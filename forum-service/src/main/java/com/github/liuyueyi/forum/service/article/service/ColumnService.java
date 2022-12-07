@@ -53,5 +53,14 @@ public interface ColumnService {
      * @param columnId
      * @return
      */
-    List<ColumnArticleDO> queryColumnArticlesDetail(long columnId);
+    List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam);
+
+
+    /**
+     * 专栏文章总数
+     *
+     * @param columnId
+     * @return
+     */
+    int countColumnArticles(Long columnId);
 }

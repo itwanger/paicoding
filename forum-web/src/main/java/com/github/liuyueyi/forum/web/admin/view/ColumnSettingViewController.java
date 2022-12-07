@@ -40,8 +40,12 @@ public class ColumnSettingViewController {
 
     @ResponseBody
     @GetMapping(path = "listColumnArticle")
-    public ResVo<List<SimpleArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId) {
-        List<SimpleArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId);
+    public ResVo<PageVo<SimpleArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId,
+                                                           @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                                           @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
+        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
+        PageVo<SimpleArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId, PageParam.newPageInstance(pageNumber, pageSize));
         return ResVo.ok(simpleArticleDTOS);
     }
 }

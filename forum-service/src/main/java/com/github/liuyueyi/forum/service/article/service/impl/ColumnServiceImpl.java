@@ -90,12 +90,6 @@ public class ColumnServiceImpl implements ColumnService {
         return articleId;
     }
 
-    /**
-     * 查询专栏的文章详情
-     *
-     * @param columnId
-     * @return
-     */
     @Override
     public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
         List<Long> articleIds = columnDao.listColumnArticles(columnId);
@@ -112,14 +106,13 @@ public class ColumnServiceImpl implements ColumnService {
         return articleList;
     }
 
-    /**
-     * 查询专栏的文章详情
-     *
-     * @param columnId
-     * @return
-     */
     @Override
-    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId) {
-        return columnDao.listColumnArticlesDetail(columnId);
+    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam) {
+        return columnDao.listColumnArticlesDetail(columnId, pageParam);
+    }
+
+    @Override
+    public int countColumnArticles(Long columnId) {
+        return columnDao.countColumnArticles(columnId);
     }
 }

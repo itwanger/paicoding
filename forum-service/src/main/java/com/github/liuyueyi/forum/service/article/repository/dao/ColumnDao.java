@@ -49,7 +49,9 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      */
     public int countColumnArticles(Long columnId) {
         LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(ColumnArticleDO::getColumnId, columnId);
+        if (columnId != null && columnId > 0) {
+            query.eq(ColumnArticleDO::getColumnId, columnId);
+        }
         return columnArticleMapper.selectCount(query).intValue();
     }
 
@@ -59,9 +61,12 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      * @param columnId
      * @return
      */
-    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId) {
+    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId, PageParam pageParam) {
         LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(ColumnArticleDO::getColumnId, columnId);
+        if (columnId != null && columnId > 0) {
+            query.eq(ColumnArticleDO::getColumnId, columnId);
+        }
+        query.last(PageParam.getLimitSql(pageParam));
         return columnArticleMapper.selectList(query);
     }
 
