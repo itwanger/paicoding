@@ -19,7 +19,7 @@
   flex: 1;
   margin-right: 20px;
   background-color: #fff;
-  padding-left: 20px;
+  padding: 0 20px;
   margin-bottom: 20px;
 }
 
@@ -123,8 +123,6 @@ svg:not(:root).svg-inline--fa {
 .svg-inline--fa.fa-w-14 {
   width: 1em;
 }
-
-
 
 /*主要文章详情页 头部图片*/
 .home-carouse-wrap {
