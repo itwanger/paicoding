@@ -9,12 +9,20 @@
 
 .navbar-count-msg {
   position: absolute;
-  top: 8px;
-  right: 0;
-  width: 10px;
-  height: 10px;
+  top: 4px;
+  right: 2px;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   background-color: var(--pai-brand-6-mq);
+  color: #f1f1f1;
+  transform: scale(0.8);
+  font-size: 12px;
+  font-weight: 500;
+  background: #f03535;
 }
 
 .nav-item {

@@ -126,6 +126,10 @@ blockquote {
   flex: none;
 }
 
+.edit-tag-wrap {
+  align-items: baseline;
+}
+
 .form-selectgroup-item {
   width: 100px;
   background-color: #ccc;
@@ -193,7 +197,7 @@ blockquote {
 .form-textarea-limit {
   position: absolute;
   bottom: 5px;
-  right: 10px;
+  right: 20px;
   color: red;
   font-size: 12px;
   z-index: 10;
