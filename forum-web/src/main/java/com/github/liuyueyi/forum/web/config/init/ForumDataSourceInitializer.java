@@ -26,10 +26,10 @@ import java.util.List;
 @Slf4j
 @Configuration
 public class ForumDataSourceInitializer {
-    @Value("classpath:schema-all.sql")
-    private Resource schemaSql;
-    @Value("classpath:init-data.sql")
-    private Resource initData;
+//    @Value("classpath:liquibase/data/init_schema_221209.sql")
+//    private Resource schemaSql;
+//    @Value("classpath:liquibase/data/init_data_221209.sql")
+//    private Resource initData;
     @Value("${database.name}")
     private String database;
 
