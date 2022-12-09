@@ -53,9 +53,7 @@ mvn clean install -DskipTests=true -Pprod
     - application.yml: 主配置文件入口
     - application-config.yml: 全局的站点信息配置文件
     - logback-spring.xml: 日志打印相关配置文件
-    - schema-all.sql: 项目中所有表结构定义sql文件
-    - init-data.sql: 初始化数据sql文件
-    - schema.sql, test-data.sql: 开发阶段的sql文件，后续会删除，不用关注
+    - liquibase: 由liquibase进行数据库表结构管理
 - resources-env
     - xxx/application-dal.yml: 定义数据库相关的配置信息
     - xxx/application-image.yml: 定义上传图片的相关配置信息
