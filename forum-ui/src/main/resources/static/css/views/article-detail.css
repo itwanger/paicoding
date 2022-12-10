@@ -362,3 +362,7 @@
 .widget {
   margin-bottom: 30px;
 }
+
+.comment-list-wrap {
+  padding: 20px;
+}
