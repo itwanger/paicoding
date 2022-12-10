@@ -21,5 +21,10 @@ public class CategoryReq implements Serializable {
     /**
      * 类目名称
      */
-    private String categoryName;
+    private String category;
+
+    /**
+     * 排序
+     */
+    private Integer rank;
 }

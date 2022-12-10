@@ -21,8 +21,8 @@ CREATE TABLE `article`
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     PRIMARY KEY (`id`),
     KEY            `idx_category_id` (`category_id`),
-        KEY `idx_title` (`title`),
-        KEY `idx_short_title` (`short_title`)
+    KEY `idx_title` (`title`),
+    KEY `idx_short_title` (`short_title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文章表';
 
 
@@ -81,6 +81,7 @@ CREATE TABLE `category`
     `id`            int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `category_name` varchar(64) NOT NULL DEFAULT '' COMMENT '类目名称',
     `status`        tinyint     NOT NULL DEFAULT '0' COMMENT '状态：0-未发布，1-已发布',
+    `rank`          tinyint     NOT NULL default '0' COMMENT '排序',
     `deleted`       tinyint     NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
@@ -211,6 +212,8 @@ CREATE TABLE `user`
 (
     `id`               int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `third_account_id` varchar(128) NOT NULL DEFAULT '' COMMENT '第三方用户ID',
+    `user_name` varchar(64) NOT NULL DEFAULT '' COMMENT '用户名',
+    `password` varchar(128) NOT NULL DEFAULT '' COMMENT '密码',
     `login_type`       tinyint      NOT NULL DEFAULT '0' COMMENT '登录方式: 0-微信登录，1-账号密码登录',
     `deleted`          tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -298,14 +301,14 @@ CREATE TABLE `config`
 
 
 CREATE TABLE `dict_common` (
-   `id`             int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-   `type_code`      varchar(100) NOT NULL DEFAULT '' COMMENT '字典类型，sex, status 等',
-   `dict_code`      varchar(100) NOT NULL DEFAULT '' COMMENT '字典类型的值编码',
-   `dict_desc`      varchar(200) NOT NULL DEFAULT '' COMMENT '字典类型的值描述',
-   `sort_no`        int(8) unsigned NOT NULL DEFAULT '0' COMMENT '排序编号',
-   `remark`         varchar(500) DEFAULT '' COMMENT '备注',
-   `create_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-   `update_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
-   PRIMARY KEY (`id`),
-   UNIQUE KEY `uk_type_code_dict_code` (`type_code`,`dict_code`)
+                               `id`             int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+                               `type_code`      varchar(100) NOT NULL DEFAULT '' COMMENT '字典类型，sex, status 等',
+                               `dict_code`      varchar(100) NOT NULL DEFAULT '' COMMENT '字典类型的值编码',
+                               `dict_desc`      varchar(200) NOT NULL DEFAULT '' COMMENT '字典类型的值描述',
+                               `sort_no`        int(8) unsigned NOT NULL DEFAULT '0' COMMENT '排序编号',
+                               `remark`         varchar(500) DEFAULT '' COMMENT '备注',
+                               `create_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                               `update_time`    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+                               PRIMARY KEY (`id`),
+                               UNIQUE KEY `uk_type_code_dict_code` (`type_code`,`dict_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='通用数据字典';

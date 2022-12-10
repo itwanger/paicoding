@@ -26,10 +26,10 @@ import java.util.List;
 @Slf4j
 @Configuration
 public class ForumDataSourceInitializer {
-    @Value("classpath:schema-all.sql")
-    private Resource schemaSql;
-    @Value("classpath:init-data.sql")
-    private Resource initData;
+//    @Value("classpath:liquibase/data/init_schema_221209.sql")
+//    private Resource schemaSql;
+//    @Value("classpath:liquibase/data/init_data_221209.sql")
+//    private Resource initData;
     @Value("${database.name}")
     private String database;
 
@@ -45,9 +45,10 @@ public class ForumDataSourceInitializer {
 
     private DatabasePopulator databasePopulator() {
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScripts(schemaSql);
-        populator.addScripts(initData);
-        populator.setSeparator(";");
+        // 下面这种是根据sql文件来进行初始化；改成 liquibase 之后不再使用这种方案，由liquibase来统一管理表结构数据变更
+//        populator.addScripts(schemaSql);
+//        populator.addScripts(initData);
+//        populator.setSeparator(";");
         return populator;
     }
 

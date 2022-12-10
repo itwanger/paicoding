@@ -15,6 +15,7 @@ import com.github.liuyueyi.forum.service.article.conveter.ColumnConvert;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ColumnDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.liuyueyi.forum.service.article.service.ColumnService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
@@ -89,12 +90,6 @@ public class ColumnServiceImpl implements ColumnService {
         return articleId;
     }
 
-    /**
-     * 查询专栏的文章详情
-     *
-     * @param columnId
-     * @return
-     */
     @Override
     public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
         List<Long> articleIds = columnDao.listColumnArticles(columnId);
@@ -111,16 +106,13 @@ public class ColumnServiceImpl implements ColumnService {
         return articleList;
     }
 
-    /**
-     * 查询专栏的文章详情
-     *
-     * @param columnId
-     * @return
-     */
-    @Override
-    public List<ArticleDTO> queryColumnArticlesDetail(long columnId) {
-        List<Long> articleIds = columnDao.listColumnArticles(columnId);
-        List<ArticleDO> articles = articleDao.listByIds(articleIds);
-        return ArticleConverter.toArticleDtoList(articles);
-    }
+//    @Override
+//    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam) {
+//        return columnDao.listColumnArticlesDetail(columnId, pageParam);
+//    }
+//
+//    @Override
+//    public int countColumnArticles(Long columnId) {
+//        return columnDao.countColumnArticles(columnId);
+//    }
 }

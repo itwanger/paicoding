@@ -5,7 +5,7 @@ import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
-import com.github.liuyueyi.forum.service.user.service.LoginService;
+import com.github.liuyueyi.forum.service.user.service.SessionService;
 import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
 import com.github.liuyueyi.forum.web.front.login.vo.QrLoginVo;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @RequestMapping
 public class LoginRestController {
     @Autowired
-    private LoginService loginService;
+    private SessionService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
 
@@ -44,10 +44,10 @@ public class LoginRestController {
     @PostMapping("/login")
     public ResVo<Boolean> login(@RequestParam(name = "code") String code,
                                 HttpServletResponse response) {
-        String session = loginService.login(code);
+        String session = sessionService.login(code);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
-            response.addCookie(new Cookie(LoginService.SESSION_KEY, session));
+            response.addCookie(new Cookie(SessionService.SESSION_KEY, session));
             return ResVo.ok(true);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录码异常，请重新输入");
@@ -57,7 +57,7 @@ public class LoginRestController {
     @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
-        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
+        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
         // 重定向到首页
         response.sendRedirect("/");
         return ResVo.ok(true);

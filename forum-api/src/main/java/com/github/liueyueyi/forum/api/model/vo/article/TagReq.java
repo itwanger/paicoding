@@ -21,12 +21,7 @@ public class TagReq implements Serializable {
     /**
      * 标签名称
      */
-    private String tagName;
-
-    /**
-     * 标签类型：1-系统标签，2-自定义标签
-     */
-    private Integer tagType;
+    private String tag;
 
     /**
      * 类目ID

@@ -9,7 +9,7 @@ import java.util.Set;
  * @author YiHui
  * @date 2022/8/15
  */
-public interface LoginService {
+public interface SessionService {
     String SESSION_KEY = "f-session";
     String USER_DEVICE_KEY = "f-device";
     Set<String> LOGIN_CODE_KEY = Sets.newHashSet("登录", "login");
@@ -30,6 +30,14 @@ public interface LoginService {
      * @return
      */
     String login(String code);
+
+    /**
+     * 用户名密码方式，直接登录获取session
+     *
+     * @param userId
+     * @return
+     */
+    String login(Long userId);
 
     /**
      * 登出

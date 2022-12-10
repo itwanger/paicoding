@@ -73,8 +73,8 @@ public class ImageServiceImpl implements ImageService {
         List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
         for (MdImgLoader.MdImg img : imgList) {
             // fixme 下面可以调整为并发转存
-            if (img.getUrl().startsWith(imageProperties.getCdnHost()) ||
-                    !img.getUrl().startsWith("http")) {
+            if ((StringUtils.isNotBlank(imageProperties.getCdnHost()) && img.getUrl().startsWith(imageProperties.getCdnHost()))
+                    || !img.getUrl().startsWith("http")) {
                 // 已经转存过，不需要再次转存；非http图片，不处理
                 continue;
             }

@@ -55,7 +55,6 @@ public class ConfigConverter {
         configDO.setJumpUrl(configReq.getJumpUrl());
         configDO.setContent(configReq.getContent());
         configDO.setRank(configReq.getRank());
-        configDO.setStatus(PushStatusEnum.OFFLINE.getCode());
         configDO.setTags(configReq.getTags());
         return configDO;
     }

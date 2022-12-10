@@ -44,7 +44,7 @@ public class EnvUtil {
                 }
             }
         }
-        Assert.isTrue(env != null, "env.name环境配置必然存在!");
+        Assert.isTrue(env != null, "env.name环境配置必须存在!");
         return env;
     }
 }

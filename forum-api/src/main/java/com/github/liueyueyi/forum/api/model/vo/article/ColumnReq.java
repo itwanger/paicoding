@@ -22,7 +22,7 @@ public class ColumnReq implements Serializable {
     /**
      * 专栏名
      */
-    private String columnName;
+    private String column;
 
     /**
      * 作者
@@ -43,9 +43,4 @@ public class ColumnReq implements Serializable {
      * 状态
      */
     private Integer state;
-
-    /**
-     * 上线时间
-     */
-    private Long publishTime;
 }

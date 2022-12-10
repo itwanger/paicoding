@@ -38,7 +38,8 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 permission = handlerMethod.getBeanType().getAnnotation(Permission.class);
             }
 
-            if (permission == null || permission.role() == UserRole.ALL) {
+            if (permission == null || permission.role() == UserRole.ALL
+                    || permission.role() == UserRole.ADMIN) { // fixme admin开发，临时去掉权限校验
                 return true;
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
@@ -47,7 +48,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 return false;
             }
 
-            if (permission.role() == UserRole.ADMIN && !"admin".equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
+            if (permission.role() == UserRole.ADMIN && !UserRole.ADMIN.name().equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
                 // 设置为无权限
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 return false;
