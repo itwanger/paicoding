@@ -4,7 +4,7 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.notify.service.NotifyService;
-import com.github.liuyueyi.forum.service.user.service.LoginService;
+import com.github.liuyueyi.forum.service.user.service.SessionService;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
 import com.github.liuyueyi.forum.web.global.vo.GlobalVo;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class GlobalInitService {
     @Value("${env.name}")
     private String env;
     @Autowired
-    private LoginService loginService;
+    private SessionService sessionService;
 
     @Resource
     private GlobalViewConfig globalViewConfig;
@@ -77,9 +77,9 @@ public class GlobalInitService {
             return;
         }
         for (Cookie cookie : request.getCookies()) {
-            if (LoginService.SESSION_KEY.equalsIgnoreCase(cookie.getName())) {
+            if (SessionService.SESSION_KEY.equalsIgnoreCase(cookie.getName())) {
                 String session = cookie.getValue();
-                BaseUserInfoDTO user = loginService.getUserBySessionId(session);
+                BaseUserInfoDTO user = sessionService.getUserBySessionId(session);
                 reqInfo.setSession(session);
                 if (user != null) {
                     reqInfo.setUserId(user.getUserId());

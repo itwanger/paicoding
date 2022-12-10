@@ -14,13 +14,18 @@ import java.sql.Timestamp;
  */
 @Data
 @Accessors(chain = true)
-public class SimpleArticleDTO implements Serializable {
+public class ColumnArticleDTO implements Serializable {
     private static final long serialVersionUID = 3646376715620165839L;
+
+    /**
+     * 唯一ID
+     */
+    private Long id;
 
     /**
      * 文章ID
      */
-    private Long id;
+    private Long articleId;
 
     /**
      * 文章标题

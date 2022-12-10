@@ -7,7 +7,7 @@ body {
   /*点击后激活后的颜色*/
   --pai-brand-3-click: #f59e2f;
   /*不可用的颜色*/
-  --pai-brand-4-disable: #abcdff;
+  --pai-brand-4-disable: #f7f8fa;
   /*备用色 非常深的颜色*/
   --pai-brand-5-bak: #fe6617;
   /*消息提醒点*/
@@ -70,6 +70,7 @@ input:focus {
 
 textarea {
   resize: none;
+  font-size: 14px;
 }
 
 input::placeholder,
@@ -82,8 +83,9 @@ textarea:focus {
   outline: none;
 }
 
-button:focus {
+button,button:focus {
   outline: none;
+  box-shadow: none !important;
 }
 
 /*接下来是 ID 的*/

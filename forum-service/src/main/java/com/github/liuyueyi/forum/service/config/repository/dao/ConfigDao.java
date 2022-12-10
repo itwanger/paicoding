@@ -54,7 +54,7 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
         List<ConfigDO> configDOS = lambdaQuery()
                 .in(ConfigDO::getType, typeList)
                 .eq(ConfigDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .orderByDesc(ConfigDO::getCreateTime)
+                .orderByAsc(ConfigDO::getRank)
                 .last(PageParam.getLimitSql(pageParam))
                 .list();
         return ConfigConverter.toDTOS(configDOS);

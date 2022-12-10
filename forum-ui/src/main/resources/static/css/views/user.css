@@ -80,8 +80,8 @@
 
 /* tag选择样式 */
 .tag-select-active {
-  color: #3973ff !important;
-  border-bottom: 4px solid #3973ff;
+  color: var(--pai-brand-2-hover) !important;
+  border-bottom: 4px solid var(--pai-brand-2-hover);
 }
 
 .tag-select {
@@ -253,7 +253,7 @@
   height: 100%;
   border-radius: 50%;
 }
-.person-upload-text{
+.person-upload-text {
   color: #1d2129;
   font-weight: 500;
   font-size: 14px;
@@ -282,9 +282,9 @@
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  background-color: rgba(29,33,41,.5);
+  background-color: rgba(29, 33, 41, 0.5);
   z-index: 2;
-  visibility:hidden;
+  visibility: hidden;
   cursor: pointer;
 }
 .click-text {
@@ -293,7 +293,9 @@
   line-height: 17px;
   font-weight: 400;
 }
-.click-input {display: none;}
+.click-input {
+  display: none;
+}
 .person-info {
   width: 70%;
 }
@@ -432,5 +434,7 @@
 .user-text-icon {
   cursor: pointer;
 }
-}
+
+.iconSize___29n8N {
+  filter: brightness(1.2);
 }

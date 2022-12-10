@@ -2,7 +2,7 @@ package com.github.liuyueyi.forum.web.front.login;
 
 import com.github.liueyueyi.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.liuyueyi.forum.core.util.CodeGenerateUtil;
-import com.github.liuyueyi.forum.service.user.service.LoginService;
+import com.github.liuyueyi.forum.service.user.service.SessionService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -36,7 +36,7 @@ public class QrLoginHelper {
     public static volatile long expireTime = 0L;
 
 
-    private final LoginService loginService;
+    private final SessionService sessionService;
     /**
      * key = 验证码, value = 长连接
      */
@@ -46,8 +46,8 @@ public class QrLoginHelper {
      */
     private LoadingCache<String, String> deviceCodeCache;
 
-    public QrLoginHelper(LoginService loginService) {
-        this.loginService = loginService;
+    public QrLoginHelper(SessionService loginService) {
+        this.sessionService = loginService;
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
             public SseEmitter load(String s) throws Exception {
@@ -142,14 +142,14 @@ public class QrLoginHelper {
     }
 
     public boolean login(String loginCode, String verifyCode) {
-        String session = loginService.login(verifyCode);
+        String session = sessionService.login(verifyCode);
         SseEmitter sseEmitter = verifyCodeCache.getIfPresent(loginCode);
         if (sseEmitter != null) {
             try {
                 // 登录成功，写入session
                 sseEmitter.send(session);
                 // 设置cookie的路径
-                sseEmitter.send("login#" + LoginService.SESSION_KEY + "=" + session + ";path=/;");
+                sseEmitter.send("login#" + SessionService.SESSION_KEY + "=" + session + ";path=/;");
                 return true;
             } catch (Exception e) {
                 log.error("登录异常: {}, {}", loginCode, verifyCode, e);
@@ -173,7 +173,7 @@ public class QrLoginHelper {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : request.getCookies()) {
-                if (LoginService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
+                if (SessionService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
                     deviceId = cookie.getValue();
                     break;
                 }
@@ -181,7 +181,7 @@ public class QrLoginHelper {
         }
         if (deviceId == null) {
             deviceId = UUID.randomUUID().toString();
-            response.addCookie(new Cookie(LoginService.USER_DEVICE_KEY, deviceId));
+            response.addCookie(new Cookie(SessionService.USER_DEVICE_KEY, deviceId));
         }
         return deviceId;
     }

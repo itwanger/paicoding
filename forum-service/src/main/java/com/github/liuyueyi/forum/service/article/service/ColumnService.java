@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 
 import java.util.List;
 
@@ -46,11 +47,20 @@ public interface ColumnService {
      */
     List<SimpleArticleDTO> queryColumnArticles(long columnId);
 
-    /**
-     * 专栏 + 文章列表详情
-     *
-     * @param columnId
-     * @return
-     */
-    List<ArticleDTO> queryColumnArticlesDetail(long columnId);
+//    /**
+//     * 专栏 + 文章列表详情
+//     *
+//     * @param columnId
+//     * @return
+//     */
+//    List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam);
+//
+//
+//    /**
+//     * 专栏文章总数
+//     *
+//     * @param columnId
+//     * @return
+//     */
+//    int countColumnArticles(Long columnId);
 }

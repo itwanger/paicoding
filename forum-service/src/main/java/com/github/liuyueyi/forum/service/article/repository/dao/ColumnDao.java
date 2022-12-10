@@ -49,13 +49,27 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      */
     public int countColumnArticles(Long columnId) {
         LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(ColumnArticleDO::getColumnId, columnId);
+        if (columnId != null && columnId > 0) {
+            query.eq(ColumnArticleDO::getColumnId, columnId);
+        }
         return columnArticleMapper.selectCount(query).intValue();
     }
 
-//    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId) {
-//        return columnArticleMapper.selectList();
-//    }
+    /**
+     * 根据专栏ID查询文章信息列表
+     *
+     * @param columnId
+     * @return
+     */
+    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId, PageParam pageParam) {
+        LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
+        if (columnId != null && columnId > 0) {
+            query.eq(ColumnArticleDO::getColumnId, columnId);
+        }
+        query.orderByAsc(ColumnArticleDO::getColumnId, ColumnArticleDO::getSection);
+        query.last(PageParam.getLimitSql(pageParam));
+        return columnArticleMapper.selectList(query);
+    }
 
     /**
      * 获取文章列表

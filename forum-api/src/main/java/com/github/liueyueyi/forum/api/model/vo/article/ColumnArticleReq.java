@@ -30,7 +30,7 @@ public class ColumnArticleReq implements Serializable {
     private Long articleId;
 
     /**
-     * 顺序，越小越靠前
+     * 文章排序
      */
-    private Integer section;
+    private Integer sort;
 }

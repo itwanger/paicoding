@@ -71,7 +71,7 @@
 .cdc-article-panel__desc {
   font-size: 14px;
   line-height: 22px;
-  color: #4b5b76;
+  color: var(--pai-color-4-gray);
   min-height: 44px;
   overflow: hidden;
   text-overflow: ellipsis;

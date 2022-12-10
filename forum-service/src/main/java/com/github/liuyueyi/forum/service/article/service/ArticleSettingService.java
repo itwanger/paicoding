@@ -28,6 +28,13 @@ public interface ArticleSettingService {
      */
     PageVo<ArticleDTO> getArticleList(PageParam pageParam);
 
+    /**
+     * 删除文章
+     *
+     * @param articleId
+     */
+    void deleteArticle(Long articleId);
+
 
     /**
      * 操作文章

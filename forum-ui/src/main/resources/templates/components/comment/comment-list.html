@@ -36,8 +36,8 @@
     <!-- 评论列表 -->
     <div th:class="${(#lists.isEmpty(comments) ? ' no-comment-box' : '')}">
       <!-- 热门评论  -->
-      <div th:if="${hotComment != null}" class="comment-list-wrap">
-        <h4>
+      <div th:if="${hotComment != null}" class="comment-list-wrap hot-comment bg-color-white">
+        <h4 class="hot-comment-title">
           热门评论
           <img src="https://cdn.cnbj1.fds.api.mi-img.com/aife/technology-platform-fe/preview/dist/static/hotImg.899405d3.png" _
                nk="FpHZ31"

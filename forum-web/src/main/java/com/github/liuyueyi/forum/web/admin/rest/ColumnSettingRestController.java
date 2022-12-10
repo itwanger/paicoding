@@ -5,6 +5,8 @@ import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnReq;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.ColumnSettingService;
@@ -20,6 +22,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
+@Permission(role = UserRole.ADMIN)
 @RequestMapping(path = "admin/column/")
 public class ColumnSettingRestController {
 

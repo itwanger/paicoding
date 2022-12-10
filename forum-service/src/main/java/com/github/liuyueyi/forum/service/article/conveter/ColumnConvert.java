@@ -41,12 +41,11 @@ public class ColumnConvert {
             return null;
         }
         ColumnInfoDO columnInfoDO = new ColumnInfoDO();
-        columnInfoDO.setColumnName(columnReq.getColumnName());
+        columnInfoDO.setColumnName(columnReq.getColumn());
         columnInfoDO.setUserId(columnReq.getUserId());
         columnInfoDO.setIntroduction(columnReq.getIntroduction());
         columnInfoDO.setCover(columnReq.getCover());
         columnInfoDO.setState(columnReq.getState());
-        columnInfoDO.setPublishTime(new Date(columnReq.getPublishTime()));
         return columnInfoDO;
     }
 
@@ -57,7 +56,7 @@ public class ColumnConvert {
         ColumnArticleDO columnArticleDO = new ColumnArticleDO();
         columnArticleDO.setColumnId(columnArticleReq.getColumnId());
         columnArticleDO.setArticleId(columnArticleReq.getArticleId());
-        columnArticleDO.setSection(columnArticleReq.getSection());
+        columnArticleDO.setSection(columnArticleReq.getSort());
         return columnArticleDO;
     }
 }

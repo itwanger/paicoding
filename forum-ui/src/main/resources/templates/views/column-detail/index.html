@@ -15,7 +15,7 @@
       <!-- 目录 -->
       <div th:replace="views/column-detail/column-menu/index"></div>
       <!-- 内容 -->
-      <div class="article-content-wrap">
+      <div class="article-content-wrap bg-color">
         <!--  正文 -->
         <div class="article-content-inter-wrap">
           <div
@@ -97,71 +97,76 @@
       });
     });
 
-    // 评论相关
-    const commentContent = $("#commentContent");
-    commentContent.on('input propertychange', function () {
-      const val = $(this).val();
-      if (val) {
-        $("#commentBtn").attr("disabled", false);
-      } else {
-        $("#commentBtn").attr("disabled", true);
-      }
-    });
 
-    // 直接评论
-    const commentBtn = $("#commentBtn");
-    commentBtn.click(function () {
-      const content = commentContent.val();
-      if (!content || content.length > 512) {
-        toastr.error("评论内容长度要求在[1,512]之间");
-        return;
-      }
-      // 提交评论
-      const params = {
-        // 文章id
-        "articleId": articleId,
-        // 评论内容
-        "commentContent": content
-      };
-      post("/comment/api/post", params, function (data) {
-        document.getElementById("commentDiv").innerHTML = data;
-      })
-    });
+    function bindCommentInputEvent() {
+      // 评论相关
+      const commentContent = $("#commentContent");
+      commentContent.on('input propertychange', function () {
+        const val = $(this).val();
+        if (val) {
+          $("#commentBtn").attr("disabled", false);
+        } else {
+          $("#commentBtn").attr("disabled", true);
+        }
+      });
 
-    // 回复评论
-    const replyContent = $('#replyContent');
-    const replyBtn = $('#replyBtn');
-    $('.reply-comment').on('click', function (e) {
-      $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
-      $('#repliedContent').html(this.dataset.replyContent);
-      replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
-      // 回复的评论ID
-      replyBtn.attr('data-reply-id', this.dataset.replyId);
-      // 回复的一级评论ID
-      replyBtn.attr('data-reply-top', this.dataset.replyTop);
-    });
+      // 直接评论
+      const commentBtn = $("#commentBtn");
+      commentBtn.click(function () {
+        const content = commentContent.val();
+        if (!content || content.length > 512) {
+          toastr.error("评论内容长度要求在[1,512]之间");
+          return;
+        }
+        // 提交评论
+        const params = {
+          // 文章id
+          "articleId": articleId,
+          // 评论内容
+          "commentContent": content
+        };
+        post("/comment/api/post", params, function (data) {
+          document.getElementById("commentDiv").innerHTML = data;
+          bindCommentInputEvent();
+        })
+      });
 
-    replyBtn.on('click', function () {
-      if (!replyContent.val()) {
-        toastr.error('回复内容不能为空');
-        return;
-      }
-      // 提交评论
-      const params = {
-        // 文章id
-        "articleId": $('#postsTitle').attr("data-id"),
-        // 评论内容
-        "commentContent": replyContent.val(),
-        // 回复的评论id
-        "parentCommentId": replyBtn.attr('data-reply-id'),
-        // 回复的一级评论id
-        "topCommentId": replyBtn.attr('data-reply-top')
-      };
-      post("/comment/api/post", params, function (data) {
-        document.getElementById("commentDiv").innerHTML = data;
-        location.reload();
-      })
-    });
+      // 回复评论
+      const replyContent = $('#replyContent');
+      const replyBtn = $('#replyBtn');
+      $('.reply-comment').on('click', function (e) {
+        $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
+        $('#repliedContent').html(this.dataset.replyContent);
+        replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
+        // 回复的评论ID
+        replyBtn.attr('data-reply-id', this.dataset.replyId);
+        // 回复的一级评论ID
+        replyBtn.attr('data-reply-top', this.dataset.replyTop);
+      });
+
+      replyBtn.on('click', function () {
+        if (!replyContent.val()) {
+          toastr.error('回复内容不能为空');
+          return;
+        }
+        // 提交评论
+        const params = {
+          // 文章id
+          "articleId": $('#postsTitle').attr("data-id"),
+          // 评论内容
+          "commentContent": replyContent.val(),
+          // 回复的评论id
+          "parentCommentId": replyBtn.attr('data-reply-id'),
+          // 回复的一级评论id
+          "topCommentId": replyBtn.attr('data-reply-top')
+        };
+        post("/comment/api/post", params, function (data) {
+          document.getElementById("commentDiv").innerHTML = data;
+          location.reload();
+        })
+      });
+    }
+
 
     // 跳转到评论的地方
     $("#commentFloatBtn").click(function () {

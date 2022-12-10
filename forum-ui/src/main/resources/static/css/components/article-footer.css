@@ -1,5 +1,3 @@
-/*文章底部*/
-
 /*文章底部的点赞*/
 .article-heart {
   width: 100%;
@@ -136,7 +134,7 @@
 .comment-write-textarea {
   width: 100%;
   border: 1px solid var(--pai-color-999-gray);
-  border-radius: 4px;
+  border-radius: 2px;
   padding: 8px 16px;
   margin-bottom: 10px;
 }
@@ -162,7 +160,7 @@
 }
 
 .comment-item-wrap-second {
-  margin-left: 50px;
+  margin-left: 30px;
   background-color: #f7f8fa;
   border-radius: 4px;
   padding: 12px;
@@ -193,11 +191,13 @@
 }
 
 /*全部评论*/
-.all-comment {
+.all-comment,
+.hot-comment {
   padding: 20px;
 }
 
-.all-comment-title {
+.all-comment-title,
+.hot-comment-title {
   font-size: 18px;
   border-bottom: 1px solid var(--pai-hr-color-1);
   padding-bottom: 12px;
@@ -215,7 +215,6 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  margin-bottom: 8px;
 }
 
 .action-box .item,
@@ -237,25 +236,12 @@
   margin-right: 4px;
 }
 
-.reply-comment--active,
-.reply-comment--active svg {
-  fill: var(--pai-brand-1-normal) !important;
-  color: var(--pai-brand-1-normal) !important;
-}
-
-.article-detail-reply-comment-input {
-  height: 64px;
-  padding: 8px 12px;
-  border: 1px solid var(--pai-brand-1-normal);
-  border-radius: 4px;
-}
-
 .action-box .item:hover {
-  color: var(--pai-brand-2-hover);
+  color: #1171ee;
 }
 
 .action-box .item:hover svg {
-  fill: var(--pai-brand-2-hover);
+  fill: #1171ee;
 }
 
 .action-box .item.active {
@@ -276,8 +262,6 @@
   font-size: 24px;
   font-weight: 400;
 }
-
-/* 点赞 */
 
 .panel-btn {
   position: relative;

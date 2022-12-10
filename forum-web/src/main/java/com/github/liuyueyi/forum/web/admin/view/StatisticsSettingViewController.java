@@ -3,6 +3,8 @@ package com.github.liuyueyi.forum.web.admin.view;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsCountDTO;
 import com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
+import com.github.liuyueyi.forum.core.permission.Permission;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.statistics.service.StatisticsSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
+@Permission(role = UserRole.ADMIN)
 @RequestMapping(path = "admin/statistics/")
 public class StatisticsSettingViewController {
 

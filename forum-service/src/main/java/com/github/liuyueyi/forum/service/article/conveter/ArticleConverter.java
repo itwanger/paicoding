@@ -97,6 +97,7 @@ public class ArticleConverter {
         CategoryDTO dto = new CategoryDTO();
         dto.setCategory(category.getCategoryName());
         dto.setCategoryId(category.getId());
+        dto.setRank(category.getRank());
         dto.setStatus(category.getStatus());
         dto.setSelected(false);
         return dto;
@@ -111,8 +112,7 @@ public class ArticleConverter {
             return null;
         }
         TagDO tagDO = new TagDO();
-        tagDO.setTagName(tagReq.getTagName());
-        tagDO.setTagType(tagReq.getTagType());
+        tagDO.setTagName(tagReq.getTag());
         tagDO.setCategoryId(tagReq.getCategoryId());
         return tagDO;
     }
@@ -122,7 +122,8 @@ public class ArticleConverter {
             return null;
         }
         CategoryDO categoryDO = new CategoryDO();
-        categoryDO.setCategoryName(categoryReq.getCategoryName());
+        categoryDO.setCategoryName(categoryReq.getCategory());
+        categoryDO.setRank(categoryReq.getRank());
         return categoryDO;
     }
 }

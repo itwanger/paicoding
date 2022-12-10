@@ -95,6 +95,8 @@ public class UserFootServiceImpl implements UserFootService {
     private boolean setUserFootStat(UserFootDO userFootDO, OperateTypeEnum operate) {
         switch (operate) {
             case READ:
+                // 设置为已读
+                userFootDO.setReadStat(1);
                 // 需要更新时间，用于浏览记录
                 return true;
             case PRAISE:
