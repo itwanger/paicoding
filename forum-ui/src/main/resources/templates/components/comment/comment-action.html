@@ -21,6 +21,7 @@
     <div
       class="item reply-comment"
       id="article-detail-reply-comment"
+      data-toggle="modal"
       th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
       th:data-reply-top="${comment.commentId}"
       th:data-reply-id="${comment.commentId}"

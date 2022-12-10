@@ -284,27 +284,6 @@
                 src: '/img/top.png'
             }
         });
-
-        // 评论
-        $('.reply-comment').on('click',function(){
-
-            // 判断是否为活跃状态
-            const isActive = $(this).hasClass('reply-comment--active')
-          console.log('ddd',isActive )
-            const status = $('.article-detail-reply-comment-input-wrap').is(':visible')
-            if(isActive){
-                $(this).removeClass('reply-comment--active')
-                $(this).children('.reply-comment-text').text('123')
-            }else{
-                $(this).addClass('reply-comment--active')
-                $(this).children('.reply-comment-text').text('取消回复')
-            }
-            if(status){
-                $('.article-detail-reply-comment-input-wrap').hide()
-            }else{
-                $('.article-detail-reply-comment-input-wrap').show()
-            }
-        })
     </script>
   </body>
 </html>

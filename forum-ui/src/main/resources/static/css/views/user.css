@@ -235,6 +235,65 @@
   padding: 20px;
 }
 
+.person-img-wrap {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 112px;
+  margin-left: 74px;
+}
+.person-img-inter-wrap {
+  width: 90px;
+  height: 90px;
+  position: relative;
+}
+.person-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.person-upload-text{
+  color: #1d2129;
+  font-weight: 500;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+.person-upload-limit {
+  color: #86909c;
+  font-size: 12px;
+  line-height: 17px;
+  font-weight: 400;
+}
+.cancel-title {
+  color: var(--pai-brand-1-normal);
+  cursor: pointer;
+}
+.click-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: rgba(29,33,41,.5);
+  z-index: 2;
+  visibility:hidden;
+  cursor: pointer;
+}
+.click-text {
+  font-size: 12px;
+  margin-top: 7px;
+  line-height: 17px;
+  font-weight: 400;
+}
+.click-input {display: none;}
 .person-info {
   width: 70%;
 }
@@ -372,4 +431,6 @@
 }
 .user-text-icon {
   cursor: pointer;
+}
+}
 }
