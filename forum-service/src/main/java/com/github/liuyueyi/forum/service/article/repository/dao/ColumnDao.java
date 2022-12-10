@@ -66,6 +66,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         if (columnId != null && columnId > 0) {
             query.eq(ColumnArticleDO::getColumnId, columnId);
         }
+        query.orderByAsc(ColumnArticleDO::getColumnId, ColumnArticleDO::getSection);
         query.last(PageParam.getLimitSql(pageParam));
         return columnArticleMapper.selectList(query);
     }

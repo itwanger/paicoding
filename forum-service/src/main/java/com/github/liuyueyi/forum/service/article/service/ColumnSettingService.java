@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 
@@ -67,5 +68,5 @@ public interface ColumnSettingService {
      * @param columnId
      * @return
      */
-    PageVo<SimpleArticleDTO> queryColumnArticles(long columnId, PageParam pageParam);
+    PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam);
 }

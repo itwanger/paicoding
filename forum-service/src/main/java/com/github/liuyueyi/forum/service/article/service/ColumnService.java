@@ -47,20 +47,20 @@ public interface ColumnService {
      */
     List<SimpleArticleDTO> queryColumnArticles(long columnId);
 
-    /**
-     * 专栏 + 文章列表详情
-     *
-     * @param columnId
-     * @return
-     */
-    List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam);
-
-
-    /**
-     * 专栏文章总数
-     *
-     * @param columnId
-     * @return
-     */
-    int countColumnArticles(Long columnId);
+//    /**
+//     * 专栏 + 文章列表详情
+//     *
+//     * @param columnId
+//     * @return
+//     */
+//    List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam);
+//
+//
+//    /**
+//     * 专栏文章总数
+//     *
+//     * @param columnId
+//     * @return
+//     */
+//    int countColumnArticles(Long columnId);
 }
