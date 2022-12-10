@@ -6,6 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ColumnReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
@@ -78,7 +79,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     public void sortColumnArticle(List<ColumnArticleReq> columnArticleReqs) {
         columnArticleReqs.forEach(columnArticleReq -> {
             ColumnArticleDO columnArticleDO = columnArticleMapper.selectById(columnArticleReq.getId());
-            columnArticleDO.setSection(columnArticleReq.getSection());
+            columnArticleDO.setSection(columnArticleReq.getSort());
             columnArticleMapper.updateById(columnArticleDO);
         });
     }
@@ -112,8 +113,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public PageVo<SimpleArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) {
-        List<SimpleArticleDTO> simpleArticleDTOS = new ArrayList<>();
+    public PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) {
+        List<ColumnArticleDTO> simpleArticleDTOS = new ArrayList<>();
         List<ColumnArticleDO> columnArticleDOS = columnDao.listColumnArticlesDetail(columnId, pageParam);
         for (ColumnArticleDO columnArticleDO : columnArticleDOS) {
             ArticleDO articleDO = articleDao.getById(columnArticleDO.getArticleId());
@@ -124,13 +125,14 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             if (columnInfoDO == null) {
                 continue;
             }
-            SimpleArticleDTO simpleArticleDTO = new SimpleArticleDTO();
-            simpleArticleDTO.setId(articleDO.getId());
-            simpleArticleDTO.setTitle(articleDO.getTitle());
-            simpleArticleDTO.setSort(columnArticleDO.getSection());
-            simpleArticleDTO.setColumnId(columnArticleDO.getColumnId());
-            simpleArticleDTO.setColumn(columnInfoDO.getColumnName());
-            simpleArticleDTOS.add(simpleArticleDTO);
+            ColumnArticleDTO columnArticleDTO = new ColumnArticleDTO();
+            columnArticleDTO.setId(columnArticleDO.getId());
+            columnArticleDTO.setArticleId(articleDO.getId());
+            columnArticleDTO.setTitle(articleDO.getTitle());
+            columnArticleDTO.setSort(columnArticleDO.getSection());
+            columnArticleDTO.setColumnId(columnArticleDO.getColumnId());
+            columnArticleDTO.setColumn(columnInfoDO.getColumnName());
+            simpleArticleDTOS.add(columnArticleDTO);
         }
         Integer totalCount = columnDao.countColumnArticles(columnId);
         return PageVo.build(simpleArticleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);

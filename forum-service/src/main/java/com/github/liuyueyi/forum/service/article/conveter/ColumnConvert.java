@@ -56,7 +56,7 @@ public class ColumnConvert {
         ColumnArticleDO columnArticleDO = new ColumnArticleDO();
         columnArticleDO.setColumnId(columnArticleReq.getColumnId());
         columnArticleDO.setArticleId(columnArticleReq.getArticleId());
-        columnArticleDO.setSection(columnArticleReq.getSection());
+        columnArticleDO.setSection(columnArticleReq.getSort());
         return columnArticleDO;
     }
 }

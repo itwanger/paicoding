@@ -106,13 +106,13 @@ public class ColumnServiceImpl implements ColumnService {
         return articleList;
     }
 
-    @Override
-    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam) {
-        return columnDao.listColumnArticlesDetail(columnId, pageParam);
-    }
-
-    @Override
-    public int countColumnArticles(Long columnId) {
-        return columnDao.countColumnArticles(columnId);
-    }
+//    @Override
+//    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam) {
+//        return columnDao.listColumnArticlesDetail(columnId, pageParam);
+//    }
+//
+//    @Override
+//    public int countColumnArticles(Long columnId) {
+//        return columnDao.countColumnArticles(columnId);
+//    }
 }

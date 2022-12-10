@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.web.admin.view;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liuyueyi.forum.core.permission.Permission;
@@ -40,12 +41,12 @@ public class ColumnSettingViewController {
 
     @ResponseBody
     @GetMapping(path = "listColumnArticle")
-    public ResVo<PageVo<SimpleArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId,
-                                                           @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                                           @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+    public ResVo<PageVo<ColumnArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId,
+                                                             @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                                             @RequestParam(name = "pageSize", required = false) Integer pageSize) {
         pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
         pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<SimpleArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId, PageParam.newPageInstance(pageNumber, pageSize));
+        PageVo<ColumnArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId, PageParam.newPageInstance(pageNumber, pageSize));
         return ResVo.ok(simpleArticleDTOS);
     }
 }

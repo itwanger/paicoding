@@ -6,6 +6,7 @@ import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
+import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.TagMapper;
 import org.springframework.stereotype.Repository;
@@ -36,6 +37,7 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
     public List<TagDTO> listTag(PageParam pageParam) {
         List<TagDO> list = lambdaQuery()
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .orderByDesc(TagDO::getId)
                 .last(PageParam.getLimitSql(pageParam))
                 .list();
         return ArticleConverter.toDtoList(list);
