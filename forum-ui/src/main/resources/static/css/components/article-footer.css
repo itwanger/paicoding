@@ -144,14 +144,6 @@
 .comment-write-btn {
   border-radius: 32px;
 }
-.article-detail-reply-comment-input-wrap {
-  display: none;
-  width: 100%;
-}
-
-.article-detail-reply-comment-input {
-  width: 100%;
-}
 
 .c-btn-disabled,
 .c-btn-disabled:hover {
