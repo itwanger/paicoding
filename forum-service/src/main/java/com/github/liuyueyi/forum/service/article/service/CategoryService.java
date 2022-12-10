@@ -34,4 +34,10 @@ public interface CategoryService {
      * @return
      */
     Long queryCategoryId(String category);
+
+
+    /**
+     * 刷新缓存
+     */
+    public void refreshCache();
 }
