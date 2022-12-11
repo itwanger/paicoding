@@ -81,7 +81,8 @@ public class CategoryServiceImpl implements CategoryService {
     /**
      * 刷新缓存
      */
-    private void refreshCache() {
+    @Override
+    public void refreshCache() {
         List<CategoryDO> list = categoryDao.listAllCategoriesFromDb();
         categoryCaches.invalidateAll();
         categoryCaches.cleanUp();
