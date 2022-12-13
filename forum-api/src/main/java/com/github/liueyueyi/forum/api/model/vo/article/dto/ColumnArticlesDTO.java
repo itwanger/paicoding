@@ -17,6 +17,11 @@ public class ColumnArticlesDTO {
     private Long column;
 
     /**
+     * 当前查看的文章
+     */
+    private Integer section;
+
+    /**
      * 文章详情
      */
     private ArticleDTO article;
