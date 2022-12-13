@@ -299,3 +299,44 @@ blockquote {
   align-items: center;
   gap: 8px;
 }
+
+.editor-preview-side a {
+  color: var(--pai-brand-1-normal);
+  text-decoration: none;
+  border-bottom: 1px solid var(--pai-brand-1-normal);
+}
+
+.editor-preview-side p>img {
+  max-width: 100%;
+  margin: 0;
+}
+
+.editor-preview-side ol, .editor-preview-side ul {
+  margin: 0 0 24px;
+  padding: 0;
+  font-size: 16px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.editor-preview-side li {
+  margin: 10px 0;
+}
+
+.editor-preview-side strong {
+  color: var(--pai-brand-1-normal);
+}
+
+.editor-preview-side h2 {
+  margin-left: -10px;
+  display: inline-block;
+  width: auto;
+  height: 40px;
+  background-color: var(--pai-brand-1-normal);
+  border-bottom-right-radius: 100px;
+  color: rgb(255, 255, 255);
+  padding-right: 30px;
+  padding-left: 30px;
+  line-height: 40px;
+  font-size: 16px;
+}
