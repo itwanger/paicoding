@@ -35,5 +35,10 @@
         PDF
       </div>
     </div>
+    <div th:case="7">
+      <div th:replace="components/side/side-subscribe :: side_subscribe(${sidebar})">
+        订阅微信公众号
+      </div>
+    </div>
   </div>
 </div>

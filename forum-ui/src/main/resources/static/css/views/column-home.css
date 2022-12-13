@@ -6,9 +6,8 @@
 
 .custom-home-wrap {
     width: 1200px;
-    margin: 0 auto;
     display: flex;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
     min-height: calc(100% - 90px);
 }
 
@@ -16,11 +15,6 @@
     flex: 1;
     margin-right: 20px;
     border-radius: 8px;
-}
-
-.custom-home-right {
-    width: 25%;
-    border-radius: 20px;
 }
 
 /* 详情列表 */
