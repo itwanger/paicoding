@@ -72,9 +72,9 @@ public class UserRestController {
     @PostMapping(path = "saveUserInfo")
     @Transactional(rollbackFor = Exception.class)
     public ResVo<Boolean> saveUserInfo(@RequestBody UserInfoSaveReq req) {
-        if (!(req.getUserId() != null && req.getUserId().equals(ReqInfoContext.getReqInfo().getUserId()))) {
+        if (req.getUserId() == null || !Objects.equals(req.getUserId(), ReqInfoContext.getReqInfo().getUserId())) {
             // 不能修改其他用户的信息
-            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "无权修改");
+            return ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "去劝修改");
         }
         userService.saveUserInfo(req);
         return ResVo.ok(true);
