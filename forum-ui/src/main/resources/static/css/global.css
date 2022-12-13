@@ -26,8 +26,8 @@ body {
   --pai-color-3-black: #212529;
   /*背景色*/
   --pai-bg-white-fff: #fff;
-  /*边框颜色*/
-  --pai-border-color-1: #d2d9e7;
+  /*淡黄色*/
+  --pai-bg-normal-1: #fff3db;
   --pai-bg-light-1: #eeeeee;
   /*浅一点的颜色*/
   --pai-bg-light-2: #f7f8fa;
@@ -39,6 +39,8 @@ body {
   --pai-bg-dark-3: #000000;
   /*横线的颜色*/
   --pai-hr-color-1: #f0f0f0;
+  /*边框颜色*/
+  --pai-border-color-1: #d2d9e7;
   /*外边距*/
   margin: 0;
   /*溢出后隐藏*/
