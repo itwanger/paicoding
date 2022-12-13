@@ -25,7 +25,7 @@
   font-size: 26px;
   line-height: 120%;
   color: rgb(51, 51, 51);
-  margin: 8px 0px;
+  margin: 8px 0;
 }
 
 .user-num-wrap {
@@ -52,15 +52,14 @@
 .achievement-wrap,
 .process-wrap {
   background-color: rgb(255, 255, 255);
-  padding: 32px;
-  border-radius: 8px;
-  margin-bottom: 16px;
+  padding: 20px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 .achievement-title,
 .process-title {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 24px;
   color: rgb(51, 51, 51);
   font-weight: 600;
@@ -92,7 +91,7 @@
   display: inline-flex;
   align-items: center;
   padding: 12px 0;
-  font-size: 20px;
+  font-size: 18px;
   background: transparent;
   outline: none;
   cursor: pointer;
@@ -125,11 +124,11 @@
 
 .user-body {
   flex: 1;
-  border-radius: 8px;
-  padding: 32px 32px 40px;
+  border-radius: 12px;
+  padding: 20px;
   background-color: #fff;
   z-index: 10;
-  margin-right: 24px;
+  margin-right: 20px;
 }
 
 .user-content {
@@ -167,7 +166,6 @@
 .follow-item {
   display: flex;
   width: 100%;
-  display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px 8px 0;
@@ -217,7 +215,6 @@
   font-weight: 500;
   font-size: 14px;
   color: #333;
-  text-align: left;
 }
 
 #saveModel .form-control {
@@ -302,14 +299,13 @@
 
 /* 头部改造 */
 .user-bg {
-  background-image: url(https://uploadfiles.nowcoder.com/files/20220630/318889480_1656569616418/lucky.png);
+  background-image: url(../../img/lucky.png);
   background-position: top;
   background-repeat: no-repeat;
   background-size: auto 288px;
   position: relative;
-  height: 300px;
-  padding-top: 72px;
-  margin-bottom: 20px;
+  height: 230px;
+  padding-top: 42px;
 }
 
 .user-bg-mask {
@@ -320,7 +316,7 @@
     #f9f9f9
   );
   bottom: 0;
-  height: 160px;
+  height: 100px;
   left: 0;
   position: absolute;
   width: 100%;
@@ -328,13 +324,11 @@
 
 .user-head {
   position: relative;
-  background-color: aqua;
   border-radius: 8px;
   padding-top: 36px;
   clip-path: path(
     "M85 0c18.703 0 35.339 8.853 45.945 22.597.41.53.84 1.132 1.293 1.804A24 24 0 0 0 152.148 35H1188c6.627 0 12 5.373 12 12v169c0 6.627-5.373 12-12 12H12c-6.627 0-12-5.373-12-12V47c0-6.627 5.373-12 12-12h5.857a24 24 0 0 0 19.916-10.608c.478-.712.933-1.345 1.364-1.901C49.747 8.807 66.345 0 85 0Z"
   );
-  min-height: 220px;
   background: linear-gradient(
     180deg,
     hsla(0, 0%, 100%, 0.6),
@@ -374,39 +368,32 @@
 }
 .user-head-title-classify {
   display: flex;
-  height: 106px;
+  height: 86px;
   padding-top: 20px;
   align-items: center;
 }
 .user-head-title-classify-item {
-  width: 124px;
+  width: 110px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: var(--pai-color-4-gray);
 }
 .user-head-title-classify-item span:last-child {
-  font-size: 20px;
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
-.user-head-title-classify-item span:first-child {
-  color: #555555;
-}
 .user-head-cell {
   width: 1px;
-  height: 24px;
+  height: 20px;
   background-color: #adb5bd;
 }
 .user-head-footer {
   display: flex;
   justify-content: space-between;
-  padding: 18px 40px 0;
+  padding: 2px 30px 6px;
 }
 .user-edit {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px 0 rgb(0 0 0 / 3%);
-  color: #666;
   font-size: 16px;
   height: 40px;
   padding: 0 16px;
@@ -421,15 +408,13 @@
   color: var(--pai-brand-2-hover);
 }
 .user-edit span:first-child {
-  color: #666666;
+  color: var(--pai-color-3-gray);
 }
 
 .user-text {
-  max-width: 440px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #999999;
 }
 .user-text-icon {
   cursor: pointer;
@@ -437,4 +422,8 @@
 
 .iconSize___29n8N {
   filter: brightness(1.2);
+}
+
+.text-base-pure {
+  color: var(--pai-color-999-gray);
 }

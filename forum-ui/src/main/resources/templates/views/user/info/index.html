@@ -8,24 +8,26 @@
           用户名用户名用户名用户名用户名用户名用户名用户名用户名用户名用户名用户名
         </div>
         <div class="user-head-title-classify">
+
           <div class="user-head-title-classify-item">
-            <span>获赞</span>
-            <span th:text="${userHome.praiseCount}">0</span>
+            <span class="text-base-pure">公司</span>
+            <span th:text="${userHome.company}">公司</span>
           </div>
           <div class="user-head-cell"></div>
           <div class="user-head-title-classify-item">
-            <span>粉丝</span>
+            <span class="text-base-pure">职位</span>
+            <span th:text="${userHome.position}">Java工程师</span>
+          </div>
+          <div class="user-head-cell"></div>
+          <div class="user-head-title-classify-item">
+            <span class="text-base-pure">加入天数</span>
+            <span th:text="${userHome.joinDayCount}">0</span>
+          </div>
+          <div class="user-head-cell"></div>
+
+          <div class="user-head-title-classify-item">
+            <span class="text-base-pure">粉丝数</span>
             <span th:text="${userHome.fansCount}">0</span>
-          </div>
-          <div class="user-head-cell"></div>
-          <div class="user-head-title-classify-item">
-            <span>关注</span>
-            <span th:text="${userHome.followCount}">0</span>
-          </div>
-          <div class="user-head-cell"></div>
-          <div class="user-head-title-classify-item">
-            <span>文章数</span>
-            <span th:text="${userHome.articleCount}">0</span>
           </div>
         </div>
       </div>
