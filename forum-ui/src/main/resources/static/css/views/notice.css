@@ -20,7 +20,7 @@
 .notice-nav-item {
   padding: 14px 0;
   margin-right: 36px;
-  color: #515767;
+  line-height: 16px;
 }
 .notice-nav-item--active {
   padding: 14px 0;
@@ -29,13 +29,12 @@
 }
 .unread-count {
   display: inline-block;
-  color: #fff;
+  color: var(--pai-color-fff-normal);
   transform: scale(0.8);
   font-size: 12px;
-  padding: 2px 5px;
+  padding: 2px 8px;
   background: var(--pai-brand-6-mq);
   border-radius: 100px;
-  border: 2px solid #fff;
   text-align: center;
 }
 .notice-content {
