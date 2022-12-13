@@ -71,7 +71,7 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
             user.setPosition(null);
         }
         if (StringUtils.isEmpty(user.getCompany())) {
-            user.setPosition(null);
+            user.setCompany(null);
         }
         if (StringUtils.isEmpty(user.getProfile())) {
             user.setProfile(null);

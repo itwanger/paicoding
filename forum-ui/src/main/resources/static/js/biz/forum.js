@@ -13,7 +13,7 @@ const post = function (path, data, callback) {
       }
     },
     error: function (data) {
-      toastr.error(data)
+      toastr.error(data, "出现bug了，热心反馈下吧!")
     },
   })
 }

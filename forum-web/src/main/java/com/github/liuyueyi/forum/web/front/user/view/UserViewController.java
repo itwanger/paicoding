@@ -74,7 +74,7 @@ public class UserViewController extends BaseViewController {
         UserStatisticInfoDTO userInfo = userService.queryUserInfoWithStatistic(userId);
         vo.setUserHome(userInfo);
 
-        List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType());
+        List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType(), Objects.equals(userId, ReqInfoContext.getReqInfo().getUserId()));
         vo.setHomeSelectTags(homeSelectTags);
 
         userHomeSelectList(vo, userId);
@@ -102,7 +102,7 @@ public class UserViewController extends BaseViewController {
         UserStatisticInfoDTO userInfo = userService.queryUserInfoWithStatistic(userId);
         vo.setUserHome(userInfo);
 
-        List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType());
+        List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType(), Objects.equals(userId, ReqInfoContext.getReqInfo().getUserId()));
         vo.setHomeSelectTags(homeSelectTags);
 
         userHomeSelectList(vo, userId);
@@ -116,9 +116,13 @@ public class UserViewController extends BaseViewController {
      * @param selectType
      * @return
      */
-    private List<TagSelectDTO> homeSelectTags(String selectType) {
+    private List<TagSelectDTO> homeSelectTags(String selectType, boolean isAuthor) {
         List<TagSelectDTO> tags = new ArrayList<>();
         homeSelectTags.forEach(tag -> {
+            if (!isAuthor && tag.equals("read")) {
+                // 只有作者才能看自己的阅读历史
+                return;
+            }
             TagSelectDTO tagSelectDTO = new TagSelectDTO();
             tagSelectDTO.setSelectType(tag);
             tagSelectDTO.setSelectDesc(HomeSelectEnum.fromCode(tag).getDesc());

@@ -1,250 +1,254 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-  <!-- 个人信息修改弹窗 -->
-  <div
-    class="modal fade"
-    id="saveModel"
-    data-backdrop="static"
-    data-keyboard="false"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="loginModalDropLabel"
-    aria-hidden="true"
-  >
+<!-- 个人信息修改弹窗 -->
+<div
+        class="modal fade"
+        id="saveModel"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="loginModalDropLabel"
+        aria-hidden="true"
+>
     <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">编辑个人资料</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="person-info">
-            <div class="input-group">
-              <span class="form-label">用户名</span>
-              <input
-                id="userName"
-                type="text"
-                class="form-control"
-                th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
-                placeholder="请输入用户名"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">用户图像</span>
-              <input
-                id="photo"
-                type="text"
-                class="form-control"
-                th:value="${vo.userHome != null ? vo.userHome.photo: ''}"
-                placeholder="请输入用户图像"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">公司</span>
-              <input
-                id="company"
-                type="text"
-                class="form-control"
-                th:value="${vo.userHome != null ? vo.userHome.company: ''}"
-                placeholder="请输入公司"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">职位</span>
-              <input
-                id="position"
-                type="text"
-                class="form-control"
-                th:value="${vo.userHome != null ? vo.userHome.position: ''}"
-                placeholder="请输入职位"
-              />
-            </div>
-            <div class="input-group">
-              <span class="form-label">个人简介</span>
-              <input
-                id="profile"
-                type="text"
-                class="form-control"
-                th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
-                placeholder="请输入个人简介"
-              />
-            </div>
-          </div>
-          <div class="person-img-wrap">
-            <div class="person-img-inter-wrap">
-              <div class="click-cover">
-                <svg
-                  t="1670645980370"
-                  class="icon"
-                  viewBox="0 0 1026 1024"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  p-id="2892"
-                  width="16"
-                  height="16"
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑个人资料</h5>
+                <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
                 >
-                  <path
-                    d="M511.602721 1023.001027a511.474051 511.474051 0 1 1 360.629164-148.84694 509.476105 509.476105 0 0 1-360.629164 149.845913z m0-941.032335c-109.887003 0-220.772979 41.956856-304.686691 125.870567-167.827423 168.826396-167.827423 441.545958 0 609.373381s440.546985 167.827423 609.373381 0c167.827423-167.827423 167.827423-440.546985 0-609.373381-83.913711-82.914739-194.799687-124.871594-304.68669-124.871595z m332.657927 763.215185z"
-                    fill="#ffffff"
-                    p-id="2893"
-                  ></path>
-                  <path
-                    d="M780.326392 552.484859H241.880077a39.95891 39.95891 0 0 1 0-79.91782h538.446315a39.95891 39.95891 0 0 1 0 79.91782z"
-                    fill="#ffffff"
-                    p-id="2894"
-                  ></path>
-                  <path
-                    d="M511.602721 822.207503a39.95891 39.95891 0 0 1-39.958911-39.95891V243.802278a39.95891 39.95891 0 1 1 79.917821 0v538.446315a39.95891 39.95891 0 0 1-39.95891 39.95891z"
-                    fill="#ffffff"
-                    p-id="2895"
-                  ></path>
-                </svg>
-                <div class="click-text">点击修改头像</div>
-              </div>
-              <img
-                src="https://img1.baidu.com/it/u=553762179,4199503013&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=551"
-                alt=""
-                srcset=""
-                class="person-img"
-                id="pic"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                id="upload"
-                class="click-input"
-              />
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="modal-body">
+                <div class="person-info">
+                    <div class="input-group">
+                        <span class="form-label">用户名</span>
+                        <input
+                                id="userName"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.userName: ''}"
+                                placeholder="请输入用户名"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">公司</span>
+                        <input
+                                id="company"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.company: ''}"
+                                placeholder="请输入公司"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">职位</span>
+                        <input
+                                id="position"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.position: ''}"
+                                placeholder="请输入职位"
+                        />
+                    </div>
+                    <div class="input-group">
+                        <span class="form-label">个人简介</span>
+                        <input
+                                id="profile"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.profile: ''}"
+                                placeholder="请输入个人简介"
+                        />
+                    </div>
+                </div>
+                <div class="person-img-wrap">
+                    <div class="person-img-inter-wrap">
+                        <div class="click-cover">
+                            <svg
+                                    t="1670645980370"
+                                    class="icon"
+                                    viewBox="0 0 1026 1024"
+                                    version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    p-id="2892"
+                                    width="16"
+                                    height="16"
+                            >
+                                <path
+                                        d="M511.602721 1023.001027a511.474051 511.474051 0 1 1 360.629164-148.84694 509.476105 509.476105 0 0 1-360.629164 149.845913z m0-941.032335c-109.887003 0-220.772979 41.956856-304.686691 125.870567-167.827423 168.826396-167.827423 441.545958 0 609.373381s440.546985 167.827423 609.373381 0c167.827423-167.827423 167.827423-440.546985 0-609.373381-83.913711-82.914739-194.799687-124.871594-304.68669-124.871595z m332.657927 763.215185z"
+                                        fill="#ffffff"
+                                        p-id="2893"
+                                ></path>
+                                <path
+                                        d="M780.326392 552.484859H241.880077a39.95891 39.95891 0 0 1 0-79.91782h538.446315a39.95891 39.95891 0 0 1 0 79.91782z"
+                                        fill="#ffffff"
+                                        p-id="2894"
+                                ></path>
+                                <path
+                                        d="M511.602721 822.207503a39.95891 39.95891 0 0 1-39.958911-39.95891V243.802278a39.95891 39.95891 0 1 1 79.917821 0v538.446315a39.95891 39.95891 0 0 1-39.95891 39.95891z"
+                                        fill="#ffffff"
+                                        p-id="2895"
+                                ></path>
+                            </svg>
+                            <div class="click-text">点击修改头像</div>
+                        </div>
+                        <img
+                                src="https://img1.baidu.com/it/u=553762179,4199503013&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=551"
+                                th:src="${vo.userHome.photo}"
+                                alt=""
+                                srcset=""
+                                class="person-img"
+                                id="pic"
+                        />
+                        <input
+                                type="file"
+                                accept="image/*"
+                                id="upload"
+                                class="click-input"
+                        />
+                    </div>
 
-            <div class="person-upload-text">我的头像</div>
-            <div class="person-upload-limit">
-              支持 jpg、png、jpeg 格式大小 5M 以内的图片
+                    <div class="person-upload-text">我的头像</div>
+                    <div class="person-upload-limit">
+                        支持 jpg、png、jpeg 格式大小 5M 以内的图片
+                    </div>
+                </div>
             </div>
-          </div>
+            <div class="modal-footer">
+                <button id="publish" type="button" class="btn btn-primary">
+                    保存
+                </button>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button id="publish" type="button" class="btn btn-primary">
-            保存
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
-  <script th:inline="javascript">
+</div>
+<script th:inline="javascript">
     $("#publish").on("click", function () {
-      doPostUserInfo()
+        doPostUserInfo(false)
     })
 
-    function doPostUserInfo() {
-      const userId = $("#userId").text()
-      const userName = $("#userName").val()
-      const photo = $("#photo").val()
-      const company = $("#company").val()
-      const position = $("#position").val()
-      const profile = $("#profile").val()
-      const params = {
-        userId: userId,
-        userName: userName,
-        photo: photo,
-        company: company,
-        position: position,
-        profile: profile,
-      }
+    let uid = [[${vo.userHome.userId}]]
+    let imgPhoto = [[${vo.userHome.photo}]]
 
-      post("/user/api/saveUserInfo", params, function (data) {
-        console.log("返回结果:", data)
-        window.location.href = "/user/home?userId=" + userId
-      })
+    function doPostUserInfo(justUploadImg) {
+        const userId = uid
+        const userName = $("#userName").val()
+        const company = $("#company").val()
+        const position = $("#position").val()
+        const profile = $("#profile").val()
+        let params;
+        if (justUploadImg) {
+            // 只更新图片
+            params = {
+                photo: imgPhoto,
+                userId: userId,
+            }
+        } else {
+            params = {
+                userId: userId,
+                userName: userName,
+                photo: imgPhoto,
+                company: company,
+                position: position,
+                profile: profile,
+            }
+        }
+
+        post("/user/api/saveUserInfo", params, function (data) {
+            console.log("返回结果:", data);
+            if (!justUploadImg) {
+                window.location.href = "/user/home?userId=" + userId
+            }
+        })
     }
 
     // 封面上传相关
     $(function () {
-      const defaultUploadImg =
-        "https://png.pngtree.com/png-vector/20190115/ourlarge/pngtree-vector-cloud-upload-icon-png-image_316794.jpg"
-      $(".person-img-wrap")
-        .on("mouseover", ".person-img-inter-wrap", function () {
-          console.log(123)
-          $(".click-cover").css("visibility", "visible")
-        })
-        .on("mouseleave", ".person-img-inter-wrap", function () {
-          $(".click-cover").css("visibility", "hidden")
-        })
+        const defaultUploadImg = [[${vo.userHome.photo}]];
+        $(".person-img-wrap")
+            .on("mouseover", ".person-img-inter-wrap", function () {
+                console.log(123)
+                $(".click-cover").css("visibility", "visible")
+            })
+            .on("mouseleave", ".person-img-inter-wrap", function () {
+                $(".click-cover").css("visibility", "hidden")
+            })
 
-      $(".click-cover").click(function () {
-        $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
-        $("#upload").on("change", function () {
-          var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-          console.log({ objUrl })
-          if (objUrl) {
-            $("#pic").attr("src", objUrl) //将图片路径存入src中，显示出图片
-            $(".person-upload-text").addClass("cancel-title")
-            $(".person-upload-text").text("撤销上传")
-            $(".person-upload-limit").text("点击下方保存修改后生效")
-            // uploadImg(() => (this.value = null))
-          }
+        $(".click-cover").click(function () {
+            $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
+            $("#upload").on("change", function () {
+                var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+                console.log({objUrl})
+                if (objUrl) {
+                    $("#pic").attr("src", objUrl) //将图片路径存入src中，显示出图片
+                    $(".person-upload-text").addClass("cancel-title")
+                    $(".person-upload-text").text("撤销上传")
+                    $(".person-upload-limit").text("点击下方保存修改后生效")
+                    uploadImg((imgPath) => {
+                        $('#pic').attr("src", imgPath);
+                        $('.user-head-img').attr('src', imgPath);
+                        $('.nav-login-img').attr('src', imgPath);
+                        imgPhoto = imgPath;
+                        doPostUserInfo(true, imgPath);
+                    });
+                }
+            })
         })
-      })
     })
 
     // 撤销上传逻辑
     $(".person-img-wrap").on("click", ".cancel-title", function () {
-      console.log(123)
-      $(".person-upload-text").removeClass("cancel-title")
-      $(".person-upload-text").text("我的头像")
-      $(".person-upload-limit").text(
-        "支持 jpg、png、jpeg 格式大小 5M 以内的图片"
-      )
+        $(".person-upload-text").removeClass("cancel-title")
+        $(".person-upload-text").text("我的头像")
+        $(".person-upload-limit").text(
+            "支持 jpg、png、jpeg 格式大小 5M 以内的图片"
+        )
     })
 
     //建立一?可存取到?file的url
     function getObjectURL(file) {
-      var url = null
-      if (window.createObjectURL != undefined) {
-        // basic
-        url = window.createObjectURL(file)
-      } else if (window.URL != undefined) {
-        // mozilla(firefox)
-        url = window.URL.createObjectURL(file)
-      } else if (window.webkitURL != undefined) {
-        // webkit or chrome
-        url = window.webkitURL.createObjectURL(file)
-      }
-      return url
+        var url = null
+        if (window.createObjectURL != undefined) {
+            // basic
+            url = window.createObjectURL(file)
+        } else if (window.URL != undefined) {
+            // mozilla(firefox)
+            url = window.URL.createObjectURL(file)
+        } else if (window.webkitURL != undefined) {
+            // webkit or chrome
+            url = window.webkitURL.createObjectURL(file)
+        }
+        return url
     }
 
     // 上传头像到服务器
     function uploadImg(callback) {
-      var pic = $("#upload")[0].files[0]
-      var file = new FormData()
-      file.append("image", pic)
-      $.ajax({
-        url: "/image/upload",
-        type: "post",
-        data: file,
-        cache: false,
-        contentType: false,
-        processData: false,
-        success: function (data) {
-          const {
-            result: { imagePath },
-          } = data || {}
-          var res = data
-          console.log(res, imagePath)
-          newCover = imagePath
-          // 替换掉默认图片@yihui
-          $(".res-upload-img").attr("src", imagePath)
-          $(".res-upload-wrap").removeClass("hide")
-          callback()
-          toastr.info("图片上传成功!")
-        },
-      })
+        var pic = $("#upload")[0].files[0]
+        var file = new FormData()
+        file.append("image", pic)
+        $.ajax({
+            url: "/image/upload",
+            type: "post",
+            data: file,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                const {
+                    result: {imagePath},
+                } = data || {}
+                var res = data
+                console.log("res", res, "imagePath=", imagePath)
+                callback(imagePath)
+                toastr.info("图片上传成功!")
+            },
+        })
     }
-  </script>
+</script>
 </html>

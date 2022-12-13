@@ -68,7 +68,7 @@
               </span>
         </div>
         <div class="user-edit">
-          <span>个人资料完善度：70%</span>
+          <span th:text="'个人资料完善度：' + ${vo.userHome.infoPercent} + '%'">个人资料完善度：70%</span>
           <span data-toggle="modal" data-target="#saveModel">去编辑 ></span>
         </div>
       </div>

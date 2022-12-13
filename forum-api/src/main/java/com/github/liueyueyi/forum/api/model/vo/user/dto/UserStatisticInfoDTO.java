@@ -57,6 +57,11 @@ public class UserStatisticInfoDTO extends BaseUserInfoDTO {
     private Boolean followed;
 
     /**
+     * 身份信息完整度百分比
+     */
+    private Integer infoPercent;
+
+    /**
      * 创造历程
      */
     private List<YearArticleDTO> yearArticleList;
