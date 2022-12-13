@@ -108,6 +108,7 @@ public class ColumnViewController {
         vo.setComments(comments);
         vo.setHotComment(hotComment);
         vo.setColumn(columnId);
+        vo.setSection(section);
         vo.setArticleList(articles);
         model.addAttribute("vo", vo);
         return "views/column-detail/index";
