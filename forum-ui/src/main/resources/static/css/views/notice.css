@@ -25,7 +25,7 @@
 .notice-nav-item--active {
   padding: 14px 0;
   margin-right: 36px;
-  color: #1e80ff;
+  color: var(--pai-brand-2-hover);
 }
 .unread-count {
   display: inline-block;
@@ -33,7 +33,7 @@
   transform: scale(0.8);
   font-size: 12px;
   padding: 2px 5px;
-  background: #f64242;
+  background: var(--pai-brand-6-mq);
   border-radius: 100px;
   border: 2px solid #fff;
   text-align: center;

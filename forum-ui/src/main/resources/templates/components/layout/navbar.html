@@ -50,11 +50,11 @@
             <!--  已登录 -->
             <li class="nav-item nav-notice">
               <a class="nav-link navbar-count-msg-box" href="/notice/">
-                <!-- <span
+                <span
                   th:if="${global.msgNum != null && global.msgNum > 0}"
+                  th:text="${global.msgNum}"
                   class="navbar-count-msg"
-                ></span> -->
-                <span class="navbar-count-msg">1</span>
+                ></span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="icon"

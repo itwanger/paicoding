@@ -161,7 +161,7 @@
 /*作者名*/
 .cdc-article-panel__user-name {
   font-weight: 500;
-  color: #000;
+  color: var(--pai-color-3-black);;
   line-height: 20px;
 }
 /*文章发布时间*/
@@ -283,4 +283,8 @@
 
 .cdc-article-panel:hover .user-article-item-title {
   color: var(--pai-brand-2-hover);
+}
+
+.cdc-article-panel__user-name:hover {
+  color: var(--pai-color-3-black);
 }

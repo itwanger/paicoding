@@ -36,16 +36,16 @@
             <span
               class="article-title-other-name cdc-avatar large cdc-article-panel__user-avatar circle"
             >
-              <a
-                class="cdc-avatar__inner"
+              <a class="cdc-avatar__inner"
                 th:style="'background-image: url(' + ${article.authorAvatar} + ');'"
                 th:href="${'/user/' + article.author}"
               ></a>
             </span>
-            <div
+            <a
               class="article-title-wrap cdc-article-panel__user-name"
               th:text="${article.authorName}"
-            ></div>
+              th:href="${'/user/' + article.author}"
+            ></a>
           </div>
           <div
             class="cdc-article-panel__date"
