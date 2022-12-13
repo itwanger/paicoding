@@ -41,7 +41,6 @@
 <div class="modal fade" id="saveModel" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
      aria-labelledby="loginModalDropLabel" aria-hidden="true">
   <div class="modal-dialog">
-    </style>
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">发布文章</h5>
@@ -50,11 +49,6 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="input-group">
-          <span class="form-label">短标题:</span>
-          <input id="subTitle" type="text" class="form-control"
-                 th:value="${vo.article != null ? vo.article.shortTitle: ''}" placeholder="请输入文章短标题"/>
-        </div>
         <div class="edit-sort-wrap">
           <label class="form-label">文章分类:</label>
           <div class="form-selectgroup">
@@ -121,8 +115,7 @@
         <button id="publish" type="button" class="btn btn-primary">
           发布
         </button>
-        <button id="tmpSave" type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
-                data-target="#registerModal">
+        <button id="tmpSave" type="button" class="btn btn-secondary">
           存草稿
         </button>
       </div>
