@@ -116,7 +116,7 @@ blockquote {
 
 .input-group input,
 .input-group textarea {
-  border-radius: 4px !important;
+  border-radius: 2px !important;
 }
 
 .edit-sort-wrap {
