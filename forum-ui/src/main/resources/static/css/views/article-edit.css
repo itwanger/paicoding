@@ -1,13 +1,17 @@
 .edit-nav {
   background-color: #fff;
-  height: 60px;
+  height: 50px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 3px 6px rgb(0 0 0 / 5%);
   z-index: 3;
-  padding: 0 27px;
+  padding: 0 10px;
+}
+
+.edit-title-input::placeholder{
+  font-size: 24px;
 }
 
 .edit-save {
@@ -72,25 +76,18 @@
 }
 
 .CodeMirror {
-  height: calc(100vh - 130px) !important;
-  border: 0 !important;
-  background-color: #f8f9fa !important;
+  background-color: #f8f9fa;
 }
 
 .editor-preview-active {
   background-color: #fff !important;
 }
 
-editor-preview-side editor-preview-active-side .editor-statusbar {
+.editor-preview-side .editor-preview-active-side .editor-statusbar {
   text-align: left !important;
   border-top: 1px solid #fff !important;
   font-size: 12px !important;
   background-color: #fff !important;
-}
-
-.CodeMirror-sided,
-.CodeMirror-fullscreen {
-  height: 100% !important;
 }
 
 .editor-preview-active-side {
