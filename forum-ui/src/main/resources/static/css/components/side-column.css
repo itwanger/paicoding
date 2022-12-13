@@ -1,9 +1,9 @@
 /* 右侧列表 */
 .home-right-item-wrap {
-    background-color: #fff;
+    background-color: var(--pai-bg-white-fff);
     overflow: hidden;
     padding: 20px;
-    margin-bottom: 20px !important;
+    margin-bottom: 20px;
   }
   .home-right-item-icon {
     height: 18px;
@@ -717,9 +717,128 @@
     height: 20px;
     background-image: linear-gradient(270deg, #ffa400, #ff791a);
     font-size: 12px;
-    color: #fff;
+    color: var(--pai-color-fff-normal);
     font-weight: 500;
     text-align: center;
     line-height: 20px;
     position: absolute;
   }
+
+.cdc-card {
+  background: linear-gradient(1turn,var(--pai-bg-white-fff),var(--pai-color-6-gray));
+  border: 2px solid var(--pai-bg-white-fff);
+  box-shadow: 8px 8px 20px rgb(55 99 170 / 10%);
+}
+
+.cdc-card__inner {
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.cdc-card__hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 2px 0 12px;
+  border-bottom: 1px solid var(--pai-border-color-1);
+}
+
+.mod-subscribe .cdc-card__hd {
+  border-bottom: none;
+  padding-bottom: 16px;
+}
+
+.cdc-card__title {
+  flex: 1 1;
+  position: relative;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 26px;
+  color: var(--pai-color-3-black);
+}
+
+.cdc-card__title:before {
+  content: "";
+  position: absolute;
+  display: block;
+  top: 4px;
+  left: -12px;
+  width: 3px;
+  height: 18px;
+  background: var(--pai-brand-1-normal);
+}
+
+.mod-subscribe__title {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--pai-color-3-black);
+  margin-bottom: 16px;
+}
+
+.mod-subscribe__content {
+  position: relative;
+  background: var(--pai-color-7-gray);
+  border-radius: 2px;
+  box-sizing: border-box;
+  padding: 14px 16px;
+}
+
+.mod-subscribe__title em {
+  font-weight: 500;
+  font-style: normal;
+  padding: 0 2px;
+  color: var(--pai-brand-5-bak);
+}
+
+.mod-subscribe__content-tag {
+  position: absolute;
+  left: -4px;
+  top: 8px;
+  width: 64px;
+  height: 26px;
+  line-height: 26px;
+  background: url(../../img/you-will-get.png) 50% no-repeat;
+  background-size: cover;
+  box-sizing: border-box;
+  padding-left: 8px;
+  font-size: 14px;
+  color: var(--pai-color-fff-normal);
+}
+
+.mod-subscribe__content-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mod-subscribe__content-detail {
+  margin-top: 14px;
+}
+
+.mod-subscribe__content-qr {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  background: linear-gradient(180deg,var(--pai-color-5-gray),var(--pai-color-fff-normal));
+  border: 2px solid var(--pai-color-fff-normal);
+  box-shadow: 8px 8px 20px rgb(55 99 170 / 10%), -8px -8px 20px hsl(0deg 0% 100% / 40%);
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 2px;
+}
+
+.mod-subscribe__content-qr>img {
+  width: 100%;
+  height: 100%;
+}
+
+.mod-subscribe__content-prize {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--pai-brand-6-mq);
+  margin-bottom: 8px;
+}

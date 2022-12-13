@@ -27,18 +27,6 @@
   color: #262626;
 }
 
-.home-right {
-  width: 24%;
-  border-radius: 20px;
-  position: relative;
-}
-
-.home-right .card,
-.home-right .home-right-item-wrap {
-  margin-bottom: 0;
-  border-bottom: 1px solid #f2f3f5;
-  border-radius: 0;
-}
 /* 头部导航 */
 .category--item {
   cursor: pointer;

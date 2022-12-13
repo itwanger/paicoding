@@ -22,6 +22,10 @@ body {
   --pai-color-4-gray: #515767;
   /*disable 的灰*/
   --pai-color-5-gray: #ddd;
+  /*非常浅的灰*/
+  --pai-color-6-gray: #f3f5f8;
+  /*比上面更灰一点*/
+  --pai-color-7-gray: #eff3f9;
   /*偏黑色*/
   --pai-color-3-black: #212529;
   /*背景色*/
@@ -152,6 +156,17 @@ button,button:focus {
 .card {
   border: none;
   margin-bottom: 20px;
+}
+
+/*右侧贴片*/
+.home-right, .custom-home-right {
+  width: 24%;
+  border-radius: 20px;
+  position: relative;
+}
+
+.custom-home-right {
+  width: 28%;
 }
 
 /*评论*/
