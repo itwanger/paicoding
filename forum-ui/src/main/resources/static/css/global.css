@@ -146,6 +146,12 @@ button,button:focus {
   color: var(--pai-brand-2-hover);
 }
 
+/*覆盖 bootstrap*/
+.card {
+  border: none;
+  margin-bottom: 20px;
+}
+
 /*评论*/
 .custom-empty {
   text-align: center;
@@ -202,7 +208,6 @@ button,button:focus {
 .no-comment-box,
 .posts-author-box,
 .posts-box,
-.card,
 .user-info-box,
 .page-box,
 .carousel {
@@ -246,17 +251,16 @@ button,button:focus {
   color: #007fff;
 }
 
-.dropdown-menu,
-.card {
+.dropdown-menu {
   border: 0;
 }
 
 .input-group-text,
 .navbar-toggler,
-.modal-content,
-.card {
+.modal-content {
   margin-bottom: 10px;
 }
+
 .form-control,
 .btn,
 .dropdown-menu,
