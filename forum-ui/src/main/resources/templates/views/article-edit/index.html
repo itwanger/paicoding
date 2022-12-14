@@ -48,7 +48,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="edit-sort-wrap category required">
+        <div class="edit-sort-wrap form-group category required">
           <label class="form-label">分类:</label>
           <div class="form-selectgroup">
             <label th:each="category : ${vo.categories}"
@@ -73,7 +73,7 @@
           </select>
         </div>
 
-        <div class="input-group">
+        <div class="input-group cover">
           <label class="form-label">文章封面:</label>
           <div class="custom-file">
             <div class="person-img-inter-wrap">
@@ -98,13 +98,19 @@
             </div>
           </div>
         </div>
-        <div class="input-group input-textarea">
+        <div class="input-group input-textarea required">
           <label class="form-label">文章摘要:</label>
-          <textarea id="summary" class="form-control form-textarea" data-bs-toggle="autosize"
-                    placeholder="请添加摘要信息..."
+          <textarea id="summary"
+                    class="form-control form-textarea summary"
+                    data-bs-toggle="autosize"
+                    placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 128 字符键入摘要文本框"
                     maxlength="128" th:text="${vo.article != null ?  vo.article.summary: ''}"
                     oninput="checkArea()"></textarea>
           <span class="form-textarea-limit">0/128</span>
+          <button type="button"
+                  class="el-button btn-getdistill el-button--default el-button--mini is-round">
+            <span>一键提取</span>
+          </button>
         </div>
       </div>
       <div class="modal-footer">
