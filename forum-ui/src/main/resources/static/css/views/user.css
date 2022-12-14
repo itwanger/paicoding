@@ -53,7 +53,7 @@
 .process-wrap {
   background-color: rgb(255, 255, 255);
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -124,7 +124,7 @@
 
 .user-body {
   flex: 1;
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 20px;
   background-color: #fff;
   z-index: 10;
@@ -304,7 +304,7 @@
   background-repeat: no-repeat;
   background-size: auto 288px;
   position: relative;
-  height: 230px;
+  height: 268px;
   padding-top: 42px;
 }
 
@@ -380,7 +380,7 @@
   color: var(--pai-color-4-gray);
 }
 .user-head-title-classify-item span:last-child {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .user-head-cell {
@@ -395,16 +395,15 @@
 }
 .user-edit {
   font-size: 16px;
-  height: 40px;
-  padding: 0 16px;
-  width: 270px;
+  padding-top: 14px;
+  width: 280px;
   color: var(--pai-brand-1-normal);
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
 }
-.user-edit:hover {
+.edit-btn:hover {
   color: var(--pai-brand-2-hover);
 }
 .user-edit span:first-child {
@@ -415,6 +414,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding-bottom: 12px;
 }
 .user-text-icon {
   cursor: pointer;
@@ -426,4 +426,38 @@
 
 .text-base-pure {
   color: var(--pai-color-999-gray);
+}
+.tw-flex-1 {
+  flex: 1 1 0%;
+}
+
+.user-edit .edit-btn {
+  padding-left: 20px;
+}
+
+.tags {
+  padding-bottom: 12px;
+  font-size: 14px;
+}
+
+.tag-item {
+  align-items: center;
+  background: rgba(51,51,51,.05);
+  border-radius: 14px;
+  color: var(--pai-color-3-gray);
+  display: flex;
+  height: 28px;
+  margin-right: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.tw-w-3 {
+  width: 12px;
+}
+.tw-h-3 {
+  height: 12px;
+}
+.tw-mr-1 {
+  margin-right: 4px;
 }
