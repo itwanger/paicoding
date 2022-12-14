@@ -6,6 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.core.util.NumUtil;
@@ -43,10 +44,15 @@ public class ColumnSettingViewController {
     @GetMapping(path = "listColumnArticle")
     public ResVo<PageVo<ColumnArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId,
                                                              @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                                             @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+                                                             @RequestParam(name = "pageSize", required = false) Integer pageSize) throws Exception {
         pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
         pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<ColumnArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(columnId, PageParam.newPageInstance(pageNumber, pageSize));
-        return ResVo.ok(simpleArticleDTOS);
+        try {
+            PageVo<ColumnArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(
+                    columnId, PageParam.newPageInstance(pageNumber, pageSize));
+            return ResVo.ok(simpleArticleDTOS);
+        } catch (Exception e) {
+            return ResVo.fail(StatusEnum.RECORDS_NOT_EXISTS, e.getMessage());
+        }
     }
 }

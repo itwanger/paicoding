@@ -68,5 +68,5 @@ public interface ColumnSettingService {
      * @param columnId
      * @return
      */
-    PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam);
+    PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) throws Exception;
 }
