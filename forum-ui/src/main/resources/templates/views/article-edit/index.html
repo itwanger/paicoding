@@ -13,20 +13,17 @@
 <!-- 正文内容 -->
 <div class="edit-nav">
   <form action="/save" method="get" class="edit-title-form">
-    <input id="title" type="text" class="edit-title-input" th:value="${vo.article != null ? vo.article.title: ''}"
-           placeholder="输入文章标题..." oninput="checkTitle()"/>
+    <input id="title" type="text"
+           class="edit-title-input"
+           th:value="${vo.article != null ? vo.article.title: ''}"
+           placeholder="输入文章标题..."
+           oninput="checkTitle()"/>
   </form>
   <div class="edit-save" data-toggle="modal" data-target="#saveModel">
     <span>保 存</span>
   </div>
   <a th:href="${'/user/home?userId=' + global.user.userId}">
-    <img
-    class="nav-login-img"
-    style="border-radius: 50%"
-    th:src="${global.user.photo}"
-    src="https://static.developers.pub/static/img/logo.b2ff606.jpeg"
-    alt=""
-  />
+    <img class="nav-login-img" th:src="${global.user.photo}"/>
   </a>
   
 </div>
@@ -38,8 +35,11 @@
   </textarea>
 </div>
 
-<div class="modal fade" id="saveModel" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
-     aria-labelledby="loginModalDropLabel" aria-hidden="true">
+<div class="modal fade"
+     id="saveModel"
+     role="dialog"
+     tabindex="-1"
+     aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -49,34 +49,31 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="edit-sort-wrap">
-          <label class="form-label">文章分类:</label>
+        <div class="edit-sort-wrap category required">
+          <label class="form-label">分类:</label>
           <div class="form-selectgroup">
             <label th:each="category : ${vo.categories}"
                    th:class="'form-selectgroup-item ' + ${category.selected ? 'form-selectgroup-item--active': ''}">
               <input type="radio" name="category"
                      th:value="${category.categoryId}"
                      class="form-selectgroup-input"/>
-              <span class="form-selectgroup-label" th:text="${category.category}">
+                <span class="form-selectgroup-label" th:text="${category.category}">
                   后端
                 </span>
             </label>
           </div>
         </div>
-        <div class="input-group edit-tag-wrap">
-          <div class="form-label">文章标签:</div>
-          <div class="article-tag-wrap" id="tagList">
-            <div th:class="'form-check' + ${tag.selected != null && tag.selected? ' form-check--active': ''} "
-                 th:each="tag, iter: ${vo.tags}" onclick="tagSelected(this)">
-              <input class="form-check-input" name="article-tag" type="checkbox"
-                     th:value="${tag.tagId}" th:id="'tag_' + ${iter.index}"
-                     th:checked="${tag.selected != null && tag.selected}">
-              <label class="form-check-label" th:for="'tag_' + ${iter.index}" th:text="${tag.tag}">
-                java
-              </label>
-            </div>
-          </div>
+
+        <div class="form-group edit-tag-wrap required">
+          <label class="form-label">添加标签:</label>
+          <select id="tag-select" class="form-control">
+            <option th:each="tag : ${vo.tags}"
+                    th:text="${tag.tag}"
+                    th:id="${tag.tagId}"
+                    th:selected="${tag.selected}"></option>
+          </select>
         </div>
+
         <div class="input-group">
           <label class="form-label">文章封面:</label>
           <div class="custom-file">
@@ -123,9 +120,6 @@
   </div>
 </div>
 
-<!-- TODO 去掉后会导致弹窗打不开灯问题，后续调整 -->
-<link rel="stylesheet" href="/css/simplemde.min.css"/>
-<script src="/js/simplemde.min.js"></script>
 <script th:inline="javascript">
   // https://github.com/sparksuite/simplemde-markdown-editor
   let vo = [[${vo}]]
@@ -146,6 +140,47 @@
     placeholder: "Type here...",
   });
   simplemde.toggleSideBySide(); //打开实时全屏预览
+
+  $('#tag-select').select2({
+    placeholder: '请选择你需要的标签，最多三个', // 提示
+    width: '70%', // 宽度
+    allowClear: true, // 可清空
+    debug: true, // 上线后关闭
+    language: 'zh-CN', // 中文
+    maximumSelectionLength: 3, //最多选三个
+    multiple: true, // 可多选
+    // 动态请求数据
+    ajax: {
+      url: '/article/api/tag/list1',
+      data: function (params) {
+        var query = {
+          pageNumber: params.page,
+          pageSize: 10,
+          categoryId: getChooseCategoryId(),
+        }
+
+        // 查询参数将是 ?search=[term]&type=public
+        return query;
+      },
+      dataType: 'json',
+      processResults: function (response, params) {
+        console.log("response: ", response)
+        console.log("page: ", params.page)
+        var data = $.map(response.result.list, function (obj) {
+          obj.id = obj.id || obj.tagId;
+          obj.text = obj.text || obj.tag;// 用您的标识符替换pk
+
+          return obj;
+        });
+        return {
+          results: data,
+          pagination : {
+            more : response.result.pageNum < response.result.pageTotal// 总页数为10，那么1-9页的时候都可以下拉刷新
+          }
+        };
+      }
+    }
+  });
 
   // 自动从文章内提取前128个字符作为文章简介
   $('#saveModel').on('show.bs.modal', function () {
@@ -197,9 +232,10 @@
     }
     // 处理标签
     const tagsAll = [];
-    $("input:checkbox[name='article-tag']:checked").each(function () {
-      tagsAll.push($(this).val());
+    $.each($('#tag-select').select2('data'), function(index, value) {
+      tagsAll.push(value.id);
     });
+
     if (tagsAll.length <= 0 || tagsAll.length > 3) {
       toastr.error("请选择1-3个标签!");
       return;
@@ -236,32 +272,9 @@
     })
   }
 
-  // 选中分类，更新对应的下拉标签
-  $('input:radio[name="category"]').click(function () {
-    $.get("/article/api/tag/list?categoryId=" + getChooseCategoryId(),
-            function (data) {
-              console.log("response: ", data)
-              const tagList = data.result;
-              let tagDivs = "";
-              for (let i = 0; i < tagList.length; i++) {
-                let tag = tagList[i];
-                let subDiv = `<div class="form-check${tag.selected != null && tag.selected ? ' form-check--active' : ''} " onclick="tagSelected(this)">
-              <input class="form-check-input" name="article-tag" type="checkbox"
-                     value="${tag.tagId}" id="tag_ + ${i}" >
-              <label class="form-check-label" id="tag_ + ${i}">
-                ${tag.tag}
-              </label>
-            </div>`
-                tagDivs += subDiv;
-              }
-              $("#tagList").html(tagDivs)
-            }
-    )
-  })
-
   function getChooseCategoryId() {
-    const category = $("input:radio:checked")
-    if (category) {
+    const category = $("input[name='category']:radio:checked")
+    if (category.length > 0) {
       return category.val()
     }
     return -1
@@ -315,7 +328,7 @@
     const len = value.length
     console.log(value)
     localStorage.setItem('articleTitle', value)
-    if (len > 0) {
+    if (len > 5) {
       $('.edit-save').addClass('edit-save--active')
       showSaveBtn = true
     } else {
