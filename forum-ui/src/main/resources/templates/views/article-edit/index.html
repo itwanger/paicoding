@@ -69,7 +69,7 @@
           <select id="tag-select" class="form-control">
             <option th:each="tag : ${vo.tags}"
                     th:text="${tag.tag}"
-                    th:id="${tag.tagId}"
+                    th:value="${tag.tagId}"
                     th:selected="${tag.selected}"></option>
           </select>
         </div>
@@ -302,20 +302,6 @@
       })
     })(index)
   })
-
-  /**
-   * 处理标签的选中与删除
-   * @param e
-   */
-  function tagSelected(e) {
-    if (e.classList.contains('form-check--active')) {
-      // 设置为未选中
-      e.classList.remove('form-check--active');
-    } else {
-      // 设置为已选中
-      e.classList.add('form-check--active');
-    }
-  }
 
   let showSaveBtn = false;
   // 处理按钮隐藏时不可编辑
