@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="/css/views/article-edit.css">
 
 <body id="body">
- 
 <!-- 正文内容 -->
 <div class="edit-nav">
   <form action="/save" method="get" class="edit-title-form">
@@ -27,8 +26,8 @@
   </a>
   
 </div>
+<input type="hidden" id="articleId" th:value="${vo.article != null ? vo.article.articleId: ''}"/>
 <div class="form-group">
-  <span id="articleId" style="visibility: hidden" th:text="${vo.article != null ? vo.article.articleId: ''}"></span>
   <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
             style="min-height: 700px; width: 100%"
             th:text="${vo.article != null ? vo.article.content: ''}">
