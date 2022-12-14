@@ -104,6 +104,22 @@ blockquote {
 
 .modal-content {
   width: 600px;
+  font-size: 14px;
+}
+
+.modal-title {
+  font-size: 18px;
+}
+
+.required .form-label:before {
+  content: "*";
+  color: var(--pai-brand-6-mq);
+  vertical-align: -2px;
+  padding-right: 2px;
+}
+
+.category .form-label {
+  padding-top: 5px;
 }
 
 .input-group {
@@ -133,14 +149,12 @@ blockquote {
 
 .form-selectgroup-item {
   width: 100px;
-  background-color: #ccc;
   height: 32px;
-  border-radius: 4px;
   line-height: 32px;
   text-align: center;
   margin-right: 10px;
-  background-color: #f8f9fa;
-  color: #919aa6;
+  background-color: var(--pai-bg-light-2);
+  color: var(--pai-color-4-gray);
   cursor: pointer;
 }
 
@@ -149,7 +163,6 @@ blockquote {
   align-items: center;
   justify-content: center;
   min-width: 70px;
-  background-color: #ccc;
   height: 30px;
   border-radius: 4px;
   /* margin-right: 10px; */
@@ -174,13 +187,13 @@ blockquote {
 }
 .form-selectgroup-item--active,
 .form-check--active {
-  background-color: #e2f3fe;
-  color: #237ffa;
+  background-color: var(--pai-brand-7-light);
+  color: var(--pai-brand-1-normal);
 }
 
 .form-selectgroup-item:hover,
 .form-check:hover {
-  background-color: #e2f3fe;
+  background-color: var(--pai-brand-7-light);
 }
 
 .form-selectgroup-input {

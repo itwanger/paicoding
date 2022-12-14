@@ -12,6 +12,9 @@ body {
   --pai-brand-5-bak: #fe6617;
   /*消息提醒点*/
   --pai-brand-6-mq: #f85959;
+  --pai-brand-7-light: rgba(255, 105, 0, 0.15);
+  /*浅色时由上一个过度到下一个*/
+  --pai-brand-8-light: rgba(255, 105, 0, 0.35);
   /*颜色白色*/
   --pai-color-fff-normal: #fff;
   /*浅灰色*/
@@ -119,7 +122,7 @@ button,button:focus {
 }
 
 #scrollUp:hover {
-  background-color: rgba(255, 105, 0, 0.15);
+  background-color: var(--pai-brand-7-light);
 }
 
 #scrollUp-active {

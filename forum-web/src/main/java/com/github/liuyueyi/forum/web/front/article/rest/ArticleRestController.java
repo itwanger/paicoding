@@ -4,10 +4,7 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
-import com.github.liueyueyi.forum.api.model.vo.NextPageHtmlVo;
-import com.github.liueyueyi.forum.api.model.vo.PageListVo;
-import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.*;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
@@ -16,6 +13,7 @@ import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
+import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.*;
@@ -89,6 +87,16 @@ public class ArticleRestController {
 
         List<TagDTO> list = tagService.queryTagsByCategoryId(categoryId);
         return ResVo.ok(list);
+    }
+
+    @ResponseBody
+    @GetMapping(path = "tag/list1")
+    public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                      @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
+        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
+        PageVo<TagDTO> tagDTOPageVo = tagService.getTagList(PageParam.newPageInstance(pageNumber, pageSize));
+        return ResVo.ok(tagDTOPageVo);
     }
 
     /**

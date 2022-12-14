@@ -563,7 +563,7 @@
   }
   
   .c-btn-hole:hover {
-    background-color: rgba(255, 105, 0, 0.15);
+    background-color: var(--pai-brand-7-light);
   }
   
   /*阅读和点赞*/
