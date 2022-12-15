@@ -13,13 +13,8 @@ import java.util.List;
  * @date 2022-07-20
  */
 public interface TagService {
-    /**
-     * 根据类目ID查询标签列表
-     *
-     * @param categoryId
-     * @return
-     */
-    List<TagDTO> queryTagsByCategoryId(Long categoryId);
+
+    PageVo<TagDTO> queryTags(String key, PageParam pageParam);
 
     Long queryTagId(String tag);
 

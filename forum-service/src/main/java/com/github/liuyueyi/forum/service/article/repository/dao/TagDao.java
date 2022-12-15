@@ -1,11 +1,14 @@
 package com.github.liuyueyi.forum.service.article.repository.dao;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
+import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.article.repository.mapper.TagMapper;
@@ -20,13 +23,34 @@ import java.util.List;
 @Repository
 public class TagDao extends ServiceImpl<TagMapper, TagDO> {
 
-    public List<TagDTO> listTagsByCategoryId(Long categoryId) {
+    /**
+     * 获取已上线 Tags 列表（分页）
+     *
+     * @return
+     */
+    public List<TagDTO> listOnlineTag(String key, PageParam pageParam) {
         List<TagDO> list = lambdaQuery()
-                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(TagDO::getCategoryId, categoryId)
                 .eq(TagDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .and(!StringUtils.isEmpty(key), v -> v.like(TagDO::getTagName, key))
+                .orderByDesc(TagDO::getId)
+                .last(PageParam.getLimitSql(pageParam))
                 .list();
         return ArticleConverter.toDtoList(list);
+    }
+
+    /**
+     * 获取已上线 Tags 总数（分页）
+     *
+     * @return
+     */
+    public Integer countOnlineTag(String key) {
+        return lambdaQuery()
+                .eq(TagDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .and(!StringUtils.isEmpty(key), v -> v.like(TagDO::getTagName, key))
+                .count()
+                .intValue();
     }
 
     /**
