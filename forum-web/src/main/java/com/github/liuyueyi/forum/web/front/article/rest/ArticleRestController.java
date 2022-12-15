@@ -80,22 +80,12 @@ public class ArticleRestController {
      * @return
      */
     @GetMapping(path = "tag/list")
-    public ResVo<List<TagDTO>> queryTags(Long categoryId) {
-        if (categoryId == null || categoryId <= 0L) {
-            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS, categoryId);
-        }
-
-        List<TagDTO> list = tagService.queryTagsByCategoryId(categoryId);
-        return ResVo.ok(list);
-    }
-
-    @ResponseBody
-    @GetMapping(path = "tag/list1")
-    public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                      @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+    public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
+                                            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                            @RequestParam(name = "pageSize", required = false) Integer pageSize) {
         pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
         pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<TagDTO> tagDTOPageVo = tagService.getTagList(PageParam.newPageInstance(pageNumber, pageSize));
+        PageVo<TagDTO> tagDTOPageVo = tagService.queryTags(key, PageParam.newPageInstance(pageNumber, pageSize));
         return ResVo.ok(tagDTOPageVo);
     }
 

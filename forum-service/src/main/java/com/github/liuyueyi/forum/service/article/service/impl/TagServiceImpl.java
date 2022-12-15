@@ -25,8 +25,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> queryTagsByCategoryId(Long categoryId) {
-        return tagDao.listTagsByCategoryId(categoryId);
+    public PageVo<TagDTO> queryTags(String key, PageParam pageParam) {
+        List<TagDTO> tagDTOS = tagDao.listOnlineTag(key, pageParam);
+        Integer totalCount = tagDao.countOnlineTag(key);
+        return PageVo.build(tagDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
     }
 
     @Override

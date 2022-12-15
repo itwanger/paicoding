@@ -43,7 +43,7 @@ public class ArticleDaoTest extends BasicTest {
         TagDO tag = new TagDO();
         tag.setTagName("Java");
         tag.setTagType(1);
-        tag.setCategoryId(1L);
+//        tag.setCategoryId(1L);
         tagDao.save(tag);
         log.info("tagId: {}", tag.getId());
     }
