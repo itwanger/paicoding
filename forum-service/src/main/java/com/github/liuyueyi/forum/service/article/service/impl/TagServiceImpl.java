@@ -6,6 +6,7 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.dao.TagDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.service.TagService;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,11 @@ public class TagServiceImpl implements TagService {
 
     public TagServiceImpl(TagDao tagDao) {
         this.tagDao = tagDao;
+    }
+
+    @Override
+    public List<TagDTO> queryAllTags() {
+        return tagDao.listOnlineTag(Strings.EMPTY, null);
     }
 
     @Override

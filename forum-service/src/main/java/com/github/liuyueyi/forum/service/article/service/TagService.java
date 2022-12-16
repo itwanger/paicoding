@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface TagService {
 
+    List<TagDTO> queryAllTags();
+
     PageVo<TagDTO> queryTags(String key, PageParam pageParam);
 
     Long queryTagId(String tag);

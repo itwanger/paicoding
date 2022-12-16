@@ -4,9 +4,11 @@ import com.github.liueyueyi.forum.api.model.enums.*;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
@@ -61,6 +63,12 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
         return articleDao.getById(articleId);
+    }
+
+    @Override
+    public PageVo<TagDTO> queryTagsByArticleId(Long articleId) {
+        List<TagDTO> tagDTOS = articleTagDao.queryArticleTagDetails(articleId);
+        return PageVo.build(tagDTOS, 1, 10, tagDTOS.size());
     }
 
     @Override
