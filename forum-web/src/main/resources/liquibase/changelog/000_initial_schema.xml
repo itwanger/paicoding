@@ -18,4 +18,8 @@
     <changeSet id="00000000000003" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_221210.sql"/>
     </changeSet>
+
+    <changeSet id="00000000000005" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_221216.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -38,7 +38,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
         query.gt(ColumnInfoDO::getState, ColumnStatusEnum.OFFLINE.getCode())
                 .last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ColumnInfoDO::getId);
+                .orderByAsc(ColumnInfoDO::getSection);
         return baseMapper.selectList(query);
     }
 
@@ -94,7 +94,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
     public List<ColumnInfoDO> listColumns(PageParam pageParam) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
         query.last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ColumnInfoDO::getId);
+                .orderByAsc(ColumnInfoDO::getSection);
         return baseMapper.selectList(query);
     }
 
