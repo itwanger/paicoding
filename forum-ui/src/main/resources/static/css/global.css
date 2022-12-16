@@ -143,16 +143,20 @@ button,button:focus {
   background-color: var(--pai-bg-white-fff);
 }
 
+.dropdown-item {
+  color: var(--pai-color-3-black);
+}
+
 /*下拉菜单的颜色覆盖*/
 .dropdown-item.active,
 .dropdown-item:active {
-  color: var(--pai-color-fff-normal);
+  color: var(--pai-color-3-black);
   background-color: var(--pai-brand-3-click);
 }
 
 .dropdown-item:focus,
 .dropdown-item:hover {
-  color: var(--pai-brand-2-hover);
+  background-color: var(--pai-bg-normal-1);
 }
 
 /*覆盖 bootstrap*/
