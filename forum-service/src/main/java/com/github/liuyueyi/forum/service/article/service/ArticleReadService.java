@@ -3,8 +3,10 @@ package com.github.liuyueyi.forum.service.article.service;
 import com.github.liueyueyi.forum.api.model.enums.HomeSelectEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
+import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 
 import java.util.List;
@@ -19,6 +21,13 @@ public interface ArticleReadService {
      */
     ArticleDO queryBasicArticle(Long articleId);
 
+    /**
+     * 查询文章标签列表
+     *
+     * @param articleId
+     * @return
+     */
+    PageVo<TagDTO> queryTagsByArticleId(Long articleId);
 
     /**
      * 查询文章详情，包括正文内容，分类、标签等信息

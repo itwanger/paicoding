@@ -1,6 +1,9 @@
 package com.github.liuyueyi.forum.service.article.repository.dao;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
@@ -29,13 +32,15 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
      * @return
      */
     public List<TagDTO> listOnlineTag(String key, PageParam pageParam) {
-        List<TagDO> list = lambdaQuery()
-                .eq(TagDO::getStatus, PushStatusEnum.ONLINE.getCode())
+        LambdaQueryWrapper<TagDO> query = Wrappers.lambdaQuery();
+        query.eq(TagDO::getStatus, PushStatusEnum.ONLINE.getCode())
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .and(!StringUtils.isEmpty(key), v -> v.like(TagDO::getTagName, key))
-                .orderByDesc(TagDO::getId)
-                .last(PageParam.getLimitSql(pageParam))
-                .list();
+                .orderByDesc(TagDO::getId);
+        if (pageParam != null) {
+            query.last(PageParam.getLimitSql(pageParam));
+        }
+        List<TagDO> list = baseMapper.selectList(query);
         return ArticleConverter.toDtoList(list);
     }
 
