@@ -43,4 +43,9 @@ public class ColumnReq implements Serializable {
      * 状态
      */
     private Integer state;
+
+    /**
+     * 排序
+     */
+    private Integer section;
 }

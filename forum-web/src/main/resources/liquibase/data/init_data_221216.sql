@@ -1,0 +1,1 @@
+alter table column_info add `section` int unsigned NOT NULL DEFAULT '0' COMMENT '排序';
