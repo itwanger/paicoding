@@ -392,3 +392,21 @@ blockquote {
   background-color: var(--pai-brand-7-light);
   color: var(--pai-brand-2-hover);
 }
+
+.person-img-inter-wrap .close_icon {
+  z-index: 9;
+  position: absolute;
+  background: var(--pai-color-999-gray);
+  color: var(--pai-color-fff-normal);
+  line-height: 20px;
+  right: -8px;
+  top: -8px;
+  display: none;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  text-align: center;
+  background-size: contain;
+  border-radius: 50%;
+  cursor: pointer;
+}
