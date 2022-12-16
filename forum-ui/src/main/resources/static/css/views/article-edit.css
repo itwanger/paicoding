@@ -388,3 +388,7 @@ blockquote {
   padding: 8px 8px 0;
 }
 
+.btn-getdistill:hover {
+  background-color: var(--pai-brand-7-light);
+  color: var(--pai-brand-2-hover);
+}
