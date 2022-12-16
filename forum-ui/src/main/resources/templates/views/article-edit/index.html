@@ -55,6 +55,7 @@
                    th:class="'form-selectgroup-item ' + ${category.selected ? 'form-selectgroup-item--active': ''}">
               <input type="radio" name="category"
                      th:value="${category.categoryId}"
+                     th:checked="${category.selected}"
                      class="form-selectgroup-input"/>
                 <span class="form-selectgroup-label" th:text="${category.category}">
                   后端
@@ -161,7 +162,7 @@
         var query = {
           pageNumber: params.page,
           pageSize: 10,
-          categoryId: getChooseCategoryId(),
+          key: params.term,
         }
 
         // 查询参数将是 ?search=[term]&type=public
