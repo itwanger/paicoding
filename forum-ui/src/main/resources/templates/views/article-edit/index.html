@@ -66,11 +66,11 @@
 
         <div class="form-group edit-tag-wrap required">
           <label class="form-label">添加标签:</label>
-          <select id="tag-select" class="form-control">
+          <select id="tag-select" class="form-control" multiple="multiple">
             <option th:each="tag : ${vo.tags}"
                     th:text="${tag.tag}"
                     th:value="${tag.tagId}"
-                    th:selected="${tag.selected}"></option>
+                    selected="selected"></option>
           </select>
         </div>
 
