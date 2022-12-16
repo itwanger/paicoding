@@ -91,12 +91,6 @@ public class ArticleViewController extends BaseViewController {
             });
             vo.setCategories(categoryList);
 
-            // 方案1：返回所有的标签，然后选中文章自己的标签
-//            List<TagDTO> tagList = tagService.queryAllTags();
-//            Set<Long> selectedTags = article.getTags().stream().map(TagDTO::getTagId).collect(Collectors.toSet());
-//            tagList.forEach(s-> s.setSelected(selectedTags.contains(s.getTagId())));
-//            vo.setTags(tagList);
-
             // 方案2：只返回文章自己的标签
             vo.setTags(article.getTags());
         } else {
