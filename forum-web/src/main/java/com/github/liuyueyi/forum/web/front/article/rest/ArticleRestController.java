@@ -20,6 +20,7 @@ import com.github.liuyueyi.forum.service.article.service.*;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,8 @@ public class ArticleRestController {
     private CategoryService categoryService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private ArticleReadService articleService;
     @Autowired
     private ArticleWriteService articleWriteService;
 
@@ -81,11 +84,17 @@ public class ArticleRestController {
      */
     @GetMapping(path = "tag/list")
     public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
+                                           @RequestParam(name = "articleId", required = false) Long articleId,
                                             @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
                                             @RequestParam(name = "pageSize", required = false) Integer pageSize) {
         pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
         pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<TagDTO> tagDTOPageVo = tagService.queryTags(key, PageParam.newPageInstance(pageNumber, pageSize));
+        PageVo<TagDTO> tagDTOPageVo;
+        if (articleId != null && articleId > 0) {
+            tagDTOPageVo = articleService.queryTagsByArticleId(articleId);
+        } else {
+            tagDTOPageVo = tagService.queryTags(key, PageParam.newPageInstance(pageNumber, pageSize));
+        }
         return ResVo.ok(tagDTOPageVo);
     }
 
