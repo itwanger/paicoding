@@ -208,10 +208,11 @@
       content: content,
     };
 
-    post("/article/api/getSummary", params, function (data) {
+    post("/article/api/generateSummary", params, function (data) {
       console.log("提取后的简介:", data)
       $("#summary").val(data);
     });
+
   });
 
   //  发表文章

@@ -27,7 +27,7 @@ public interface ArticleReadService {
      * @param content
      * @return
      */
-    String getSummary(String content);
+    String generateSummary(String content);
 
     /**
      * 查询文章标签列表

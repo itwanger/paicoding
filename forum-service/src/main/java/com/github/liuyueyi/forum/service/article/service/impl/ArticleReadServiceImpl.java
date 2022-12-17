@@ -67,7 +67,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     }
 
     @Override
-    public String getSummary(String content) {
+    public String generateSummary(String content) {
         if (content.isEmpty()) {
             return Strings.EMPTY;
         }

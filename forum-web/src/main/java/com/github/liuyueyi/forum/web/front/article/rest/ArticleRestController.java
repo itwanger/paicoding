@@ -82,9 +82,9 @@ public class ArticleRestController {
      *
      * @return
      */
-    @GetMapping(path = "getSummary")
-    public ResVo<String> getSummary(@RequestParam(name = "content") String content) {
-        return ResVo.ok(articleService.getSummary(content));
+    @PostMapping(path = "generateSummary")
+    public ResVo<String> generateSummary(@RequestParam(name = "content", required = false) String content) {
+        return ResVo.ok(articleService.generateSummary(content));
     }
 
     /**
