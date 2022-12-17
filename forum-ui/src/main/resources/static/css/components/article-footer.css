@@ -278,19 +278,19 @@
 }
 
 .action-box .item:hover {
-  color: #1171ee;
+  color: var(--pai-brand-2-hover);
 }
 
 .action-box .item:hover svg {
-  fill: #1171ee;
+  fill: var(--pai-brand-2-hover);
 }
 
 .action-box .item.active {
-  color: #1e80ff;
+  color: var(--pai-brand-2-hover);
 }
 
 .action-box .item.active svg {
-  fill: #1e80ff;
+  fill: var(--pai-brand-2-hover);
 }
 
 /*文章评论*/
