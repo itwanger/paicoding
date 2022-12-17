@@ -6,6 +6,7 @@ import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.*;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.article.ContentPostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
@@ -83,8 +84,8 @@ public class ArticleRestController {
      * @return
      */
     @PostMapping(path = "generateSummary")
-    public ResVo<String> generateSummary(@RequestParam(name = "content", required = false) String content) {
-        return ResVo.ok(articleService.generateSummary(content));
+    public ResVo<String> generateSummary(@RequestBody ContentPostReq req) {
+        return ResVo.ok(articleService.generateSummary(req.getContent()));
     }
 
     /**
