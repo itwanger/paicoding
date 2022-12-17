@@ -457,8 +457,8 @@
   align-items: center;
   font-size: 14px;
   border-radius: 50%;
-  background-color: #007fff;
-  color: #fff;
+  background-color: var(--pai-brand-1-normal);
+  color: var(--pai-color-fff-normal);
   user-select: none;
   box-shadow: 0 4px 10px rgb(0 0 0 / 15%);
 }
@@ -469,4 +469,21 @@
 
 .article-change-item:last-child {
   right: 10px;
+}
+
+.right {
+  margin-left: 15px;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.right .label {
+  height: 24px;
+  background: var(--pai-bg-normal-1);
+  line-height: 24px;
+  border-radius: 12px;
+  padding: 0 8px;
+  color: var(--pai-brand-1-normal);
+  font-size: 12px;
+  white-space: nowrap;
 }

@@ -90,10 +90,9 @@ public class ArticleViewController extends BaseViewController {
                 s.setSelected(s.getCategoryId().equals(article.getCategory().getCategoryId()));
             });
             vo.setCategories(categoryList);
-            List<TagDTO> tagList = tagService.queryTagsByCategoryId(article.getCategory().getCategoryId());
-            Set<Long> selectedTags = article.getTags().stream().map(TagDTO::getTagId).collect(Collectors.toSet());
-            tagList.forEach(s-> s.setSelected(selectedTags.contains(s.getTagId())));
-            vo.setTags(tagList);
+
+            // 方案2：只返回文章自己的标签
+            vo.setTags(article.getTags());
         } else {
             List<CategoryDTO> categoryList = categoryService.loadAllCategories();
             vo.setCategories(categoryList);

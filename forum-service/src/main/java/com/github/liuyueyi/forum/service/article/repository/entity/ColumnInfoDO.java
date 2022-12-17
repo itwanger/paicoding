@@ -43,6 +43,11 @@ public class ColumnInfoDO extends BaseDO {
     private Integer state;
 
     /**
+     * 排序
+     */
+    private Integer section;
+
+    /**
      * 上线时间
      */
     private Date publishTime;

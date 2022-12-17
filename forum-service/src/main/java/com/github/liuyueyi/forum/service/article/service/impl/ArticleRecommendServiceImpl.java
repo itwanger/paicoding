@@ -43,13 +43,14 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
 
     @Override
     public List<SideBarDTO> recommend(ArticleDTO articleDO) {
+        // 文章详情页的侧边栏
+        List<SideBarDTO> sides = sidebarService.queryArticleDetailSidebarList();
+
         // 推荐文章
         SideBarDTO recommend = recommendByAuthor(articleDO.getAuthor(), articleDO.getArticleId(), PageParam.DEFAULT_PAGE_SIZE);
+        sides.add(recommend);
 
-        // PDF
-        SideBarDTO pdf = sidebarService.pdfSideBar();
-
-        return Arrays.asList(pdf, recommend);
+        return sides;
     }
 
     /**

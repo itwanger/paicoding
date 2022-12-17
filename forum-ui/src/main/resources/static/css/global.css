@@ -12,6 +12,9 @@ body {
   --pai-brand-5-bak: #fe6617;
   /*消息提醒点*/
   --pai-brand-6-mq: #f85959;
+  --pai-brand-7-light: rgba(255, 105, 0, 0.15);
+  /*浅色时由上一个过度到下一个*/
+  --pai-brand-8-light: rgba(255, 105, 0, 0.35);
   /*颜色白色*/
   --pai-color-fff-normal: #fff;
   /*浅灰色*/
@@ -22,12 +25,16 @@ body {
   --pai-color-4-gray: #515767;
   /*disable 的灰*/
   --pai-color-5-gray: #ddd;
+  /*非常浅的灰*/
+  --pai-color-6-gray: #f3f5f8;
+  /*比上面更灰一点*/
+  --pai-color-7-gray: #eff3f9;
   /*偏黑色*/
   --pai-color-3-black: #212529;
   /*背景色*/
   --pai-bg-white-fff: #fff;
-  /*边框颜色*/
-  --pai-border-color-1: #d2d9e7;
+  /*淡黄色*/
+  --pai-bg-normal-1: #fff3db;
   --pai-bg-light-1: #eeeeee;
   /*浅一点的颜色*/
   --pai-bg-light-2: #f7f8fa;
@@ -39,6 +46,8 @@ body {
   --pai-bg-dark-3: #000000;
   /*横线的颜色*/
   --pai-hr-color-1: #f0f0f0;
+  /*边框颜色*/
+  --pai-border-color-1: #d2d9e7;
   /*外边距*/
   margin: 0;
   /*溢出后隐藏*/
@@ -114,7 +123,7 @@ button:focus {
 }
 
 #scrollUp:hover {
-  background-color: rgba(255, 105, 0, 0.15);
+  background-color: var(--pai-brand-7-light);
 }
 
 #scrollUp-active {
@@ -135,16 +144,37 @@ button:focus {
   background-color: var(--pai-bg-white-fff);
 }
 
+.dropdown-item {
+  color: var(--pai-color-3-black);
+}
+
 /*下拉菜单的颜色覆盖*/
 .dropdown-item.active,
 .dropdown-item:active {
-  color: var(--pai-color-fff-normal);
+  color: var(--pai-color-3-black);
   background-color: var(--pai-brand-3-click);
 }
 
 .dropdown-item:focus,
 .dropdown-item:hover {
-  color: var(--pai-brand-2-hover);
+  background-color: var(--pai-bg-normal-1);
+}
+
+/*覆盖 bootstrap*/
+.card {
+  border: none;
+  margin-bottom: 20px;
+}
+
+/*右侧贴片*/
+.home-right, .custom-home-right {
+  width: 24%;
+  border-radius: 20px;
+  position: relative;
+}
+
+.custom-home-right {
+  width: 28%;
 }
 
 /*评论*/
@@ -203,7 +233,6 @@ button:focus {
 .no-comment-box,
 .posts-author-box,
 .posts-box,
-.card,
 .user-info-box,
 .page-box,
 .carousel {
@@ -247,17 +276,16 @@ button:focus {
   color: #007fff;
 }
 
-.dropdown-menu,
-.card {
+.dropdown-menu {
   border: 0;
 }
 
 .input-group-text,
 .navbar-toggler,
-.modal-content,
-.card {
+.modal-content {
   margin-bottom: 10px;
 }
+
 .form-control,
 .btn,
 .dropdown-menu,

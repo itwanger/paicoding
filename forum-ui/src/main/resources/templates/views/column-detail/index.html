@@ -33,42 +33,52 @@
 
         <!-- 左右切换 -->
         <div class="article-change">
-          <div class="article-change-item">
-            <svg
-              t="1670064682276"
-              class="icon"
-              viewBox="0 0 1024 1024"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-              p-id="9458"
-              width="32"
-              height="32"
-            >
-              <path
-                d="M671.968176 911.99957c-12.287381 0-24.576482-4.67206-33.951566-14.047144L286.048434 545.984249c-18.751888-18.719204-18.751888-49.12028 0-67.872168L638.016611 126.111222c18.751888-18.751888 49.12028-18.751888 67.872168 0 18.751888 18.719204 18.751888 49.12028 0 67.872168l-318.016611 318.047574L705.888778 830.047574c18.751888 18.751888 18.751888 49.12028 0 67.872168C696.544658 907.32751 684.255557 911.99957 671.968176 911.99957z"
-                p-id="9459"
-                fill="#ffffff"
-              ></path>
-            </svg>
-          </div>
-          <div class="article-change-item">
-            <svg
-              t="1670064662589"
-              class="icon"
-              viewBox="0 0 1024 1024"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-              p-id="8352"
-              width="32"
-              height="32"
-            >
-              <path
-                d="M761.055557 532.128047c0.512619-0.992555 1.343475-1.823411 1.792447-2.848649 8.800538-18.304636 5.919204-40.703346-9.664077-55.424808L399.935923 139.743798c-19.264507-18.208305-49.631179-17.344765-67.872168 1.888778-18.208305 19.264507-17.375729 49.631179 1.888778 67.872168l316.960409 299.839269L335.199677 813.631716c-19.071845 18.399247-19.648112 48.767639-1.247144 67.872168 9.407768 9.791372 21.984142 14.688778 34.560516 14.688778 12.000108 0 24.000215-4.479398 33.311652-13.439914l350.048434-337.375729c0.672598-0.672598 0.927187-1.599785 1.599785-2.303346 0.512619-0.479935 1.056202-0.832576 1.567101-1.343475C757.759656 538.879828 759.199462 535.391265 761.055557 532.128047z"
-                p-id="8353"
-                fill="#ffffff"
-              ></path>
-            </svg>
-          </div>
+          <a
+            th:href="'/column/' + ${vo.column} + '/' + ${vo.section - 1}"
+            th:if="${vo.section > 1}"
+          >
+            <div class="article-change-item">
+              <svg
+                t="1670064682276"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="9458"
+                width="32"
+                height="32"
+              >
+                <path
+                  d="M671.968176 911.99957c-12.287381 0-24.576482-4.67206-33.951566-14.047144L286.048434 545.984249c-18.751888-18.719204-18.751888-49.12028 0-67.872168L638.016611 126.111222c18.751888-18.751888 49.12028-18.751888 67.872168 0 18.751888 18.719204 18.751888 49.12028 0 67.872168l-318.016611 318.047574L705.888778 830.047574c18.751888 18.751888 18.751888 49.12028 0 67.872168C696.544658 907.32751 684.255557 911.99957 671.968176 911.99957z"
+                  p-id="9459"
+                  fill="#ffffff"
+                ></path>
+              </svg>
+            </div>
+          </a>
+          <a
+            th:href="'/column/' + ${vo.column} + '/' + ${vo.section + 1}"
+            th:if="${vo.section < vo.articleList.size}"
+          >
+            <div class="article-change-item">
+              <svg
+                t="1670064662589"
+                class="icon"
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                p-id="8352"
+                width="32"
+                height="32"
+              >
+                <path
+                  d="M761.055557 532.128047c0.512619-0.992555 1.343475-1.823411 1.792447-2.848649 8.800538-18.304636 5.919204-40.703346-9.664077-55.424808L399.935923 139.743798c-19.264507-18.208305-49.631179-17.344765-67.872168 1.888778-18.208305 19.264507-17.375729 49.631179 1.888778 67.872168l316.960409 299.839269L335.199677 813.631716c-19.071845 18.399247-19.648112 48.767639-1.247144 67.872168 9.407768 9.791372 21.984142 14.688778 34.560516 14.688778 12.000108 0 24.000215-4.479398 33.311652-13.439914l350.048434-337.375729c0.672598-0.672598 0.927187-1.599785 1.599785-2.303346 0.512619-0.479935 1.056202-0.832576 1.567101-1.343475C757.759656 538.879828 759.199462 535.391265 761.055557 532.128047z"
+                  p-id="8353"
+                  fill="#ffffff"
+                ></path>
+              </svg>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -95,78 +105,6 @@
         });
       });
     });
-
-    function bindCommentInputEvent() {
-      // 评论相关
-      const commentContent = $("#commentContent");
-      commentContent.on('input propertychange', function () {
-        const val = $(this).val();
-        if (val) {
-          $("#commentBtn").attr("disabled", false);
-        } else {
-          $("#commentBtn").attr("disabled", true);
-        }
-      });
-
-      // 直接评论
-      const commentBtn = $("#commentBtn");
-      commentBtn.click(function () {
-        const content = commentContent.val();
-        console.log({content});
-
-        if (!content || content.length > 512) {
-          toastr.error("评论内容长度要求在[1,512]之间");
-          return;
-        }
-        // 提交评论
-        const params = {
-          // 文章id
-          "articleId": articleId,
-          // 评论内容
-          "commentContent": content
-        };
-        post("/comment/api/post", params, function (data) {
-          document.getElementById("commentDiv").innerHTML = data;
-          bindCommentInputEvent();
-        })
-      });
-
-      // 回复评论
-      const replyContent = $('#replyContent');
-      const replyBtn = $('#replyBtn');
-      $('.reply-comment').on('click', function (e) {
-        $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
-        $('#repliedContent').html(this.dataset.replyContent);
-        replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
-        // 回复的评论ID
-        replyBtn.attr('data-reply-id', this.dataset.replyId);
-        // 回复的一级评论ID
-        replyBtn.attr('data-reply-top', this.dataset.replyTop);
-      });
-
-      replyBtn.on('click', function () {
-        if (!replyContent.val()) {
-          toastr.error('回复内容不能为空');
-          return;
-        }
-        // 提交评论
-        const params = {
-          // 文章id
-          "articleId": $('#postsTitle').attr("data-id"),
-          // 评论内容
-          "commentContent": replyContent.val(),
-          // 回复的评论id
-          "parentCommentId": replyBtn.attr('data-reply-id'),
-          // 回复的一级评论id
-          "topCommentId": replyBtn.attr('data-reply-top')
-        };
-        post("/comment/api/post", params, function (data) {
-          document.getElementById("commentDiv").innerHTML = data;
-          location.reload();
-        })
-      });
-    }
-
 
     // 跳转到评论的地方
     $("#commentFloatBtn").click(function () {
@@ -214,7 +152,7 @@
             }
           }
         }
-
+        bindCommentInputEvent();
 
         if (praisedCount > 0) {
           $('#praiseDesc').text(String(praisedCount) + '人已点赞');
@@ -263,6 +201,146 @@
       } else {
         tag.addClass("show")
       }
+    })
+  </script>
+
+  <!-- 评论逻辑 -->
+  <script type="text/javascript">
+    // 评论相关
+    const commentContent = $("#commentContent")
+    commentContent.on("input propertychange", function () {
+      const val = $(this).val()
+      if (val) {
+        $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
+      } else {
+        $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
+      }
+    })
+
+    // 直接评论
+    const commentBtn = $("#commentBtn")
+    commentBtn.click(function () {
+      const content = commentContent.val()
+      if (!content || content.length > 512) {
+        toastr.error("评论内容长度要求在[1,512]之间")
+        return
+      }
+      // 提交评论
+      const params = {
+        // 文章id
+        articleId: articleId,
+        // 评论内容
+        commentContent: content,
+      }
+      post("/comment/api/post", params, function (data) {
+        // 使用 Ajax 的方式，直接更新评论列表
+        document.getElementById("commentDiv").innerHTML = data
+        bindCommentInputEvent()
+      })
+    })
+
+    // 点击回复创建评论
+    const createComment = function (currentDom) {
+      // 移除其他回复
+      $(".hf-con").remove()
+
+      // 获取回复人的名字
+      var fhName = currentDom
+        .parents(".common-item-content")
+        .find(".comment-name")
+        .html()
+      //回复@
+      var fhN = "回复@" + fhName + "："
+      var fhHtml =
+        '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
+      if (currentDom.is(".hf-con-block")) {
+        console.log("ddd", { currentDom })
+
+        const currentWrap =
+          (currentDom.parents(".comment-item-wrap").length &&
+            currentDom.parents(".comment-item-wrap")) ||
+          (currentDom.parents(".comment-item-wrap-second").length &&
+            currentDom.parents(".comment-item-wrap-second"))
+
+        console.log({ currentWrap }, currentWrap.length)
+        currentWrap.find(".common-item-content").append(fhHtml)
+        currentDom.removeClass("hf-con-block")
+        //input框自动聚焦
+        currentDom
+          .parents(".common-item-content")
+          .find(".hf-input")
+          .val("")
+          .focus()
+          .attr("placeholder", fhN)
+        // 取消回复
+        currentDom.find(".reply-comment-text").hide()
+        currentDom.find(".reply-comment-text-none").show()
+      } else {
+        currentDom.addClass("hf-con-block")
+        currentDom.parents(".common-item-content").find(".pull-left").remove()
+        // 回复
+        currentDom.find(".reply-comment-text").show()
+        currentDom.find(".reply-comment-text-none").hide()
+      }
+    }
+
+    // 评论编辑&提交
+    const commentSubmit = function (currentDom) {
+      const replyContent = currentDom.siblings(".hf-input")
+      const replyBtn = currentDom
+        .parents(".common-item-content")
+        .find(".reply-comment")
+
+      if (!replyContent.val()) {
+        toastr.error("回复内容不能为空")
+        return
+      }
+      // 提交评论
+      const params = {
+        // 文章id
+        articleId: $("#postsTitle").attr("data-id"),
+        // 评论内容
+        commentContent: replyContent.val(),
+        // 回复的评论id
+        parentCommentId: replyBtn.attr("data-reply-id"),
+        // 回复的一级评论id
+        topCommentId: replyBtn.attr("data-reply-top"),
+      }
+      post("/comment/api/post", params, function (data) {
+        document.getElementById("commentDiv").innerHTML = data
+        // fixme 回复时，直接在评论下面展示一个输入框，完成之后不更新当前页面，直接重新渲染评论列表即可，即删除下面的重新刷新逻辑，只保留上面的逻辑
+        let url = location.href
+        if (url.indexOf("#commentList") === -1) {
+          location.href = url + "#commentList"
+        }
+        location.reload(true)
+      })
+    }
+
+    // 监听按钮
+    const listenCommentBtn = function (currentDom) {
+      if (!currentDom.val()) {
+        $(".hf-pl").attr("disabled", true).addClass("hf-pl--disabled")
+      } else {
+        $(".hf-pl").attr("disabled", false).removeClass("hf-pl--disabled")
+      }
+    }
+
+    // 回复
+    $(document).on("click", ".reply-comment", function () {
+      const currentDom = $(this)
+      createComment(currentDom)
+    })
+
+    // 回复编辑
+    $(document).on("click", ".hf-pl", function () {
+      const currentDom = $(this)
+      commentSubmit(currentDom)
+    })
+
+    $(document).on("input propertychange", ".hf-input", function () {
+      const currentDom = $(this)
+      listenCommentBtn(currentDom)
     })
   </script>
 </html>

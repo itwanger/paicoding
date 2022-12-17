@@ -36,13 +36,32 @@ public class SidebarServiceImpl implements SidebarService {
 
     @Override
     public List<SideBarDTO> queryHomeSidebarList() {
-        return Arrays.asList(noticeSideBar(), columnSideBar(), hotArticles());
+        List<SideBarDTO> list = new ArrayList<>();
+        list.add(noticeSideBar());
+        list.add(columnSideBar());
+        list.add(hotArticles());
+        return list;
     }
 
-    private SideBarDTO aboutSideBar() {
-        return new SideBarDTO().setTitle("关于社区").setContent("技术社区是一个技术学习交流平台，你可以从中获取到大量的学习资料，甚至从 0 到 1 搭建该社区的全套教程，无论是工作、学习，还是面试，都能给予非常大的帮助，同时该平台也能帮你答疑解惑，一个人可以走得很快，但是一群人才能走得更远，欢迎加入我们！").setStyle(SidebarStyleEnum.ABOUT.getStyle());
+    @Override
+    public List<SideBarDTO> queryColumnSidebarList() {
+        List<SideBarDTO> list = new ArrayList<>();
+        list.add(subscribeSideBar());
+        return list;
     }
 
+    @Override
+    public List<SideBarDTO> queryArticleDetailSidebarList() {
+        List<SideBarDTO> list = new ArrayList<>();
+        list.add(pdfSideBar());
+        return list;
+    }
+
+    /**
+     * 推荐教程的侧边栏
+     *
+     * @return
+     */
     private SideBarDTO columnSideBar() {
         List<ConfigDTO> columnList = configService.getConfigList(ConfigTypeEnum.COLUMN);
         List<SideBarItemDto> items = new ArrayList<>(columnList.size());
@@ -63,7 +82,7 @@ public class SidebarServiceImpl implements SidebarService {
      * PDF 优质资源
      * @return
      */
-    public SideBarDTO pdfSideBar() {
+    private SideBarDTO pdfSideBar() {
         List<ConfigDTO> pdfList = configService.getConfigList(ConfigTypeEnum.PDF);
         List<SideBarItemDto> items = new ArrayList<>(pdfList.size());
         pdfList.forEach(configDTO -> {
@@ -84,12 +103,28 @@ public class SidebarServiceImpl implements SidebarService {
         return new SideBarDTO().setTitle("优质PDF").setItems(items).setStyle(SidebarStyleEnum.PDF.getStyle());
     }
 
+    /**
+     * 订阅微信
+     *
+     * @return
+     */
     private SideBarDTO recommendSideBar() {
         return new SideBarDTO().setTitle("加入\"社区技术交流群\"").setSubTitle("")
                 .setIcon("https://tool.hhui.top/icon.svg")
                 .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
                 .setContent("群主微信：<br/> lml200701158（楼仔）<br/> qing_gee（沉默王二）")
                 .setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
+    }
+
+    /**
+     * 订阅公众号
+     * @return
+     */
+    private SideBarDTO subscribeSideBar() {
+        return new SideBarDTO().setTitle("订阅").setSubTitle("楼仔")
+                .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
+                .setContent("10本校招必刷八股文")
+                .setStyle(SidebarStyleEnum.SUBSCRIBE.getStyle());
     }
 
     /**
