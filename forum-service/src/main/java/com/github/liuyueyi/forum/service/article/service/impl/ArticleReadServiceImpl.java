@@ -22,6 +22,7 @@ import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -63,6 +64,14 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
         return articleDao.getById(articleId);
+    }
+
+    @Override
+    public String getSummary(String content) {
+        if (content.isEmpty()) {
+            return Strings.EMPTY;
+        }
+        return "这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要";
     }
 
     @Override

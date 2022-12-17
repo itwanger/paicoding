@@ -82,6 +82,16 @@ public class ArticleRestController {
      *
      * @return
      */
+    @GetMapping(path = "getSummary")
+    public ResVo<String> getSummary(@RequestParam(name = "content") String content) {
+        return ResVo.ok(articleService.getSummary(content));
+    }
+
+    /**
+     * 查询所有的标签
+     *
+     * @return
+     */
     @GetMapping(path = "tag/list")
     public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
                                            @RequestParam(name = "articleId", required = false) Long articleId,
