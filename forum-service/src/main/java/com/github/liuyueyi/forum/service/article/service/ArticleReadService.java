@@ -22,6 +22,14 @@ public interface ArticleReadService {
     ArticleDO queryBasicArticle(Long articleId);
 
     /**
+     * 提前文章摘要
+     *
+     * @param content
+     * @return
+     */
+    String getSummary(String content);
+
+    /**
      * 查询文章标签列表
      *
      * @param articleId
