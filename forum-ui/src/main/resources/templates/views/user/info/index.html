@@ -9,35 +9,46 @@
         </div>
         <div class="user-head-title-classify">
           <div class="user-head-title-classify-item">
-            <span>获赞</span>
-            <span th:text="${userHome.praiseCount}">0</span>
+            <span class="text-base-pure">加入天数</span>
+            <span th:text="${userHome.joinDayCount}">1</span>
           </div>
           <div class="user-head-cell"></div>
           <div class="user-head-title-classify-item">
-            <span>粉丝</span>
-            <span th:text="${userHome.fansCount}">0</span>
+            <span class="text-base-pure">关注数</span>
+            <span th:text="${userHome.followCount}">1</span>
           </div>
           <div class="user-head-cell"></div>
           <div class="user-head-title-classify-item">
-            <span>关注</span>
-            <span th:text="${userHome.followCount}">0</span>
-          </div>
-          <div class="user-head-cell"></div>
-          <div class="user-head-title-classify-item">
-            <span>文章数</span>
-            <span th:text="${userHome.articleCount}">0</span>
+            <span class="text-base-pure">粉丝数</span>
+            <span th:text="${userHome.fansCount}">1</span>
           </div>
         </div>
       </div>
       <div class="user-head-footer">
-        <div class="user-text">
-          <span th:text="${#strings.isEmpty(userHome.profile) ? '点击添加简介，让大家认识你吧': userHome.profile}">点击添加简介，让大家认识你</span>
+        <div class="tw-flex-1">
+          <div class="d-flex tags">
+            <div class="tag-item">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAsklEQVR42mNgoBPI507vTbuU/g0OP6adSM+rZ8KpPO162n9MmL4Wh4b0XmzKwTAKqwbs5oPtWIJdA0Ryb4ZKmhwEZuql3QGLnsCivJ4J5uIajnomCCwUSrsEFn2cXpVelZGYoYJFA36Y0UqihrT/GYkkaki7hKEhfW/6DghMO4FNCzQi4Z7uRYmbvZgaajhQbbiTnpeeAYVV6R8JayAIR7KG9M3EakjfTJ4GiLMIQzKLCwBaavBCKUO/owAAAABJRU5ErkJggg=="
+                   class="tw-h-3 tw-w-3 tw-mr-1">
+              <span class="tw-text-sm" th:text="${userHome.company}">第一拖拉机制造厂拖拉机学院</span>
+            </div>
+            <div class="tag-item">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAABIUlEQVR42r1TLW/DQAw1OxgWUhypNCykZDS0P6GyLzmVHxzobxgpLAjt2FBJf0DR4UiVCkMLQjpdmt1XsiZkc1Dk92w/3zPAvwWleKIWH8OPWlT8LYAXEV3HwIbUbBceAcUreEfZ+QQ1RcCbO9BqEq575FbwYQ4Bjz1cxP12VJlgNah7KJPnwNSK+Dn/pk8qySSjr7CqZEah6Aj83VbTC8aLgZ8kA7Bd+01R6i9PxFh3f5ciAsAPJ5v+iN45QwiAMqEGaz2x7R68BO2tEWgNwLMy8Z+T9oE58NOk7jzriqwdbx0H5pOMztY5xcqF01mLH0QR/WIQpcWPxnYx4tk68KkffEmNb2u+nDgkntE9lD91e7lZcD7zXHmGFVazqv9BfAN523/xHVmeOQAAAABJRU5ErkJggg=="
+                   class="tw-h-3 tw-w-3 tw-mr-1">
+              <span class="tw-text-sm" th:text="${userHome.position}">Java</span>
+            </div>
+            <div class="tag-item">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAABFUlEQVR42mNgoBRkSaRnpC1PP5R+KG15ekaWBH7FPOnd6T/S/iNg+o/07iweXMpl0y4iK4ZrupAli0V5GW/6VWzKwVqulvFiaEibi0s5GM5Fd45m+l98GtL/ZmmiaMhoRZL+mV6eJpkjlV6e9hMhmtGK6qAzSKaVw0TTy5GMOYOq4TWSlCRcVBJJ9DWqhj/YNORIIYn+QdXwiqCTUG1I34/u6TRJVE+nHUbVUIk3FkCh1ICioVAo7SteDb8QPsMWE5gRNwUjaeSyp13DqeExlrTEwJBhiN1Z6b8zHHAk8LTQtH9YNGThyUJpBRjKmwlk0YwyFA3tROTq9AxoUv+XVkxkQZDum/Yp7VNaAAllR6FQpiB2GQBLang0fXCP5wAAAABJRU5ErkJggg=="
+                   class="tw-h-3 tw-w-3 tw-mr-1">
+              <span class="tw-text-sm">IP属地：河南</span>
+            </div>
+          </div>
+          <div class="user-text">
+            <span th:text="${#strings.isEmpty(userHome.profile) ? '点击添加简介，让大家认识你吧': userHome.profile}">点击添加简介，让大家认识你</span>
 
-          <span
-                  class="user-text-icon"
+            <span class="user-text-icon"
                   data-toggle="modal"
-                  data-target="#saveModel"
-          >
+                  data-target="#saveModel">
                 <svg
                         t="1670060220524"
                         viewBox="0 0 1024 1024"
@@ -64,10 +75,12 @@
                   ></path>
                 </svg>
               </span>
+          </div>
         </div>
+
         <div class="user-edit">
-          <span>个人资料完善度：70%</span>
-          <span data-toggle="modal" data-target="#saveModel">去编辑 ></span>
+          <span th:text="'个人资料完善度：' + ${vo.userHome.infoPercent} + '%'">个人资料完善度：70%</span>
+          <span class="edit-btn" data-toggle="modal" data-target="#saveModel">去编辑 ></span>
         </div>
       </div>
     </div>

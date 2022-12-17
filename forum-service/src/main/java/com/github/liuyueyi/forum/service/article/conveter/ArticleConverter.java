@@ -83,7 +83,6 @@ public class ArticleConverter {
         TagDTO dto = new TagDTO();
         dto.setTag(tag.getTagName());
         dto.setTagId(tag.getId());
-        dto.setCategoryId(tag.getCategoryId());
         dto.setStatus(tag.getStatus());
         return dto;
     }
@@ -113,7 +112,6 @@ public class ArticleConverter {
         }
         TagDO tagDO = new TagDO();
         tagDO.setTagName(tagReq.getTag());
-        tagDO.setCategoryId(tagReq.getCategoryId());
         return tagDO;
     }
 

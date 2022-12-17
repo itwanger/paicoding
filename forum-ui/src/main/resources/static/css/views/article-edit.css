@@ -1,13 +1,22 @@
 .edit-nav {
   background-color: #fff;
-  height: 60px;
+  height: 50px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 3px 6px rgb(0 0 0 / 5%);
   z-index: 3;
-  padding: 0 27px;
+  padding: 0 10px;
+}
+
+.edit-title-input::placeholder{
+  font-size: 24px;
+}
+
+.form-control:focus {
+  border-color: var(--pai-brand-3-click);
+  box-shadow: none;
 }
 
 .edit-save {
@@ -72,25 +81,18 @@
 }
 
 .CodeMirror {
-  height: calc(100vh - 130px) !important;
-  border: 0 !important;
-  background-color: #f8f9fa !important;
+  background-color: #f8f9fa;
 }
 
 .editor-preview-active {
   background-color: #fff !important;
 }
 
-editor-preview-side editor-preview-active-side .editor-statusbar {
+.editor-preview-side .editor-preview-active-side .editor-statusbar {
   text-align: left !important;
   border-top: 1px solid #fff !important;
   font-size: 12px !important;
   background-color: #fff !important;
-}
-
-.CodeMirror-sided,
-.CodeMirror-fullscreen {
-  height: 100% !important;
 }
 
 .editor-preview-active-side {
@@ -106,7 +108,23 @@ blockquote {
 }
 
 .modal-content {
-  width: 600px;
+  width: 630px;
+  font-size: 14px;
+}
+
+.modal-title {
+  font-size: 18px;
+}
+
+.required .form-label:before {
+  content: "*";
+  color: var(--pai-brand-6-mq);
+  vertical-align: -2px;
+  padding-right: 2px;
+}
+
+.category .form-label {
+  padding-top: 5px;
 }
 
 .input-group {
@@ -114,12 +132,20 @@ blockquote {
   flex-wrap: nowrap;
   align-items: center;
   position: relative;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.cover {
+  margin: 16px 0 20px 0;
 }
 
 .input-group input,
 .input-group textarea {
-  border-radius: 4px !important;
+  border-radius: 2px !important;
 }
 
 .edit-sort-wrap {
@@ -136,14 +162,12 @@ blockquote {
 
 .form-selectgroup-item {
   width: 100px;
-  background-color: #ccc;
   height: 32px;
-  border-radius: 4px;
   line-height: 32px;
   text-align: center;
   margin-right: 10px;
-  background-color: #f8f9fa;
-  color: #919aa6;
+  background-color: var(--pai-bg-light-2);
+  color: var(--pai-color-4-gray);
   cursor: pointer;
 }
 
@@ -152,7 +176,6 @@ blockquote {
   align-items: center;
   justify-content: center;
   min-width: 70px;
-  background-color: #ccc;
   height: 30px;
   border-radius: 4px;
   /* margin-right: 10px; */
@@ -177,13 +200,13 @@ blockquote {
 }
 .form-selectgroup-item--active,
 .form-check--active {
-  background-color: #e2f3fe;
-  color: #237ffa;
+  background-color: var(--pai-brand-7-light);
+  color: var(--pai-brand-1-normal);
 }
 
 .form-selectgroup-item:hover,
 .form-check:hover {
-  background-color: #e2f3fe;
+  background-color: var(--pai-brand-7-light);
 }
 
 .form-selectgroup-input {
@@ -196,15 +219,31 @@ blockquote {
   background-color: #f8f9fa;
   border: 1px solid #e9ecef;
   resize: none;
+  line-height: 22px;
 }
 
 .form-textarea-limit {
   position: absolute;
   bottom: 5px;
-  right: 20px;
-  color: red;
+  right: 90px;
+  color: var(--pai-color-999-gray);
   font-size: 12px;
   z-index: 10;
+}
+
+.btn-getdistill {
+  position: absolute;
+  bottom: 5px;
+  right: 12px;
+  font-size: 12px;
+  z-index: 10;
+  display: inline-block;
+  white-space: nowrap;
+  background-color: var(--pai-color-6-gray);
+  border: 1px solid var(--pai-border-color-1);
+  color: var(--pai-color-4-gray);
+  border-radius: 20px;
+  padding: 0 10px;
 }
 
 .form-label {
@@ -301,4 +340,73 @@ blockquote {
   min-height: 40px;
   align-items: center;
   gap: 8px;
+}
+
+.editor-preview-side a {
+  color: var(--pai-brand-1-normal);
+  text-decoration: none;
+  border-bottom: 1px solid var(--pai-brand-1-normal);
+}
+
+.editor-preview-side p>img {
+  max-width: 100%;
+  margin: 0;
+}
+
+.editor-preview-side ol, .editor-preview-side ul {
+  margin: 0 0 24px;
+  padding: 0;
+  font-size: 16px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.editor-preview-side li {
+  margin: 10px 0;
+}
+
+.editor-preview-side strong {
+  color: var(--pai-brand-1-normal);
+}
+
+.editor-preview-side h2 {
+  margin-left: -10px;
+  display: inline-block;
+  width: auto;
+  height: 40px;
+  background-color: var(--pai-brand-1-normal);
+  border-bottom-right-radius: 100px;
+  color: rgb(255, 255, 255);
+  padding-right: 30px;
+  padding-left: 30px;
+  line-height: 40px;
+  font-size: 16px;
+}
+
+.summary {
+  font-size: 14px;
+  padding: 8px 8px 0;
+}
+
+.btn-getdistill:hover {
+  background-color: var(--pai-brand-7-light);
+  color: var(--pai-brand-2-hover);
+}
+
+.person-img-inter-wrap .close_icon {
+  z-index: 9;
+  position: absolute;
+  background: var(--pai-color-999-gray);
+  color: var(--pai-color-fff-normal);
+  line-height: 20px;
+  right: -8px;
+  top: -8px;
+  display: none;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  text-align: center;
+  background-size: contain;
+  border-radius: 50%;
+  cursor: pointer;
 }

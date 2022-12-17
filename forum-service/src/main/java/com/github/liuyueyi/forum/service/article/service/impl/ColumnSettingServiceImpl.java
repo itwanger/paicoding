@@ -113,17 +113,17 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) {
+    public PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) throws Exception {
         List<ColumnArticleDTO> simpleArticleDTOS = new ArrayList<>();
         List<ColumnArticleDO> columnArticleDOS = columnDao.listColumnArticlesDetail(columnId, pageParam);
         for (ColumnArticleDO columnArticleDO : columnArticleDOS) {
             ArticleDO articleDO = articleDao.getById(columnArticleDO.getArticleId());
             if (articleDO == null) {
-                continue;
+                throw new Exception("文章不存在");
             }
             ColumnInfoDO columnInfoDO = columnDao.getById(columnArticleDO.getColumnId());
             if (columnInfoDO == null) {
-                continue;
+                throw new Exception("课程不存在");
             }
             ColumnArticleDTO columnArticleDTO = new ColumnArticleDTO();
             columnArticleDTO.setId(columnArticleDO.getId());

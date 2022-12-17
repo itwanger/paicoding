@@ -24,6 +24,7 @@ import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import com.github.liuyueyi.forum.service.user.service.help.UserPwdEncoder;
 import com.github.liuyueyi.forum.service.user.service.help.UserRandomGenHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,6 +128,20 @@ public class UserServiceImpl implements UserService {
         BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
         UserStatisticInfoDTO userHomeDTO = UserConverter.toUserHomeDTO(userInfoDTO);
         userHomeDTO.setRole("normal");
+
+        // 用户资料完整度
+        int cnt = 0;
+        if (StringUtils.isNotBlank(userHomeDTO.getCompany())) {
+            ++cnt;
+        }
+        if (StringUtils.isNotBlank(userHomeDTO.getPosition())) {
+            ++cnt;
+        }
+        if (StringUtils.isNotBlank(userHomeDTO.getProfile())) {
+            ++cnt;
+        }
+        userHomeDTO.setInfoPercent(cnt * 100 / 3);
+
 
         // 获取文章相关统计
         ArticleFootCountDTO articleFootCountDTO = countService.queryArticleCountInfoByUserId(userId);

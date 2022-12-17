@@ -4,11 +4,9 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
-import com.github.liueyueyi.forum.api.model.vo.NextPageHtmlVo;
-import com.github.liueyueyi.forum.api.model.vo.PageListVo;
-import com.github.liueyueyi.forum.api.model.vo.PageParam;
-import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.*;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.article.ContentPostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.TagDTO;
@@ -16,12 +14,14 @@ import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
+import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.*;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +48,8 @@ public class ArticleRestController {
     private CategoryService categoryService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private ArticleReadService articleService;
     @Autowired
     private ArticleWriteService articleWriteService;
 
@@ -81,14 +83,30 @@ public class ArticleRestController {
      *
      * @return
      */
-    @GetMapping(path = "tag/list")
-    public ResVo<List<TagDTO>> queryTags(Long categoryId) {
-        if (categoryId == null || categoryId <= 0L) {
-            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS, categoryId);
-        }
+    @PostMapping(path = "generateSummary")
+    public ResVo<String> generateSummary(@RequestBody ContentPostReq req) {
+        return ResVo.ok(articleService.generateSummary(req.getContent()));
+    }
 
-        List<TagDTO> list = tagService.queryTagsByCategoryId(categoryId);
-        return ResVo.ok(list);
+    /**
+     * 查询所有的标签
+     *
+     * @return
+     */
+    @GetMapping(path = "tag/list")
+    public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
+                                           @RequestParam(name = "articleId", required = false) Long articleId,
+                                            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
+                                            @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
+        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
+        PageVo<TagDTO> tagDTOPageVo;
+        if (articleId != null && articleId > 0) {
+            tagDTOPageVo = articleService.queryTagsByArticleId(articleId);
+        } else {
+            tagDTOPageVo = tagService.queryTags(key, PageParam.newPageInstance(pageNumber, pageSize));
+        }
+        return ResVo.ok(tagDTOPageVo);
     }
 
     /**

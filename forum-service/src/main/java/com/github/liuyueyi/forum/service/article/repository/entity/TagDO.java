@@ -28,11 +28,6 @@ public class TagDO extends BaseDO {
     private Integer tagType;
 
     /**
-     * 类目ID
-     */
-    private Long categoryId;
-
-    /**
      * 状态：0-未发布，1-已发布
      */
     private Integer status;

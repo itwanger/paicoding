@@ -8,7 +8,6 @@ import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.CategoryDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.TagDao;
-import com.github.liuyueyi.forum.service.article.repository.entity.CategoryDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.TagDO;
 import com.github.liuyueyi.forum.service.article.service.TagSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +61,6 @@ public class TagSettingServiceImpl implements TagSettingService {
     @Override
     public PageVo<TagDTO> getTagList(PageParam pageParam) {
         List<TagDTO> tagDTOS = tagDao.listTag(pageParam);
-        for (TagDTO tagDTO : tagDTOS) {
-            CategoryDO categoryDO= categoryDao.getById(tagDTO.getCategoryId());
-            tagDTO.setCategoryName(categoryDO.getCategoryName());
-        }
         Integer totalCount = tagDao.countTag();
         return PageVo.build(tagDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
     }

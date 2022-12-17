@@ -98,7 +98,7 @@
   justify-content: space-between;
   font-size: 12px;
   line-height: 14px;
-  color: #999;
+  color: var(--pai-color-999-gray);
 }
 
 .common-item-content-value {

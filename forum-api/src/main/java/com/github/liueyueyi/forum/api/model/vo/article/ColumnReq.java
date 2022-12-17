@@ -27,7 +27,7 @@ public class ColumnReq implements Serializable {
     /**
      * 作者
      */
-    private Long userId;
+    private Long author;
 
     /**
      * 简介
@@ -43,4 +43,9 @@ public class ColumnReq implements Serializable {
      * 状态
      */
     private Integer state;
+
+    /**
+     * 排序
+     */
+    private Integer section;
 }

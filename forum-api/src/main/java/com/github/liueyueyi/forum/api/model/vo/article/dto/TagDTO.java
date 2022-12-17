@@ -12,10 +12,6 @@ import java.io.Serializable;
 public class TagDTO implements Serializable {
     private static final long serialVersionUID = -8614833588325787479L;
 
-    private Long categoryId;
-
-    private String categoryName;
-
     private Long tagId;
 
     private String tag;

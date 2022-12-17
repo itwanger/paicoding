@@ -26,6 +26,7 @@ public class ColumnConvert {
         dto.setIntroduction(info.getIntroduction());
         dto.setState(info.getState());
         dto.setAuthor(info.getUserId());
+        dto.setSection(info.getSection());
         dto.setPublishTime(info.getPublishTime().getTime());
         return dto;
     }
@@ -42,10 +43,11 @@ public class ColumnConvert {
         }
         ColumnInfoDO columnInfoDO = new ColumnInfoDO();
         columnInfoDO.setColumnName(columnReq.getColumn());
-        columnInfoDO.setUserId(columnReq.getUserId());
+        columnInfoDO.setUserId(columnReq.getAuthor());
         columnInfoDO.setIntroduction(columnReq.getIntroduction());
         columnInfoDO.setCover(columnReq.getCover());
         columnInfoDO.setState(columnReq.getState());
+        columnInfoDO.setSection(columnReq.getSection());
         return columnInfoDO;
     }
 
