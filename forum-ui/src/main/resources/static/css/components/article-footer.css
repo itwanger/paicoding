@@ -140,7 +140,7 @@
 }
 
 .comment-write-btn {
-  border-radius: 32px;
+  border-radius: 2px;
 }
 
 .c-btn-disabled,
@@ -148,15 +148,19 @@
   background-color: var(--pai-color-5-gray);
   border-color: var(--pai-color-5-gray);
   color: var(--pai-color-999-gray);
-  cursor: default;
+  cursor: pointer;
 }
 
 .comment-item-wrap,
 .comment-item-wrap-second {
-  display: flex;
+  /* display: flex; */
   margin-bottom: 10px;
   padding: 12px 0;
   border-bottom: 1px solid var(--pai-hr-color-1);
+}
+
+.comment-item-top {
+  display: flex;
 }
 
 .comment-item-wrap-second {
@@ -172,6 +176,43 @@
   border-radius: 50%;
   box-sizing: border-box;
   border: 1px solid var(--pai-color-5-gray);
+}
+
+/* 评论 */
+.hf-con {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.hf-pl {
+  border: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 92px;
+  text-align: center;
+  border-radius: 2px;
+  font-size: 14px;
+  line-height: 36px;
+  background: var(--pai-brand-1-normal);
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.hf-pl--disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.hf-input {
+  padding: 8px 12px;
+  border-radius: 2px;
+}
+
+.reply-comment-text-none {
+  display: none;
 }
 
 .ui-message {

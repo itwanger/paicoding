@@ -83,7 +83,8 @@ textarea:focus {
   outline: none;
 }
 
-button,button:focus {
+button,
+button:focus {
   outline: none;
   box-shadow: none !important;
 }
@@ -501,7 +502,7 @@ button,button:focus {
 }
 
 /* 设备适配样式 */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   html {
     padding-top: 68px;
   }
@@ -574,7 +575,7 @@ button,button:focus {
   .message-block {
     margin-right: 5px;
   }
-}
+} */
 
 .hidden {
   display: none;
@@ -707,4 +708,3 @@ button,button:focus {
 .inline-block {
   display: inline-block;
 }
-

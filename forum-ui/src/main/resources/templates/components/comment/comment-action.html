@@ -19,10 +19,10 @@
       </span>
     </div>
     <div
-      class="item reply-comment"
+      class="item reply-comment hf-con-block"
       id="article-detail-reply-comment"
-      data-toggle="modal"
-      th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
+      th:data-target="${global.isLogin ? '' : '#loginModal'}"
+      th:data-toggle="${global.isLogin ? '' : 'modal'}"
       th:data-reply-top="${comment.commentId}"
       th:data-reply-id="${comment.commentId}"
       th:data-reply-nickname="${comment.userName}"
@@ -35,6 +35,7 @@
         class="reply-comment-text"
         th:text="${comment.commentCount > 0 ? comment.commentCount : '回复'}"
       ></span>
+      <span class="reply-comment-text-none">取消回复</span>
     </div>
   </div>
 
@@ -57,9 +58,9 @@
       </span>
     </div>
     <div
-      class="item reply-comment"
-      th:data-target="${global.isLogin ? '#commentModal' : '#loginModal'}"
-      data-toggle="modal"
+      class="item reply-comment hf-con-block"
+      th:data-target="${global.isLogin ? '' : '#loginModal'}"
+      th:data-toggle="${global.isLogin ? '' : 'modal'}"
       th:data-reply-top="${comment.commentId}"
       th:data-reply-id="${reply.commentId}"
       th:data-reply-nickname="${reply.userName}"
@@ -68,7 +69,8 @@
       <svg width="16" height="16">
         <use xlink:href="#icon-comment"></use>
       </svg>
-      回复
+      <span class="reply-comment-text">回复</span>
+      <span class="reply-comment-text-none">取消回复</span>
     </div>
   </div>
 </html>

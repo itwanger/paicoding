@@ -76,194 +76,193 @@
 
   <script src="/js/marked.min.js"></script>
   <script th:inline="javascript">
-        // 内容渲染
-        const articleId = [[${ vo.article.articleId }]];
-        const content = [[${ vo.article.content }]];
-        document.getElementById('articleContent').innerHTML = marked.parse(content);
-        // 文章样式渲染
-        document.addEventListener('DOMContentLoaded', function (event) {
-          if (document.querySelectorAll('pre code').length === 0) {
-            return;
-          }
+    // 内容渲染
+    const articleId = [[${ vo.article.articleId }]];
+    const content = [[${ vo.article.content }]];
+    document.getElementById('articleContent').innerHTML = marked.parse(content);
+    // 文章样式渲染
+    document.addEventListener('DOMContentLoaded', function (event) {
+      if (document.querySelectorAll('pre code').length === 0) {
+        return;
+      }
 
-          // 加载 highlight 样式文件 fix：此处引起样式二次请求，影响了整个样式
-          // loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
-          // 加载 highlight 脚本文件
-          loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
-            document.querySelectorAll('pre code').forEach(function (block) {
-              hljs.highlightBlock(block);
-            });
-          });
+      // 加载 highlight 样式文件 fix：此处引起样式二次请求，影响了整个样式
+      // loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
+      // 加载 highlight 脚本文件
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
+        document.querySelectorAll('pre code').forEach(function (block) {
+          hljs.highlightBlock(block);
         });
+      });
+    });
 
-    commentContent
-        function bindCommentInputEvent() {
-          // 评论相关
-          const commentContent = $("#commentContent");
-          commentContent.on('input propertychange', function () {
-            const val = $(this).val();
-            if (val) {
-              $("#commentBtn").attr("disabled", false);
-            } else {
-              $("#commentBtn").attr("disabled", true);
+    function bindCommentInputEvent() {
+      // 评论相关
+      const commentContent = $("#commentContent");
+      commentContent.on('input propertychange', function () {
+        const val = $(this).val();
+        if (val) {
+          $("#commentBtn").attr("disabled", false);
+        } else {
+          $("#commentBtn").attr("disabled", true);
+        }
+      });
+
+      // 直接评论
+      const commentBtn = $("#commentBtn");
+      commentBtn.click(function () {
+        const content = commentContent.val();
+        console.log({content});
+
+        if (!content || content.length > 512) {
+          toastr.error("评论内容长度要求在[1,512]之间");
+          return;
+        }
+        // 提交评论
+        const params = {
+          // 文章id
+          "articleId": articleId,
+          // 评论内容
+          "commentContent": content
+        };
+        post("/comment/api/post", params, function (data) {
+          document.getElementById("commentDiv").innerHTML = data;
+          bindCommentInputEvent();
+        })
+      });
+
+      // 回复评论
+      const replyContent = $('#replyContent');
+      const replyBtn = $('#replyBtn');
+      $('.reply-comment').on('click', function (e) {
+        $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
+        $('#repliedContent').html(this.dataset.replyContent);
+        replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
+        // 回复的评论ID
+        replyBtn.attr('data-reply-id', this.dataset.replyId);
+        // 回复的一级评论ID
+        replyBtn.attr('data-reply-top', this.dataset.replyTop);
+      });
+
+      replyBtn.on('click', function () {
+        if (!replyContent.val()) {
+          toastr.error('回复内容不能为空');
+          return;
+        }
+        // 提交评论
+        const params = {
+          // 文章id
+          "articleId": $('#postsTitle').attr("data-id"),
+          // 评论内容
+          "commentContent": replyContent.val(),
+          // 回复的评论id
+          "parentCommentId": replyBtn.attr('data-reply-id'),
+          // 回复的一级评论id
+          "topCommentId": replyBtn.attr('data-reply-top')
+        };
+        post("/comment/api/post", params, function (data) {
+          document.getElementById("commentDiv").innerHTML = data;
+          location.reload();
+        })
+      });
+    }
+
+
+    // 跳转到评论的地方
+    $("#commentFloatBtn").click(function () {
+      document.getElementById("commentList").scrollIntoView(true);
+    })
+
+
+    // 点赞
+    let praisedCount = [[${ vo.article.count.praiseCount }]]
+    let praised = [[${ vo.article.praised }]]
+    const isLogin = [[${ global.isLogin }]]
+    const currentUserId = isLogin ? [[${ global.user != null ? global.user.userId : '' }]] : '';
+    const currentUserAvatar = isLogin ? [[${ global.user != null ? global.user.photo : '' }]] : '';
+    $("#praiseBtn").on('click', function () {
+      if (!isLogin) {
+        // 未登录，不执行相关操作
+        return;
+      }
+      praised = !praised;
+      praiseArticle(articleId, praised, function (data) {
+        let avatarList = $('#praiseUsers')
+        if (praised) {
+          // 点赞
+          praisedCount += 1;
+          $("#praiseBtn").addClass("active")
+
+          // 添加当前点赞用户的头像
+          avatarList.prepend('' +
+            '            <a class="g-user-popover approval-img" href="/user/' + currentUserId + '">\n' +
+            '                <img src="' + currentUserAvatar + '">\n' +
+            '            </a>')
+        } else {
+          // 取消点赞
+          praisedCount -= 1;
+          $("#praiseBtn").removeClass("active")
+
+          // 移除当前点赞用户的头像
+          let subItems = avatarList.children();
+          for (let i = 0; i < subItems.length; i++) {
+            let target = subItems[i];
+            if (target.innerHTML.indexOf(currentUserAvatar) >= 0) {
+              // 移除当前用户头像
+              target.remove();
+              break;
             }
-          });
-
-          // 直接评论
-          const commentBtn = $("#commentBtn");
-          commentBtn.click(function () {
-            const content = commentContent.val();
-            console.log({content});
-
-            if (!content || content.length > 512) {
-              toastr.error("评论内容长度要求在[1,512]之间");
-              return;
-            }
-            // 提交评论
-            const params = {
-              // 文章id
-              "articleId": articleId,
-              // 评论内容
-              "commentContent": content
-            };
-            post("/comment/api/post", params, function (data) {
-              document.getElementById("commentDiv").innerHTML = data;
-              bindCommentInputEvent();
-            })
-          });
-
-          // 回复评论
-          const replyContent = $('#replyContent');
-          const replyBtn = $('#replyBtn');
-          $('.reply-comment').on('click', function (e) {
-            $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
-            $('#repliedContent').html(this.dataset.replyContent);
-            replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
-            // 回复的评论ID
-            replyBtn.attr('data-reply-id', this.dataset.replyId);
-            // 回复的一级评论ID
-            replyBtn.attr('data-reply-top', this.dataset.replyTop);
-          });
-
-          replyBtn.on('click', function () {
-            if (!replyContent.val()) {
-              toastr.error('回复内容不能为空');
-              return;
-            }
-            // 提交评论
-            const params = {
-              // 文章id
-              "articleId": $('#postsTitle').attr("data-id"),
-              // 评论内容
-              "commentContent": replyContent.val(),
-              // 回复的评论id
-              "parentCommentId": replyBtn.attr('data-reply-id'),
-              // 回复的一级评论id
-              "topCommentId": replyBtn.attr('data-reply-top')
-            };
-            post("/comment/api/post", params, function (data) {
-              document.getElementById("commentDiv").innerHTML = data;
-              location.reload();
-            })
-          });
+          }
         }
 
 
-        // 跳转到评论的地方
-        $("#commentFloatBtn").click(function () {
-          document.getElementById("commentList").scrollIntoView(true);
-        })
+        if (praisedCount > 0) {
+          $('#praiseDesc').text(String(praisedCount) + '人已点赞');
+        } else {
+          $('#praiseDesc').text('真诚点赞，诚不我欺');
+        }
+      });
+    });
 
+    // 收藏
+    let collectionCount = [[${ vo.article.count.collectionCount }]]
+    let collected = [[${ vo.article.collected }]]
+    $("#collectFloatBtn").click(function () {
+      if (!isLogin) {
+        // 未登录，不执行相关操作
+        return;
+      }
 
-        // 点赞
-        let praisedCount = [[${ vo.article.count.praiseCount }]]
-        let praised = [[${ vo.article.praised }]]
-        const isLogin = [[${ global.isLogin }]]
-        const currentUserId = isLogin ? [[${ global.user != null ? global.user.userId : '' }]] : '';
-        const currentUserAvatar = isLogin ? [[${ global.user != null ? global.user.photo : '' }]] : '';
-        $("#praiseBtn").on('click', function () {
-          if (!isLogin) {
-            // 未登录，不执行相关操作
-            return;
-          }
-          praised = !praised;
-          praiseArticle(articleId, praised, function (data) {
-            let avatarList = $('#praiseUsers')
-            if (praised) {
-              // 点赞
-              praisedCount += 1;
-              $("#praiseBtn").addClass("active")
+      collected = !collected;
 
-              // 添加当前点赞用户的头像
-              avatarList.prepend('' +
-                '            <a class="g-user-popover approval-img" href="/user/' + currentUserId + '">\n' +
-                '                <img src="' + currentUserAvatar + '">\n' +
-                '            </a>')
-            } else {
-              // 取消点赞
-              praisedCount -= 1;
-              $("#praiseBtn").removeClass("active")
+      collectArticle(articleId, collected, function (data) {
+        if (collected) {
+          // 点赞
+          collectionCount += 1;
+          $("#collectFloatBtn").addClass("active")
+        } else {
+          collectionCount -= 1;
+          $("#collectFloatBtn").removeClass("active")
+        }
 
-              // 移除当前点赞用户的头像
-              let subItems = avatarList.children();
-              for (let i = 0; i < subItems.length; i++) {
-                let target = subItems[i];
-                if (target.innerHTML.indexOf(currentUserAvatar) >= 0) {
-                  // 移除当前用户头像
-                  target.remove();
-                  break;
-                }
-              }
-            }
+        if (collectionCount > 0) {
+          $("#collectFloatBtn").addClass("with-badge")
+          $('#collectFloatBtn').attr("badge", collectionCount)
+        } else {
+          $("#collectFloatBtn").removeClass("with-badge")
+          $('#collectFloatBtn').removeAttr("badge")
+        }
+      });
+    })
 
-
-            if (praisedCount > 0) {
-              $('#praiseDesc').text(String(praisedCount) + '人已点赞');
-            } else {
-              $('#praiseDesc').text('真诚点赞，诚不我欺');
-            }
-          });
-        });
-
-        // 收藏
-        let collectionCount = [[${ vo.article.count.collectionCount }]]
-        let collected = [[${ vo.article.collected }]]
-        $("#collectFloatBtn").click(function () {
-          if (!isLogin) {
-            // 未登录，不执行相关操作
-            return;
-          }
-
-          collected = !collected;
-
-          collectArticle(articleId, collected, function (data) {
-            if (collected) {
-              // 点赞
-              collectionCount += 1;
-              $("#collectFloatBtn").addClass("active")
-            } else {
-              collectionCount -= 1;
-              $("#collectFloatBtn").removeClass("active")
-            }
-
-            if (collectionCount > 0) {
-              $("#collectFloatBtn").addClass("with-badge")
-              $('#collectFloatBtn').attr("badge", collectionCount)
-            } else {
-              $("#collectFloatBtn").removeClass("with-badge")
-              $('#collectFloatBtn').removeAttr("badge")
-            }
-          });
-        })
-
-        // 二维码
-        $("#qrIconTag").click(function () {
-          const tag = $("#qrTipsTag")
-          if (tag.hasClass("show")) {
-            tag.removeClass("show")
-          } else {
-            tag.addClass("show")
-          }
-        })
+    // 二维码
+    $("#qrIconTag").click(function () {
+      const tag = $("#qrTipsTag")
+      if (tag.hasClass("show")) {
+        tag.removeClass("show")
+      } else {
+        tag.addClass("show")
+      }
+    })
   </script>
 </html>
