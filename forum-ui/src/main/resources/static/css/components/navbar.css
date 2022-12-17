@@ -50,10 +50,16 @@
   --tw-bg-opacity: 1;
   background-color: rgba(36, 41, 47, var(--tw-bg-opacity));
 }
+.nav-right {
+  display: flex;
+  align-items: center;
+}
 
 .nav-body {
   display: flex;
-  min-width: 1200px;
+  width: 100%;
+  justify-content: space-between;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
