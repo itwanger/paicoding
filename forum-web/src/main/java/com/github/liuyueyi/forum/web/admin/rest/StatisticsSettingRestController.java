@@ -1,4 +1,4 @@
-package com.github.liuyueyi.forum.web.admin.view;
+package com.github.liuyueyi.forum.web.admin.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsCountDTO;
@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @Permission(role = UserRole.ADMIN)
 @RequestMapping(path = "admin/statistics/")
-public class StatisticsSettingViewController {
+public class StatisticsSettingRestController {
 
     @Autowired
     private StatisticsSettingService statisticsSettingService;
