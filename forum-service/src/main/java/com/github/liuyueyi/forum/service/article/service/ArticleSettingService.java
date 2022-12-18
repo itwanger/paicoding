@@ -18,7 +18,7 @@ public interface ArticleSettingService {
      *
      * @return
      */
-    public Integer getArticleCount();
+    Integer getArticleCount();
 
     /**
      * 获取文章列表

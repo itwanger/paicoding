@@ -26,11 +26,6 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDTO> queryAllTags() {
-        return tagDao.listOnlineTag(Strings.EMPTY, null);
-    }
-
-    @Override
     public PageVo<TagDTO> queryTags(String key, PageParam pageParam) {
         List<TagDTO> tagDTOS = tagDao.listOnlineTag(key, pageParam);
         Integer totalCount = tagDao.countOnlineTag(key);
@@ -40,12 +35,5 @@ public class TagServiceImpl implements TagService {
     @Override
     public Long queryTagId(String tag) {
         return tagDao.selectTagIdByTag(tag);
-    }
-
-    @Override
-    public PageVo<TagDTO> getTagList(PageParam pageParam) {
-        List<TagDTO> tagDTOS = tagDao.listTag(pageParam);
-        Integer totalCount = tagDao.countTag();
-        return PageVo.build(tagDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
     }
 }
