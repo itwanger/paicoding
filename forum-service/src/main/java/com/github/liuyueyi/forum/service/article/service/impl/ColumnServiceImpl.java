@@ -105,14 +105,4 @@ public class ColumnServiceImpl implements ColumnService {
         articleIds.forEach(id -> Optional.ofNullable(articleMap.get(id)).ifPresent(articleList::add));
         return articleList;
     }
-
-//    @Override
-//    public List<ColumnArticleDO> queryColumnArticlesDetail(long columnId, PageParam pageParam) {
-//        return columnDao.listColumnArticlesDetail(columnId, pageParam);
-//    }
-//
-//    @Override
-//    public int countColumnArticles(Long columnId) {
-//        return columnDao.countColumnArticles(columnId);
-//    }
 }

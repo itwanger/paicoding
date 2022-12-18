@@ -117,19 +117,4 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
             articleDao.updateById(dto);
         }
     }
-
-    /**
-     * 文章上下线
-     *
-     * @param articleId
-     * @param pushStatusEnum
-     */
-    @Override
-    public void operateArticle(Long articleId, PushStatusEnum pushStatusEnum) {
-        ArticleDO dto = articleDao.getById(articleId);
-        if (dto != null && dto.getStatus() != pushStatusEnum.getCode()) {
-            dto.setStatus(pushStatusEnum.getCode());
-            articleDao.updateById(dto);
-        }
-    }
 }

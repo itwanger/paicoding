@@ -1,6 +1,5 @@
 package com.github.liuyueyi.forum.service.article.service;
 
-import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 
 public interface ArticleWriteService {
@@ -20,12 +19,4 @@ public interface ArticleWriteService {
      * @param articleId
      */
     void deleteArticle(Long articleId);
-
-    /**
-     * 上线/下线文章
-     *
-     * @param articleId
-     * @param pushStatusEnum
-     */
-    void operateArticle(Long articleId, PushStatusEnum pushStatusEnum);
 }
