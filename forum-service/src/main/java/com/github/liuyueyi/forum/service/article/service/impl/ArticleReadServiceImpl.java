@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +73,32 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         if (content.isEmpty()) {
             return Strings.EMPTY;
         }
-        return "这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要这个是用于测试的摘要";
+        // 先截取前面 2000 个字符
+        int endIndex = (content.length() > 2000) ? 2000 : content.length();
+        content = content.substring(0, endIndex);
+
+        // 取第一个汉字索引的位置
+        int beginIndex = 0;
+        for (int index = 0; index < content.length(); index++) {
+            String word = content.substring(index, index+1);
+            if(word.compareTo("\u4e00") > 0 && word.compareTo("\u9fa5") < 0) {
+                beginIndex = index;
+                break;
+            }
+        }
+        content = content.substring(beginIndex);
+
+        // 匹配对应字符
+        String summary = Strings.EMPTY;
+        Pattern pattern = Pattern.compile("[0-9a-zA-Z\u4e00-\u9fa5:;\"'<>,.?/·~！：；“”‘’《》，。？、（）]");
+        Matcher matcher = pattern.matcher(content);
+        while(matcher.find()) {
+            summary += content.substring(matcher.start(), matcher.end());
+            if (summary.length() >= 100) {
+                break;
+            }
+        }
+        return summary;
     }
 
     @Override
