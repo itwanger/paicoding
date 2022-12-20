@@ -54,16 +54,6 @@
   .section.route-active
   .center
   .main-line
-  .title,
-.book-directory-comp .section-list .section.route-active .left .index {
-  color: #1e80ff;
-}
-
-.book-directory-comp
-  .section-list
-  .section.route-active
-  .center
-  .main-line
   .title
   .icon-camera
   path,
@@ -77,22 +67,11 @@
   fill: currentColor;
 }
 
-.book-directory-comp .section-list .section.route-active:after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 24px;
-  left: 0;
-  top: 9px;
-  background: #1e80ff;
-  border-radius: 0 8px 8px 0;
-}
-
 .book-directory-comp .section-list .section .left .index {
   font-weight: 600;
   font-size: 16px;
   line-height: 24px;
-  color: #8a919f;
+  color: var(--pai-color-999-gray);
   padding: 0 6px;
   min-width: 26px;
   text-align: center;
@@ -174,7 +153,7 @@
   align-items: center;
   margin-top: 6px;
   font-size: 13px;
-  color: #8a919f;
+  color: var(--pai-color-999-gray);
   line-height: 24px;
 }
 
@@ -486,4 +465,21 @@
   color: var(--pai-brand-1-normal);
   font-size: 12px;
   white-space: nowrap;
+}
+
+
+.book-directory-comp .section-list .section.active:after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 24px;
+  left: 0;
+  top: 9px;
+  background: var(--pai-brand-2-hover);
+  border-radius: 0 8px 8px 0;
+}
+
+.book-directory-comp .section-list .section.active .center .main-line .title,
+.book-directory-comp .section-list .section.active .left .index {
+  color: var(--pai-brand-2-hover);
 }
