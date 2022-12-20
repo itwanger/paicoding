@@ -199,10 +199,9 @@
 
 /* 个人信息编辑弹窗 */
 #saveModel .input-group {
-  height: 70px;
+  height: 60px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #eaeaea;
 }
 
 #saveModel .input-group:last-child {
@@ -237,8 +236,8 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  width: 112px;
-  margin-left: 74px;
+  width: 136px;
+  margin-left: 60px;
 }
 .person-img-inter-wrap {
   width: 90px;
@@ -258,7 +257,7 @@
   margin-bottom: 8px;
 }
 .person-upload-limit {
-  color: #86909c;
+  color: var(--pai-color-3-gray);
   font-size: 12px;
   line-height: 17px;
   font-weight: 400;
@@ -273,7 +272,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  color: #fff;
+  color: var(--pai-color-fff-normal);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -294,7 +293,7 @@
   display: none;
 }
 .person-info {
-  width: 70%;
+  width: 80%;
 }
 
 /* 头部改造 */
