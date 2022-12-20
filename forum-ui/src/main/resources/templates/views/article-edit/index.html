@@ -102,7 +102,8 @@
                     placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 128 字符键入摘要文本框"
                     maxlength="128" th:text="${vo.article != null ?  vo.article.summary: ''}"
                     oninput="checkArea()"></textarea>
-          <span class="form-textarea-limit">0/128</span>
+          <span class="form-textarea-limit"
+                th:text="${vo.article != null ?  #strings.length(vo.article.summary) + '/128': '0/128'}">0/128</span>
           <button type="button"
                   class="el-button btn-getdistill el-button--default el-button--mini is-round">
             <span>一键提取</span>
@@ -197,11 +198,13 @@
   // 提取简介
   $(".btn-getdistill").on("click", function () {
     // 获取文章内容
-    const content = simplemde.value();
+    var content = simplemde.value();
     // 准备提交到后端
     if (content.length <= 6) {
       toastr.error("文章内容太短了！");
       return;
+    } else if (content.length > 600) {
+      content = content.substring(0, 600)
     }
 
     const params = {
@@ -211,6 +214,7 @@
     post("/article/api/generateSummary", params, function (data) {
       console.log("提取后的简介:", data)
       $("#summary").val(data);
+      $('.form-textarea-limit').text(data.length + '/128')
     });
 
   });
