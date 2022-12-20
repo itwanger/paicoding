@@ -65,6 +65,7 @@
 .article-heart .approval-img {
   display: inline-block;
   width: 25px;
+  height: 25px;
   margin-right: 7.5px;
   border-radius: 50%;
   cursor: pointer;
