@@ -160,7 +160,7 @@
 
 .follow-select-tag:hover,
 .follow-select-tag-active {
-  color: #3973ff !important;
+  color: var(--pai-brand-2-hover);
 }
 
 .follow-item {
