@@ -220,10 +220,16 @@
   height: 32px;
   display: flex;
   align-items: center;
-  color: #1d2129;
-  background: #fafafa;
-  border: 1px solid #ddd;
+  color: var(--pai-color-3-black);
+  background: var(--pai-bg-light-2);
+  border: 1px solid var(--pai-border-color-1);
   font-size: 14px;
+}
+
+#saveModel .form-control:focus {
+  border-color: var(--pai-brand-3-click);
+  background: var(--pai-bg-white-fff);
+  box-shadow: none;
 }
 
 #saveModel .modal-body {

@@ -273,7 +273,7 @@ button:focus {
 .btn-outline-primary,
 .posts-admin-tag-official,
 .custom-font-color {
-  color: #007fff;
+  color: var(--pai-bg-normal-1);
 }
 
 .dropdown-menu {
