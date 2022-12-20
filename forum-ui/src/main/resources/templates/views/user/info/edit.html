@@ -98,16 +98,10 @@
                             </svg>
                             <div class="click-text">点击修改头像</div>
                         </div>
-                        <img
-                                src="https://img1.baidu.com/it/u=553762179,4199503013&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=551"
-                                th:src="${vo.userHome.photo}"
-                                alt=""
-                                srcset=""
-                                class="person-img"
-                                id="pic"
-                        />
-                        <input
-                                type="file"
+                        <img th:src="${vo.userHome.photo}"
+                             class="person-img"
+                             id="pic"/>
+                        <input type="file"
                                 accept="image/*"
                                 id="upload"
                                 class="click-input"
@@ -116,11 +110,11 @@
 
                     <div class="person-upload-text">我的头像</div>
                     <div class="person-upload-limit">
-                        支持 jpg、png、jpeg 格式大小 5M 以内的图片
+                        支持 jpg、png、jpeg 格式大小 2M 以内的图片
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer pr-4">
                 <button id="publish" type="button" class="btn btn-primary">
                     保存
                 </button>
@@ -169,46 +163,46 @@
     }
 
     // 封面上传相关
-    $(function () {
-        const defaultUploadImg = [[${vo.userHome.photo}]];
-        $(".person-img-wrap")
-            .on("mouseover", ".person-img-inter-wrap", function () {
-                console.log(123)
-                $(".click-cover").css("visibility", "visible")
-            })
-            .on("mouseleave", ".person-img-inter-wrap", function () {
-                $(".click-cover").css("visibility", "hidden")
-            })
+    const defaultUploadImg = [[${vo.userHome.photo}]];
+    $(".person-img-wrap")
+        .on("mouseover", ".person-img-inter-wrap", function () {
+            console.log(123)
+            $(".click-cover").css("visibility", "visible")
+        })
+        .on("mouseleave", ".person-img-inter-wrap", function () {
+            $(".click-cover").css("visibility", "hidden")
+        })
 
-        $(".click-cover").click(function () {
-            $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
-            $("#upload").on("change", function () {
-                var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-                console.log({objUrl})
-                if (objUrl) {
-                    $("#pic").attr("src", objUrl) //将图片路径存入src中，显示出图片
-                    $(".person-upload-text").addClass("cancel-title")
-                    $(".person-upload-text").text("撤销上传")
-                    $(".person-upload-limit").text("点击下方保存修改后生效")
-                    uploadImg((imgPath) => {
-                        $('#pic').attr("src", imgPath);
-                        $('.user-head-img').attr('src', imgPath);
-                        $('.nav-login-img').attr('src', imgPath);
-                        imgPhoto = imgPath;
-                        doPostUserInfo(true, imgPath);
-                    });
-                }
-            })
+    $(".click-cover").click(function () {
+        $("#upload").click().on("change", function () {
+            var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+            console.log({objUrl})
+            if (objUrl) {
+                var oldUrl = $("#pic").attr("src");
+                $("#pic").attr("src", objUrl).data("oldUrl", oldUrl) //将图片路径存入src中，显示出图片
+                $(".person-upload-text").addClass("cancel-title").text("撤销上传")
+                $(".person-upload-limit").text("点击下方保存修改后生效")
+                uploadImg((imgPath) => {
+                    $('#pic').attr("src", imgPath);
+                    $('.user-head-img').attr('src', imgPath);
+                    $('.nav-login-img').attr('src', imgPath);
+                    imgPhoto = imgPath;
+                    doPostUserInfo(true, imgPath);
+                });
+            }
         })
     })
 
     // 撤销上传逻辑
     $(".person-img-wrap").on("click", ".cancel-title", function () {
-        $(".person-upload-text").removeClass("cancel-title")
-        $(".person-upload-text").text("我的头像")
+        $(".person-upload-text").removeClass("cancel-title").text("我的头像")
         $(".person-upload-limit").text(
-            "支持 jpg、png、jpeg 格式大小 5M 以内的图片"
+            "支持 jpg、png、jpeg 格式大小 2M 以内的图片"
         )
+        var pic = $("#pic"), oldUrl = pic.data("oldUrl");
+        pic.attr("src", oldUrl);
+        $('.user-head-img').attr('src', oldUrl);
+        $('.nav-login-img').attr('src', oldUrl);
     })
 
     //建立一?可存取到?file的url
