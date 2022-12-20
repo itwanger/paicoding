@@ -33,10 +33,9 @@
 
         <!-- 左右切换 -->
         <div class="article-change">
-          <a
+          <a class="step-btn--prev"
             th:href="'/column/' + ${vo.column} + '/' + ${vo.section - 1}"
-            th:if="${vo.section > 1}"
-          >
+            th:if="${vo.section > 1}">
             <div class="article-change-item">
               <svg
                 t="1670064682276"
@@ -56,10 +55,9 @@
               </svg>
             </div>
           </a>
-          <a
+          <a class="step-btn--next"
             th:href="'/column/' + ${vo.column} + '/' + ${vo.section + 1}"
-            th:if="${vo.section < vo.articleList.size}"
-          >
+            th:if="${vo.section < vo.articleList.size}">
             <div class="article-change-item">
               <svg
                 t="1670064662589"
