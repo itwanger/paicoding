@@ -191,7 +191,6 @@
       const content = simplemde.value();
       const size = content.length > 128? 128: content.length;
       $("#summary").text(content.substring(0, size));
-      checkArea();
     }
   });
 
