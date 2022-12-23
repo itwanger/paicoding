@@ -4,6 +4,7 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
+import com.github.liueyueyi.forum.api.model.exception.ForumException;
 import com.github.liueyueyi.forum.api.model.vo.*;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ContentPostReq;
@@ -21,7 +22,6 @@ import com.github.liuyueyi.forum.service.article.service.*;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.web.component.TemplateEngineHelper;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -96,8 +96,8 @@ public class ArticleRestController {
     @GetMapping(path = "tag/list")
     public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
                                            @RequestParam(name = "articleId", required = false) Long articleId,
-                                            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
-                                            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+                                           @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+                                           @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         PageVo<TagDTO> tagDTOPageVo;
         if (articleId != null && articleId > 0) {
             tagDTOPageVo = articleService.queryTagsByArticleId(articleId);
@@ -168,5 +168,26 @@ public class ArticleRestController {
 //        response.sendRedirect("/article/detail/" + id);
         // 这里采用前端重定向策略
         return ResVo.ok(id);
+    }
+
+
+    /**
+     * 返回文章正文内容
+     *
+     * @param articleId
+     * @return
+     */
+    @GetMapping(path = "content")
+    public ResVo<String> content(@RequestParam("articleId") Long articleId) {
+        if (NumUtil.upZero(articleId)) {
+            try {
+                ArticleDTO article = articleReadService.queryDetailArticleInfo(articleId);
+                return ResVo.ok(article.getContent());
+            } catch (ForumException e) {
+                return ResVo.ok("");
+            }
+        } else {
+            return ResVo.ok("");
+        }
     }
 }
