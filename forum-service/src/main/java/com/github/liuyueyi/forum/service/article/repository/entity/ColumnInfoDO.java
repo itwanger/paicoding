@@ -2,6 +2,8 @@ package com.github.liuyueyi.forum.service.article.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
+import com.github.liueyueyi.forum.api.model.enums.ColumnStatusEnum;
+import com.github.liueyueyi.forum.api.model.enums.ColumnTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -39,6 +41,8 @@ public class ColumnInfoDO extends BaseDO {
 
     /**
      * 状态
+     *
+     * @see ColumnStatusEnum#getCode()
      */
     private Integer state;
 
@@ -51,4 +55,25 @@ public class ColumnInfoDO extends BaseDO {
      * 上线时间
      */
     private Date publishTime;
+
+    /**
+     * 专栏预计的文章数
+     */
+    private Integer nums;
+
+    /**
+     * 专栏类型：免费、登录阅读、收费阅读等
+     * @see ColumnTypeEnum#getType()
+     */
+    private Integer type;
+
+    /**
+     * 免费开始时间
+     */
+    private Date freeStartTime;
+
+    /**
+     * 免费结束时间
+     */
+    private Date freeEndTime;
 }

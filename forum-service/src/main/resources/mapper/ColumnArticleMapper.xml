@@ -19,4 +19,8 @@
         select article_id from column_article where column_id = #{columnId} and `section` = #{section} limit 1
     </select>
 
+    <select id="countColumnReadUserNums" resultType="java.lang.Long">
+        select count(distinct u.user_id) from column_article as a left join user_foot as u on a.article_id = u.document_id
+        where u.document_type = 1 and u.read_stat = 1 and a.column_id = #{columnId}
+    </select>
 </mapper>
