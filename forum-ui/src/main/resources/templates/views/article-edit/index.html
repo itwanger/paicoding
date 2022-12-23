@@ -126,8 +126,10 @@
   // https://github.com/sparksuite/simplemde-markdown-editor
   let vo = [[${vo}]]
   let uid = "forumId";
+  let articleId = '';
   if (vo && vo.article) {
-    uid = uid + "_" + vo.article.articleId
+    articleId = vo.article.articleId;
+    uid = uid + "_" + articleId;
   }
   var simplemde = new SimpleMDE({
     element: document.getElementById("content"),
@@ -276,7 +278,6 @@
       return;
     }
 
-    const articleId = $("#articleId").text()
     const params = {
       articleId: articleId,
       title: title,
