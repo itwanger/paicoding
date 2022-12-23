@@ -32,9 +32,14 @@ public class ColumnFootCountDTO {
     private Integer commentCount;
 
     /**
-     * 专栏文章数
+     * 专栏已更新的文章数
      */
     private Integer articleCount;
+
+    /**
+     * 专栏的文章总数
+     */
+    private Integer totalNums;
 
     public ColumnFootCountDTO() {
         praiseCount = 0;
@@ -42,5 +47,6 @@ public class ColumnFootCountDTO {
         collectionCount = 0;
         commentCount = 0;
         articleCount = 0;
+        totalNums = 0;
     }
 }

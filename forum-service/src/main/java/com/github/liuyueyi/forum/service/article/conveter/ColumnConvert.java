@@ -28,6 +28,9 @@ public class ColumnConvert {
         dto.setAuthor(info.getUserId());
         dto.setSection(info.getSection());
         dto.setPublishTime(info.getPublishTime().getTime());
+        dto.setType(info.getType());
+        dto.setFreeStartTime(info.getFreeStartTime().getTime());
+        dto.setFreeEndTime(info.getFreeEndTime().getTime());
         return dto;
     }
 
@@ -48,6 +51,9 @@ public class ColumnConvert {
         columnInfoDO.setCover(columnReq.getCover());
         columnInfoDO.setState(columnReq.getState());
         columnInfoDO.setSection(columnReq.getSection());
+        columnInfoDO.setType(columnInfoDO.getType());
+        columnInfoDO.setFreeStartTime(columnInfoDO.getFreeStartTime());
+        columnInfoDO.setFreeEndTime(columnInfoDO.getFreeEndTime());
         return columnInfoDO;
     }
 

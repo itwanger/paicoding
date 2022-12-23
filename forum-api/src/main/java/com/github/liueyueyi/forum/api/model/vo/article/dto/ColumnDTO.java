@@ -1,6 +1,7 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
 import com.github.liueyueyi.forum.api.model.enums.ColumnStatusEnum;
+import com.github.liueyueyi.forum.api.model.enums.ColumnTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.ColumnFootCountDTO;
 import lombok.Data;
 
@@ -47,6 +48,23 @@ public class ColumnDTO {
      * @see ColumnStatusEnum#getCode()
      */
     private Integer state;
+
+    /**
+     * 专栏类型
+     *
+     * @see ColumnTypeEnum#getType()
+     */
+    private Integer type;
+
+    /**
+     * 限时免费开始时间
+     */
+    private Long freeStartTime;
+
+    /**
+     * 限时免费结束时间
+     */
+    private Long freeEndTime;
 
     /**
      * 作者
