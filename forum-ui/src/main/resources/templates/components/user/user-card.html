@@ -29,7 +29,7 @@
                             class="c-btn"
                             th:data-user-id="${userId}"
                             th:data-followed="${user.followed}"
-                            th:if="${followShow == true}"
+                            th:if="${followShow == true && (global.isLogin && global.user.userId != user.userId)}"
                             th:text="${user.followed == true ? '取消关注' : '关注'}"
                             onclick="followAction(this)">
                         <span class="text">关注</span>
