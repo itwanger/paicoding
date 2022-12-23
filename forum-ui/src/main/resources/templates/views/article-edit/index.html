@@ -204,8 +204,8 @@
     if (content.length <= 6) {
       toastr.error("文章内容太短了！");
       return;
-    } else if (content.length > 128) {
-      content = content.substring(0, 128)
+    } else if (content.length > 600) {
+      content = content.substring(0, 600)
     }
 
     const params = {

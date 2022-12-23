@@ -29,7 +29,7 @@
               <div th:replace="views/article-detail/comment/index"></div>
             </div>
 
-            <div class="correlation-article bg-color-white">
+            <div class="correlation-article bg-color-white" id="relatedRecommend">
               <!-- 关联推荐 -->
               <h4 class="correlation-article-title">相关推荐</h4>
               <div class="bg-color-white">
@@ -198,7 +198,12 @@
             "articleId": articleId,
             "page": 1
         }
-      //   loadMore("#articleList", "/article/api/recommend", params, "articleList");
+        loadMore("#articleList", "/article/api/recommend", params, "articleList", function() {
+          if($('#articleList:has(div)').length == 0) {
+            // 不存在推荐内容
+            $("#relatedRecommend").hide();
+          }
+        });
 
         // 回到顶端
         $.scrollUp({
