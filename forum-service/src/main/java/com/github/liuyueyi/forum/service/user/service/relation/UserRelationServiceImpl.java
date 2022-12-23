@@ -117,7 +117,7 @@ public class UserRelationServiceImpl implements UserRelationService {
         // 将是否关注状态重置
         userRelationDO.setFollowState(req.getFollowed() ? FollowStateEnum.FOLLOW.getCode() : FollowStateEnum.CANCEL_FOLLOW.getCode());
         userRelationDao.updateById(userRelationDO);
-        // 发布关注事件
-        SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.FOLLOW, userRelationDO));
+        // 发布关注、取消关注事件
+        SpringUtil.publishEvent(new NotifyMsgEvent<>(this, req.getFollowed() ? NotifyTypeEnum.FOLLOW : NotifyTypeEnum.CANCEL_FOLLOW, userRelationDO));
     }
 }

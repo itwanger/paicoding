@@ -53,7 +53,7 @@ public interface UserRelationService {
     Set<Long> getFollowedUserId(List<Long> userIds, Long loginUserId);
 
     /**
-     * 保存用户关系
+     * 保存用户关系: 关注or取消关注
      *
      * @param req
      * @throws Exception
