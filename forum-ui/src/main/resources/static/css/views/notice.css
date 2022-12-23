@@ -102,3 +102,7 @@
   cursor: pointer;
   color: var(--pai-color-999-gray);
 }
+
+.action-text {
+  font-size: 12px;
+}
