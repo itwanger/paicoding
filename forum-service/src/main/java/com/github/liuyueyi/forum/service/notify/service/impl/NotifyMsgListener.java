@@ -53,14 +53,16 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             case COLLECT:
                 saveArticleNotify((NotifyMsgEvent<UserFootDO>) msgEvent);
                 break;
+            case CANCEL_PRAISE:
+            case CANCEL_COLLECT:
+                removeArticleNotify((NotifyMsgEvent<UserFootDO>) msgEvent);
+                break;
             case FOLLOW:
                 saveFollowNotify((NotifyMsgEvent<UserRelationDO>) msgEvent);
                 break;
-            case CANCEL_PRAISE:
-            case CANCEL_COLLECT:
             case CANCEL_FOLLOW:
-                // todo 取消操作，若之前的消息是未读状态，则移除对应的记录
-                log.info("取消操作: {}", msgEvent);
+                removeFollowNotify((NotifyMsgEvent<UserRelationDO>) msgEvent);
+                break;
             case LOGIN:
                 // todo 用户登录，判断是否需要插入新的通知消息，暂时先不做
                 break;
@@ -130,6 +132,24 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
     }
 
     /**
+     * 取消点赞，取消收藏
+     * @param event
+     */
+    private void removeArticleNotify(NotifyMsgEvent<UserFootDO> event) {
+        UserFootDO foot = event.getContent();
+        NotifyMsgDO msg = new NotifyMsgDO()
+                .setRelatedId(foot.getDocumentId())
+                .setNotifyUserId(foot.getDocumentUserId())
+                .setOperateUserId(foot.getUserId())
+                .setType(event.getNotifyType().getType())
+                .setMsg("");
+        NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
+        if (record != null) {
+            notifyMsgDao.removeById(record.getId());
+        }
+    }
+
+    /**
      * 关注
      *
      * @param event
@@ -146,6 +166,25 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         if (record == null) {
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
+        }
+    }
+
+    /**
+     * 取消关注
+     *
+     * @param event
+     */
+    private void removeFollowNotify(NotifyMsgEvent<UserRelationDO> event) {
+        UserRelationDO relation = event.getContent();
+        NotifyMsgDO msg = new NotifyMsgDO()
+                .setRelatedId(0L)
+                .setNotifyUserId(relation.getUserId())
+                .setOperateUserId(relation.getFollowUserId())
+                .setType(event.getNotifyType().getType())
+                .setMsg("");
+        NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
+        if (record != null) {
+            notifyMsgDao.removeById(record.getId());
         }
     }
 
