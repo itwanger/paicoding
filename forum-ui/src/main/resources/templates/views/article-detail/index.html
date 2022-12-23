@@ -211,18 +211,19 @@
             }
         });
 
-      // 评论相关
-      const commentContent = $("#commentContent")
-      commentContent.on("input propertychange", function () {
-        const val = $(this).val()
-        if (val) {
-          $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
-        } else {
-          $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
-        }
-      })
 
       function bindCommentInputEvent() {
+        // 评论相关
+        const commentContent = $("#commentContent")
+        commentContent.on("input propertychange", function () {
+          const val = $(this).val()
+          if (val) {
+            $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
+          } else {
+            $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
+          }
+        });
+
         // 直接评论
         const commentBtn = $("#commentBtn")
         commentBtn.click(function () {
@@ -243,50 +244,27 @@
             document.getElementById("commentDiv").innerHTML = data
             bindCommentInputEvent()
           })
-        })
-        bindCommentInputEvent()
-        // // 回复评论
-        // const replyContent = $('#replyContent');
-        // const replyBtn = $('#replyBtn');
-        // $('.reply-comment').on('click', function (e) {
-        //   $('#commentModalDropLabel').html('回复 ' + this.dataset.replyNickname);
-        //   $('#repliedContent').html(this.dataset.replyContent);
-        //   replyContent.attr('placeholder', '回复' + this.dataset.replyNickname);
-        //   // 回复的评论ID
-        //   replyBtn.attr('data-reply-id', this.dataset.replyId);
-        //   // 回复的一级评论ID
-        //   replyBtn.attr('data-reply-top', this.dataset.replyTop);
-        // });
+        });
 
-        // replyBtn.on('click', function () {
-        //   if (!replyContent.val()) {
-        //     toastr.error('回复内容不能为空');
-        //     return;
-        //   }
-        //   // 提交评论
-        //   const params = {
-        //     // 文章id
-        //     "articleId": $('#postsTitle').attr("data-id"),
-        //     // 评论内容
-        //     "commentContent": replyContent.val(),
-        //     // 回复的评论id
-        //     "parentCommentId": replyBtn.attr('data-reply-id'),
-        //     // 回复的一级评论id
-        //     "topCommentId": replyBtn.attr('data-reply-top')
-        //   };
-        //   post("/comment/api/post", params, function (data) {
-        //     document.getElementById("commentDiv").innerHTML = data;
-        //     // fixme 回复时，直接在评论下面展示一个输入框，完成之后不更新当前页面，直接重新渲染评论列表即可，即删除下面的重新刷新逻辑，只保留上面的逻辑
-        //     let url = location.href;
-        //     if (url.indexOf("#commentList") === -1) {
-        //       location.href = url + "#commentList";
-        //     }
-        //     location.reload(true);
-        //   })
-        // });
+        // 回复
+        $(document).on("click", ".reply-comment", function () {
+          const currentDom = $(this)
+          createComment(currentDom)
+        })
+
+        // 回复编辑
+        $(document).on("click", ".hf-pl", function () {
+          const currentDom = $(this)
+          commentSubmit(currentDom)
+        })
+
+        $(document).on("input propertychange", ".hf-input", function () {
+          const currentDom = $(this)
+          listenCommentBtn(currentDom)
+        })
       }
 
-      // 点击回复创建评论
+        // 点击回复创建评论
       const createComment = function (currentDom) {
         // 移除其他回复
         $(".hf-con").remove()
@@ -373,22 +351,7 @@
         }
       }
 
-      // 回复
-      $(document).on("click", ".reply-comment", function () {
-        const currentDom = $(this)
-        createComment(currentDom)
-      })
-
-      // 回复编辑
-      $(document).on("click", ".hf-pl", function () {
-        const currentDom = $(this)
-        commentSubmit(currentDom)
-      })
-
-      $(document).on("input propertychange", ".hf-input", function () {
-        const currentDom = $(this)
-        listenCommentBtn(currentDom)
-      })
+      bindCommentInputEvent();
     </script>
   </body>
 </html>

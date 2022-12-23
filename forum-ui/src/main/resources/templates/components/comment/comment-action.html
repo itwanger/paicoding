@@ -33,7 +33,7 @@
       </svg>
       <span
         class="reply-comment-text"
-        th:text="${comment.commentCount > 0 ? comment.commentCount : '回复'}"
+        th:text="${comment.commentCount > 0 ? '回复' +  comment.commentCount : '回复'}"
       ></span>
       <span class="reply-comment-text-none">取消回复</span>
     </div>
