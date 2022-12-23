@@ -197,13 +197,15 @@
   // 提取简介
   $(".btn-getdistill").on("click", function () {
     // 获取文章内容
-    var content = simplemde.value();
+    var content = simplemde.value().trim().substring(0, 600);
+    const pattern = /!\[(.*?)\]\((.*?)\)/mg;
+    content = content.replaceAll(pattern, ''); // 正则替换，移除所有的图片
     // 准备提交到后端
     if (content.length <= 6) {
       toastr.error("文章内容太短了！");
       return;
-    } else if (content.length > 600) {
-      content = content.substring(0, 600)
+    } else if (content.length > 128) {
+      content = content.substring(0, 128)
     }
 
     const params = {

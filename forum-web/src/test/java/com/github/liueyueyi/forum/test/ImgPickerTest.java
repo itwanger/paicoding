@@ -1,5 +1,6 @@
 package com.github.liueyueyi.forum.test;
 
+import com.github.liuyueyi.forum.core.util.ArticleUtil;
 import com.github.liuyueyi.forum.core.util.MdImgLoader;
 import org.junit.Test;
 
@@ -27,6 +28,14 @@ public class ImgPickerTest {
         String text = "hello ![](https://text.jpg) world!![描述](http))!图片";
         List<MdImgLoader.MdImg> list = MdImgLoader.loadImgs(text);
         System.out.println(list);
+    }
+
+
+    @Test
+    public void testArticleSummaryGen() {
+        String txt = "hello 这是要给简单的测试 ![](https://text.jpg) <br/> 这是一个超链 [我的链接](https://www.hhui.top) 哈哈哈见到了附件123132131!";
+        String ans = ArticleUtil.pickSummary(txt);
+        System.out.println(ans);
     }
 
 }
