@@ -5,7 +5,7 @@
  * @param params 传参
  * @param listId 存放下一页内容的标签id
  */
-const loadMore = function (loadMoreSelector, url, params, listId) {
+const loadMore = function (loadMoreSelector, url, params, listId, callback) {
     let lastReqCondition = '';
     let isNeedMore = true
     const handleScroll = () => {
@@ -33,6 +33,9 @@ const loadMore = function (loadMoreSelector, url, params, listId) {
                     isNeedMore = false
                 }
                 params['page'] = params['page'] + 1;
+                if (callback) {
+                    callback();
+                }
             }, () => {
                 lastReqCondition = "";
             })

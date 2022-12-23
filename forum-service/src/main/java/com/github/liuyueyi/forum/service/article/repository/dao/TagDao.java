@@ -93,7 +93,9 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
     public Long selectTagIdByTag(String tag) {
         TagDO record = lambdaQuery().select(TagDO::getId)
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(TagDO::getTagName, tag).one();
+                .eq(TagDO::getTagName, tag)
+                .last("limit 1")
+                .one();
         return record != null ? record.getId() : null;
     }
 }
