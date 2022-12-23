@@ -16,6 +16,8 @@ public class ArticleUtil {
     private static Pattern LINK_IMG_PATTERN = Pattern.compile("!?\\[(.*?)\\]\\((.*?)\\)");
     private static Pattern CONTENT_PATTERN = Pattern.compile("[0-9a-zA-Z\u4e00-\u9fa5:;\"'<>,.?/·~！：；“”‘’《》，。？、（）]");
 
+    private static Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
+
     public static String pickSummary(String summary) {
         if (StringUtils.isBlank(summary)) {
             return StringUtils.EMPTY;
@@ -23,7 +25,10 @@ public class ArticleUtil {
 
         // 首先移除所有的图片，链接
         summary = summary.substring(0, Math.min(summary.length(), MAX_SUMMARY_CHECK_TXT_LEN)).trim();
+        // 移除md的图片、超链
         summary = summary.replaceAll(LINK_IMG_PATTERN.pattern(), "");
+        // 移除html标签
+        summary = HTML_TAG_PATTERN.matcher(summary).replaceAll("");
 
         // 取第一个汉字索引的位置
         int beginIndex = 0;
