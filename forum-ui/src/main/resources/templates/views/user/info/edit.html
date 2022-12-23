@@ -174,23 +174,25 @@
         })
 
     $(".click-cover").click(function () {
-        $("#upload").click().on("change", function () {
-            var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-            console.log({objUrl})
-            if (objUrl) {
-                var oldUrl = $("#pic").attr("src");
-                $("#pic").attr("src", objUrl).data("oldUrl", oldUrl) //将图片路径存入src中，显示出图片
-                $(".person-upload-text").addClass("cancel-title").text("撤销上传")
-                $(".person-upload-limit").text("点击下方保存修改后生效")
-                uploadImg((imgPath) => {
-                    $('#pic').attr("src", imgPath);
-                    $('.user-head-img').attr('src', imgPath);
-                    $('.nav-login-img').attr('src', imgPath);
-                    imgPhoto = imgPath;
-                    doPostUserInfo(true, imgPath);
-                });
-            }
-        })
+        $("#upload").click()
+    })
+
+    $("#upload").on("change", function () {
+        var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+        console.log({objUrl})
+        if (objUrl) {
+            var oldUrl = $("#pic").attr("src");
+            $("#pic").attr("src", objUrl).data("oldUrl", oldUrl) //将图片路径存入src中，显示出图片
+            $(".person-upload-text").addClass("cancel-title").text("撤销上传")
+            $(".person-upload-limit").text("点击下方保存修改后生效")
+            uploadImg((imgPath) => {
+                $('#pic').attr("src", imgPath);
+                $('.user-head-img').attr('src', imgPath);
+                $('.nav-login-img').attr('src', imgPath);
+                imgPhoto = imgPath;
+                doPostUserInfo(true, imgPath);
+            });
+        }
     })
 
     // 撤销上传逻辑

@@ -324,7 +324,7 @@
     (function (index) {
       $('.form-selectgroup-item').eq(index).on('click', function () {
         $('.form-selectgroup-item').removeClass('form-selectgroup-item--active')
-        $('.form-selectgroup-item').eq(index).addClass('form-selectgroup-item--active')
+                .eq(index).addClass('form-selectgroup-item--active')
       })
     })(index)
   })
@@ -380,19 +380,20 @@
 
   $(".click-cover").click(function () {
     $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
-    $("#upload").on("change", function (e) {
-      console.log("触发 change 事件", e )
-      var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-      console.log({ objUrl })
-      if (objUrl) {
-        //将图片路径存入src中，显示出图片
-        $("#pic").attr("src", objUrl).css('visibility','visible') // 展示图片
-        $('.upload-icon-up').css('visibility','hidden') // 隐藏上传
+  })
 
-        console.log("uploadImg", this.value)
-        uploadImg(() => (this.value = null))
-      }
-    })
+  $("#upload").on("change", function (e) {
+    console.log("触发 change 事件", e )
+    var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+    console.log({ objUrl })
+    if (objUrl) {
+      //将图片路径存入src中，显示出图片
+      $("#pic").attr("src", objUrl).css('visibility','visible') // 展示图片
+      $('.upload-icon-up').css('visibility','hidden') // 隐藏上传
+
+      console.log("uploadImg", this.value)
+      uploadImg(() => (this.value = null))
+    }
   })
 
   // 删除图片后
@@ -418,7 +419,7 @@
     return url
   }
 
-  // 上传头像到服务器
+  // 上传头图到服务器
   function uploadImg(callback) {
     var pic = $("#upload")[0].files[0]
     console.log("准备上传", pic)
