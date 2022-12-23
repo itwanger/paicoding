@@ -5,6 +5,9 @@ import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.user.UserRelationReq;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * 用户关系Service接口
  *
@@ -40,6 +43,14 @@ public interface UserRelationService {
      */
     void updateUserFollowRelationId(PageListVo<FollowUserInfoDTO> followList, Long loginUserId);
 
+    /**
+     * 根据登录用户从给定用户列表中，找出已关注的用户id
+     *
+     * @param userIds
+     * @param loginUserId
+     * @return
+     */
+    Set<Long> getFollowedUserId(List<Long> userIds, Long loginUserId);
 
     /**
      * 保存用户关系

@@ -9,14 +9,13 @@ import com.github.liueyueyi.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.notify.repository.dao.NotifyMsgDao;
 import com.github.liuyueyi.forum.service.notify.service.NotifyService;
+import com.github.liuyueyi.forum.service.user.service.UserRelationService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -26,6 +25,9 @@ import java.util.Map;
 public class NotifyServiceImpl implements NotifyService {
     @Resource
     private NotifyMsgDao notifyMsgDao;
+
+    @Resource
+    private UserRelationService userRelationService;
 
     @Override
     public int queryUserNotifyMsgCount(Long userId) {
@@ -39,11 +41,34 @@ public class NotifyServiceImpl implements NotifyService {
      */
     public PageListVo<NotifyMsgDTO> queryUserNotices(Long userId, NotifyTypeEnum type, PageParam page) {
         List<NotifyMsgDTO> list = notifyMsgDao.listNotifyMsgByUserIdAndType(userId, type, page);
-        if (!CollectionUtils.isEmpty(list)) {
-            notifyMsgDao.updateNotifyMsgToRead(list);
-            return PageListVo.newVo(list, page.getPageSize());
+        if (CollectionUtils.isEmpty(list)) {
+            return PageListVo.emptyVo();
         }
-        return PageListVo.emptyVo();
+
+        // 设置消息为已读状态
+        notifyMsgDao.updateNotifyMsgToRead(list);
+        // 更新全局总的消息数
+        ReqInfoContext.getReqInfo().setMsgNum(queryUserNotifyMsgCount(userId));
+        // 更新当前登录用户对粉丝的关注状态
+        updateFollowStatus(userId, list);
+        return PageListVo.newVo(list, page.getPageSize());
+    }
+
+    private void updateFollowStatus(Long userId, List<NotifyMsgDTO> list) {
+        List<Long> targetUserIds = list.stream().filter(s -> s.getType() == NotifyTypeEnum.FOLLOW.getType()).map(NotifyMsgDTO::getOperateUserId).collect(Collectors.toList());
+        if (targetUserIds.isEmpty()) {
+            return;
+        }
+
+        // 查询userId已经关注过的用户列表；并将对应的msg设置为true，表示已经关注过了；不需要再关注
+        Set<Long> followedUserIds = userRelationService.getFollowedUserId(targetUserIds, userId);
+        list.forEach(notify -> {
+            if (followedUserIds.contains(notify.getOperateUserId())) {
+                notify.setMsg("true");
+            } else {
+                notify.setMsg("false");
+            }
+        });
     }
 
     @Override
