@@ -56,6 +56,14 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
     }
 
     /**
+     * 统计专栏的阅读人数
+     * @return
+     */
+    public int countColumnReadPeoples(Long columnId) {
+        return columnArticleMapper.countColumnReadUserNums(columnId).intValue();
+    }
+
+    /**
      * 根据专栏ID查询文章信息列表
      *
      * @param columnId

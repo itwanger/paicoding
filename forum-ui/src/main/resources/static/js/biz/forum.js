@@ -461,3 +461,19 @@ const genTocMenu = function genToc(selector, el) {
     }
   }
 }
+
+
+
+/** 倒计时 */
+const showtime = function (endTime) {
+    let nowtime = new Date()//获取当前时间
+    let lefttime = endTime - nowtime.getTime();  //距离结束时间的毫秒数
+    if(lefttime <= 0) {
+        return '';
+    }
+    let leftd = Math.floor(lefttime / (1000 * 60 * 60 * 24)),  //计算天数
+        lefth = Math.floor(lefttime / (1000 * 60 * 60) % 24),  //计算小时数
+        leftm = Math.floor(lefttime / (1000 * 60) % 60),  //计算分钟数
+        lefts = Math.floor(lefttime / 1000 % 60);  //计算秒数
+    return '剩余 ' + leftd + " 天 " + lefth + ":" + leftm + ":" + lefts;  //返回倒计时的字符串
+}

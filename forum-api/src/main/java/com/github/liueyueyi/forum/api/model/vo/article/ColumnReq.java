@@ -3,7 +3,6 @@ package com.github.liueyueyi.forum.api.model.vo.article;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 保存Column请求参数
@@ -48,4 +47,19 @@ public class ColumnReq implements Serializable {
      * 排序
      */
     private Integer section;
+
+    /**
+     * 专栏类型
+     */
+    private Integer type;
+
+    /**
+     * 限时免费开始时间
+     */
+    private Long freeStartTime;
+
+    /**
+     * 限时免费结束时间
+     */
+    private Long freeEndTime;
 }
