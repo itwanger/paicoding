@@ -33,7 +33,7 @@ public class ImgPickerTest {
 
     @Test
     public void testArticleSummaryGen() {
-        String txt = "hello 这是要给简单的测试 ![](https://text.jpg) <br/> 这是一个超链 [我的链接](https://www.hhui.top) 哈哈哈见到了附件123132131!";
+        String txt = "hello 这是要给简单的测试 ![](https://text.jpg) <br/> 这是一个超链 [我的链接](https://www.hhui.top) 哈哈哈 <b>加粗</b>见到了附件123132131!";
         String ans = ArticleUtil.pickSummary(txt);
         System.out.println(ans);
     }
