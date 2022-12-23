@@ -96,10 +96,8 @@ public class ArticleRestController {
     @GetMapping(path = "tag/list")
     public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
                                            @RequestParam(name = "articleId", required = false) Long articleId,
-                                            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                            @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
+                                            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+                                            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         PageVo<TagDTO> tagDTOPageVo;
         if (articleId != null && articleId > 0) {
             tagDTOPageVo = articleService.queryTagsByArticleId(articleId);

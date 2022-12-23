@@ -159,6 +159,7 @@
           pageNumber: params.page,
           pageSize: 10,
           key: params.term,
+          categoryId: getChooseCategoryId(),
         }
 
         // 查询参数将是 ?search=[term]&type=public
@@ -223,7 +224,8 @@
   //  发表文章
   $("#publish").on("click", function () {
     doPostArticle("post")
-    localStorage.removeItem('articleTitle')
+    simplemde.clearAutosavedValue();
+    localStorage.removeItem('articleTitle');
   })
   // 保存草稿
   $("#tmpSave").on("click", function () {
