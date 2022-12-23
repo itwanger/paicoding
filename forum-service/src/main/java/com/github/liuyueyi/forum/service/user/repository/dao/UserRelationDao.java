@@ -46,8 +46,8 @@ public class UserRelationDao extends ServiceImpl<UserRelationMapper, UserRelatio
     /**
      * 查询followUserId与给定的用户列表的关联关旭
      *
-     * @param followUserId
-     * @param targetUserId
+     * @param followUserId 粉丝用户id
+     * @param targetUserId 关注者用户id列表
      * @return
      */
     public List<UserRelationDO> listUserRelations(Long followUserId, Collection<Long> targetUserId) {

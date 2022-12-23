@@ -15,14 +15,29 @@ public class NotifyMsgDTO implements Serializable {
 
     private Long msgId;
 
+    /**
+     * 消息关联的主体，如文章、评论
+     */
     private String relatedId;
 
+    /**
+     * 关联信息
+     */
     private String relatedInfo;
 
+    /**
+     * 发起消息的用户id
+     */
     private Long operateUserId;
 
+    /**
+     * 发起消息的用户名
+     */
     private String operateUserName;
 
+    /**
+     * 发起消息的用户头像
+     */
     private String operateUserPhoto;
 
     /**
@@ -30,6 +45,9 @@ public class NotifyMsgDTO implements Serializable {
      */
     private Integer type;
 
+    /**
+     * 消息正文
+     */
     private String msg;
 
     /**
@@ -37,5 +55,8 @@ public class NotifyMsgDTO implements Serializable {
      */
     private Integer state;
 
+    /**
+     * 消息产生时间
+     */
     private Timestamp createTime;
 }

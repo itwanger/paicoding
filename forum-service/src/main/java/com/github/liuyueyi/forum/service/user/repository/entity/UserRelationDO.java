@@ -19,7 +19,7 @@ public class UserRelationDO extends BaseDO {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID
+     * 主用户ID
      */
     private Long userId;
 
