@@ -150,8 +150,6 @@
             }
           }
         }
-        bindCommentInputEvent();
-
         if (praisedCount > 0) {
           $('#praiseDesc').text(String(praisedCount) + '人已点赞');
         } else {
@@ -204,38 +202,57 @@
 
   <!-- 评论逻辑 -->
   <script type="text/javascript">
-    // 评论相关
-    const commentContent = $("#commentContent")
-    commentContent.on("input propertychange", function () {
-      const val = $(this).val()
-      if (val) {
-        $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
-      } else {
-        $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
-      }
-    })
-
     // 直接评论
-    const commentBtn = $("#commentBtn")
-    commentBtn.click(function () {
-      const content = commentContent.val()
-      if (!content || content.length > 512) {
-        toastr.error("评论内容长度要求在[1,512]之间")
-        return
-      }
-      // 提交评论
-      const params = {
-        // 文章id
-        articleId: articleId,
-        // 评论内容
-        commentContent: content,
-      }
-      post("/comment/api/post", params, function (data) {
-        // 使用 Ajax 的方式，直接更新评论列表
-        document.getElementById("commentDiv").innerHTML = data
-        bindCommentInputEvent()
+    function bindCommentInputEvent() {
+      // 评论相关
+      const commentContent = $("#commentContent");
+      commentContent.on("input propertychange", function () {
+        const val = $(this).val()
+        if (val) {
+          $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
+        } else {
+          $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
+        }
+      });
+
+      const commentBtn = $("#commentBtn")
+      commentBtn.click(function () {
+        const content = commentContent.val()
+        if (!content || content.length > 512) {
+          toastr.error("评论内容长度要求在[1,512]之间")
+          return
+        }
+        // 提交评论
+        const params = {
+          // 文章id
+          articleId: articleId,
+          // 评论内容
+          commentContent: content,
+        }
+        post("/comment/api/post", params, function (data) {
+          // 使用 Ajax 的方式，直接更新评论列表
+          document.getElementById("commentDiv").innerHTML = data
+          bindCommentInputEvent();
+        })
+      });
+
+      // 回复
+      $(document).on("click", ".reply-comment", function () {
+        const currentDom = $(this)
+        createComment(currentDom)
       })
-    })
+
+      // 回复编辑
+      $(document).on("click", ".hf-pl", function () {
+        const currentDom = $(this)
+        commentSubmit(currentDom)
+      })
+
+      $(document).on("input propertychange", ".hf-input", function () {
+        const currentDom = $(this)
+        listenCommentBtn(currentDom)
+      })
+    }
 
     // 点击回复创建评论
     const createComment = function (currentDom) {
@@ -324,21 +341,6 @@
       }
     }
 
-    // 回复
-    $(document).on("click", ".reply-comment", function () {
-      const currentDom = $(this)
-      createComment(currentDom)
-    })
-
-    // 回复编辑
-    $(document).on("click", ".hf-pl", function () {
-      const currentDom = $(this)
-      commentSubmit(currentDom)
-    })
-
-    $(document).on("input propertychange", ".hf-input", function () {
-      const currentDom = $(this)
-      listenCommentBtn(currentDom)
-    })
+    bindCommentInputEvent();
   </script>
 </html>

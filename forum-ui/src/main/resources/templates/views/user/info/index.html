@@ -48,7 +48,7 @@
 
             <span class="user-text-icon"
                   data-toggle="modal"
-                  data-target="#saveModel">
+                  data-target="#saveModel" th:if="${global.isLogin && vo.userHome.userId == global.user.userId}">
                 <svg
                         t="1670060220524"
                         viewBox="0 0 1024 1024"
@@ -80,7 +80,7 @@
 
         <div class="user-edit">
           <span th:text="'个人资料完善度：' + ${vo.userHome.infoPercent} + '%'">个人资料完善度：70%</span>
-          <span class="edit-btn" data-toggle="modal" data-target="#saveModel">去编辑 ></span>
+          <span class="edit-btn" data-toggle="modal" data-target="#saveModel" th:if="${global.isLogin && vo.userHome.userId == global.user.userId}">去编辑 ></span>
         </div>
       </div>
     </div>
