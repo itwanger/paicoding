@@ -27,11 +27,9 @@
   
 </div>
 <input type="hidden" id="articleId" th:value="${vo.article != null ? vo.article.articleId: ''}"/>
-<div class="form-group">
-  <textarea class="form-control" name="example-textarea-input" rows="12" id="content"
-            style="min-height: 700px; width: 100%"
-            th:text="${vo.article != null ? vo.article.content: ''}">
-  </textarea>
+<div class="form-group" id="paiEditor">
+  <textarea style="display:none;"
+            th:text="${vo.article != null ? vo.article.content: ''}"></textarea>
 </div>
 
 <div class="modal fade"
@@ -124,26 +122,57 @@
 
 <script th:inline="javascript">
   // https://github.com/sparksuite/simplemde-markdown-editor
-  let vo = [[${vo}]]
-  let uid = "forumId";
-  let articleId = '';
+  let vo = [[${vo}]], uid = "forumId", articleId = 0;
   if (vo && vo.article) {
     articleId = vo.article.articleId;
     uid = uid + "_" + articleId;
   }
-  var simplemde = new SimpleMDE({
-    element: document.getElementById("content"),
-    toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list","link","image","table","horizontal-rule","side-by-side"],
-    autofocus: true,
-    spellChecker: false,
-    autosave: {
-      enabled: true,
-      uniqueId: uid,
-      delay: 1000,
-    },
-    placeholder: "Type here...",
-  });
-  simplemde.toggleSideBySide(); //打开实时全屏预览
+
+  // $.get('/article/api/content?articleId=' + articleId, function(md){
+  var simplemde = editormd("paiEditor", {
+      width: "100%",
+      // height: 740,
+      path : '../editormd/lib/',
+      autoHeight : true,
+      // theme : "dark",
+      // previewTheme : "dark",
+      // editorTheme : "pastel-on-dark",
+      // markdown : md.result,
+      codeFold : true,
+      //syncScrolling : false,
+      saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
+      searchReplace : true,
+      //watch : false,                // 关闭实时预览
+      htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+      //toolbar  : false,             //关闭工具栏
+      //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+      emoji : true,
+      taskList : true,
+      tocm            : true,         // Using [TOCM]
+      tex : true,                   // 开启科学公式TeX语言支持，默认关闭
+      flowChart : true,             // 开启流程图支持，默认关闭
+      sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
+      //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
+      //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
+      //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
+      //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
+      //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
+      imageUpload : true,
+      imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+      imageUploadURL : "./php/upload.php",
+      onload : function() {
+        console.log('onload', this);
+        //this.fullscreen();
+        //this.unwatch();
+        //this.watch().fullscreen();
+
+        //this.setMarkdown("#PHP");
+        //this.width("100%");
+        //this.height(480);
+        //this.resize("100%", 640);
+      }
+    });
+  // });
 
   $('#tag-select').select2({
     placeholder: '请选择你需要的标签，最多三个', // 提示
@@ -187,22 +216,12 @@
     }
   });
 
-  // 自动从文章内提取前128个字符作为文章简介
-  $('#saveModel').on('show.bs.modal', function () {
-    let summary =  $("#summary").val();
-    if (summary.trim().length <= 0) {
-      const content = simplemde.value();
-      const size = content.length > 128? 128: content.length;
-      $("#summary").text(content.substring(0, size));
-    }
-  });
+  // 改成作者自己主动提取，从后台调用，删掉之前的自动提取
 
   // 提取简介
   $(".btn-getdistill").on("click", function () {
     // 获取文章内容
-    var content = simplemde.value().trim().substring(0, 600);
-    const pattern = /!\[(.*?)\]\((.*?)\)/mg;
-    content = content.replaceAll(pattern, ''); // 正则替换，移除所有的图片
+    var content = simplemde.getMarkdown().trim();
     // 准备提交到后端
     if (content.length <= 6) {
       toastr.error("文章内容太短了！");
@@ -226,7 +245,6 @@
   //  发表文章
   $("#publish").on("click", function () {
     doPostArticle("post")
-    simplemde.clearAutosavedValue();
     localStorage.removeItem('articleTitle');
   })
   // 保存草稿
@@ -241,7 +259,7 @@
   function doPostArticle(action) {
     const title = $("#title").val();
     const subTitle = $("#subTitle").val();
-    const content = simplemde.value();
+    const content = simplemde.getMarkdown();
     if (title.length <= 5) {
       toastr.error("文章标题太短!")
       return;
@@ -312,8 +330,7 @@
 
   // 检查输入内容的长度
   function checkArea() {
-    var obj = $('#summary')
-    len = obj.val().length
+    len = $('#summary').val().length
     if (len > 128) {
       len = 128;
     }
@@ -364,8 +381,6 @@
 
 
  // 封面上传相关
-  const defaultUploadImg =
-    "https://png.pngtree.com/png-vector/20190115/ourlarge/pngtree-vector-cloud-upload-icon-png-image_316794.jpg"
   $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
       console.log("出现上传的按钮")
       var objUrl = $("#pic").attr("src");
