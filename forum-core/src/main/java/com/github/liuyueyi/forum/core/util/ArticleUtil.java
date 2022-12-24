@@ -46,10 +46,10 @@ public class ArticleUtil {
         Matcher matcher = CONTENT_PATTERN.matcher(summary);
         while (matcher.find()) {
             result.append(summary, matcher.start(), matcher.end());
-            if (summary.length() >= SUMMARY_LEN) {
-                return summary.trim();
+            if (result.length() >= SUMMARY_LEN) {
+                return result.substring(0, SUMMARY_LEN).trim();
             }
         }
-        return summary.trim();
+        return result.toString().trim();
     }
 }
