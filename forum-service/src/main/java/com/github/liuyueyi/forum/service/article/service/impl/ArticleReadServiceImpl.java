@@ -146,6 +146,11 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     }
 
     @Override
+    public Long queryArticleCountByCategory(Long categoryId) {
+        return articleDao.countArticleByCategoryId(categoryId);
+    }
+
+    @Override
     public PageListVo<ArticleDTO> queryArticlesByTag(Long tagId, PageParam page) {
         List<ArticleDO> records = articleDao.listRelatedArticlesOrderByReadCount(null, Arrays.asList(tagId), page);
         return buildArticleListVo(records, page.getPageSize());
