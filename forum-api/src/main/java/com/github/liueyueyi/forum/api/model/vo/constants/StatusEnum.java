@@ -38,6 +38,9 @@ public enum StatusEnum {
     // 全局，数据不存在
     RECORDS_NOT_EXISTS(100_500_001, "记录不存在:%s"),
 
+    // 图片上传失败
+    UPLOAD_PIC_FAILED(100_600_001, "图片上传失败！"),
+
 
     // 用户相关异常
     LOGIN_FAILED_MIXED(400_403_001, "登录失败:%s"),
