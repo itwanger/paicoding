@@ -11,6 +11,7 @@ import com.github.liueyueyi.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.liuyueyi.forum.core.common.CommonConstants;
+import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.CategoryService;
 import com.github.liuyueyi.forum.service.config.service.ConfigService;
@@ -113,6 +114,9 @@ public class IndexRecommendHelper {
             articleDTO.setCover(topPicList.get(index));
             index++;
         }
+        if (articleDTOS.size() < 4) {
+            articleDTOS.clear();
+        }
         return articleDTOS;
     }
 
@@ -123,7 +127,17 @@ public class IndexRecommendHelper {
      * @return
      */
     private Long categories(String active, IndexVo vo) {
-        List<CategoryDTO> list = categoryService.loadAllCategories();
+        List<CategoryDTO> allList = categoryService.loadAllCategories();
+
+        // 过滤掉没有文章的分类
+        List<CategoryDTO> list = new ArrayList<>();
+        for (CategoryDTO categoryDTO : allList) {
+            Long articleCount = articleService.queryArticleCountByCategory(categoryDTO.getCategoryId());
+            if (articleCount > 0) {
+                list.add(categoryDTO);
+            }
+        }
+
         list.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY, PushStatusEnum.ONLINE.getCode(), 0, false));
         Long selectCategoryId = null;
         for (CategoryDTO c : list) {

@@ -71,6 +71,15 @@ public interface ArticleReadService {
      */
     List<ArticleDTO> queryTopArticlesByCategory(Long categoryId);
 
+
+    /**
+     * 获取分类文章数
+     * 
+     * @param categoryId
+     * @return
+     */
+    Long queryArticleCountByCategory(Long categoryId);
+
     /**
      * 查询某个标签下的文章，支持翻页
      *
