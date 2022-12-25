@@ -26,11 +26,7 @@
         <img class="nav-login-img" th:src="${global.user.photo}" />
       </a>
     </div>
-    <input
-      type="hidden"
-      id="articleId"
-      th:value="${vo.article != null ? vo.article.articleId: ''}"
-    />
+<!--    不需要了，js 中直接有，删除 hidden-->
     <div class="form-group" id="paiEditor">
       <textarea
         style="display: none"
@@ -126,7 +122,6 @@
                   <img
                     class="person-img"
                     id="pic"
-                    th:src="${vo.article != null ? vo.article.cover: ''}"
                   />
                   <span class="close_icon">X</span>
 
@@ -204,11 +199,21 @@
 
     <script th:inline="javascript">
       // https://github.com/sparksuite/simplemde-markdown-editor
-      let vo = [[${ vo }]], uid = "forumId", articleId = 0;
+      let vo = [[${ vo }]], uid = "forumId", articleId = 0, pic = $("#pic"),
+              cover =[[${ vo.article != null ? vo.article.cover : '' }]];
       if (vo && vo.article) {
         articleId = vo.article.articleId;
         uid = uid + "_" + articleId;
       }
+
+      // 已知的参数
+      var defaults = {
+        articleId: articleId,
+        articleType: "BLOG",
+        source: 2,
+        sourceUrl: "",
+        cover: cover,
+      };
 
       // $.get('/article/api/content?articleId=' + articleId, function(md){
       var simplemde = editormd("paiEditor", {
@@ -333,9 +338,7 @@
       $("#tmpSave").on("click", function () {
         doPostArticle("save")
       })
-      // 封面
-      let cover = [[${ vo.article != null ? vo.article.cover : '' }]];
-      let newCover = "";
+
 
       // 获取表单类容
       function doPostArticle(action) {
@@ -378,24 +381,19 @@
           return;
         }
 
-        const params = {
-          articleId: articleId,
+        var options = {
           title: title,
           subTitle: subTitle,
           content: content,
           categoryId: category,
           tagIds: tagsAll,
           summary: summary,
-          articleType: "BLOG",
-          source: 2,
-          sourceUrl: "",
           actionType: action, // post 表示发表, save表示暂存
-          cover: cover,
         }
-        if (newCover.length > 0) {
-          params['cover'] = newCover;
-        }
+
+        var params = $.extend( {}, defaults, options );
         console.log(params);
+
         post("/article/api/post", params, function (data) {
           console.log("返回结果:", data)
           window.location.href = "/article/detail/" + data
@@ -460,14 +458,8 @@
         }
       }
 
-      // 初始化标题
-      initTitle();
-
-      // 初始化封面
-      initCover();
-
-      function initCover() {
-        var objUrl = $("#pic").attr("src");
+      function showByMouseover() {
+        var objUrl = pic.attr("src");
         // 已经上传过了
         if (objUrl) {
           $(".close_icon").css('display', 'block');
@@ -477,11 +469,30 @@
         }
       }
 
+      // 是否显示封面
+      function initCover() {
+        // 文章 ID，新建文章
+        if (articleId == 0) {
+
+        } else {
+          // 编辑的时候，显示图片，如果为空的时候不显示
+          if (cover.length > 0) {
+            pic.attr("src", cover);
+            showByMouseover();
+          }
+        }
+      }
+
+      // 初始化标题
+      initTitle();
+
+      // 初始化封面
+      initCover();
 
       // 封面上传相关
       $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
         console.log("出现上传的按钮")
-        initCover();
+        showByMouseover();
       }).on("mouseleave", ".person-img-inter-wrap", function () {
         $(".click-cover").css("visibility", "hidden")
       })
@@ -499,7 +510,7 @@
         }
         if (objUrl) {
           //将图片路径存入src中，显示出图片
-          $("#pic").attr("src", objUrl).css('visibility', 'visible') // 展示图片
+          pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
           $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
 
           console.log("uploadImg", this.value)
@@ -509,21 +520,21 @@
 
       // 删除图片后
       $(".close_icon").click(function () {
-        $("#pic").attr("src", "").css('visibility', 'hidden');
+        pic.attr("src", "").css('visibility', 'hidden');
         $(".close_icon").css('display', 'none');
         $('.upload-icon-up').css('visibility', 'visible');
 
         // 删除图片后置空
-        newCover = '';
+        defaults['cover'] = "";
       })
 
       // 上传头图到服务器
       function uploadImg(callback) {
-        var pic = $("#upload")[0].files[0]
-        console.log("准备上传", pic)
+        var uploadPic = $("#upload")[0].files[0]
+        console.log("准备上传", uploadPic)
 
         var file = new FormData()
-        file.append("image", pic)
+        file.append("image", uploadPic)
         $.ajax({
           url: "/image/upload",
           type: "post",
@@ -535,14 +546,15 @@
             const {
               result: { imagePath },
             } = data || {}
-            var res = data
-            console.log(res, imagePath)
-            newCover = imagePath
+            var res = data;
+            console.log(res, imagePath);
+
+            defaults['cover'] = imagePath;
             // 替换掉默认图片@yihui
-            $(".res-upload-img").attr("src", imagePath)
-            $(".res-upload-wrap").removeClass("hide")
-            callback()
-            toastr.info("图片上传成功!")
+            $(".res-upload-img").attr("src", imagePath);
+            $(".res-upload-wrap").removeClass("hide");
+            callback();
+            toastr.info("图片上传成功!");
           },
         })
       }
