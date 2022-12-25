@@ -4,9 +4,8 @@
     <title th:text="${global.siteInfo.websiteName}">技术派</title>
   </div>
 
-  <link rel="stylesheet" href="/css/views/notice.css">
+  <link rel="stylesheet" href="/css/views/notice.css" />
   <body id="body">
- 
     <!-- 导航栏 -->
     <div th:replace="components/layout/navbar :: navbar"></div>
 
@@ -17,9 +16,20 @@
         <div class="notice-nav-inner">
           <!-- each循环，但是不要当前这个span标签 -->
           <span th:each="type, stat: ${vo.unreadCountMap}" th:remove="tag">
-            <a th:href="'/notice/' + ${type.key}" th:class="${#strings.equalsIgnoreCase(type.key,vo.selectType) ? 'notice-nav-item--active': 'notice-nav-item'}">
-              <span th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"/>
-              <span th:text="${stat.current.value}" th:if="${stat.current.value > 0}" class="unread-count">未读数</span>
+            <a
+              th:href="'/notice/' + ${type.key}"
+              th:class="${#strings.equalsIgnoreCase(type.key,vo.selectType) ? 'notice-nav-item--active': 'notice-nav-item'}"
+            >
+              <span
+                th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"
+              />
+              <span
+                th:text="${stat.current.value}"
+                th:if="${stat.current.value > 0}"
+                class="unread-count"
+              >
+                未读数
+              </span>
             </a>
           </span>
         </div>
@@ -39,10 +49,10 @@
           </div>
         </div>
       </div>
+      <!-- 底部信息 -->
+      <div th:replace="components/layout/footer :: footer"></div>
     </div>
 
-    <!-- 底部信息 -->
-    <div th:replace="components/layout/footer :: footer"></div>
     <script th:inline="javascript">
       const selectType = [[${vo.selectType}]].toLowerCase()
       const params = {
