@@ -48,6 +48,22 @@ const loadLink = function (url) {
   document.getElementsByTagName("head")[0].innerHTML = headHTML
 }
 
+//建立一?可存取到?file的url
+const getObjectURL = function (file) {
+  var url = null
+  if (window.createObjectURL != undefined) {
+    // basic
+    url = window.createObjectURL(file)
+  } else if (window.URL != undefined) {
+    // mozilla(firefox)
+    url = window.URL.createObjectURL(file)
+  } else if (window.webkitURL != undefined) {
+    // webkit or chrome
+    url = window.webkitURL.createObjectURL(file)
+  }
+  return url
+}
+
 /**
  * 请求获取下一页内容
  * @param url
