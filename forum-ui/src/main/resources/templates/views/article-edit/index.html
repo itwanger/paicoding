@@ -183,6 +183,17 @@
               >
                 <span>一键提取</span>
               </button>
+              <img class="person-img" id="pic" th:src="${vo.article != null ? vo.article.cover: ''}"/>
+              <span class="close_icon">X</span>
+
+              <svg t="1670660844412" class="upload-icon-up"
+                   viewBox="0 0 1029 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3248" width="24" height="24"><path d="M661.23 1003.042H119.672c-64.034 0-116.053-51.883-116.053-115.712V115.917C3.618 52.224 55.638 0.068 119.671 0.068H893.27c63.898 0 115.985 52.02 115.985 115.849v539.99c0 21.23-17.34 38.775-38.707 38.775s-38.912-17.34-38.912-38.776v-539.99c0-21.23-17.34-38.638-38.57-38.638H119.67c-21.299 0-38.912 17.408-38.912 38.639v771.14c0 21.231 17.613 38.639 38.912 38.639h541.492c21.162 0 38.707 17.203 38.707 38.639 0.068 21.3-17.545 38.707-38.64 38.707z" fill="#bfbfbf" p-id="3249"></path><path d="M42.325 771.755c-9.762 0-19.729-4.028-27.238-11.606-14.95-14.95-14.95-39.458 0-54.408l192.785-192.034c35.157-35.158 89.156-44.169 133.803-21.777L551.39 596.65c14.814 7.578 32.768 4.643 44.373-7.167l347.614-346.317c14.95-15.019 39.458-15.019 54.682 0 15.223 14.882 15.087 39.39 0 54.545l-347.75 346.317c-35.09 35.089-88.816 43.759-133.667 21.367L306.86 561.084c-14.95-7.578-32.7-4.506-44.374 7.168L69.7 760.012c-7.51 7.578-17.34 11.743-27.375 11.743zM351.71 385.775c-63.898 0-116.053-51.746-116.053-115.712 0-63.898 51.882-115.712 116.053-115.712 63.76 0 116.053 51.883 116.053 115.712 0 63.898-52.36 115.712-116.053 115.712z m0-154.146c-21.163 0-38.776 17.271-38.776 38.502 0 21.368 17.477 38.64 38.776 38.64 21.163 0 38.639-17.272 38.639-38.64 0-21.23-17.34-38.502-38.64-38.502zM834.833 1024c-21.367 0-38.844-17.203-38.844-38.775V753.869c0-21.095 17.204-38.64 38.844-38.64 21.163 0 38.776 17.34 38.776 38.64v231.356c-0.069 21.572-17.545 38.775-38.776 38.775z" fill="#bfbfbf" p-id="3250"></path><path d="M989.389 868.284c-9.49 0-18.978-3.345-26.76-10.377l-127.864-120.15-128.478 120.15c-15.36 14.404-39.8 13.858-54.409-1.57-14.677-15.633-13.994-39.868 1.707-54.682L788.89 674.611c11.127-13.721 27.58-21.436 45.533-21.436 17.818 0 34.27 7.988 45.261 21.436l135.441 127.044c15.702 14.814 16.52 38.912 1.775 54.682-6.758 7.782-17.066 11.947-27.511 11.947z" fill="#bfbfbf" p-id="3251"></path></svg>
+              <input
+                type="file"
+                accept="image/*"
+                id="upload"
+                class="click-input"
+              />
             </div>
           </div>
           <div class="modal-footer">
@@ -424,114 +435,122 @@
         })(index)
       })
 
-      let showSaveBtn = false;
-      // 处理按钮隐藏时不可编辑
-      $('.edit-save').click(() => {
-        if (!showSaveBtn) return false
-      })
-      // 处理title输入保存以及按钮显隐的问题
-      const checkTitle = () => {
-        const value = $('#title').val()
-        const len = value.length
-        console.log(value)
-        localStorage.setItem('articleTitle', value)
-        if (len > 5) {
-          $('.edit-save').addClass('edit-save--active')
-          showSaveBtn = true
-        } else {
-          $('.edit-save').removeClass('edit-save--active')
-          showSaveBtn = false
-        }
-      }
-      // 初始化title
-      const initTitle = () => {
-        console.log("init title!");
-        const titleValue = localStorage.getItem('articleTitle')
-        if (titleValue) {
-          $('#title').attr("value", titleValue)
-          checkTitle();
-        } else {
-          checkTitle();
-        }
-      }
-      initTitle()
+  let showSaveBtn = false;
+  // 处理按钮隐藏时不可编辑
+  $('.edit-save').click(() => {
+    if (!showSaveBtn) return false
+  })
+  // 处理title输入保存以及按钮显隐的问题
+  const checkTitle = () => {
+    const value = $('#title').val()
+    const len = value.length
+    console.log(value)
+    localStorage.setItem('articleTitle', value)
+    if (len > 5) {
+      $('.edit-save').addClass('edit-save--active')
+      showSaveBtn = true
+    } else {
+      $('.edit-save').removeClass('edit-save--active')
+      showSaveBtn = false
+    }
+  }
+  // 初始化title
+  const initTitle = () => {
+    console.log("init title!");
+    const titleValue = localStorage.getItem('articleTitle')
+    if (titleValue) {
+      $('#title').attr("value", titleValue)
+      checkTitle();
+    } else {
+      checkTitle();
+    }
+  }
+
+  // 初始化标题
+  initTitle();
+
+  // 初始化封面
+  initCover();
+
+  function initCover() {
+    var objUrl = $("#pic").attr("src");
+    // 已经上传过了
+    if (objUrl) {
+      $(".close_icon").css('display','block');
+      $('.upload-icon-up').css('visibility','hidden');
+    } else {
+      $(".click-cover").css("visibility", "visible")
+    }
+  }
 
 
-      // 封面上传相关
-      $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
-        console.log("出现上传的按钮")
-        var objUrl = $("#pic").attr("src");
-        // 已经上传过了
-        if (objUrl) {
-          $(".close_icon").css('display', 'block');
-        } else {
-          $(".click-cover").css("visibility", "visible")
-        }
-      }).on("mouseleave", ".person-img-inter-wrap", function () {
-        $(".click-cover").css("visibility", "hidden")
-      })
+ // 封面上传相关
+  $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
+    console.log("出现上传的按钮")
+    initCover();
+    }).on("mouseleave", ".person-img-inter-wrap", function () {
+      $(".click-cover").css("visibility", "hidden")
+    })
 
-      $(".click-cover").click(function () {
-        $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
-      })
+  $(".click-cover").click(function () {
+    $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
+  })
 
-      $("#upload").on("change", function (e) {
-        console.log("触发 change 事件", e)
-        var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-        const file = e.target.files[0]
-        if (file.size > 1024 * 1024 * 5) {
-          toastr.error("图片不能超过5M!")
-          return false
-        }
-        if (objUrl) {
-          //将图片路径存入src中，显示出图片
-          $("#pic").attr("src", objUrl).css('visibility', 'visible') // 展示图片
-          $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
+  $("#upload").on("change", function (e) {
+    console.log("触发 change 事件", e )
+    var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+    console.log({ objUrl })
+    if (objUrl) {
+      //将图片路径存入src中，显示出图片
+      $("#pic").attr("src", objUrl).css('visibility','visible') // 展示图片
+      $('.upload-icon-up').css('visibility','hidden') // 隐藏上传
 
-          console.log("uploadImg", this.value)
-          uploadImg(() => (this.value = null))
-        }
-      })
+      console.log("uploadImg", this.value)
+      uploadImg(() => (this.value = null))
+    }
+  })
 
-      // 删除图片后
-      $(".close_icon").click(function () {
-        $("#pic").attr("src", "").css('visibility', 'hidden');
-        $(".close_icon").css('display', 'none');
-        $('.upload-icon-up').css('visibility', 'visible');
+  // 删除图片后
+  $(".close_icon").click(function () {
+    $("#pic").attr("src", "").css('visibility','hidden');
+    $(".close_icon").css('display','none');
+    $('.upload-icon-up').css('visibility','visible');
 
-        // 删除图片后置空
-        newCover = '';
-      })
+    // 删除图片后置空
+    newCover = '';
+  })
 
-      // 上传头图到服务器
-      function uploadImg(callback) {
-        var pic = $("#upload")[0].files[0]
-        console.log("准备上传", pic)
+  // 上传头图到服务器
+  function uploadImg(callback) {
+    var pic = $("#upload")[0].files[0]
+    console.log("准备上传", pic)
 
-        var file = new FormData()
-        file.append("image", pic)
-        $.ajax({
-          url: "/image/upload",
-          type: "post",
-          data: file,
-          cache: false,
-          contentType: false,
-          processData: false,
-          success: function (data) {
-            const {
-              result: { imagePath },
-            } = data || {}
-            var res = data
-            console.log(res, imagePath)
-            newCover = imagePath
-            // 替换掉默认图片@yihui
-            $(".res-upload-img").attr("src", imagePath)
-            $(".res-upload-wrap").removeClass("hide")
-            callback()
-            toastr.info("图片上传成功!")
-          },
-        })
-      }
-    </script>
-  </body>
+    var file = new FormData()
+    file.append("image", pic)
+    $.ajax({
+      url: "/image/upload",
+      type: "post",
+      data: file,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function (data) {
+        const {
+          result: { imagePath },
+        } = data || {}
+        var res = data
+        console.log(res, imagePath)
+        newCover = imagePath
+        // 替换掉默认图片@yihui
+        $(".res-upload-img").attr("src", imagePath)
+        $(".res-upload-wrap").removeClass("hide")
+        callback()
+        toastr.info("图片上传成功!")
+      },
+    })
+  }
+
+</script>
+</body>
+
 </html>
