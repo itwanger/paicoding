@@ -33,9 +33,11 @@
 
         <!-- 左右切换 -->
         <div class="article-change">
-          <a class="step-btn--prev"
+          <a
+            class="step-btn--prev"
             th:href="'/column/' + ${vo.column} + '/' + ${vo.section - 1}"
-            th:if="${vo.section > 1}">
+            th:if="${vo.section > 1}"
+          >
             <div class="article-change-item">
               <svg
                 t="1670064682276"
@@ -55,9 +57,11 @@
               </svg>
             </div>
           </a>
-          <a class="step-btn--next"
+          <a
+            class="step-btn--next"
             th:href="'/column/' + ${vo.column} + '/' + ${vo.section + 1}"
-            th:if="${vo.section < vo.articleList.size}">
+            th:if="${vo.section < vo.articleList.size}"
+          >
             <div class="article-change-item">
               <svg
                 t="1670064662589"
@@ -205,7 +209,7 @@
     // 直接评论
     function bindCommentInputEvent() {
       // 评论相关
-      const commentContent = $("#commentContent");
+      const commentContent = $("#commentContent")
       commentContent.on("input propertychange", function () {
         const val = $(this).val()
         if (val) {
@@ -213,7 +217,7 @@
         } else {
           $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
         }
-      });
+      })
 
       const commentBtn = $("#commentBtn")
       commentBtn.click(function () {
@@ -232,25 +236,8 @@
         post("/comment/api/post", params, function (data) {
           // 使用 Ajax 的方式，直接更新评论列表
           document.getElementById("commentDiv").innerHTML = data
-          bindCommentInputEvent();
+          bindCommentInputEvent()
         })
-      });
-
-      // 回复
-      $(document).on("click", ".reply-comment", function () {
-        const currentDom = $(this)
-        createComment(currentDom)
-      })
-
-      // 回复编辑
-      $(document).on("click", ".hf-pl", function () {
-        const currentDom = $(this)
-        commentSubmit(currentDom)
-      })
-
-      $(document).on("input propertychange", ".hf-input", function () {
-        const currentDom = $(this)
-        listenCommentBtn(currentDom)
       })
     }
 
@@ -269,15 +256,12 @@
       var fhHtml =
         '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
       if (currentDom.is(".hf-con-block")) {
-        console.log("ddd", { currentDom })
-
         const currentWrap =
           (currentDom.parents(".comment-item-wrap").length &&
             currentDom.parents(".comment-item-wrap")) ||
           (currentDom.parents(".comment-item-wrap-second").length &&
             currentDom.parents(".comment-item-wrap-second"))
 
-        console.log({ currentWrap }, currentWrap.length)
         currentWrap.find(".common-item-content").append(fhHtml)
         currentDom.removeClass("hf-con-block")
         //input框自动聚焦
@@ -324,11 +308,11 @@
       post("/comment/api/post", params, function (data) {
         document.getElementById("commentDiv").innerHTML = data
         // fixme 回复时，直接在评论下面展示一个输入框，完成之后不更新当前页面，直接重新渲染评论列表即可，即删除下面的重新刷新逻辑，只保留上面的逻辑
-        let url = location.href
-        if (url.indexOf("#commentList") === -1) {
-          location.href = url + "#commentList"
-        }
-        location.reload(true)
+        // let url = location.href
+        // if (url.indexOf("#commentList") === -1) {
+        //   location.href = url + "#commentList"
+        // }
+        // location.reload(true)
       })
     }
 
@@ -341,6 +325,23 @@
       }
     }
 
-    bindCommentInputEvent();
+    // 回复
+    $(document).on("click", ".reply-comment", function () {
+      const currentDom = $(this)
+      createComment(currentDom)
+    })
+
+    // 回复编辑
+    $(document).on("click", ".hf-pl", function () {
+      const currentDom = $(this)
+      commentSubmit(currentDom)
+    })
+
+    $(document).on("input propertychange", ".hf-input", function () {
+      const currentDom = $(this)
+      listenCommentBtn(currentDom)
+    })
+
+    bindCommentInputEvent()
   </script>
 </html>

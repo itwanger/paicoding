@@ -29,7 +29,10 @@
               <div th:replace="views/article-detail/comment/index"></div>
             </div>
 
-            <div class="correlation-article bg-color-white" id="relatedRecommend">
+            <div
+              class="correlation-article bg-color-white"
+              id="relatedRecommend"
+            >
               <!-- 关联推荐 -->
               <h4 class="correlation-article-title">相关推荐</h4>
               <div class="bg-color-white">
@@ -250,24 +253,24 @@
             bindCommentInputEvent()
           })
         });
-
-        // 回复
-        $(document).on("click", ".reply-comment", function () {
-          const currentDom = $(this)
-          createComment(currentDom)
-        })
-
-        // 回复编辑
-        $(document).on("click", ".hf-pl", function () {
-          const currentDom = $(this)
-          commentSubmit(currentDom)
-        })
-
-        $(document).on("input propertychange", ".hf-input", function () {
-          const currentDom = $(this)
-          listenCommentBtn(currentDom)
-        })
       }
+
+      // 回复
+      $(document).on("click", ".reply-comment", function () {
+        const currentDom = $(this)
+        createComment(currentDom)
+      })
+
+      // 回复编辑
+      $(document).on("click", ".hf-pl", function () {
+        const currentDom = $(this)
+        commentSubmit(currentDom)
+      })
+
+      $(document).on("input propertychange", ".hf-input", function () {
+        const currentDom = $(this)
+        listenCommentBtn(currentDom)
+      })
 
         // 点击回复创建评论
       const createComment = function (currentDom) {
@@ -284,15 +287,12 @@
         var fhHtml =
           '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
         if (currentDom.is(".hf-con-block")) {
-          console.log("ddd", { currentDom })
-
           const currentWrap =
             (currentDom.parents(".comment-item-wrap").length &&
               currentDom.parents(".comment-item-wrap")) ||
             (currentDom.parents(".comment-item-wrap-second").length &&
               currentDom.parents(".comment-item-wrap-second"))
 
-          console.log({ currentWrap }, currentWrap.length)
           currentWrap.find(".common-item-content").append(fhHtml)
           currentDom.removeClass("hf-con-block")
           //input框自动聚焦
@@ -339,11 +339,11 @@
         post("/comment/api/post", params, function (data) {
           document.getElementById("commentDiv").innerHTML = data
           // fixme 回复时，直接在评论下面展示一个输入框，完成之后不更新当前页面，直接重新渲染评论列表即可，即删除下面的重新刷新逻辑，只保留上面的逻辑
-          let url = location.href
-          if (url.indexOf("#commentList") === -1) {
-            location.href = url + "#commentList"
-          }
-          location.reload(true)
+          // let url = location.href
+          // if (url.indexOf("#commentList") === -1) {
+          //   location.href = url + "#commentList"
+          // }
+          // location.reload(true)
         })
       }
 
