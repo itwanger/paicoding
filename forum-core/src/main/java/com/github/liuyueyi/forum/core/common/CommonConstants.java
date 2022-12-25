@@ -46,10 +46,10 @@ public class CommonConstants {
             });
             put(CATEGORY_FORNT_END, new ArrayList<String>() {
                 {
-                    add("https://img14.360buyimg.com/ddimg/jfs/t1/143513/1/30950/11464/6360767bEada4a5db/eb24093e34dd6991.webp");
-                    add("https://img12.360buyimg.com/ddimg/jfs/t1/100700/30/30797/18850/6360767bE752105f6/df6b065028fd0344.webp");
-                    add("https://img14.360buyimg.com/ddimg/jfs/t1/177012/28/29445/19784/6360767bE4a30481e/fecfcd7cfd87c692.webp");
-                    add("https://img11.360buyimg.com/ddimg/jfs/t1/32179/19/18630/11418/6360767fEfb0a2215/299fe71933c4427b.webp");
+                    add("https://img11.360buyimg.com/ddimg/jfs/t1/77817/10/17147/40054/6360781bE6204777c/961a0321b18743e9.webp");
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/83336/15/23862/19608/6360781bEbf5c07c0/9c6244f0b7647c1f.webp");
+                    add("https://img11.360buyimg.com/ddimg/jfs/t1/204452/27/27780/19702/6360781bE2b6144db/9bf09b93cc4568a2.webp");
+                    add("https://img12.360buyimg.com/ddimg/jfs/t1/181696/4/29961/41932/6360781bE66fc1f29/083e3d75d28f6079.webp");
                 }
             });
             put(CATEGORY_ANDROID, new ArrayList<String>() {
@@ -70,10 +70,10 @@ public class CommonConstants {
             });
             put(CATEGORY_BIG_DATA, new ArrayList<String>() {
                 {
-                    add("https://img14.360buyimg.com/ddimg/jfs/t1/83336/15/23862/19608/6360781bEbf5c07c0/9c6244f0b7647c1f.webp");
-                    add("https://img11.360buyimg.com/ddimg/jfs/t1/204452/27/27780/19702/6360781bE2b6144db/9bf09b93cc4568a2.webp");
-                    add("https://img11.360buyimg.com/ddimg/jfs/t1/77817/10/17147/40054/6360781bE6204777c/961a0321b18743e9.webp");
-                    add("https://img12.360buyimg.com/ddimg/jfs/t1/181696/4/29961/41932/6360781bE66fc1f29/083e3d75d28f6079.webp");
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/143513/1/30950/11464/6360767bEada4a5db/eb24093e34dd6991.webp");
+                    add("https://img12.360buyimg.com/ddimg/jfs/t1/100700/30/30797/18850/6360767bE752105f6/df6b065028fd0344.webp");
+                    add("https://img14.360buyimg.com/ddimg/jfs/t1/177012/28/29445/19784/6360767bE4a30481e/fecfcd7cfd87c692.webp");
+                    add("https://img11.360buyimg.com/ddimg/jfs/t1/32179/19/18630/11418/6360767fEfb0a2215/299fe71933c4427b.webp");
                 }
             });
             put(CATEGORY_INTELLIGENCE, new ArrayList<String>() {
