@@ -617,7 +617,7 @@
 .editormd-dialog-footer input[type="submit"]:hover,
 .editormd-dialog-footer .editormd-btn:hover,
 .editormd-dialog-footer button:hover {
-  background: #eee;
+  background: var(--pai-brand-7-light);
 }
 .editormd-form .editormd-btn,
 .editormd-dialog-container .editormd-btn,
@@ -652,7 +652,7 @@
   visibility: hidden;
 }
 .editormd-file-input:hover input[type="submit"] {
-  background: #eee;
+  background: var(--pai-brand-7-light);
 }
 
 .editormd .CodeMirror, .editormd-preview {
