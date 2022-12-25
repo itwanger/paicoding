@@ -208,17 +208,6 @@
   <script type="text/javascript">
     // 直接评论
     function bindCommentInputEvent() {
-      // 评论相关
-      const commentContent = $("#commentContent")
-      commentContent.on("input propertychange", function () {
-        const val = $(this).val()
-        if (val) {
-          $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
-        } else {
-          $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
-        }
-      })
-
       const commentBtn = $("#commentBtn")
       commentBtn.click(function () {
         const content = commentContent.val()
@@ -340,6 +329,18 @@
     $(document).on("input propertychange", ".hf-input", function () {
       const currentDom = $(this)
       listenCommentBtn(currentDom)
+    })
+
+    // 直接评论监听
+    const commentContent = $("#commentContent")
+    $(document).on("input propertychange", "#commentContent", function () {
+      console.log("123")
+      const val = $(this).val()
+      if (val) {
+        $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
+      } else {
+        $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
+      }
     })
 
     bindCommentInputEvent()
