@@ -34,14 +34,12 @@
 
               <!-- 粉丝关注列表-->
               <a th:if="${vo.homeSelectType == 'follow'}">
-                <div
-                  th:replace="views/user/navbar/follow-bar :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})"
-                ></div>
+                <div th:replace="views/user/navbar/follow-bar :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})">
+                </div>
                 <div th:replace="views/user/follows/index">关注列表</div>
                 <div
                   th:if="${#lists.isEmpty(vo.followList.list)}"
-                  id="followList"
-                >
+                  id="followList">
                   <div style="color: gray">列表为空~</div>
                 </div>
               </a>
