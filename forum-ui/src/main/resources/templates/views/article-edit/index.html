@@ -200,7 +200,9 @@
     <script th:inline="javascript">
       // https://github.com/sparksuite/simplemde-markdown-editor
       let vo = [[${ vo }]], uid = "forumId", articleId = 0, pic = $("#pic"),
-              cover =[[${ vo.article != null ? vo.article.cover : '' }]];
+              cover =[[${ vo.article != null ? vo.article.cover : '' }]],
+              tagSelect = $('#tag-select'), close_icon = $(".close_icon"),
+              upload = $("#upload"), clickCover = $(".click-cover");
       if (vo && vo.article) {
         articleId = vo.article.articleId;
         uid = uid + "_" + articleId;
@@ -215,7 +217,7 @@
         cover: cover,
       };
 
-      // $.get('/article/api/content?articleId=' + articleId, function(md){
+      // 编辑器
       var simplemde = editormd("paiEditor", {
         width: "100%",
         // height: 740,
@@ -259,9 +261,58 @@
           //this.resize("100%", 640);
         }
       });
-      // });
 
-      $('#tag-select').select2({
+      // 复制粘贴图片
+      document.addEventListener('paste', function (event) {
+        let items = (event.clipboardData || window.clipboardData).items;
+        let file = null;
+        if (items && items.length) {
+          // 搜索剪切板items
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              file = items[i].getAsFile();
+              break;
+            }
+          }
+        } else {
+          toastr.error("当前浏览器不支持");
+          return;
+        }
+        if (!file) {
+          toastr.error("粘贴内容非图片");
+          return;
+        }
+        // 此时需要先上传到服务器端，然后
+        let objUrl = getObjectURL(file); //获取图片的路径，该路径不是图片在本地的路径
+        console.log("文章编辑器中上传图片：" + { objUrl });
+
+        if (objUrl) {
+          let pic = file
+          let formData = new FormData()
+          formData.append("image", pic)
+          $.ajax({
+            url: "/image/upload",
+            type: "post",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+              if (data.status.code === 0) {
+                // 插入一个空行
+                simplemde.insertValue("\n");
+                simplemde.replaceSelection("![](" + data.result.imagePath + ")");
+                simplemde.insertValue("\n");
+              }
+              else {
+                toastr.error(data.status.msg);
+              }
+            },
+          })
+        }
+      });
+
+      tagSelect.select2({
         placeholder: '请选择你需要的标签，最多三个', // 提示
         width: '70%', // 宽度
         allowClear: true, // 可清空
@@ -366,7 +417,7 @@
         }
         // 处理标签
         const tagsAll = [];
-        $.each($('#tag-select').select2('data'), function (index, value) {
+        $.each(tagSelect.select2('data'), function (index, value) {
           tagsAll.push(value.id);
         });
 
@@ -381,7 +432,7 @@
           return;
         }
 
-        var options = {
+        let options = {
           title: title,
           subTitle: subTitle,
           content: content,
@@ -391,7 +442,7 @@
           actionType: action, // post 表示发表, save表示暂存
         }
 
-        var params = $.extend( {}, defaults, options );
+        let params = $.extend( {}, defaults, options );
         console.log(params);
 
         post("/article/api/post", params, function (data) {
@@ -462,10 +513,10 @@
         var objUrl = pic.attr("src");
         // 已经上传过了
         if (objUrl) {
-          $(".close_icon").css('display', 'block');
+          close_icon.css('display', 'block');
           $('.upload-icon-up').css('visibility', 'hidden');
         } else {
-          $(".click-cover").css("visibility", "visible")
+          clickCover.css("visibility", "visible")
         }
       }
 
@@ -494,15 +545,15 @@
         console.log("出现上传的按钮")
         showByMouseover();
       }).on("mouseleave", ".person-img-inter-wrap", function () {
-        $(".click-cover").css("visibility", "hidden")
+        clickCover.css("visibility", "hidden")
       })
 
-      $(".click-cover").click(function () {
-        $("#upload").click() //隐藏了input:file样式后，点击头像就可以本地上传
+      clickCover.click(function () {
+        upload.click() //隐藏了input:file样式后，点击头像就可以本地上传
       })
 
-      $("#upload").on("change", function (e) {
-        var objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+      upload.on("change", function (e) {
+        let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
         const file = e.target.files[0]
         if (file.size > 1024 * 1024 * 5) {
           toastr.error("图片不能超过5M!")
@@ -519,9 +570,9 @@
       })
 
       // 删除图片后
-      $(".close_icon").click(function () {
+      close_icon.click(function () {
         pic.attr("src", "").css('visibility', 'hidden');
-        $(".close_icon").css('display', 'none');
+        close_icon.css('display', 'none');
         $('.upload-icon-up').css('visibility', 'visible');
 
         // 删除图片后置空
@@ -530,10 +581,10 @@
 
       // 上传头图到服务器
       function uploadImg(callback) {
-        var uploadPic = $("#upload")[0].files[0]
+        let uploadPic = upload[0].files[0]
         console.log("准备上传", uploadPic)
 
-        var file = new FormData()
+        let file = new FormData()
         file.append("image", uploadPic)
         $.ajax({
           url: "/image/upload",
@@ -546,8 +597,7 @@
             const {
               result: { imagePath },
             } = data || {}
-            var res = data;
-            console.log(res, imagePath);
+            console.log(data, imagePath);
 
             defaults['cover'] = imagePath;
             // 替换掉默认图片@yihui
