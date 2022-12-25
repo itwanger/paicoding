@@ -188,9 +188,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3973ff;
-  border: 1px solid #3973ff;
+  color: var(--pai-brand-1-normal);
+  border: 1px solid var(--pai-brand-1-normal);
   font-size: 12px;
+  cursor: pointer;
 }
 
 #saveModel .modal-dialog {

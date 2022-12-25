@@ -27,12 +27,12 @@
       <div class="user-head-footer">
         <div class="tw-flex-1">
           <div class="d-flex tags">
-            <div class="tag-item">
+            <div class="tag-item" th:if="${!#strings.isEmpty(userHome.company)}">
               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAAsklEQVR42mNgoBPI507vTbuU/g0OP6adSM+rZ8KpPO162n9MmL4Wh4b0XmzKwTAKqwbs5oPtWIJdA0Ryb4ZKmhwEZuql3QGLnsCivJ4J5uIajnomCCwUSrsEFn2cXpVelZGYoYJFA36Y0UqihrT/GYkkaki7hKEhfW/6DghMO4FNCzQi4Z7uRYmbvZgaajhQbbiTnpeeAYVV6R8JayAIR7KG9M3EakjfTJ4GiLMIQzKLCwBaavBCKUO/owAAAABJRU5ErkJggg=="
                    class="tw-h-3 tw-w-3 tw-mr-1">
               <span class="tw-text-sm" th:text="${userHome.company}">第一拖拉机制造厂拖拉机学院</span>
             </div>
-            <div class="tag-item">
+            <div class="tag-item" th:if="${!#strings.isEmpty(userHome.position)}">
               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAABIUlEQVR42r1TLW/DQAw1OxgWUhypNCykZDS0P6GyLzmVHxzobxgpLAjt2FBJf0DR4UiVCkMLQjpdmt1XsiZkc1Dk92w/3zPAvwWleKIWH8OPWlT8LYAXEV3HwIbUbBceAcUreEfZ+QQ1RcCbO9BqEq575FbwYQ4Bjz1cxP12VJlgNah7KJPnwNSK+Dn/pk8qySSjr7CqZEah6Aj83VbTC8aLgZ8kA7Bd+01R6i9PxFh3f5ciAsAPJ5v+iN45QwiAMqEGaz2x7R68BO2tEWgNwLMy8Z+T9oE58NOk7jzriqwdbx0H5pOMztY5xcqF01mLH0QR/WIQpcWPxnYx4tk68KkffEmNb2u+nDgkntE9lD91e7lZcD7zXHmGFVazqv9BfAN523/xHVmeOQAAAABJRU5ErkJggg=="
                    class="tw-h-3 tw-w-3 tw-mr-1">
               <span class="tw-text-sm" th:text="${userHome.position}">Java</span>
