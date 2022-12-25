@@ -207,22 +207,6 @@
         $('.nav-login-img').attr('src', oldUrl);
     })
 
-    //建立一?可存取到?file的url
-    function getObjectURL(file) {
-        var url = null
-        if (window.createObjectURL != undefined) {
-            // basic
-            url = window.createObjectURL(file)
-        } else if (window.URL != undefined) {
-            // mozilla(firefox)
-            url = window.URL.createObjectURL(file)
-        } else if (window.webkitURL != undefined) {
-            // webkit or chrome
-            url = window.webkitURL.createObjectURL(file)
-        }
-        return url
-    }
-
     // 上传头像到服务器
     function uploadImg(callback) {
         var pic = $("#upload")[0].files[0]

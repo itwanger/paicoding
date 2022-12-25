@@ -46,8 +46,7 @@
                     action += "&callback=" + settings.uploadCallbackURL + "&dialog_id=editormd-image-dialog-" + guid;
                 }
 
-                var dialogContent = ( (settings.imageUpload) ? "<form action=\"" + action +"\" target=\"" + iframeName + "\" method=\"post\" enctype=\"multipart/form-data\" class=\"" + classPrefix + "form\">" : "<div class=\"" + classPrefix + "form\">" ) +
-                                        ( (settings.imageUpload) ? "<iframe name=\"" + iframeName + "\" id=\"" + iframeName + "\" guid=\"" + guid + "\"></iframe>" : "" ) +
+                var dialogContent = "<div class=\"" + classPrefix + "form\">" +
                                         "<label>" + imageLang.url + "</label>" +
                                         "<input type=\"text\" data-url />" + (function(){
                                             return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
@@ -62,7 +61,7 @@
                                         "<label>" + imageLang.link + "</label>" +
                                         "<input type=\"text\" value=\"http://\" data-link />" +
                                         "<br/>" +
-                                    ( (settings.imageUpload) ? "</form>" : "</div>");
+                                    "</div>";
 
                 //var imageFooterHTML = "<button class=\"" + classPrefix + "btn " + classPrefix + "image-manager-btn\" style=\"float:left;\">" + imageLang.managerButton + "</button>";
 
@@ -139,50 +138,51 @@
 
 					if (fileName === "")
 					{
-						alert(imageLang.uploadFileEmpty);
-
+                        toastr.error(imageLang.uploadFileEmpty);
                         return false;
 					}
 
                     if (!isImage.test(fileName))
 					{
-						alert(imageLang.formatNotAllowed + settings.imageFormats.join(", "));
+                        toastr.error(imageLang.formatNotAllowed + settings.imageFormats.join(", "));
 
                         return false;
 					}
 
                     loading(true);
 
-                    var submitHandler = function() {
+                    var objUrl = getObjectURL(this.files[0]); //获取图片的路径，该路径不是图片在本地的路径
+                    console.log("文章编辑器中上传图片：" + { objUrl });
 
-                        var uploadIframe = document.getElementById(iframeName);
+                    if (objUrl) {
+                        var pic = fileInput[0].files[0]
+                        var file = new FormData()
+                        file.append("image", pic)
+                        $.ajax({
+                            url: action,
+                            type: "post",
+                            data: file,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            success: function (data) {
+                                loading(false);
 
-                        uploadIframe.onload = function() {
+                                if (data.status.code === 0)
+                                {
+                                    dialog.find("[data-url]").val(data.result.imagePath);
+                                }
+                                else
+                                {
+                                    toastr.error(data.status.msg);
+                                }
+                            },
+                        })
+                    }
 
-                            loading(false);
-
-                            var body = (uploadIframe.contentWindow ? uploadIframe.contentWindow : uploadIframe.contentDocument).document.body;
-                            var json = (body.innerText) ? body.innerText : ( (body.textContent) ? body.textContent : null);
-
-                            json = (typeof JSON.parse !== "undefined") ? JSON.parse(json) : eval("(" + json + ")");
-
-                            if(!settings.crossDomainUpload)
-                            {
-                              if (json.success === 1)
-                              {
-                                  dialog.find("[data-url]").val(json.url);
-                              }
-                              else
-                              {
-                                  alert(json.message);
-                              }
-                            }
-
-                            return false;
-                        };
-                    };
-
-                    dialog.find("[type=\"submit\"]").bind("click", submitHandler).trigger("click");
+                    dialog.find("[type=\"submit\"]").click(function () {
+                        fileInput.click(); // 触发上传图片事件
+                    })
 				});
             }
 
