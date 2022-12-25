@@ -2,7 +2,7 @@
 
 @import "./bootstrap.min.css";
 
-@import "./simplemde.min.css";
+@import "../../editormd/css/editormd.css";
 
 @import "./toastr.min.css";
 

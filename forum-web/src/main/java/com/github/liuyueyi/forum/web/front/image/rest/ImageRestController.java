@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.web.front.image.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.service.image.service.ImageServiceImpl;
 import com.github.liuyueyi.forum.web.front.image.vo.ImageVo;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -39,6 +41,7 @@ public class ImageRestController {
             imageVo.setImagePath(imagePath);
         } catch (Exception e) {
             log.error("save upload file error!", e);
+            return ResVo.fail(StatusEnum.UPLOAD_PIC_FAILED);
         }
         return ResVo.ok(imageVo);
     }
