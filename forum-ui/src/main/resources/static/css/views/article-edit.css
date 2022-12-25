@@ -80,8 +80,8 @@
   background-color: #fafbfc !important;
 }
 
-.CodeMirror {
-  background-color: #f8f9fa;
+.editormd .CodeMirror {
+  height: calc(100vh - 100px);
 }
 
 .editor-preview-active {

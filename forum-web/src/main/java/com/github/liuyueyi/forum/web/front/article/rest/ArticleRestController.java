@@ -170,24 +170,4 @@ public class ArticleRestController {
         return ResVo.ok(id);
     }
 
-
-    /**
-     * 返回文章正文内容
-     *
-     * @param articleId
-     * @return
-     */
-    @GetMapping(path = "content")
-    public ResVo<String> content(@RequestParam("articleId") Long articleId) {
-        if (NumUtil.upZero(articleId)) {
-            try {
-                ArticleDTO article = articleReadService.queryDetailArticleInfo(articleId);
-                return ResVo.ok(article.getContent());
-            } catch (ForumException e) {
-                return ResVo.ok("");
-            }
-        } else {
-            return ResVo.ok("");
-        }
-    }
 }

@@ -122,6 +122,14 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return baseMapper.selectList(query);
     }
 
+    public Long countArticleByCategoryId(Long categoryId) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .eq(ArticleDO::getCategoryId, categoryId);
+        return baseMapper.selectCount(query);
+    }
+
     public List<ArticleDO> listArticlesByBySearchKey(String key, PageParam pageParam) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())

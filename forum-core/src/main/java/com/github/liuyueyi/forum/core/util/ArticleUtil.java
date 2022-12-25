@@ -30,26 +30,15 @@ public class ArticleUtil {
         // 移除html标签
         summary = HTML_TAG_PATTERN.matcher(summary).replaceAll("");
 
-        // 取第一个汉字索引的位置
-        int beginIndex = 0;
-        for (int index = 0, len = summary.length(); index < len; index++) {
-            String word = summary.substring(index, index + 1);
-            if (word.compareTo("\u4e00") > 0 && word.compareTo("\u9fa5") < 0) {
-                beginIndex = index;
-                break;
-            }
-        }
-        summary = summary.substring(beginIndex);
-
         // 匹配对应字符
         StringBuilder result = new StringBuilder();
         Matcher matcher = CONTENT_PATTERN.matcher(summary);
         while (matcher.find()) {
             result.append(summary, matcher.start(), matcher.end());
-            if (summary.length() >= SUMMARY_LEN) {
-                return summary.trim();
+            if (result.length() >= SUMMARY_LEN) {
+                return result.substring(0, SUMMARY_LEN).trim();
             }
         }
-        return summary.trim();
+        return result.toString().trim();
     }
 }
