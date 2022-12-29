@@ -26,4 +26,8 @@
     <changeSet id="00000000000006" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_221223.sql"/>
     </changeSet>
+
+    <changeSet id="00000000000007" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_221229.sql"/>
+    </changeSet>
 </databaseChangeLog>
