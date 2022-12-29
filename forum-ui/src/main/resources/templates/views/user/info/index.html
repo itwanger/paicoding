@@ -37,10 +37,10 @@
                    class="tw-h-3 tw-w-3 tw-mr-1">
               <span class="tw-text-sm" th:text="${userHome.position}">Java</span>
             </div>
-            <div class="tag-item">
+            <div class="tag-item" th:if="${!#strings.isEmpty(userHome.region)}">
               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAABFUlEQVR42mNgoBRkSaRnpC1PP5R+KG15ekaWBH7FPOnd6T/S/iNg+o/07iweXMpl0y4iK4ZrupAli0V5GW/6VWzKwVqulvFiaEibi0s5GM5Fd45m+l98GtL/ZmmiaMhoRZL+mV6eJpkjlV6e9hMhmtGK6qAzSKaVw0TTy5GMOYOq4TWSlCRcVBJJ9DWqhj/YNORIIYn+QdXwiqCTUG1I34/u6TRJVE+nHUbVUIk3FkCh1ICioVAo7SteDb8QPsMWE5gRNwUjaeSyp13DqeExlrTEwJBhiN1Z6b8zHHAk8LTQtH9YNGThyUJpBRjKmwlk0YwyFA3tROTq9AxoUv+XVkxkQZDum/Yp7VNaAAllR6FQpiB2GQBLang0fXCP5wAAAABJRU5ErkJggg=="
                    class="tw-h-3 tw-w-3 tw-mr-1">
-              <span class="tw-text-sm">IP属地：河南</span>
+              <span class="tw-text-sm" th:text="'IP属地：' + ${userHome.region}">IP属地：河南</span>
             </div>
           </div>
           <div class="user-text">

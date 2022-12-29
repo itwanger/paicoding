@@ -79,7 +79,7 @@ public class GlobalInitService {
         for (Cookie cookie : request.getCookies()) {
             if (SessionService.SESSION_KEY.equalsIgnoreCase(cookie.getName())) {
                 String session = cookie.getValue();
-                BaseUserInfoDTO user = sessionService.getUserBySessionId(session);
+                BaseUserInfoDTO user = sessionService.getAndUpdateUserIpInfoBySessionId(session, reqInfo.getClientIp());
                 reqInfo.setSession(session);
                 if (user != null) {
                     reqInfo.setUserId(user.getUserId());

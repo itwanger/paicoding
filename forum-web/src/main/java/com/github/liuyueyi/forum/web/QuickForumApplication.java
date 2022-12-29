@@ -1,5 +1,7 @@
 package com.github.liuyueyi.forum.web;
 
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.liuyueyi.forum.core.util.SocketUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.web.config.GlobalViewConfig;
@@ -69,6 +71,8 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        // 设置类型转换
+        JacksonTypeHandler.setObjectMapper(new ObjectMapper());
         // 应用启动之后执行
         GlobalViewConfig config = SpringUtil.getBean(GlobalViewConfig.class);
         if (webPort != null) {
