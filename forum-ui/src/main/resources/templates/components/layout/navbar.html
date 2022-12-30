@@ -161,16 +161,24 @@
               </small>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer" th:if="${!#strings.equals(global.env, 'prod')}">
             <!-- 非生产环境，使用模拟登陆  -->
             <button
-              th:if="${!#strings.equals(global.env, 'prod')}"
               id="mockLogin"
               type="button"
               th:data-verify-code="''"
               class="btn btn-danger"
             >
               一键登录(测试用)
+            </button>
+
+            <button
+                    id="mockLogin2"
+                    type="button"
+                    th:data-verify-code="''"
+                    class="btn btn-danger"
+            >
+              随机新用户(测试用)
             </button>
           </div>
           <div id="testOutput"></div>
@@ -208,6 +216,7 @@
                   stateTag.style.display = 'block';
                   if ([[${!#strings.equals(global.env, 'prod')}]]) {
                       document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
+                      document.getElementById("mockLogin2").setAttribute('data-verify-code', newCode);
                   }
               } else if (text === 'scan') {
                   // 二维码扫描
@@ -243,6 +252,7 @@
                   buildConnect(code);
                   if ([[${!#strings.equals(global.env, 'prod')}]]) {
                       document.getElementById('mockLogin').setAttribute('data-verify-code', code);
+                      document.getElementById('mockLogin2').setAttribute('data-verify-code', code);
                   }
               }
           })
