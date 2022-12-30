@@ -13,14 +13,16 @@
             </a>
         </div>
 
-        <span class="follow-item-icon" th:if="${follow.followed != null && follow.followed}"
-              th:data-user-id="${follow.userId}" th:data-followed="'true'" onclick="followAction(this)">
-         取消关注
-         </span>
-        <span class="follow-item-icon" th:if="${follow.followed == null || !follow.followed}"
-              th:data-user-id="${follow.userId}" th:data-followed="'false'" onclick="followAction(this)">
-        关注
-    </span>
+        <div th:if="${follow.userId != global.user.userId}">
+            <span class="follow-item-icon" th:if="${follow.followed != null && follow.followed}"
+                  th:data-user-id="${follow.userId}" th:data-followed="'true'" onclick="followAction(this)">
+             取消关注
+             </span>
+            <span class="follow-item-icon" th:if="${follow.followed == null || !follow.followed}"
+                  th:data-user-id="${follow.userId}" th:data-followed="'false'" onclick="followAction(this)">
+            关注
+            </span>
+        </div>
     </div>
 </div>
 </html>
