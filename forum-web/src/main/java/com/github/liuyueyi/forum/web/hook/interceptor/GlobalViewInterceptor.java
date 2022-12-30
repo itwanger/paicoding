@@ -2,13 +2,19 @@ package com.github.liuyueyi.forum.web.hook.interceptor;
 
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
+import com.github.liuyueyi.forum.core.util.JsonUtil;
 import com.github.liuyueyi.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,8 +49,17 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 return true;
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
-                // 跳转到登录界面
-                response.sendRedirect("/qrLogin");
+                if (handlerMethod.getMethod().getAnnotation(ResponseBody.class) != null
+                        || handlerMethod.getMethod().getDeclaringClass().getAnnotation(RestController.class) != null) {
+                    // 访问需要登录的rest接口
+                    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                    response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "未登录")));
+                    response.getWriter().flush();
+                    return false;
+                } else {
+                    // 访问需要登录的页面时，直接跳转到登录界面
+                    response.sendRedirect("/qrLogin");
+                }
                 return false;
             }
 

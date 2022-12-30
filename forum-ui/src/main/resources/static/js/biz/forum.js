@@ -7,7 +7,9 @@ const post = function (path, data, callback) {
     success: function (data) {
       console.log("data", data)
       if (!data || !data.status || data.status.code != 0) {
-        toastr.error(data.message)
+        // 出现了
+        console.log("出现了异常:", data.status.msg);
+        toastr.error(data.status.msg)
       } else if (callback) {
         callback(data.result)
       }
