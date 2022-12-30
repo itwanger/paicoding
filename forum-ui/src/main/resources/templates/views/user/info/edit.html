@@ -220,11 +220,16 @@
             contentType: false,
             processData: false,
             success: function (data) {
+                console.log("response data", data);
+                if (data.status.code > 0) {
+                    // 图片上传失败
+                    toastr.error(data.status.msg, "图片上传失败!");
+                    return;
+                }
+
                 const {
                     result: {imagePath},
                 } = data || {}
-                var res = data
-                console.log("res", res, "imagePath=", imagePath)
                 callback(imagePath)
                 toastr.info("图片上传成功!")
             },
