@@ -192,7 +192,8 @@
     <script th:inline="javascript">
       $(".nav-article").click(() => {
           if ([[${global.isLogin}]]) {
-              window.location.href = "/article/edit"
+            // 新页面打开文章编辑
+            window.open("/article/edit")
           }
       })
 
