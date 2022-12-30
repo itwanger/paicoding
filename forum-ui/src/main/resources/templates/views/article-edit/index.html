@@ -279,7 +279,6 @@
           return;
         }
         if (!file) {
-          toastr.error("粘贴内容非图片");
           return;
         }
         // 此时需要先上传到服务器端，然后
@@ -303,9 +302,8 @@
                 simplemde.insertValue("\n");
                 simplemde.replaceSelection("![](" + data.result.imagePath + ")");
                 simplemde.insertValue("\n");
-              }
-              else {
-                toastr.error(data.status.msg);
+              } else {
+                toastr.error(data.status.msg, "图片上传失败!");
               }
             },
           })
@@ -383,11 +381,12 @@
       //  发表文章
       $("#publish").on("click", function () {
         doPostArticle("post")
-        localStorage.removeItem('articleTitle');
+        localStorage.clear()
       })
       // 保存草稿
       $("#tmpSave").on("click", function () {
         doPostArticle("save")
+        localStorage.clear()
       })
 
 
@@ -594,13 +593,15 @@
           contentType: false,
           processData: false,
           success: function (data) {
-            const {
-              result: { imagePath },
-            } = data || {}
-            console.log(data, imagePath);
+            console.log("response data", data);
+            if (data.status.code > 0) {
+              // 图片上传失败
+              toastr.error(data.status.msg, "图片上传失败!");
+              return;
+            }
 
+            const {result: { imagePath },} = data || {}
             defaults['cover'] = imagePath;
-            // 替换掉默认图片@yihui
             $(".res-upload-img").attr("src", imagePath);
             $(".res-upload-wrap").removeClass("hide");
             callback();
