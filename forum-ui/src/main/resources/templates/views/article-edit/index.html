@@ -259,8 +259,51 @@
           //this.width("100%");
           //this.height(480);
           //this.resize("100%", 640);
+        },
+        onchange: function () {
+          let newVal = this.getMarkdown();
+          let add;
+          if (newVal.startsWith(lastVal)) {
+            add = newVal.substring(lastVal.length);
+          } else if (lastVal.startsWith(newVal)) {
+            lastVal = newVal;
+            return;
+          } else {
+            add = newVal;
+          }
+
+          // 获取变化的内容，判断新增内容中是否存在图片
+          const pattern = /!\[(.*?)\]\((.*?)\)/mg;
+          let matcher;
+          try {
+            while ((matcher = pattern.exec(add)) !== null) {
+              let target = matcher[0];
+              let title = matcher[1];
+              let url = matcher[2];
+              if (url.length > 0 && url.startsWith("http")) {
+                // 再图片自动上传的过程中，不允许继续编辑，避免出现问题
+                simplemde.readonly = true;
+                console.log("start to upload: ", target, title, url);
+                get("/image/save?img=" + url, "", function (result) {
+                  let newImg = `![${title}](${result.imagePath})`;
+                  if (target != newImg) {
+                    // 获取光标位置，替换之后重新设置
+                    let cursor = simplemde.getCursor();
+                    simplemde.setValue(simplemde.getMarkdown().replaceAll(target, newImg));
+                    simplemde.setCursor({line: cursor.line, ch: cursor.ch})
+                  }
+                });
+              }
+            }
+            lastVal = newVal;
+          } catch (e) {
+            console.log(e);
+          } finally {
+            simplemde.readonly = false;
+          }
         }
       });
+      let lastVal = "";
 
       // 复制粘贴图片
       document.addEventListener('paste', function (event) {
@@ -351,8 +394,6 @@
           }
         }
       });
-
-      // 改成作者自己主动提取，从后台调用，删掉之前的自动提取
 
       // 提取简介
       $(".btn-getdistill").on("click", function () {
