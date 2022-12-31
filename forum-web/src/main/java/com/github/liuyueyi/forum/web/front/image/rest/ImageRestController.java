@@ -2,15 +2,15 @@ package com.github.liuyueyi.forum.web.front.image.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
-import com.github.liuyueyi.forum.service.image.service.ImageServiceImpl;
+import com.github.liuyueyi.forum.service.image.service.ImageService;
 import com.github.liuyueyi.forum.web.front.image.vo.ImageVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -25,24 +25,41 @@ import javax.servlet.http.HttpServletRequest;
 public class ImageRestController {
 
     @Autowired
-    private ImageServiceImpl imageServiceImpl;
+    private ImageService imageService;
 
     /**
      * 图片上传
      *
      * @return
      */
-    @ResponseBody
     @RequestMapping(path = "upload")
     public ResVo<ImageVo> upload(HttpServletRequest request) {
         ImageVo imageVo = new ImageVo();
         try {
-            String imagePath = imageServiceImpl.saveImg(request);
+            String imagePath = imageService.saveImg(request);
             imageVo.setImagePath(imagePath);
         } catch (Exception e) {
             log.error("save upload file error!", e);
             return ResVo.fail(StatusEnum.UPLOAD_PIC_FAILED);
         }
+        return ResVo.ok(imageVo);
+    }
+
+    /**
+     * 转存图片
+     *
+     * @param imgUrl
+     * @return
+     */
+    @RequestMapping(path = "save")
+    public ResVo<ImageVo> save(@RequestParam(name = "img", defaultValue = "") String imgUrl) {
+        ImageVo imageVo = new ImageVo();
+        if (StringUtils.isBlank(imgUrl)) {
+            return ResVo.ok(imageVo);
+        }
+
+        String url = imageService.saveImg(imgUrl);
+        imageVo.setImagePath(url);
         return ResVo.ok(imageVo);
     }
 }

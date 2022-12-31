@@ -1,23 +1,37 @@
 const post = function (path, data, callback) {
-  $.ajax({
-    method: "POST",
-    url: path,
-    contentType: "application/json",
-    data: JSON.stringify(data),
-    success: function (data) {
-      console.log("data", data)
-      if (!data || !data.status || data.status.code != 0) {
-        // 出现了
-        console.log("出现了异常:", data.status.msg);
-        toastr.error(data.status.msg)
-      } else if (callback) {
-        callback(data.result)
-      }
-    },
-    error: function (data) {
-      toastr.error(data, "出现bug了，热心反馈下吧!")
-    },
-  })
+    $.ajax({
+        method: "POST",
+        url: path,
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            console.log("data", data)
+            if (!data || !data.status || data.status.code != 0) {
+                // 出现了
+                console.log("出现了异常:", data.status.msg);
+                toastr.error(data.status.msg)
+            } else if (callback) {
+                callback(data.result)
+            }
+        },
+        error: function (data) {
+            toastr.error(data, "出现bug了，热心反馈下吧!")
+        },
+    })
+}
+
+const get = function (url, params, callback) {
+    $.get(url, params, function (data) {
+        console.log("response: ", data)
+        if (!data || !data.status || data.status.code != 0) {
+            // 出现了
+            console.log("出现了异常:", data.status.msg);
+            toastr.error(data.status.msg)
+            return;
+        } else if (callback) {
+            callback(data.result);
+        }
+    })
 }
 
 const loadScript = function (url, callback) {
