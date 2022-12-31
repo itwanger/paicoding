@@ -20,7 +20,7 @@ spring:
 
 servlet:
   tomcat:
-    max-swallow-size: -1
+    max-swallow-size: -1 # 解决上传图片超过2MB之后，出现连接重置的问题
 
 security:
   salt: tech_π # 密码加盐, 更安全的做法是每个用户的密码使用独立的盐，并将其保存在用户表中
