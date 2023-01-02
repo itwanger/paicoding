@@ -6,11 +6,30 @@
       class="navbar navbar-expand-md bg-color-white fixed-top"
     >
       <div class="nav-body">
-        <a class="navbar-brand" href="/">
-          <img class="logo" src="/img/logo.svg" />
-        </a>
-        <div class="collapse navbar-collapse" id="collapsibleNavbar">
-          <ul class="navbar-nav mr-auto">
+        <div class="nav-logo-wrap-lg">
+          <a class="navbar-logo-wrap" href="/">
+            <img class="logo" src="/img/logo.svg" />
+            <img src="/img/icon.png" class="logo-lg" alt="" />
+          </a>
+          <div class="dropdown nav-menu-lg">
+            <div class="dropdown">
+              <div
+                class="nav-menu-lg-btn dropdown-toggle"
+                type="button"
+                data-toggle="dropdown"
+                aria-expanded="false"
+              >
+                首页
+              </div>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/">首页</a>
+                <a class="dropdown-item" href="/column">教程</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav">
             <li
               th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column') && !#strings.equals(global.currentDomain, 'follow') ? ' selected-domain' : '')}"
               class="nav-item"
@@ -34,7 +53,7 @@
           >
             写文章
           </button>
-          <ul th:if="${!global.isLogin}" class="navbar-nav my-md-0">
+          <ul th:if="${!global.isLogin}">
             <!--  待登录 -->
             <li class="nav-item">
               <a
@@ -47,7 +66,7 @@
               </a>
             </li>
           </ul>
-          <ul th:if="${global.isLogin}" class="navbar-nav my-md-0">
+          <ul th:if="${global.isLogin}" class="nav-right-user">
             <!--  已登录 -->
             <li class="nav-item nav-notice">
               <a class="nav-link navbar-count-msg-box" href="/notice/">

@@ -12,25 +12,27 @@
           <div class="home-carouse-item-tag">
             <span class="home-carouse-item-dot tag"></span>
 
-            <span class="home-carouse-item-first-text d-flex" th:each="tag: ${article.tags}" th:text="${tag.tag}">
+            <span
+              class="home-carouse-item-first-text"
+              th:each="tag: ${article.tags}"
+              th:text="${tag.tag}"
+            >
               JAVASCRIPT
             </span>
           </div>
-          <object>
-            <div class="home-carouse-item-tag">
-              <span class="home-carouse-item-dot"></span>
-              <a th:href="${'/user/' + article.author}">
-                <span th:text="${article.authorName}" class="author">
-                  楼仔，
-                </span>
-              </a>
-              <span
-                th:text="'，' + ${#dates.format(article.createTime, 'yyyy/MM/dd')}"
-              >
-                2022/10/28
-              </span>
-            </div>
-          </object>
+          <!-- <object> -->
+          <div class="home-carouse-item-tag">
+            <span class="home-carouse-item-dot"></span>
+            <!-- <a th:href="${'/user/' + article.author}"> -->
+            <span th:text="${article.authorName}" class="author">楼仔，</span>
+            <!-- </a> -->
+            <span
+              th:text="'，' + ${#dates.format(article.createTime, 'yyyy/MM/dd')}"
+            >
+              2022/10/28
+            </span>
+          </div>
+          <!-- </object> -->
         </div>
       </a>
     </div>
@@ -50,17 +52,16 @@
 
     let rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
     let span = document.getElementById("carouseWrap")
-    span.style.background = rgb;
+    span.style.background = rgb
     // fix bug excel id 4
-    $(".home-carouse-item-dot.tag").css("background", rgb);
+    $(".home-carouse-item-dot.tag").css("background", rgb)
   }
 
-
   if (img.complete) {
-    setColor();
+    setColor()
   } else {
     img.addEventListener("load", function () {
-      setColor();
+      setColor()
     })
   }
 </script>

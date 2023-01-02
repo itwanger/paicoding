@@ -22,9 +22,28 @@
       <div class="edit-save" data-toggle="modal" data-target="#saveModel">
         <span>保 存</span>
       </div>
-      <a th:href="${'/user/home?userId=' + global.user.userId}">
-        <img class="nav-login-img" th:src="${global.user.photo}" />
-      </a>
+      <div class="dropdown">
+        <img
+          class="nav-login-img dropdown-toggle"
+          data-toggle="dropdown"
+          th:src="${global.user.photo}"
+        />
+        <!-- 下拉框 -->
+        <div class="dropdown-menu nav-login-menu">
+          <div
+            th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+            class="dropdown-divider"
+          ></div>
+          <a
+            th:href="${'/user/home?userId=' + global.user.userId}"
+            class="dropdown-item"
+            href="#"
+          >
+            个人主页
+          </a>
+          <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
+        </div>
+      </div>
     </div>
     <input
       type="hidden"
@@ -327,7 +346,7 @@
       //  发表文章
       $("#publish").on("click", function () {
         doPostArticle("post")
-        localStorage.removeItem('articleTitle');
+        // localStorage.removeItem('articleTitle');
       })
       // 保存草稿
       $("#tmpSave").on("click", function () {
@@ -439,7 +458,7 @@
         const value = $('#title').val()
         const len = value.length
         console.log(value)
-        localStorage.setItem('articleTitle', value)
+        // localStorage.setItem('articleTitle', value)
         if (len > 5) {
           $('.edit-save').addClass('edit-save--active')
           showSaveBtn = true
@@ -448,20 +467,20 @@
           showSaveBtn = false
         }
       }
-      // 初始化title
+      // 初始化title 暂时去掉缓存
       const initTitle = () => {
-        console.log("init title!");
-        const titleValue = localStorage.getItem('articleTitle')
-        if (titleValue) {
-          $('#title').attr("value", titleValue)
-          checkTitle();
-        } else {
-          checkTitle();
-        }
+        // console.log("init title!");
+        // const titleValue = localStorage.getItem('articleTitle')
+        // if (titleValue) {
+        //   $('#title').attr("value", titleValue)
+        //   checkTitle();
+        // } else {
+        checkTitle()
+        // }
       }
-
       // 初始化标题
       initTitle();
+
 
       // 初始化封面
       initCover();

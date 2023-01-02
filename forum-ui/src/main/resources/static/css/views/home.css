@@ -10,7 +10,7 @@
 }
 
 .home-inter-wrap {
-  width: 1200px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
 }
@@ -49,7 +49,7 @@
 }
 
 .category-wrap {
-  width: 1200px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 4px 0;
 }
@@ -119,7 +119,7 @@ svg:not(:root).svg-inline--fa {
 }
 
 .home-carouse-inter-wrap {
-  width: 1200px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   gap: 20px;
@@ -161,6 +161,7 @@ svg:not(:root).svg-inline--fa {
   height: 8px;
   width: 8px;
   margin-right: 4px;
+  flex-shrink: 0;
 }
 
 .home-carouse-item-tag {
@@ -175,6 +176,10 @@ svg:not(:root).svg-inline--fa {
   padding: 0 8px;
   align-items: center;
   position: relative;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 .home-carouse-item-tag .home-carouse-item-first-text:not(:last-child):after {
@@ -191,8 +196,44 @@ svg:not(:root).svg-inline--fa {
 .home-carouse-item-tag .author {
   padding-left: 8px;
   color: #a2a2a2;
+  display: inline-block;
+  max-width: 100px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .home-carouse-item:hover {
   transform: translateY(-4px);
+}
+
+/* home 适配 */
+@media screen and (max-width: 960px) {
+  .home-right,
+  .home-carouse-wrap,
+  .article-title-wrap,
+  .cdc-article-panel__date {
+    display: none;
+  }
+  .home-body {
+    margin-right: 0;
+  }
+
+  .user-article-item-title {
+    -webkit-line-clamp: 5;
+  }
+  .user-article-item-value-text {
+    -webkit-line-clamp: 5;
+  }
+  .home-inter-wrap {
+    width: auto;
+    display: block;
+  }
+  .user-article-img {
+    width: 120px;
+    height: 80px;
+  }
+  .category-wrap {
+    padding: 4px 18px;
+  }
 }
