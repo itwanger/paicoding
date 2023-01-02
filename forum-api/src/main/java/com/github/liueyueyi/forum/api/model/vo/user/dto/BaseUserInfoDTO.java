@@ -53,4 +53,9 @@ public class BaseUserInfoDTO extends BaseDTO {
      * 是否删除
      */
     private Integer deleted;
+
+    /**
+     * 用户最后登录区域
+     */
+    private String region;
 }

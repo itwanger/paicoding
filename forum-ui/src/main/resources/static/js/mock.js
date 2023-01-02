@@ -37,3 +37,24 @@ $('#mockLogin').click(function () {
         }
     });
 })
+
+$('#mockLogin2').click(function () {
+    console.log("mock loign 登录！！！");
+    const code = this.dataset.verifyCode;
+    let randUid = 'demoUser_' + Math.round(Math.random() * 100);
+    $.ajax({
+        method: 'POST',
+        url: "/wx/callback",
+        contentType: 'application/xml',
+        data: "<xml><URL><![CDATA[https://hhui.top]]></URL><ToUserName><![CDATA[一灰灰blog]]></ToUserName><FromUserName><![CDATA[" + randUid + "]]></FromUserName><CreateTime>1655700579</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[" + code + "]]></Content><MsgId>11111111</MsgId></xml>",
+        success: function (data) {
+            console.log("data", data);
+            if (!data) {
+                toastr.error(data.message);
+            }
+        },
+        error: function (data) {
+            toastr.error(data);
+        }
+    });
+})

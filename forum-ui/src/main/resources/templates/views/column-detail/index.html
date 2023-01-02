@@ -206,8 +206,9 @@
 
   <!-- 评论逻辑 -->
   <script type="text/javascript">
-    // 直接评论
     function bindCommentInputEvent() {
+      // 直接评论
+      const commentContent = $("#commentContent")
       const commentBtn = $("#commentBtn")
       commentBtn.click(function () {
         const content = commentContent.val()
@@ -227,91 +228,18 @@
           document.getElementById("commentDiv").innerHTML = data
           bindCommentInputEvent()
         })
+      });
+
+      // 直接评论监听
+      $(document).on("input propertychange", "#commentContent", function () {
+        const val = $(this).val()
+        console.log(val)
+        if (val) {
+          $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
+        } else {
+          $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
+        }
       })
-    }
-
-    // 点击回复创建评论
-    const createComment = function (currentDom) {
-      // 移除其他回复
-      $(".hf-con").remove()
-
-      // 获取回复人的名字
-      var fhName = currentDom
-        .parents(".common-item-content")
-        .find(".comment-name")
-        .html()
-      //回复@
-      var fhN = "回复@" + fhName + "："
-      var fhHtml =
-        '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
-      if (currentDom.is(".hf-con-block")) {
-        const currentWrap =
-          (currentDom.parents(".comment-item-wrap").length &&
-            currentDom.parents(".comment-item-wrap")) ||
-          (currentDom.parents(".comment-item-wrap-second").length &&
-            currentDom.parents(".comment-item-wrap-second"))
-
-        currentWrap.find(".common-item-content").append(fhHtml)
-        currentDom.removeClass("hf-con-block")
-        //input框自动聚焦
-        currentDom
-          .parents(".common-item-content")
-          .find(".hf-input")
-          .val("")
-          .focus()
-          .attr("placeholder", fhN)
-        // 取消回复
-        currentDom.find(".reply-comment-text").hide()
-        currentDom.find(".reply-comment-text-none").show()
-      } else {
-        currentDom.addClass("hf-con-block")
-        currentDom.parents(".common-item-content").find(".pull-left").remove()
-        // 回复
-        currentDom.find(".reply-comment-text").show()
-        currentDom.find(".reply-comment-text-none").hide()
-      }
-    }
-
-    // 评论编辑&提交
-    const commentSubmit = function (currentDom) {
-      const replyContent = currentDom.siblings(".hf-input")
-      const replyBtn = currentDom
-        .parents(".common-item-content")
-        .find(".reply-comment")
-
-      if (!replyContent.val()) {
-        toastr.error("回复内容不能为空")
-        return
-      }
-      // 提交评论
-      const params = {
-        // 文章id
-        articleId: $("#postsTitle").attr("data-id"),
-        // 评论内容
-        commentContent: replyContent.val(),
-        // 回复的评论id
-        parentCommentId: replyBtn.attr("data-reply-id"),
-        // 回复的一级评论id
-        topCommentId: replyBtn.attr("data-reply-top"),
-      }
-      post("/comment/api/post", params, function (data) {
-        document.getElementById("commentDiv").innerHTML = data
-        // fixme 回复时，直接在评论下面展示一个输入框，完成之后不更新当前页面，直接重新渲染评论列表即可，即删除下面的重新刷新逻辑，只保留上面的逻辑
-        // let url = location.href
-        // if (url.indexOf("#commentList") === -1) {
-        //   location.href = url + "#commentList"
-        // }
-        // location.reload(true)
-      })
-    }
-
-    // 监听按钮
-    const listenCommentBtn = function (currentDom) {
-      if (!currentDom.val()) {
-        $(".hf-pl").attr("disabled", true).addClass("hf-pl--disabled")
-      } else {
-        $(".hf-pl").attr("disabled", false).removeClass("hf-pl--disabled")
-      }
     }
 
     // 回复
@@ -331,18 +259,86 @@
       listenCommentBtn(currentDom)
     })
 
-    // 直接评论监听
-    const commentContent = $("#commentContent")
-    $(document).on("input propertychange", "#commentContent", function () {
-      console.log("123")
-      const val = $(this).val()
-      if (val) {
-        $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
-      } else {
-        $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
-      }
-    })
+    // 点击回复创建评论
+    const createComment = function (currentDom) {
+      // 移除其他回复
+      $(".hf-con").remove()
 
-    bindCommentInputEvent()
+      // 获取回复人的名字
+      var fhName = currentDom
+              .parents(".common-item-content")
+              .find(".comment-name")
+              .html()
+      //回复@
+      var fhN = "回复@" + fhName + "："
+      var fhHtml =
+              '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
+      if (currentDom.is(".hf-con-block")) {
+        const currentWrap =
+                (currentDom.parents(".comment-item-wrap").length &&
+                        currentDom.parents(".comment-item-wrap")) ||
+                (currentDom.parents(".comment-item-wrap-second").length &&
+                        currentDom.parents(".comment-item-wrap-second"))
+
+        currentWrap.find(".common-item-content").append(fhHtml)
+        currentDom.removeClass("hf-con-block")
+        //input框自动聚焦
+        currentDom
+                .parents(".common-item-content")
+                .find(".hf-input")
+                .val("")
+                .focus()
+                .attr("placeholder", fhN)
+        // 取消回复
+        currentDom.find(".reply-comment-text").hide()
+        currentDom.find(".reply-comment-text-none").show()
+      } else {
+        currentDom.addClass("hf-con-block")
+        currentDom.parents(".common-item-content").find(".pull-left").remove()
+        // 回复
+        currentDom.find(".reply-comment-text").show()
+        currentDom.find(".reply-comment-text-none").hide()
+      }
+    }
+
+    // 评论编辑&提交
+    const commentSubmit = function (currentDom) {
+      const replyContent = currentDom.siblings(".hf-input")
+      const replyBtn = currentDom
+              .parents(".common-item-content")
+              .find(".reply-comment")
+
+      if (!replyContent.val()) {
+        toastr.error("回复内容不能为空")
+        return
+      }
+      // 提交评论
+      const params = {
+        // 文章id
+        articleId: $("#postsTitle").attr("data-id"),
+        // 评论内容
+        commentContent: replyContent.val(),
+        // 回复的评论id
+        parentCommentId: replyBtn.attr("data-reply-id"),
+        // 回复的一级评论id
+        topCommentId: replyBtn.attr("data-reply-top"),
+      }
+      post("/comment/api/post", params, function (data) {
+        document.getElementById("commentDiv").innerHTML = data
+        bindCommentInputEvent();
+      })
+    }
+
+    // 监听按钮
+    const listenCommentBtn = function (currentDom) {
+      if (!currentDom.val()) {
+        $(".hf-pl").attr("disabled", true).addClass("hf-pl--disabled")
+      } else {
+        $(".hf-pl").attr("disabled", false).removeClass("hf-pl--disabled")
+      }
+    }
+
+
+    bindCommentInputEvent();
   </script>
 </html>

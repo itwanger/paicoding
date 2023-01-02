@@ -47,6 +47,8 @@ public enum StatusEnum {
     USER_NOT_EXISTS(400_500_001, "用户不存在:%s"),
     USER_PWD_ERROR(400_500_002, "用户名or密码错误"),
 
+    // 系统异常
+    UNEXPECT_ERROR(500_400_001, "非预期异常:%s"),
 
     ;
 

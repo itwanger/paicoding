@@ -48,10 +48,11 @@ public interface SessionService {
 
 
     /**
-     * 获取登录的用户信息
+     * 获取登录的用户信息,并更行丢对应的ip信息
      *
      * @param session
+     * @param clientIp
      * @return
      */
-    BaseUserInfoDTO getUserBySessionId(String session);
+    BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
 }
