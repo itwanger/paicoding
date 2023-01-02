@@ -167,7 +167,8 @@ button:focus {
 }
 
 /*右侧贴片*/
-.home-right, .custom-home-right {
+.home-right,
+.custom-home-right {
   width: 24%;
   border-radius: 20px;
   position: relative;
@@ -528,6 +529,12 @@ button:focus {
   display: block;
   text-align: center;
 }
+
+/* @media (max-width: 768px) {
+  body {
+    color: red !important;
+  }
+} */
 
 /* 设备适配样式 */
 /* @media (max-width: 768px) {
