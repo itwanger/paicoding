@@ -1,21 +1,37 @@
 const post = function (path, data, callback) {
-  $.ajax({
-    method: "POST",
-    url: path,
-    contentType: "application/json",
-    data: JSON.stringify(data),
-    success: function (data) {
-      console.log("data", data)
-      if (!data || !data.status || data.status.code != 0) {
-        toastr.error(data.message)
-      } else if (callback) {
-        callback(data.result)
-      }
-    },
-    error: function (data) {
-      toastr.error(data, "出现bug了，热心反馈下吧!")
-    },
-  })
+    $.ajax({
+        method: "POST",
+        url: path,
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (data) {
+            console.log("data", data)
+            if (!data || !data.status || data.status.code != 0) {
+                // 出现了
+                console.log("出现了异常:", data.status.msg);
+                toastr.error(data.status.msg)
+            } else if (callback) {
+                callback(data.result)
+            }
+        },
+        error: function (data) {
+            toastr.error(data, "出现bug了，热心反馈下吧!")
+        },
+    })
+}
+
+const get = function (url, params, callback) {
+    $.get(url, params, function (data) {
+        console.log("response: ", data)
+        if (!data || !data.status || data.status.code != 0) {
+            // 出现了
+            console.log("出现了异常:", data.status.msg);
+            toastr.error(data.status.msg)
+            return;
+        } else if (callback) {
+            callback(data.result);
+        }
+    })
 }
 
 const loadScript = function (url, callback) {
@@ -491,5 +507,17 @@ const showtime = function (endTime) {
         lefth = Math.floor(lefttime / (1000 * 60 * 60) % 24),  //计算小时数
         leftm = Math.floor(lefttime / (1000 * 60) % 60),  //计算分钟数
         lefts = Math.floor(lefttime / 1000 % 60);  //计算秒数
+
+    if(lefth < 10) {
+      lefth = '0' + lefth;
+    }
+
+    if (leftm < 10) {
+      leftm = '0' + leftm;
+    }
+
+    if (lefts < 10) {
+      lefts = '0' + lefts;
+    }
     return '剩余 ' + leftd + " 天 " + lefth + ":" + leftm + ":" + lefts;  //返回倒计时的字符串
 }

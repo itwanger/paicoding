@@ -38,7 +38,7 @@
           th:if="${global.isLogin && article.author == global.user.userId}"
           class="detail-content-title-edit"
         >
-          <a th:href="${'/article/edit?articleId=' + article.articleId}">
+          <a th:href="${'/article/edit?articleId=' + article.articleId}" target="_blank">
             编辑
           </a>
         </span>

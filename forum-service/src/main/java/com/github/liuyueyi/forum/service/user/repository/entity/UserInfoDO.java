@@ -1,6 +1,8 @@
 package com.github.liuyueyi.forum.service.user.repository.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +15,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("user_info")
+// autoResultMap 必须存在，否则ip对象无法正确获取
+@TableName(value = "user_info", autoResultMap = true)
 public class UserInfoDO extends BaseDO {
 
     private static final long serialVersionUID = 1L;
@@ -57,4 +60,17 @@ public class UserInfoDO extends BaseDO {
      * 删除标记
      */
     private Integer deleted;
+
+    /**
+     * ip信息
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private IpInfo ip;
+
+    public IpInfo getIp() {
+        if (ip == null) {
+            ip = new IpInfo();
+        }
+        return ip;
+    }
 }

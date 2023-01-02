@@ -72,13 +72,6 @@ public class ImageServiceImpl implements ImageService {
     public String mdImgReplace(String content) {
         List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
         for (MdImgLoader.MdImg img : imgList) {
-            // fixme 下面可以调整为并发转存
-            if ((StringUtils.isNotBlank(imageProperties.getCdnHost()) && img.getUrl().startsWith(imageProperties.getCdnHost()))
-                    || !img.getUrl().startsWith("http")) {
-                // 已经转存过，不需要再次转存；非http图片，不处理
-                continue;
-            }
-
             String newImg = imageProperties.getCdnHost() + saveImg(img.getUrl());
             content = StringUtils.replace(content, img.getOrigin(), "![" + img.getDesc() + "](" + newImg + ")");
         }
@@ -92,12 +85,18 @@ public class ImageServiceImpl implements ImageService {
      * @return
      */
     public String saveImg(String img) {
+        if ((StringUtils.isNotBlank(imageProperties.getCdnHost()) && img.startsWith(imageProperties.getCdnHost()))
+                || !img.startsWith("http")) {
+            // 已经转存过，不需要再次转存；非http图片，不处理
+            return img;
+        }
+
         try {
             BufferedImage bufferedImage = ImageLoadUtil.getImageByPath(img);
             return saveImg(bufferedImage, MediaType.ImagePng);
         } catch (Exception e) {
             log.error("外网图片转存异常! img:{}", img, e);
-            return null;
+            return "[error]" + img;
         }
     }
 

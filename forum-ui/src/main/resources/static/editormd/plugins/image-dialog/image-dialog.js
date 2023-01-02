@@ -86,7 +86,7 @@
 
                             if (url === "")
                             {
-                                alert(imageLang.imageURLEmpty);
+                                toastr.error(imageLang.imageURLEmpty);
                                 return false;
                             }
 
@@ -94,7 +94,9 @@
 
                             if (link === "" || link === "http://")
                             {
+                                cm.replaceSelection("\n");
                                 cm.replaceSelection("![" + alt + "](" + url + altAttr + ")");
+                                cm.replaceSelection("\n");
                             }
                             else
                             {
@@ -102,7 +104,7 @@
                             }
 
                             if (alt === "") {
-                                cm.setCursor(cursor.line, cursor.ch + 2);
+                                cm.setCursor(cursor.line + 2, cursor.ch);
                             }
 
                             this.hide().lockScreen(false).hideMask();

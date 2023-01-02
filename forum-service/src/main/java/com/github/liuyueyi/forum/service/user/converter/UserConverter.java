@@ -52,6 +52,7 @@ public class UserConverter {
         BaseUserInfoDTO user = new BaseUserInfoDTO();
         // todo 知识点，bean属性拷贝的几种方式， 直接get/set方式，使用BeanUtil工具类(spring, cglib, apache, objectMapper)，序列化方式等
         BeanUtils.copyProperties(info, user);
+        user.setRegion(info.getIp().getLatestRegion());
         return user;
     }
 
@@ -71,18 +72,7 @@ public class UserConverter {
             return null;
         }
         UserStatisticInfoDTO userHomeDTO = new UserStatisticInfoDTO();
-        userHomeDTO.setUserId(baseUserInfoDTO.getUserId());
-        userHomeDTO.setUserName(baseUserInfoDTO.getUserName());
-        userHomeDTO.setRole(baseUserInfoDTO.getRole());
-        userHomeDTO.setPhoto(baseUserInfoDTO.getPhoto());
-        userHomeDTO.setProfile(baseUserInfoDTO.getProfile());
-        userHomeDTO.setPosition(baseUserInfoDTO.getPosition());
-        userHomeDTO.setCompany(baseUserInfoDTO.getCompany());
-        userHomeDTO.setExtend(baseUserInfoDTO.getExtend());
-        userHomeDTO.setDeleted(baseUserInfoDTO.getDeleted());
-        userHomeDTO.setId(baseUserInfoDTO.getId());
-        userHomeDTO.setCreateTime(baseUserInfoDTO.getCreateTime());
-        userHomeDTO.setUpdateTime(baseUserInfoDTO.getUpdateTime());
+        BeanUtils.copyProperties(baseUserInfoDTO, userHomeDTO);
         return userHomeDTO;
     }
 }

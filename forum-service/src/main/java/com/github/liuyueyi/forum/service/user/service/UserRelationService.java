@@ -36,7 +36,7 @@ public interface UserRelationService {
     PageListVo<FollowUserInfoDTO> getUserFansList(Long userId, PageParam pageParam);
 
     /**
-     * 更新当前登录用于与列表中的用户的关注关系
+     * 更新当前登录用户与列表中的用户的关注关系
      *
      * @param followList
      * @param loginUserId
