@@ -38,7 +38,7 @@ public class CommonConstants {
             });
             put(CATEGORY_BACK_EMD, new ArrayList<String>() {
                 {
-                    add("https://img12.360buyimg.com/ddimg/jfs/t1/144729/17/31034/367421/636076adE5b5f7c6b/fa4de8bb58f74a63.gif");
+                    add("https://img13.360buyimg.com/ddimg/jfs/t1/72497/8/23472/367421/63b3e036F68e9048e/ace40ac4067dff63.gif");
                     add("https://img14.360buyimg.com/ddimg/jfs/t1/138738/8/31452/12286/636076f0Ef18f77d8/fde4de8bbf0b5380.webp");
                     add("https://img12.360buyimg.com/ddimg/jfs/t1/69814/7/22820/21218/636076f0Ed6dea845/f53aaf828ec9c135.webp");
                     add("https://img12.360buyimg.com/ddimg/jfs/t1/23649/3/19923/65450/636076f0Ec39e3fd9/763afa10946ef984.webp");
