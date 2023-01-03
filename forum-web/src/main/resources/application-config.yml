@@ -3,10 +3,11 @@ view:
     websiteName: 技术派
     websiteLogoUrl: https://blog.hhui.top/hexblog/images/avatar.jpg
     websiteFaviconIconUrl: https://blog.hhui.top/hexblog/images/avatar.jpg
-    contactMeTitle: 联系我 - liuyueyi25
+    contactMeTitle: 联系我 - louzai
     contactMeWxQrCode: https://blog.hhui.top/hexblog/imgs/info/wx.jpg
     pageSize: 20
     cdnImgStyle:
     websiteRecord: 备案记录
     wxLoginUrl: http://weixin.qq.com/r/FS9waAPEg178rUcL93oH
     host: http://127.0.0.1:${server.port}
+    welcomeInfo: 欢迎来到技术派，戳<a href="/article/detail/1">技术派全方位视角解读</a>了解我们
