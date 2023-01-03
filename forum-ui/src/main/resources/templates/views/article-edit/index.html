@@ -225,7 +225,7 @@
             }
 
             // 已知的参数
-            var defaults = {
+            let defaults = {
               articleId: articleId,
               articleType: "BLOG",
               source: 2,
@@ -234,7 +234,7 @@
             };
 
             // 编辑器
-            var simplemde = editormd("paiEditor", {
+            let simplemde = editormd("paiEditor", {
               width: "100%",
               // height: 740,
               path: '../editormd/lib/',
@@ -277,6 +277,8 @@
                 //this.resize("100%", 640);
               },
               onchange: function () {
+                console.log('onchange', this);
+
                 let newVal = this.getMarkdown();
                 let add;
                 if (newVal.startsWith(lastVal)) {
@@ -438,11 +440,7 @@
             //  发表文章
             $("#publish").on("click", function () {
               doPostArticle("post")
-      <<<<<<< HEAD
-              // localStorage.removeItem('articleTitle');
-      =======
               localStorage.clear()
-      >>>>>>> main
             })
             // 保存草稿
             $("#tmpSave").on("click", function () {
@@ -548,7 +546,7 @@
               const value = $('#title').val()
               const len = value.length
               console.log(value)
-              // localStorage.setItem('articleTitle', value)
+              localStorage.setItem('articleTitle', value)
               if (len > 5) {
                 $('.edit-save').addClass('edit-save--active')
                 showSaveBtn = true
@@ -559,18 +557,18 @@
             }
             // 初始化title 暂时去掉缓存
             const initTitle = () => {
-              // console.log("init title!");
-              // const titleValue = localStorage.getItem('articleTitle')
-              // if (titleValue) {
-              //   $('#title').attr("value", titleValue)
-              //   checkTitle();
-              // } else {
-              checkTitle()
-              // }
+              console.log("init title!");
+              const titleValue = localStorage.getItem('articleTitle')
+              if (titleValue) {
+                $('#title').attr("value", titleValue)
+                checkTitle();
+              } else {
+                checkTitle();
+              }
             }
 
             function showByMouseover() {
-              var objUrl = pic.attr("src");
+              let objUrl = pic.attr("src");
               // 已经上传过了
               if (objUrl) {
                 close_icon.css('display', 'block');
@@ -595,8 +593,12 @@
             }
 
             // 初始化标题
-            initTitle();
+            // 编辑文章的时候就直接从文章取
+            if (articleId == 0) {
 
+            } else {
+              initTitle();
+            }
 
             // 初始化封面
             initCover();
@@ -616,15 +618,11 @@
             upload.on("change", function (e) {
               let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
               const file = e.target.files[0]
-              if (file.size > 1024 * 1024 * 5) {
+              if (file.size > 1024 * 1024 * 9) {
                 toastr.error("图片不能超过5M!")
                 return false
               }
               if (objUrl) {
-                //将图片路径存入src中，显示出图片
-                pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
-                $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
-
                 console.log("uploadImg", this.value)
                 uploadImg(() => (this.value = null))
               }
@@ -664,10 +662,18 @@
 
                   const {result: { imagePath },} = data || {}
                   defaults['cover'] = imagePath;
+
+                  //将图片路径存入src中，显示出图片
+                  pic.attr("src", imagePath).css('visibility', 'visible') // 展示图片
+                  $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
+                  
                   $(".res-upload-img").attr("src", imagePath);
                   $(".res-upload-wrap").removeClass("hide");
                   callback();
                   toastr.info("图片上传成功!");
+                },
+                error : function(jqXHR, textStatus, errorThrown) {
+                  toastr.error(jqXHR.responseText, "图片上传失败!");
                 },
               })
             }

@@ -35,4 +35,9 @@ public class GlobalViewConfig {
     private String wxLoginUrl;
 
     private String host;
+
+    /**
+     * 首次登录的欢迎信息
+     */
+    private String welcomeInfo;
 }
