@@ -445,11 +445,11 @@
         const title = titleInput.val();
         if (title.length <= titleMin) {
           toastr.error("文章标题太短!")
-          return;
+          return false;
         }
         if (title.length > titleMax) {
           toastr.error("文章标题太长了!");
-          return;
+          return false;
         }
         return title;
       }
@@ -460,7 +460,7 @@
 
         if (content.length <= contentMin) {
           toastr.error("文章内容太短了！");
-          return;
+          return false;
         }
 
         return content;
@@ -478,7 +478,14 @@
       // 获取表单类容
       function doPostArticle(action) {
         const title = checkTitle();
+        if (!title) {
+          return;
+        }
+
         const content = checkContent();
+        if (!content) {
+          return;
+        }
 
         // 分类选择
         const category = getChooseCategoryId()
@@ -553,8 +560,8 @@
       editBtn.click(() => {
         if (!showSaveBtn) return false
         // 点击保存时检查标题长度
-        checkTitle();
-        checkContent();
+        if (!checkTitle()) return false;
+        if (!checkContent()) return false;
         $("#saveModel").modal();
       })
 
@@ -590,9 +597,7 @@
       // 是否显示封面
       function initCover() {
         // 文章 ID，新建文章
-        if (articleId == 0) {
-
-        } else {
+        if (articleId != 0) {
           // 编辑的时候，显示图片，如果为空的时候不显示
           if (cover.length > 0) {
             pic.attr("src", cover);
