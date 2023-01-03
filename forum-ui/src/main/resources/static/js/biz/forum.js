@@ -67,7 +67,6 @@ const loadLink = function (url) {
 //建立一?可存取到?file的url
 const getObjectURL = function (file) {
   let url = null
-  if (!checkFileSize(file)) return null;
 
   if (window.createObjectURL != undefined) {
     // basic
@@ -525,8 +524,9 @@ const showtime = function (endTime) {
 }
 
 const checkFileSize = function (file) {
-  if (file.size > 1024 * 1024 * 5) {
+  if (file.size > 1024 * 1024 * 8) {
     toastr.error("图片不能超过5M!")
     return false
   }
+  return true;
 }

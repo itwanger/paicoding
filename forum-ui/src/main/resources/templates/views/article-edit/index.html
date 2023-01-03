@@ -357,6 +357,11 @@
         console.log("文章编辑器中上传图片：" + { objUrl });
 
         if (objUrl) {
+
+          if (!checkFileSize(file)) {
+            return;
+          }
+
           let formData = new FormData()
           formData.append("image", file)
           $.ajax({
@@ -373,7 +378,7 @@
                 simplemde.replaceSelection("![](" + data.result.imagePath + ")");
                 simplemde.insertValue("\n");
               } else {
-                toastr.error(data.status.msg, "图片上传失败!");
+                toastr.error(data.status.msg);
               }
             },
           })
@@ -662,6 +667,10 @@
       function uploadImg(callback, objUrl) {
         let uploadPic = upload[0].files[0]
         console.log("准备上传", uploadPic)
+
+        if (!checkFileSize(uploadPic)) {
+          return;
+        }
 
         let file = new FormData()
         file.append("image", uploadPic)

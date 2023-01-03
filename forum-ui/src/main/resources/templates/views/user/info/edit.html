@@ -210,6 +210,11 @@
     // 上传头像到服务器
     function uploadImg(callback) {
         let image = upload[0].files[0]
+
+        if (!checkFileSize(image)) {
+            return;
+        }
+
         let file = new FormData()
         file.append("image", image)
         $.ajax({
