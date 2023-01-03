@@ -11,15 +11,15 @@
     <div class="edit-nav">
       <form action="/save" method="get" class="edit-title-form">
         <input
-          id="title"
+          id="titleInput"
           type="text"
           class="edit-title-input"
           th:value="${vo.article != null ? vo.article.title: ''}"
           placeholder="输入文章标题..."
-          oninput="checkTitle()"
+          oninput="setTitle()"
         />
       </form>
-      <div class="edit-save" data-toggle="modal" data-target="#saveModel">
+      <div class="edit-save">
         <span>保 存</span>
       </div>
       <div class="dropdown">
@@ -185,7 +185,7 @@
                 placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 128 字符键入摘要文本框"
                 maxlength="128"
                 th:text="${vo.article != null ?  vo.article.summary: ''}"
-                oninput="checkArea()"
+                oninput="initSummary()"
               ></textarea>
               <span
                 class="form-textarea-limit"
@@ -214,469 +214,470 @@
     </div>
 
     <script th:inline="javascript">
-            // https://github.com/sparksuite/simplemde-markdown-editor
-            let vo = [[${ vo }]], uid = "forumId", articleId = 0, pic = $("#pic"),
-                    cover =[[${ vo.article != null ? vo.article.cover : '' }]],
-                    tagSelect = $('#tag-select'), close_icon = $(".close_icon"),
-                    upload = $("#upload"), clickCover = $(".click-cover");
-            if (vo && vo.article) {
-              articleId = vo.article.articleId;
-              uid = uid + "_" + articleId;
+      // https://github.com/sparksuite/simplemde-markdown-editor
+      let vo = [[${ vo }]], uid = "forumId", articleId = 0, pic = $("#pic"),
+              cover =[[${ vo.article != null ? vo.article.cover : '' }]],
+              tagSelect = $('#tag-select'), close_icon = $(".close_icon"),
+              upload = $("#upload"), clickCover = $(".click-cover"),
+              titleInput = $('#titleInput'), categoryLabel = $('.form-selectgroup-item'),
+              editBtn = $('.edit-save');
+
+      const titleMin = 5, titleMax = 120,
+        contentMin = 6, summaryMax = 128;
+
+      if (vo && vo.article) {
+        articleId = vo.article.articleId;
+        uid = uid + "_" + articleId;
+      }
+
+      // 已知的参数
+      let defaults = {
+        articleId: articleId,
+        articleType: "BLOG",
+        source: 2,
+        sourceUrl: "",
+        cover: cover,
+      };
+
+      // 编辑器
+      let simplemde = editormd("paiEditor", {
+        width: "100%",
+        // height: 740,
+        path: '../editormd/lib/',
+        // autoHeight : true,
+        // theme : "dark",
+        // previewTheme : "dark",
+        // editorTheme : "pastel-on-dark",
+        // markdown : md.result,
+        codeFold: true,
+        //syncScrolling : false,
+        saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+        searchReplace: true,
+        //watch : false,                // 关闭实时预览
+        htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+        //toolbar  : false,             //关闭工具栏
+        //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+        emoji: true,
+        taskList: true,
+        tocm: true,         // Using [TOCM]
+        tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+        flowChart: true,             // 开启流程图支持，默认关闭
+        sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+        //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
+        //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
+        //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
+        //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
+        //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
+        imageUpload: true,
+        imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+        imageUploadURL: "/image/upload",
+        onload: function () {
+          console.log('onload', this);
+          //this.fullscreen();
+          //this.unwatch();
+          //this.watch().fullscreen();
+
+          //this.setMarkdown("#PHP");
+          //this.width("100%");
+          //this.height(480);
+          //this.resize("100%", 640);
+        },
+        onchange: function () {
+          console.log('onchange', this);
+
+          let newVal = this.getMarkdown();
+          let add;
+          if (newVal.startsWith(lastVal)) {
+            add = newVal.substring(lastVal.length);
+          } else if (lastVal.startsWith(newVal)) {
+            lastVal = newVal;
+            return;
+          } else {
+            add = newVal;
+          }
+
+          // 获取变化的内容，判断新增内容中是否存在图片
+          const pattern = /!\[(.*?)\]\((.*?)\)/mg;
+          let matcher;
+          try {
+            while ((matcher = pattern.exec(add)) !== null) {
+              let target = matcher[0];
+              let title = matcher[1];
+              let url = matcher[2];
+              if (url.length > 0 && url.startsWith("http")) {
+                // 再图片自动上传的过程中，不允许继续编辑，避免出现问题
+                simplemde.readonly = true;
+                console.log("start to upload: ", target, title, url);
+                get("/image/save?img=" + url, "", function (result) {
+                  let newImg = `![${title}](${result.imagePath})`;
+                  if (target != newImg) {
+                    // 获取光标位置，替换之后重新设置
+                    let cursor = simplemde.getCursor();
+                    simplemde.setValue(simplemde.getMarkdown().replaceAll(target, newImg));
+                    simplemde.setCursor({line: cursor.line, ch: cursor.ch})
+                  }
+                });
+              }
+            }
+            lastVal = newVal;
+          } catch (e) {
+            console.log(e);
+          } finally {
+            simplemde.readonly = false;
+          }
+        }
+      });
+      let lastVal = "";
+
+      // 复制粘贴图片
+      document.addEventListener('paste', function (event) {
+        let items = (event.clipboardData || window.clipboardData).items;
+        let file = null;
+        if (items && items.length) {
+          // 搜索剪切板items
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              file = items[i].getAsFile();
+              break;
+            }
+          }
+        } else {
+          toastr.error("当前浏览器不支持");
+          return;
+        }
+        if (!file) {
+          return;
+        }
+        // 此时需要先上传到服务器端，然后
+        let objUrl = getObjectURL(file); //获取图片的路径，该路径不是图片在本地的路径
+        console.log("文章编辑器中上传图片：" + { objUrl });
+
+        if (objUrl) {
+          let pic = file
+          let formData = new FormData()
+          formData.append("image", pic)
+          $.ajax({
+            url: "/image/upload",
+            type: "post",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+              if (data.status.code === 0) {
+                // 插入一个空行
+                simplemde.insertValue("\n");
+                simplemde.replaceSelection("![](" + data.result.imagePath + ")");
+                simplemde.insertValue("\n");
+              } else {
+                toastr.error(data.status.msg, "图片上传失败!");
+              }
+            },
+          })
+        }
+      });
+
+      tagSelect.select2({
+        placeholder: '请选择你需要的标签，最多三个', // 提示
+        width: '70%', // 宽度
+        allowClear: true, // 可清空
+        debug: true, // 上线后关闭
+        language: 'zh-CN', // 中文
+        maximumSelectionLength: 3, //最多选三个
+        multiple: true, // 可多选
+        // 动态请求数据
+        ajax: {
+          url: '/article/api/tag/list',
+          data: function (params) {
+            var query = {
+              pageNumber: params.page,
+              pageSize: 10,
+              key: params.term,
+              categoryId: getChooseCategoryId(),
             }
 
-            // 已知的参数
-            let defaults = {
-              articleId: articleId,
-              articleType: "BLOG",
-              source: 2,
-              sourceUrl: "",
-              cover: cover,
+            // 查询参数将是 ?search=[term]&type=public
+            return query;
+          },
+          dataType: 'json',
+          processResults: function (response, params) {
+            console.log("response: ", response)
+            console.log("page: ", params.page)
+            var data = $.map(response.result.list, function (obj) {
+              obj.id = obj.id || obj.tagId;
+              obj.text = obj.text || obj.tag;// 用您的标识符替换pk
+
+              return obj;
+            });
+            return {
+              results: data,
+              pagination: {
+                more: response.result.pageNum < response.result.pageTotal// 总页数为10，那么1-9页的时候都可以下拉刷新
+              }
             };
+          }
+        }
+      });
 
-            // 编辑器
-            let simplemde = editormd("paiEditor", {
-              width: "100%",
-              // height: 740,
-              path: '../editormd/lib/',
-              // autoHeight : true,
-              // theme : "dark",
-              // previewTheme : "dark",
-              // editorTheme : "pastel-on-dark",
-              // markdown : md.result,
-              codeFold: true,
-              //syncScrolling : false,
-              saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
-              searchReplace: true,
-              //watch : false,                // 关闭实时预览
-              htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
-              //toolbar  : false,             //关闭工具栏
-              //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
-              emoji: true,
-              taskList: true,
-              tocm: true,         // Using [TOCM]
-              tex: true,                   // 开启科学公式TeX语言支持，默认关闭
-              flowChart: true,             // 开启流程图支持，默认关闭
-              sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
-              //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
-              //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
-              //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
-              //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
-              //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
-              imageUpload: true,
-              imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-              imageUploadURL: "/image/upload",
-              onload: function () {
-                console.log('onload', this);
-                //this.fullscreen();
-                //this.unwatch();
-                //this.watch().fullscreen();
+      // 提取简介
+      $(".btn-getdistill").on("click", function () {
+        // 获取文章内容
+        let content = checkContent().trim();
+        // 准备提交到后端
+        if (content.length > 600) {
+          content = content.substring(0, 600)
+        }
 
-                //this.setMarkdown("#PHP");
-                //this.width("100%");
-                //this.height(480);
-                //this.resize("100%", 640);
-              },
-              onchange: function () {
-                console.log('onchange', this);
+        const params = {
+          content: content,
+        };
 
-                let newVal = this.getMarkdown();
-                let add;
-                if (newVal.startsWith(lastVal)) {
-                  add = newVal.substring(lastVal.length);
-                } else if (lastVal.startsWith(newVal)) {
-                  lastVal = newVal;
-                  return;
-                } else {
-                  add = newVal;
-                }
+        post("/article/api/generateSummary", params, function (data) {
+          console.log("提取后的简介:", data)
+          $("#summary").val(data);
+          $('.form-textarea-limit').text(data.length + '/' + summaryMax)
+        });
 
-                // 获取变化的内容，判断新增内容中是否存在图片
-                const pattern = /!\[(.*?)\]\((.*?)\)/mg;
-                let matcher;
-                try {
-                  while ((matcher = pattern.exec(add)) !== null) {
-                    let target = matcher[0];
-                    let title = matcher[1];
-                    let url = matcher[2];
-                    if (url.length > 0 && url.startsWith("http")) {
-                      // 再图片自动上传的过程中，不允许继续编辑，避免出现问题
-                      simplemde.readonly = true;
-                      console.log("start to upload: ", target, title, url);
-                      get("/image/save?img=" + url, "", function (result) {
-                        let newImg = `![${title}](${result.imagePath})`;
-                        if (target != newImg) {
-                          // 获取光标位置，替换之后重新设置
-                          let cursor = simplemde.getCursor();
-                          simplemde.setValue(simplemde.getMarkdown().replaceAll(target, newImg));
-                          simplemde.setCursor({line: cursor.line, ch: cursor.ch})
-                        }
-                      });
-                    }
-                  }
-                  lastVal = newVal;
-                } catch (e) {
-                  console.log(e);
-                } finally {
-                  simplemde.readonly = false;
-                }
-              }
-            });
-            let lastVal = "";
+      });
 
-            // 复制粘贴图片
-            document.addEventListener('paste', function (event) {
-              let items = (event.clipboardData || window.clipboardData).items;
-              let file = null;
-              if (items && items.length) {
-                // 搜索剪切板items
-                for (let i = 0; i < items.length; i++) {
-                  if (items[i].type.indexOf('image') !== -1) {
-                    file = items[i].getAsFile();
-                    break;
-                  }
-                }
-              } else {
-                toastr.error("当前浏览器不支持");
-                return;
-              }
-              if (!file) {
-                return;
-              }
-              // 此时需要先上传到服务器端，然后
-              let objUrl = getObjectURL(file); //获取图片的路径，该路径不是图片在本地的路径
-              console.log("文章编辑器中上传图片：" + { objUrl });
+      // 检查标题的长度
+      function checkTitle() {
+        const title = titleInput.val();
+        if (title.length <= titleMin) {
+          toastr.error("文章标题太短!")
+          return;
+        }
+        if (title.length > titleMax) {
+          toastr.error("文章标题太长了!");
+          return;
+        }
+        return title;
+      }
 
-              if (objUrl) {
-                let pic = file
-                let formData = new FormData()
-                formData.append("image", pic)
-                $.ajax({
-                  url: "/image/upload",
-                  type: "post",
-                  data: formData,
-                  cache: false,
-                  contentType: false,
-                  processData: false,
-                  success: function (data) {
-                    if (data.status.code === 0) {
-                      // 插入一个空行
-                      simplemde.insertValue("\n");
-                      simplemde.replaceSelection("![](" + data.result.imagePath + ")");
-                      simplemde.insertValue("\n");
-                    } else {
-                      toastr.error(data.status.msg, "图片上传失败!");
-                    }
-                  },
-                })
-              }
-            });
+      // 检查内容的长度
+      function checkContent() {
+        const content = simplemde.getMarkdown();
 
-            tagSelect.select2({
-              placeholder: '请选择你需要的标签，最多三个', // 提示
-              width: '70%', // 宽度
-              allowClear: true, // 可清空
-              debug: true, // 上线后关闭
-              language: 'zh-CN', // 中文
-              maximumSelectionLength: 3, //最多选三个
-              multiple: true, // 可多选
-              // 动态请求数据
-              ajax: {
-                url: '/article/api/tag/list',
-                data: function (params) {
-                  var query = {
-                    pageNumber: params.page,
-                    pageSize: 10,
-                    key: params.term,
-                    categoryId: getChooseCategoryId(),
-                  }
+        if (content.length <= contentMin) {
+          toastr.error("文章内容太短了！");
+          return;
+        }
 
-                  // 查询参数将是 ?search=[term]&type=public
-                  return query;
-                },
-                dataType: 'json',
-                processResults: function (response, params) {
-                  console.log("response: ", response)
-                  console.log("page: ", params.page)
-                  var data = $.map(response.result.list, function (obj) {
-                    obj.id = obj.id || obj.tagId;
-                    obj.text = obj.text || obj.tag;// 用您的标识符替换pk
+        return content;
+      }
 
-                    return obj;
-                  });
-                  return {
-                    results: data,
-                    pagination: {
-                      more: response.result.pageNum < response.result.pageTotal// 总页数为10，那么1-9页的时候都可以下拉刷新
-                    }
-                  };
-                }
-              }
-            });
+      //  发表文章
+      $("#publish").on("click", function () {
+        doPostArticle("post")
+      })
+      // 保存草稿
+      $("#tmpSave").on("click", function () {
+        doPostArticle("save")
+      })
 
-            // 提取简介
-            $(".btn-getdistill").on("click", function () {
-              // 获取文章内容
-              var content = simplemde.getMarkdown().trim();
-              // 准备提交到后端
-              if (content.length <= 6) {
-                toastr.error("文章内容太短了！");
-                return;
-              } else if (content.length > 600) {
-                content = content.substring(0, 600)
-              }
+      // 获取表单类容
+      function doPostArticle(action) {
+        const title = checkTitle();
+        const content = checkContent();
 
-              const params = {
-                content: content,
-              };
+        // 分类选择
+        const category = getChooseCategoryId()
+        if (parseInt(category) <= 0) {
+          toastr.error("请选择文章分类");
+          return;
+        }
+        // 处理标签
+        const tagsAll = [];
+        $.each(tagSelect.select2('data'), function (index, value) {
+          tagsAll.push(value.id);
+        });
 
-              post("/article/api/generateSummary", params, function (data) {
-                console.log("提取后的简介:", data)
-                $("#summary").val(data);
-                $('.form-textarea-limit').text(data.length + '/128')
-              });
+        if (tagsAll.length <= 0 || tagsAll.length > 3) {
+          toastr.error("请选择1-3个标签!");
+          return;
+        }
 
-            });
+        const summary = $("#summary").val()
+        if (summary.length < contentMin || summary.length > summaryMax) {
+          toastr.error("简介字数应该在6-128之间哦!");
+          return;
+        }
 
-            //  发表文章
-            $("#publish").on("click", function () {
-              doPostArticle("post")
-              localStorage.clear()
-            })
-            // 保存草稿
-            $("#tmpSave").on("click", function () {
-              doPostArticle("save")
-              localStorage.clear()
-            })
+        let options = {
+          title: title,
+          content: content,
+          categoryId: category,
+          tagIds: tagsAll,
+          summary: summary,
+          actionType: action, // post 表示发表, save表示暂存
+        }
 
+        let params = $.extend( {}, defaults, options );
+        console.log(params);
 
-            // 获取表单类容
-            function doPostArticle(action) {
-              const title = $("#title").val();
-              const subTitle = $("#subTitle").val();
-              const content = simplemde.getMarkdown();
-              if (title.length <= 5) {
-                toastr.error("文章标题太短!")
-                return;
-              }
-              if (title.length > 120) {
-                toastr.error("文章标题太长了!");
-                return;
-              }
-              if (content.length <= 6) {
-                toastr.error("文章内容太短了！");
-                return;
-              }
+        post("/article/api/post", params, function (data) {
+          console.log("返回结果:", data)
+          window.location.href = "/article/detail/" + data
+        })
+      }
 
-              // 分类选择
-              const category = getChooseCategoryId()
-              if (parseInt(category) <= 0) {
-                toastr.error("请选择文章分类");
-                return;
-              }
-              // 处理标签
-              const tagsAll = [];
-              $.each(tagSelect.select2('data'), function (index, value) {
-                tagsAll.push(value.id);
-              });
+      function getChooseCategoryId() {
+        const category = $("input[name='category']:radio:checked")
+        if (category.length > 0) {
+          return category.val()
+        }
+        return -1
+      }
 
-              if (tagsAll.length <= 0 || tagsAll.length > 3) {
-                toastr.error("请选择1-3个标签!");
-                return;
-              }
+      // 检查输入简介摘要的长度
+      function initSummary() {
+        let len = $('#summary').val().length
+        if (len > summaryMax) {
+          len = summaryMax;
+        }
+        $('.form-textarea-limit').text(len + '/' + summaryMax)
+      }
 
-              const summary = $("#summary").val()
-              if (summary.length < 6 || summary.length > 128) {
-                toastr.error("简介字数应该在6-128之间哦!");
-                return;
-              }
+      // 控制文章分类的选择
+      categoryLabel.each(function (index) {
+        (function (index) {
+          categoryLabel.eq(index).on('click', function () {
+            categoryLabel.removeClass('form-selectgroup-item--active')
+              .eq(index).addClass('form-selectgroup-item--active')
+          })
+        })(index)
+      })
 
-              let options = {
-                title: title,
-                subTitle: subTitle,
-                content: content,
-                categoryId: category,
-                tagIds: tagsAll,
-                summary: summary,
-                actionType: action, // post 表示发表, save表示暂存
-              }
+      let showSaveBtn = false;
+      // 处理按钮隐藏时不可编辑
+      editBtn.click(() => {
+        if (!showSaveBtn) return false
+        // 点击保存时检查标题长度
+        checkTitle();
+        checkContent();
+        $("#saveModel").modal();
+      })
 
-              let params = $.extend( {}, defaults, options );
-              console.log(params);
+      // 处理title输入保存以及按钮显隐的问题
+      const setTitle = () => {
+        const value = titleInput.val()
+        const len = value.length
+        console.log(value)
 
-              post("/article/api/post", params, function (data) {
-                console.log("返回结果:", data)
-                window.location.href = "/article/detail/" + data
-              })
+        if (len > titleMin) {
+          editBtn.addClass('edit-save--active')
+          showSaveBtn = true
+        } else {
+          editBtn.removeClass('edit-save--active')
+          showSaveBtn = false
+        }
+      }
+
+      // 初始化
+      setTitle();
+
+      function showByMouseover() {
+        let objUrl = pic.attr("src");
+        // 已经上传过了
+        if (objUrl) {
+          close_icon.css('display', 'block');
+          $('.upload-icon-up').css('visibility', 'hidden');
+        } else {
+          clickCover.css("visibility", "visible")
+        }
+      }
+
+      // 是否显示封面
+      function initCover() {
+        // 文章 ID，新建文章
+        if (articleId == 0) {
+
+        } else {
+          // 编辑的时候，显示图片，如果为空的时候不显示
+          if (cover.length > 0) {
+            pic.attr("src", cover);
+            showByMouseover();
+          }
+        }
+      }
+
+      // 初始化封面
+      initCover();
+
+      // 封面上传相关
+      $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
+        console.log("出现上传的按钮")
+        showByMouseover();
+      }).on("mouseleave", ".person-img-inter-wrap", function () {
+        clickCover.css("visibility", "hidden")
+      })
+
+      clickCover.click(function () {
+        upload.click() //隐藏了input:file样式后，点击头像就可以本地上传
+      })
+
+      upload.on("change", function (e) {
+        let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+        const file = e.target.files[0]
+        if (file.size > 1024 * 1024 * 5) {
+          toastr.error("图片不能超过5M!")
+          return false
+        }
+        if (objUrl) {
+          console.log("uploadImg", this.value)
+          uploadImg(() => (this.value = null), objUrl)
+        }
+      })
+
+      // 删除图片后
+      close_icon.click(function () {
+        pic.attr("src", "").css('visibility', 'hidden');
+        close_icon.css('display', 'none');
+        $('.upload-icon-up').css('visibility', 'visible');
+
+        // 删除图片后置空
+        defaults['cover'] = "";
+      })
+
+      // 上传头图到服务器
+      function uploadImg(callback, objUrl) {
+        let uploadPic = upload[0].files[0]
+        console.log("准备上传", uploadPic)
+
+        let file = new FormData()
+        file.append("image", uploadPic)
+        $.ajax({
+          url: "/image/upload",
+          type: "post",
+          data: file,
+          cache: false,
+          contentType: false,
+          processData: false,
+          success: function (data) {
+            console.log("response data", data);
+            if (data.status.code > 0) {
+              // 图片上传失败
+              toastr.error(data.status.msg, "图片上传失败!");
+              return;
             }
 
-            function getChooseCategoryId() {
-              const category = $("input[name='category']:radio:checked")
-              if (category.length > 0) {
-                return category.val()
-              }
-              return -1
-            }
+            const {result: { imagePath },} = data || {}
+            defaults['cover'] = imagePath;
 
-            // 检查输入内容的长度
-            function checkArea() {
-              len = $('#summary').val().length
-              if (len > 128) {
-                len = 128;
-              }
-              $('.form-textarea-limit').text(len + '/128')
-            }
+            //将图片路径存入src中，显示出图片
+            pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
+            $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
 
-            // 控制文章分类的选择
-            $('.form-selectgroup-item').each(function (index) {
-              (function (index) {
-                $('.form-selectgroup-item').eq(index).on('click', function () {
-                  $('.form-selectgroup-item').removeClass('form-selectgroup-item--active')
-                    .eq(index).addClass('form-selectgroup-item--active')
-                })
-              })(index)
-            })
-
-            let showSaveBtn = false;
-            // 处理按钮隐藏时不可编辑
-            $('.edit-save').click(() => {
-              if (!showSaveBtn) return false
-            })
-            // 处理title输入保存以及按钮显隐的问题
-            const checkTitle = () => {
-              const value = $('#title').val()
-              const len = value.length
-              console.log(value)
-              localStorage.setItem('articleTitle', value)
-              if (len > 5) {
-                $('.edit-save').addClass('edit-save--active')
-                showSaveBtn = true
-              } else {
-                $('.edit-save').removeClass('edit-save--active')
-                showSaveBtn = false
-              }
-            }
-            // 初始化title 暂时去掉缓存
-            const initTitle = () => {
-              console.log("init title!");
-              const titleValue = localStorage.getItem('articleTitle')
-              if (titleValue) {
-                $('#title').attr("value", titleValue)
-                checkTitle();
-              } else {
-                checkTitle();
-              }
-            }
-
-            function showByMouseover() {
-              let objUrl = pic.attr("src");
-              // 已经上传过了
-              if (objUrl) {
-                close_icon.css('display', 'block');
-                $('.upload-icon-up').css('visibility', 'hidden');
-              } else {
-                clickCover.css("visibility", "visible")
-              }
-            }
-
-            // 是否显示封面
-            function initCover() {
-              // 文章 ID，新建文章
-              if (articleId == 0) {
-
-              } else {
-                // 编辑的时候，显示图片，如果为空的时候不显示
-                if (cover.length > 0) {
-                  pic.attr("src", cover);
-                  showByMouseover();
-                }
-              }
-            }
-
-            // 初始化标题
-            // 编辑文章的时候就直接从文章取
-            if (articleId == 0) {
-
-            } else {
-              initTitle();
-            }
-
-            // 初始化封面
-            initCover();
-
-            // 封面上传相关
-            $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
-              console.log("出现上传的按钮")
-              showByMouseover();
-            }).on("mouseleave", ".person-img-inter-wrap", function () {
-              clickCover.css("visibility", "hidden")
-            })
-
-            clickCover.click(function () {
-              upload.click() //隐藏了input:file样式后，点击头像就可以本地上传
-            })
-
-            upload.on("change", function (e) {
-              let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-              const file = e.target.files[0]
-              if (file.size > 1024 * 1024 * 9) {
-                toastr.error("图片不能超过5M!")
-                return false
-              }
-              if (objUrl) {
-                console.log("uploadImg", this.value)
-                uploadImg(() => (this.value = null))
-              }
-            })
-
-            // 删除图片后
-            close_icon.click(function () {
-              pic.attr("src", "").css('visibility', 'hidden');
-              close_icon.css('display', 'none');
-              $('.upload-icon-up').css('visibility', 'visible');
-
-              // 删除图片后置空
-              defaults['cover'] = "";
-            })
-
-            // 上传头图到服务器
-            function uploadImg(callback) {
-              let uploadPic = upload[0].files[0]
-              console.log("准备上传", uploadPic)
-
-              let file = new FormData()
-              file.append("image", uploadPic)
-              $.ajax({
-                url: "/image/upload",
-                type: "post",
-                data: file,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                  console.log("response data", data);
-                  if (data.status.code > 0) {
-                    // 图片上传失败
-                    toastr.error(data.status.msg, "图片上传失败!");
-                    return;
-                  }
-
-                  const {result: { imagePath },} = data || {}
-                  defaults['cover'] = imagePath;
-
-                  //将图片路径存入src中，显示出图片
-                  pic.attr("src", imagePath).css('visibility', 'visible') // 展示图片
-                  $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
-                  
-                  $(".res-upload-img").attr("src", imagePath);
-                  $(".res-upload-wrap").removeClass("hide");
-                  callback();
-                  toastr.info("图片上传成功!");
-                },
-                error : function(jqXHR, textStatus, errorThrown) {
-                  toastr.error(jqXHR.responseText, "图片上传失败!");
-                },
-              })
-            }
+            $(".res-upload-img").attr("src", imagePath);
+            $(".res-upload-wrap").removeClass("hide");
+            callback();
+            toastr.info("图片上传成功!");
+          },
+          error : function(jqXHR, textStatus, errorThrown) {
+            toastr.error(jqXHR.responseText, "图片上传失败!");
+          },
+        })
+      }
     </script>
   </body>
 </html>
