@@ -66,7 +66,7 @@ const loadLink = function (url) {
 
 //建立一?可存取到?file的url
 const getObjectURL = function (file) {
-  checkFileSize(file);
+  if (!checkFileSize(file)) return;
 
   let url = null
   if (window.createObjectURL != undefined) {
