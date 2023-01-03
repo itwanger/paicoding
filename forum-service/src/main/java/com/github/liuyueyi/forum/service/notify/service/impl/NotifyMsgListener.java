@@ -32,10 +32,6 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
     private final CommentReadService commentReadService;
 
     private final NotifyMsgDao notifyMsgDao;
-
-    @Value("${view.site.welcomeInfo}")
-    private String welcomeInfo;
-
     public NotifyMsgListener(ArticleReadService articleReadService,
                              CommentReadService commentReadService,
                              NotifyMsgDao notifyMsgDao) {
@@ -199,7 +195,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
                 .setOperateUserId(ADMIN_ID)
                 .setType(NotifyTypeEnum.REGISTER.getType())
                 .setState(NotifyStatEnum.UNREAD.getStat())
-                .setMsg(welcomeInfo);
+                .setMsg(SpringUtil.getConfig("view.site.welcomeInfo"));
         NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
         if (record == null) {
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
