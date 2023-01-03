@@ -108,4 +108,13 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
                 .count()
                 .intValue();
     }
+
+    /**
+     * 更新阅读相关计数
+     */
+    public void updatePdfConfigVisitNum(long configId, String extra) {
+        lambdaUpdate().set(ConfigDO::getExtra, extra)
+                .eq(ConfigDO::getId, configId)
+                .update();
+    }
 }

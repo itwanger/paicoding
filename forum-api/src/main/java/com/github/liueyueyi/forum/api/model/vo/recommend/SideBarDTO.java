@@ -28,7 +28,7 @@ public class SideBarDTO {
 
     private String content;
 
-    private List<SideBarItemDto> items;
+    private List<SideBarItemDTO> items;
 
     /**
      * 侧边栏样式

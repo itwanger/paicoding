@@ -39,6 +39,7 @@ public class ConfigConverter {
         configDTO.setStatus(configDO.getStatus());
         configDTO.setId(configDO.getId());
         configDTO.setTags(configDO.getTags());
+        configDTO.setExtra(configDO.getExtra());
         configDTO.setCreateTime(configDO.getCreateTime());
         configDTO.setUpdateTime(configDO.getUpdateTime());
         return configDTO;

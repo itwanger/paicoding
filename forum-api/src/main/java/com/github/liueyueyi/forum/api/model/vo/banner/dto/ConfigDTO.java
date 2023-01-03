@@ -49,6 +49,11 @@ public class ConfigDTO extends BaseDTO {
     private Integer status;
 
     /**
+     * json格式扩展信息
+     */
+    private String extra;
+
+    /**
      * 配置相关的标签：如 火，推荐，精选 等等，英文逗号分隔
      *
      * @see ConfigTagEnum#getCode()
