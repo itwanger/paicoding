@@ -660,12 +660,13 @@
                     return;
                   }
 
+                  const {result: { imagePath },} = data || {}
+                  defaults['cover'] = imagePath;
+
                   //将图片路径存入src中，显示出图片
                   pic.attr("src", imagePath).css('visibility', 'visible') // 展示图片
                   $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
-
-                  const {result: { imagePath },} = data || {}
-                  defaults['cover'] = imagePath;
+                  
                   $(".res-upload-img").attr("src", imagePath);
                   $(".res-upload-wrap").removeClass("hide");
                   callback();
