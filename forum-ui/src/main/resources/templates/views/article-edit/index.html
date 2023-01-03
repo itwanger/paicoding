@@ -618,7 +618,7 @@
             upload.on("change", function (e) {
               let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
               const file = e.target.files[0]
-              if (file.size > 1024 * 1024 * 5) {
+              if (file.size > 1024 * 1024 * 9) {
                 toastr.error("图片不能超过5M!")
                 return false
               }
@@ -661,7 +661,7 @@
                   }
 
                   //将图片路径存入src中，显示出图片
-                  pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
+                  pic.attr("src", imagePath).css('visibility', 'visible') // 展示图片
                   $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
 
                   const {result: { imagePath },} = data || {}
