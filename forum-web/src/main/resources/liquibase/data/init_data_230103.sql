@@ -1,4 +1,11 @@
-技术派
+INSERT INTO article
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, status, deleted)
+VALUES(1, 1, 1, '技术派全方位视角解读', '关于技术派', '', '技术派的使用说明介绍', 1, 2, '', 1, 0);
+
+
+INSERT INTO article_detail
+(article_id, version, content)
+VALUES(1, 2, '技术派
 ---
 
 技术派是一个基于SpringBoot实现完全开源的技术论坛社区
@@ -60,7 +67,7 @@ mvn clean install -DskipTests=true -Pprod
 - resources/static: 静态资源文件，如css/js/image，放在这里
 - resources/templates: html相关页面
   - views: 业务相关的页面
-    - 定义： 
+    - 定义：
       - 页面/index.html:  这个index.html表示的是这个业务对应的主页面
       - 页面/模块/xxx.html:  若主页面又可以拆分为多个模块页面进行组合，则在这个页面下，新建一个模块目录，下面放对应的html文件
     - article-category-list: 对应 分类文章列表页面，
@@ -97,3 +104,4 @@ mvn clean install -DskipTests=true -Pprod
   - ...
 - common: 公共组件的css集合 （直接在公共组件components/layout/header/index.html内引入）
 - global: 全局样式（全局的样式控制，注意覆盖问题，直接在公共组件components/layout/header/index.html内引入）
+')

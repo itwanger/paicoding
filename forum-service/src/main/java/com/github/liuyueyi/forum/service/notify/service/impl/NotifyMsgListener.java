@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.service.notify.service.impl;
 import com.github.liueyueyi.forum.api.model.enums.NotifyStatEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.comment.repository.entity.CommentDO;
@@ -12,6 +13,7 @@ import com.github.liuyueyi.forum.service.notify.repository.entity.NotifyMsgDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserFootDO;
 import com.github.liuyueyi.forum.service.user.repository.entity.UserRelationDO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,9 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
     private final CommentReadService commentReadService;
 
     private final NotifyMsgDao notifyMsgDao;
+
+    @Value("${view.site.welcomeInfo}")
+    private String welcomeInfo;
 
     public NotifyMsgListener(ArticleReadService articleReadService,
                              CommentReadService commentReadService,
@@ -194,7 +199,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
                 .setOperateUserId(ADMIN_ID)
                 .setType(NotifyTypeEnum.REGISTER.getType())
                 .setState(NotifyStatEnum.UNREAD.getStat())
-                .setMsg("欢迎注册使用论坛，更多的使用姿势请参考：<a href=\"/\">使用教程<a/>");
+                .setMsg(welcomeInfo);
         NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
         if (record == null) {
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
