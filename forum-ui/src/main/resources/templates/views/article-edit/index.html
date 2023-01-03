@@ -348,14 +348,14 @@
         if (!file) {
           return;
         }
+
         // 此时需要先上传到服务器端，然后
         let objUrl = getObjectURL(file); //获取图片的路径，该路径不是图片在本地的路径
         console.log("文章编辑器中上传图片：" + { objUrl });
 
         if (objUrl) {
-          let pic = file
           let formData = new FormData()
-          formData.append("image", pic)
+          formData.append("image", file)
           $.ajax({
             url: "/image/upload",
             type: "post",
@@ -618,11 +618,7 @@
 
       upload.on("change", function (e) {
         let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-        const file = e.target.files[0]
-        if (file.size > 1024 * 1024 * 5) {
-          toastr.error("图片不能超过5M!")
-          return false
-        }
+
         if (objUrl) {
           console.log("uploadImg", this.value)
           uploadImg(() => (this.value = null), objUrl)

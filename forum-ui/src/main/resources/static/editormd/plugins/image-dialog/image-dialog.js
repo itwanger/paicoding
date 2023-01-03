@@ -153,12 +153,13 @@
 
                     loading(true);
 
-                    var objUrl = getObjectURL(this.files[0]); //获取图片的路径，该路径不是图片在本地的路径
+                    let image = this.files[0];
+                    let objUrl = getObjectURL(image); //获取图片的路径，该路径不是图片在本地的路径
                     console.log("文章编辑器中上传图片：" + { objUrl });
 
                     if (objUrl) {
-                        var pic = fileInput[0].files[0]
-                        var file = new FormData()
+                        let pic = fileInput[0].files[0]
+                        let file = new FormData()
                         file.append("image", pic)
                         $.ajax({
                             url: action,
