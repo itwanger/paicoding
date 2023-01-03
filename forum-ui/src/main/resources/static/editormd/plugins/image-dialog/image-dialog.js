@@ -159,6 +159,11 @@
 
                     if (objUrl) {
                         let pic = fileInput[0].files[0]
+
+                        if (!checkFileSize(pic)) {
+                            return;
+                        }
+
                         let file = new FormData()
                         file.append("image", pic)
                         $.ajax({
