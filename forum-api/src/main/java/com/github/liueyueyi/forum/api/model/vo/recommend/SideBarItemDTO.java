@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class SideBarItemDto {
+public class SideBarItemDTO {
 
     private String title;
 
@@ -29,4 +29,9 @@ public class SideBarItemDto {
      * tag列表
      */
     private List<Integer> tags;
+
+    /**
+     * 评分信息
+     */
+    private RateVisitDTO visit;
 }

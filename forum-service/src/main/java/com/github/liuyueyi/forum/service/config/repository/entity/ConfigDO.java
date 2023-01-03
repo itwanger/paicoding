@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.liueyueyi.forum.api.model.entity.BaseDO;
 import com.github.liueyueyi.forum.api.model.enums.ConfigTagEnum;
+import com.github.liueyueyi.forum.api.model.enums.ConfigTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,6 +21,7 @@ public class ConfigDO extends BaseDO {
     private static final long serialVersionUID = -6122208316544171303L;
     /**
      * 类型
+     * @see ConfigTypeEnum#getCode()
      */
     private Integer type;
 
@@ -66,4 +68,9 @@ public class ConfigDO extends BaseDO {
      * @see ConfigTagEnum#getCode()
      */
     private String tags;
+
+    /**
+     * 扩展信息，如记录 评分，阅读人数，下载次数等
+     */
+    private String extra;
 }

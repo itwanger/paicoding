@@ -20,4 +20,12 @@ public interface ConfigService {
      * @return
      */
     List<ConfigDTO> getConfigList(ConfigTypeEnum configTypeEnum);
+
+    /**
+     * 阅读次数+1
+     *
+     * @param configId
+     * @param extra
+     */
+    void updateVisit(long configId, String extra);
 }
