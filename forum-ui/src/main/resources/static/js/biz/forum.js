@@ -66,7 +66,9 @@ const loadLink = function (url) {
 
 //建立一?可存取到?file的url
 const getObjectURL = function (file) {
-  var url = null
+  checkFileSize(file);
+
+  let url = null
   if (window.createObjectURL != undefined) {
     // basic
     url = window.createObjectURL(file)
@@ -520,4 +522,11 @@ const showtime = function (endTime) {
       lefts = '0' + lefts;
     }
     return '剩余 ' + leftd + " 天 " + lefth + ":" + leftm + ":" + lefts;  //返回倒计时的字符串
+}
+
+const checkFileSize = function (file) {
+  if (file.size > 1024 * 1024 * 5) {
+    toastr.error("图片不能超过5M!")
+    return false
+  }
 }
