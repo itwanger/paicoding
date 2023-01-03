@@ -212,6 +212,8 @@
       $(".nav-article").click(() => {
           if ([[${global.isLogin}]]) {
             // 新页面打开文章编辑
+            // 移除本地缓存
+            localStorage.removeItem('articleTitle');
             window.open("/article/edit")
           }
       })

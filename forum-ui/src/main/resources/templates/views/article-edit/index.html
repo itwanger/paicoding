@@ -16,7 +16,7 @@
           class="edit-title-input"
           th:value="${vo.article != null ? vo.article.title: ''}"
           placeholder="输入文章标题..."
-          oninput="setTitle()"
+          oninput="showSaveBtnByTitle()"
         />
       </form>
       <div class="edit-save">
@@ -214,13 +214,16 @@
     </div>
 
     <script th:inline="javascript">
-      // https://github.com/sparksuite/simplemde-markdown-editor
-      let vo = [[${ vo }]], uid = "forumId", articleId = 0, pic = $("#pic"),
-              cover =[[${ vo.article != null ? vo.article.cover : '' }]],
-              tagSelect = $('#tag-select'), close_icon = $(".close_icon"),
+      // 一些 jQuery 对象
+      let pic = $("#pic"),tagSelect = $('#tag-select'),
               upload = $("#upload"), clickCover = $(".click-cover"),
               titleInput = $('#titleInput'), categoryLabel = $('.form-selectgroup-item'),
-              editBtn = $('.edit-save');
+              editBtn = $('.edit-save'),close_icon = $(".close_icon");
+
+      // 一些变量
+      let vo = [[${ vo }]], uid = "forumId", articleId = 0,
+              cover =[[${ vo.article != null ? vo.article.cover : '' }]],
+              showSaveBtnFlagByTitle = false;
 
       const titleMin = 5, titleMax = 120,
         contentMin = 6, summaryMax = 128;
@@ -555,33 +558,48 @@
         })(index)
       })
 
-      let showSaveBtn = false;
+
       // 处理按钮隐藏时不可编辑
       editBtn.click(() => {
-        if (!showSaveBtn) return false
-        // 点击保存时检查标题长度
-        if (!checkTitle()) return false;
-        if (!checkContent()) return false;
+        if (!showSaveBtnFlagByTitle) return false
         $("#saveModel").modal();
       })
 
       // 处理title输入保存以及按钮显隐的问题
-      const setTitle = () => {
+      const showSaveBtnByTitle = () => {
         const value = titleInput.val()
         const len = value.length
         console.log(value)
 
+        // 保存到本地
+        localStorage.setItem('articleTitle', value)
+
         if (len > titleMin) {
           editBtn.addClass('edit-save--active')
-          showSaveBtn = true
+          showSaveBtnFlagByTitle = true
         } else {
           editBtn.removeClass('edit-save--active')
-          showSaveBtn = false
+          showSaveBtnFlagByTitle = false
         }
       }
 
-      // 初始化
-      setTitle();
+      // 从本地初始化标题
+      initTitleFormLocalStorage();
+
+      function initTitleFormLocalStorage() {
+        const editTitle = titleInput.val();
+        // 编辑的时候不从本地取
+        if (editTitle) {
+
+        } else {
+          const titleValue = localStorage.getItem('articleTitle')
+          if (titleValue) {
+            titleInput.val(titleValue)
+          }
+        }
+
+        showSaveBtnByTitle();
+      }
 
       function showByMouseover() {
         let objUrl = pic.attr("src");
