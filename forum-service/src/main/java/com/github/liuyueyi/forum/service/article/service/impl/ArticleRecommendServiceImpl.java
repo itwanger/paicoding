@@ -1,14 +1,12 @@
 package com.github.liuyueyi.forum.service.article.service.impl;
 
-import com.github.liueyueyi.forum.api.model.enums.ConfigTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.SidebarStyleEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
-import com.github.liueyueyi.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarDTO;
-import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarItemDto;
+import com.github.liueyueyi.forum.api.model.vo.recommend.SideBarItemDTO;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
@@ -16,13 +14,10 @@ import com.github.liuyueyi.forum.service.article.repository.entity.ArticleTagDO;
 import com.github.liuyueyi.forum.service.article.service.ArticleReadService;
 import com.github.liuyueyi.forum.service.article.service.ArticleRecommendService;
 import com.github.liuyueyi.forum.service.sidebar.service.SidebarService;
-import com.github.liuyueyi.forum.service.sidebar.service.SidebarServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,8 +57,8 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
      */
     public SideBarDTO recommendByAuthor(Long authorId, Long articleId, long size) {
         List<SimpleArticleDTO> list = articleDao.listAuthorHotArticles(authorId, PageParam.newPageInstance(PageParam.DEFAULT_PAGE_NUM, size));
-        List<SideBarItemDto> items = list.stream().filter(s -> !s.getId().equals(articleId))
-                .map(s -> new SideBarItemDto()
+        List<SideBarItemDTO> items = list.stream().filter(s -> !s.getId().equals(articleId))
+                .map(s -> new SideBarItemDTO()
                         .setTitle(s.getTitle()).setUrl("/article/detail/" + s.getId())
                         .setTime(s.getCreateTime().getTime()))
                 .collect(Collectors.toList());

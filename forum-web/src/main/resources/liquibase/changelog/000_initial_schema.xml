@@ -23,11 +23,18 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_221216.sql"/>
     </changeSet>
 
+    <!--  专栏类型，新增免费开始时间、结束时间  -->
     <changeSet id="00000000000006" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_221223.sql"/>
     </changeSet>
 
+    <!-- user_info表添加ip字段，用于记录访问用户所在地   -->
     <changeSet id="00000000000007" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_221229.sql"/>
+    </changeSet>
+
+    <!-- 配置表新增 extra 字段 -->
+    <changeSet id="00000000000008" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230103.sql"/>
     </changeSet>
 </databaseChangeLog>

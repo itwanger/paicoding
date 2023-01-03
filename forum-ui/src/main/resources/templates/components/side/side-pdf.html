@@ -24,15 +24,15 @@
                                 <span class="column-title"
                                       th:text="${item.name}"></span>
                             </div>
-                            <div class="ebook-home-stars d-flex">
+                            <div class="ebook-home-stars d-flex" th:if="${item.visit != null}">
                                 <div class="ebook-def-star">
-                                    <div class="ebook-cur-star" style="width: 91.0%;"></div>
+                                    <div class="ebook-cur-star" style="width: 91.0%;" th:style="'width: ' + ${T(java.lang.Float).parseFloat(item.visit.rate) * 100} + '%;'"></div>
                                 </div>
-                                <div class="ebook-star-count">9.1</div>
+                                <div class="ebook-star-count" th:text="${item.visit.rate}">9.1</div>
                             </div>
                             <div class="ebook-home-info d-flex">
-                                <div class="ebook-home-view">2465860</div>
-                                <div class="ebook-home-download">12455</div>
+                                <div class="ebook-home-view" th:text="${item.visit.visit} + ''">2465860</div>
+                                <div class="ebook-home-download" th:text="${item.visit.download} + ''">12455</div>
                             </div>
                         </div>
                     </a>
