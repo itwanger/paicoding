@@ -1,15 +1,20 @@
 package com.github.liuyueyi.forum.core.util;
 
-import lombok.Data;
+import com.github.hui.quick.plugin.base.FileWriteUtil;
+import com.github.liuyueyi.forum.core.region.IpRegionInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lionsoul.ip2region.xdb.Searcher;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author YiHui
@@ -159,14 +164,27 @@ public class IpUtil {
      * <a href="https://github.com/lionsoul2014/ip2region/tree/master/binding/java"/>
      */
     private static final String dbPath = "data/ip2region.xdb";
-    private static byte[] vIndex = null;
+    private static String tmpPath = null;
+    private static volatile byte[] vIndex = null;
 
     private static void initVIndex() {
         if (vIndex == null) {
             synchronized (IpUtil.class) {
                 if (vIndex == null) {
                     try {
-                        vIndex = Searcher.loadVectorIndexFromFile(IpUtil.class.getClassLoader().getResource(dbPath).getFile());
+                        String file = IpUtil.class.getClassLoader().getResource(dbPath).getFile();
+                        if (file.contains(".jar!")) {
+                            // RandomAccessFile 无法加载jar包内的文件，因此我们将资源拷贝到临时目录下
+                            FileWriteUtil.FileInfo tmpFile = new FileWriteUtil.FileInfo("/tmp/data", "ip2region", "xdb");
+                            tmpPath = tmpFile.getAbsFile();
+                            if (!new File(tmpPath).exists()) {
+                                // fixme 如果已经存在，则无需继续拷贝，因此当ip库变更之后，需要手动去删除 临时目录下生成的文件，避免出现更新不生效；更好的方式则是比较两个文件的差异性；当不同时，也需要拷贝过去
+                                FileWriteUtil.saveFileByStream(IpUtil.class.getClassLoader().getResourceAsStream(dbPath), tmpFile);
+                            }
+                        } else {
+                            tmpPath = file;
+                        }
+                        vIndex = Searcher.loadVectorIndexFromFile(tmpPath);
                     } catch (Exception e) {
                         log.error("failed to load vector index from {}\n", dbPath, e);
                     }
@@ -187,7 +205,7 @@ public class IpUtil {
         initVIndex();
         Searcher searcher = null;
         try {
-            searcher = Searcher.newWithVectorIndex(IpUtil.class.getClassLoader().getResource(dbPath).getFile(), vIndex);
+            searcher = Searcher.newWithVectorIndex(tmpPath, vIndex);
             return new IpRegionInfo(searcher.search(ip));
         } catch (Exception e) {
             log.error("failed to create vectorIndex cached searcher with {}: {}\n", dbPath, e);
@@ -199,66 +217,6 @@ public class IpUtil {
                 } catch (IOException e) {
                     log.error("failed to close file:{}\n", dbPath, e);
                 }
-            }
-        }
-    }
-
-    @Data
-    public static class IpRegionInfo {
-        /**
-         * 国家or地区
-         */
-        private String country;
-        /**
-         * 区域
-         */
-        private String region;
-        /**
-         * 省份
-         */
-        private String province;
-        /**
-         * 城市
-         */
-        private String city;
-        /**
-         * 网络运营商
-         */
-        private String isp;
-
-        public IpRegionInfo(String info) {
-            String[] cells = StringUtils.split(info, "|");
-            if (cells.length < 5) {
-                country = "";
-                region = "";
-                province = "";
-                city = "";
-                isp = "";
-                return;
-            }
-            country = "0".equals(cells[0]) ? "" : cells[0];
-            region = "0".equals(cells[1]) ? "" : cells[1];
-            province = "0".equals(cells[2]) ? "" : cells[2];
-            city = "0".equals(cells[3]) ? "" : cells[3];
-            isp = "0".equals(cells[4]) ? "" : cells[4];
-        }
-
-        public String toRegionStr() {
-            if (Objects.equals(country, "中国")) {
-                // 大陆，返回省 + 城市
-                if (StringUtils.isNotBlank(province) && StringUtils.isNotBlank(city)) {
-                    return province + "·" + city;
-                } else if (StringUtils.isNotBlank(province)) {
-                    return province;
-                } else {
-                    return country;
-                }
-            } else {
-                if (StringUtils.isNotBlank(province)) {
-                    // 非大陆，返回国家+省份
-                    return country + "·" + province;
-                }
-                return country;
             }
         }
     }

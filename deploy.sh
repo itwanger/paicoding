@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # pid file
-PID_FILE_NAME="pid_file"
+PID_FILE_NAME="pid.log"
 
 # file to upload
 WEB_PATH="forum-web"
