@@ -668,9 +668,9 @@
         let uploadPic = upload[0].files[0]
         console.log("准备上传", uploadPic)
 
-        // if (!checkFileSize(uploadPic)) {
-        //   return;
-        // }
+        if (!checkFileSize(uploadPic)) {
+          return;
+        }
 
         let file = new FormData()
         file.append("image", uploadPic)
