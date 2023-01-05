@@ -5,6 +5,9 @@ import com.github.hui.quick.plugin.base.constants.MediaType;
 import com.github.liuyueyi.forum.core.config.ImageProperties;
 import com.github.liuyueyi.forum.core.util.LocalDateTimeUtil;
 import com.github.liuyueyi.forum.core.util.MdImgLoader;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author LouZai
@@ -36,6 +40,15 @@ public class ImageServiceImpl implements ImageService {
 
     private static final MediaType[] STATIC_IMG_TYPE = new MediaType[]{MediaType.ImagePng, MediaType.ImageJpg, MediaType.ImageWebp};
 
+    /**
+     * 外网图片转存缓存
+     */
+    private LoadingCache<String, String> imgReplaceCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
+        @Override
+        public String load(String s) {
+            return "";
+        }
+    });
 
     @Override
     public String saveImg(HttpServletRequest request) {
@@ -72,7 +85,8 @@ public class ImageServiceImpl implements ImageService {
     public String mdImgReplace(String content) {
         List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
         for (MdImgLoader.MdImg img : imgList) {
-            String newImg = imageProperties.getCdnHost() + saveImg(img.getUrl());
+            String newUrl = saveImg(img.getUrl());
+            String newImg = newUrl.startsWith(imageProperties.getCdnHost()) ? newUrl : imageProperties.getCdnHost() + newUrl;
             content = StringUtils.replace(content, img.getOrigin(), "![" + img.getDesc() + "](" + newImg + ")");
         }
         return content;
@@ -91,12 +105,19 @@ public class ImageServiceImpl implements ImageService {
             return img;
         }
 
+        String newUrl = imgReplaceCache.getIfPresent(img);
+        if (StringUtils.isNotBlank(newUrl)) {
+            return newUrl;
+        }
+
         try {
             BufferedImage bufferedImage = ImageLoadUtil.getImageByPath(img);
-            return saveImg(bufferedImage, MediaType.ImagePng);
+            newUrl = saveImg(bufferedImage, MediaType.ImagePng);
+            imgReplaceCache.put(img, newUrl);
+            return newUrl;
         } catch (Exception e) {
             log.error("外网图片转存异常! img:{}", img, e);
-            return "[error]" + img;
+            return img + "?cause=saveError!";
         }
     }
 
