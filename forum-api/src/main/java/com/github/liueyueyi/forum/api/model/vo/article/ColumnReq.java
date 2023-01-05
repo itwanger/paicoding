@@ -49,6 +49,11 @@ public class ColumnReq implements Serializable {
     private Integer section;
 
     /**
+     * 专栏预计的文章数
+     */
+    private Integer nums;
+
+    /**
      * 专栏类型
      */
     private Integer type;

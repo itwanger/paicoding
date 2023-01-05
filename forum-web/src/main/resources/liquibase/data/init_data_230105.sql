@@ -1,3 +1,7 @@
+insert into dict_common(`type_code`,`dict_code`,`dict_desc`,`sort_no`) values('ColumnType','0','免费',1);
+insert into dict_common(`type_code`,`dict_code`,`dict_desc`,`sort_no`) values('ColumnType','1','登录阅读',2);
+insert into dict_common(`type_code`,`dict_code`,`dict_desc`,`sort_no`) values('ColumnType','2','限时免费',3);
+
 -- 初始化标签
 delete from tag where id > 0;
 insert into `tag` (`id`, `tag_name`, `tag_type`, `category_id`, `status`, `deleted`)

@@ -5,6 +5,8 @@ import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.article.ColumnReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.permission.Permission;
@@ -27,6 +29,13 @@ public class ArticleSettingRestController {
 
     @Autowired
     private ArticleSettingService articleSettingService;
+
+    @ResponseBody
+    @PostMapping(path = "save")
+    public ResVo<String> save(@RequestBody ArticlePostReq req) {
+        articleSettingService.updateArticle(req);
+        return ResVo.ok("ok");
+    }
 
     @ResponseBody
     @GetMapping(path = "operate")

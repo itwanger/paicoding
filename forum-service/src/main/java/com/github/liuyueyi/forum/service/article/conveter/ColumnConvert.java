@@ -25,6 +25,7 @@ public class ColumnConvert {
         dto.setCover(info.getCover());
         dto.setIntroduction(info.getIntroduction());
         dto.setState(info.getState());
+        dto.setNums(info.getNums());
         dto.setAuthor(info.getUserId());
         dto.setSection(info.getSection());
         dto.setPublishTime(info.getPublishTime().getTime());
@@ -51,6 +52,7 @@ public class ColumnConvert {
         columnInfoDO.setCover(columnReq.getCover());
         columnInfoDO.setState(columnReq.getState());
         columnInfoDO.setSection(columnReq.getSection());
+        columnInfoDO.setNums(columnReq.getNums());
         columnInfoDO.setType(columnInfoDO.getType());
         columnInfoDO.setFreeStartTime(columnInfoDO.getFreeStartTime());
         columnInfoDO.setFreeEndTime(columnInfoDO.getFreeEndTime());
