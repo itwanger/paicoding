@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.service.article.service;
 import com.github.liueyueyi.forum.api.model.enums.OperateArticleEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
+import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 
 /**
@@ -12,6 +13,13 @@ import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
  * @date 2022-09-19
  */
 public interface ArticleSettingService {
+
+    /**
+     * 更新文章
+     *
+     * @param req
+     */
+    void updateArticle(ArticlePostReq req);
 
     /**
      * 获取文章总数
