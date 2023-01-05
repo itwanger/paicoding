@@ -42,7 +42,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         ArticleDO article = articleDao.getById(req.getArticleId());
         if (article != null) {
             // 目前仅更新短标题，用于教程
-            article.setShortTitle(req.getSubTitle());
+            article.setShortTitle(req.getShortTitle());
             articleDao.updateById(article);
         }
     }

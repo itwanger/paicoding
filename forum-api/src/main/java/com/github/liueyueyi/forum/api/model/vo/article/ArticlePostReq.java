@@ -26,7 +26,7 @@ public class ArticlePostReq implements Serializable {
     /**
      * 文章短标题
      */
-    private String subTitle;
+    private String shortTitle;
 
     /**
      * 分类
