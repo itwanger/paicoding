@@ -34,4 +34,11 @@ public class ImageProperties {
      * 访问图片的host
      */
     private String cdnHost;
+
+    public String buildImgUrl(boolean absUrl, String url) {
+        if (absUrl && !url.startsWith(cdnHost)) {
+            return cdnHost + url;
+        }
+        return url;
+    }
 }
