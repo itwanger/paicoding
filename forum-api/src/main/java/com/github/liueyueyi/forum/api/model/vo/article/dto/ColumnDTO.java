@@ -50,6 +50,11 @@ public class ColumnDTO {
     private Integer state;
 
     /**
+     * 专栏预计的文章数
+     */
+    private Integer nums;
+
+    /**
      * 专栏类型
      *
      * @see ColumnTypeEnum#getType()

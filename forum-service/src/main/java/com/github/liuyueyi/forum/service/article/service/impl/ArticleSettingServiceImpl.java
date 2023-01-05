@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.PageVo;
+import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
@@ -35,6 +36,16 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Autowired
     private UserService userService;
+
+    @Override
+    public void updateArticle(ArticlePostReq req) {
+        ArticleDO article = articleDao.getById(req.getArticleId());
+        if (article != null) {
+            // 目前仅更新短标题，用于教程
+            article.setShortTitle(req.getSubTitle());
+            articleDao.updateById(article);
+        }
+    }
 
     @Override
     public Integer getArticleCount() {
