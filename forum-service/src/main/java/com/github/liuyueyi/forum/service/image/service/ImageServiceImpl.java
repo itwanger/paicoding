@@ -85,8 +85,7 @@ public class ImageServiceImpl implements ImageService {
     public String mdImgReplace(String content) {
         List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
         for (MdImgLoader.MdImg img : imgList) {
-            String newUrl = saveImg(img.getUrl());
-            String newImg = newUrl.startsWith(imageProperties.getCdnHost()) ? newUrl : imageProperties.getCdnHost() + newUrl;
+            String newImg = saveImg(img.getUrl(), true);
             content = StringUtils.replace(content, img.getOrigin(), "![" + img.getDesc() + "](" + newImg + ")");
         }
         return content;
@@ -98,7 +97,7 @@ public class ImageServiceImpl implements ImageService {
      * @param img
      * @return
      */
-    public String saveImg(String img) {
+    public String saveImg(String img, boolean absUrl) {
         if ((StringUtils.isNotBlank(imageProperties.getCdnHost()) && img.startsWith(imageProperties.getCdnHost()))
                 || !img.startsWith("http")) {
             // 已经转存过，不需要再次转存；非http图片，不处理
@@ -107,17 +106,17 @@ public class ImageServiceImpl implements ImageService {
 
         String newUrl = imgReplaceCache.getIfPresent(img);
         if (StringUtils.isNotBlank(newUrl)) {
-            return newUrl;
+            return imageProperties.buildImgUrl(absUrl, newUrl);
         }
 
         try {
             BufferedImage bufferedImage = ImageLoadUtil.getImageByPath(img);
             newUrl = saveImg(bufferedImage, MediaType.ImagePng);
             imgReplaceCache.put(img, newUrl);
-            return newUrl;
+            return imageProperties.buildImgUrl(absUrl, newUrl);
         } catch (Exception e) {
             log.error("外网图片转存异常! img:{}", img, e);
-            return img + "?cause=saveError!";
+            return  imageProperties.buildImgUrl(absUrl, img + "?cause=saveError!");
         }
     }
 
