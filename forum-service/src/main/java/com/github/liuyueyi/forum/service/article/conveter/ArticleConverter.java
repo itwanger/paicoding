@@ -31,7 +31,7 @@ public class ArticleConverter {
         article.setUserId(author);
         article.setId(req.getArticleId());
         article.setTitle(req.getTitle());
-        article.setShortTitle(req.getSubTitle());
+        article.setShortTitle(req.getShortTitle());
         article.setArticleType(ArticleTypeEnum.valueOf(req.getArticleType().toUpperCase()).getCode());
         article.setPicture(req.getCover() == null ? "" : req.getCover());
         article.setCategoryId(req.getCategoryId());
