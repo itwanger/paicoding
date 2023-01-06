@@ -147,6 +147,7 @@
 
 .nav-logo-wrap-lg {
   display: flex;
+  padding-right: 36px;
 }
 /* home 适配 */
 @media screen and (max-width: 768px) {
