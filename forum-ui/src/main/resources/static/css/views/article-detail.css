@@ -44,9 +44,38 @@
   border: 1px solid #3973ff;
   cursor: pointer;
 }
-.detail-content-title-edit a {
-  color: #3973ff;
-  padding-left: 1em;
+
+.com-opt-link, .com-opt-text {
+  display: inline-block;
+  vertical-align: middle;
+  color: var(--pai-color-999-gray);
+}
+
+[class*=com-i-], [class^=com-i-] {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+  background-size: 100% auto;
+}
+
+.com-opt-link:hover .com-i-edit,.com-opt-link:hover .com-i-delete {
+  fill: var(--pai-brand-2-hover);
+}
+
+.com-opt-link .com-i-edit,.com-opt-link .com-i-delete {
+  fill: var(--pai-color-999-gray);
+}
+
+.detail-content-title-edit [class*=com-i-], .detail-content-title-edit [class^=com-i-]{
+  position: relative;
+}
+
+.detail-content-title-edit {
+  position: absolute;
+  right: 0;
+  top: 0;
+  line-height: 20px;
 }
 
 .article-detail .home-right-item-wrap .com-2-panel-title {
