@@ -98,6 +98,10 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
         }
 
         List<ArticleDO> recommendArticles = articleDao.listRelatedArticlesOrderByReadCount(article.getCategoryId(), tagIds, page);
+        if(recommendArticles.removeIf(s -> s.getId().equals(articleId))) {
+            // 移除推荐列表中的当前文章
+            page.setPageSize(page.getPageSize() - 1);
+        }
         return articleReadService.buildArticleListVo(recommendArticles, page.getPageSize());
     }
 }

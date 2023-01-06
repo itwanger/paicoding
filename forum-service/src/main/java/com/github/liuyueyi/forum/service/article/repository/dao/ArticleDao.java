@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.service.article.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,8 +20,11 @@ import com.github.liuyueyi.forum.service.article.repository.mapper.ReadCountMapp
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 文章相关DB操作
@@ -231,7 +235,19 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      * @return
      */
     public List<ArticleDO> listRelatedArticlesOrderByReadCount(Long categoryId, List<Long> tagIds, PageParam pageParam) {
-        return baseMapper.listArticleByCategoryAndTags(categoryId, tagIds, pageParam);
+        List<ReadCountDO> list = baseMapper.listArticleByCategoryAndTags(categoryId, tagIds, pageParam);
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+
+        List<Long> ids = list.stream().map(ReadCountDO::getDocumentId).collect(Collectors.toList());
+        List<ArticleDO> result = baseMapper.selectBatchIds(ids);
+        result.sort((o1, o2) -> {
+            int i1 = ids.indexOf(o1.getId());
+            int i2 = ids.indexOf(o2.getId());
+            return Integer.compare(i1, i2);
+        });
+        return result;
     }
 
 

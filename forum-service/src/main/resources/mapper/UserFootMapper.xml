@@ -3,13 +3,13 @@
 <mapper namespace="com.github.liuyueyi.forum.service.user.repository.mapper.UserFootMapper">
 
 
+    <!-- 注意文章的阅读计数不能使用SUM，因为read_count表中记录的已经是总数了   -->
     <select id="countArticleByArticleId"
             resultType="com.github.liueyueyi.forum.api.model.vo.user.dto.ArticleFootCountDTO">
-
         SELECT
             sum(if (f.praise_stat =${@com.github.liueyueyi.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
             sum(if (f.collection_stat =${@com.github.liueyueyi.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
-            sum(r.`cnt`) as readCount
+            avg(r.`cnt`) as readCount
         FROM
             read_count as r left join user_foot as f  on f.document_id = r.document_id and f.document_type = r.document_type
         WHERE

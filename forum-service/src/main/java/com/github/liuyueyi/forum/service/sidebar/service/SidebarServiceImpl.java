@@ -67,15 +67,13 @@ public class SidebarServiceImpl implements SidebarService {
         List<ConfigDTO> columnList = configService.getConfigList(ConfigTypeEnum.COLUMN);
         List<SideBarItemDTO> items = new ArrayList<>(columnList.size());
         columnList.forEach(configDTO -> {
-
+            SideBarItemDTO item = new SideBarItemDTO();
+            item.setName(configDTO.getName());
+            item.setTitle(configDTO.getContent());
+            item.setUrl(configDTO.getJumpUrl());
+            item.setImg(configDTO.getBannerUrl());
+            items.add(item);
         });
-        // TODO 精选教程的
-        items.add(new SideBarItemDTO()
-                .setName("Java程序员进阶之路")
-                .setTitle("这是一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。")
-                .setUrl("/column/1/1")
-                .setImg("https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4ba0bc79579c488eb79df93cecd12390~tplv-k3u1fbpfcp-watermark.image")
-        );
         return new SideBarDTO().setTitle("精选教程").setItems(items).setStyle(SidebarStyleEnum.COLUMN.getStyle());
     }
 
