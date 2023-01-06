@@ -55,7 +55,7 @@
   font-weight: 500;
   font-size: 18px;
   line-height: 26px;
-  color: #181818;
+  color: var(--pai-color-3-black);
   margin-bottom: 12px;
   display: -webkit-box;
   overflow: hidden;
