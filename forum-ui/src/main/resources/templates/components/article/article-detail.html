@@ -17,7 +17,7 @@
       标题
     </div>
     <div>
-      <div class="detail-content-title-other-wrap" th:if="${author != null}">
+      <div class="detail-content-title-other-wrap relative" th:if="${author != null}">
         <img th:src="${author.photo}" class="detail-content-title-other-img" />
         <a
           th:href="${'/user/' + author.userId}"
@@ -34,14 +34,36 @@
           更新时间
         </span>
         <span th:text="'阅读 ' + ${article.count.readCount}">520</span>
-        <span
+        <div
           th:if="${global.isLogin && article.author == global.user.userId}"
           class="detail-content-title-edit"
         >
-          <a th:href="${'/article/edit?articleId=' + article.articleId}" target="_blank">
-            编辑
+          <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+            <symbol id="edit-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path class="cls-1" d="M9 1H3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7h-1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1h6V1z" />
+              <path class="cls-1" d="M12 2.41L13.59 4l-6 6H6V8.41l6-6M12 1L5 8v3h3l7-7-3-3z" />
+            </symbol>
+          </svg>
+
+          <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+            <symbol id="delete-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path class="cls-1" d="M13 3h-2V1H5v2H2v1h1v9a2 2 0 002 2h6a2 2 0 002-2V4h1V3zM6 2h4v1H6zm5 12H5a1 1 0 01-1-1V4h8v9a1 1 0 01-1 1z" />
+              <path class="cls-1" d="M6 6h1v6H6zm3 0h1v6H9z" />
+            </symbol>
+          </svg>
+
+          <a th:href="${'/article/edit?articleId=' + article.articleId}" class="com-opt-link link-edit">
+            <svg class="com-i-edit">
+              <use xlink:href="#edit-svg"></use>
+            </svg>编辑
           </a>
-        </span>
+
+          <a th:href="${'/article/edit?articleId=' + article.articleId}" class="com-opt-link link-delete ml-3">
+            <svg class="com-i-delete">
+              <use xlink:href="#delete-svg"></use>
+            </svg>删除
+          </a>
+        </div>
       </div>
     </div>
 
