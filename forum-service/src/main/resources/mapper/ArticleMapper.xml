@@ -19,11 +19,10 @@
     </select>
 
     <select id="listArticleByCategoryAndTags"
-            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO">
-        select a.*
-        from read_count as rc
-        left join article as a on rc.document_id = a.id
-        left join article_tag as t on rc.document_id = t.article_id
+            resultType="com.github.liuyueyi.forum.service.article.repository.entity.ReadCountDO">
+        select DISTINCT(a.id) as documentId, rc.cnt as cnt from article a
+        left join article_tag as t on a.id = t.article_id
+        left join read_count rc on rc.document_id  = a.id
         where rc.document_type = ${@com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
         and a.status = ${@com.github.liueyueyi.forum.api.model.enums.PushStatusEnum@ONLINE.code}
         and a.deleted = ${@com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum@NO.code}
@@ -36,7 +35,7 @@
                 #{tagId}
             </foreach>
         </if>
-        order by rc.cnt desc
+        order by rc.cnt desc, a.id desc
         <include refid="limit"/>
     </select>
 
