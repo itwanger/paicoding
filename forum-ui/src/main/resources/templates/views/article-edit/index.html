@@ -307,7 +307,7 @@
               let target = matcher[0];
               let title = matcher[1];
               let url = matcher[2];
-              if (url.length > 0 && url.startsWith("http")) {
+              if (url.length > 0 && url.startsWith("http") && url.indexOf("saveError") < 0) {
                 imgs.push({
                   'target': target,
                   'title': title,

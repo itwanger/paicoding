@@ -47,4 +47,10 @@ public class ImgPickerTest {
         System.out.println(IpUtil.getLocationByIp("121.40.134.96").toRegionStr());
     }
 
+    @Test
+    public void testUrlAna() {
+        // url解析
+        String url = "https://t7.baidu.com/it/u=4198287529,2774471735&fm=193&f=GIF";
+
+    }
 }

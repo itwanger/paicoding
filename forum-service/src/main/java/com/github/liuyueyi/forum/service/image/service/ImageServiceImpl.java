@@ -1,5 +1,7 @@
 package com.github.liuyueyi.forum.service.image.service;
 
+import com.github.hui.quick.plugin.base.FileReadUtil;
+import com.github.hui.quick.plugin.base.FileWriteUtil;
 import com.github.hui.quick.plugin.base.ImageLoadUtil;
 import com.github.hui.quick.plugin.base.constants.MediaType;
 import com.github.liuyueyi.forum.core.config.ImageProperties;
@@ -22,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -116,7 +119,7 @@ public class ImageServiceImpl implements ImageService {
             return imageProperties.buildImgUrl(absUrl, newUrl);
         } catch (Exception e) {
             log.error("外网图片转存异常! img:{}", img, e);
-            return  imageProperties.buildImgUrl(absUrl, img + "?cause=saveError!");
+            return  imageProperties.buildImgUrl(absUrl, img.contains("saveError")? img : img + "?&cause=saveError!");
         }
     }
 
