@@ -687,7 +687,7 @@
   margin-top: 35px;
 }
 .editormd .CodeMirror pre {
-  font-size: 14px;
+  font-size: 1.2em;
   padding: 0 12px;
 }
 .editormd .CodeMirror-linenumbers {
@@ -3191,6 +3191,7 @@
 
 .markdown-body strong {
   font-weight: bold;
+  color: var(--pai-brand-1-normal);
 }
 
 .markdown-body h1 {
@@ -3259,13 +3260,15 @@
 }
 
 .markdown-body a {
-  color: #4183c4;
+  color: var(--pai-brand-1-normal);
   text-decoration: none;
+  border-bottom: 1px solid var(--pai-brand-1-normal);
+  font-size: 15px;
 }
 
 .markdown-body a:hover,
 .markdown-body a:active {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .markdown-body hr {
@@ -3456,10 +3459,26 @@
 }
 
 .markdown-body h2 {
-  padding-bottom: 0.3em;
-  font-size: 1.75em;
-  line-height: 1.225;
-  border-bottom: 1px solid #eee;
+  margin: 10px auto;
+  height: 40px;
+  background-color: rgb(251, 251, 251);
+  border-bottom: 1px solid rgb(246, 246, 246);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.markdown-body h2 .content{
+  margin-left: -10px;
+  display: inline-block;
+  width: auto;
+  height: 40px;
+  background-color: var(--pai-brand-1-normal);
+  border-bottom-right-radius: 100px;
+  color: rgb(255, 255, 255);
+  padding-right: 30px;
+  padding-left: 30px;
+  line-height: 40px;
+  font-size: 18px;
 }
 
 .markdown-body h2 .anchor {
@@ -3467,8 +3486,10 @@
 }
 
 .markdown-body h3 {
-  font-size: 1.5em;
-  line-height: 1.43;
+  margin: 1.2em 0 1em;
+  font-weight: bold;
+  color: var(--pai-brand-1-normal);
+  font-size: 18px;
 }
 
 .markdown-body h3 .anchor {
@@ -3828,7 +3849,7 @@
 
 .editormd-preview-container, .editormd-html-preview {
   text-align: left;
-  font-size: 14px;
+  font-size: 1em;
   line-height: 1.6;
   padding: 20px;
   overflow: auto;
@@ -3836,13 +3857,21 @@
   background-color: #fff;
 }
 .editormd-preview-container blockquote, .editormd-html-preview blockquote {
-  color: #666;
-  border-left: 4px solid #ddd;
+  margin: 20px 5px;
+  color: var(--pai-color-3-black);
+  border-left: 4px solid var(--pai-brand-1-normal);
   padding-left: 20px;
   margin-left: 0;
   font-size: 14px;
-  font-style: italic;
+  background: #FBF9FD;
+  line-height: 26px;
 }
+
+.editormd-preview-container blockquote p, .editormd-html-preview blockquote p {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 .editormd-preview-container p code, .editormd-html-preview p code {
   margin-left: 5px;
   margin-right: 4px;
@@ -3850,10 +3879,19 @@
 .editormd-preview-container abbr, .editormd-html-preview abbr {
   background: #ffffdd;
 }
+
+.editormd-preview-container ul li{
+  list-style-type: disc;
+}
+
+.editormd-preview-container ol li{
+  list-style-type: decimal;
+}
+
 .editormd-preview-container hr, .editormd-html-preview hr {
   height: 1px;
   border: none;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--pai-brand-1-normal);
   background: none;
 }
 .editormd-preview-container code, .editormd-html-preview code {
