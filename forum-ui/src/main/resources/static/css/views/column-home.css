@@ -23,6 +23,7 @@
     padding: 25px;
     box-sizing: border-box;
     position: relative;
+    border-bottom: var(--pai-hr-color-1) 1px solid;
 }
 
 .poster {
