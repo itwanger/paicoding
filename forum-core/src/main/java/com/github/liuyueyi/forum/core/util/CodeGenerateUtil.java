@@ -3,13 +3,13 @@ package com.github.liuyueyi.forum.core.util;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author YiHui
  * @date 2022/8/15
  */
 public class CodeGenerateUtil {
+    public static final Integer CODE_LEN = 3;
 
     private static final Random random = new Random();
 
@@ -21,7 +21,7 @@ public class CodeGenerateUtil {
 
     public static String genCode(int cnt) {
         if (cnt >= specialCodes.size()) {
-            return String.format("%03d", random.nextInt(1000));
+            return String.format("%0" + CODE_LEN + "d", random.nextInt(1000));
         } else {
             return specialCodes.get(cnt);
         }
