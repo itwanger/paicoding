@@ -5,6 +5,7 @@ import com.github.liueyueyi.forum.api.model.vo.ResVo;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ResponseFacade;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
@@ -30,7 +31,6 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
     public ModelAndView resolveException(HttpServletRequest request,
                                          HttpServletResponse response,
                                          Object handler, Exception ex) {
-        log.error("unexpect error", ex);
         String errMsg = buildToastMsg(ex);
 
         if (restResponse(request, response)) {
@@ -45,7 +45,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
                 // 若是rest接口请求异常时，返回json格式的异常数据；而不是专门的500页面
                 response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
                 response.setHeader("Cache-Control", "no-cache, must-revalidate");
-                response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.UNEXPECT_ERROR, errMsg)));
+                response.getWriter().println(errMsg);
                 response.getWriter().flush();
                 return new ModelAndView();
             } catch (Exception e) {
@@ -62,10 +62,12 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
 
     private String buildToastMsg(Exception ex) {
         if (ex instanceof ForumException) {
-            return ((ForumException) ex).getStatus().getMsg();
+            return JsonUtil.toStr(ResVo.fail(((ForumException) ex).getStatus()));
         } else if (ex instanceof NestedRuntimeException) {
+            log.error("unexpect error", ex);
             return ex.getMessage();
         } else {
+            log.error("unexpect error", ex);
             return ExceptionUtils.getStackTrace(ex);
         }
     }

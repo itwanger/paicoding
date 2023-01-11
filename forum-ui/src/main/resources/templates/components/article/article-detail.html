@@ -58,7 +58,7 @@
             </svg>编辑
           </a>
 
-          <a th:href="${'/article/edit?articleId=' + article.articleId}" class="com-opt-link link-delete ml-3">
+          <a href="javascript:;" data-target="#deleteModal" data-toggle="modal" class="com-opt-link link-delete ml-3">
             <svg class="com-i-delete">
               <use xlink:href="#delete-svg"></use>
             </svg>删除
@@ -78,7 +78,57 @@
 
     <div id="articleContent" class="article-content"></div>
 
+    <!-- 再次确认 Modal -->
+    <div
+            class="modal fade"
+            id="deleteModal"
+            data-backdrop="static"
+            data-keyboard="false"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="deleteModalDropLabel"
+            aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalDropLabel">删除提醒</h5>
+            <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p th:text="${'确定删除《' + article.title + '》吗'}">确定删除吗</p>
+          </div>
+          <div class="modal-footer">
+            <button id="deleteBtn" type="button" class="btn btn-primary">
+              确定
+            </button>
+            <button type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal">
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!--  点赞放这里-->
     <div th:replace="components/article/praise :: praise(${article})"></div>
+    <script th:inline="javascript">
+      let id = [[${article.articleId}]]
+      $('#deleteBtn').click(function () {
+        get("/article/api/delete?articleId=" + id, {}, function (data) {
+          // 删除文章成功，跳转到首页
+          window.location.href = "/";
+        });
+      })
+    </script>
   </section>
 </html>

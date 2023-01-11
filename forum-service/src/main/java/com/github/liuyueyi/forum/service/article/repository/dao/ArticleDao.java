@@ -20,10 +20,7 @@ import com.github.liuyueyi.forum.service.article.repository.mapper.ReadCountMapp
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +47,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     public ArticleDTO queryArticleDetail(Long articleId) {
         // 查询文章记录
         ArticleDO article = baseMapper.selectById(articleId);
-        if (article == null) {
+        if (article == null || Objects.equals(article.getDeleted(), YesOrNoEnum.YES.getCode())) {
             return null;
         }
 

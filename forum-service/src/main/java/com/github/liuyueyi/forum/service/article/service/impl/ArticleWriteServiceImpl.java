@@ -2,9 +2,10 @@ package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
-import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
+import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
+import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.dao.ArticleDao;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -110,8 +112,13 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @param articleId
      */
     @Override
-    public void deleteArticle(Long articleId) {
+    public void deleteArticle(Long articleId, Long loginUserId) {
         ArticleDO dto = articleDao.getById(articleId);
+        if (dto != null && !Objects.equals(dto.getUserId(), loginUserId)) {
+            // 没有权限
+            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "请确认文章是否属于您!");
+        }
+
         if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
             dto.setDeleted(YesOrNoEnum.YES.getCode());
             articleDao.updateById(dto);
