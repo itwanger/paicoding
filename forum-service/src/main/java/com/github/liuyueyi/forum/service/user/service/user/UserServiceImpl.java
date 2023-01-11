@@ -177,8 +177,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 加入天数
-        Integer joinDayCount = (int) ((new Date()).getTime() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24);
-        userHomeDTO.setJoinDayCount(joinDayCount);
+        Integer joinDayCount = (int) (System.currentTimeMillis() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24);
+        userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
 
         // 创作历程
         List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);

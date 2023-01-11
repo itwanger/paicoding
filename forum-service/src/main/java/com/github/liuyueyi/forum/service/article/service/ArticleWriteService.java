@@ -18,5 +18,5 @@ public interface ArticleWriteService {
      *
      * @param articleId
      */
-    void deleteArticle(Long articleId);
+    void deleteArticle(Long articleId, Long loginUserId);
 }

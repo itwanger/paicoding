@@ -4,7 +4,6 @@ import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
-import com.github.liueyueyi.forum.api.model.exception.ForumException;
 import com.github.liueyueyi.forum.api.model.vo.*;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
 import com.github.liueyueyi.forum.api.model.vo.article.ContentPostReq;
@@ -15,7 +14,6 @@ import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liueyueyi.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.liuyueyi.forum.core.permission.Permission;
 import com.github.liuyueyi.forum.core.permission.UserRole;
-import com.github.liuyueyi.forum.core.util.NumUtil;
 import com.github.liuyueyi.forum.core.util.SpringUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.service.*;
@@ -170,4 +168,17 @@ public class ArticleRestController {
         return ResVo.ok(id);
     }
 
+
+    /**
+     * 文章删除
+     *
+     * @param articleId
+     * @return
+     */
+    @Permission(role = UserRole.LOGIN)
+    @RequestMapping(path = "delete")
+    public ResVo<Boolean> delete(@RequestParam(value = "articleId") Long articleId) {
+        articleWriteService.deleteArticle(articleId, ReqInfoContext.getReqInfo().getUserId());
+        return ResVo.ok(true);
+    }
 }
