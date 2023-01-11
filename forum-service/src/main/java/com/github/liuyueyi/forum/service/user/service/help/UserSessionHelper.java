@@ -52,8 +52,9 @@ public class UserSessionHelper {
     }
 
     public String genVerifyCode(Long userId) {
+        int cnt = 0;
         while (true) {
-            String code = CodeGenerateUtil.genCode();
+            String code = CodeGenerateUtil.genCode(cnt++);
             if (codeUserIdCache.getIfPresent(code) != null) {
                 continue;
             }
