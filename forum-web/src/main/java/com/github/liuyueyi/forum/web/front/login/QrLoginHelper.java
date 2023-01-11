@@ -58,8 +58,9 @@ public class QrLoginHelper {
         deviceCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
             @Override
             public String load(String s) {
+                int cnt = 0;
                 while (true) {
-                    String code = CodeGenerateUtil.genCode();
+                    String code = CodeGenerateUtil.genCode(cnt++);
                     if (!verifyCodeCache.asMap().containsKey(code)) {
                         return code;
                     }
