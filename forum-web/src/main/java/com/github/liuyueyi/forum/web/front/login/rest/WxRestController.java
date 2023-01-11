@@ -2,6 +2,7 @@ package com.github.liuyueyi.forum.web.front.login.rest;
 
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.liuyueyi.forum.core.util.CodeGenerateUtil;
 import com.github.liuyueyi.forum.service.user.service.SessionService;
 import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -74,7 +75,7 @@ public class WxRestController {
         } else {
             if (loginSymbol(content)) {
                 res.setContent("登录验证码: 【" + sessionService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
-            } else if (NumberUtils.isDigits(content) && content.length() == 4) {
+            } else if (NumberUtils.isDigits(content) && content.length() == CodeGenerateUtil.CODE_LEN) {
                 String verifyCode = sessionService.getVerifyCode(msg.getFromUserName());
                 if (qrLoginHelper.login(content, verifyCode)) {
                     res.setContent("登录成功!");
