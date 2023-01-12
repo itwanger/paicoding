@@ -3,6 +3,7 @@ package com.github.liuyueyi.forum.core.config;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * 图片配置文件
@@ -12,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Setter
 @Getter
+@Component
 @ConfigurationProperties(prefix = "image")
 public class ImageProperties {
 
@@ -35,8 +37,10 @@ public class ImageProperties {
      */
     private String cdnHost;
 
-    public String buildImgUrl(boolean absUrl, String url) {
-        if (absUrl && !url.startsWith(cdnHost)) {
+    private OssProperties oss;
+
+    public String buildImgUrl(String url) {
+        if (!url.startsWith(cdnHost)) {
             return cdnHost + url;
         }
         return url;
