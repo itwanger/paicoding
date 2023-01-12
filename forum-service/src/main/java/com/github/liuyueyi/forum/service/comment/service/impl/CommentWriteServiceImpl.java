@@ -67,7 +67,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         // 2. 保存足迹信息 : 文章的已评信息 + 评论的已评信息
         ArticleDO article = articleReadService.queryBasicArticle(commentSaveReq.getArticleId());
         if (article == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章=" + commentSaveReq.getArticleId());
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, commentSaveReq.getArticleId());
         }
         userFootWriteService.saveCommentFoot(commentDO, article.getUserId(), parentCommentUser);
 
@@ -84,7 +84,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         // 更新评论
         CommentDO commentDO = commentDao.getById(commentSaveReq.getCommentId());
         if (commentDO == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "未查询到该评论");
+            throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, commentSaveReq.getCommentId());
         }
         commentDO.setContent(commentSaveReq.getCommentContent());
         commentDao.updateById(commentDO);
@@ -97,7 +97,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         CommentDO commentDO = commentDao.getById(commentId);
         // 1.校验评论，是否越权，文章是否存在
         if (commentDO == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "评论ID=" + commentId);
+            throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, "评论ID=" + commentId);
         }
         if (Objects.equals(commentDO.getUserId(), userId)) {
             throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "无权删除评论");
@@ -105,7 +105,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         // 获取文章信息
         ArticleDO article = articleReadService.queryBasicArticle(commentDO.getArticleId());
         if (article == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章=" + commentDO.getArticleId());
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, commentDO.getArticleId());
         }
 
         // 2.删除评论、足迹
@@ -129,7 +129,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         }
         CommentDO parent = commentDao.getById(parentCommentId);
         if (parent == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "父评论=" + parentCommentId);
+            throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, "父评论=" + parentCommentId);
         }
         return parent.getUserId();
     }
