@@ -7,3 +7,11 @@ image:
   tmp-upload-path: /tmp/forum/
   # 图片访问域名
   cdn-host: https://imgs.hhui.top/
+  oss:
+    type: local
+    endpoint:
+    prefix: paicoding/
+    ak:
+    sk:
+    bucket:
+    host:

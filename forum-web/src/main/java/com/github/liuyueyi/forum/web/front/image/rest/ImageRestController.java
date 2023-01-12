@@ -58,7 +58,7 @@ public class ImageRestController {
             return ResVo.ok(imageVo);
         }
 
-        String url = imageService.saveImg(imgUrl, true);
+        String url = imageService.saveImg(imgUrl);
         imageVo.setImagePath(url);
         return ResVo.ok(imageVo);
     }

@@ -19,10 +19,9 @@ public interface ImageService {
      * 外网图片转存
      *
      * @param img
-     * @param absUrl true表示返回全路径
      * @return
      */
-    String saveImg(String img, boolean absUrl);
+    String saveImg(String img);
 
     /**
      * 上传图片转存
