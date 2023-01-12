@@ -90,7 +90,7 @@ public class ColumnServiceImpl implements ColumnService {
     public Long queryColumnArticle(long columnId, Integer section) {
         Long articleId = columnDao.getColumnArticleId(columnId, section);
         if (articleId == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "专栏还没有更新到这一章哦");
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, section);
         }
         return articleId;
     }
