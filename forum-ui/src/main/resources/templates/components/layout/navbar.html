@@ -144,40 +144,46 @@
       data-keyboard="false"
       tabindex="-1"
       role="dialog"
-      aria-labelledby="loginModalDropLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="loginModalDropLabel">二维码登录</h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
+          <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
           <div class="modal-body">
-            <div class="input-group">
-              <img
-                src="https://blog.hhui.top/hexblog/imgs/info/wx.jpg"
-                style="max-width: 80%; padding-left: 10%"
-              />
-              <small>
-                <bold>关注微信公众号，输入右边的验证码</bold>
+            <div class="tabpane-container">
+              <h2>微信扫码登录/注册</h2>
+              <div class="first">
+                <img class="signin-qrcode" src="https://blog.hhui.top/hexblog/imgs/info/wx.jpg"/>
+              </div>
+
+              <div class="explain">
+                <bold>关注楼仔公众号，输入验证码</bold>
                 <span
                   id="code"
-                  style="color: red; font-size: 2em"
                   th:text="''"
                 ></span>
-                <br />
-                <div id="state" style="color: blue"></div>
-                <br />
-                <button id="refreshCode" class="btn btn-primary">刷新</button>
-              </small>
+                <div id="state"></div>
+              </div>
+            </div>
+            <div class="mdnice-user-dialog-footer">
+              <p>登录即同意
+                <a href="article/detail/141"
+                   target="_blank" rel="noopener noreferrer">
+                  用户协议
+                </a> 和
+                <a href="article/detail/142"
+                   target="_blank" rel="noopener noreferrer">
+                  隐私政策
+                </a>
+              </p>
+              <a id="refreshCode">刷新验证码 &gt;</a>
             </div>
           </div>
           <div class="modal-footer" th:if="${!#strings.equals(global.env, 'prod')}">
@@ -188,7 +194,7 @@
               th:data-verify-code="''"
               class="btn btn-danger"
             >
-              一键登录(测试用)
+              一键登录
             </button>
 
             <button
@@ -197,7 +203,7 @@
                     th:data-verify-code="''"
                     class="btn btn-danger"
             >
-              随机新用户(测试用)
+              随机新用户
             </button>
           </div>
           <div id="testOutput"></div>
@@ -263,7 +269,7 @@
               console.log("开始订阅");
           }
           codeTag.innerText = code;
-          stateTag.innerText = '请在五分钟内输入微信公众号内输入验证码';
+          stateTag.innerText = '验证码有效期为五分钟，若过期后可刷新验证码';
       }
 
       $('#loginModal').on('show.bs.modal', function () {
