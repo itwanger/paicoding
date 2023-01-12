@@ -8,6 +8,7 @@ import com.github.liuyueyi.forum.core.util.DateUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnInfoDO;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,10 +29,10 @@ public class ColumnConvert {
         dto.setNums(info.getNums());
         dto.setAuthor(info.getUserId());
         dto.setSection(info.getSection());
-        dto.setPublishTime(info.getPublishTime().getTime());
+        dto.setPublishTime(info.getPublishTime().getTime() / 1000);
         dto.setType(info.getType());
-        dto.setFreeStartTime(info.getFreeStartTime().getTime());
-        dto.setFreeEndTime(info.getFreeEndTime().getTime());
+        dto.setFreeStartTime(info.getFreeStartTime().getTime() / 1000);
+        dto.setFreeEndTime(info.getFreeEndTime().getTime() / 1000);
         return dto;
     }
 
@@ -53,9 +54,9 @@ public class ColumnConvert {
         columnInfoDO.setState(columnReq.getState());
         columnInfoDO.setSection(columnReq.getSection());
         columnInfoDO.setNums(columnReq.getNums());
-        columnInfoDO.setType(columnInfoDO.getType());
-        columnInfoDO.setFreeStartTime(columnInfoDO.getFreeStartTime());
-        columnInfoDO.setFreeEndTime(columnInfoDO.getFreeEndTime());
+        columnInfoDO.setType(columnReq.getType());
+        columnInfoDO.setFreeStartTime(new Date(columnReq.getFreeStartTime() * 1000));
+        columnInfoDO.setFreeEndTime(new Date(columnReq.getFreeEndTime() * 1000));
         return columnInfoDO;
     }
 
