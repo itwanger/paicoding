@@ -8,6 +8,7 @@ import com.github.liuyueyi.forum.core.util.DateUtil;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ColumnInfoDO;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,9 +54,9 @@ public class ColumnConvert {
         columnInfoDO.setState(columnReq.getState());
         columnInfoDO.setSection(columnReq.getSection());
         columnInfoDO.setNums(columnReq.getNums());
-        columnInfoDO.setType(columnInfoDO.getType());
-        columnInfoDO.setFreeStartTime(columnInfoDO.getFreeStartTime());
-        columnInfoDO.setFreeEndTime(columnInfoDO.getFreeEndTime());
+        columnInfoDO.setType(columnReq.getType());
+        columnInfoDO.setFreeStartTime(new Date(columnReq.getFreeStartTime()));
+        columnInfoDO.setFreeEndTime(new Date(columnReq.getFreeEndTime()));
         return columnInfoDO;
     }
 
