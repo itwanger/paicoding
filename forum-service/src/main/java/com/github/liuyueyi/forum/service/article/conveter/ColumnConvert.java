@@ -29,10 +29,10 @@ public class ColumnConvert {
         dto.setNums(info.getNums());
         dto.setAuthor(info.getUserId());
         dto.setSection(info.getSection());
-        dto.setPublishTime(info.getPublishTime().getTime() / 1000);
+        dto.setPublishTime(info.getPublishTime().getTime());
         dto.setType(info.getType());
-        dto.setFreeStartTime(info.getFreeStartTime().getTime() / 1000);
-        dto.setFreeEndTime(info.getFreeEndTime().getTime() / 1000);
+        dto.setFreeStartTime(info.getFreeStartTime().getTime());
+        dto.setFreeEndTime(info.getFreeEndTime().getTime());
         return dto;
     }
 
@@ -55,8 +55,8 @@ public class ColumnConvert {
         columnInfoDO.setSection(columnReq.getSection());
         columnInfoDO.setNums(columnReq.getNums());
         columnInfoDO.setType(columnReq.getType());
-        columnInfoDO.setFreeStartTime(new Date(columnReq.getFreeStartTime() * 1000));
-        columnInfoDO.setFreeEndTime(new Date(columnReq.getFreeEndTime() * 1000));
+        columnInfoDO.setFreeStartTime(new Date(columnReq.getFreeStartTime()));
+        columnInfoDO.setFreeEndTime(new Date(columnReq.getFreeEndTime()));
         return columnInfoDO;
     }
 
