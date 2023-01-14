@@ -7,7 +7,8 @@
     <content>
         <div style="background-color: #fff;text-align: center;min-height: 600px;margin-bottom: 20px;">
             <p>
-                <span th:if="${#strings.isEmpty(toast)}" style="padding-top: 265px;font-size: 30px;">不好意思，出错啦！！！</span>
+                <span th:if="${#strings.isEmpty(toast)}"
+                      style="padding-top: 265px;font-size: 30px;">不好意思，出错啦！！！</span>
                 <span th:if="${!#strings.isEmpty(toast)}"
                       th:text="${'（' + toast + '）'}"
                       style="font-size: 1em;color: red;">系统异常</span>

@@ -77,7 +77,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     public void operateArticle(Long articleId, OperateArticleEnum operate) {
         ArticleDO articleDO = articleDao.getById(articleId);
         if (articleDO == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在");
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
         setArticleStat(articleDO, operate);
         articleDao.updateById(articleDO);

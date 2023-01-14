@@ -2,15 +2,17 @@ package com.github.liuyueyi.forum.web.global;
 
 import com.github.liueyueyi.forum.api.model.exception.ForumException;
 import com.github.liueyueyi.forum.api.model.vo.ResVo;
+import com.github.liueyueyi.forum.api.model.vo.Status;
 import com.github.liueyueyi.forum.api.model.vo.constants.StatusEnum;
 import com.github.liuyueyi.forum.core.util.JsonUtil;
+import com.github.liuyueyi.forum.core.util.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.ResponseFacade;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -28,10 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 @Order(-100)
 public class ForumExceptionHandler implements HandlerExceptionResolver {
     @Override
-    public ModelAndView resolveException(HttpServletRequest request,
-                                         HttpServletResponse response,
-                                         Object handler, Exception ex) {
-        String errMsg = buildToastMsg(ex);
+    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        Status errStatus = buildToastMsg(ex);
 
         if (restResponse(request, response)) {
             // 表示返回json数据格式的异常提示信息
@@ -45,7 +45,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
                 // 若是rest接口请求异常时，返回json格式的异常数据；而不是专门的500页面
                 response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
                 response.setHeader("Cache-Control", "no-cache, must-revalidate");
-                response.getWriter().println(errMsg);
+                response.getWriter().println(JsonUtil.toStr(ResVo.fail(errStatus)));
                 response.getWriter().flush();
                 return new ModelAndView();
             } catch (Exception e) {
@@ -53,22 +53,40 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             }
         }
 
-        // 表示返回500页面
-        ModelAndView mv = new ModelAndView("error/500");
-        mv.getModel().put("toast", errMsg);
-        response.setStatus(500);
+        String view = getErrorPage(errStatus, response);
+        ModelAndView mv = new ModelAndView(view);
+        response.setContentType(MediaType.TEXT_HTML_VALUE);
+        mv.getModel().put("global", SpringUtil.getBean(GlobalInitService.class).globalAttr());
+        mv.getModel().put("res", ResVo.fail(errStatus));
+        mv.getModel().put("toast", JsonUtil.toStr(ResVo.fail(errStatus)));
         return mv;
     }
 
-    private String buildToastMsg(Exception ex) {
+    private Status buildToastMsg(Exception ex) {
         if (ex instanceof ForumException) {
-            return JsonUtil.toStr(ResVo.fail(((ForumException) ex).getStatus()));
+            return ((ForumException) ex).getStatus();
+        } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
+            return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {
             log.error("unexpect error", ex);
-            return ex.getMessage();
+            return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ex.getMessage());
         } else {
             log.error("unexpect error", ex);
-            return ExceptionUtils.getStackTrace(ex);
+            return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ExceptionUtils.getStackTrace(ex));
+        }
+    }
+
+    private String getErrorPage(Status status, HttpServletResponse response) {
+        // 根据异常码解析需要返回的错误页面
+        if (StatusEnum.is5xx(status.getCode())) {
+            response.setStatus(500);
+            return "/error/500";
+        } else if (StatusEnum.is403(status.getCode())) {
+            response.setStatus(403);
+            return "/error/403";
+        } else {
+            response.setStatus(404);
+            return "/error/404";
         }
     }
 

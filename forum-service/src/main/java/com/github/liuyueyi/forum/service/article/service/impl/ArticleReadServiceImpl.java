@@ -23,14 +23,11 @@ import com.github.liuyueyi.forum.service.user.service.CountService;
 import com.github.liuyueyi.forum.service.user.service.UserFootService;
 import com.github.liuyueyi.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +68,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Override
     public String generateSummary(String content) {
-       return ArticleUtil.pickSummary(content);
+        return ArticleUtil.pickSummary(content);
     }
 
     @Override
@@ -84,7 +81,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     public ArticleDTO queryDetailArticleInfo(Long articleId) {
         ArticleDTO article = articleDao.queryArticleDetail(articleId);
         if (article == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在");
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
         // 更新分类相关信息
         CategoryDTO category = article.getCategory();
