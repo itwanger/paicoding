@@ -102,7 +102,7 @@ public class ColumnSettingRestController {
                     columnId, PageParam.newPageInstance(pageNumber, pageSize));
             return ResVo.ok(simpleArticleDTOS);
         } catch (Exception e) {
-            return ResVo.fail(StatusEnum.RECORDS_NOT_EXISTS, e.getMessage());
+            return ResVo.fail(StatusEnum.COLUMN_QUERY_ERROR, e.getMessage());
         }
     }
 }

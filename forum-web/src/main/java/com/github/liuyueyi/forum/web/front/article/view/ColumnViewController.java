@@ -72,7 +72,7 @@ public class ColumnViewController {
     public String column(@PathVariable("columnId") Long columnId, Model model) {
         ColumnDTO dto = columnService.queryColumnInfo(columnId);
         if (dto == null) {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "专栏不存在");
+            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, columnId);
         }
         model.addAttribute("vo", dto);
         return "/views/column-index/index";
