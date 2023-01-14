@@ -21,7 +21,7 @@
 
             <!-- 正文 -->
             <div
-              th:replace="components/article/article-detail :: article_info(${vo.article}, ${vo.author})"
+              th:replace="components/article/article-detail :: article_info(${vo.article}, ${vo.author}, false)"
             ></div>
 
             <!--  评论  -->

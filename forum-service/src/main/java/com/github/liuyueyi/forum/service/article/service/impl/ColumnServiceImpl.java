@@ -53,20 +53,30 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    public ColumnDTO queryColumnInfo(Long columnId) {
+    public ColumnDTO queryBasicColumnInfo(Long columnId) {
         ColumnInfoDO column = columnDao.getById(columnId);
-        return buildColumnInfo(column);
+        if (column == null) {
+            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, columnId);
+        }
+        return ColumnConvert.toDto(column);
+    }
+
+    @Override
+    public ColumnDTO queryColumnInfo(Long columnId) {
+        return buildColumnInfo(queryBasicColumnInfo(columnId));
+    }
+
+    private ColumnDTO buildColumnInfo(ColumnInfoDO info) {
+        return buildColumnInfo(ColumnConvert.toDto(info));
     }
 
     /**
      * 构建专栏详情信息
      *
-     * @param info
+     * @param dto
      * @return
      */
-    private ColumnDTO buildColumnInfo(ColumnInfoDO info) {
-        ColumnDTO dto = ColumnConvert.toDto(info);
-
+    private ColumnDTO buildColumnInfo(ColumnDTO dto) {
         // 补齐专栏对应的用户信息
         BaseUserInfoDTO user = userService.queryBasicUserInfo(dto.getAuthor());
         dto.setAuthorName(user.getUserName());
@@ -80,7 +90,7 @@ public class ColumnServiceImpl implements ColumnService {
         // 专栏阅读人数
         countDTO.setReadCount(columnDao.countColumnReadPeoples(dto.getColumnId()));
         // 总的章节数
-        countDTO.setTotalNums(info.getNums());
+        countDTO.setTotalNums(dto.getNums());
         dto.setCount(countDTO);
         return dto;
     }

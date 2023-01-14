@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 文章内容 -->
   <section
-    th:fragment="article_info(article, author)"
+    th:fragment="article_info(article, author, loginRead)"
     class="article-info-wrap com-2-panel col-2-article J-articlePanel"
   >
     <span class="com-2-mark-triangle article-mark">
@@ -77,6 +77,21 @@
     </div>
 
     <div id="articleContent" class="article-content"></div>
+    <div th:if="${loginRead && !global.isLogin}">
+      <div style=" width: 100%;
+          background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
+          background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
+          padding-bottom: 24px; position: relative;
+          padding-top: 160px;
+          margin-top: -220px;
+          z-index: 996;
+          bottom: -1px;
+          text-align:center">
+        <a class="btn-readmore no-login" style="cursor:pointer;" data-target="#loginModal" data-toggle="modal">
+          <span style="color:#ca0c16">登录之后即可阅读全文</span>
+        </a>
+      </div>
+    </div>
 
     <!-- 再次确认 Modal -->
     <div
