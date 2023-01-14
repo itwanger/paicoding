@@ -12,6 +12,7 @@ import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -52,7 +53,9 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             }
         }
 
-        ModelAndView mv = new ModelAndView(getErrorPage(errStatus, response));
+        String view = getErrorPage(errStatus, response);
+        ModelAndView mv = new ModelAndView(view);
+        response.setContentType(MediaType.TEXT_HTML_VALUE);
         mv.getModel().put("global", SpringUtil.getBean(GlobalInitService.class).globalAttr());
         mv.getModel().put("res", ResVo.fail(errStatus));
         mv.getModel().put("toast", JsonUtil.toStr(ResVo.fail(errStatus)));
@@ -62,6 +65,8 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
     private Status buildToastMsg(Exception ex) {
         if (ex instanceof ForumException) {
             return ((ForumException) ex).getStatus();
+        } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
+            return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {
             log.error("unexpect error", ex);
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ex.getMessage());
