@@ -55,7 +55,7 @@
           <div class="messages">
             <span class="message">
               <span class="article-count"
-                    th:text="'已更新 ' + ${column.count.articleCount} + ' 小节'">
+                    th:text="(${column.state == 2} ? '已完结 ' : '已更新 ') + ${column.count.articleCount} + ' 小节'">
                 已更新21小节
               </span>
               <span class="read-count"
