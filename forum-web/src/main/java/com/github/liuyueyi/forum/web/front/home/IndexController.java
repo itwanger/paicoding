@@ -27,7 +27,7 @@ public class IndexController extends BaseViewController {
         return "views/home/index";
     }
 
-    @GetMapping(path = "test")
+    @GetMapping(path = "500")
     public int divide() {
         return 1/0;
     }

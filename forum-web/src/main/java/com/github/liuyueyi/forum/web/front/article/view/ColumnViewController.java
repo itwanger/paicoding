@@ -133,7 +133,6 @@ public class ColumnViewController {
             return;
         }
 
-        column.setType( ColumnTypeEnum.LOGIN.getType());
         if (column.getType() == ColumnTypeEnum.TIME_FREE.getType()) {
             long now = System.currentTimeMillis();
             if (now >= column.getFreeStartTime() && now <= column.getFreeEndTime()) {
