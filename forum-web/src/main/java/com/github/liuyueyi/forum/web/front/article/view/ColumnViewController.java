@@ -1,6 +1,7 @@
 package com.github.liuyueyi.forum.web.front.article.view;
 
 import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.ColumnTypeEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.PageListVo;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
@@ -90,6 +91,9 @@ public class ColumnViewController {
     @GetMapping(path = "{columnId}/{section}")
     public String articles(@PathVariable("columnId") Long columnId, @PathVariable("section") Integer section, Model model) {
         if (section <= 0) section = 1;
+        // 查询专栏
+        ColumnDTO column = columnService.queryBasicColumnInfo(columnId);
+
         Long articleId = columnService.queryColumnArticle(columnId, section);
         // 文章信息
         ArticleDTO articleDTO = articleReadService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
@@ -104,6 +108,7 @@ public class ColumnViewController {
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
+        updateReadType(vo, column, articleDTO);
         vo.setArticle(articleDTO);
         vo.setComments(comments);
         vo.setHotComment(hotComment);
@@ -112,5 +117,43 @@ public class ColumnViewController {
         vo.setArticleList(articles);
         model.addAttribute("vo", vo);
         return "views/column-detail/index";
+    }
+
+    /**
+     * 对于要求登录阅读的文章进行进行处理
+     *
+     * @param vo
+     * @param column
+     * @param articleDTO
+     */
+    private void updateReadType(ColumnArticlesDTO vo, ColumnDTO column, ArticleDTO articleDTO) {
+        Long loginUser = ReqInfoContext.getReqInfo().getUserId();
+        if (loginUser != null && loginUser.equals(articleDTO.getAuthor())) {
+            vo.setReadType(0);
+            return;
+        }
+
+        column.setType( ColumnTypeEnum.LOGIN.getType());
+        if (column.getType() == ColumnTypeEnum.TIME_FREE.getType()) {
+            long now = System.currentTimeMillis();
+            if (now >= column.getFreeStartTime() && now <= column.getFreeEndTime()) {
+                vo.setReadType(ColumnTypeEnum.LOGIN.getType());
+            } else {
+                vo.setReadType(ColumnTypeEnum.FREE.getType());
+            }
+        } else {
+            vo.setReadType(column.getType());
+        }
+
+        // 如果是登录阅读时，不返回全量的文章内容
+        if (vo.getReadType() == ColumnTypeEnum.LOGIN.getType()) {
+            String content = articleDTO.getContent();
+            if (content.length() > 500) {
+                content = content.substring(0, 500);
+            } else if (content.length() > 128) {
+                content = content.substring(0, 128);
+            }
+            articleDTO.setContent(content);
+        }
     }
 }

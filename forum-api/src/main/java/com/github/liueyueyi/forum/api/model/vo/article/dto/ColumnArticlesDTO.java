@@ -1,5 +1,6 @@
 package com.github.liueyueyi.forum.api.model.vo.article.dto;
 
+import com.github.liueyueyi.forum.api.model.enums.ColumnTypeEnum;
 import com.github.liueyueyi.forum.api.model.vo.comment.dto.TopCommentDTO;
 import lombok.Data;
 
@@ -25,6 +26,15 @@ public class ColumnArticlesDTO {
      * 文章详情
      */
     private ArticleDTO article;
+
+    /**
+     * 0 免费阅读
+     * 1 要求登录阅读
+     * 2 限时免费，若当前时间超过限时免费期，则调整为登录阅读
+     *
+     * @see ColumnTypeEnum#getType()
+     */
+    private Integer readType;
 
     /**
      * 文章评论
