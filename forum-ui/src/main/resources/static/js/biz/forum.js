@@ -179,6 +179,9 @@ const genTocMenu = function genToc(selector, el) {
     toTopDistance: 80, // 距离视口顶部多少高度之内时候触发高亮
     selector: ".headerlink", // 文章内容中标题标签的 selector
   }
+  // // 滑动监听
+  // let stickyFlag = 0
+  // let oldDocContentTop = 0
 
   // tocs
   const reg = new RegExp("[H]\\d")
@@ -243,10 +246,34 @@ const genTocMenu = function genToc(selector, el) {
   window.addEventListener(
     "resize",
     function (e) {
+      
       debounce(initCatalog, DEFAULT.delay)()
     },
     false
   )
+ 
+  // window.addEventListener(
+  //   "scroll",
+  //   function (e) {
+  //     const docContentTop = $('.toc-container')[0].offsetTop
+  //     const windowScrollTop = $(window).scrollTop()
+      
+  //     if(!stickyFlag){
+  //       oldDocContentTop = docContentTop
+  //     }
+
+  //    if(windowScrollTop - 30 > docContentTop && !stickyFlag){
+  //     $('.toc-container').addClass('toc-container--sticky')
+  //     stickyFlag = 1
+  //    }
+     
+  //    if(stickyFlag&&oldDocContentTop>windowScrollTop){
+  //     $('.toc-container').removeClass('toc-container--sticky')
+  //     stickyFlag = 0
+  //    }
+  //   },
+  //   false
+  // )
 
   function initCatalog() {
     let tempHeight = window.innerHeight
@@ -383,7 +410,6 @@ const genTocMenu = function genToc(selector, el) {
         marginTop = 0
       }
 
-      console.log(curr.top)
 
       if (curr.top < 60 && $(".widget").parent().hasClass("right-container")) {
         $(".widget").parent().removeClass("right-container")
