@@ -260,7 +260,7 @@
   border: 1px solid #d2d2d2;
   border-radius: 10px;
 }
-.right-container {
+.right-container, .toc-container {
   position: sticky;
   z-index: 10;
   top: 30px;

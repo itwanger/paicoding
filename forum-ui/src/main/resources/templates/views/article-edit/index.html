@@ -213,6 +213,12 @@
       </div>
     </div>
 
+    <div class="edit-mask">
+      <img src="/img/icon.png" class="edit-mask-img" alt="">
+      <span>文件解析中...</span>
+    </div>
+
+
     <script th:inline="javascript">
       // 一些 jQuery 对象
       let pic = $("#pic"),tagSelect = $('#tag-select'),
@@ -242,6 +248,24 @@
         cover: cover,
       };
 
+      // 展示遮罩
+      const showMask = () => {
+        const editMaskDom =  $(".edit-mask")
+        const isVisible = editMaskDom.is(':visible')
+        console.log({isVisible});
+        if(!isVisible){
+          editMaskDom.css('display','flex')
+        }
+      }
+
+      // 隐藏遮罩
+      const hideMask = () => {
+        const editMaskDom =  $(".edit-mask")
+        const isVisible = editMaskDom.is(':visible')
+        if(isVisible){
+          editMaskDom.hide()
+        }
+      }
       // 编辑器
       let simplemde = editormd("paiEditor", {
         width: "100%",
@@ -287,6 +311,10 @@
         },
         onchange: function () {
           console.log('onchange', this);
+          // 打开遮罩
+          showMask()
+          // 关闭遮罩
+          hideMask()
           let newVal = this.getMarkdown();
           let add;
           if (newVal.startsWith(lastVal)) {
