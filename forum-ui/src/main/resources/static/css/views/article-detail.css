@@ -291,4 +291,7 @@
   .article-suspended-panel-md {
     visibility: visible;
   }
+  .foot {
+    margin-bottom: 72px;
+  }
 }
