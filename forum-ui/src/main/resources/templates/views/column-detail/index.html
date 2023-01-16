@@ -113,7 +113,6 @@
       document.getElementById("commentList").scrollIntoView(true);
     })
 
-
     // 点赞
     let praisedCount = [[${ vo.article.count.praiseCount }]]
     let praised = [[${ vo.article.praised }]]
@@ -228,7 +227,7 @@
           document.getElementById("commentDiv").innerHTML = data
           bindCommentInputEvent()
         })
-      });
+      })
 
       // 直接评论监听
       $(document).on("input propertychange", "#commentContent", function () {
@@ -266,29 +265,29 @@
 
       // 获取回复人的名字
       var fhName = currentDom
-              .parents(".common-item-content")
-              .find(".comment-name")
-              .html()
+        .parents(".common-item-content")
+        .find(".comment-name")
+        .html()
       //回复@
       var fhN = "回复@" + fhName + "："
       var fhHtml =
-              '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
+        '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
       if (currentDom.is(".hf-con-block")) {
         const currentWrap =
-                (currentDom.parents(".comment-item-wrap").length &&
-                        currentDom.parents(".comment-item-wrap")) ||
-                (currentDom.parents(".comment-item-wrap-second").length &&
-                        currentDom.parents(".comment-item-wrap-second"))
+          (currentDom.parents(".comment-item-wrap").length &&
+            currentDom.parents(".comment-item-wrap")) ||
+          (currentDom.parents(".comment-item-wrap-second").length &&
+            currentDom.parents(".comment-item-wrap-second"))
 
         currentWrap.find(".common-item-content").append(fhHtml)
         currentDom.removeClass("hf-con-block")
         //input框自动聚焦
         currentDom
-                .parents(".common-item-content")
-                .find(".hf-input")
-                .val("")
-                .focus()
-                .attr("placeholder", fhN)
+          .parents(".common-item-content")
+          .find(".hf-input")
+          .val("")
+          .focus()
+          .attr("placeholder", fhN)
         // 取消回复
         currentDom.find(".reply-comment-text").hide()
         currentDom.find(".reply-comment-text-none").show()
@@ -305,8 +304,8 @@
     const commentSubmit = function (currentDom) {
       const replyContent = currentDom.siblings(".hf-input")
       const replyBtn = currentDom
-              .parents(".common-item-content")
-              .find(".reply-comment")
+        .parents(".common-item-content")
+        .find(".reply-comment")
 
       if (!replyContent.val()) {
         toastr.error("回复内容不能为空")
@@ -325,7 +324,7 @@
       }
       post("/comment/api/post", params, function (data) {
         document.getElementById("commentDiv").innerHTML = data
-        bindCommentInputEvent();
+        bindCommentInputEvent()
       })
     }
 
@@ -338,7 +337,6 @@
       }
     }
 
-
-    bindCommentInputEvent();
+    bindCommentInputEvent()
   </script>
 </html>

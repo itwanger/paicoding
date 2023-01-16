@@ -292,3 +292,11 @@
 .cdc-article-panel__user-name:hover {
   color: var(--pai-color-3-black);
 }
+
+/* home 适配 */
+@media screen and (max-width: 960px) {
+  .article-title-wrap,
+  .cdc-article-panel__date {
+    display: none;
+  }
+}
