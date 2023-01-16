@@ -132,7 +132,7 @@ button:focus {
 
 /*回到顶部*/
 
-#loginModal .modal-header{
+#loginModal .modal-header {
   border-bottom: none;
 }
 
@@ -143,7 +143,7 @@ button:focus {
 #loginModal .mdnice-user-dialog-footer {
   display: flex;
   justify-content: space-between;
-  background: linear-gradient(216deg,#f9fafb,#f8fafb 57%,#f0f2f6);
+  background: linear-gradient(216deg, #f9fafb, #f8fafb 57%, #f0f2f6);
   padding: 10px 20px;
   font-size: 14px;
 }
@@ -161,13 +161,13 @@ button:focus {
   margin: 0;
 }
 
-#loginModal .close{
+#loginModal .close {
   position: absolute;
   top: 0;
   right: 0;
   z-index: 10;
   padding: 0;
-  color: rgba(0,0,0,.45);
+  color: rgba(0, 0, 0, 0.45);
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
@@ -175,7 +175,7 @@ button:focus {
   border: 0;
   outline: 0;
   cursor: pointer;
-  transition: color .3s;
+  transition: color 0.3s;
 }
 
 #loginModal .close span {
@@ -231,7 +231,7 @@ button:focus {
   font-size: 20px;
 }
 
-  /*接下来是 class 的*/
+/*接下来是 class 的*/
 
 /*需要背景色主动添加，一种浅灰色，腾讯云社区的背景色*/
 .bg-color {
@@ -977,4 +977,20 @@ button:focus {
   margin-left: -80px;
   top: 140px;
   z-index: 2;
+}
+
+.article-suspended-panel-md {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  padding: 12px 0;
+  visibility: hidden;
+}
+
+.article-suspended-panel-md .panel-btn {
+  margin-bottom: 0;
 }

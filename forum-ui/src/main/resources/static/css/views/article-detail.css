@@ -1,5 +1,4 @@
-/* 详情主体样式 */
-.detail-content-title {
+详情主体样式 .detail-content-title {
   color: rgba(0, 0, 0, 0.85);
   font-size: 26px;
   line-height: 31px;
@@ -45,13 +44,15 @@
   cursor: pointer;
 }
 
-.com-opt-link, .com-opt-text {
+.com-opt-link,
+.com-opt-text {
   display: inline-block;
   vertical-align: middle;
   color: var(--pai-color-999-gray);
 }
 
-[class*=com-i-], [class^=com-i-] {
+[class*="com-i-"],
+[class^="com-i-"] {
   display: inline-block;
   vertical-align: middle;
   width: 20px;
@@ -59,15 +60,18 @@
   background-size: 100% auto;
 }
 
-.com-opt-link:hover .com-i-edit,.com-opt-link:hover .com-i-delete {
+.com-opt-link:hover .com-i-edit,
+.com-opt-link:hover .com-i-delete {
   fill: var(--pai-brand-2-hover);
 }
 
-.com-opt-link .com-i-edit,.com-opt-link .com-i-delete {
+.com-opt-link .com-i-edit,
+.com-opt-link .com-i-delete {
   fill: var(--pai-color-999-gray);
 }
 
-.detail-content-title-edit [class*=com-i-], .detail-content-title-edit [class^=com-i-]{
+.detail-content-title-edit [class*="com-i-"],
+.detail-content-title-edit [class^="com-i-"] {
   position: relative;
 }
 
@@ -260,7 +264,8 @@
   border: 1px solid #d2d2d2;
   border-radius: 10px;
 }
-.right-container, .toc-container {
+.right-container,
+.toc-container {
   position: sticky;
   z-index: 10;
   top: 30px;
@@ -272,4 +277,18 @@
 
 .comment-list-wrap {
   padding: 20px;
+}
+
+/* home 适配 */
+@media screen and (max-width: 768px) {
+  .layout-side,
+  .article-suspended-panel {
+    display: none !important;
+  }
+  .layout-main {
+    padding: 0 !important;
+  }
+  .article-suspended-panel-md {
+    visibility: visible;
+  }
 }
