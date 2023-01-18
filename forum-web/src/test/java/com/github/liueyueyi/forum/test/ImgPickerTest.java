@@ -1,11 +1,16 @@
 package com.github.liueyueyi.forum.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.github.liueyueyi.forum.api.model.vo.user.wx.WxImgTxtItemVo;
+import com.github.liueyueyi.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.liuyueyi.forum.core.util.ArticleUtil;
 import com.github.liuyueyi.forum.core.util.IpUtil;
 import com.github.liuyueyi.forum.core.util.MdImgLoader;
 import org.junit.Test;
 
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,9 +53,24 @@ public class ImgPickerTest {
     }
 
     @Test
-    public void testUrlAna() {
-        // url解析
-        String url = "https://t7.baidu.com/it/u=4198287529,2774471735&fm=193&f=GIF";
+    public void test2xml() throws JsonProcessingException {
+        WxImgTxtMsgResVo vo = new WxImgTxtMsgResVo();
+        vo.setFromUserName("一会");
+        vo.setToUserName("dd");
+        vo.setCreateTime(System.currentTimeMillis() / 1000);
+        vo.setArticleCount(1);
 
+        List<WxImgTxtItemVo> itemList  = new ArrayList<>();
+        WxImgTxtItemVo item = new WxImgTxtItemVo();
+        item.setTitle("haha");
+        item.setDescription("miaos");
+        item.setPicUrl("123");
+        item.setUrl("456");
+        itemList.add(item);
+        vo.setArticles(itemList);
+
+        XmlMapper mapper = new XmlMapper();
+        String ans = mapper.writeValueAsString(vo);
+        System.out.println(ans);
     }
 }
