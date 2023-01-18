@@ -1,12 +1,12 @@
 package com.github.liuyueyi.forum.web.front.login.rest;
 
+import com.github.liueyueyi.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgResVo;
-import com.github.liuyueyi.forum.core.util.CodeGenerateUtil;
 import com.github.liuyueyi.forum.service.user.service.SessionService;
 import com.github.liuyueyi.forum.web.front.login.QrLoginHelper;
+import com.github.liuyueyi.forum.web.front.login.WxHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +25,8 @@ public class WxRestController {
     private SessionService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
+    @Autowired
+    private WxHelper wxHelper;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -52,15 +54,9 @@ public class WxRestController {
     @PostMapping(path = "callback",
             consumes = {"application/xml", "text/xml"},
             produces = "application/xml;charset=utf-8")
-    public WxTxtMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
+    public BaseWxMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
         String content = msg.getContent();
-        WxTxtMsgResVo res = new WxTxtMsgResVo();
-        res.setFromUserName(msg.getToUserName());
-        res.setToUserName(msg.getFromUserName());
-        res.setCreateTime(System.currentTimeMillis() / 1000);
-        res.setMsgType("text");
         if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
-            // 关注公众号
             String key = msg.getEventKey();
             if (StringUtils.isNotBlank(key) || key.startsWith("qrscene_")) {
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
@@ -68,44 +64,21 @@ public class WxRestController {
                 String code = key.substring("qrscene_".length());
                 String verifyCode = sessionService.getVerifyCode(msg.getFromUserName());
                 qrLoginHelper.login(code, verifyCode);
+                WxTxtMsgResVo res = new WxTxtMsgResVo();
                 res.setContent("登录成功");
-            } else {
-                res.setContent("欢迎关注公众号! 加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
-            }
-        } else {
-            if (loginSymbol(content)) {
-                res.setContent("登录验证码: 【" + sessionService.getVerifyCode(msg.getFromUserName()) + "】 五分钟内有效");
-            } else if (NumberUtils.isDigits(content) && content.length() == CodeGenerateUtil.CODE_LEN) {
-                String verifyCode = sessionService.getVerifyCode(msg.getFromUserName());
-                if (qrLoginHelper.login(content, verifyCode)) {
-                    res.setContent("登录成功!");
-                } else {
-                    res.setContent("验证码过期了，刷新登录页面重试一下吧");
-                }
-            } else {
-                res.setContent("加群：添加群主微信（lml200701158），备注（一灰灰blog）; 学习资料：全部收集在 https://hhui.top 个人站点");
+                fillResVo(res, msg);
+                return res;
             }
         }
+
+        BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), content, msg.getFromUserName());
+        fillResVo(res, msg);
         return res;
     }
 
-    /**
-     * 判断是否为登录指令，后续扩展其他的响应
-     *
-     * @param msg
-     * @return
-     */
-    private boolean loginSymbol(String msg) {
-        if (StringUtils.isBlank(msg)) {
-            return false;
-        }
-
-        msg = msg.trim();
-        for (String key : SessionService.LOGIN_CODE_KEY) {
-            if (msg.equalsIgnoreCase(key)) {
-                return true;
-            }
-        }
-        return false;
+    private void fillResVo(BaseWxMsgResVo res, WxTxtMsgReqVo msg) {
+        res.setFromUserName(msg.getToUserName());
+        res.setToUserName(msg.getFromUserName());
+        res.setCreateTime(System.currentTimeMillis() / 1000);
     }
 }

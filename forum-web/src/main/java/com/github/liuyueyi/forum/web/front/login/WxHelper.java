@@ -1,9 +1,17 @@
 package com.github.liuyueyi.forum.web.front.login;
 
+import com.github.liueyueyi.forum.api.model.vo.user.wx.BaseWxMsgResVo;
+import com.github.liueyueyi.forum.api.model.vo.user.wx.WxImgTxtItemVo;
+import com.github.liueyueyi.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
+import com.github.liueyueyi.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.liuyueyi.forum.core.util.CodeGenerateUtil;
 import com.github.liuyueyi.forum.core.util.JsonUtil;
 import com.github.liuyueyi.forum.core.util.MapUtils;
+import com.github.liuyueyi.forum.service.user.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,8 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author YiHui
@@ -34,6 +41,10 @@ public class WxHelper {
      */
     public static volatile long expireTime = 0L;
 
+    @Autowired
+    private SessionService sessionService;
+    @Autowired
+    private QrLoginHelper qrLoginHelper;
 
     private RestTemplate restTemplate;
 
@@ -79,4 +90,144 @@ public class WxHelper {
     }
 
 
+    /**
+     * 返回自动响应的文本
+     *
+     * @return
+     */
+    public BaseWxMsgResVo buildResponseBody(String eventType, String content, String fromUser) {
+        // 返回的文本消息
+        String textRes = null;
+        // 返回的是图文消息
+        List<WxImgTxtItemVo> imgTxtList = null;
+        if ("subscribe".equalsIgnoreCase(eventType)) {
+            // 订阅
+            textRes = "欢迎来到楼仔的公众号 \uD83C\uDFFB\n" +
+                    "\n" +
+                    "# 关键字回复 #\n" +
+                    "高并发\n" +
+                    "架构选型\n" +
+                    "Java\n" +
+                    "JVM\n" +
+                    "并发编程\n" +
+                    "Spring源码\n" +
+                    "Go\n" +
+                    "消息队列\n" +
+                    "设计模式\n" +
+                    "MySQL\n" +
+                    "Redis\n" +
+                    "RPC\n" +
+                    "ETCD\n" +
+                    "Raft\n" +
+                    "DDD\n" +
+                    "项目管理\n" +
+                    "如何学习\n" +
+                    "职业规划\n" +
+                    "\n" +
+                    "传送门： <a href=\"https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489874&idx=1&sn=13fd80e4fabfd51183a2929cc3896374&chksm=cf035bb0f874d2a6cf1d79aec7c2a65842adece0aee5f1f0309622800820fc2205346393839e#rd\">【原创精选文章】</a>\n" +
+                    "\n" +
+                    "回复「资料」，免费领取 PDF 手册。";
+        }
+        // 下面是关键词回复
+        else if ("110".equalsIgnoreCase(content)) {
+            textRes = "[10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
+        } else if ("119".equalsIgnoreCase(content) || "高并发".equalsIgnoreCase(content)) {
+            textRes = "[高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm";
+        } else if ("120".equalsIgnoreCase(content) || "JVM".equalsIgnoreCase(content)) {
+            textRes = "[JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t";
+        } else if ("122".equalsIgnoreCase(content) || "Spring".equalsIgnoreCase(content)) {
+            textRes = "[Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt";
+        } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content)) {
+            textRes = "[高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm\n" +
+                    "\n" +
+                    "[Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt\n" +
+                    "\n" +
+                    "[JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t\n" +
+                    "\n" +
+                    "[Java 并发编程手册] 链接: https://pan.baidu.com/s/1s9InH8O2Gflm7Vf-EyDBSg?pwd=iatm 提取码: iatm\n" +
+                    "\n" +
+                    "[架构选型手册] 链接: https://pan.baidu.com/s/1FxZKLFbbKsqrhIJDW6zITA?pwd=d0nw 提取码: d0nw\n" +
+                    "\n" +
+                    "[设计模式手册] 链接: https://pan.baidu.com/s/1ONdC3R04jctqI6KDOJ9isg?pwd=pm7v 提取码: pm7v\n" +
+                    "\n" +
+                    "[项目管理手册] 链接: https://pan.baidu.com/s/1Fe4dZj6bX8nE7APnCUfWVA?pwd=9qon 提取码: 9qon\n" +
+                    "\n" +
+                    "GitHub 链接: https://github.com/lml200701158/louzaiArticle";
+        }
+        // 下面是回复图文消息
+        else if ("加群".equalsIgnoreCase(content)) {
+            WxImgTxtItemVo imgTxt = new WxImgTxtItemVo();
+            imgTxt.setTitle("扫码加群");
+            imgTxt.setDescription("加入技术交流群，定期分享技术好文，卷起来！");
+            imgTxt.setPicUrl("https://mmbiz.qpic.cn/mmbiz_jpg/sXFqMxQoVLGOyAuBLN76icGMb2LD1a7hBCoialjicOMsicvdsCovZq2ib1utmffHLjVlcyAX2UTmHoslvicK4Mg71Kyw/0?wx_fmt=jpeg");
+            imgTxt.setUrl("https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489777&idx=1&sn=fe41b1d5b461213c1586befc602618ac&chksm=cf035a13f874d305c21c7dbdcc6ce0f8ffbc59c1fa2f8d436620017a676881d175b2f0af3306&token=466180380&lang=zh_CN#rd");
+            imgTxtList = Arrays.asList(imgTxt);
+        } else if ("职业规划".equalsIgnoreCase(content)) {
+            WxImgTxtItemVo imgTxt = new WxImgTxtItemVo();
+            imgTxt.setTitle("晋升 P7 了");
+            imgTxt.setDescription("如何才能达到阿里 P7 水平，技术、业务和软技能，三者缺一不可，本文告诉你如何卷！");
+            imgTxt.setPicUrl("https://mmbiz.qpic.cn/mmbiz_jpg/sXFqMxQoVLF2gXC2gl…RHHDRfQ5tiblDL8XbLF8I3iaNppofbwRGFA/0?wx_fmt=jpeg");
+            imgTxt.setUrl("https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489759&idx=1&sn=c775e16329c13e1c563a6cff8c65e939&chksm=cf035a3df874d32b1a41294daa2e32cf73c2cb4e22b8e5a504ef6831d449cf7830284b12e309&token=466180380&lang=zh_CN#rd");
+
+
+            WxImgTxtItemVo imgTxt2 = new WxImgTxtItemVo();
+            imgTxt.setTitle("如何看待程序员35岁职业危机？");
+            imgTxt.setDescription("作为程序员，你有过35岁焦虑么？如何看待程序员大龄危机，如何提前做好职业规划，我们一起聊聊~~");
+            imgTxt.setPicUrl("https://mmbiz.qpic.cn/mmbiz_jpg/sXFqMxQoVLEOMH20jF…U8UmFWP4emV8b2pcL4icDlGT3wWZZFvaoIw/0?wx_fmt=jpeg");
+            imgTxt.setUrl("https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247491344&idx=1&sn=38e026846aac4604124354275676de90&chksm=cf035df2f874d4e405a7cd0599c5e2835a1aabde4c61a36b1cfbe8959683bdeedb4635e2b216&token=466180380&lang=zh_CN#rd");
+
+            imgTxtList = new ArrayList<>();
+            imgTxtList.add(imgTxt);
+            imgTxtList.add(imgTxt2);
+        }
+        // 微信公众号登录
+        else if (CodeGenerateUtil.isVerifyCode(content)) {
+            String verifyCode = sessionService.getVerifyCode(fromUser);
+            if (qrLoginHelper.login(content, verifyCode)) {
+                textRes = "登录成功";
+            } else {
+                textRes = "验证码过期了，刷新登录页面重试一下吧";
+            }
+        }
+        // 兜底的返回
+        else {
+            textRes = "欢迎来到楼仔的公众号 \uD83C\uDFFB\n" +
+                    "\n" +
+                    "# 关键字回复 #\n" +
+                    "高并发\n" +
+                    "架构选型\n" +
+                    "Java\n" +
+                    "JVM\n" +
+                    "并发编程\n" +
+                    "Spring源码\n" +
+                    "Go\n" +
+                    "消息队列\n" +
+                    "设计模式\n" +
+                    "MySQL\n" +
+                    "Redis\n" +
+                    "RPC\n" +
+                    "ETCD\n" +
+                    "Raft\n" +
+                    "DDD\n" +
+                    "项目管理\n" +
+                    "如何学习\n" +
+                    "职业规划\n" +
+                    "\n" +
+                    "传送门： <a href=\"https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489874&idx=1&sn=13fd80e4fabfd51183a2929cc3896374&chksm=cf035bb0f874d2a6cf1d79aec7c2a65842adece0aee5f1f0309622800820fc2205346393839e#rd\">【原创精选文章】</a>\n" +
+                    "\n" +
+                    "回复「资料」，免费领取 PDF 手册。";
+        }
+
+
+        if (textRes != null) {
+            WxTxtMsgResVo vo = new WxTxtMsgResVo();
+            vo.setContent(textRes);
+            return vo;
+        } else {
+            WxImgTxtMsgResVo vo = new WxImgTxtMsgResVo();
+            vo.setArticles(imgTxtList);
+            vo.setArticleCount(imgTxtList.size());
+            return vo;
+        }
+    }
 }

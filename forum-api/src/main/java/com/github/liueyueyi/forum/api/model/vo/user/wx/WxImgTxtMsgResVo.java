@@ -5,6 +5,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * 返回的数据结构体
  * <p>
@@ -16,11 +18,13 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @JacksonXmlRootElement(localName = "xml")
-public class WxTxtMsgResVo extends BaseWxMsgResVo {
-    @JacksonXmlProperty(localName = "Content")
-    private String content;
+public class WxImgTxtMsgResVo extends BaseWxMsgResVo {
+    @JacksonXmlProperty(localName = "ArticleCount")
+    private Integer articleCount;
+    @JacksonXmlProperty(localName = "Articles")
+    private List<WxImgTxtItemVo> articles;
 
-    public WxTxtMsgResVo() {
-        setMsgType("text");
+    public WxImgTxtMsgResVo() {
+        setMsgType("news");
     }
 }
