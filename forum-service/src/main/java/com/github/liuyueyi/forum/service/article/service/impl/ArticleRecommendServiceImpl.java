@@ -72,7 +72,7 @@ public class ArticleRecommendServiceImpl implements ArticleRecommendService {
      */
     public SideBarDTO joinUs() {
         return new SideBarDTO().setTitle("扫码进群").setSubTitle("加入交流社区")
-                .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
+                .setImg("")
                 .setContent("联系信息:<br/> yihuihuiyi@gmail.com")
                 .setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
     }

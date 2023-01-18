@@ -135,7 +135,7 @@ public class ColumnViewController {
 
         if (column.getType() == ColumnTypeEnum.TIME_FREE.getType()) {
             long now = System.currentTimeMillis();
-            if (now >= column.getFreeStartTime() && now <= column.getFreeEndTime()) {
+            if (now > column.getFreeEndTime() || now < column.getFreeStartTime()) {
                 vo.setReadType(ColumnTypeEnum.LOGIN.getType());
             } else {
                 vo.setReadType(ColumnTypeEnum.FREE.getType());

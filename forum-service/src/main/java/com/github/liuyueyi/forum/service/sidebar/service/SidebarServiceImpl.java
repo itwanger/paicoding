@@ -113,7 +113,7 @@ public class SidebarServiceImpl implements SidebarService {
     private SideBarDTO recommendSideBar() {
         return new SideBarDTO().setTitle("加入\"社区技术交流群\"").setSubTitle("")
                 .setIcon("https://tool.hhui.top/icon.svg")
-                .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
+                .setImg("//cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg")
                 .setContent("群主微信：<br/> lml200701158（楼仔）<br/> qing_gee（沉默王二）")
                 .setStyle(SidebarStyleEnum.RECOMMEND.getStyle());
     }
@@ -125,7 +125,7 @@ public class SidebarServiceImpl implements SidebarService {
      */
     private SideBarDTO subscribeSideBar() {
         return new SideBarDTO().setTitle("订阅").setSubTitle("楼仔")
-                .setImg("https://spring.hhui.top/spring-blog/imgs/info/wx.jpg")
+                .setImg("//cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg")
                 .setContent("10本校招必刷八股文")
                 .setStyle(SidebarStyleEnum.SUBSCRIBE.getStyle());
     }
