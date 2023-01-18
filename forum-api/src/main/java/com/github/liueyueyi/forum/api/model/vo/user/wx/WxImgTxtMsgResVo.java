@@ -1,5 +1,6 @@
 package com.github.liueyueyi.forum.api.model.vo.user.wx;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
@@ -21,7 +22,8 @@ import java.util.List;
 public class WxImgTxtMsgResVo extends BaseWxMsgResVo {
     @JacksonXmlProperty(localName = "ArticleCount")
     private Integer articleCount;
-    @JacksonXmlProperty(localName = "Articles")
+    @JacksonXmlElementWrapper(localName = "Articles")
+    @JacksonXmlProperty(localName = "item")
     private List<WxImgTxtItemVo> articles;
 
     public WxImgTxtMsgResVo() {
