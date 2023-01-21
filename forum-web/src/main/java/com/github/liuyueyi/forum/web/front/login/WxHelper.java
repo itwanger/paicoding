@@ -106,7 +106,7 @@ public class WxHelper {
                     "\n" +
                     "这里整理了一份「 2023年超硬核面试备战手册」，内容涵盖计算机网络、操作系统、数据结构与算法、MySQL、Redis、Java、Spring、高并发等等\n" +
                     "\n" +
-                    "<a href=\"https://mp.weixin.qq.com/s/szctSvy3dG3dyP4AY6MsuA\">[勾引]速来，手慢无！</a >" +
+                    "<a href=\"https://mp.weixin.qq.com/s/szctSvy3dG3dyP4AY6MsuA\">[勾引]速来，手慢无！</a>\n" +
                     "\n" +
                     "我从清晨走过，也拥抱夜晚的星辰，人生没有捷径，你我皆平凡，你好，陌生人，一起共勉。\n";
         }
