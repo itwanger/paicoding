@@ -157,35 +157,6 @@ public class WxHelper {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }
         }
-/*        // 兜底的返回
-        else {
-            textRes = "欢迎来到楼仔的公众号 \uD83C\uDFFB\n" +
-                    "\n" +
-                    "# 关键字回复 #\n" +
-                    "高并发\n" +
-                    "架构选型\n" +
-                    "Java\n" +
-                    "JVM\n" +
-                    "并发编程\n" +
-                    "Spring源码\n" +
-                    "Go\n" +
-                    "消息队列\n" +
-                    "设计模式\n" +
-                    "MySQL\n" +
-                    "Redis\n" +
-                    "RPC\n" +
-                    "ETCD\n" +
-                    "Raft\n" +
-                    "DDD\n" +
-                    "项目管理\n" +
-                    "如何学习\n" +
-                    "职业规划\n" +
-                    "\n" +
-                    "传送门： <a href=\"https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489874&idx=1&sn=13fd80e4fabfd51183a2929cc3896374&chksm=cf035bb0f874d2a6cf1d79aec7c2a65842adece0aee5f1f0309622800820fc2205346393839e#rd\">【原创精选文章】</a>\n" +
-                    "\n" +
-                    "回复「资料」，免费领取 PDF 手册。";
-        }*/
-
 
         if (textRes != null) {
             WxTxtMsgResVo vo = new WxTxtMsgResVo();
