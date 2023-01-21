@@ -9,14 +9,14 @@
     <select id="getPvDayList" resultType="com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
         SELECT sum(cnt) as count, date
         FROM request_count
-        group by date order by date desc
+        group by date order by date asc
         limit #{day};
     </select>
 
     <select id="getUvDayList" resultType="com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
         SELECT count(*) as count, date
         FROM request_count
-        group by date order by date desc
+        group by date order by date asc
         limit #{day};
     </select>
 
