@@ -102,31 +102,13 @@ public class WxHelper {
         List<WxImgTxtItemVo> imgTxtList = null;
         if ("subscribe".equalsIgnoreCase(eventType)) {
             // 订阅
-            textRes = "欢迎来到楼仔的公众号 \uD83C\uDFFB\n" +
+            textRes = "优秀的你一关注，楼仔英俊的脸上就泛起了笑容[奸笑]。我这个废柴，既可以把程序人生写得风趣幽默，也可以把技术文章写得通俗易懂。\n" +
                     "\n" +
-                    "# 关键字回复 #\n" +
-                    "高并发\n" +
-                    "架构选型\n" +
-                    "Java\n" +
-                    "JVM\n" +
-                    "并发编程\n" +
-                    "Spring源码\n" +
-                    "Go\n" +
-                    "消息队列\n" +
-                    "设计模式\n" +
-                    "MySQL\n" +
-                    "Redis\n" +
-                    "RPC\n" +
-                    "ETCD\n" +
-                    "Raft\n" +
-                    "DDD\n" +
-                    "项目管理\n" +
-                    "如何学习\n" +
-                    "职业规划\n" +
+                    "这里整理了一份「 2023年超硬核面试备战手册」，内容涵盖计算机网络、操作系统、数据结构与算法、MySQL、Redis、Java、Spring、高并发等等\n" +
                     "\n" +
-                    "传送门： <a href=\"https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489874&idx=1&sn=13fd80e4fabfd51183a2929cc3896374&chksm=cf035bb0f874d2a6cf1d79aec7c2a65842adece0aee5f1f0309622800820fc2205346393839e#rd\">【原创精选文章】</a>\n" +
+                    "<a href=\"https://mp.weixin.qq.com/s/szctSvy3dG3dyP4AY6MsuA\">[勾引]速来，手慢无！</a >" +
                     "\n" +
-                    "回复「资料」，免费领取 PDF 手册。";
+                    "我从清晨走过，也拥抱夜晚的星辰，人生没有捷径，你我皆平凡，你好，陌生人，一起共勉。\n";
         }
         // 下面是关键词回复
         else if ("110".equalsIgnoreCase(content)) {
@@ -138,21 +120,7 @@ public class WxHelper {
         } else if ("122".equalsIgnoreCase(content) || "Spring".equalsIgnoreCase(content)) {
             textRes = "[Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt";
         } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content)) {
-            textRes = "[高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm\n" +
-                    "\n" +
-                    "[Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt\n" +
-                    "\n" +
-                    "[JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t\n" +
-                    "\n" +
-                    "[Java 并发编程手册] 链接: https://pan.baidu.com/s/1s9InH8O2Gflm7Vf-EyDBSg?pwd=iatm 提取码: iatm\n" +
-                    "\n" +
-                    "[架构选型手册] 链接: https://pan.baidu.com/s/1FxZKLFbbKsqrhIJDW6zITA?pwd=d0nw 提取码: d0nw\n" +
-                    "\n" +
-                    "[设计模式手册] 链接: https://pan.baidu.com/s/1ONdC3R04jctqI6KDOJ9isg?pwd=pm7v 提取码: pm7v\n" +
-                    "\n" +
-                    "[项目管理手册] 链接: https://pan.baidu.com/s/1Fe4dZj6bX8nE7APnCUfWVA?pwd=9qon 提取码: 9qon\n" +
-                    "\n" +
-                    "GitHub 链接: https://github.com/lml200701158/louzaiArticle";
+            textRes = "链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
         }
         // 下面是回复图文消息
         else if ("加群".equalsIgnoreCase(content)) {
@@ -162,7 +130,7 @@ public class WxHelper {
             imgTxt.setPicUrl("https://mmbiz.qpic.cn/mmbiz_jpg/sXFqMxQoVLGOyAuBLN76icGMb2LD1a7hBCoialjicOMsicvdsCovZq2ib1utmffHLjVlcyAX2UTmHoslvicK4Mg71Kyw/0?wx_fmt=jpeg");
             imgTxt.setUrl("https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489777&idx=1&sn=fe41b1d5b461213c1586befc602618ac&chksm=cf035a13f874d305c21c7dbdcc6ce0f8ffbc59c1fa2f8d436620017a676881d175b2f0af3306&token=466180380&lang=zh_CN#rd");
             imgTxtList = Arrays.asList(imgTxt);
-        } else if ("职业规划".equalsIgnoreCase(content)) {
+        } /*else if ("职业规划".equalsIgnoreCase(content)) {
             WxImgTxtItemVo imgTxt = new WxImgTxtItemVo();
             imgTxt.setTitle("晋升 P7 了");
             imgTxt.setDescription("如何才能达到阿里 P7 水平，技术、业务和软技能，三者缺一不可，本文告诉你如何卷！");
@@ -179,7 +147,7 @@ public class WxHelper {
             imgTxtList = new ArrayList<>();
             imgTxtList.add(imgTxt);
             imgTxtList.add(imgTxt2);
-        }
+        }*/
         // 微信公众号登录
         else if (CodeGenerateUtil.isVerifyCode(content)) {
             String verifyCode = sessionService.getVerifyCode(fromUser);
@@ -189,7 +157,7 @@ public class WxHelper {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }
         }
-        // 兜底的返回
+/*        // 兜底的返回
         else {
             textRes = "欢迎来到楼仔的公众号 \uD83C\uDFFB\n" +
                     "\n" +
@@ -216,7 +184,7 @@ public class WxHelper {
                     "传送门： <a href=\"https://mp.weixin.qq.com/s?__biz=Mzg3OTU5NzQ1Mw==&mid=2247489874&idx=1&sn=13fd80e4fabfd51183a2929cc3896374&chksm=cf035bb0f874d2a6cf1d79aec7c2a65842adece0aee5f1f0309622800820fc2205346393839e#rd\">【原创精选文章】</a>\n" +
                     "\n" +
                     "回复「资料」，免费领取 PDF 手册。";
-        }
+        }*/
 
 
         if (textRes != null) {
