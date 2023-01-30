@@ -21,7 +21,7 @@
     <!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
     <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
     <!-- additivity=false 表示匹配之后，不再继续传递给其他的logger-->
-    <logger name="com.github.liuyueyi.forum" level="INFO" additivity="false">
+    <logger name="com.github.paicoding.forum" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 

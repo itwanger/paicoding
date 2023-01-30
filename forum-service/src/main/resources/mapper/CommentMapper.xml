@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.liuyueyi.forum.service.comment.repository.mapper.CommentMapper">
+<mapper namespace="com.github.paicoding.forum.service.comment.repository.mapper.CommentMapper">
 
     <select id="getHotTopCommentId" resultType="java.util.Map">
         select top_comment_id, count(*) as cnt

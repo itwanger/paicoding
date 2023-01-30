@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>quick-forum</artifactId>
-        <groupId>com.github.liuyueyi.quick-forum</groupId>
+        <groupId>com.github.paicoding.forum</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -18,13 +18,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.liuyueyi.quick-forum</groupId>
+            <groupId>com.github.paicoding.forum</groupId>
             <artifactId>forum-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.liuyueyi.media</groupId>
             <artifactId>qrcode-plugin</artifactId>
-            <version>2.6.3</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

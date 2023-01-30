@@ -1,0 +1,326 @@
+package com.github.paicoding.forum.service.article.repository.dao;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
+import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
+import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDetailDO;
+import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
+import com.github.paicoding.forum.service.article.repository.mapper.ArticleDetailMapper;
+import com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper;
+import com.github.paicoding.forum.service.article.repository.mapper.ReadCountMapper;
+import org.springframework.stereotype.Repository;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * 文章相关DB操作
+ * <p>
+ * 多表结构的操作封装，只与DB操作相关
+ *
+ * @author louzai
+ * @date 2022-07-18
+ */
+@Repository
+public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
+    @Resource
+    private ArticleDetailMapper articleDetailMapper;
+    @Resource
+    private ReadCountMapper readCountMapper;
+
+    /**
+     * 查询文章详情
+     *
+     * @param articleId
+     * @return
+     */
+    public ArticleDTO queryArticleDetail(Long articleId) {
+        // 查询文章记录
+        ArticleDO article = baseMapper.selectById(articleId);
+        if (article == null || Objects.equals(article.getDeleted(), YesOrNoEnum.YES.getCode())) {
+            return null;
+        }
+
+        // 查询文章正文
+        ArticleDTO dto = ArticleConverter.toDto(article);
+        if (showReviewContent(article)) {
+            ArticleDetailDO detail = findLatestDetail(articleId);
+            dto.setContent(detail.getContent());
+        } else {
+            // 对于审核中的文章，只有作者本人才能看到原文
+            dto.setContent("### 文章审核中，请稍后再看");
+        }
+        return dto;
+    }
+
+    private boolean showReviewContent(ArticleDO article) {
+        if (article.getStatus() != PushStatusEnum.REVIEW.getCode()) {
+            return true;
+        }
+
+        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
+        if (user == null) {
+            return false;
+        }
+
+        // 作者本人和admin超管可以看到审核内容
+        return user.getUserId().equals(article.getUserId()) || user.getRole().equalsIgnoreCase(UserRole.ADMIN.name());
+    }
+
+
+    // ------------ article content  ----------------
+
+    private ArticleDetailDO findLatestDetail(long articleId) {
+        // 查询文章内容
+        LambdaQueryWrapper<ArticleDetailDO> contentQuery = Wrappers.lambdaQuery();
+        contentQuery.eq(ArticleDetailDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDetailDO::getArticleId, articleId)
+                .orderByDesc(ArticleDetailDO::getVersion);
+        return articleDetailMapper.selectOne(contentQuery);
+    }
+
+    /**
+     * 保存文章正文
+     *
+     * @param articleId
+     * @param content
+     * @return
+     */
+    public Long saveArticleContent(Long articleId, String content) {
+        ArticleDetailDO detail = new ArticleDetailDO();
+        detail.setArticleId(articleId);
+        detail.setContent(content);
+        detail.setVersion(1L);
+        articleDetailMapper.insert(detail);
+        return detail.getId();
+    }
+
+    /**
+     * 更正文章正文
+     *
+     * @param articleId
+     * @param content
+     * @param update    true 表示更新最后一条记录； false 表示新插入一个新的记录
+     */
+    public void updateArticleContent(Long articleId, String content, boolean update) {
+        if (update) {
+            articleDetailMapper.updateContent(articleId, content);
+        } else {
+            ArticleDetailDO latest = findLatestDetail(articleId);
+            latest.setVersion(latest.getVersion() + 1);
+            latest.setId(null);
+            latest.setContent(content);
+            articleDetailMapper.insert(latest);
+        }
+    }
+
+    // ------------- 文章列表查询 --------------
+
+    public List<ArticleDO> listArticlesByUserId(Long userId, PageParam pageParam) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getUserId, userId)
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId);
+        if (!Objects.equals(ReqInfoContext.getReqInfo().getUserId(), userId)) {
+            // 作者本人，可以查看草稿、审核、上线文章；其他用户，只能查看上线的文章
+            query.eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
+        }
+        return baseMapper.selectList(query);
+    }
+
+
+    public List<ArticleDO> listArticlesByCategoryId(Long categoryId, PageParam pageParam) {
+        if (categoryId != null && categoryId <= 0) {
+            // 分类不存在时，表示查所有
+            categoryId = null;
+        }
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
+        Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
+        query.last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getOfficalStat, ArticleDO::getToppingStat, ArticleDO::getCreateTime);
+        return baseMapper.selectList(query);
+    }
+
+    public Long countArticleByCategoryId(Long categoryId) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .eq(ArticleDO::getCategoryId, categoryId);
+        return baseMapper.selectCount(query);
+    }
+
+    public List<ArticleDO> listArticlesByBySearchKey(String key, PageParam pageParam) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .and(!StringUtils.isEmpty(key),
+                        v -> v.like(ArticleDO::getTitle, key)
+                                .or()
+                                .like(ArticleDO::getShortTitle, key)
+                                .or()
+                                .like(ArticleDO::getSummary, key));
+        query.last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId);
+        return baseMapper.selectList(query);
+    }
+
+    /**
+     * 通过关键词，从标题中找出相似的进行推荐，只返回主键 + 标题
+     *
+     * @param key
+     * @return
+     */
+    public List<ArticleDO> listSimpleArticlesByBySearchKey(String key) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .and(!StringUtils.isEmpty(key),
+                        v -> v.like(ArticleDO::getTitle, key)
+                                .or()
+                                .like(ArticleDO::getShortTitle, key)
+                );
+        query.select(ArticleDO::getId, ArticleDO::getTitle, ArticleDO::getShortTitle)
+                .last("limit 10")
+                .orderByDesc(ArticleDO::getId);
+        return baseMapper.selectList(query);
+    }
+
+
+    /**
+     * 阅读计数
+     *
+     * @param articleId
+     * @return
+     */
+    public int incrReadCount(Long articleId) {
+        LambdaQueryWrapper<ReadCountDO> query = Wrappers.lambdaQuery();
+        query.eq(ReadCountDO::getDocumentId, articleId).eq(ReadCountDO::getDocumentType, DocumentTypeEnum.ARTICLE.getCode());
+        ReadCountDO record = readCountMapper.selectOne(query);
+        if (record == null) {
+            record = new ReadCountDO().setDocumentId(articleId).setDocumentType(DocumentTypeEnum.ARTICLE.getCode()).setCnt(1);
+            readCountMapper.insert(record);
+        } else {
+            // fixme: 这里存在并发覆盖问题，推荐使用 update read_count set cnt = cnt + 1 where id = xxx
+            record.setCnt(record.getCnt() + 1);
+            readCountMapper.updateById(record);
+        }
+        return record.getCnt();
+    }
+
+    /**
+     * 统计用户的文章计数
+     *
+     * @param userId
+     * @return
+     */
+    public int countArticleByUser(Long userId) {
+        return lambdaQuery().eq(ArticleDO::getUserId, userId)
+                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .count().intValue();
+    }
+
+
+    /**
+     * 热门文章推荐，适用于首页的侧边栏
+     *
+     * @param pageParam
+     * @return
+     */
+    public List<SimpleArticleDTO> listHotArticles(PageParam pageParam) {
+        return baseMapper.listArticlesByReadCounts(pageParam);
+    }
+
+    /**
+     * 作者的热门文章推荐，适用于作者的详情页侧边栏
+     *
+     * @param userId
+     * @param pageParam
+     * @return
+     */
+    public List<SimpleArticleDTO> listAuthorHotArticles(long userId, PageParam pageParam) {
+        return baseMapper.listArticlesByUserIdOrderByReadCounts(userId, pageParam);
+    }
+
+    /**
+     * 根据相同的类目 + 标签进行推荐
+     *
+     * @param categoryId
+     * @param tagIds
+     * @return
+     */
+    public List<ArticleDO> listRelatedArticlesOrderByReadCount(Long categoryId, List<Long> tagIds, PageParam pageParam) {
+        List<ReadCountDO> list = baseMapper.listArticleByCategoryAndTags(categoryId, tagIds, pageParam);
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+
+        List<Long> ids = list.stream().map(ReadCountDO::getDocumentId).collect(Collectors.toList());
+        List<ArticleDO> result = baseMapper.selectBatchIds(ids);
+        result.sort((o1, o2) -> {
+            int i1 = ids.indexOf(o1.getId());
+            int i2 = ids.indexOf(o2.getId());
+            return Integer.compare(i1, i2);
+        });
+        return result;
+    }
+
+
+    /**
+     * 根据用户ID获取创作历程
+     *
+     * @param userId
+     * @return
+     */
+    public List<YearArticleDTO> listYearArticleByUserId(Long userId) {
+        return baseMapper.listYearArticleByUserId(userId);
+    }
+
+    /**
+     * 文章列表（用于后台）
+     *
+     * @param pageParam
+     * @return
+     */
+    public List<ArticleDO> listArticles(PageParam pageParam) {
+        return lambdaQuery()
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .in(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode(), PushStatusEnum.REVIEW.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getId)
+                .list();
+    }
+
+    /**
+     * 文章总数（用于后台）
+     *
+     * @return
+     */
+    public Integer countArticle() {
+        return lambdaQuery()
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .in(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode(), PushStatusEnum.REVIEW.getCode())
+                .count().intValue();
+    }
+}

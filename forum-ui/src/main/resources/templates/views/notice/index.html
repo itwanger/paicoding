@@ -21,7 +21,7 @@
               th:class="${#strings.equalsIgnoreCase(type.key,vo.selectType) ? 'notice-nav-item--active': 'notice-nav-item'}"
             >
               <span
-                th:text="${T(com.github.liueyueyi.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"
+                th:text="${T(com.github.paicoding.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"
               />
               <span
                 th:text="${stat.current.value}"
