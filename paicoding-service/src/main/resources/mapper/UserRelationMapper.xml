@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.user.repository.mapper.UserRelationMapper">
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+    <!-- 查询用户的关注列表，即粉丝id是自己   -->
+    <select id="queryUserFollowList"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO">
+
+        SELECT
+            u.user_id as userId,
+            u.user_name as userName,
+            u.photo as avatar,
+            r.id as relationId,
+            true as followed
+        FROM user_relation as r
+            left join user_info as u on r.user_id = u.user_id
+        WHERE
+            r.follow_user_id = #{followUserId}
+            and r.follow_state = ${@com.github.paicoding.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
+        ORDER BY u.id desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="queryUserFansList"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO">
+
+        SELECT
+            u.user_id as userId,
+            u.user_name as userName,
+            u.photo as avatar,
+            r.id as relationId
+            FROM user_relation as r
+            left join user_info as u on r.follow_user_id = u.user_id
+        WHERE
+            r.user_id = #{userId}
+            and r.follow_state = ${@com.github.paicoding.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
+        ORDER BY u.id desc
+        <include refid="limit"/>
+    </select>
+
+
+</mapper>
