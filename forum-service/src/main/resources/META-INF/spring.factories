@@ -1,3 +1,3 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.github.liuyueyi.forum.service.ServiceAutoConfig
+com.github.paicoding.forum.service.ServiceAutoConfig

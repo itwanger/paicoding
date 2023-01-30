@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.liuyueyi.forum.service.notify.repository.mapper.NotifyMsgMapper">
+<mapper namespace="com.github.paicoding.forum.service.notify.repository.mapper.NotifyMsgMapper">
     <sql id="limit">
         <if test="pageParam != null">
             limit #{pageParam.offset}, #{pageParam.limit}
@@ -8,7 +8,7 @@
     </sql>
 
 
-    <select id="listArticleRelatedNotices" resultType="com.github.liueyueyi.forum.api.model.vo.notify.dto.NotifyMsgDTO">
+    <select id="listArticleRelatedNotices" resultType="com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO">
         select m.id as msgId,
         m.operate_user_id as operateUserId,
         u.user_name as operateUserName,
@@ -28,7 +28,7 @@
         <include refid="limit"/>
     </select>
 
-    <select id="listNormalNotices" resultType="com.github.liueyueyi.forum.api.model.vo.notify.dto.NotifyMsgDTO">
+    <select id="listNormalNotices" resultType="com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO">
         select m.id as msgId,
         m.operate_user_id as operateUserId,
         u.user_name as operateUserName,
