@@ -13,7 +13,7 @@
             </a>
         </div>
 
-        <div th:if="${follow.userId != global.user.userId}">
+        <div th:if="${global.user != null && follow.userId != global.user.userId}">
             <span class="follow-item-icon" th:if="${follow.followed != null && follow.followed}"
                   th:data-user-id="${follow.userId}" th:data-followed="'true'" onclick="followAction(this)">
              取消关注

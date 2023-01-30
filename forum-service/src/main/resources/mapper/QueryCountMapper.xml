@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.liuyueyi.forum.service.statistics.repository.mapper.RequestCountMapper">
+<mapper namespace="com.github.paicoding.forum.service.statistics.repository.mapper.RequestCountMapper">
 
     <select id="getPvTotalCount" resultType="java.lang.Long">
         select sum(cnt) from request_count
     </select>
 
-    <select id="getPvDayList" resultType="com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
+    <select id="getPvDayList" resultType="com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
         SELECT sum(cnt) as count, date
         FROM request_count
         group by date order by date asc
         limit #{day};
     </select>
 
-    <select id="getUvDayList" resultType="com.github.liueyueyi.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
+    <select id="getUvDayList" resultType="com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
         SELECT count(*) as count, date
         FROM request_count
         group by date order by date asc
