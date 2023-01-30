@@ -22,6 +22,9 @@
             th:text="${article.title}"
             class="user-article-item-title"
           ></span>
+          <span th:if="${article.status != 1}">
+            <span th:text="${article.status == 0 ? '(草稿)' : '(审核中)'}" class="user-article-item-tag"></span>
+          </span>
         </div>
         <div class="user-article-item-value-wrap cdc-article-panel__media">
           <div

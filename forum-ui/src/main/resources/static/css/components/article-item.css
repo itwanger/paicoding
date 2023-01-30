@@ -64,6 +64,22 @@
   -webkit-line-clamp: 1;
 }
 
+/*文章状态tag*/
+.user-article-item-tag {
+  word-break: break-word;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 26px;
+  color: var(--pai-brand-6-mq);
+  margin-bottom: 12px;
+  margin-left: 1em;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
 /*文章的简介描述*/
 .cdc-article-panel__media {
   display: flex;

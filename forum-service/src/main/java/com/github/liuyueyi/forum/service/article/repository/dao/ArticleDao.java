@@ -5,11 +5,16 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.liueyueyi.forum.api.model.enums.*;
+import com.github.liueyueyi.forum.api.model.context.ReqInfoContext;
+import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
+import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.vo.PageParam;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.liueyueyi.forum.api.model.vo.article.dto.YearArticleDTO;
+import com.github.liueyueyi.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.liuyueyi.forum.core.permission.UserRole;
 import com.github.liuyueyi.forum.service.article.conveter.ArticleConverter;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDO;
 import com.github.liuyueyi.forum.service.article.repository.entity.ArticleDetailDO;
@@ -20,7 +25,10 @@ import com.github.liuyueyi.forum.service.article.repository.mapper.ReadCountMapp
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +61,28 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
 
         // 查询文章正文
         ArticleDTO dto = ArticleConverter.toDto(article);
-        ArticleDetailDO detail = findLatestDetail(articleId);
-        dto.setContent(detail.getContent());
+        if (showReviewContent(article)) {
+            ArticleDetailDO detail = findLatestDetail(articleId);
+            dto.setContent(detail.getContent());
+        } else {
+            // 对于审核中的文章，只有作者本人才能看到原文
+            dto.setContent("### 文章审核中，请稍后再看");
+        }
         return dto;
+    }
+
+    private boolean showReviewContent(ArticleDO article) {
+        if (article.getStatus() != PushStatusEnum.REVIEW.getCode()) {
+            return true;
+        }
+
+        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
+        if (user == null) {
+            return false;
+        }
+
+        // 作者本人和admin超管可以看到审核内容
+        return user.getUserId().equals(article.getUserId()) || user.getRole().equalsIgnoreCase(UserRole.ADMIN.name());
     }
 
 
@@ -91,9 +118,18 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      *
      * @param articleId
      * @param content
+     * @param update    true 表示更新最后一条记录； false 表示新插入一个新的记录
      */
-    public void updateArticleContent(Long articleId, String content) {
-        articleDetailMapper.updateContent(articleId, content);
+    public void updateArticleContent(Long articleId, String content, boolean update) {
+        if (update) {
+            articleDetailMapper.updateContent(articleId, content);
+        } else {
+            ArticleDetailDO latest = findLatestDetail(articleId);
+            latest.setVersion(latest.getVersion() + 1);
+            latest.setId(null);
+            latest.setContent(content);
+            articleDetailMapper.insert(latest);
+        }
     }
 
     // ------------- 文章列表查询 --------------
@@ -101,10 +137,13 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     public List<ArticleDO> listArticlesByUserId(Long userId, PageParam pageParam) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
                 .eq(ArticleDO::getUserId, userId)
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId);
+        if (!Objects.equals(ReqInfoContext.getReqInfo().getUserId(), userId)) {
+            // 作者本人，可以查看草稿、审核、上线文章；其他用户，只能查看上线的文章
+            query.eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
+        }
         return baseMapper.selectList(query);
     }
 
@@ -163,7 +202,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 );
         query.select(ArticleDO::getId, ArticleDO::getTitle, ArticleDO::getShortTitle)
                 .last("limit 10")
-                .orderByDesc(ArticleDO::getId);;
+                .orderByDesc(ArticleDO::getId);
         return baseMapper.selectList(query);
     }
 
@@ -267,7 +306,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     public List<ArticleDO> listArticles(PageParam pageParam) {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .in(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode(), PushStatusEnum.REVIEW.getCode())
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId)
                 .list();
@@ -281,7 +320,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     public Integer countArticle() {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
+                .in(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode(), PushStatusEnum.REVIEW.getCode())
                 .count().intValue();
     }
 }
