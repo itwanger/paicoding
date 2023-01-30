@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>forum-ui</module>
-        <module>forum-web</module>
-        <module>forum-service</module>
-        <module>forum-core</module>
-        <module>forum-api</module>
+        <module>paicoding-ui</module>
+        <module>paicoding-web</module>
+        <module>paicoding-service</module>
+        <module>paicoding-core</module>
+        <module>paicoding-api</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -17,9 +17,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.github.paicoding.forum</groupId>
-    <artifactId>quick-forum</artifactId>
+    <artifactId>paicoding-forum</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>quick-forum</name>
+    <name>paicoding-forum</name>
     <description>simple forum by java &amp; spring</description>
     <properties>
         <java.version>8</java.version>
@@ -34,25 +34,25 @@
         <dependencies>
             <dependency>
                 <groupId>com.github.paicoding.forum</groupId>
-                <artifactId>forum-api</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <artifactId>forum-ui</artifactId>
-                <groupId>com.github.paicoding.forum</groupId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <artifactId>forum-service</artifactId>
-                <groupId>com.github.paicoding.forum</groupId>
+                <artifactId>paicoding-api</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.paicoding.forum</groupId>
-                <artifactId>forum-core</artifactId>
+                <artifactId>paicoding-ui</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.paicoding.forum</groupId>
+                <artifactId>paicoding-service</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.paicoding.forum</groupId>
+                <artifactId>paicoding-core</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
