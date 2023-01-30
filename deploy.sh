@@ -4,8 +4,8 @@
 PID_FILE_NAME="pid.log"
 
 # file to upload
-WEB_PATH="forum-web"
-EXECUTABLE_JAR_NAME="forum-web-0.0.1-SNAPSHOT.jar"
+WEB_PATH="paicoding-web"
+EXECUTABLE_JAR_NAME="paicoding-web-0.0.1-SNAPSHOT.jar"
 TMP_EXECUTABLE_JAR_NAME=${EXECUTABLE_JAR_NAME}".tmp"
 BAK_EXECUTABLE_JAR_NAME=${EXECUTABLE_JAR_NAME}".bak"
 EXECUTABLE_JAR_PATH="./${WEB_PATH}/target/${EXECUTABLE_JAR_NAME}"
@@ -18,7 +18,7 @@ RESTART_FUNC_NAME="restart"
 #env, ssh remote, work dir
 ENV_PRO="prod"
 SSH_HOST_PRO=("admin@39.105.208.175")
-WORK_DIR_PRO="/home/admin/workspace/quick-forum/"
+WORK_DIR_PRO="/home/admin/workspace/paicoding-forum/"
 
 
 # log file

@@ -17,11 +17,11 @@
 
 **当前项目工程模块**
 
-- [forum-api](forum-api): 定义一些通用的枚举、实体类定义、DO\DTO\VO等
-- [forum-core](forum-core): 核心工具组件相关的模块，如工具包util， 如通用的组件放在这个模块（以包路径对模块功能进行拆分，如搜索、缓存、推荐等）
-- [forum-service](forum-service): 服务模块，业务相关的主要逻辑，db的操作都在这里
-- [forum-ui](forum-ui): html前端资源
-- [forum-web](forum-web): web模块，http入口，项目启动的入口，包括权限身份校验、全局异常处理等
+- [paicoding-api](paicoding-api): 定义一些通用的枚举、实体类定义、DO\DTO\VO等
+- [paicoding-core](paicoding-core): 核心工具组件相关的模块，如工具包util， 如通用的组件放在这个模块（以包路径对模块功能进行拆分，如搜索、缓存、推荐等）
+- [paicoding-service](paicoding-service): 服务模块，业务相关的主要逻辑，db的操作都在这里
+- [paicoding-ui](paicoding-ui): html前端资源
+- [paicoding-web](paicoding-web): web模块，http入口，项目启动的入口，包括权限身份校验、全局异常处理等
 
 **环境配置说明**
 
