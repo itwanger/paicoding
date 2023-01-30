@@ -2,6 +2,7 @@ package com.github.liuyueyi.forum.service.article.service.impl;
 
 import com.github.liueyueyi.forum.api.model.enums.DocumentTypeEnum;
 import com.github.liueyueyi.forum.api.model.enums.OperateTypeEnum;
+import com.github.liueyueyi.forum.api.model.enums.PushStatusEnum;
 import com.github.liueyueyi.forum.api.model.enums.YesOrNoEnum;
 import com.github.liueyueyi.forum.api.model.exception.ExceptionUtil;
 import com.github.liueyueyi.forum.api.model.vo.article.ArticlePostReq;
@@ -73,6 +74,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      */
     private Long insertArticle(ArticleDO article, String content, Set<Long> tags) {
         // article + article_detail + tag  三张表的数据变更
+        if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
+            article.setStatus(PushStatusEnum.REVIEW.getCode());
+        }
         articleDao.save(article);
         Long articleId = article.getId();
 
@@ -94,11 +98,16 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @return
      */
     private Long updateArticle(ArticleDO article, String content, Set<Long> tags) {
+        // 若文章处于审核状态，则直接更新上一条记录；否则新插入一条记录
+        boolean review = article.getStatus().equals(PushStatusEnum.REVIEW.getCode());
+        if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
+            article.setStatus(PushStatusEnum.REVIEW.getCode());
+        }
         // 更新文章
         articleDao.updateById(article);
 
         // 更新内容
-        articleDao.updateArticleContent(article.getId(), content);
+        articleDao.updateArticleContent(article.getId(), content, review);
 
         // 标签更新
         articleTagDao.updateTags(article.getId(), tags);
