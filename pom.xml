@@ -16,7 +16,7 @@
         <version>2.7.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.github.liuyueyi.quick-forum</groupId>
+    <groupId>com.github.paicoding.forum</groupId>
     <artifactId>quick-forum</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>quick-forum</name>
@@ -33,25 +33,25 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.liuyueyi.quick-forum</groupId>
+                <groupId>com.github.paicoding.forum</groupId>
                 <artifactId>forum-api</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <artifactId>forum-ui</artifactId>
-                <groupId>com.github.liuyueyi.quick-forum</groupId>
+                <groupId>com.github.paicoding.forum</groupId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <artifactId>forum-service</artifactId>
-                <groupId>com.github.liuyueyi.quick-forum</groupId>
+                <groupId>com.github.paicoding.forum</groupId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
-                <groupId>com.github.liuyueyi.quick-forum</groupId>
+                <groupId>com.github.paicoding.forum</groupId>
                 <artifactId>forum-core</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
