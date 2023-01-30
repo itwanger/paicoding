@@ -43,7 +43,6 @@ public interface ArticleSettingService {
      */
     void deleteArticle(Long articleId);
 
-
     /**
      * 操作文章
      *

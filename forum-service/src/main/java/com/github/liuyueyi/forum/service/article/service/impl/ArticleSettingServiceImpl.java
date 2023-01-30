@@ -43,6 +43,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (article != null) {
             // 目前仅更新短标题，用于教程
             article.setShortTitle(req.getShortTitle());
+            article.setStatus(req.getStatus());
             articleDao.updateById(article);
         }
     }

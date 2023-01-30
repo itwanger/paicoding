@@ -47,4 +47,9 @@
     <changeSet id="00000000000012" author="LouZai">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230105.sql"/>
     </changeSet>
+
+    <!-- 添加审核中 -->
+    <changeSet id="00000000000013" author="LouZai">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230130.sql"/>
+    </changeSet>
 </databaseChangeLog>
