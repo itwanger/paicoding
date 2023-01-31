@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <!-- 消息通知 -->
+  <div th:fragment="notify_system_item(msg)" class="notification">
+    <a
+      th:href="'/user/home?userId=' + ${msg.operateUserId}"
+      class=""
+      target="_blank"
+    >
+      <img
+        th:src="${msg.operateUserPhoto}"
+        class="notification-img"
+        loading="lazy"
+      />
+    </a>
+    <div class="notification-right">
+      <div class="notification-content">
+        <div class="comment" th:utext="${msg.msg}">m</div>
+      </div>
+      <div class="notification-bottom">
+        <span
+          class="notification-time"
+          th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(msg.createTime)}"
+        >
+          4天前
+        </span>
+      </div>
+    </div>
+  </div>
+</html>

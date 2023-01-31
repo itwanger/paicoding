@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <!-- 消息通知 -->
+  <div th:fragment="notify_collect_item(msg)" class="notification">
+    <a th:href="'/user/home?userId=' + ${msg.operateUserId}" target="_blank">
+      <img
+        th:src="${msg.operateUserPhoto}"
+        class="notification-img"
+        loading="lazy"
+      />
+    </a>
+    <div class="notification-right">
+      <div class="notification-content">
+        <div class="profile">
+          <a
+            th:href="'/user/home?userId=' + ${msg.operateUserId}"
+            class=""
+            target="_blank"
+          >
+            <span class="name" th:text="${msg.operateUserName}">一灰灰</span>
+          </a>
+          收藏你的文章
+          <a th:href="'/article/detail/' + ${msg.relatedId}">
+            <span th:text="${msg.relatedInfo}" class="title-article">
+              万字总结：分布式系统的38个知识点
+            </span>
+          </a>
+        </div>
+      </div>
+      <div class="notification-bottom">
+        <span
+          class="notification-time"
+          th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(msg.createTime)}"
+        >
+          4天前
+        </span>
+      </div>
+    </div>
+  </div>
+</html>
