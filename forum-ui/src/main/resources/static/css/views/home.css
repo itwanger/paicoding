@@ -54,6 +54,10 @@
   padding: 4px 0;
 }
 
+.align-content-start {
+  overflow-x: auto;
+}
+
 /* 头部搜索 */
 .search-has-result ul {
   margin-bottom: 0;
@@ -231,7 +235,7 @@ svg:not(:root).svg-inline--fa {
     width: 120px;
     height: 80px;
   }
-  .category-wrap {
+  .align-content-start {
     padding: 4px 18px;
   }
 }
