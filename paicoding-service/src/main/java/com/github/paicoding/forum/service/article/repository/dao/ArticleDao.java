@@ -82,7 +82,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         }
 
         // 作者本人和admin超管可以看到审核内容
-        return user.getUserId().equals(article.getUserId()) || user.getRole().equalsIgnoreCase(UserRole.ADMIN.name());
+        return user.getUserId().equals(article.getUserId()) || (user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name()));
     }
 
 
@@ -306,7 +306,6 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     public List<ArticleDO> listArticles(PageParam pageParam) {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .in(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode(), PushStatusEnum.REVIEW.getCode())
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId)
                 .list();
@@ -320,7 +319,6 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     public Integer countArticle() {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .in(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode(), PushStatusEnum.REVIEW.getCode())
                 .count().intValue();
     }
 }

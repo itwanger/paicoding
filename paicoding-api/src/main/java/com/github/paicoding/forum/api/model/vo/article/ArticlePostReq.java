@@ -73,7 +73,7 @@ public class ArticlePostReq implements Serializable {
     /**
      * 状态：0-未发布，1-已发布
      *
-     * @see com.github.liueyueyi.forum.api.model.enums.PushStatusEnum
+     * @see com.github.paicoding.forum.api.model.enums.PushStatusEnum
      */
     private Integer status;
 
