@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <!-- 文章内容 -->
+  <section
+    th:fragment="article_info(article, author, loginRead)"
+    class="article-info-wrap com-2-panel col-2-article J-articlePanel"
+  >
+    <span class="com-2-mark-triangle article-mark">
+      <span class="mark-cnt">原创</span>
+    </span>
+    <div
+      id="postsTitle"
+      class="article-info-title"
+      th:data-id="${article.articleId}"
+      th:text="${article.title}"
+    >
+      标题
+    </div>
+    <div>
+      <div class="detail-content-title-other-wrap relative" th:if="${author != null}">
+        <img th:src="${author.photo}" class="detail-content-title-other-img" />
+        <a
+          th:href="${'/user/' + author.userId}"
+          th:text="${author.userName}"
+          class="detail-content-title-other-name"
+        >
+          作者
+        </a>
+
+        <span
+          th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(article.createTime)}"
+          class="detail-content-title-other-time"
+        >
+          更新时间
+        </span>
+        <span th:text="'阅读 ' + ${article.count.readCount}">520</span>
+        <div
+          th:if="${global.isLogin && article.author == global.user.userId}"
+          class="detail-content-title-edit"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+            <symbol id="edit-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path class="cls-1" d="M9 1H3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7h-1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1h6V1z" />
+              <path class="cls-1" d="M12 2.41L13.59 4l-6 6H6V8.41l6-6M12 1L5 8v3h3l7-7-3-3z" />
+            </symbol>
+          </svg>
+
+          <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+            <symbol id="delete-svg" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path class="cls-1" d="M13 3h-2V1H5v2H2v1h1v9a2 2 0 002 2h6a2 2 0 002-2V4h1V3zM6 2h4v1H6zm5 12H5a1 1 0 01-1-1V4h8v9a1 1 0 01-1 1z" />
+              <path class="cls-1" d="M6 6h1v6H6zm3 0h1v6H9z" />
+            </symbol>
+          </svg>
+
+          <a th:href="${'/article/edit?articleId=' + article.articleId}" class="com-opt-link link-edit">
+            <svg class="com-i-edit">
+              <use xlink:href="#edit-svg"></use>
+            </svg>编辑
+          </a>
+
+          <a href="javascript:;" data-target="#deleteModal" data-toggle="modal" class="com-opt-link link-delete ml-3">
+            <svg class="com-i-delete">
+              <use xlink:href="#delete-svg"></use>
+            </svg>删除
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!--  封面图  -->
+    <div th:if="${!#strings.isEmpty(article.cover)}">
+      <img
+        th:src="${article.cover}"
+        src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
+        class="detail-head-img"
+      />
+    </div>
+
+    <div id="articleContent" class="article-content"></div>
+    <div th:if="${loginRead && !global.isLogin}">
+      <div style=" width: 100%;
+          background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
+          background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
+          padding-bottom: 24px; position: relative;
+          padding-top: 160px;
+          margin-top: -220px;
+          z-index: 996;
+          bottom: -1px;
+          text-align:center">
+        <a class="btn-readmore no-login" style="cursor:pointer;" data-target="#loginModal" data-toggle="modal">
+          <span style="color:#ca0c16">登录之后即可阅读全文</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 再次确认 Modal -->
+    <div
+            class="modal fade"
+            id="deleteModal"
+            data-backdrop="static"
+            data-keyboard="false"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="deleteModalDropLabel"
+            aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalDropLabel">删除提醒</h5>
+            <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p th:text="${'确定删除《' + article.title + '》吗'}">确定删除吗？</p>
+          </div>
+          <div class="modal-footer">
+            <button id="deleteBtn" type="button" class="btn btn-primary">
+              确定
+            </button>
+            <button type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal">
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--  点赞放这里-->
+    <div th:replace="components/article/praise :: praise(${article})"></div>
+    <script th:inline="javascript">
+      let id = [[${article.articleId}]]
+      $('#deleteBtn').click(function () {
+        get("/article/api/delete?articleId=" + id, {}, function (data) {
+          // 删除文章成功，跳转到首页
+          window.location.href = "/";
+        });
+      })
+    </script>
+  </section>
+</html>
