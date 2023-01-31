@@ -147,6 +147,26 @@ css 放在 static/css 中：
 
 ### 技术选型
 
+后端技术栈
+
+| 技术                 | 说明 | 官网                                                                               |
+|--------------------| --- |----------------------------------------------------------------------------------|
+| Spring & SpringMVC |  Java全栈应用程序框架和WEB容器实现 | [https://spring.io/](https://spring.io/)                                         |
+| SpringBoot         | Spring应用简化集成开发框架 | [https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot) |
+| mybatis-plus       | |                                                                                  |
+| page-helper        | |                                                                                  |
+| elasticsearch      | |                                                                                  |
+| redis              | |                                                                                  |
+| rabbitmq           | |                                                                                  |
+| mongodb            | |                                                                                  |
+| nginx              | |                                                                                  |
+| docker             | |                                                                                  |
+| hikira             | |                                                                                  |
+| oss                | |                                                                                  |
+| jwt                | |                                                                                  |
+| lombok             | |                                                                                  |
+| guava              | |                                                                                  |
+
 ## 环境搭建
 
 ### 开发工具

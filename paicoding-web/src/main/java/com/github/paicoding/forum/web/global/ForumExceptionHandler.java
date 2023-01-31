@@ -99,7 +99,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
      * @return
      */
     private boolean restResponse(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getRequestURI().startsWith("admin/")) {
+        if (request.getRequestURI().startsWith("/api/admin/")) {
             return true;
         }
 

@@ -33,7 +33,7 @@ public class BodyReaderHttpServletRequestWrapper extends HttpServletRequestWrapp
     public BodyReaderHttpServletRequestWrapper(HttpServletRequest request) {
         super(request);
 
-        if (POST_METHOD.contains(request.getMethod()) && !isMultipart(request) && !isBinaryContent(request)) {
+        if (POST_METHOD.contains(request.getMethod()) && !isMultipart(request) && !isBinaryContent(request) && !isFormPost(request)) {
             bodyString = getBodyString(request);
             body = bodyString.getBytes(StandardCharsets.UTF_8);
         } else {
@@ -132,5 +132,9 @@ public class BodyReaderHttpServletRequestWrapper extends HttpServletRequestWrapp
      */
     private boolean isMultipart(final HttpServletRequest request) {
         return request.getContentType() != null && request.getContentType().startsWith("multipart/form-data");
+    }
+
+    private boolean isFormPost(final HttpServletRequest request) {
+        return request.getContentType() != null && request.getContentType().startsWith("application/x-www-form-urlencoded");
     }
 }

@@ -62,6 +62,12 @@ public class UserInfoDO extends BaseDO {
     private Integer deleted;
 
     /**
+     * 0 普通用户
+     * 1 超级管理员
+     */
+    private Integer userRole;
+
+    /**
      * ip信息
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
