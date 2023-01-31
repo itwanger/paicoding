@@ -149,29 +149,69 @@ css 放在 static/css 中：
 
 后端技术栈
 
-| 技术                 | 说明 | 官网                                                                               |
-|--------------------| --- |----------------------------------------------------------------------------------|
-| Spring & SpringMVC |  Java全栈应用程序框架和WEB容器实现 | [https://spring.io/](https://spring.io/)                                         |
-| SpringBoot         | Spring应用简化集成开发框架 | [https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot) |
-| mybatis-plus       | |                                                                                  |
-| page-helper        | |                                                                                  |
-| elasticsearch      | |                                                                                  |
-| redis              | |                                                                                  |
-| rabbitmq           | |                                                                                  |
-| mongodb            | |                                                                                  |
-| nginx              | |                                                                                  |
-| docker             | |                                                                                  |
-| hikira             | |                                                                                  |
-| oss                | |                                                                                  |
-| jwt                | |                                                                                  |
-| lombok             | |                                                                                  |
-| guava              | |                                                                                  |
+| 技术                  | 说明                   | 官网                                                                               |
+|---------------------|----------------------|----------------------------------------------------------------------------------|
+| Spring & SpringMVC  | Java全栈应用程序框架和WEB容器实现 | [https://spring.io/](https://spring.io/)                                         |
+| SpringBoot          | Spring应用简化集成开发框架     | [https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot) |
+| mybatis-plus        | 数据库orm框架             |                                                                                  |
+| page-helper         | 数据库翻页插件              |                                                                                  |
+| elasticsearch       | 近实时文本搜索              |                                                                                  |
+| redis               | 内存数据存储               |                                                                                  |
+| rabbitmq            | 消息队列                 |                                                                                  |
+| mongodb             | NoSql数据库             |                                                                                  |
+| nginx               | 服务器                  |                                                                                  |
+| docker              | 应用容器引擎               |                                                                                  |
+| hikariCP            | 数据库连接                |                                                                                  |
+| oss                 | 对象存储                 |                                                                                  |
+| jwt                 | jwt登录                |                                                                                  |
+| lombok              | Java语言增强库            |                                                                                  |
+| guava               | google开源的java工具集     |                                                                                  |
+| thymeleaf           | html5模板引擎            |                                                                                  |
+| swagger             | API文档生成工具            |                                                                                  |
+| hibernate-validator | 验证框架                 |                                                                                  |
+| quick-media         | 多媒体处理                |                                                                                  |
+| liquibase           | 数据库版本管理              |                                                                                  |
+| jackson             | json/xml处理           |                                                                                  |
+| ip2region           | ip地址                 |                                                                                  |
 
 ## 环境搭建
 
 ### 开发工具
 
+| 工具               | 说明           | 官网 | 
+|------------------|--------------| --- |
+| idea             | java开发工具     | |
+| webstorm         | web开发工具      | |
+| chrome           | 浏览器          | |
+| ScreenToGif      | gif录屏        | |
+| Snipaste         | 截图           | |
+| picpick          | 图片处理工具       | |
+| marktext         | markdown编辑器  | |
+| curl             | http终端请求     | |
+| postman          | API接口调试      | |
+| draw.io          | 流程图、架构图绘制    | |
+| axure            | 原型图设计工具      | |
+| navicat          | 数据库连接工具      | |
+| dbeaver          | 免费开源的数据库连接工具 | |
+| iterm            | mac终端        | |
+| windows terminal | win终端        | |
+| switchhost       | host管理       | |
+
 ### 开发环境
+
+| 工具 | 版本        | 下载 | 
+| --- |-----------| --- |
+| jdk | 1.8+      | [https://www.oracle.com/java/technologies/downloads/#java8](https://www.oracle.com/java/technologies/downloads/#java8)|
+| maven | 3.4+      | [https://maven.apache.org/](https://maven.apache.org/) |
+| mysql | 5.7+/8.0+ | [https://www.mysql.com/downloads/](https://www.mysql.com/downloads/) |
+| redis | 5.0+      | [https://redis.io/download/](https://redis.io/download/) | 
+| elasticsearch | 8.0.0+    | [https://www.elastic.co/cn/downloads/elasticsearch](https://www.elastic.co/cn/downloads/elasticsearch) |
+| nginx | 1.10+     | [https://nginx.org/en/download.html](https://nginx.org/en/download.html) |
+| rabbitmq | 3.10.14+  | [https://www.rabbitmq.com/news.html](https://www.rabbitmq.com/news.html) |
+| ali-oss | 3.15.1    | [https://letsencrypt.org/](https://letsencrypt.org/) |
+| git | 2.34.1    | [http://github.com/](http://github.com/) |
+| docker | 4.10.0+   | [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/) |
+| let's encrypt | https证书   | [https://letsencrypt.org/](https://letsencrypt.org/) |
 
 ### 搭建步骤
 
