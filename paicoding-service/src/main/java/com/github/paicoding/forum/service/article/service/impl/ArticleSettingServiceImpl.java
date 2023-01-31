@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
+import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
@@ -41,9 +42,13 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     public void updateArticle(ArticlePostReq req) {
         ArticleDO article = articleDao.getById(req.getArticleId());
         if (article != null) {
-            // 目前仅更新短标题，用于教程
+            if (!req.getTitle().isEmpty()) {
+                article.setTitle(req.getTitle());
+            }
             article.setShortTitle(req.getShortTitle());
-            article.setStatus(req.getStatus());
+            if (req.getStatus() != null) {
+                article.setStatus(req.getStatus());
+            }
             articleDao.updateById(article);
         }
     }
