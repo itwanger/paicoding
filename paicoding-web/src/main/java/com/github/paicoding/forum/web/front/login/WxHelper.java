@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -105,22 +106,25 @@ public class WxHelper {
                     "\n" +
                     "这里整理了一份「 2023年超硬核面试备战手册」，内容涵盖计算机网络、操作系统、数据结构与算法、MySQL、Redis、Java、Spring、高并发等等\n" +
                     "\n" +
-                    "<a href=\"https://mp.weixin.qq.com/s/szctSvy3dG3dyP4AY6MsuA\">[勾引]速来，手慢无！</a>\n" +
+                    "<a href=\"https://mp.weixin.qq.com/s/nUhTHNVmqhKV-mksCT15Cw\">[勾引]速来，手慢无！</a>\n" +
                     "\n" +
                     "我从清晨走过，也拥抱夜晚的星辰，人生没有捷径，你我皆平凡，你好，陌生人，一起共勉。\n";
         }
         // 下面是关键词回复
         else if ("110".equalsIgnoreCase(content)) {
-            textRes = "[10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
+            textRes = "[机智][10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
         } else if ("119".equalsIgnoreCase(content) || "高并发".equalsIgnoreCase(content)) {
-            textRes = "[高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm";
+            textRes = "[机智][高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm";
         } else if ("120".equalsIgnoreCase(content) || "JVM".equalsIgnoreCase(content)) {
-            textRes = "[JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t";
+            textRes = "[机智][JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t";
         } else if ("122".equalsIgnoreCase(content) || "Spring".equalsIgnoreCase(content)) {
-            textRes = "[Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt";
+            textRes = "[机智][Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt";
         } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content)) {
-            textRes = "链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
+            textRes = "[机智][5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
+        } else if ("123".equalsIgnoreCase(content)) {
+            textRes = "[机智]添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获取 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。";
         }
+
         // 下面是回复图文消息
         else if ("加群".equalsIgnoreCase(content)) {
             WxImgTxtItemVo imgTxt = new WxImgTxtItemVo();
