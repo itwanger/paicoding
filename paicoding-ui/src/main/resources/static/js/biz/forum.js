@@ -1,37 +1,37 @@
 const post = function (path, data, callback) {
-    $.ajax({
-        method: "POST",
-        url: path,
-        contentType: "application/json",
-        data: JSON.stringify(data),
-        success: function (data) {
-            console.log("data", data)
-            if (!data || !data.status || data.status.code != 0) {
-                // 出现了
-                console.log("出现了异常:", data.status.msg);
-                toastr.error(data.status.msg)
-            } else if (callback) {
-                callback(data.result)
-            }
-        },
-        error: function (data) {
-            toastr.error(data, "出现bug了，热心反馈下吧!")
-        },
-    })
+  $.ajax({
+    method: "POST",
+    url: path,
+    contentType: "application/json",
+    data: JSON.stringify(data),
+    success: function (data) {
+      console.log("data", data)
+      if (!data || !data.status || data.status.code != 0) {
+        // 出现了
+        console.log("出现了异常:", data.status.msg)
+        toastr.error(data.status.msg)
+      } else if (callback) {
+        callback(data.result)
+      }
+    },
+    error: function (data) {
+      toastr.error(data, "出现bug了，热心反馈下吧!")
+    },
+  })
 }
 
 const get = function (url, params, callback) {
-    $.get(url, params, function (data) {
-        console.log("response: ", data)
-        if (!data || !data.status || data.status.code != 0) {
-            // 出现了
-            console.log("出现了异常:", data.status.msg);
-            toastr.error(data.status.msg)
-            return;
-        } else if (callback) {
-            callback(data.result);
-        }
-    })
+  $.get(url, params, function (data) {
+    console.log("response: ", data)
+    if (!data || !data.status || data.status.code != 0) {
+      // 出现了
+      console.log("出现了异常:", data.status.msg)
+      toastr.error(data.status.msg)
+      return
+    } else if (callback) {
+      callback(data.result)
+    }
+  })
 }
 
 const loadScript = function (url, callback) {
@@ -180,8 +180,8 @@ const genTocMenu = function genToc(selector, el) {
     selector: ".headerlink", // 文章内容中标题标签的 selector
   }
   // // 滑动监听
-  // let stickyFlag = 0
-  // let oldDocContentTop = 0
+  let stickyFlag = 0
+  let oldDocContentTop = 0
 
   // tocs
   const reg = new RegExp("[H]\\d")
@@ -215,7 +215,8 @@ const genTocMenu = function genToc(selector, el) {
     firstDdTop = 0, // 第一个 dd 的 top
     bodyMidBottom = 0, // 目录可视区域的中间位置的 dd 的 bottom
     bodyBCR = null, // 目录可视区域的边界值
-    hasStopSetHighlight = false // 在点击目录子项的时候直接高亮当前目录，而不通过 scroll 事件触发 setHighlight 函数
+    hasStopSetHighlight = false, // 在点击目录子项的时候直接高亮当前目录，而不通过 scroll 事件触发 setHighlight 函数
+    docContentTop = 0
 
   if (catalogLength === 0) {
     $(".toc-container").remove()
@@ -243,37 +244,47 @@ const genTocMenu = function genToc(selector, el) {
     )
   }
 
+  initMenu()
+  controlMenu()
+
   window.addEventListener(
     "resize",
     function (e) {
-      
       debounce(initCatalog, DEFAULT.delay)()
+      initMenu()
+      controlMenu()
     },
     false
   )
- 
-  // window.addEventListener(
-  //   "scroll",
-  //   function (e) {
-  //     const docContentTop = $('.toc-container')[0].offsetTop
-  //     const windowScrollTop = $(window).scrollTop()
-      
-  //     if(!stickyFlag){
-  //       oldDocContentTop = docContentTop
-  //     }
 
-  //    if(windowScrollTop - 30 > docContentTop && !stickyFlag){
-  //     $('.toc-container').addClass('toc-container--sticky')
-  //     stickyFlag = 1
-  //    }
-     
-  //    if(stickyFlag&&oldDocContentTop>windowScrollTop){
-  //     $('.toc-container').removeClass('toc-container--sticky')
-  //     stickyFlag = 0
-  //    }
-  //   },
-  //   false
-  // )
+  function initMenu() {
+    const articleDom = document.querySelector(".article-info-wrap")
+    const articleDomRight =
+      articleDom.getBoundingClientRect() &&
+      articleDom.getBoundingClientRect().right
+    $(".toc-container").css("left", articleDomRight + 20)
+  }
+
+  // 处理目录的现实隐藏
+  function controlMenu(windowScrollTop) {
+    docContentTop = document
+      .querySelector("#toc-container-position")
+      .getBoundingClientRect().top
+    if (docContentTop < 30) {
+      $(".toc-container").show()
+    } else {
+      $(".toc-container").hide()
+    }
+  }
+
+  window.addEventListener(
+    "scroll",
+    function (e) {
+      const windowScrollTop = $(window).scrollTop()
+      controlMenu(windowScrollTop)
+    },
+    false
+  )
 
   function initCatalog() {
     let tempHeight = window.innerHeight
@@ -410,7 +421,6 @@ const genTocMenu = function genToc(selector, el) {
         marginTop = 0
       }
 
-
       if (curr.top < 60 && $(".widget").parent().hasClass("right-container")) {
         $(".widget").parent().removeClass("right-container")
       }
@@ -521,32 +531,30 @@ const genTocMenu = function genToc(selector, el) {
   }
 }
 
-
-
 /** 倒计时 */
 const showtime = function (endTime) {
-    let nowtime = new Date()//获取当前时间
-    let lefttime = endTime - nowtime.getTime();  //距离结束时间的毫秒数
-    if(lefttime <= 0) {
-        return '';
-    }
-    let leftd = Math.floor(lefttime / (1000 * 60 * 60 * 24)),  //计算天数
-        lefth = Math.floor(lefttime / (1000 * 60 * 60) % 24),  //计算小时数
-        leftm = Math.floor(lefttime / (1000 * 60) % 60),  //计算分钟数
-        lefts = Math.floor(lefttime / 1000 % 60);  //计算秒数
+  let nowtime = new Date() //获取当前时间
+  let lefttime = endTime - nowtime.getTime() //距离结束时间的毫秒数
+  if (lefttime <= 0) {
+    return ""
+  }
+  let leftd = Math.floor(lefttime / (1000 * 60 * 60 * 24)), //计算天数
+    lefth = Math.floor((lefttime / (1000 * 60 * 60)) % 24), //计算小时数
+    leftm = Math.floor((lefttime / (1000 * 60)) % 60), //计算分钟数
+    lefts = Math.floor((lefttime / 1000) % 60) //计算秒数
 
-    if(lefth < 10) {
-      lefth = '0' + lefth;
-    }
+  if (lefth < 10) {
+    lefth = "0" + lefth
+  }
 
-    if (leftm < 10) {
-      leftm = '0' + leftm;
-    }
+  if (leftm < 10) {
+    leftm = "0" + leftm
+  }
 
-    if (lefts < 10) {
-      lefts = '0' + lefts;
-    }
-    return '剩余 ' + leftd + " 天 " + lefth + ":" + leftm + ":" + lefts;  //返回倒计时的字符串
+  if (lefts < 10) {
+    lefts = "0" + lefts
+  }
+  return "剩余 " + leftd + " 天 " + lefth + ":" + leftm + ":" + lefts //返回倒计时的字符串
 }
 
 const checkFileSize = function (file) {
@@ -554,5 +562,5 @@ const checkFileSize = function (file) {
     toastr.error("图片不能超过5M!")
     return false
   }
-  return true;
+  return true
 }
