@@ -21,28 +21,28 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.ADMIN)
-@RequestMapping(path = "admin/tag/")
+@Permission(role = UserRole.LOGIN)
+@RequestMapping(path = {"api/admin/tag/", "admin/tag/"})
 public class TagSettingRestController {
 
     @Autowired
     private TagSettingService tagSettingService;
 
-    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody TagReq req) {
         tagSettingService.saveTag(req);
         return ResVo.ok("ok");
     }
 
-    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "tagId") Integer tagId) {
         tagSettingService.deleteTag(tagId);
         return ResVo.ok("ok");
     }
 
-    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "tagId") Integer tagId,
                                  @RequestParam(name = "pushStatus") Integer pushStatus) {
@@ -53,7 +53,6 @@ public class TagSettingRestController {
         return ResVo.ok("ok");
     }
 
-    @ResponseBody
     @GetMapping(path = "list")
     public ResVo<PageVo<TagDTO>> list(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
                                       @RequestParam(name = "pageSize", required = false) Integer pageSize) {

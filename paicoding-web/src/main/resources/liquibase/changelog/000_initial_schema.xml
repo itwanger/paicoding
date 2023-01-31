@@ -52,4 +52,9 @@
     <changeSet id="00000000000013" author="LouZai">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230130.sql"/>
     </changeSet>
+
+    <!-- 添加用户角色 -->
+    <changeSet id="00000000000014" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230131.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Permission(role = UserRole.ADMIN)
-@RequestMapping(path = "admin/user/")
+@RequestMapping(path = {"api/admin/user/", "admin/user/"})
 public class UserSettingRestController {
 
     @Autowired

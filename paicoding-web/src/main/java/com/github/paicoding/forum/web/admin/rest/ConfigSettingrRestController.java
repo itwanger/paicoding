@@ -21,28 +21,28 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.ADMIN)
-@RequestMapping(path = "admin/config/")
+@Permission(role = UserRole.LOGIN)
+@RequestMapping(path = {"api/admin/config/", "admin/config/"})
 public class ConfigSettingrRestController {
 
     @Autowired
     private ConfigSettingServiceImpl configSettingService;
 
-    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ConfigReq configReq) {
         configSettingService.saveConfig(configReq);
         return ResVo.ok("ok");
     }
 
-    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "configId") Integer configId) {
         configSettingService.deleteConfig(configId);
         return ResVo.ok("ok");
     }
 
-    @ResponseBody
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "configId") Integer configId,
                                  @RequestParam(name = "pushStatus") Integer pushStatus) {
