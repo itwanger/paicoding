@@ -175,4 +175,4 @@ css 放在 static/css 中：
 
 [Apache License 2.0](https://github.com/macrozheng/mall/blob/master/LICENSE)
 
-Copyright (c) 2022-2023 技术派（楼仔、一灰、小超、沉默王二）
+Copyright (c) 2022-2023 技术派（楼仔、沉默王二、一灰、小超）

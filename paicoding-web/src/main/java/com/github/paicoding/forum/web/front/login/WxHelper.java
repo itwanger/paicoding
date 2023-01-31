@@ -119,10 +119,10 @@ public class WxHelper {
             textRes = "[机智][JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t";
         } else if ("122".equalsIgnoreCase(content) || "Spring".equalsIgnoreCase(content)) {
             textRes = "[机智][Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt";
-        } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content)) {
+        } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content) || "111".equalsIgnoreCase(content)) {
             textRes = "[机智][5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
         } else if ("123".equalsIgnoreCase(content)) {
-            textRes = "[机智]添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获取 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。";
+            textRes = "[机智]添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。";
         }
 
         // 下面是回复图文消息
@@ -159,6 +159,10 @@ public class WxHelper {
             } else {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }
+        } else {
+            textRes = "[/:?]还在找其它资料么？\n" +
+                    "\n" +
+                    "[机智]添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。";
         }
 
         if (textRes != null) {
