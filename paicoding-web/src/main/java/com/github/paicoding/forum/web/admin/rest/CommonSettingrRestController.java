@@ -16,8 +16,8 @@ import java.util.Map;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.ADMIN)
-@RequestMapping(path = "admin/common/")
+@Permission(role = UserRole.LOGIN)
+@RequestMapping(path = {"api/admin/common/", "admin/common/"})
 public class CommonSettingrRestController {
 
     @Autowired

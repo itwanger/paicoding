@@ -44,8 +44,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 permission = handlerMethod.getBeanType().getAnnotation(Permission.class);
             }
 
-            if (permission == null || permission.role() == UserRole.ALL
-                    || permission.role() == UserRole.ADMIN) { // fixme admin开发，临时去掉权限校验
+            if (permission == null || permission.role() == UserRole.ALL) {
                 return true;
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
@@ -56,6 +55,8 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                     response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "未登录")));
                     response.getWriter().flush();
                     return false;
+                } else if (request.getRequestURI().startsWith("/api/admin/") || request.getRequestURI().startsWith("/admin/")){
+                   response.sendRedirect("/admin");
                 } else {
                     // 访问需要登录的页面时，直接跳转到登录界面
                     response.sendRedirect("/qrLogin");

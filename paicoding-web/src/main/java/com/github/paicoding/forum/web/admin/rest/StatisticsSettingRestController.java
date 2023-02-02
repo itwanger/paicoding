@@ -18,8 +18,8 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.ADMIN)
-@RequestMapping(path = "admin/statistics/")
+@Permission(role = UserRole.LOGIN)
+@RequestMapping(path = {"api/admin/statistics/", "admin/statistics/"})
 public class StatisticsSettingRestController {
 
     @Autowired
@@ -27,7 +27,6 @@ public class StatisticsSettingRestController {
 
     static final Integer DEFAULT_DAY = 7;
 
-    @ResponseBody
     @GetMapping(path = "queryTotal")
     public ResVo<StatisticsCountDTO> queryTotal() {
         StatisticsCountDTO statisticsCountDTO = statisticsSettingService.getStatisticsCount();
