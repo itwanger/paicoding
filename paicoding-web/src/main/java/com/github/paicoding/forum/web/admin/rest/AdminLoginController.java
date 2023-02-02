@@ -10,11 +10,13 @@ import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
@@ -26,7 +28,7 @@ import java.util.Optional;
  * @date 2022/12/5
  */
 @RestController
-@RequestMapping(path = "/admin/login")
+@RequestMapping(path = {"/api/admin/login", "/admin/login"})
 public class AdminLoginController {
 
     @Autowired
@@ -35,10 +37,11 @@ public class AdminLoginController {
     @Autowired
     private SessionService sessionService;
 
-    @RequestMapping(path = {"", "/"})
-    public ResVo<BaseUserInfoDTO> login(@RequestParam(name = "user") String user,
-                                        @RequestParam(name = "password") String pwd,
+    @PostMapping(path = {"", "/"})
+    public ResVo<BaseUserInfoDTO> login(HttpServletRequest request,
                                         HttpServletResponse response) {
+        String user = request.getParameter("username");
+        String pwd = request.getParameter("password");
         BaseUserInfoDTO info = userService.passwordLogin(user, pwd);
         String session = sessionService.login(info.getUserId());
         if (StringUtils.isNotBlank(session)) {
@@ -50,7 +53,7 @@ public class AdminLoginController {
         }
     }
 
-    @Permission(role = UserRole.ADMIN)
+    @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));

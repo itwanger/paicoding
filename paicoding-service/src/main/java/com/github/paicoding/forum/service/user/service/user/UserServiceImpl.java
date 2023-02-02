@@ -126,7 +126,6 @@ public class UserServiceImpl implements UserService {
     public UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId) {
         BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
         UserStatisticInfoDTO userHomeDTO = UserConverter.toUserHomeDTO(userInfoDTO);
-        userHomeDTO.setRole("normal");
 
         // 用户资料完整度
         int cnt = 0;
