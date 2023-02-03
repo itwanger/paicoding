@@ -28,21 +28,21 @@ public class TagSettingRestController {
     @Autowired
     private TagSettingService tagSettingService;
 
-    @Permission(role = UserRole.LOGIN)
+    @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody TagReq req) {
         tagSettingService.saveTag(req);
         return ResVo.ok("ok");
     }
 
-    @Permission(role = UserRole.LOGIN)
+    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "tagId") Integer tagId) {
         tagSettingService.deleteTag(tagId);
         return ResVo.ok("ok");
     }
 
-    @Permission(role = UserRole.LOGIN)
+    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "tagId") Integer tagId,
                                  @RequestParam(name = "pushStatus") Integer pushStatus) {
