@@ -28,21 +28,21 @@ public class ConfigSettingrRestController {
     @Autowired
     private ConfigSettingServiceImpl configSettingService;
 
-    @Permission(role = UserRole.LOGIN)
+    @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ConfigReq configReq) {
         configSettingService.saveConfig(configReq);
         return ResVo.ok("ok");
     }
 
-    @Permission(role = UserRole.LOGIN)
+    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "configId") Integer configId) {
         configSettingService.deleteConfig(configId);
         return ResVo.ok("ok");
     }
 
-    @Permission(role = UserRole.LOGIN)
+    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "configId") Integer configId,
                                  @RequestParam(name = "pushStatus") Integer pushStatus) {
