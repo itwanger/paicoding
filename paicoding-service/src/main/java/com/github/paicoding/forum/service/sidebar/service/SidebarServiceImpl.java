@@ -156,7 +156,7 @@ public class SidebarServiceImpl implements SidebarService {
         return new SideBarDTO()
                 .setTitle("关于技术派")
                 // TODO 知识星球的
-                .setImg("https://paicoding-oss.oss-cn-hangzhou.aliyuncs.com/paicoding-zsxq.jpg")
+                .setImg("https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-zsxq.jpg")
                 .setUrl("https://www.yuque.com/itwanger/ydx81p/nksgcaox959w7ie9")
                 .setItems(items)
                 .setStyle(SidebarStyleEnum.NOTICE.getStyle());
