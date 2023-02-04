@@ -94,7 +94,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         contentQuery.eq(ArticleDetailDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .eq(ArticleDetailDO::getArticleId, articleId)
                 .orderByDesc(ArticleDetailDO::getVersion);
-        return articleDetailMapper.selectOne(contentQuery);
+        return articleDetailMapper.selectList(contentQuery).get(0);
     }
 
     /**
