@@ -145,7 +145,7 @@ public class ColumnViewController {
         }
 
         // 如果是登录阅读时，不返回全量的文章内容
-        if (vo.getReadType() == ColumnTypeEnum.LOGIN.getType()) {
+        if (vo.getReadType() == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null) {
             String content = articleDTO.getContent();
             if (content.length() > 500) {
                 content = content.substring(0, 500);
