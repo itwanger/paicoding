@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class RedisClient {
     private static final Charset CODE = Charset.forName("UTF-8");
+    private static final String KEY_PREFIX = "pai_";
     private static RedisTemplate<String, String> template;
 
     public static void register(RedisTemplate<String, String> template) {
@@ -28,36 +29,42 @@ public class RedisClient {
         }
     }
 
-    public static byte[] toBytes(String key) {
+    public static byte[] valBytes(String val) {
+        nullCheck(val);
+        return val.getBytes(CODE);
+    }
+
+    public static byte[] keyBytes(String key) {
         nullCheck(key);
+        key = KEY_PREFIX + key;
         return key.getBytes(CODE);
     }
 
-    public static byte[][] toBytes(List<String> keys) {
+    public static byte[][] keyBytes(List<String> keys) {
         byte[][] bytes = new byte[keys.size()][];
         int index = 0;
         for (String key : keys) {
-            bytes[index++] = toBytes(key);
+            bytes[index++] = keyBytes(key);
         }
         return bytes;
     }
 
     public static String getStr(String key) {
         return template.execute((RedisCallback<String>) con -> {
-            byte[] val = con.get(toBytes(key));
+            byte[] val = con.get(keyBytes(key));
             return val == null ? null : new String(val);
         });
     }
 
     public static void setStr(String key, String value) {
         template.execute((RedisCallback<Void>) con -> {
-            con.set(toBytes(key), toBytes(value));
+            con.set(keyBytes(key), valBytes(value));
             return null;
         });
     }
 
     public static void del(String key) {
-        template.delete(key);
+        template.delete(KEY_PREFIX + key);
     }
 
     /**
@@ -72,7 +79,7 @@ public class RedisClient {
         return template.execute(new RedisCallback<Boolean>() {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
-                return redisConnection.setEx(toBytes(key), expire, toBytes(value));
+                return redisConnection.setEx(keyBytes(key), expire, valBytes(value));
             }
         });
     }
