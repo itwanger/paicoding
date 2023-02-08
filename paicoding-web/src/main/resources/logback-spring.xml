@@ -3,7 +3,7 @@
     <!-- fixme 知识点：logback配置变量的姿势，如何读取Spring配置参数   -->
     <springProperty scope="context" name="log.path" source="log.path" defaultValue="logs"/>
     <springProperty scope="context" name="log.env" source="env.name" defaultValue="NO"/>
-    <property name="log.service.name" value="forum"/>
+    <property name="log.service.name" value="pai"/>
     <property name="log.req.name" value="req"/>
 
 
@@ -43,7 +43,7 @@
         <encoder>
             <!-- pattern节点，用来设置日志的输入格式 -->
             <pattern>
-                [%d{yyyy-MM-dd HH:mm:ss}] {"logger":"%logger{36}", "thread":"%thread", "msg":"%msg %replace(%ex){'\n', ' '}%nopex"}%n
+                [%d{yyyy-MM-dd HH:mm:ss}] {"logger":"%logger{36}", "thread":"%thread", "msg":"%msg"}%n
             </pattern>
             <!-- 记录日志的编码:此处设置字符集 - -->
             <charset>UTF-8</charset>
