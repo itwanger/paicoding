@@ -282,9 +282,10 @@
           if(autoRefresh) {
             window.clearInterval(autoRefresh);
           }
-          autoRefresh = setInterval(function () {
-              refreshCode();
-          }, 10 * 60 * 1000)
+          // 先关闭自动刷新验证码
+          // autoRefresh = setInterval(function () {
+          //     refreshCode();
+          // }, 5 * 60 * 1000)
       }
       function loginCode() {
         $.ajax({
