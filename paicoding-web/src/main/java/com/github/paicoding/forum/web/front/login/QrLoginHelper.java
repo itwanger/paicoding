@@ -8,6 +8,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.Cookie;
@@ -90,12 +92,14 @@ public class QrLoginHelper {
         String oldCode = deviceCodeCache.getUnchecked(deviceId);
         SseEmitter lastSse = verifyCodeCache.getIfPresent(oldCode);
         if (lastSse == null) {
+            log.info("last deviceId:{}, code:{}, sse closed!", deviceId, oldCode);
             return null;
         }
 
         // 重新生成一个验证码
         deviceCodeCache.invalidate(deviceId);
         String newCode = deviceCodeCache.getUnchecked(deviceId);
+        log.info("generate new loginCode! deviceId:{}, oldCode:{}, code:{}", deviceId, oldCode, newCode);
         lastSse.send("refresh#" + newCode);
         verifyCodeCache.invalidate(oldCode);
         verifyCodeCache.put(newCode, lastSse);
@@ -109,7 +113,8 @@ public class QrLoginHelper {
      * @return
      */
     public SseEmitter subscribe(String code) {
-        SseEmitter sseEmitter = new SseEmitter(5 * 60 * 1000L);
+        // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
+        SseEmitter sseEmitter = new SseEmitter(15 * 60 * 1000L);
         verifyCodeCache.put(code, sseEmitter);
         sseEmitter.onTimeout(() -> verifyCodeCache.invalidate(code));
         sseEmitter.onError((e) -> verifyCodeCache.invalidate(code));
