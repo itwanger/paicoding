@@ -224,6 +224,7 @@
           }
       })
 
+      var autoRefresh;
       /**
        * 建立半长连接，用于实现自动登录
        * @param code
@@ -252,6 +253,9 @@
                   stateTag.style.display = 'block';
               } else if (text.startsWith('login#')) {
                   // 登录格式为 login#cookie
+                  if(autoRefresh) {
+                    window.clearInterval(autoRefresh);
+                  }
                   console.log("登录成功,保存cookie", text)
                   document.cookie = text.substring(6);
                   source.close();
@@ -268,34 +272,49 @@
           source.onopen = function (evt) {
               console.log("开始订阅");
           }
+          source.onerror = function (evt) {
+            console.log("连接错误，重新开始")
+            loginCode();
+          }
           codeTag.innerText = code;
           stateTag.innerText = '验证码有效期为五分钟，若过期后可刷新验证码';
+
+          if(autoRefresh) {
+            window.clearInterval(autoRefresh);
+          }
+          autoRefresh = setInterval(function () {
+              refreshCode();
+          }, 10 * 60 * 1000)
       }
-
+      function loginCode() {
+        $.ajax({
+          url: "/login/code", dataType: "json", type: "get", success: function (data) {
+            const code = data['result']['code'];
+            buildConnect(code);
+            if ([[${!#strings.equals(global.env, 'prod')}]]) {
+              document.getElementById('mockLogin').setAttribute('data-verify-code', code);
+              document.getElementById('mockLogin2').setAttribute('data-verify-code', code);
+            }
+          }
+        })
+      }
+      function refreshCode() {
+        $.ajax({
+          url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
+            const code = data['result']['code'];
+            const reconnect = data['result']['reconnect']
+            if (reconnect) {
+              buildConnect(code)
+            }
+          }
+        })
+      }
       $('#loginModal').on('show.bs.modal', function () {
-          console.log("登录弹窗已展示!");
-          $.ajax({
-              url: "/login/code", dataType: "json", type: "get", success: function (data) {
-                  const code = data['result']['code'];
-                  buildConnect(code);
-                  if ([[${!#strings.equals(global.env, 'prod')}]]) {
-                      document.getElementById('mockLogin').setAttribute('data-verify-code', code);
-                      document.getElementById('mockLogin2').setAttribute('data-verify-code', code);
-                  }
-              }
-          })
+        console.log("登录弹窗已展示!");
+        loginCode();
       })
-
       $('#refreshCode').click(() => {
-          $.ajax({
-              url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
-                  const code = data['result']['code'];
-                  const reconnect = data['result']['reconnect']
-                  if (reconnect) {
-                      buildConnect(code)
-                  }
-              }
-          })
+          refreshCode()
       })
     </script>
   </div>
