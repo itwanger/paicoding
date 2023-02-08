@@ -61,7 +61,7 @@ public class ReqRecordFilter implements Filter {
 
     private HttpServletRequest initReqInfo(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        if (uri.startsWith("/js/") || uri.startsWith("/css/")) {
+        if (uri.startsWith("/js/") || uri.startsWith("/css/") || uri.endsWith(".js") || uri.endsWith(".css")) {
             // 静态资源直接放行
             return request;
         }
@@ -92,7 +92,8 @@ public class ReqRecordFilter implements Filter {
                 || request.getRequestURI().endsWith("css")
                 || request.getRequestURI().endsWith("js")
                 || request.getRequestURI().endsWith("png")
-                || request.getRequestURI().endsWith("ico")) {
+                || request.getRequestURI().endsWith("ico")
+                || request.getRequestURI().endsWith("svg")) {
             return;
         }
 
