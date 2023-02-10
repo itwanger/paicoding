@@ -304,8 +304,10 @@
           url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
             const code = data['result']['code'];
             const reconnect = data['result']['reconnect']
+            console.log("验证码刷新完成: ", data);
             if (reconnect) {
-              buildConnect(code)
+              buildConnect(code);
+              document.getElementById('state').innerText = "已刷新!";
             }
           }
         })
