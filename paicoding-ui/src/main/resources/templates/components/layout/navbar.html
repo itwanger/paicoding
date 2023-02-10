@@ -309,6 +309,18 @@
               buildConnect(code);
               document.getElementById('state').innerText = "已刷新!";
             }
+
+            if(code) {
+              const stateTag = document.getElementById('state');
+              const codeTag = document.getElementById('code');
+              if (codeTag.innerText != code) {
+                console.log("主动刷新验证码!");
+                codeTag.innerText = code;
+                stateTag.innerText = "已刷新!";
+              } else {
+                console.log("验证码已刷新了!");
+              }
+            }
           }
         })
       }

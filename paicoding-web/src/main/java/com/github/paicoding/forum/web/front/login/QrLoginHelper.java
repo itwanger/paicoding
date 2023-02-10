@@ -100,6 +100,7 @@ public class QrLoginHelper {
         deviceCodeCache.invalidate(deviceId);
         String newCode = deviceCodeCache.getUnchecked(deviceId);
         log.info("generate new loginCode! deviceId:{}, oldCode:{}, code:{}", deviceId, oldCode, newCode);
+        lastSse.send("updateCode!");
         lastSse.send("refresh#" + newCode);
         verifyCodeCache.invalidate(oldCode);
         verifyCodeCache.put(newCode, lastSse);
