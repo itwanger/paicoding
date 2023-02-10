@@ -39,11 +39,18 @@
 </div>
 
 <script src="/js/color-thief.umd.js"></script>
+
 <script>
   // https://lokeshdhakar.com/projects/color-thief/#getting-started
   const colorThief = new ColorThief()
+  let cover0 = $("#cover0");
+  console.log(cover0.attr("src"));
+
   const img = document.getElementById("cover0")
+  // 服务器 cdn 开启跨域消息头
+  img.setAttribute('crossOrigin', '')
   console.log("img:", img)
+
 
   function setColor() {
     let color = colorThief.getColor(img)
