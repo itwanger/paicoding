@@ -47,14 +47,14 @@
       class="comment-item-wrap-second"
     >
       <div class="comment-item-top">
-        <a th:href="${'/user/' + comment.userId}" target="_blank">
-          <img th:src="${comment.userPhoto}" class="comment-item-img" />
+        <a th:href="${'/user/' + reply.userId}" target="_blank">
+          <img th:src="${reply.userPhoto}" class="comment-item-img" />
         </a>
         <div class="common-item-content">
           <div class="common-item-content-head">
             <span>
               <a
-                th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
+                th:text="${reply.userName} + ${reply.userId == article.author ? '（作者）': ''}"
                 th:href="${'/user/' + reply.userId}"
                 target="_blank"
                 class="comment-name"
