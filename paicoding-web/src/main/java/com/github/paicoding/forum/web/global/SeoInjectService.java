@@ -92,7 +92,7 @@ public class SeoInjectService {
         list.add(new SeoTagVo("description", detail.getArticle().getSummary()));
         list.add(new SeoTagVo("keywords", detail.getArticle().getCategory().getCategory() + "," + detail.getArticle().getTags().stream().map(TagDTO::getTag).collect(Collectors.joining(","))));
 
-        ReqInfoContext.getReqInfo().setSeoList(list);
+        if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeoList(list);
     }
 
     /**
@@ -117,7 +117,7 @@ public class SeoInjectService {
         list.add(new SeoTagVo("description", user.getUserHome().getProfile()));
         list.add(new SeoTagVo("keywords", KEYWORDS));
 
-        ReqInfoContext.getReqInfo().setSeoList(list);
+        if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeoList(list);
     }
 
 
@@ -136,7 +136,9 @@ public class SeoInjectService {
         list.add(new SeoTagVo("title", "技术派"));
         list.add(new SeoTagVo("description", DES));
         list.add(new SeoTagVo("keywords", KEYWORDS));
-        ReqInfoContext.getReqInfo().setSeoList(list);
+        if (ReqInfoContext.getReqInfo() != null) {
+            ReqInfoContext.getReqInfo().setSeoList(list);
+        }
         return list;
     }
 

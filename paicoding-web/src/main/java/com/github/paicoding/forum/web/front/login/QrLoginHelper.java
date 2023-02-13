@@ -16,6 +16,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -89,8 +90,9 @@ public class QrLoginHelper {
      */
     public String refreshCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String deviceId = initDeviceId(request, response);
-        String oldCode = deviceCodeCache.getUnchecked(deviceId);
-        SseEmitter lastSse = verifyCodeCache.getIfPresent(oldCode);
+        // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
+        String oldCode = deviceCodeCache.getIfPresent(deviceId);
+        SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
         if (lastSse == null) {
             log.info("last deviceId:{}, code:{}, sse closed!", deviceId, oldCode);
             return null;
@@ -100,6 +102,7 @@ public class QrLoginHelper {
         deviceCodeCache.invalidate(deviceId);
         String newCode = deviceCodeCache.getUnchecked(deviceId);
         log.info("generate new loginCode! deviceId:{}, oldCode:{}, code:{}", deviceId, oldCode, newCode);
+
         lastSse.send("updateCode!");
         lastSse.send("refresh#" + newCode);
         verifyCodeCache.invalidate(oldCode);
@@ -109,16 +112,28 @@ public class QrLoginHelper {
 
     /**
      * 保持与前端的长连接
+     * <p>
+     * 直接根据设备拿之前初始化的验证码，不直接使用传过来的code
      *
      * @param code
      * @return
      */
-    public SseEmitter subscribe(String code) {
+    public SseEmitter subscribe(String code) throws IOException {
+        HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletResponse res = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        String device = initDeviceId(req, res);
+        String reaCode = deviceCodeCache.getUnchecked(device);
+
         // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
         SseEmitter sseEmitter = new SseEmitter(15 * 60 * 1000L);
         verifyCodeCache.put(code, sseEmitter);
-        sseEmitter.onTimeout(() -> verifyCodeCache.invalidate(code));
-        sseEmitter.onError((e) -> verifyCodeCache.invalidate(code));
+        sseEmitter.onTimeout(() -> verifyCodeCache.invalidate(reaCode));
+        sseEmitter.onError((e) -> verifyCodeCache.invalidate(reaCode));
+        if (!Objects.equals(reaCode, code)) {
+            // 若实际的验证码与前端显示的不同，则通知前端更新
+            sseEmitter.send("initCode!");
+            sseEmitter.send("init#" + reaCode);
+        }
         return sseEmitter;
     }
 
