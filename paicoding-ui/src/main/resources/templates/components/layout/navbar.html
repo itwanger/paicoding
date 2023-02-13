@@ -266,6 +266,10 @@
                       // 刷新当前页面
                       window.location.reload();
                   }
+              } else if (text.startsWith("init#")) {
+                const newCode = text.substring(5).trim();
+                codeTag.innerText = newCode;
+                console.log("初始化验证码: ", newCode);
               }
           };
 
@@ -273,8 +277,8 @@
               console.log("开始订阅");
           }
           source.onerror = function (evt) {
-            console.log("连接错误，重新开始")
-            loginCode();
+            console.log("连接错误，重新开始", evt)
+            buildConnect(code);
           }
           codeTag.innerText = code;
           stateTag.innerText = '验证码有效期为五分钟，若过期后可刷新验证码';

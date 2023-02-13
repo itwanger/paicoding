@@ -89,7 +89,7 @@ public class LoginViewController extends BaseViewController {
      * @return
      */
     @GetMapping(path = "subscribe", produces = {org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE})
-    public SseEmitter subscribe(String id) {
+    public SseEmitter subscribe(String id) throws IOException {
         return qrLoginHelper.subscribe(id);
     }
 

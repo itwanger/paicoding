@@ -50,11 +50,10 @@ public class GlobalInitService {
         vo.setEnv(env);
         vo.setSiteInfo(globalViewConfig);
 
-        List<SeoTagVo> seo = ReqInfoContext.getReqInfo().getSeoList();
-        if (CollectionUtils.isEmpty(seo)) {
+        if (ReqInfoContext.getReqInfo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeoList())) {
             vo.setSeo(seoInjectService.defaultSeo());
         } else {
-            vo.setSeo(seo);
+            vo.setSeo(ReqInfoContext.getReqInfo().getSeoList());
         }
 
         try {
