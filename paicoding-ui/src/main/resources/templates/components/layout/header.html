@@ -7,22 +7,16 @@
     >
       技术派
     </title>
-    <meta
-      name="keywords"
-      content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis,Java基础, 多线程, JVM, 虚拟机, 数据库, MySQL, Spring, Redis, MyBatis, 系统设计, 分布式, RPC, 高可用, 高并发"
-    />
-    <meta name="description" content="一款好用又强大的开源社区，附详细教程，包括Java、Spring、MySQL、Redis、操作系统、计算机网络、数据结构与算法等计算机专业核心知识点。学编程，就上技术派" />
-    <meta property="og:url" th:content="${global.siteInfo.host}">
-    <meta property="og:site_name" content="技术派">
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="zh-CN">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no"
-    />
 
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <meta name="robots" content="all">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta th:each="tag: ${global.seo}" th:attr="content=${tag.val}" th:property="${tag.key}"/>
     <link rel="icon" href="/img/icon.png" />
     <link href="/css/three/index.css" rel="stylesheet" />
     <link href="/css/global.css" rel="stylesheet" />

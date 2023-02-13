@@ -12,11 +12,13 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
+import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -116,6 +118,8 @@ public class ColumnViewController {
         vo.setSection(section);
         vo.setArticleList(articles);
         model.addAttribute("vo", vo);
+
+        SpringUtil.getBean(SeoInjectService.class).initColumnSeo(vo, column);
         return "views/column-detail/index";
     }
 

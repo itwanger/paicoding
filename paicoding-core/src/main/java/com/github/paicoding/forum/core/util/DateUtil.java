@@ -27,6 +27,10 @@ public class DateUtil {
         return time2day(timestamp.getTime());
     }
 
+    public static LocalDateTime time2LocalTime(long timestamp) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+    }
+
     public static String time2date(long timestamp) {
         DateTimeFormatter ftf = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
         return ftf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault()));

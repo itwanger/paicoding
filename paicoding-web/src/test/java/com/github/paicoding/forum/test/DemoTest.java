@@ -1,8 +1,10 @@
 package com.github.paicoding.forum.test;
 
+import com.github.paicoding.forum.core.util.DateUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.function.BiConsumer;
 
 /**
@@ -11,6 +13,12 @@ import java.util.function.BiConsumer;
  */
 public class DemoTest {
 
+    @Test
+    public void testTime() {
+        long now = System.currentTimeMillis();
+        LocalDateTime local = DateUtil.time2LocalTime(now);
+        System.out.println(local);
+    }
     public static void scan(int maxX, int maxY, BiConsumer<Integer, Integer> consumer) {
         for (int i = 0; i < maxX; i++) {
             for (int j = 0; j < maxY; j++) {

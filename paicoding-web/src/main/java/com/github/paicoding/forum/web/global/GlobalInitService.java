@@ -1,6 +1,8 @@
 package com.github.paicoding.forum.web.global;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
@@ -17,6 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author YiHui
@@ -36,6 +39,9 @@ public class GlobalInitService {
     @Resource
     private NotifyService notifyService;
 
+    @Resource
+    private SeoInjectService seoInjectService;
+
     /**
      * 全局属性配置
      */
@@ -43,6 +49,14 @@ public class GlobalInitService {
         GlobalVo vo = new GlobalVo();
         vo.setEnv(env);
         vo.setSiteInfo(globalViewConfig);
+
+        List<SeoTagVo> seo = ReqInfoContext.getReqInfo().getSeoList();
+        if (CollectionUtils.isEmpty(seo)) {
+            vo.setSeo(seoInjectService.defaultSeo());
+        } else {
+            vo.setSeo(seo);
+        }
+
         try {
             if (ReqInfoContext.getReqInfo() != null && NumUtil.upZero(ReqInfoContext.getReqInfo().getUserId())) {
                 vo.setIsLogin(true);
