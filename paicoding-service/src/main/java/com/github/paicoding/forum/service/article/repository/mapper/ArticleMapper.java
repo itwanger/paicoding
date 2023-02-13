@@ -19,6 +19,15 @@ import java.util.List;
 public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     /**
+     * 通过id遍历文章, 用于生成sitemap.xml
+     *
+     * @param lastId
+     * @param size
+     * @return
+     */
+    List<SimpleArticleDTO> listArticlesOrderById(@Param("lastId") Long lastId, @Param("size") int size);
+
+    /**
      * 根据阅读次数获取热门文章
      *
      * @param pageParam
