@@ -7,10 +7,13 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.core.util.ArticleUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.MdImgLoader;
+import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
+import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
 import org.junit.Test;
 
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,7 +63,7 @@ public class ImgPickerTest {
         vo.setCreateTime(System.currentTimeMillis() / 1000);
         vo.setArticleCount(1);
 
-        List<WxImgTxtItemVo> itemList  = new ArrayList<>();
+        List<WxImgTxtItemVo> itemList = new ArrayList<>();
         WxImgTxtItemVo item = new WxImgTxtItemVo();
         item.setTitle("haha");
         item.setDescription("miaos");
@@ -71,6 +74,23 @@ public class ImgPickerTest {
 
         XmlMapper mapper = new XmlMapper();
         String ans = mapper.writeValueAsString(vo);
+        System.out.println(ans);
+    }
+
+    @Test
+    public void testSiteMap() throws JsonProcessingException {
+        SiteUrlVo vo = new SiteUrlVo();
+        vo.setLoc("https://paicoding.com/article/detail/169");
+        vo.setLastMod("2023-02-13");
+
+        SiteUrlVo vo2 = new SiteUrlVo();
+        vo2.setLoc("https://paicoding.com");
+        vo2.setLastMod("2023-02-13");
+
+        SiteMapVo result = new SiteMapVo();
+        result.setUrl(Arrays.asList(vo, vo2));
+        XmlMapper mapper = new XmlMapper();
+        String ans = mapper.writeValueAsString(result);
         System.out.println(ans);
     }
 }

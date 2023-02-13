@@ -8,6 +8,14 @@
         </if>
     </sql>
 
+    <select id="listArticlesOrderById" resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select id, title, update_time as createTime from article
+        where id > #{lastId}
+        and status =${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        order by id asc limit #{size}
+    </select>
+
     <select id="listArticlesByReadCounts"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
         select rc.document_id as id, a.title as title, a.create_time as createTime
