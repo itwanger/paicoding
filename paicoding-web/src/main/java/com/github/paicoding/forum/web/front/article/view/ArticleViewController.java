@@ -9,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleRecommendService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
@@ -18,6 +19,7 @@ import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.article.vo.ArticleEditVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
+import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -131,6 +133,8 @@ public class ArticleViewController extends BaseViewController {
         List<SideBarDTO> sideBars = articleRecommendService.recommend(articleDTO);
         vo.setSideBarItems(sideBars);
         model.addAttribute("vo", vo);
+
+        SpringUtil.getBean(SeoInjectService.class).initColumnSeo(vo);
         return "views/article-detail/index";
     }
 

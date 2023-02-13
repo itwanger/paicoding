@@ -1,7 +1,10 @@
 package com.github.paicoding.forum.api.model.context;
 
+import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 请求上下文，携带用户身份相关信息
@@ -76,5 +79,7 @@ public class ReqInfoContext {
          * 消息数量
          */
         private Integer msgNum;
+
+        private List<SeoTagVo> seoList;
     }
 }

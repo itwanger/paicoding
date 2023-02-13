@@ -1,8 +1,11 @@
 package com.github.paicoding.forum.web.global.vo;
 
+import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author YiHui
@@ -36,4 +39,6 @@ public class GlobalVo {
 
 
     private String currentDomain;
+
+    private List<SeoTagVo> seo;
 }
