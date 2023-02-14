@@ -1,5 +1,6 @@
-package com.github.paicoding.forum.web.admin.rest;
+package com.github.paicoding.forum.web.front.home;
 
+import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
 import com.github.paicoding.forum.service.sitemap.service.SitemapService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,14 +15,19 @@ import javax.annotation.Resource;
  * @date 2023/2/13
  */
 @RestController
-@RequestMapping(path = {"/api/admin/login", "/admin/login"})
 public class SiteMapController {
     @Resource
     private SitemapService sitemapService;
 
-    @GetMapping(path = "sitemap")
-    public String sitemap() {
-        return "";
+    @RequestMapping(path = "/sitemap",
+            produces = "application/xml;charset=utf-8")
+    public SiteMapVo sitemap() {
+        return sitemapService.getSiteMap();
     }
 
+    @GetMapping(path = "/sitemap/refresh")
+    public Boolean refresh() {
+        sitemapService.refreshSitemap();
+        return true;
+    }
 }

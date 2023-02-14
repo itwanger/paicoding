@@ -10,4 +10,5 @@ public interface SitemapService {
 
     SiteMapVo getSiteMap();
 
+    void refreshSitemap();
 }
