@@ -80,13 +80,13 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         // 根据异常码解析需要返回的错误页面
         if (StatusEnum.is5xx(status.getCode())) {
             response.setStatus(500);
-            return "/error/500";
+            return "error/500";
         } else if (StatusEnum.is403(status.getCode())) {
             response.setStatus(403);
-            return "/error/403";
+            return "error/403";
         } else {
             response.setStatus(404);
-            return "/error/404";
+            return "error/404";
         }
     }
 

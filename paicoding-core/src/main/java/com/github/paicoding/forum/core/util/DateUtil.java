@@ -11,6 +11,10 @@ import java.time.format.DateTimeFormatter;
  * @date 2022/8/25
  */
 public class DateUtil {
+    private static final DateTimeFormatter UTC_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private static final DateTimeFormatter BLOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
+
+    private static final DateTimeFormatter BLOG_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
 
     /**
      * 毫秒转日期
@@ -19,17 +23,24 @@ public class DateUtil {
      * @return
      */
     public static String time2day(long timestamp) {
-        DateTimeFormatter ftf = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
-        return ftf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault()));
+        return BLOG_TIME_FORMAT.format(time2LocalTime(timestamp));
     }
 
     public static String time2day(Timestamp timestamp) {
         return time2day(timestamp.getTime());
     }
 
+    public static LocalDateTime time2LocalTime(long timestamp) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+    }
+
+    public static String time2utc(long timestamp) {
+        LocalDateTime time = time2LocalTime(timestamp);
+        return UTC_FORMAT.format(time);
+    }
+
     public static String time2date(long timestamp) {
-        DateTimeFormatter ftf = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
-        return ftf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault()));
+        return BLOG_DATE_FORMAT.format(time2LocalTime(timestamp));
     }
 
     public static String time2date(Timestamp timestamp) {

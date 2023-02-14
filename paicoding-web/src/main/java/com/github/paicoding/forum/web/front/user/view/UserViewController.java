@@ -12,11 +12,13 @@ import com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.front.user.vo.UserHomeVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
+import com.github.paicoding.forum.web.global.SeoInjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -79,6 +81,7 @@ public class UserViewController extends BaseViewController {
 
         userHomeSelectList(vo, userId);
         model.addAttribute("vo", vo);
+        SpringUtil.getBean(SeoInjectService.class).initUserSeo(vo);
         return "views/user/index";
     }
 
@@ -107,6 +110,7 @@ public class UserViewController extends BaseViewController {
 
         userHomeSelectList(vo, userId);
         model.addAttribute("vo", vo);
+        SpringUtil.getBean(SeoInjectService.class).initUserSeo(vo);
         return "views/user/index";
     }
 

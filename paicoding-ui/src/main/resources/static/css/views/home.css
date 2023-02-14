@@ -232,10 +232,16 @@ svg:not(:root).svg-inline--fa {
     display: block;
   }
   .user-article-img {
-    width: 120px;
+    width: 100px;
     height: 80px;
   }
   .align-content-start {
     padding: 4px 18px;
+  }
+  .cdc-article-panel__operate {
+    margin-left: 8px;
+  }
+  .article-show-wrap {
+    margin-right: 8px;
   }
 }

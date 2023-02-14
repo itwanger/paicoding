@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.service.help;
 
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
+import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -18,17 +19,12 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class UserSessionHelper {
+    private static final Long SESSION_EXPIRE_TIME = 30 * 86400L;
     /**
      * key = 验证码 value = userId
      */
     @Getter
     private LoadingCache<String, Long> codeUserIdCache;
-    /**
-     * key = session, value = userId
-     */
-    @Getter
-    private LoadingCache<String, Long> sessionMap;
-
 
     /**
      * todo 知识点：bean完成之后的初始化方式，除了 @PostConstruct 之外还有构造方法方式、实现BeanPostProcessor接口方式
@@ -39,13 +35,6 @@ public class UserSessionHelper {
         codeUserIdCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, Long>() {
             @Override
             public Long load(String s) throws Exception {
-                throw new NoVlaInGuavaException("not hit!");
-            }
-        });
-
-        sessionMap = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build(new CacheLoader<String, Long>() {
-            @Override
-            public Long load(String userId) {
                 throw new NoVlaInGuavaException("not hit!");
             }
         });
@@ -77,18 +66,21 @@ public class UserSessionHelper {
      */
     public String codeVerifySucceed(String code, Long userId) {
         String session = "s-" + UUID.randomUUID();
-        sessionMap.put(session, userId);
+        RedisClient.setStrWithExpire(session, String.valueOf(userId), SESSION_EXPIRE_TIME);
         // 验证完之后，移除掉，避免重复使用
         codeUserIdCache.invalidate(code);
         return session;
     }
 
     public void removeSession(String session) {
-        sessionMap.invalidate(session);
-        sessionMap.cleanUp();
+        RedisClient.del(session);
     }
 
     public Long getUserIdBySession(String session) {
-        return sessionMap.getIfPresent(session);
+        String user = RedisClient.getStr(session);
+        if (user == null) {
+            return null;
+        }
+        return Long.valueOf(user);
     }
 }
