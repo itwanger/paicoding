@@ -76,5 +76,13 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.usefulness/webp-imageio -->
+        <dependency>
+            <groupId>com.github.usefulness</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.2.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

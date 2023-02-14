@@ -4,6 +4,10 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password:
+  redis:
+    host: localhost
+    port: 6379
+    password:
 
 #
 #mybatis-plus:

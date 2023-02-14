@@ -151,7 +151,7 @@ public class WxHelper {
             imgTxtList.add(imgTxt);
             imgTxtList.add(imgTxt2);
         }*/
-        else if ("admin".equalsIgnoreCase(content) || "后台".equals(content)) {
+        else if ("admin".equalsIgnoreCase(content) || "后台".equals(content) || "001".equals(content)) {
             // admin后台登录，返回对应的用户名 + 密码
             textRes = "技术派后台游客登录账号\n-----------\n登录用户名: guest\n登录密码: 123456";
         }
