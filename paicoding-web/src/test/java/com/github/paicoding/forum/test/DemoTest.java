@@ -18,6 +18,9 @@ public class DemoTest {
         long now = System.currentTimeMillis();
         LocalDateTime local = DateUtil.time2LocalTime(now);
         System.out.println(local);
+
+        System.out.println(DateUtil.time2utc(now));
+        System.out.println("over");
     }
     public static void scan(int maxX, int maxY, BiConsumer<Integer, Integer> consumer) {
         for (int i = 0; i < maxX; i++) {

@@ -1,19 +1,24 @@
 package com.github.paicoding.forum.core.cache;
 
+import com.github.paicoding.forum.core.util.JsonUtil;
+import com.google.common.collect.Maps;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author YiHui
  * @date 2023/2/7
  */
 public class RedisClient {
-    private static final Charset CODE = Charset.forName("UTF-8");
+    private static final Charset CODE = StandardCharsets.UTF_8;
     private static final String KEY_PREFIX = "pai_";
     private static RedisTemplate<String, String> template;
 
@@ -29,9 +34,12 @@ public class RedisClient {
         }
     }
 
-    public static byte[] valBytes(String val) {
-        nullCheck(val);
-        return val.getBytes(CODE);
+    public static <T> byte[] valBytes(T val) {
+        if (val instanceof String) {
+            return ((String) val).getBytes(CODE);
+        } else {
+            return JsonUtil.toStr(val).getBytes(CODE);
+        }
     }
 
     public static byte[] keyBytes(String key) {
@@ -82,5 +90,77 @@ public class RedisClient {
                 return redisConnection.setEx(keyBytes(key), expire, valBytes(value));
             }
         });
+    }
+
+    public static <T> Map<String, T> hGetAll(String key, Class<T> clz) {
+        Map<byte[], byte[]> records = template.execute((RedisCallback<Map<byte[], byte[]>>) con -> con.hGetAll(keyBytes(key)));
+        if (records == null) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, T> result = Maps.newHashMapWithExpectedSize(records.size());
+        for (Map.Entry<byte[], byte[]> entry : records.entrySet()) {
+            if (entry.getKey() == null) {
+                continue;
+            }
+
+            result.put(new String(entry.getKey()), toObj(entry.getValue(), clz));
+        }
+        return result;
+    }
+
+    public static <T> T hGet(String key, String field, Class<T> clz) {
+        return template.execute((RedisCallback<T>) con -> {
+            byte[] records = con.hGet(keyBytes(key), valBytes(field));
+            if (records == null) {
+                return null;
+            }
+
+            return toObj(records, clz);
+        });
+    }
+
+    public static <T> Boolean hDel(String key, String field) {
+        return template.execute(new RedisCallback<Boolean>() {
+            @Override
+            public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.hDel(keyBytes(key), valBytes(field)) > 0;
+            }
+        });
+    }
+
+    public static <T> Boolean hSet(String key, String field, T ans) {
+        return template.execute(new RedisCallback<Boolean>() {
+            @Override
+            public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
+                String save;
+                if (ans instanceof String) {
+                    save = (String) ans;
+                } else {
+                    save = JsonUtil.toStr(ans);
+                }
+                return redisConnection.hSet(keyBytes(key), valBytes(field), valBytes(save));
+            }
+        });
+    }
+
+    public static <T> void hMSet(String key, Map<String, T> fields) {
+        Map<byte[], byte[]> val = Maps.newHashMapWithExpectedSize(fields.size());
+        for (Map.Entry<String, T> entry : fields.entrySet()) {
+            val.put(valBytes(entry.getKey()), valBytes(entry.getValue()));
+        }
+        template.execute((RedisCallback<Object>) connection -> {
+            connection.hMSet(keyBytes(key), val);
+            return null;
+        });
+    }
+
+
+    private static <T> T toObj(byte[] ans, Class<T> clz) {
+        if (clz == String.class) {
+            return (T) new String(ans, CODE);
+        }
+
+        return JsonUtil.toObj(new String(ans, CODE), clz);
     }
 }
