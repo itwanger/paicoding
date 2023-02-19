@@ -120,7 +120,11 @@ public class WxHelper {
         } else if ("122".equalsIgnoreCase(content) || "Spring".equalsIgnoreCase(content)) {
             textRes = "[机智] [3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
         } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content) || "111".equalsIgnoreCase(content)) {
-            textRes = "[机智] [3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
+            textRes = "[机智] [3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n" +
+                    "\n" +
+                    "[机智] [Java 实战演练 35 讲] 链接: https://pan.baidu.com/s/1NgbmV3qdQAugonAcoPUZYQ?pwd=oiwq 提取码: oiwq" +
+                    "\n" +
+                    "[机智] [10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
         } else if ("123".equalsIgnoreCase(content)) {
             textRes = "[机智] 添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误，工作面试两不误。";
         }
