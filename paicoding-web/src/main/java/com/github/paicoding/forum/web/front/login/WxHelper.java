@@ -106,7 +106,7 @@ public class WxHelper {
                     "\n" +
                     "这里整理了一份「 2023年超硬核面试备战手册」，内容涵盖计算机网络、操作系统、数据结构与算法、MySQL、Redis、Java、Spring、高并发等等\n" +
                     "\n" +
-                    "<a href=\"https://mp.weixin.qq.com/s/nUhTHNVmqhKV-mksCT15Cw\">[勾引]速来，手慢无！</a>\n" +
+                    "<a href=\"https://mp.weixin.qq.com/s/NtXsheOHepLuGIII_sY7fw\">[勾引]速来，手慢无！</a>\n" +
                     "\n" +
                     "我从清晨走过，也拥抱夜晚的星辰，人生没有捷径，你我皆平凡，你好，陌生人，一起共勉。\n";
         }
@@ -118,11 +118,11 @@ public class WxHelper {
         } else if ("120".equalsIgnoreCase(content) || "JVM".equalsIgnoreCase(content)) {
             textRes = "[机智] [JVM手册] 链接: https://pan.baidu.com/s/1b-YD5hbPNdJsWeEQTw7TSA?pwd=h66t 提取码: h66t";
         } else if ("122".equalsIgnoreCase(content) || "Spring".equalsIgnoreCase(content)) {
-            textRes = "[机智] [Spring源码解析手册] 链接: https://pan.baidu.com/s/1gww69GapzScKRVseSq2lpg?pwd=6kvt 提取码: 6kvt";
+            textRes = "[机智] [3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
         } else if ("资料".equalsIgnoreCase(content) || "pdf".equalsIgnoreCase(content) || "楼仔".equalsIgnoreCase(content) || "111".equalsIgnoreCase(content)) {
-            textRes = "[机智] [5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
+            textRes = "[机智] [3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误。\n] 链接: https://pan.baidu.com/s/1mGkHxsWQPOlySIZm7i9FbA?pwd=0mje 提取码: 0mje\n";
         } else if ("123".equalsIgnoreCase(content)) {
-            textRes = "[机智] 添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。";
+            textRes = "[机智] 添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误，工作面试两不误。";
         }
 
         // 下面是回复图文消息
@@ -154,6 +154,8 @@ public class WxHelper {
         else if ("admin".equalsIgnoreCase(content) || "后台".equals(content) || "001".equals(content)) {
             // admin后台登录，返回对应的用户名 + 密码
             textRes = "技术派后台游客登录账号\n-----------\n登录用户名: guest\n登录密码: 123456";
+        } else if ("商务合作".equalsIgnoreCase(content) ) {
+            textRes = "商务合作：请添加楼仔微信「lml200701158」，备注\"商务合作\"'";
         }
         // 微信公众号登录
         else if (CodeGenerateUtil.isVerifyCode(content)) {
@@ -166,7 +168,9 @@ public class WxHelper {
         } else {
             textRes = "/:? 还在找其它资料么？\n" +
                     "\n" +
-                    "[机智] 添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误。";
+                    "[机智] 添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 3 本楼仔原创手册《高并发手册》、《JVM 核心手册》、《Java 并发编程手册》，工作面试两不误，工作面试两不误。" +
+                    "\n" +
+                    "商务合作：请添加楼仔微信「lml200701158」";
         }
 
         if (textRes != null) {
