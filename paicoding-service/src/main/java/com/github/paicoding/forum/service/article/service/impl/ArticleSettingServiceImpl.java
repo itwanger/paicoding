@@ -1,20 +1,24 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,15 +45,31 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     @Override
     public void updateArticle(ArticlePostReq req) {
         ArticleDO article = articleDao.getById(req.getArticleId());
-        if (article != null) {
-            if (!req.getTitle().isEmpty()) {
-                article.setTitle(req.getTitle());
+        if (article == null) {
+            return;
+        }
+
+        if (StringUtils.isNotBlank(req.getTitle())) {
+            article.setTitle(req.getTitle());
+        }
+        article.setShortTitle(req.getShortTitle());
+
+        ArticleEventEnum operateEvent = null;
+        if (req.getStatus() != null) {
+            article.setStatus(req.getStatus());
+            if (req.getStatus() == PushStatusEnum.OFFLINE.getCode()) {
+                operateEvent = ArticleEventEnum.OFFLINE;
+            } else if (req.getStatus() == PushStatusEnum.REVIEW.getCode()) {
+                operateEvent = ArticleEventEnum.REVIEW;
+            } else if (req.getStatus() == PushStatusEnum.ONLINE.getCode()) {
+                operateEvent = ArticleEventEnum.ONLINE;
             }
-            article.setShortTitle(req.getShortTitle());
-            if (req.getStatus() != null) {
-                article.setStatus(req.getStatus());
-            }
-            articleDao.updateById(article);
+        }
+        articleDao.updateById(article);
+
+        if (operateEvent != null) {
+            // 发布文章待审核、上线、下线事件
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, operateEvent, article.getId()));
         }
     }
 
@@ -76,6 +96,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
             dto.setDeleted(YesOrNoEnum.YES.getCode());
             articleDao.updateById(dto);
+
+            // 发布文章删除事件
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
         }
     }
 

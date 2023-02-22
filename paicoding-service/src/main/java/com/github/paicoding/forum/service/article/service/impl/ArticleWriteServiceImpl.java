@@ -1,13 +1,12 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
-import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
-import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.enums.*;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
@@ -86,6 +85,10 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
 
         // 发布文章，阅读计数+1
         userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(), article.getUserId(), OperateTypeEnum.READ);
+
+        // 创建文章
+        // 发布文章创建事件
+        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.CREATE, articleId));
         return articleId;
     }
 
@@ -100,7 +103,8 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     private Long updateArticle(ArticleDO article, String content, Set<Long> tags) {
         // 若文章处于审核状态，则直接更新上一条记录；否则新插入一条记录
         boolean review = article.getStatus().equals(PushStatusEnum.REVIEW.getCode());
-        if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
+        int status = article.getStatus();
+        if (status == PushStatusEnum.ONLINE.getCode()) {
             article.setStatus(PushStatusEnum.REVIEW.getCode());
         }
         // 更新文章
@@ -111,6 +115,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
 
         // 标签更新
         articleTagDao.updateTags(article.getId(), tags);
+
+        // 发布文章待审核事件
+        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.REVIEW, article.getId()));
         return article.getId();
     }
 
@@ -131,6 +138,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
             dto.setDeleted(YesOrNoEnum.YES.getCode());
             articleDao.updateById(dto);
+
+            // 发布文章删除事件
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
         }
     }
 }
