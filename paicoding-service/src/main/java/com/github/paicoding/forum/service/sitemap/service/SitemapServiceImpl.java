@@ -1,6 +1,8 @@
 package com.github.paicoding.forum.service.sitemap.service;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
+import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
@@ -8,6 +10,7 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -56,12 +59,20 @@ public class SitemapServiceImpl implements SitemapService {
         initSiteMap();
     }
 
+    public void addArticle(Long articleId) {
+        RedisClient.hSet(SITE_MAP_CACHE_KEY, String.valueOf(articleId), System.currentTimeMillis());
+    }
+
+    public void rmArticle(Long articleId) {
+        RedisClient.hDel(SITE_MAP_CACHE_KEY, String.valueOf(articleId));
+    }
 
     /**
      * fixme: 加锁初始化，更推荐的是采用分布式锁
      */
     private synchronized void initSiteMap() {
         long lastId = 0L;
+        RedisClient.del(SITE_MAP_CACHE_KEY);
         while (true) {
             List<SimpleArticleDTO> list = articleDao.getBaseMapper().listArticlesOrderById(lastId, SCAN_SIZE);
             RedisClient.hMSet(SITE_MAP_CACHE_KEY,
@@ -84,5 +95,19 @@ public class SitemapServiceImpl implements SitemapService {
         return vo;
     }
 
+    /**
+     * 基于文章的上下线，自动更新站点地图
+     *
+     * @param event
+     */
+    @EventListener(ArticleMsgEvent.class)
+    public void autoUpdateSiteMap(ArticleMsgEvent<Long> event) {
+        ArticleEventEnum type = event.getType();
+        if (type == ArticleEventEnum.ONLINE) {
+            addArticle(event.getContent());
+        } else if (type == ArticleEventEnum.OFFLINE || type == ArticleEventEnum.DELETE) {
+            rmArticle(event.getContent());
+        }
+    }
 
 }
