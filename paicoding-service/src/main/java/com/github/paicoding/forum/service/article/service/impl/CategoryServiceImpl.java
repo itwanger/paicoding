@@ -46,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
                 if (category == null || category.getDeleted() == YesOrNoEnum.YES.getCode()) {
                     return CategoryDTO.EMPTY;
                 }
-                return new CategoryDTO(categoryId, category.getCategoryName());
+                return new CategoryDTO(categoryId, category.getCategoryName(), category.getRank());
             }
         });
     }

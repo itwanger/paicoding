@@ -14,6 +14,8 @@ public class PageParam {
     public static final Long DEFAULT_PAGE_NUM = 1L;
     public static final Long DEFAULT_PAGE_SIZE = 10L;
 
+    public static final Long TOP_PAGE_SIZE = 4L;
+
 
     /**
      * 请求页数，从1开始计数

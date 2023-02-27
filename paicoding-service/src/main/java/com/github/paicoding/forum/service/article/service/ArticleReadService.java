@@ -10,6 +10,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ArticleReadService {
 
@@ -74,11 +75,18 @@ public interface ArticleReadService {
 
     /**
      * 获取分类文章数
-     * 
+     *
      * @param categoryId
      * @return
      */
     Long queryArticleCountByCategory(Long categoryId);
+
+    /**
+     * 根据分类统计文章计数
+     *
+     * @return
+     */
+    Map<Long, Long> queryArticleCountsByCategory();
 
     /**
      * 查询某个标签下的文章，支持翻页
