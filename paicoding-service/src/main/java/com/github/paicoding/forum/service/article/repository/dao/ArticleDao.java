@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.article.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -22,13 +23,11 @@ import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleDetailMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ReadCountMapper;
+import com.google.common.collect.Maps;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -168,6 +167,27 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode())
                 .eq(ArticleDO::getCategoryId, categoryId);
         return baseMapper.selectCount(query);
+    }
+
+    /**
+     * 按照分类统计文章的数量
+     *
+     * @return key: categoryId, value: count
+     */
+    public Map<Long, Long> countArticleByCategoryId() {
+        QueryWrapper<ArticleDO> query = Wrappers.query();
+        query.select("category_id, count(*) as cnt")
+                .eq("deleted", YesOrNoEnum.NO.getCode())
+                .eq("status", PushStatusEnum.ONLINE.getCode()).groupBy("category_id");
+        List<Map<String, Object>> mapList = baseMapper.selectMaps(query);
+        Map<Long, Long> result = Maps.newHashMapWithExpectedSize(mapList.size());
+        for (Map<String, Object> mp : mapList) {
+            Long cnt = (Long) mp.get("cnt");
+            if (cnt != null && cnt > 0) {
+                result.put((Long) mp.get("category_id"), cnt);
+            }
+        }
+        return result;
     }
 
     public List<ArticleDO> listArticlesByBySearchKey(String key, PageParam pageParam) {

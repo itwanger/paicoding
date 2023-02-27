@@ -32,10 +32,14 @@ public class CategoryDTO implements Serializable {
     private Boolean selected;
 
     public CategoryDTO(Long categoryId, String category) {
+        this(categoryId, category, 0);
+    }
+
+    public CategoryDTO(Long categoryId, String category, Integer rank) {
         this.categoryId = categoryId;
         this.category = category;
         this.status = PushStatusEnum.ONLINE.getCode();
-        this.rank = 0;
+        this.rank = rank;
         this.selected = false;
     }
 }
