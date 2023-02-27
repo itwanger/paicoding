@@ -17,17 +17,17 @@ function start() {
     cd -
 
     mv ${WEB_PATH}/target/${JAR_NAME} ./
-    echo "启动脚本：==========="
-    echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &"
-    echo "==========="
-    nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &
-    echo $! 1> pid.log
+    run
 }
 
 # 重启
 function restart() {
     # 杀掉之前的进程
     cat pid.log| xargs -I {} kill {}
+    run
+}
+
+function run() {
     # 重新启动
     echo "启动脚本：==========="
     echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &"
@@ -42,6 +42,8 @@ elif [ $1 == 'start' ]; then
   start
 elif [ $1 == 'restart' ];then
   restart
+elif [ $1 == 'run' ];then
+  run
 else
-  echo 'illegal command, support cmd: start | restart'
+  echo 'illegal command, support cmd: start | restart | run'
 fi

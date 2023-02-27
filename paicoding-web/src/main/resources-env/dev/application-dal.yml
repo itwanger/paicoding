@@ -1,11 +1,11 @@
 spring:
   datasource:
     # 数据库名，从配置 database.name 中获取
-    url: jdbc:mysql://127.0.0.1:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://172.29.175.87:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password:
   redis:
-    host: localhost
+    host: 172.29.175.87
     port: 6379
     password:
 
