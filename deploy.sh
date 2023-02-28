@@ -48,10 +48,7 @@ function start() {
     chmod 755 ${EXECUTABLE_JAR_NAME}
     # run
     echo "===== 启动脚本：====="
-    echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
-    echo "==================="
-    nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow  -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
-    echo $! > ${PID_FILE_NAME}
+    run
 }
 
 function restart() {
@@ -60,6 +57,10 @@ function restart() {
   stop
   # run
   echo "===== 启动重启：====="
+  run
+}
+
+function run() {
   echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
   echo "==================="
   nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow  -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
