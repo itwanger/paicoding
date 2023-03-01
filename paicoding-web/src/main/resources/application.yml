@@ -30,6 +30,8 @@ security:
 # 默认的数据库名
 database:
   name: pai_coding
+  liquibase:
+    enable: true # 当实际使用的数据库不支持liquibase，如 mariadb 时，将这个参数设置为false
 
 # mybatis 相关统一配置
 mybatis-plus:
