@@ -3,7 +3,7 @@ spring:
     # 数据库名，从配置 database.name 中获取
     url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password: root
+    password:
   redis:
     host: localhost
     port: 6379
