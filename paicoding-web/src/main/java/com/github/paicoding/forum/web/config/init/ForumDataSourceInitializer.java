@@ -33,44 +33,34 @@ public class ForumDataSourceInitializer {
     @Value("${database.name}")
     private String database;
 
-    @Value("${database.liquibase.enable:true}")
+    @Value("${spring.liquibase.enabled:true}")
     private Boolean liquibaseEnable;
+
+    @Value("${spring.liquibase.change-log}")
+    private String liquibaseChangeLog;
 
     @Bean
     public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
         final DataSourceInitializer initializer = new DataSourceInitializer();
         // 设置数据源
         initializer.setDataSource(dataSource);
-        initializer.setDatabasePopulator(databasePopulator());
-        initializer.setEnabled(needInit(dataSource));
+        boolean enable = needInit(dataSource);
+        initializer.setEnabled(enable);
+        initializer.setDatabasePopulator(databasePopulator(enable));
         return initializer;
     }
 
-    private DatabasePopulator databasePopulator() {
+    private DatabasePopulator databasePopulator(boolean initEnable) {
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         // 下面这种是根据sql文件来进行初始化；改成 liquibase 之后不再使用这种方案，由liquibase来统一管理表结构数据变更
-        addScripts(populator);
-        return populator;
-    }
-
-    private void addScripts(ResourceDatabasePopulator populator) {
-        if (!liquibaseEnable) {
+        if (initEnable && !liquibaseEnable) {
             // fixme: 首次启动时, 对于不支持liquibase的数据库，如mariadb，采用主动初始化
             // fixme 这种方式不支持后续动态的数据表结构更新、数据变更
-            populator.addScripts(new ClassPathResource("liquibase/data/init_schema_221209.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/init_data_221209.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/init_data_221210.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/init_data_221216.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/update_schema_221223.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/update_schema_221229.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/update_schema_230103.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/init_data_230103.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/init_data_230105.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/init_data_230130.sql"));
-            populator.addScripts(new ClassPathResource("liquibase/data/update_schema_230131.sql"));
+            populator.addScripts(DbChangeSetLoader.loadDbChangeSetResources(liquibaseChangeLog).toArray(new ClassPathResource[]{}));
             populator.setSeparator(";");
             log.info("非Liquibase管理数据库，手动执行数据库表初始化!");
         }
+        return populator;
     }
 
     /**
