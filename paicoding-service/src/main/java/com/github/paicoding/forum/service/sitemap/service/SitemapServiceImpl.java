@@ -9,8 +9,10 @@ import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  * @author YiHui
  * @date 2023/2/13
  */
+@Slf4j
 @Service
 public class SitemapServiceImpl implements SitemapService {
     @Value("${view.site.host:https://paicoding.com}")
@@ -110,4 +113,13 @@ public class SitemapServiceImpl implements SitemapService {
         }
     }
 
+    /**
+     * 采用定时器方案，每天5:15分刷新站点地图，确保数据的一致性
+     */
+    @Scheduled(cron = "0 15 5 * * ?")
+    public void autoRefreshCache() {
+        log.info("开始刷新sitemap.xml的url地址，避免出现数据不一致问题!");
+        refreshSitemap();
+        log.info("刷新完成！");
+    }
 }
