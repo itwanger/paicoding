@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -30,6 +31,7 @@ import java.util.List;
  * @date 2022/7/6
  */
 @Slf4j
+@EnableScheduling
 @ServletComponentScan
 @SpringBootApplication
 public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunner {
