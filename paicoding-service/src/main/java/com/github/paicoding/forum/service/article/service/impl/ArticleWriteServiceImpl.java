@@ -16,7 +16,10 @@ import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Objects;
 import java.util.Set;
@@ -40,6 +43,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Autowired
     private ImageService imageService;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
         this.articleDao = articleDao;
         this.articleTagDao = articleTagDao;
@@ -51,16 +57,20 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @param req
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public Long saveArticle(ArticlePostReq req, Long author) {
         ArticleDO article = ArticleConverter.toArticleDo(req, author);
         String content = imageService.mdImgReplace(req.getContent());
-        if (NumUtil.nullOrZero(req.getArticleId())) {
-            return insertArticle(article, content, req.getTagIds());
-        } else {
-            return updateArticle(article, content, req.getTagIds());
-        }
+        return transactionTemplate.execute(new TransactionCallback<Long>() {
+            @Override
+            public Long doInTransaction(TransactionStatus status) {
+                if (NumUtil.nullOrZero(req.getArticleId())) {
+                    return insertArticle(article, content, req.getTagIds());
+                } else {
+                    return updateArticle(article, content, req.getTagIds());
+                }
+            }
+        });
     }
 
     /**
@@ -71,7 +81,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @param tags
      * @return
      */
-    private Long insertArticle(ArticleDO article, String content, Set<Long> tags) {
+    private Long insertArticle(ArticleDO article, String content, Set<Long> tags)  {
         // article + article_detail + tag  三张表的数据变更
         if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
             article.setStatus(PushStatusEnum.REVIEW.getCode());
