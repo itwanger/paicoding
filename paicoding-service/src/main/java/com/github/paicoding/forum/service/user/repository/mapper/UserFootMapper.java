@@ -34,6 +34,14 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
     ArticleFootCountDTO countArticleByUserId(@Param("userId") Long author);
 
     /**
+     * 查询作者的所有文章阅读计数
+     *
+     * @param author
+     * @return
+     */
+    Integer countArticleReadsByUserId(@Param("userId") Long author);
+
+    /**
      * 查询用户收藏的文章列表
      *
      * @param userId
