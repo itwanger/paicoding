@@ -15,6 +15,7 @@ import com.github.paicoding.forum.service.config.service.ConfigService;
 import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,7 +36,13 @@ public class SidebarServiceImpl implements SidebarService {
     @Autowired
     private ConfigService configService;
 
+    /**
+     * 使用caffeine本地缓存，来处理侧边栏不怎么变动的消息
+     *
+     * @return
+     */
     @Override
+    @Cacheable(key = "'homeSidebar'", cacheManager = "caffeineCacheManager", cacheNames = "home")
     public List<SideBarDTO> queryHomeSidebarList() {
         List<SideBarDTO> list = new ArrayList<>();
         list.add(noticeSideBar());
@@ -45,6 +52,7 @@ public class SidebarServiceImpl implements SidebarService {
     }
 
     @Override
+    @Cacheable(key = "'columnSidebar'", cacheManager = "caffeineCacheManager", cacheNames = "column")
     public List<SideBarDTO> queryColumnSidebarList() {
         List<SideBarDTO> list = new ArrayList<>();
         list.add(subscribeSideBar());
@@ -52,6 +60,7 @@ public class SidebarServiceImpl implements SidebarService {
     }
 
     @Override
+    @Cacheable(key = "'articleSidebar'", cacheManager = "caffeineCacheManager", cacheNames = "article")
     public List<SideBarDTO> queryArticleDetailSidebarList() {
         List<SideBarDTO> list = new ArrayList<>();
         list.add(pdfSideBar());

@@ -72,5 +72,15 @@
             <artifactId>ip2region</artifactId>
             <version>2.6.6</version>
         </dependency>
+
+        <!--  caffeine 缓存使用姿势   -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
     </dependencies>
 </project>
