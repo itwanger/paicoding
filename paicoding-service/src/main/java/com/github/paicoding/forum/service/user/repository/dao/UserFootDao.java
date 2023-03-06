@@ -13,6 +13,7 @@ import com.github.paicoding.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author YiHui
@@ -72,7 +73,10 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
      * @return
      */
     public ArticleFootCountDTO countArticleByUserId(Long author) {
-        return baseMapper.countArticleByUserId(author);
+        // 统计收藏、点赞数
+        ArticleFootCountDTO count = baseMapper.countArticleByUserId(author);
+        Optional.ofNullable(count).ifPresent(s -> s.setReadCount(baseMapper.countArticleReadsByUserId(author)));
+        return count;
     }
 
     /**
