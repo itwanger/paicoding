@@ -20,6 +20,7 @@ import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     private UserService userService;
 
     @Override
+    @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
     public void updateArticle(ArticlePostReq req) {
         ArticleDO article = articleDao.getById(req.getArticleId());
         if (article == null) {

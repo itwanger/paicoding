@@ -15,6 +15,7 @@ import com.github.paicoding.forum.service.article.service.ArticleRecommendServic
 import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
+import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.article.vo.ArticleEditVo;
@@ -63,7 +64,7 @@ public class ArticleViewController extends BaseViewController {
     private CommentReadService commentService;
 
     @Autowired
-    private ArticleRecommendService articleRecommendService;
+    private SidebarService sidebarService;
 
     /**
      * 文章编辑页
@@ -130,7 +131,7 @@ public class ArticleViewController extends BaseViewController {
         vo.setAuthor(user);
 
         // 详情页的侧边推荐信息
-        List<SideBarDTO> sideBars = articleRecommendService.recommend(articleDTO);
+        List<SideBarDTO> sideBars = sidebarService.queryArticleDetailSidebarList(articleDTO.getAuthor(), articleDTO.getArticleId());
         vo.setSideBarItems(sideBars);
         model.addAttribute("vo", vo);
 
