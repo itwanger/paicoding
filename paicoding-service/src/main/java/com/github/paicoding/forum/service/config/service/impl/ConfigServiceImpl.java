@@ -5,7 +5,6 @@ import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.service.config.repository.dao.ConfigDao;
 import com.github.paicoding.forum.service.config.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +33,6 @@ public class ConfigServiceImpl implements ConfigService {
      * @param extra
      */
     @Override
-    @CacheEvict(key = "'articleSidebar'", cacheManager = "caffeineCacheManager", cacheNames = "article")
     public void updateVisit(long configId, String extra) {
         configDao.updatePdfConfigVisitNum(configId, extra);
     }
