@@ -36,3 +36,10 @@ mybatis-plus:
   configuration:
     #开启下划线转驼峰
     map-underscore-to-camel-case: true
+
+
+# knife4j
+knife4j:
+  enable: true
+  openapi:
+    title: 技术派的接口文档
