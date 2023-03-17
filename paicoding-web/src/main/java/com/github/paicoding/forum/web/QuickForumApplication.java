@@ -7,6 +7,7 @@ import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.ForumExceptionHandler;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -34,6 +35,7 @@ import java.util.List;
 @Slf4j
 @EnableScheduling
 @EnableCaching
+@EnableKnife4j
 @ServletComponentScan
 @SpringBootApplication
 public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunner {
