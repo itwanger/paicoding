@@ -34,7 +34,15 @@ public class RedisClient {
         }
     }
 
+    /**
+     * 技术派的缓存值序列化处理
+     *
+     * @param val
+     * @param <T>
+     * @return
+     */
     public static <T> byte[] valBytes(T val) {
+
         if (val instanceof String) {
             return ((String) val).getBytes(CODE);
         } else {
@@ -42,6 +50,12 @@ public class RedisClient {
         }
     }
 
+    /**
+     * 生成技术派的缓存key
+     *
+     * @param key
+     * @return
+     */
     public static byte[] keyBytes(String key) {
         nullCheck(key);
         key = KEY_PREFIX + key;
@@ -57,6 +71,12 @@ public class RedisClient {
         return bytes;
     }
 
+    /**
+     * 查询缓存
+     *
+     * @param key
+     * @return
+     */
     public static String getStr(String key) {
         return template.execute((RedisCallback<String>) con -> {
             byte[] val = con.get(keyBytes(key));
@@ -64,6 +84,12 @@ public class RedisClient {
         });
     }
 
+    /**
+     * 设置缓存
+     *
+     * @param key
+     * @param value
+     */
     public static void setStr(String key, String value) {
         template.execute((RedisCallback<Void>) con -> {
             con.set(keyBytes(key), valBytes(value));
@@ -71,8 +97,13 @@ public class RedisClient {
         });
     }
 
+    /**
+     * 删除缓存
+     *
+     * @param key
+     */
     public static void del(String key) {
-        template.delete(KEY_PREFIX + key);
+        template.execute((RedisCallback<Long>) con -> con.del(keyBytes(key)));
     }
 
     /**
