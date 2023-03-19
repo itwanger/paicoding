@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
-    private static ApplicationContext context;
-    private static Environment environment;
+    private volatile static ApplicationContext context;
+    private volatile static Environment environment;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -50,6 +50,17 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      */
     public static String getConfig(String key) {
         return environment.getProperty(key);
+    }
+
+    /**
+     * 获取配置
+     *
+     * @param key
+     * @param val 配置不存在时的默认值
+     * @return
+     */
+    public static String getConfig(String key, String val) {
+        return environment.getProperty(key, val);
     }
 
     /**

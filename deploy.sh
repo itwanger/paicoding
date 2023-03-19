@@ -63,7 +63,7 @@ function restart() {
 function run() {
   echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
   echo "==================="
-  nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow  -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
+  nohup java -server -Dspring.devtools.restart.enabled=false -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
   echo $! > ${PID_FILE_NAME}
 }
 
