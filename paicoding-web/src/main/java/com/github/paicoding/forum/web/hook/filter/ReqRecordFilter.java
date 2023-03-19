@@ -60,8 +60,7 @@ public class ReqRecordFilter implements Filter {
     }
 
     private HttpServletRequest initReqInfo(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        if (uri.startsWith("/js/") || uri.startsWith("/css/") || uri.endsWith(".js") || uri.endsWith(".css")) {
+        if (staticURI(request)) {
             // 静态资源直接放行
             return request;
         }
@@ -86,14 +85,7 @@ public class ReqRecordFilter implements Filter {
     }
 
     private void buildRequestLog(ReqInfoContext.ReqInfo req, HttpServletRequest request, long costTime) {
-        // fixme 过滤不需要记录请求日志的场景
-        if (request == null
-                || req == null
-                || request.getRequestURI().endsWith("css")
-                || request.getRequestURI().endsWith("js")
-                || request.getRequestURI().endsWith("png")
-                || request.getRequestURI().endsWith("ico")
-                || request.getRequestURI().endsWith("svg")) {
+        if (req == null || staticURI(request)) {
             return;
         }
 
@@ -134,4 +126,12 @@ public class ReqRecordFilter implements Filter {
         return requestWrapper;
     }
 
+    private  boolean staticURI(HttpServletRequest request) {
+        return request == null
+                || request.getRequestURI().endsWith("css")
+                || request.getRequestURI().endsWith("js")
+                || request.getRequestURI().endsWith("png")
+                || request.getRequestURI().endsWith("ico")
+                || request.getRequestURI().endsWith("svg");
+    }
 }
