@@ -2,8 +2,13 @@ server:
   port: 8080
 
 spring:
-  profiles:
-    active: dal,web,config,image
+#  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
+#  profiles:
+#    active: dal,web,config,image
+# 替换上面作废的spring.profiels.actice配置参数
+  config:
+    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml
+
   main:
     allow-circular-references: true
   mvc:
