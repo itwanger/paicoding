@@ -67,7 +67,7 @@ public class BodyReaderHttpServletRequestWrapper extends HttpServletRequestWrapp
 
             @Override
             public boolean isReady() {
-                return false;
+                return true;
             }
 
             @Override
