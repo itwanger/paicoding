@@ -1,5 +1,8 @@
 server:
   port: 8080
+  servlet:
+    session:
+      timeout: 5m # 设置session的有效期为五分钟
 
 spring:
 #  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
