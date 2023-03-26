@@ -4,8 +4,8 @@ spring:
     host: smtp.163.com
     from: xhhuiblog@163.com
     # 使用自己的发送方用户名 + 授权码填充
-    username: xhhuiblog
-    password: huihui25
+    username:
+    password:
     default-encoding: UTF-8
     port: 465
     properties:
