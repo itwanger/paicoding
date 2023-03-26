@@ -5,10 +5,11 @@
       <span th:text="${global.siteInfo.websiteRecord}">鄂ICP备18017282号</span>
       <a class="text-reset"
         href="https://paicoding.com"
-        th:text="'© 2022-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 技术派'"
+        th:text="'© 2022-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 技术派 '"
         target="_blank">
         © 2016-2023 技术派
       </a>
+      <span th:text="' | ' + ${global.onlineCnt} + ' 人在线'"></span>
     </div>
   </footer>
 </html>

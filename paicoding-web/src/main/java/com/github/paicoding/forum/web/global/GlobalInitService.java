@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
+import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
@@ -42,6 +43,9 @@ public class GlobalInitService {
     @Resource
     private SeoInjectService seoInjectService;
 
+    @Resource
+    private UserStatisticService userStatisticService;
+
     /**
      * 全局属性配置
      */
@@ -49,6 +53,7 @@ public class GlobalInitService {
         GlobalVo vo = new GlobalVo();
         vo.setEnv(env);
         vo.setSiteInfo(globalViewConfig);
+        vo.setOnlineCnt(userStatisticService.getOnlineUserCnt());
 
         if (ReqInfoContext.getReqInfo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeoList())) {
             vo.setSeo(seoInjectService.defaultSeo());

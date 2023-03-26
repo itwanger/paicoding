@@ -66,6 +66,9 @@ public class ReqRecordFilter implements Filter {
         }
 
         try {
+            // 手动写入一个session，借助 OnlineUserCountListener 实现在线人数实时统计
+            request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
+
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
             reqInfo.setHost(request.getHeader("host"));
             reqInfo.setPath(request.getPathInfo());
@@ -126,7 +129,7 @@ public class ReqRecordFilter implements Filter {
         return requestWrapper;
     }
 
-    private  boolean staticURI(HttpServletRequest request) {
+    private boolean staticURI(HttpServletRequest request) {
         return request == null
                 || request.getRequestURI().endsWith("css")
                 || request.getRequestURI().endsWith("js")
