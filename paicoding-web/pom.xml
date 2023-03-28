@@ -119,5 +119,12 @@
             <version>5.5.13.3</version>
         </dependency>
 
+        <!-- 引入 Kryo 序列化工具 -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>5.4.0</version>
+        </dependency>
+
     </dependencies>
 </project>
