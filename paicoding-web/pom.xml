@@ -119,5 +119,32 @@
             <version>5.5.13.3</version>
         </dependency>
 
+        <!-- 引入 Kryo 序列化工具 -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>5.4.0</version>
+        </dependency>
+
+        <!-- 引入 Apache collcections -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
+
+        <!-- 引入 Apache commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+            <version>3.2.11</version>
+        </dependency>
+
     </dependencies>
 </project>

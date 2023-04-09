@@ -8,6 +8,7 @@ import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.ForumExceptionHandler;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -37,7 +38,8 @@ import java.util.List;
 @ServletComponentScan
 @SpringBootApplication
 public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunner {
-    private Integer webPort = null;
+    @Value("${server.port:8080}")
+    private Integer webPort;
 
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
@@ -65,9 +67,9 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     @ConditionalOnExpression(value = "#{'dev'.equals(environment.getProperty('env.name'))}")
     public TomcatConnectorCustomizer customServerPortTomcatConnectorCustomizer() {
         // 开发环境时，首先判断8080d端口是否可用；若可用则直接使用，否则选择一个可用的端口号启动
-        int port = SocketUtil.findAvailableTcpPort(8000, 10000, 8080);
-        if (port != 8080) {
-            log.info("默认8080端口号被占用，随机启用新端口号: {}", port);
+        int port = SocketUtil.findAvailableTcpPort(8000, 10000, webPort);
+        if (port != webPort) {
+            log.info("默认端口号{}被占用，随机启用新端口号: {}", webPort, port);
             webPort = port;
         }
         return connector -> connector.setPort(port);
