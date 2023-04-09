@@ -13,11 +13,11 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.service.image.service.ImageService;
+import com.github.paicoding.forum.service.user.service.ArticleWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -45,6 +45,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private ArticleWhiteListService articleWhiteListService;
 
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
         this.articleDao = articleDao;
@@ -81,9 +84,10 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @param tags
      * @return
      */
-    private Long insertArticle(ArticleDO article, String content, Set<Long> tags)  {
+    private Long insertArticle(ArticleDO article, String content, Set<Long> tags) {
         // article + article_detail + tag  三张表的数据变更
-        if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
+        if (needToReview(article)) {
+            // 非白名单中的作者发布文章需要进行审核
             article.setStatus(PushStatusEnum.REVIEW.getCode());
         }
         articleDao.save(article);
@@ -96,9 +100,11 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         // 发布文章，阅读计数+1
         userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(), article.getUserId(), OperateTypeEnum.READ);
 
-        // 创建文章
+        // todo 事件发布这里可以进行优化，一次发送多个事件？ 或者借助bit知识点来表示多种事件状态
         // 发布文章创建事件
         SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.CREATE, articleId));
+        // 文章直接上线时，发布上线事件
+        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, articleId));
         return articleId;
     }
 
@@ -111,10 +117,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @return
      */
     private Long updateArticle(ArticleDO article, String content, Set<Long> tags) {
-        // 若文章处于审核状态，则直接更新上一条记录；否则新插入一条记录
+        // fixme 待补充文章的历史版本支持：若文章处于审核状态，则直接更新上一条记录；否则新插入一条记录
         boolean review = article.getStatus().equals(PushStatusEnum.REVIEW.getCode());
-        int status = article.getStatus();
-        if (status == PushStatusEnum.ONLINE.getCode()) {
+        if (needToReview(article)) {
             article.setStatus(PushStatusEnum.REVIEW.getCode());
         }
         // 更新文章
@@ -127,7 +132,13 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         articleTagDao.updateTags(article.getId(), tags);
 
         // 发布文章待审核事件
-        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.REVIEW, article.getId()));
+        if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
+            // 修改之后依然直接上线 （对于白名单作者而言）
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, article.getId()));
+        } else if (review) {
+            // 非白名单作者，修改再审核中的文章，依然是待审核状态
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.REVIEW, article.getId()));
+        }
         return article.getId();
     }
 
@@ -152,5 +163,16 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
             // 发布文章删除事件
             SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
         }
+    }
+
+
+    /**
+     * 非白名单的用户，发布的文章需要先进行审核
+     *
+     * @param article
+     * @return
+     */
+    private boolean needToReview(ArticleDO article) {
+        return article.getStatus() == PushStatusEnum.ONLINE.getCode() && !articleWhiteListService.authorInArticleWhiteList(article.getUserId());
     }
 }

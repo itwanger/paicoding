@@ -28,9 +28,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户Service
@@ -120,6 +123,14 @@ public class UserServiceImpl implements UserService {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
         }
         return UserConverter.toDTO(user);
+    }
+
+    public List<BaseUserInfoDTO> batchQueryBasicUserInfo(Collection<Long> userIds) {
+        List<UserInfoDO> users = userDao.getByUserIds(userIds);
+        if (CollectionUtils.isEmpty(users)) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userIds);
+        }
+        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
     }
 
     @Override

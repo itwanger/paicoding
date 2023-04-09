@@ -5,6 +5,9 @@ import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * 用户Service接口
  *
@@ -45,6 +48,14 @@ public interface UserService {
      */
     BaseUserInfoDTO queryBasicUserInfo(Long userId);
 
+
+    /**
+     * 批量查询用户基本信息
+     *
+     * @param userIds
+     * @return
+     */
+    List<BaseUserInfoDTO> batchQueryBasicUserInfo(Collection<Long> userIds);
 
     /**
      * 查询用户主页信息
