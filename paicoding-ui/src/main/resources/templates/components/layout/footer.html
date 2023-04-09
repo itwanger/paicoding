@@ -2,7 +2,9 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <footer th:fragment="footer" class="footer-wrap">
     <div class="foot">
-      <span th:text="${global.siteInfo.websiteRecord}">鄂ICP备18017282号</span>
+      <a class="text-reset" href="https://beian.miit.gov.cn" target="_blank">
+        <span th:text="${global.siteInfo.websiteRecord}">鄂ICP备18017282号</span>
+      </a>
       <a class="text-reset"
         href="https://paicoding.com"
         th:text="'© 2022-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 技术派 '"
