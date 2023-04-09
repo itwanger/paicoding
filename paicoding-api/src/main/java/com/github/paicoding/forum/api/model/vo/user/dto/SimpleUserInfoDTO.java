@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @date 2022/9/26
  */
 @Data
+@Accessors(chain = true)
 public class SimpleUserInfoDTO implements Serializable {
     private static final long serialVersionUID = 4802653694786272120L;
 

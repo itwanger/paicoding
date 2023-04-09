@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.user.service;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 
 import java.util.Collection;
@@ -24,6 +25,8 @@ public interface UserService {
      * @return
      */
     BaseUserInfoDTO passwordLogin(String userName, String password);
+
+    List<SimpleUserInfoDTO> searchUser(String userName);
 
     /**
      * 用户存在时，直接返回；不存在时，则初始化
