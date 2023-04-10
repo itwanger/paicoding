@@ -6,12 +6,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -164,13 +167,7 @@ public class RedisClient {
         return template.execute(new RedisCallback<Boolean>() {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
-                String save;
-                if (ans instanceof String) {
-                    save = (String) ans;
-                } else {
-                    save = JsonUtil.toStr(ans);
-                }
-                return redisConnection.hSet(keyBytes(key), valBytes(field), valBytes(save));
+                return redisConnection.hSet(keyBytes(key), valBytes(field), valBytes(ans));
             }
         });
     }
@@ -183,6 +180,77 @@ public class RedisClient {
         template.execute((RedisCallback<Object>) connection -> {
             connection.hMSet(keyBytes(key), val);
             return null;
+        });
+    }
+
+    /**
+     * 判断value是否再set中
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static <T> Boolean sIsMember(String key, T value) {
+        return template.execute(new RedisCallback<Boolean>() {
+            @Override
+            public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.sIsMember(keyBytes(key), valBytes(value));
+            }
+        });
+    }
+
+    /**
+     * 获取set中的所有内容
+     *
+     * @param key
+     * @param clz
+     * @param <T>
+     * @return
+     */
+    public static <T> Set<T> sGetAll(String key, Class<T> clz) {
+        return template.execute(new RedisCallback<Set<T>>() {
+            @Override
+            public Set<T> doInRedis(RedisConnection connection) throws DataAccessException {
+                Set<byte[]> set = connection.sMembers(keyBytes(key));
+                if (CollectionUtils.isEmpty(set)) {
+                    return Collections.emptySet();
+                }
+                return set.stream().map(s -> toObj(s, clz)).collect(Collectors.toSet());
+            }
+        });
+    }
+
+    /**
+     * 往set中添加内容
+     *
+     * @param key
+     * @param val
+     * @param <T>
+     * @return
+     */
+    public static <T> boolean sPut(String key, T val) {
+        return template.execute(new RedisCallback<Long>() {
+            @Override
+            public Long doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.sAdd(keyBytes(key), valBytes(val));
+            }
+        }) > 0;
+    }
+
+    /**
+     * 移除set中的内容
+     *
+     * @param key
+     * @param val
+     * @param <T>
+     */
+    public static <T> void sDel(String key, T val) {
+        template.execute(new RedisCallback<Void>() {
+            @Override
+            public Void doInRedis(RedisConnection connection) throws DataAccessException {
+                connection.sRem(keyBytes(key), valBytes(val));
+                return null;
+            }
         });
     }
 

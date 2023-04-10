@@ -12,6 +12,8 @@ import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author YiHui
@@ -45,6 +47,20 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         return userMapper.selectOne(query);
     }
 
+    /**
+     * 根据用户名来查询
+     *
+     * @param userName
+     * @return
+     */
+    public List<UserInfoDO> getByUserNameLike(String userName) {
+        LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
+        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile);
+        query.like(UserInfoDO::getUserName, userName)
+                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return baseMapper.selectList(query);
+    }
+
     public void saveUser(UserDO user) {
         userMapper.insert(user);
     }
@@ -54,6 +70,13 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         query.eq(UserInfoDO::getUserId, userId)
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectOne(query);
+    }
+
+    public List<UserInfoDO> getByUserIds(Collection<Long> userIds) {
+        LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
+        query.in(UserInfoDO::getUserId, userIds)
+                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return baseMapper.selectList(query);
     }
 
     public Integer getUserCount() {
