@@ -185,6 +185,13 @@ mvn clean install -DskipTests=true -Pprod
 > [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 > [服务器启动教程](docs/服务器启动教程.md)
 
+## 友情链接
+
+- [toBeBetterjavaer](https://github.com/itwanger/toBeBetterJavaer) ：一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。学Java，就认准二哥的Java进阶之路😄
+
+## star 趋势图
+
+[![Stargazers over time](https://starchart.cc/itwanger/paicoding.svg)](https://starchart.cc/itwanger/paicoding)
 
 ## 公众号
 
@@ -192,8 +199,15 @@ mvn clean install -DskipTests=true -Pprod
 
 ![公众号图片](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-louzai.jpg)
 
+## 鸣谢
+
+技术派收到 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses，并已分配项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
+
 ## 许可证
 
 [Apache License 2.0](https://github.com/macrozheng/mall/blob/master/LICENSE)
 
 Copyright (c) 2022-2023 技术派（楼仔、沉默王二、一灰、小超）
+
