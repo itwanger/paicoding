@@ -11,11 +11,17 @@
 
     <artifactId>paicoding-web</artifactId>
 
+    <properties>
+        <jmh.version>1.35</jmh.version>
+        <webp-imageio.version>0.2.1</webp-imageio.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.paicoding.forum</groupId>
             <artifactId>paicoding-ui</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.github.paicoding.forum</groupId>
             <artifactId>paicoding-service</artifactId>
@@ -26,30 +32,90 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.github.liuyueyi.media/qrcode-plugin -->
         <dependency>
             <groupId>com.github.liuyueyi.media</groupId>
             <artifactId>qrcode-plugin</artifactId>
-            <version>3.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
+
+        <!-- 点击配置文件 yml 可以快速跳转到配置类（@ConfigurationProperties） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+
+        <!-- 引入 Apache Commons IO -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <!-- 引入 hutool 工具包 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+
+        <!-- 引入 itextpdf 工具包 -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+        </dependency>
+
+        <!-- 引入 Kryo 序列化工具 -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+        </dependency>
+
+        <!-- 引入 Apache collcections -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+
+        <!-- 引入 Apache commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+        </dependency>
+
+        <!-- 热部署 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test libs start -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -63,88 +129,28 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- 点击配置文件 yml 可以快速跳转到配置类（@ConfigurationProperties） -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-        </dependency>
-
-        <!-- 热部署 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.github.usefulness/webp-imageio -->
         <dependency>
             <groupId>com.github.usefulness</groupId>
             <artifactId>webp-imageio</artifactId>
-            <version>0.2.1</version>
+            <version>${webp-imageio.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- 引入 Apache Commons IO -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-
-        <!-- 引入 hutool 工具包 -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.8.15</version>
         </dependency>
 
         <!-- 引入 JMH 工具包 -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
-            <version>1.35</version>
+            <version>${jmh.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
-            <version>1.35</version>
+            <version>${jmh.version}</version>
+            <scope>test</scope>
         </dependency>
-
-        <!-- 引入 itextpdf 工具包 -->
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
-        </dependency>
-
-        <!-- 引入 Kryo 序列化工具 -->
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo</artifactId>
-            <version>5.4.0</version>
-        </dependency>
-
-        <!-- 引入 Apache collcections -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
-        </dependency>
-
-        <!-- 引入 Apache commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ognl</groupId>
-            <artifactId>ognl</artifactId>
-            <version>3.2.11</version>
-        </dependency>
-
+        <!-- Test libs end -->
     </dependencies>
 </project>
