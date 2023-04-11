@@ -14,6 +14,9 @@
     <properties>
         <jmh.version>1.35</jmh.version>
         <webp-imageio.version>0.2.1</webp-imageio.version>
+        <spock.version>2.1-groovy-3.0</spock.version>
+        <groovy.version>3.0.12</groovy.version>
+        <spock.mockfree.version>1.0.3</spock.mockfree.version>
     </properties>
 
     <dependencies>
@@ -129,6 +132,29 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spock -->
+
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-core</artifactId>
+            <version>${spock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>${groovy.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sayweee</groupId>
+            <artifactId>spock.mockfree</artifactId>
+            <version>${spock.mockfree.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.github.usefulness/webp-imageio -->
         <dependency>
             <groupId>com.github.usefulness</groupId>
@@ -153,4 +179,22 @@
         </dependency>
         <!-- Test libs end -->
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.13.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compileTests</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
