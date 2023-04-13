@@ -44,5 +44,7 @@ public class GlobalVo {
 
     private String currentDomain;
 
-    private List<SeoTagVo> seo;
+    private List<SeoTagVo> ogp;
+    private String jsonLd;
+
 }
