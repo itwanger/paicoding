@@ -76,7 +76,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         // 设置类型转换
         JacksonTypeHandler.setObjectMapper(new ObjectMapper());
         // 应用启动之后执行
