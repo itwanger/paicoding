@@ -1,8 +1,9 @@
 package com.github.paicoding.forum.web.global;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
+import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
@@ -20,7 +21,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * @author YiHui
@@ -55,10 +55,14 @@ public class GlobalInitService {
         vo.setSiteInfo(globalViewConfig);
         vo.setOnlineCnt(userStatisticService.getOnlineUserCnt());
 
-        if (ReqInfoContext.getReqInfo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeoList())) {
-            vo.setSeo(seoInjectService.defaultSeo());
+        if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getSeo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeo().getOgp())) {
+            Seo seo = seoInjectService.defaultSeo();
+            vo.setOgp(seo.getOgp());
+            vo.setJsonLd(JSONUtil.toJsonStr(seo.getJsonLd()));
         } else {
-            vo.setSeo(ReqInfoContext.getReqInfo().getSeoList());
+            Seo seo = ReqInfoContext.getReqInfo().getSeo();
+            vo.setOgp(seo.getOgp());
+            vo.setJsonLd(JSONUtil.toJsonStr(seo.getJsonLd()));
         }
 
         try {
