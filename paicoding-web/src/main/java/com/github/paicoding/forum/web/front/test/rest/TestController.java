@@ -3,6 +3,8 @@ package com.github.paicoding.forum.web.front.test.rest;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.permission.Permission;
+import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class TestController {
      * @param req
      * @return
      */
+    @Permission(role = UserRole.ADMIN)
     @RequestMapping(path = "email")
     public ResVo<String> email(EmailReqVo req) {
         if (StringUtils.isBlank(req.getTo()) || req.getTo().indexOf("@") <= 0) {
