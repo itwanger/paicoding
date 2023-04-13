@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://paicoding.com/">
-    <img src="https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-logo.jpg" alt="技术派">
+    <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派">
   </a>
 </p>
 一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
@@ -12,6 +12,7 @@
   <a href="https://github.com/itwanger/paicoding-admin" target="_blank"><img src="https://img.shields.io/badge/技术派-管理端-yellow.svg?style=for-the-badge"></a>
   <a href="https://gitee.com/itwanger/paicoding" target="_blank"><img src="https://img.shields.io/badge/码云-项目地址-blue.svg?style=for-the-badge"></a>
 </p>
+
 
 ## 配套服务
 
@@ -189,9 +190,16 @@ mvn clean install -DskipTests=true -Pprod
 
 - [toBeBetterjavaer](https://github.com/itwanger/toBeBetterJavaer) ：一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。学Java，就认准二哥的Java进阶之路😄
 
+## 鸣谢
+
+技术派收到了 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses，并已分配给项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
+
+![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
+
+
 ## star 趋势图
 
-[![Stargazers over time](https://starchart.cc/itwanger/paicoding.svg)](https://starchart.cc/itwanger/paicoding)
+[![Star History Chart](https://api.star-history.com/svg?repos=itwanger/paicoding&type=Date)](https://star-history.com/#itwanger/paicoding&Date)
 
 ## 公众号
 
@@ -199,11 +207,6 @@ mvn clean install -DskipTests=true -Pprod
 
 ![公众号图片](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-louzai.jpg)
 
-## 鸣谢
-
-技术派收到 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses，并已分配项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
-
-![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
 
 ## 许可证
 
