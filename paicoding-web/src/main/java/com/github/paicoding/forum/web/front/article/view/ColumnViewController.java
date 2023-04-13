@@ -153,8 +153,8 @@ public class ColumnViewController {
             String content = articleDTO.getContent();
             if (content.length() > 500) {
                 content = content.substring(0, 500);
-            } else if (content.length() > 128) {
-                content = content.substring(0, 128);
+            } else if (content.length() > 256) {
+                content = content.substring(0, 256);
             }
             articleDTO.setContent(content);
         }
