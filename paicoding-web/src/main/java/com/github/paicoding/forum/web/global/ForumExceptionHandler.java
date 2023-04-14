@@ -112,6 +112,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             return true;
         }
 
+        if (isAjaxRequest(request)) {
+            return true;
+        }
+
         // 数据接口请求
         AntPathMatcher pathMatcher = new AntPathMatcher();
         if (pathMatcher.match("/**/api/**", request.getRequestURI())) {
@@ -119,4 +123,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         }
         return false;
     }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWith = request.getHeader("X-Requested-With");
+        return requestedWith != null && "XMLHttpRequest".equals(requestedWith);
+    }
+
 }
