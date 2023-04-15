@@ -5,22 +5,22 @@ update article set topping_stat = 1 where id in (100, 101, 102);
 -- 新增几个官方相关文章
 
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted, create_time, update_time)
-VALUES(14, 1, 1, '二哥的 Java 进阶之路.pdf 开放下载了，GitHub 星标 7700+，太赞了！', '', '', '小册名字：二哥的Java进阶之路小册作者：沉默王二小册品质：能在GitHub取得7600star自认为品质是有目共睹的，尤其是国内还有不少小伙伴在访问GitHub的时候很不顺利。小册风格：通俗易懂、风趣幽默、深度解析，新手可以拿来入门，老手可以拿来进阶，重要的知识，比如说面试高频的内容会从应用到源码挖个底朝天，还会穿插介绍一些计算机底层知识，力求讲个明白）小册简介：这是一份通俗易懂、风趣幽默的Java学习指南，内容涵', 1, 2, '', 1, 0, 0, 1, 0, '2023-04-15 15:25:17', '2023-04-15 16:00:32');
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted)
+VALUES(14, 1, 1, '二哥的 Java 进阶之路.pdf 开放下载了，GitHub 星标 7700+，太赞了！', '', '', '小册名字：二哥的Java进阶之路小册作者：沉默王二小册品质：能在GitHub取得7600star自认为品质是有目共睹的，尤其是国内还有不少小伙伴在访问GitHub的时候很不顺利。小册风格：通俗易懂、风趣幽默、深度解析，新手可以拿来入门，老手可以拿来进阶，重要的知识，比如说面试高频的内容会从应用到源码挖个底朝天，还会穿插介绍一些计算机底层知识，力求讲个明白）小册简介：这是一份通俗易懂、风趣幽默的Java学习指南，内容涵', 1, 2, '', 1, 0, 0, 1, 0);
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted, create_time, update_time)
-VALUES(15, 1, 1, '官宣：技术派上线了！⭐️一款好用又强大的开源社区，学编程，就上技术派?', '', '/forum/image/20230415081529547_1.jpg', '一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目? ', 1, 2, '', 1, 0, 0, 1, 0, '2023-04-15 16:03:43', '2023-04-15 20:15:31');
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted)
+VALUES(15, 1, 1, '官宣：技术派上线了！⭐️一款好用又强大的开源社区，学编程，就上技术派?', '', 'https://cdn.tobebetterjavaer.com/paicoding/e95f60537f490bb96560aae25e2d53f0.jpg', '一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目? ', 1, 2, '', 1, 0, 0, 1, 0);
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted, create_time, update_time)
-VALUES(16, 1, 1, '对标大厂的技术派详细方案设计，务必要看', '', '', '这个项目诞生的背景和企业内生的需求不太一样，主要是某一天二哥说，“我们一起搞事吧”，楼仔问，“搞什么”，然后这个项目的需求就来了言归正传，我们主要的目的是希望打造一个切实可用的项目，依托于这个项目，将java从业者所用到的技术栈真实的展现出来，对于经验不是那么足的小伙伴，可以在一个真实的系统上，理解到自己学习的知识点是如何落地的，同时也能真实的了解一个项目是从0到1实现的全过程系统模块介绍系统架构基于社区系统的分层特点，将整个系统架构划分为展示层，应用层，服务层，如下图展示层其中展示层主要为用', 1, 2, '', 1, 0, 0, 1, 0, '2023-04-15 20:00:49', '2023-04-15 20:00:49');
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted)
+VALUES(16, 1, 1, '对标大厂的技术派详细方案设计，务必要看', '', 'https://cdn.tobebetterjavaer.com/paicoding/7f492cb729d944097d6676b7f19d3ff9.png', '这个项目诞生的背景和企业内生的需求不太一样，主要是某一天二哥说，“我们一起搞事吧”，楼仔问，“搞什么”，然后这个项目的需求就来了言归正传，我们主要的目的是希望打造一个切实可用的项目，依托于这个项目，将java从业者所用到的技术栈真实的展现出来，对于经验不是那么足的小伙伴，可以在一个真实的系统上，理解到自己学习的知识点是如何落地的，同时也能真实的了解一个项目是从0到1实现的全过程系统模块介绍系统架构基于社区系统的分层特点，将整个系统架构划分为展示层，应用层，服务层，如下图展示层其中展示层主要为用', 1, 2, '', 1, 0, 0, 1, 0);
 INSERT INTO article
-(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted, create_time, update_time)
-VALUES(17, 1, 1, '技术派的知识星球，开通啦！附 120 篇技术派的详细教程！', '', '', '大家好呀，我是楼仔。上周推出了我们的开源项目技术派，大家好评如潮，很多同学都想学习这个项目，为了更好带大家一起飞，我们今天正式推出技术派的知识星球。什么是知识星球呢？你可以理解为高品质社群，方便大家跟着我们一起学习。01星球介绍先来介绍下星球的三位联合创始人：楼仔：8年一线大厂后端经验（百度/小米/美团），技术派团队负责人，擅长高并发、架构、源码，有很强的项目/团队管理、职业规划能力。沉默王二：GitHub星标6400k开源知识库《Java程序员进阶之路》作者，CSDN两届博客之星，掘金/知乎Java领域优', 1, 2, '', 1, 0, 0, 1, 0, '2023-04-15 20:07:49', '2023-04-15 20:07:49');
+(id, user_id, article_type, title, short_title, picture, summary, category_id, source, source_url, offical_stat, topping_stat, cream_stat, status, deleted)
+VALUES(17, 1, 1, '技术派的知识星球，开通啦！附 120 篇技术派的详细教程！', '', '', '大家好呀，我是楼仔。上周推出了我们的开源项目技术派，大家好评如潮，很多同学都想学习这个项目，为了更好带大家一起飞，我们今天正式推出技术派的知识星球。什么是知识星球呢？你可以理解为高品质社群，方便大家跟着我们一起学习。01星球介绍先来介绍下星球的三位联合创始人：楼仔：8年一线大厂后端经验（百度/小米/美团），技术派团队负责人，擅长高并发、架构、源码，有很强的项目/团队管理、职业规划能力。沉默王二：GitHub星标6400k开源知识库《Java程序员进阶之路》作者，CSDN两届博客之星，掘金/知乎Java领域优', 1, 2, '', 1, 0, 0, 1, 0);
 
 
 
 INSERT INTO article_detail
-(article_id, version, content, deleted, create_time, update_time)
+(article_id, version, content, deleted)
 VALUES(14, 2, '![](https://cdn.tobebetterjavaer.com/stutymore/readme-fengmian.png)
 
 以上就是小册的封面了，自我感觉还不错哈，简洁大方，但包含的信息又足够的丰富：
@@ -253,9 +253,9 @@ VALUES(14, 2, '![](https://cdn.tobebetterjavaer.com/stutymore/readme-fengmian.pn
 
 ### V1.0-2023年04月11日
 
-第一版《二哥的 Java 进阶之路》正式完结发布！', 0, '2023-04-15 15:25:17', '2023-04-15 15:25:17');
+第一版《二哥的 Java 进阶之路》正式完结发布！', 0);
 INSERT INTO article_detail
-(article_id, version, content, deleted, create_time, update_time)
+(article_id, version, content, deleted)
 VALUES(16, 1, '## 整体介绍
 ### 背景
 > 这个项目诞生的背景和企业内生的需求不太一样，主要是某一天二哥说，“我们一起搞事吧”， 楼仔问，“搞什么”，然后这个项目的需求就来了
@@ -887,9 +887,9 @@ CREATE TABLE `dict_common` (
 
 最后，希望球友们，能紧跟我们的步伐！不要掉队。兔年，和我们技术派一起翻身、一起逆袭、一起晋升、一起拿高薪 offer！
 
-', 0, '2023-04-15 20:00:49', '2023-04-15 20:00:49');
+', 0);
 INSERT INTO article_detail
-(article_id, version, content, deleted, create_time, update_time)
+(article_id, version, content, deleted)
 VALUES(17, 1, '大家好呀，我是楼仔。
 
 上周推出了我们的开源项目「技术派」，大家好评如潮，很多同学都想学习这个项目，为了更好带大家一起飞，我们今天正式推出技术派的知识星球。
@@ -1003,9 +1003,9 @@ VALUES(17, 1, '大家好呀，我是楼仔。
 
 ![](https://cdn.tobebetterjavaer.com/paicoding/c485a03da98e567cfcd18aacd329c9ce.png)
 
-一起加油，共勉！??', 0, '2023-04-15 20:07:49', '2023-04-15 20:07:49');
+一起加油，共勉！??', 0);
 INSERT INTO article_detail
-(article_id, version, content, deleted, create_time, update_time)
+(article_id, version, content, deleted)
 VALUES(15, 2, '大家好，我是二哥呀。
 
 给大家官宣一件大事，我们搞了近半年的实战项目——[**技术派**](https://paicoding.com/)，终于上线了！瞅瞅这首页，清新、高级、上档次！
@@ -1237,7 +1237,7 @@ VALUES(15, 2, '大家好，我是二哥呀。
 
 
 
-', 0, '2023-04-15 16:03:43', '2023-04-15 16:03:43');
+', 0);
 
 
 -- 侧边栏推荐调整
@@ -1261,4 +1261,19 @@ INSERT INTO config
 (id, `type`, name, banner_url, jump_url, content, `rank`, status, tags, extra, deleted, create_time, update_time)
 VALUES(6, 6, 'Spring源码解析手册', 'https://img13.360buyimg.com/ddimg/jfs/t1/114223/5/31528/3308443/63c7f65eFdb3a20f2/91c8c191152d82c2.png', 'https://paicoding.com/article/detail/150', '楼仔原创的 Spring 源码解读手册，硬核，带你成为 Spring 高手！技术派团队出品。', 2, 1, '1', '{"visit":120248,"download":212103,"rate":"9.3"}', 0, '2023-01-13 19:15:58', '2023-04-15 21:23:09');
 
+
+update article set summary = '技术派（paicoding）是一个前后端分离的 Java 社区实战项目，基于 SpringBoot+MyBatis-Plus 实现，采用 Docker 容器化部署。包括前台社区系统和后台管理系统。前台社区系统包括社区首页、文章推荐、文章搜索、文章发布、文章详情、优质教程、个人中心等模块；后台管理系统包括文章管理、教程管理、统计报表、权限菜单管理、设置等模块。' where id = 1;
+
+update article set summary = '天天说分布式分布式，那么我们是否知道什么是分布式，分布式会遇到什么问题，有哪些理论支撑，有哪些经典的应对方案，业界是如何设计并保证分布式系统的高可用呢？
+
+1.架构设计
+这一节将从一些经典的开源系统架构设计出发，来看一下，如何设计一个高质量的分布式系统；' where id = 100;
+
+update article set summary = '你在分布式系统上工作吗？微服务，Web API，SOA，Web服务器，应用服务器，数据库服务器，缓存服务器，负载均衡器 - 如果这些描述了系统设计中的组件，那么答案是肯定的。分布式系统由许多计算机组成，这些计算机协调以实现共同的目标。
+
+20多年前，Peter Deutsch和James Gosling定义了分布式计算的8个谬误。这些是许多开发人员对分布式系统做出的错误假设。从长远来看，这些通常被证明是错误的，导致难以修复错误。' where id = 101;
+
+
+
+update article set summary = '分布式的概念存在年头有点久了，在正式进入我们《分布式专栏》之前，感觉有必要来聊一聊，什么是分布式，分布式特点是什么，它又有哪些问题，在了解完这个概念之后，再去看它的架构设计，理论奠基可能帮助会更大' where id = 102;
 

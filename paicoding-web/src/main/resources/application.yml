@@ -37,7 +37,7 @@ security:
 
 # 默认的数据库名
 database:
-  name: pai_coding_10
+  name: pai_coding
 
 # mybatis 相关统一配置
 mybatis-plus:
