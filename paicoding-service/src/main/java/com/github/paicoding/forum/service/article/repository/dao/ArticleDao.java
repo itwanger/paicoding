@@ -64,7 +64,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         ArticleDTO dto = ArticleConverter.toDto(article);
         if (showReviewContent(article)) {
             ArticleDetailDO detail = findLatestDetail(articleId);
-            dto.setContent(MarkdownConverter.markdownToHtml(detail.getContent()));
+            dto.setContent(detail.getContent());
         } else {
             // 对于审核中的文章，只有作者本人才能看到原文
             dto.setContent("### 文章审核中，请稍后再看");
