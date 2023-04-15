@@ -57,4 +57,9 @@
     <changeSet id="00000000000014" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230131.sql"/>
     </changeSet>
+
+    <!-- 重新调整初始化的相关文章内容 -->
+    <changeSet id="00000000000015" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230415.sql"/>
+    </changeSet>
 </databaseChangeLog>
