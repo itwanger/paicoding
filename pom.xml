@@ -129,6 +129,7 @@
                 <artifactId>ognl</artifactId>
                 <version>${ognl.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
