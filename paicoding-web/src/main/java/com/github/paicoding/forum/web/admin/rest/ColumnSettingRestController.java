@@ -15,6 +15,7 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ import java.util.List;
  */
 @RestController
 @Permission(role = UserRole.LOGIN)
+@Api(value = "专栏及专栏文章管理控制器", tags = "专栏管理")
 @RequestMapping(path = {"api/admin/column/", "admin/column/"})
 public class ColumnSettingRestController {
 
