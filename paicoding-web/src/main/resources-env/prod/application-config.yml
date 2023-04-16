@@ -11,3 +11,6 @@ view:
     wxLoginUrl: http://weixin.qq.com/r/WxwpMefE-rqBraNS90lJ
     host: https://paicoding.com
     welcomeInfo: 欢迎来到技术派，戳 <a href="/article/detail/155">技术派社区上线！</a> 了解我们
+
+knife4j:
+  production: true # 开启屏蔽文档资源

@@ -8,12 +8,10 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +26,7 @@ import java.util.Optional;
  * @date 2022/12/5
  */
 @RestController
+@Api(value = "后台登录登出管理控制器", tags = "后台登录")
 @RequestMapping(path = {"/api/admin/login", "/admin/login"})
 public class AdminLoginController {
 
@@ -54,7 +53,7 @@ public class AdminLoginController {
     }
 
     @Permission(role = UserRole.LOGIN)
-    @RequestMapping("logout")
+    @GetMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
         // 重定向到首页
