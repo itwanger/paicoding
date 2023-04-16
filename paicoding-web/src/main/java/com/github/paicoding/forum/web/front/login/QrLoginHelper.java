@@ -122,17 +122,17 @@ public class QrLoginHelper {
         HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         HttpServletResponse res = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         String device = initDeviceId(req, res);
-        String reaCode = deviceCodeCache.getUnchecked(device);
+        String realCode = deviceCodeCache.getUnchecked(device);
 
         // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
         SseEmitter sseEmitter = new SseEmitter(15 * 60 * 1000L);
         verifyCodeCache.put(code, sseEmitter);
-        sseEmitter.onTimeout(() -> verifyCodeCache.invalidate(reaCode));
-        sseEmitter.onError((e) -> verifyCodeCache.invalidate(reaCode));
-        if (!Objects.equals(reaCode, code)) {
+        sseEmitter.onTimeout(() -> verifyCodeCache.invalidate(realCode));
+        sseEmitter.onError((e) -> verifyCodeCache.invalidate(realCode));
+        if (!Objects.equals(realCode, code)) {
             // 若实际的验证码与前端显示的不同，则通知前端更新
             sseEmitter.send("initCode!");
-            sseEmitter.send("init#" + reaCode);
+            sseEmitter.send("init#" + realCode);
         }
         return sseEmitter;
     }
