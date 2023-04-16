@@ -5,10 +5,10 @@ server:
       timeout: 5m # 设置session的有效期为五分钟
 
 spring:
-#  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
-#  profiles:
-#    active: dal,web,config,image
-# 替换上面作废的spring.profiels.actice配置参数
+  #  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
+  #  profiles:
+  #    active: dal,web,config,image
+  # 替换上面作废的spring.profiels.actice配置参数
   config:
     import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml
 
@@ -50,4 +50,24 @@ mybatis-plus:
 knife4j:
   enable: true
   openapi:
-    title: 技术派的接口文档
+    title: 技术派
+    description: 技术派的接口说明文档
+    version: 1.0.0
+    concat:
+      - 一灰灰 | 楼仔 | 沉默王二
+      - https://paicoding.com
+      - https://github.com/itwanger/paicoding
+    license: Apache License 2.0
+    license-url: https://github.com/itwanger/paicoding/blob/main/License
+    email: bangzewu@126.com
+    group:
+      admin:
+        group-name: 后台接口分组
+        api-rule: package
+        api-rule-resources:
+          - com.github.paicoding.forum.web.admin
+      front:
+        group-name: 前台接口分组
+        api-rule: package
+        api-rule-resources:
+          - com.github.paicoding.forum.web.front

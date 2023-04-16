@@ -6,6 +6,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.UserSettingService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @RestController
 @Permission(role = UserRole.ADMIN)
+@Api(value = "用户管理控制器", tags = "用户管理")
 @RequestMapping(path = {"api/admin/user/", "admin/user/"})
 public class UserSettingRestController {
 

@@ -11,6 +11,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.service.CategorySettingService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @Permission(role = UserRole.LOGIN)
+@Api(value = "文章类目管理控制器", tags = "类目管理")
 @RequestMapping(path = {"api/admin/category/", "admin/category/"})
 public class CategorySettingRestController {
 

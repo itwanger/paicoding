@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @RestController
 @Permission(role = UserRole.LOGIN)
+@Api(value = "全栈统计分析控制器", tags = "统计分析")
 @RequestMapping(path = {"api/admin/statistics/", "admin/statistics/"})
 public class StatisticsSettingRestController {
 
