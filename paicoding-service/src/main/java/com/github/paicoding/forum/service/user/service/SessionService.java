@@ -21,7 +21,7 @@ public interface SessionService {
      * @param uuid
      * @return
      */
-    String getVerifyCode(String uuid);
+    String autoRegisterAndGetVerifyCode(String uuid);
 
     /**
      * 登录

@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import javax.swing.*;
 import java.util.*;
 
 /**
@@ -163,7 +162,7 @@ public class WxHelper {
         }
         // 微信公众号登录
         else if (CodeGenerateUtil.isVerifyCode(content)) {
-            String verifyCode = sessionService.getVerifyCode(fromUser);
+            String verifyCode = sessionService.autoRegisterAndGetVerifyCode(fromUser);
             if (qrLoginHelper.login(content, verifyCode)) {
                 textRes = "登录成功";
             } else {
