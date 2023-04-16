@@ -42,10 +42,11 @@ public class LoginViewController extends BaseViewController {
     private WxHelper wxHelper;
 
     /**
-     * 这种是扫描二维码，输入[login/登录] 获取验证码，然后提交验证码来实现登录
+     * fixme 这种是扫描二维码，输入[login/登录] 获取验证码，然后提交验证码来实现登录； 这种方式技术派不再使用
      *
      * @return
      */
+    @Deprecated
     @GetMapping(path = "login")
     public String login() {
         if (ReqInfoContext.getReqInfo().getUserId() != null) {
@@ -56,7 +57,7 @@ public class LoginViewController extends BaseViewController {
     }
 
     /**
-     * 二维码登录页面，有一个分配的验证码；然后用户扫描二维码关注公众号，输入验证码即可登录
+     * 独立的二维码登录页面，有一个分配的验证码；然后用户扫描二维码关注公众号，输入验证码即可登录
      *
      * @param model
      * @return
@@ -85,12 +86,12 @@ public class LoginViewController extends BaseViewController {
     /**
      * 客户端与后端建立扫描二维码的长连接
      *
-     * @param id
+     * @param code
      * @return
      */
     @GetMapping(path = "subscribe", produces = {org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE})
-    public SseEmitter subscribe(String id) throws IOException {
-        return qrLoginHelper.subscribe(id);
+    public SseEmitter subscribe(String code) throws IOException {
+        return qrLoginHelper.subscribe(code);
     }
 
     /**

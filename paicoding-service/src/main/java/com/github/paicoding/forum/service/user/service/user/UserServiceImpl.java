@@ -10,6 +10,7 @@ import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
@@ -28,9 +29,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户Service
@@ -71,6 +76,20 @@ public class UserServiceImpl implements UserService {
         }
 
         return queryBasicUserInfo(user.getId());
+    }
+
+    public List<SimpleUserInfoDTO> searchUser(String userName) {
+        List<UserInfoDO> users = userDao.getByUserNameLike(userName);
+        if (CollectionUtils.isEmpty(users)) {
+            return Collections.emptyList();
+        }
+        return users.stream().map(s -> new SimpleUserInfoDTO()
+                        .setUserId(s.getUserId())
+                        .setName(s.getUserName())
+                        .setAvatar(s.getPhoto())
+                        .setProfile(s.getProfile())
+                )
+                .collect(Collectors.toList());
     }
 
     /**
@@ -120,6 +139,14 @@ public class UserServiceImpl implements UserService {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
         }
         return UserConverter.toDTO(user);
+    }
+
+    public List<BaseUserInfoDTO> batchQueryBasicUserInfo(Collection<Long> userIds) {
+        List<UserInfoDO> users = userDao.getByUserIds(userIds);
+        if (CollectionUtils.isEmpty(users)) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userIds);
+        }
+        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
     }
 
     @Override

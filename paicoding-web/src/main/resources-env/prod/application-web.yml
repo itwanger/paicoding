@@ -11,8 +11,3 @@ spring:
     servlet:
       content-type: text/html
     cache: true # 开启缓存
-
-
-view:
-  site:
-    host:

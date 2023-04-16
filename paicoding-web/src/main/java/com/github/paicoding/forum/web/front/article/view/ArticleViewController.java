@@ -9,9 +9,9 @@ import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
-import com.github.paicoding.forum.service.article.service.ArticleRecommendService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
@@ -114,6 +114,8 @@ public class ArticleViewController extends BaseViewController {
         ArticleDetailVo vo = new ArticleDetailVo();
         // 文章相关信息
         ArticleDTO articleDTO = articleService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+        // 返回给前端页面时，转换为html格式
+        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         vo.setArticle(articleDTO);
 
         // 评论信息

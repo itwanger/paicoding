@@ -89,5 +89,17 @@
             <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
+        <!--  邮件  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!--  将 Markdown 转换为 HTML  -->
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>0.62.2</version>
+        </dependency>
     </dependencies>
 </project>

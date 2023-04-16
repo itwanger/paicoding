@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.global;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ForumException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
@@ -68,10 +69,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
             return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {
-            log.error("unexpect error", ex);
+            log.error("unexpect error! {}", ReqInfoContext.getReqInfo(), ex);
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ex.getMessage());
         } else {
-            log.error("unexpect error", ex);
+            log.error("unexpect error! {}", ReqInfoContext.getReqInfo(), ex);
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ExceptionUtils.getStackTrace(ex));
         }
     }
@@ -111,6 +112,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             return true;
         }
 
+        if (isAjaxRequest(request)) {
+            return true;
+        }
+
         // 数据接口请求
         AntPathMatcher pathMatcher = new AntPathMatcher();
         if (pathMatcher.match("/**/api/**", request.getRequestURI())) {
@@ -118,4 +123,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         }
         return false;
     }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWith = request.getHeader("X-Requested-With");
+        return requestedWith != null && "XMLHttpRequest".equals(requestedWith);
+    }
+
 }

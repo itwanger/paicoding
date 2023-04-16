@@ -34,6 +34,9 @@
           更新时间
         </span>
         <span th:text="'阅读 ' + ${article.count.readCount}">520</span>
+        <span th:if="${article.status != 1}">
+            <span th:text="${article.status == 0 ? '(草稿)' : '(审核中)'}" style="padding-left: 1em; color: red"></span>
+        </span>
         <div
           th:if="${global.isLogin && article.author == global.user.userId}"
           class="detail-content-title-edit"
@@ -76,7 +79,10 @@
       />
     </div>
 
-    <div id="articleContent" class="article-content"></div>
+    <div id="articleContent" class="article-content" th:utext="${article.content}">
+
+    </div>
+
     <div th:if="${loginRead && !global.isLogin}">
       <div style=" width: 100%;
           background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
