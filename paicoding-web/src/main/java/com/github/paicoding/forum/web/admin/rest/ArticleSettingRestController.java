@@ -12,6 +12,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @Permission(role = UserRole.LOGIN)
+@Api(value = "文章设置管理控制器", tags = "文章管理")
 @RequestMapping(path = {"/api/admin/article/", "/admin/article/"})
 public class ArticleSettingRestController {
 
