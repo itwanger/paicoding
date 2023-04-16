@@ -26,9 +26,4 @@ public class IndexController extends BaseViewController {
         model.addAttribute("vo", vo);
         return "views/home/index";
     }
-
-    @GetMapping(path = "500")
-    public int divide() {
-        return 1/0;
-    }
 }

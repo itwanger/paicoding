@@ -129,12 +129,23 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     }
 
 
+    /**
+     * 查询文章列表
+     * @param categoryId
+     * @param page
+     * @return
+     */
     @Override
     public PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page) {
         List<ArticleDO> records = articleDao.listArticlesByCategoryId(categoryId, page);
         return buildArticleListVo(records, page.getPageSize());
     }
 
+    /**
+     * 查询置顶的文章列表
+     * @param categoryId
+     * @return
+     */
     @Override
     public List<ArticleDTO> queryTopArticlesByCategory(Long categoryId) {
         PageParam page = PageParam.newPageInstance(PageParam.DEFAULT_PAGE_NUM, PageParam.TOP_PAGE_SIZE);

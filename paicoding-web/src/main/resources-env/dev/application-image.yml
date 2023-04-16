@@ -10,7 +10,7 @@ image:
     ak:
     sk:
     bucket:
-    host:
+    host: https://cdn.tobebetterjavaer.com
 
 spring:
   web:

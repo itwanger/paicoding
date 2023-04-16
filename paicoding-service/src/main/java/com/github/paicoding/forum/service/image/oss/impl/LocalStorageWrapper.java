@@ -78,6 +78,11 @@ public class LocalStorageWrapper implements IOssUploader {
             return true;
         }
 
+        // 如果是oss的图片，也不需要转存
+        if (StringUtils.isNotBlank(imageProperties.getOss().getHost()) && img.startsWith(imageProperties.getOss().getHost())) {
+            return true;
+        }
+
         return !img.startsWith("http");
     }
 }

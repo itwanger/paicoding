@@ -37,7 +37,7 @@ public class SessionServiceImpl implements SessionService {
     private UserSessionHelper userSessionHelper;
 
     @Override
-    public String getVerifyCode(String uuid) {
+    public String autoRegisterAndGetVerifyCode(String uuid) {
         UserSaveReq req = new UserSaveReq().setLoginType(0).setThirdAccountId(uuid);
         userService.registerOrGetUserInfo(req);
         return userSessionHelper.genVerifyCode(req.getUserId());

@@ -1,0 +1,24 @@
+#邮箱配置
+spring:
+  mail:
+    host: smtp.163.com
+    from: xhhuiblog@163.com
+    # 使用自己的发送方用户名 + 授权码填充
+    username:
+    password:
+    default-encoding: UTF-8
+    port: 465
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+          auth: true
+          starttls:
+            enable: true
+            required: true
+alarm:
+  # 接收报警的用户邮箱，多个人时，使用英文逗号分隔
+  user: xhhuiblog@163.com

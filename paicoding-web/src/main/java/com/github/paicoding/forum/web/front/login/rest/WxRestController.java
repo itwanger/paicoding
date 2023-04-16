@@ -62,7 +62,7 @@ public class WxRestController {
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
                 // fixme 带参数二维码需要 微信认证，个人公众号无权限
                 String code = key.substring("qrscene_".length());
-                String verifyCode = sessionService.getVerifyCode(msg.getFromUserName());
+                String verifyCode = sessionService.autoRegisterAndGetVerifyCode(msg.getFromUserName());
                 qrLoginHelper.login(code, verifyCode);
                 WxTxtMsgResVo res = new WxTxtMsgResVo();
                 res.setContent("登录成功");

@@ -182,14 +182,14 @@
                 id="summary"
                 class="form-control form-textarea summary"
                 data-bs-toggle="autosize"
-                placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 128 字符键入摘要文本框"
-                maxlength="128"
+                placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 256 字符键入摘要文本框"
+                maxlength="256"
                 th:text="${vo.article != null ?  vo.article.summary: ''}"
                 oninput="initSummary()"
               ></textarea>
               <span
                 class="form-textarea-limit"
-                th:text="${vo.article != null ?  #strings.length(vo.article.summary) + '/128': '0/128'}"
+                th:text="${vo.article != null ?  #strings.length(vo.article.summary) + '/256': '0/256'}"
               >
                 0/128
               </span>
@@ -232,7 +232,7 @@
               showSaveBtnFlagByTitle = false;
 
       const titleMin = 5, titleMax = 120,
-        contentMin = 6, summaryMax = 128;
+        contentMin = 6, summaryMax = 256;
 
       if (vo && vo.article) {
         articleId = vo.article.articleId;
@@ -484,7 +484,10 @@
 
         post("/article/api/generateSummary", params, function (data) {
           console.log("提取后的简介:", data)
-          $("#summary").val(data);
+          const $summary = $("#summary");
+          $summary.val(data);
+          // 滚动到底部
+          $summary.scrollTop($summary.prop('scrollHeight'));
           $('.form-textarea-limit').text(data.length + '/' + summaryMax)
         });
 

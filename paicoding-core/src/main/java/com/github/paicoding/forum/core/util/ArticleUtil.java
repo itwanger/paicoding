@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public class ArticleUtil {
     private static final Integer MAX_SUMMARY_CHECK_TXT_LEN = 2000;
-    private static final Integer SUMMARY_LEN = 128;
+    private static final Integer SUMMARY_LEN = 256;
     private static Pattern LINK_IMG_PATTERN = Pattern.compile("!?\\[(.*?)\\]\\((.*?)\\)");
     private static Pattern CONTENT_PATTERN = Pattern.compile("[0-9a-zA-Z\u4e00-\u9fa5:;\"'<>,.?/·~！：；“”‘’《》，。？、（）]");
 

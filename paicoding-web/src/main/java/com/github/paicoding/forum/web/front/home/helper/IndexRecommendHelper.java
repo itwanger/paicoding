@@ -19,7 +19,8 @@ import com.github.paicoding.forum.web.front.home.vo.IndexVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -148,7 +149,9 @@ public class IndexRecommendHelper {
 
 
     private UserStatisticInfoDTO loginInfo() {
-        Long userId = ReqInfoContext.getReqInfo().getUserId();
-        return userId != null ? userService.queryUserInfoWithStatistic(userId) : null;
+        if (ReqInfoContext.getReqInfo() != null && ReqInfoContext.getReqInfo().getUserId() != null) {
+            return userService.queryUserInfoWithStatistic(ReqInfoContext.getReqInfo().getUserId());
+        }
+        return null;
     }
 }

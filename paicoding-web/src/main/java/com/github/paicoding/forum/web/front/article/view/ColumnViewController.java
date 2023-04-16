@@ -12,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
+import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
@@ -99,7 +100,8 @@ public class ColumnViewController {
         Long articleId = columnService.queryColumnArticle(columnId, section);
         // 文章信息
         ArticleDTO articleDTO = articleReadService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-
+        // 返回html格式的文档内容
+        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         // 评论信息
         List<TopCommentDTO> comments = commentReadService.getArticleComments(articleId, PageParam.newPageInstance());
 
@@ -153,8 +155,8 @@ public class ColumnViewController {
             String content = articleDTO.getContent();
             if (content.length() > 500) {
                 content = content.substring(0, 500);
-            } else if (content.length() > 128) {
-                content = content.substring(0, 128);
+            } else if (content.length() > 256) {
+                content = content.substring(0, 256);
             }
             articleDTO.setContent(content);
         }
