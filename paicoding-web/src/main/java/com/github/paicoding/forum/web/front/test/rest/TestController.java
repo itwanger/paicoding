@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.front.test.rest;
 
+import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,5 +61,11 @@ public class TestController {
         content = StringEscapeUtils.escapeHtml4(content);
         log.error("测试异常报警: {}", content);
         return ResVo.ok("移除日志接收完成！");
+    }
+
+    @RequestMapping(path = "testControllerAdvice")
+    @ResponseBody
+    public String testControllerAdvice() {
+        throw new ForumAdviceException(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "测试ControllerAdvice异常");
     }
 }
