@@ -232,7 +232,7 @@
       function buildConnect(code) {
           const stateTag = document.getElementById('state');
           const codeTag = document.getElementById('code');
-          const subscribeUrl = "/subscribe?id=" + code;
+          const subscribeUrl = "/subscribe?code=" + code;
           const source = new EventSource(subscribeUrl);
           source.onmessage = function (event) {
               let text = event.data;
