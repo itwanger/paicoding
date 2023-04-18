@@ -126,7 +126,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
 
     private boolean isAjaxRequest(HttpServletRequest request) {
         String requestedWith = request.getHeader("X-Requested-With");
-        return requestedWith != null && "XMLHttpRequest".equals(requestedWith);
+        return "XMLHttpRequest".equals(requestedWith);
     }
 
 }
