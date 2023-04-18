@@ -32,28 +32,6 @@ public class LoginRestController {
     @Autowired
     private QrLoginHelper qrLoginHelper;
 
-    /**
-     * 适用于输入验证码的登录流程；
-     * 现在使用公众号回调方式登录, 不会走到这个接口
-     *
-     * @param code
-     * @param response
-     * @return
-     */
-    @Deprecated
-    @PostMapping("/login")
-    public ResVo<Boolean> login(@RequestParam(name = "code") String code,
-                                HttpServletResponse response) {
-        String session = sessionService.login(code);
-        if (StringUtils.isNotBlank(session)) {
-            // cookie中写入用户登录信息
-            response.addCookie(new Cookie(SessionService.SESSION_KEY, session));
-            return ResVo.ok(true);
-        } else {
-            return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录码异常，请重新输入");
-        }
-    }
-
     @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
     public ResVo<Boolean> logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 微信公众号登录相关
+ * 公众号回调接口
  *
  * @author YiHui
  * @date 2022/9/2
@@ -21,10 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(path = "wx")
 @RestController
 public class WxRestController {
-    @Autowired
-    private SessionService sessionService;
-    @Autowired
-    private QrLoginHelper qrLoginHelper;
     @Autowired
     private WxHelper wxHelper;
 
@@ -56,20 +52,6 @@ public class WxRestController {
             produces = "application/xml;charset=utf-8")
     public BaseWxMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
         String content = msg.getContent();
-        if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
-            String key = msg.getEventKey();
-            if (StringUtils.isNotBlank(key) || key.startsWith("qrscene_")) {
-                // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
-                // fixme 带参数二维码需要 微信认证，个人公众号无权限
-                String code = key.substring("qrscene_".length());
-                String verifyCode = sessionService.autoRegisterAndGetVerifyCode(msg.getFromUserName());
-                qrLoginHelper.login(code, verifyCode);
-                WxTxtMsgResVo res = new WxTxtMsgResVo();
-                res.setContent("登录成功");
-                fillResVo(res, msg);
-                return res;
-            }
-        }
 
         BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), content, msg.getFromUserName());
         fillResVo(res, msg);

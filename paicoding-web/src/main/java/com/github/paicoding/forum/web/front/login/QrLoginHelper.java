@@ -138,19 +138,6 @@ public class QrLoginHelper {
     }
 
 
-    /**
-     * 二维码已扫描
-     *
-     * @param code
-     * @throws IOException
-     */
-    public void scan(String code) throws IOException {
-        SseEmitter sseEmitter = verifyCodeCache.getIfPresent(code);
-        if (sseEmitter != null) {
-            sseEmitter.send("scan");
-        }
-    }
-
     public boolean login(String loginCode, String verifyCode) {
         String session = sessionService.login(verifyCode);
         SseEmitter sseEmitter = verifyCodeCache.getIfPresent(loginCode);
