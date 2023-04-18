@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Order(-100)
 public class ForumExceptionHandler implements HandlerExceptionResolver {
+
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         Status errStatus = buildToastMsg(ex);
