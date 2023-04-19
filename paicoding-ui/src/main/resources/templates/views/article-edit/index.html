@@ -295,6 +295,69 @@
         //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
         //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
         //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
+
+        // 自定义菜单
+        toolbarIcons: function () {
+          return [
+            "mdFile","|",
+            "undo", "redo", "|",
+            "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+            "h1", "h2", "h3", "h4", "h5", "h6", "|",
+            "list-ul", "list-ol", "hr", "|",
+            "link", "reference-link", "image", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+            "goto-line", "watch", "preview", "fullscreen", "clear", "search", "|",
+            "help", "info"
+          ]
+        },
+
+        // 用于增加自定义工具栏的功能，可以直接插入HTML标签，不使用默认的元素创建图标
+        toolbarIconTexts : {
+          mdFile : "导入MD"
+        },
+        toolbarHandlers: {
+          mdFile : function(cm, icon, cursor, selection){
+            console.log("导入MD");
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = ".md";
+            fileInput.onchange = function(){
+              const file = fileInput.files[0];
+              const reader = new FileReader();
+              reader.onload = function(e){
+                // 获取文件内容
+                const content = e.target.result;
+                // 根据关键字从内容中获取标题，格式为：title: 一文让你彻底了解Java（简史、特性、前景）
+                const title = content.match(/title: (.*)/)[1];
+                console.log("标题：", title);
+                // 将标题插入到标题输入框
+                $("#titleInput").val(title);
+
+                // 根据关键字从内容中获取描述，格式为：description: 本文将从Java的简史、特性、前景三个方面来讲解Java，希望能够帮助到大家。
+                const summary = content.match(/description: (.*)/)[1];
+                console.log("描述：", summary);
+                // 将描述插入到描述输入框
+                $("#summary").val(summary);
+
+                // 从内容中获取第二个“---”的位置，用于截取正文
+                const index = content.indexOf("---", content.indexOf("---") + 1);
+                const text = content.substring(index + 3);
+                console.log("正文：", text);
+                // 插入到编辑器
+                cm.replaceSelection(text);
+
+              };
+              reader.readAsText(file);
+            };
+            fileInput.click();
+          }
+        },
+        lang: {
+          toolbar: {
+            mdFile: "导入MD"
+          }
+        },
+
+
         imageUpload: true,
         imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
         imageUploadURL: "/image/upload",
