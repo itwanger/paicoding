@@ -49,6 +49,8 @@ mybatis-plus:
 # knife4j
 knife4j:
   enable: true
+  setting:
+    language: zh_cn
   openapi:
     title: 技术派
     description: 技术派的接口说明文档
