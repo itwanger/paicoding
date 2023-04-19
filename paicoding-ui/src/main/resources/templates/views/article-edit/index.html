@@ -266,6 +266,12 @@
           editMaskDom.hide()
         }
       }
+
+      const preprocessMarkdown = (markdown) => {
+        const regex = /(#+) \*\*(.+?)\*\*/g;
+        return markdown.replace(regex, (match, p1, p2) => `${p1} ${p2}`);
+      };
+
       // 编辑器
       let simplemde = editormd("paiEditor", {
         width: "100%",
@@ -321,29 +327,53 @@
             fileInput.type = "file";
             fileInput.accept = ".md";
             fileInput.onchange = function(){
+              console.log("文件选择完毕");
+
               const file = fileInput.files[0];
               const reader = new FileReader();
               reader.onload = function(e){
                 // 获取文件内容
-                const content = e.target.result;
+                let content = e.target.result;
+                console.log("文件内容：", content);
+
+                // 如果内容为空的话，直接返回
+                if(!content || content.length <= 0) {
+                  return;
+                }
+
                 // 根据关键字从内容中获取标题，格式为：title: 一文让你彻底了解Java（简史、特性、前景）
                 const title = content.match(/title: (.*)/)[1];
                 console.log("标题：", title);
-                // 将标题插入到标题输入框
-                $("#titleInput").val(title);
+                // 如果标题不为空的话，将标题插入到标题输入框
+
+                // 判断标题是否为空
+                if(title && title.length > 0) {
+                  // 触发标题输入框的change事件
+                  $("#titleInput").val(title);
+                  showSaveBtnByTitle();
+                }
 
                 // 根据关键字从内容中获取描述，格式为：description: 本文将从Java的简史、特性、前景三个方面来讲解Java，希望能够帮助到大家。
                 const summary = content.match(/description: (.*)/)[1];
                 console.log("描述：", summary);
                 // 将描述插入到描述输入框
-                $("#summary").val(summary);
+                if(summary && summary.length > 0) {
+                  $("#summary").val(summary);
+                }
 
                 // 从内容中获取第二个“---”的位置，用于截取正文
-                const index = content.indexOf("---", content.indexOf("---") + 1);
-                const text = content.substring(index + 3);
-                console.log("正文：", text);
-                // 插入到编辑器
-                cm.replaceSelection(text);
+                if (content.indexOf("---") !== -1 && content.length > 6) {
+                  const index = content.indexOf("---", content.indexOf("---") + 1);
+                  const text = content.substring(index + 3);
+                  console.log("正文：", text);
+
+                  // 插入到编辑器
+                  content = text;
+                } else {
+                  cm.replaceSelection(content);
+                }
+
+                cm.replaceSelection(preprocessMarkdown(content));
 
               };
               reader.readAsText(file);
