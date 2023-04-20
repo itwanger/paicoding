@@ -55,6 +55,13 @@ public class ConfigSettingrRestController {
         return ResVo.ok("ok");
     }
 
+    /**
+     * 获取配置列表
+     *
+     * @param pageNumber
+     * @param pageSize
+     * @return
+     */
     @ResponseBody
     @GetMapping(path = "list")
     public ResVo<PageVo<ConfigDTO>> list(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
