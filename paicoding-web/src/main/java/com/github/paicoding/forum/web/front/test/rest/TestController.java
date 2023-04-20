@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,5 +68,14 @@ public class TestController {
     @ResponseBody
     public String testControllerAdvice() {
         throw new ForumAdviceException(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "测试ControllerAdvice异常");
+    }
+
+    /**
+     * 测试 Knife4j
+     * @return
+     */
+    @RequestMapping(value ="/testKnife4j", method = RequestMethod.POST)
+    public String testKnife4j() {
+        return "沉默王二又帅又丑";
     }
 }
