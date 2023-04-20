@@ -17,7 +17,6 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDetailDO;
@@ -159,8 +158,8 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
 
         // 如果分页中置顶的四条数据，需要加上官方的查询条件
-        // 说明是查询官方的文章，非置顶的文章
-        if (pageParam.getPageSize() == PageParam.TOP_PAGE_SIZE) {
+        // 说明是查询官方的文章，非置顶的文章，只限制全部分类
+        if (categoryId == null && pageParam.getPageSize() == PageParam.TOP_PAGE_SIZE) {
             query.eq(ArticleDO::getOfficalStat, OfficalStatEnum.OFFICAL.getCode());
         }
 
