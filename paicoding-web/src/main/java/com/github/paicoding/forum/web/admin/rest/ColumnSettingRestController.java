@@ -32,7 +32,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.LOGIN)
+//@Permission(role = UserRole.LOGIN)
 @Api(value = "专栏及专栏文章管理控制器", tags = "专栏管理")
 @RequestMapping(path = {"api/admin/column/", "admin/column/"})
 public class ColumnSettingRestController {

@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.LOGIN)
+//@Permission(role = UserRole.LOGIN)
 @Api(value = "文章设置管理控制器", tags = "文章管理")
 @RequestMapping(path = {"/api/admin/article/", "/admin/article/"})
 public class ArticleSettingRestController {
@@ -70,7 +70,7 @@ public class ArticleSettingRestController {
 
     @ApiOperation("获取文章列表")
     @PostMapping(path = "list")
-    public ResVo<PageVo<ArticleDTO>> list(SearchArticleReq req) {
+    public ResVo<PageVo<ArticleDTO>> list(@RequestBody SearchArticleReq req) {
         PageVo<ArticleDTO> articleDTOPageVo = articleSettingService.getArticleList(req);
         return ResVo.ok(articleDTOPageVo);
     }

@@ -84,14 +84,16 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Override
     public PageVo<ArticleDTO> getArticleList(SearchArticleReq req) {
-        List<ArticleDO> articleDOS = articleDao.listArticles(ArticleConverter.toSearchParams(req));
+        SearchArticleParams searchArticleParams = ArticleConverter.toSearchParams(req);
+        List<ArticleDO> articleDOS = articleDao.listArticlesByParams(
+                searchArticleParams, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
         List<ArticleDTO> articleDTOS = ArticleConverter.toArticleDtoList(articleDOS);
         articleDTOS.forEach(articleDTO -> {
             BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
             articleDTO.setAuthorName(user.getUserName());
         });
-        Integer totalCount = articleDao.countArticle();
-        return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNum(), totalCount);
+        Integer totalCount = articleDao.countArticleByParams(searchArticleParams);
+        return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }
 
     @Override

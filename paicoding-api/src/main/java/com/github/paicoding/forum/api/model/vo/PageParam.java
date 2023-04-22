@@ -18,12 +18,11 @@ public class PageParam {
     public static final Long TOP_PAGE_SIZE = 4L;
 
 
-    @ApiModelProperty(value = "页码", example = "1")
+    @ApiModelProperty("请求页数，从1开始计数")
     private long pageNum;
 
-    @ApiModelProperty(value = "页数", example = "10")
+    @ApiModelProperty("请求页大小，默认为 10")
     private long pageSize;
-
     private long offset;
     private long limit;
 

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @ApiModel("文章查询")
-public class SearchArticleReq extends PageParam {
+public class SearchArticleReq {
 
     @ApiModelProperty("文章ID")
     private Long articleId;
@@ -23,4 +23,10 @@ public class SearchArticleReq extends PageParam {
 
     @ApiModelProperty("是否置顶: 0-不置顶，1-置顶")
     private Integer toppingStat;
+
+    @ApiModelProperty("请求页数，从1开始计数")
+    private long pageNumber;
+
+    @ApiModelProperty("请求页大小，默认为 10")
+    private long pageSize;
 }
