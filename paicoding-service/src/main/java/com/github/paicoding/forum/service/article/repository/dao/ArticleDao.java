@@ -12,6 +12,7 @@ import com.github.paicoding.forum.api.model.enums.OfficalStatEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
@@ -24,6 +25,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleDetailMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ReadCountMapper;
+import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.google.common.collect.Maps;
 import org.springframework.stereotype.Repository;
 
@@ -328,13 +330,18 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     /**
      * 文章列表（用于后台）
      *
-     * @param pageParam
+     * @param searchArticleParams
      * @return
      */
-    public List<ArticleDO> listArticles(PageParam pageParam) {
+    public List<ArticleDO> listArticles(SearchArticleParams searchArticleParams) {
         return lambdaQuery()
+                .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
+                .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
+                .eq(Objects.nonNull(searchArticleParams.getStatus()), ArticleDO::getStatus, searchArticleParams.getStatus())
+                .eq(Objects.nonNull(searchArticleParams.getOfficalStat()), ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
+                .eq(Objects.nonNull(searchArticleParams.getToppingStat()), ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .last(PageParam.getLimitSql(pageParam))
+                .last(PageParam.getLimitSql(searchArticleParams))
                 .orderByDesc(ArticleDO::getId)
                 .list();
     }

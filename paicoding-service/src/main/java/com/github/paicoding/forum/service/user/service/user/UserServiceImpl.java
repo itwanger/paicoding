@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
         return queryBasicUserInfo(user.getId());
     }
 
+    @Override
     public List<SimpleUserInfoDTO> searchUser(String userName) {
         List<UserInfoDO> users = userDao.getByUserNameLike(userName);
         if (CollectionUtils.isEmpty(users)) {

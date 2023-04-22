@@ -8,6 +8,8 @@ import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
@@ -15,6 +17,8 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
+import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
+import com.github.paicoding.forum.web.front.search.vo.SearchColumnVo;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -104,5 +108,19 @@ public class ColumnSettingRestController {
         } catch (Exception e) {
             return ResVo.fail(StatusEnum.COLUMN_QUERY_ERROR, e.getMessage());
         }
+    }
+
+    /**
+     * 根据关键词给出搜索下拉框
+     *
+     * @param key
+     */
+    @GetMapping(path = "query")
+    public ResVo<SearchColumnVo> recommend(@RequestParam(name = "key", required = false) String key) {
+        List<SimpleColumnDTO> list = columnSettingService.listSimpleColumnByBySearchKey(key);
+        SearchColumnVo vo = new SearchColumnVo();
+        vo.setKey(key);
+        vo.setItems(list);
+        return ResVo.ok(vo);
     }
 }
