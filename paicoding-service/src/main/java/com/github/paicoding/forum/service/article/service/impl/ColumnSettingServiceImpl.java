@@ -1,11 +1,15 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
@@ -132,5 +136,16 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         }
         Integer totalCount = columnDao.countColumnArticles(columnId);
         return PageVo.build(simpleArticleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+    }
+
+    @Override
+    public List<SimpleColumnDTO> listSimpleColumnByBySearchKey(String key) {
+        LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
+        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName)
+                .and(!StringUtils.isEmpty(key),
+                    v -> v.like(ColumnInfoDO::getColumnName, key)
+                )
+                .orderByDesc(ColumnInfoDO::getId);
+        return ColumnConvert.toSimpleColumnDTOs(columnDao.list(query));
     }
 }

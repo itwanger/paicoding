@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 
 import java.util.List;
 
@@ -67,4 +68,12 @@ public interface ColumnSettingService {
      * @return
      */
     PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) throws Exception;
+
+    /**
+     * 通过关键词，从标题中找出相似的进行推荐，只返回主键 + 标题
+     *
+     * @param key
+     * @return
+     */
+    List<SimpleColumnDTO> listSimpleColumnByBySearchKey(String key);
 }

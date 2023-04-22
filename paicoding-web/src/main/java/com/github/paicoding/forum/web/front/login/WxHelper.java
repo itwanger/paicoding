@@ -126,7 +126,7 @@ public class WxHelper {
                     "[机智] [10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
         } else if ("123".equalsIgnoreCase(content)) {
             textRes = "[机智] 添加楼仔的微信「lml200701158」后，微信回复 “123”，即可获得 10 本校招/社招必刷八股文，以及 5 本楼仔原创手册《高并发手册》、《Spring 源码解析手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误，工作面试两不误。";
-        } 
+        }
 
         // 下面是回复图文消息
         else if ("加群".equalsIgnoreCase(content)) {

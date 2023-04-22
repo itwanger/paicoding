@@ -9,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
@@ -16,6 +17,7 @@ import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -81,15 +83,15 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     }
 
     @Override
-    public PageVo<ArticleDTO> getArticleList(PageParam pageParam) {
-        List<ArticleDO> articleDOS = articleDao.listArticles(pageParam);
+    public PageVo<ArticleDTO> getArticleList(SearchArticleReq req) {
+        List<ArticleDO> articleDOS = articleDao.listArticles(ArticleConverter.toSearchParams(req));
         List<ArticleDTO> articleDTOS = ArticleConverter.toArticleDtoList(articleDOS);
         articleDTOS.forEach(articleDTO -> {
             BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
             articleDTO.setAuthorName(user.getUserName());
         });
         Integer totalCount = articleDao.countArticle();
-        return PageVo.build(articleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+        return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNum(), totalCount);
     }
 
     @Override

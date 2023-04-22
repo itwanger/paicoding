@@ -2,19 +2,23 @@ package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.*;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
+import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 文章后台
@@ -31,6 +35,8 @@ public class ArticleSettingRestController {
     @Autowired
     private ArticleSettingService articleSettingService;
 
+    @Autowired
+    private ArticleReadService articleReadService;
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
@@ -62,11 +68,20 @@ public class ArticleSettingRestController {
         return ResVo.ok("ok");
     }
 
-    @GetMapping(path = "list")
-    public ResVo<PageVo<ArticleDTO>> list(@RequestParam(name = "pageNumber", required = false) Integer pageNumber, @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<ArticleDTO> articleDTOPageVo = articleSettingService.getArticleList(PageParam.newPageInstance(pageNumber, pageSize));
+    @ApiOperation("获取文章列表")
+    @PostMapping(path = "list")
+    public ResVo<PageVo<ArticleDTO>> list(SearchArticleReq req) {
+        PageVo<ArticleDTO> articleDTOPageVo = articleSettingService.getArticleList(req);
         return ResVo.ok(articleDTOPageVo);
+    }
+
+    @ApiOperation("文章搜索")
+    @GetMapping(path = "query")
+    public ResVo<SearchArticleVo> queryArticleList(@RequestParam(name = "key", required = true) String key) {
+        List<SimpleArticleDTO> list = articleReadService.querySimpleArticleBySearchKey(key);
+        SearchArticleVo vo = new SearchArticleVo();
+        vo.setKey(key);
+        vo.setItems(list);
+        return ResVo.ok(vo);
     }
 }
