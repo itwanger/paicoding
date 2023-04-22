@@ -333,7 +333,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      * @param searchArticleParams
      * @return
      */
-    public List<ArticleDO> listArticles(SearchArticleParams searchArticleParams) {
+    public List<ArticleDO> listArticlesByParams(SearchArticleParams searchArticleParams, PageParam pageParam) {
         return lambdaQuery()
                 .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
                 .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
@@ -341,9 +341,25 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(Objects.nonNull(searchArticleParams.getOfficalStat()), ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
                 .eq(Objects.nonNull(searchArticleParams.getToppingStat()), ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .last(PageParam.getLimitSql(searchArticleParams))
+                .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId)
                 .list();
+    }
+
+    /**
+     * 文章总数（用于后台）
+     *
+     * @return
+     */
+    public Integer countArticleByParams(SearchArticleParams searchArticleParams) {
+        return lambdaQuery()
+                .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
+                .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
+                .eq(Objects.nonNull(searchArticleParams.getStatus()), ArticleDO::getStatus, searchArticleParams.getStatus())
+                .eq(Objects.nonNull(searchArticleParams.getOfficalStat()), ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
+                .eq(Objects.nonNull(searchArticleParams.getToppingStat()), ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .count().intValue();
     }
 
     /**

@@ -137,10 +137,8 @@ public class ArticleConverter {
         searchArticleParams.setStatus(req.getStatus());
         searchArticleParams.setOfficalStat(req.getOfficalStat());
         searchArticleParams.setToppingStat(req.getToppingStat());
-        searchArticleParams.setPageNum(req.getPageNum());
+        searchArticleParams.setPageNum(req.getPageNumber());
         searchArticleParams.setPageSize(req.getPageSize());
-        searchArticleParams.setOffset(req.getOffset());
-        searchArticleParams.setLimit(req.getLimit());
         return searchArticleParams;
     }
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
@@ -55,8 +56,10 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
      */
     public List<UserInfoDO> getByUserNameLike(String userName) {
         LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
-        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile);
-        query.like(UserInfoDO::getUserName, userName)
+        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
+                .and(!StringUtils.isEmpty(userName),
+                     v -> v.like(UserInfoDO::getUserName, userName)
+                )
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectList(query);
     }

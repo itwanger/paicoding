@@ -23,7 +23,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-@Permission(role = UserRole.ADMIN)
+//@Permission(role = UserRole.ADMIN)
 @Api(value = "用户管理控制器", tags = "用户管理")
 @RequestMapping(path = {"api/admin/user/", "admin/user/"})
 public class UserSettingRestController {
