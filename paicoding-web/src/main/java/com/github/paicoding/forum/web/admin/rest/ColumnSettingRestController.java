@@ -8,7 +8,6 @@ import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
-import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
@@ -17,9 +16,9 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
-import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
 import com.github.paicoding.forum.web.front.search.vo.SearchColumnVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +31,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
-//@Permission(role = UserRole.LOGIN)
+@Permission(role = UserRole.LOGIN)
 @Api(value = "专栏及专栏文章管理控制器", tags = "专栏管理")
 @RequestMapping(path = {"api/admin/column/", "admin/column/"})
 public class ColumnSettingRestController {
@@ -110,11 +109,7 @@ public class ColumnSettingRestController {
         }
     }
 
-    /**
-     * 根据关键词给出搜索下拉框
-     *
-     * @param key
-     */
+    @ApiOperation("专栏搜索")
     @GetMapping(path = "query")
     public ResVo<SearchColumnVo> recommend(@RequestParam(name = "key", required = false) String key) {
         List<SimpleColumnDTO> list = columnSettingService.listSimpleColumnByBySearchKey(key);
