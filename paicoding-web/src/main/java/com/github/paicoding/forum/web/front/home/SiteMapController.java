@@ -38,6 +38,7 @@ public class SiteMapController {
         xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         SiteMapVo vo = sitemapService.getSiteMap();
         String ans = xmlMapper.writeValueAsString(vo);
+        ans = ans.replaceAll(" xmlns=\"\"", "");
 
         return ans.getBytes(Charset.defaultCharset());
     }
