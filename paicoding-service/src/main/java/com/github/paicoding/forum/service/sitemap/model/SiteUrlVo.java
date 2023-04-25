@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "url")
 public class SiteUrlVo {
+
     @JacksonXmlProperty(localName = "loc")
     private String loc;
 

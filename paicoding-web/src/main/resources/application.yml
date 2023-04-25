@@ -51,9 +51,7 @@ knife4j:
   enable: true
   setting:
     language: zh-CN
-  # 开启生产环境屏蔽
-#  production: true
-  # 开启Swagger的Basic认证功能,默认是false
+# 开启Swagger的Basic认证功能,默认是false
 #  basic:
 #    enable: true
 #    # 配置Basic认证的用户名和密码
