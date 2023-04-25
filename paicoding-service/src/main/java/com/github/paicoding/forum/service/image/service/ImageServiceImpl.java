@@ -5,7 +5,7 @@ import com.github.hui.quick.plugin.base.file.FileReadUtil;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.MdImgLoader;
-import com.github.paicoding.forum.service.image.oss.IOssUploader;
+import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class ImageServiceImpl implements ImageService {
 
     @Autowired
-    private IOssUploader ossUploader;
+    private ImageUploader imageUploader;
 
     private static final MediaType[] STATIC_IMG_TYPE = new MediaType[]{MediaType.ImagePng, MediaType.ImageJpg, MediaType.ImageWebp, MediaType.ImageGif};
 
@@ -52,7 +52,7 @@ public class ImageServiceImpl implements ImageService {
                     // 从url中获取文件类型
                     fileType = path.substring(index + 1);
                 }
-                return ossUploader.upload(stream, fileType);
+                return imageUploader.upload(stream, fileType);
             } catch (Exception e) {
                 log.error("外网图片转存异常! img:{}", img, e);
                 return "";
@@ -77,7 +77,7 @@ public class ImageServiceImpl implements ImageService {
         }
 
         try {
-            return ossUploader.upload(file.getInputStream(), fileType);
+            return imageUploader.upload(file.getInputStream(), fileType);
         } catch (IOException e) {
             log.error("Parse img from httpRequest to BufferedImage error! e:", e);
             throw ExceptionUtil.of(StatusEnum.UPLOAD_PIC_FAILED);
@@ -102,7 +102,7 @@ public class ImageServiceImpl implements ImageService {
      */
     @Override
     public String saveImg(String img) {
-        if (ossUploader.uploadIgnore(img)) {
+        if (imageUploader.uploadIgnore(img)) {
             // 已经转存过，不需要再次转存；非http图片，不处理
             return img;
         }
