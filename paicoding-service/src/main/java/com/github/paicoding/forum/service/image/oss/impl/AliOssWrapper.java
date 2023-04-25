@@ -7,7 +7,7 @@ import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import com.github.paicoding.forum.core.config.ImageProperties;
 import com.github.paicoding.forum.core.util.Md5Util;
-import com.github.paicoding.forum.service.image.oss.IOssUploader;
+import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ import java.io.InputStream;
 @Slf4j
 @ConditionalOnExpression(value = "#{'ali'.equals(environment.getProperty('image.oss.type'))}")
 @Component
-public class AliOssWrapper implements IOssUploader, InitializingBean, DisposableBean {
+public class AliOssWrapper implements ImageUploader, InitializingBean, DisposableBean {
     private static final int SUCCESS_CODE = 200;
     @Autowired
     @Setter
