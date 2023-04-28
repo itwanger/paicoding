@@ -994,3 +994,55 @@ button:focus {
 .article-suspended-panel-md .panel-btn {
   margin-bottom: 0;
 }
+
+
+.article-content pre, .article-content pre>code.hljs {
+  color: #333;
+  background: #f8f8f8;
+}
+
+.article-content pre>code {
+  font-size: 12px;
+  padding: 15px 12px;
+  margin: 0;
+  word-break: normal;
+  display: block;
+  overflow-x: auto;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.article-content code, .article-content pre {
+  font-family: Menlo,Monaco,Consolas,Courier New,monospace;
+}
+
+.article-content pre>code.copyable.hljs[lang]:before {
+  right: 70px;
+}
+
+.article-content pre>code.hljs[lang]:before {
+  content: attr(lang);
+  position: absolute;
+  right: 15px;
+  top: 3px;
+  color: hsla(0,0%,54.9%,.8);
+}
+
+.article-content pre .copy-code-btn {
+  position: absolute;
+  top: 6px;
+  right: 15px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  color: hsla(0,0%,54.9%,.8);
+  transition: color .1s;
+}
+
+.article-content pre .copy-code-btn:hover {
+  color: #8c8c8c;
+}
+
+.article-content pre {
+  position: relative;
+}
