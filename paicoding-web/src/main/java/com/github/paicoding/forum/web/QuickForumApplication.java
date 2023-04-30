@@ -77,7 +77,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
 
     @Override
     public void run(ApplicationArguments args) {
-        // 设置类型转换
+        // 设置类型转换, 主要用于mybatis读取varchar/json类型数据据，并写入到json格式的实体Entity中
         JacksonTypeHandler.setObjectMapper(new ObjectMapper());
         // 应用启动之后执行
         GlobalViewConfig config = SpringUtil.getBean(GlobalViewConfig.class);
