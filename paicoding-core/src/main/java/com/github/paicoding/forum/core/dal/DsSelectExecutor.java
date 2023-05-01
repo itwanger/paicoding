@@ -10,10 +10,33 @@ import java.util.function.Supplier;
  */
 public class DsSelectExecutor {
 
-    public static <T> T execute(DS ds, Supplier<T> supplier) {
+    /**
+     * 有返回结果
+     *
+     * @param ds
+     * @param supplier
+     * @param <T>
+     * @return
+     */
+    public static <T> T submit(DS ds, Supplier<T> supplier) {
         DbContextHolder.set(ds);
         try {
             return supplier.get();
+        } finally {
+            DbContextHolder.reset();
+        }
+    }
+
+    /**
+     * 无返回结果
+     *
+     * @param ds
+     * @param call
+     */
+    public static void execute(DS ds, Runnable call) {
+        DbContextHolder.set(ds);
+        try {
+            call.run();
         } finally {
             DbContextHolder.reset();
         }
