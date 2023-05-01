@@ -7,6 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.Map;
 
 /**
+ * 多数据源的配置加载
+ *
  * @author YiHui
  * @date 2023/4/30
  */

@@ -5,8 +5,8 @@ import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.core.dal.DB;
-import com.github.paicoding.forum.core.dal.DbEnum;
+import com.github.paicoding.forum.core.dal.DsAno;
+import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2023/3/19
  */
 @Slf4j
-@DB(DbEnum.SLAVE)
+@DsAno(MasterSlaveDsEnum.SLAVE)
 @RestController
 @RequestMapping(path = "test")
 public class TestController {
@@ -107,15 +107,17 @@ public class TestController {
      */
     @GetMapping(path = "ds/write2")
     public String write2() {
+        log.info("------------------- 业务逻辑进入 ----------------------------");
         int old = statisticsSettingService.getStatisticsCount().getPvCount();
-        DsSelectExecutor.execute(DbEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
+        DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
         // 保存请求计数
         int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        log.info("------------------- 业务逻辑结束 ----------------------------");
         return "编程式切换主库：更新成功! old=" + old + " new=" + n;
     }
 
 
-    @DB(DbEnum.MASTER)
+    @DsAno(MasterSlaveDsEnum.MASTER)
     @GetMapping(path = "ds/write")
     public String write() {
         // 保存请求计数

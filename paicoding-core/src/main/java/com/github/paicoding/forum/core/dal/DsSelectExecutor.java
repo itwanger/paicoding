@@ -19,11 +19,11 @@ public class DsSelectExecutor {
      * @return
      */
     public static <T> T submit(DS ds, Supplier<T> supplier) {
-        DbContextHolder.set(ds);
+        DsContextHolder.set(ds);
         try {
             return supplier.get();
         } finally {
-            DbContextHolder.reset();
+            DsContextHolder.reset();
         }
     }
 
@@ -34,11 +34,11 @@ public class DsSelectExecutor {
      * @param call
      */
     public static void execute(DS ds, Runnable call) {
-        DbContextHolder.set(ds);
+        DsContextHolder.set(ds);
         try {
             call.run();
         } finally {
-            DbContextHolder.reset();
+            DsContextHolder.reset();
         }
     }
 }
