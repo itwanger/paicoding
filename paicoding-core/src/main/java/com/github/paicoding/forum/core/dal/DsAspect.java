@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.core.dal;
 
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,33 +18,35 @@ public class DsAspect {
     /**
      * 切入点, 拦截类上、方法上有注解的方法，用于切换数据源
      */
-    @Pointcut("@annotation(DB) || @within(DB)")
+    @Pointcut("@annotation(com.github.paicoding.forum.core.dal.DsAno) || @within(com.github.paicoding.forum.core.dal.DsAno)")
     public void pointcut() {
     }
 
     @Around("pointcut()")
     public Object around(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
-        Method method = signature.getMethod();
-        DB ds = method.getAnnotation(DB.class);
-        if (ds == null) {
-            // 获取类上的注解
-            ds = (DB) proceedingJoinPoint.getSignature().getDeclaringType().getAnnotation(DB.class);
-        }
-
-        boolean notSet = DbContextHolder.get() != null;
+        DsAno ds = getDsAno(proceedingJoinPoint);
         try {
-            if (!notSet) {
+            if (ds != null && (StringUtils.isNotBlank(ds.ds()) || ds.value() != null)) {
                 // 当上下文中没有时，则写入线程上下文，应该用哪个DB
-                // 如果之前记录则不重新写入，避免出现覆盖
-                DbContextHolder.set(ds == null ? null : ds.value().name());
+                DsContextHolder.set(StringUtils.isNoneBlank(ds.ds()) ? ds.ds() : ds.value().name());
             }
             return proceedingJoinPoint.proceed();
         } finally {
             // 清空上下文信息
-            if (!notSet) {
-                DbContextHolder.reset();
+            if (ds != null) {
+                DsContextHolder.reset();
             }
         }
+    }
+
+    private DsAno getDsAno(ProceedingJoinPoint proceedingJoinPoint) {
+        MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
+        Method method = signature.getMethod();
+        DsAno ds = method.getAnnotation(DsAno.class);
+        if (ds == null) {
+            // 获取类上的注解
+            ds = (DsAno) proceedingJoinPoint.getSignature().getDeclaringType().getAnnotation(DsAno.class);
+        }
+        return ds;
     }
 }

@@ -28,6 +28,11 @@ public class DataSourceConfig {
         return new DsAspect();
     }
 
+    @Bean
+    public SqlStateInterceptor sqlStateInterceptor() {
+        return new SqlStateInterceptor();
+    }
+
     /**
      * 整合主从数据源
      *
@@ -47,9 +52,9 @@ public class DataSourceConfig {
         MyRoutingDataSource myRoutingDataSource = new MyRoutingDataSource();
         Object key = dsProperties.getPrimary();
         if (!targetDataSources.containsKey(key)) {
-            if (targetDataSources.containsKey(DbEnum.MASTER.name())) {
+            if (targetDataSources.containsKey(MasterSlaveDsEnum.MASTER.name())) {
                 // 当们没有配置primary对应的数据源时，存在MASTER数据源，则将主库作为默认的数据源
-                key = DbEnum.MASTER.name();
+                key = MasterSlaveDsEnum.MASTER.name();
             } else {
                 key = targetDataSources.keySet().iterator().next();
             }

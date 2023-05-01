@@ -12,16 +12,16 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface DB {
+public @interface DsAno {
     /**
      * 启用的数据源，默认主库
      *
      * @return
      */
-    DbEnum value() default DbEnum.MASTER;
+    MasterSlaveDsEnum value() default MasterSlaveDsEnum.MASTER;
 
     /**
-     * 启用的数据源
+     * 启用的数据源，如果存在，则优先使用它来替换默认的value
      *
      * @return
      */
