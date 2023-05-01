@@ -1,20 +1,22 @@
 package com.github.paicoding.forum.web.front.test.rest;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.dal.DB;
+import com.github.paicoding.forum.core.dal.DbEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
+import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -72,10 +74,36 @@ public class TestController {
 
     /**
      * 测试 Knife4j
+     *
      * @return
      */
-    @RequestMapping(value ="/testKnife4j", method = RequestMethod.POST)
+    @RequestMapping(value = "/testKnife4j", method = RequestMethod.POST)
     public String testKnife4j() {
         return "沉默王二又帅又丑";
+    }
+
+
+    @Autowired
+    private StatisticsSettingService statisticsSettingService;
+
+    /**
+     * 只读测试，如果有更新就会报错
+     *
+     * @return
+     */
+    @DB(DbEnum.SLAVE)
+    @GetMapping(path = "ds/read")
+    public String readOnly() {
+        // 保存请求计数
+        statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
+        return "使用从库：更新成功!";
+    }
+
+    @DB(DbEnum.MASTER)
+    @GetMapping(path = "ds/write")
+    public String write() {
+        // 保存请求计数
+        statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
+        return "使用主库：更新成功!";
     }
 }
