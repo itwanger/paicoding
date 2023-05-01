@@ -85,9 +85,9 @@ public class ForumDataSourceInitializer {
      */
     private boolean autoInitDatabase() {
         // 查询失败，可能是数据库不存在，尝试创建数据库之后再次测试
-        URI url = URI.create(SpringUtil.getConfig("spring.datasource.url").substring(5));
-        String uname = SpringUtil.getConfig("spring.datasource.username");
-        String pwd = SpringUtil.getConfig("spring.datasource.password");
+        URI url = URI.create(SpringUtil.getConfigOrElse("spring.datasource.url", "spring.dynamic.datasource.master.url").substring(5));
+        String uname = SpringUtil.getConfigOrElse("spring.datasource.username", "spring.dynamic.datasource.master.username");
+        String pwd = SpringUtil.getConfigOrElse("spring.datasource.password", "spring.dynamic.datasource.master.password");
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://" + url.getHost() + ":" + url.getPort() +
                 "?useUnicode=true&characterEncoding=UTF-8&useSSL=false", uname, pwd);
              Statement statement = connection.createStatement()) {
