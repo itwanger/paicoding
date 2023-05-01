@@ -1,18 +1,12 @@
 package com.github.paicoding.forum.core.dal;
 
-import com.baomidou.mybatisplus.core.config.GlobalConfig;
-import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
@@ -26,11 +20,9 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
-//@ConditionalOnProperty(prefix = "spring.dynamic", name = {"master"})
+@ConditionalOnProperty(prefix = "spring.dynamic", name = "primary")
 @EnableConfigurationProperties(DsProperties.class)
 public class DataSourceConfig {
-    private static final String DEFAULT_DB = "DEFAULT";
-
     @Bean
     public DsAspect dsAspect() {
         return new DsAspect();
@@ -53,12 +45,11 @@ public class DataSourceConfig {
         }
 
         MyRoutingDataSource myRoutingDataSource = new MyRoutingDataSource();
-        Object key = DbEnum.MASTER.name();
+        Object key = dsProperties.getPrimary();
         if (!targetDataSources.containsKey(key)) {
-            if (targetDataSources.containsKey(DEFAULT_DB)) {
-                // 当master没有配置，default有配置时，使用default作为默认数据源，并添加master -> defaultDataSource的映射
-                key = DEFAULT_DB;
-                targetDataSources.put(DbEnum.MASTER.name(), targetDataSources.get(DEFAULT_DB));
+            if (targetDataSources.containsKey(DbEnum.MASTER.name())) {
+                // 当们没有配置primary对应的数据源时，存在MASTER数据源，则将主库作为默认的数据源
+                key = DbEnum.MASTER.name();
             } else {
                 key = targetDataSources.keySet().iterator().next();
             }

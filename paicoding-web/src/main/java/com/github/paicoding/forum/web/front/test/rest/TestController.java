@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.dal.DB;
 import com.github.paicoding.forum.core.dal.DbEnum;
+import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
@@ -21,12 +22,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 用于一些功能测试的入口
+ * 用于一些功能测试的入口，默认都使用从库，不支持修改数据
  *
  * @author YiHui
  * @date 2023/3/19
  */
 @Slf4j
+@DB(DbEnum.SLAVE)
 @RestController
 @RequestMapping(path = "test")
 public class TestController {
@@ -91,7 +93,6 @@ public class TestController {
      *
      * @return
      */
-    @DB(DbEnum.SLAVE)
     @GetMapping(path = "ds/read")
     public String readOnly() {
         // 保存请求计数
@@ -99,11 +100,28 @@ public class TestController {
         return "使用从库：更新成功!";
     }
 
+    /**
+     * 只读测试，如果有更新就会报错
+     *
+     * @return
+     */
+    @GetMapping(path = "ds/write2")
+    public String write2() {
+        int old = statisticsSettingService.getStatisticsCount().getPvCount();
+        DsSelectExecutor.execute(DbEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
+        // 保存请求计数
+        int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        return "编程式切换主库：更新成功! old=" + old + " new=" + n;
+    }
+
+
     @DB(DbEnum.MASTER)
     @GetMapping(path = "ds/write")
     public String write() {
         // 保存请求计数
+        int old = statisticsSettingService.getStatisticsCount().getPvCount();
         statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
-        return "使用主库：更新成功!";
+        int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        return "使用主库：更新成功! old=" + old + " new=" + n;
     }
 }

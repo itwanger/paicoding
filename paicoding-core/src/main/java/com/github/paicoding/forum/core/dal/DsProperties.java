@@ -13,5 +13,13 @@ import java.util.Map;
 @Data
 @ConfigurationProperties(prefix = "spring.dynamic")
 public class DsProperties {
+    /**
+     * 默认数据源
+     */
+    private String primary;
+
+    /**
+     * 多数据源配置
+     */
     private Map<String, DataSourceProperties> datasource;
 }
