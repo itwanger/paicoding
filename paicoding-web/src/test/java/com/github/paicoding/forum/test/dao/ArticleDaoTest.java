@@ -3,6 +3,8 @@ package com.github.paicoding.forum.test.dao;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
+import com.github.paicoding.forum.service.article.service.TagSettingService;
 import com.github.paicoding.forum.test.BasicTest;
 import com.github.paicoding.forum.service.article.repository.dao.CategoryDao;
 import com.github.paicoding.forum.service.article.repository.dao.TagDao;
@@ -28,6 +30,15 @@ public class ArticleDaoTest extends BasicTest {
 
     @Autowired
     private ArticleReadService articleService;
+
+    @Autowired
+    private TagSettingService tagSettingService;
+
+    @Test
+    public void testMysqlRedisSyc() {
+        TagDTO tagDTO = tagSettingService.getTagById(1L);
+        log.info("getTagById:{}", tagDTO);
+    }
 
     @Test
     public void testCategory() {
