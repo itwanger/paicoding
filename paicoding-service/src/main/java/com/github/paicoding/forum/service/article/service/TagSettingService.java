@@ -26,4 +26,6 @@ public interface TagSettingService {
      * @return
      */
     PageVo<TagDTO> getTagList(PageParam pageParam);
+
+    TagDTO getTagById(Long tagId);
 }
