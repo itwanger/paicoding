@@ -13,6 +13,8 @@ import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.springframework.util.CollectionUtils;
 
@@ -35,10 +37,7 @@ public class SqlStateInterceptor implements Interceptor {
     public Object intercept(Invocation invocation) throws Throwable {
         long time = System.currentTimeMillis();
         StatementHandler statementHandler = (StatementHandler) invocation.getTarget();
-        MybatisParameterHandler paramHandler = (MybatisParameterHandler) statementHandler.getParameterHandler();
-        String sql = getSql(statementHandler.getBoundSql(),
-                (MappedStatement) ReflectionUtils.getFieldVal(paramHandler, "mappedStatement", false));
-
+        String sql = buildSql(statementHandler);
         Object[] args = invocation.getArgs();
         String uname = "";
         if (args[0] instanceof HikariProxyPreparedStatement) {
@@ -62,15 +61,39 @@ public class SqlStateInterceptor implements Interceptor {
         return rs;
     }
 
+    /**
+     * 拼接sql
+     *
+     * @param statementHandler
+     * @return
+     */
+    private String buildSql(StatementHandler statementHandler) {
+        BoundSql boundSql = statementHandler.getBoundSql();
+        Configuration configuration = null;
+        if (statementHandler.getParameterHandler() instanceof DefaultParameterHandler) {
+            DefaultParameterHandler handler = (DefaultParameterHandler) statementHandler.getParameterHandler();
+            configuration = (Configuration) ReflectionUtils.getFieldVal(handler, "configuration", false);
+        } else if (statementHandler.getParameterHandler() instanceof MybatisParameterHandler) {
+            MybatisParameterHandler paramHandler = (MybatisParameterHandler) statementHandler.getParameterHandler();
+            configuration = ((MappedStatement) ReflectionUtils.getFieldVal(paramHandler, "mappedStatement", false)).getConfiguration();
+        }
+
+        if (configuration == null) {
+            return boundSql.getSql();
+        }
+
+        return getSql(boundSql, configuration);
+    }
+
 
     /**
      * 生成要执行的SQL命令
      *
      * @param boundSql
-     * @param ms
+     * @param configuration
      * @return
      */
-    private String getSql(BoundSql boundSql, MappedStatement ms) {
+    private String getSql(BoundSql boundSql, Configuration configuration) {
         String sql = boundSql.getSql();
         Object parameterObject = boundSql.getParameterObject();
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
@@ -78,6 +101,7 @@ public class SqlStateInterceptor implements Interceptor {
             return sql;
         }
 
+        MetaObject mo = configuration.newMetaObject(boundSql.getParameterObject());
         for (ParameterMapping parameterMapping : parameterMappings) {
             if (parameterMapping.getMode() == ParameterMode.OUT) {
                 continue;
@@ -90,17 +114,13 @@ public class SqlStateInterceptor implements Interceptor {
             if (boundSql.hasAdditionalParameter(propertyName)) {
                 //获取参数值
                 value = boundSql.getAdditionalParameter(propertyName);
-            } else if (ms.getConfiguration().getTypeHandlerRegistry().hasTypeHandler(parameterObject.getClass())) {
+            } else if (configuration.getTypeHandlerRegistry().hasTypeHandler(parameterObject.getClass())) {
                 //如果是单个值则直接赋值
                 value = parameterObject;
             } else {
-                MetaObject metaObject = ms.getConfiguration().newMetaObject(parameterObject);
-                value = metaObject.getValue(propertyName);
+                value = mo.getValue(propertyName);
             }
             String param = Matcher.quoteReplacement(getParameter(value));
-            if (log.isDebugEnabled()) {
-                log.debug("key = {}, value = {}", propertyName, param);
-            }
             sql = sql.replaceFirst("\\?", param);
         }
         sql += ";";
