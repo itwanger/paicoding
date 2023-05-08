@@ -23,6 +23,11 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "spring.dynamic", name = "primary")
 @EnableConfigurationProperties(DsProperties.class)
 public class DataSourceConfig {
+
+    public DataSourceConfig() {
+        log.info("动态数据源初始化!");
+    }
+
     @Bean
     public DsAspect dsAspect() {
         return new DsAspect();
