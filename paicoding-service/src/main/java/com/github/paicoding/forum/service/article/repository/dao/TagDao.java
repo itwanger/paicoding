@@ -94,4 +94,14 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
                 .one();
         return record != null ? record.getId() : null;
     }
+
+    /**
+     * 查询tag
+     * @param tagId
+     * @return
+     */
+    public TagDTO selectById(Long tagId) {
+        TagDO tagDO = lambdaQuery().eq(TagDO::getId, tagId).one();
+        return ArticleConverter.toDto(tagDO);
+    }
 }

@@ -80,6 +80,9 @@ public class ArticleConverter {
      * @return
      */
     public static TagDTO toDto(TagDO tag) {
+        if (tag == null) {
+            return null;
+        }
         TagDTO dto = new TagDTO();
         dto.setTag(tag.getTagName());
         dto.setTagId(tag.getId());
