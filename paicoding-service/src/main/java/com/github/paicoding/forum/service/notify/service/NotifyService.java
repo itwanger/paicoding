@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
+import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 
 import java.util.Map;
 
@@ -37,4 +38,12 @@ public interface NotifyService {
      * @return
      */
     Map<String, Integer> queryUnreadCounts(long userId);
+
+    /**
+     * 保存通知
+     *
+     * @param foot
+     * @param notifyTypeEnum
+     */
+    void saveArticleNotify(UserFootDO foot, NotifyTypeEnum notifyTypeEnum);
 }

@@ -10,7 +10,7 @@ spring:
   #    active: dal,web,config,image
   # 替换上面作废的spring.profiels.actice配置参数
   config:
-    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml
+    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml,application-rabbitmq.yml
 
   main:
     allow-circular-references: true
