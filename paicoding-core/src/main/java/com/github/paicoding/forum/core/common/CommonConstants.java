@@ -13,7 +13,16 @@ import java.util.Map;
  */
 public class CommonConstants {
 
-    // 分类类型
+    /**
+     * 消息队列
+     */
+    public static String EXCHANGE_NAME_DIRECT = "direct.exchange";
+    public static String QUERE_KEY_PRAISE = "praise";
+    public static String QUERE_NAME_PRAISE = "quere.praise";
+
+    /**
+     * 分类类型
+     */
     public static final String CATEGORY_ALL             = "全部";
     public static final String CATEGORY_BACK_EMD        = "后端";
     public static final String CATEGORY_FORNT_END       = "前端";
@@ -25,7 +34,9 @@ public class CommonConstants {
     public static final String CATEGORY_TOOL            = "开发工具";
     public static final String CATEGORY_READ            = "阅读";
 
-    // 首页图片
+    /**
+     * 首页图片
+     */
     public static final Map<String, List<String>> HOMEPAGE_TOP_PIC_MAP = new HashMap<String, List<String>>() {
         {
             put(CATEGORY_ALL, new ArrayList<String>() {
