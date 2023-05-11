@@ -5,3 +5,4 @@ rabbitmq:
   passport: admin
   virtualhost: /
   switch_flag: false
+  pool_size: 10

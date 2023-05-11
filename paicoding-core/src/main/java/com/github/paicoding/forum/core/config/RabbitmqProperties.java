@@ -43,6 +43,11 @@ public class RabbitmqProperties {
     private String virtualhost;
 
     /**
+     * 连接池大小
+     */
+    private Integer poolSize;
+
+    /**
      * 开关 false-关闭，true-打开
      */
     private Boolean switchFlag;

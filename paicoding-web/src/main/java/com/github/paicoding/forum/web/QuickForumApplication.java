@@ -101,7 +101,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         }
         // 启动 RabbitMQ 进行消费
         if (rabbitmqProperties.getSwitchFlag()) {
-            taskExecutor.execute(() -> rabbitmqService.processConsumerMsg());
+//            taskExecutor.execute(() -> rabbitmqService.processConsumerMsg());
         }
         log.info("启动成功，点击进入首页: {}", config.getHost());
     }

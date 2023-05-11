@@ -1,0 +1,48 @@
+package com.github.paicoding.forum.core.rabbitmq;
+
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+/**
+ * @author Louzai
+ * @date 2023/5/10
+ */
+public class RabbitmqConnection {
+
+    private Connection connection;
+
+    public RabbitmqConnection(String host, int port, String userName, String password, String virtualhost) {
+        ConnectionFactory connectionFactory = RabbitmqUtil.getOrInitConnectionFactory(
+                host, port, userName, password, virtualhost);
+        try {
+            connection = connectionFactory.newConnection();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取链接
+     *
+     * @return
+     */
+    public Connection getConnection() {
+        return connection;
+    }
+
+    /**
+     * 关闭链接
+     *
+     */
+    public void close() {
+        try {
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
