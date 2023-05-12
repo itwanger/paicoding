@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.core.config.RabbitmqProperties;
+import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnectionPool;
 import com.github.paicoding.forum.core.util.SocketUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.notify.service.RabbitmqService;
@@ -101,7 +102,14 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         }
         // 启动 RabbitMQ 进行消费
         if (rabbitmqProperties.getSwitchFlag()) {
-//            taskExecutor.execute(() -> rabbitmqService.processConsumerMsg());
+            String host = rabbitmqProperties.getHost();
+            Integer port = rabbitmqProperties.getPort();
+            String userName = rabbitmqProperties.getUsername();
+            String password = rabbitmqProperties.getPassport();
+            String virtualhost = rabbitmqProperties.getVirtualhost();
+            Integer poolSize = rabbitmqProperties.getPoolSize();
+            RabbitmqConnectionPool.initRabbitmqConnectionPool(host, port, userName, password, virtualhost, poolSize);
+            taskExecutor.execute(() -> rabbitmqService.processConsumerMsg());
         }
         log.info("启动成功，点击进入首页: {}", config.getHost());
     }

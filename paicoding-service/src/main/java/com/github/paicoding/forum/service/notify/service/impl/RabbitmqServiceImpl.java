@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.notify.service.impl;
 
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.core.common.CommonConstants;
+import com.github.paicoding.forum.core.config.RabbitmqProperties;
 import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnection;
 import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnectionPool;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -26,10 +27,10 @@ import java.util.concurrent.TimeoutException;
 public class RabbitmqServiceImpl implements RabbitmqService {
 
     @Autowired
-    private RabbitmqConnectionPool rabbitmqConnectionPool;
+    private NotifyService notifyService;
 
     @Autowired
-    private NotifyService notifyService;
+    private RabbitmqProperties rabbitmqProperties;
 
     @Override
     public void publishMsg(String exchange,
@@ -38,7 +39,8 @@ public class RabbitmqServiceImpl implements RabbitmqService {
                            String message) {
         try {
             //创建连接
-            Connection connection = rabbitmqConnectionPool.getConnection().getConnection();
+            RabbitmqConnection rabbitmqConnection = RabbitmqConnectionPool.getConnection();
+            Connection connection = rabbitmqConnection.getConnection();
             //创建消息通道
             Channel channel = connection.createChannel();
             // 声明exchange中的消息为可持久化，不自动删除
@@ -47,6 +49,8 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             channel.basicPublish(exchange, toutingKey, null, message.getBytes());
             System.out.println("Publish msg:" + message);
             channel.close();
+
+            RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
 //            connection.close();
         } catch (InterruptedException | IOException | TimeoutException e) {
             e.printStackTrace();
@@ -61,7 +65,8 @@ public class RabbitmqServiceImpl implements RabbitmqService {
 
         try {
             //创建连接
-            Connection connection = rabbitmqConnectionPool.getConnection().getConnection();
+            RabbitmqConnection rabbitmqConnection = RabbitmqConnectionPool.getConnection();
+            Connection connection = rabbitmqConnection.getConnection();
             //创建消息信道
             final Channel channel = connection.createChannel();
             //消息队列
@@ -85,6 +90,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             };
             // 取消自动ack
             channel.basicConsume(queue, false, consumer);
+            RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
