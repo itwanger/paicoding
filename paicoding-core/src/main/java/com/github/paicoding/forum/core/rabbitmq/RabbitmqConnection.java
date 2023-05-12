@@ -15,8 +15,12 @@ public class RabbitmqConnection {
     private Connection connection;
 
     public RabbitmqConnection(String host, int port, String userName, String password, String virtualhost) {
-        ConnectionFactory connectionFactory = RabbitmqUtil.getOrInitConnectionFactory(
-                host, port, userName, password, virtualhost);
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost(host);
+        connectionFactory.setPort(port);
+        connectionFactory.setUsername(userName);
+        connectionFactory.setPassword(password);
+        connectionFactory.setVirtualHost(virtualhost);
         try {
             connection = connectionFactory.newConnection();
         } catch (IOException | TimeoutException e) {
