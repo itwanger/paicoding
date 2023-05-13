@@ -6,13 +6,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 说明：添加rabbitmq连接池后，这个就可以废弃掉
  * @author Louzai
  * @date 2023/5/10
  */
 public class RabbitmqUtil {
 
     /**
-     * 每个key都有自己的工厂
+     * 每个 host 都有自己的工厂，便于后面改造成多机的方式
      */
     private static Map<String, ConnectionFactory> executors = new ConcurrentHashMap<>();
 
@@ -26,7 +27,7 @@ public class RabbitmqUtil {
      * @param virtualhost
      * @return
      */
-    public static ConnectionFactory init(String host,
+    private static ConnectionFactory init(String host,
                                   Integer port,
                                   String username,
                                   String passport,
@@ -41,9 +42,8 @@ public class RabbitmqUtil {
     }
 
     /**
-     * 工厂单例，每个key都有属于自己的工厂
+     * 工厂单例，每个host都有属于自己的工厂
      *
-     * @param key
      * @param host
      * @param port
      * @param username
@@ -51,12 +51,12 @@ public class RabbitmqUtil {
      * @param virtualhost
      * @return
      */
-    public static ConnectionFactory getOrInitConnectionFactory(String key,
-                                                               String host,
+    public static ConnectionFactory getOrInitConnectionFactory(String host,
                                                                Integer port,
                                                                String username,
                                                                String passport,
                                                                String virtualhost) {
+        String key = getConnectionFactoryKey(host, port);
         ConnectionFactory connectionFactory = executors.get(key);
         if (null == connectionFactory) {
             synchronized (RabbitmqUtil.class) {
@@ -68,5 +68,15 @@ public class RabbitmqUtil {
             }
         }
         return connectionFactory;
+    }
+
+    /**
+     * 获取key
+     * @param host
+     * @param port
+     * @return
+     */
+    private static String getConnectionFactoryKey(String host, Integer port) {
+        return host + ":" + port;
     }
 }
