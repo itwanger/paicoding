@@ -29,9 +29,6 @@ public class RabbitmqServiceImpl implements RabbitmqService {
     @Autowired
     private NotifyService notifyService;
 
-    @Autowired
-    private RabbitmqProperties rabbitmqProperties;
-
     @Override
     public void publishMsg(String exchange,
                            BuiltinExchangeType exchangeType,
@@ -49,9 +46,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             channel.basicPublish(exchange, toutingKey, null, message.getBytes());
             System.out.println("Publish msg:" + message);
             channel.close();
-
             RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
-//            connection.close();
         } catch (InterruptedException | IOException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -60,7 +55,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
 
     @Override
     public void consumerMsg(String exchange,
-                            String queue,
+                            String queueName,
                             String routingKey) {
 
         try {
@@ -70,9 +65,9 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             //创建消息信道
             final Channel channel = connection.createChannel();
             //消息队列
-            channel.queueDeclare(queue, true, false, false, null);
+            channel.queueDeclare(queueName, true, false, false, null);
             //绑定队列到交换机
-            channel.queueBind(queue, exchange, routingKey);
+            channel.queueBind(queueName, exchange, routingKey);
 
             Consumer consumer = new DefaultConsumer(channel) {
                 @Override
@@ -89,7 +84,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
                 }
             };
             // 取消自动ack
-            channel.basicConsume(queue, false, consumer);
+            channel.basicConsume(queueName, false, consumer);
             RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
@@ -108,8 +103,8 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             step ++;
             try {
                 System.out.println("processConsumerMsg cycle.");
-                consumerMsg(CommonConstants.EXCHANGE_NAME_DIRECT, CommonConstants.QUERE_KEY_PRAISE,
-                        CommonConstants.QUERE_NAME_PRAISE);
+                consumerMsg(CommonConstants.EXCHANGE_NAME_DIRECT, CommonConstants.QUERE_NAME_PRAISE,
+                        CommonConstants.QUERE_KEY_PRAISE);
                 if (step.equals(stepTotal)) {
                     Thread.sleep(10000);
                     step = 0;
