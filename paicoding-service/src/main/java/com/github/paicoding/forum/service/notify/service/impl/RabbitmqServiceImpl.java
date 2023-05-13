@@ -85,8 +85,9 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             };
             // 取消自动ack
             channel.basicConsume(queueName, false, consumer);
+            channel.close();
             RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
-        } catch (InterruptedException | IOException e) {
+        } catch (InterruptedException | IOException | TimeoutException e) {
             e.printStackTrace();
         }
     }
