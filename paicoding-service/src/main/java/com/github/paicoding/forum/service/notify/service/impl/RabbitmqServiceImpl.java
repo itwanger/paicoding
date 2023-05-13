@@ -104,8 +104,8 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             step ++;
             try {
                 System.out.println("processConsumerMsg cycle.");
-                consumerMsg(CommonConstants.EXCHANGE_NAME_DIRECT, CommonConstants.QUERE_KEY_PRAISE,
-                        CommonConstants.QUERE_NAME_PRAISE);
+                consumerMsg(CommonConstants.EXCHANGE_NAME_DIRECT, CommonConstants.QUERE_NAME_PRAISE,
+                        CommonConstants.QUERE_KEY_PRAISE);
                 if (step.equals(stepTotal)) {
                     Thread.sleep(10000);
                     step = 0;
