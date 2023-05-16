@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.api.model.vo.article;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -8,6 +7,10 @@ import lombok.Data;
 @Data
 @ApiModel("文章查询")
 public class SearchArticleReq {
+
+    // 文章标题
+    @ApiModelProperty("文章标题")
+    private String title;
 
     @ApiModelProperty("文章ID")
     private Long articleId;

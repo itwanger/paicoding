@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.article.repository.params;
 
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -9,6 +8,11 @@ import lombok.Data;
  */
 @Data
 public class SearchArticleParams extends PageParam {
+
+    /**
+     * 文章标题
+     */
+    private String title;
 
     /**
      * 文章ID

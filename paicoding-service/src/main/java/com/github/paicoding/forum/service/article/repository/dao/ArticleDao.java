@@ -12,7 +12,6 @@ import com.github.paicoding.forum.api.model.enums.OfficalStatEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
@@ -335,11 +334,13 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     public List<ArticleDO> listArticlesByParams(SearchArticleParams searchArticleParams, PageParam pageParam) {
         return lambdaQuery()
+                .like(!StringUtils.isEmpty(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
+                // ID 不为空
                 .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
                 .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
-                .eq(Objects.nonNull(searchArticleParams.getStatus()), ArticleDO::getStatus, searchArticleParams.getStatus())
-                .eq(Objects.nonNull(searchArticleParams.getOfficalStat()), ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
-                .eq(Objects.nonNull(searchArticleParams.getToppingStat()), ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
+                .eq(Objects.nonNull(searchArticleParams.getStatus()) && searchArticleParams.getStatus() != -1, ArticleDO::getStatus, searchArticleParams.getStatus())
+                .eq(Objects.nonNull(searchArticleParams.getOfficalStat())&& searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
+                .eq(Objects.nonNull(searchArticleParams.getToppingStat())&& searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId)
@@ -353,11 +354,13 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     public Integer countArticleByParams(SearchArticleParams searchArticleParams) {
         return lambdaQuery()
+                .like(!StringUtils.isEmpty(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
+                // ID 不为空
                 .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
                 .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
-                .eq(Objects.nonNull(searchArticleParams.getStatus()), ArticleDO::getStatus, searchArticleParams.getStatus())
-                .eq(Objects.nonNull(searchArticleParams.getOfficalStat()), ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
-                .eq(Objects.nonNull(searchArticleParams.getToppingStat()), ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
+                .eq(Objects.nonNull(searchArticleParams.getStatus()) && searchArticleParams.getStatus() != -1, ArticleDO::getStatus, searchArticleParams.getStatus())
+                .eq(Objects.nonNull(searchArticleParams.getOfficalStat())&& searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
+                .eq(Objects.nonNull(searchArticleParams.getToppingStat())&& searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .count().intValue();
     }

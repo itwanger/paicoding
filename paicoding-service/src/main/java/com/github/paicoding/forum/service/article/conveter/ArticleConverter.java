@@ -132,6 +132,7 @@ public class ArticleConverter {
             return null;
         }
         SearchArticleParams searchArticleParams = new SearchArticleParams();
+        searchArticleParams.setTitle(req.getTitle());
         searchArticleParams.setArticleId(req.getArticleId());
         searchArticleParams.setUserId(req.getUserId());
         searchArticleParams.setStatus(req.getStatus());
