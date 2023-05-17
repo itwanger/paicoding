@@ -16,9 +16,11 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
+import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.web.front.search.vo.SearchColumnVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +33,7 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
+@Slf4j
 @Permission(role = UserRole.LOGIN)
 @Api(value = "专栏及专栏文章管理控制器", tags = "专栏管理")
 @RequestMapping(path = {"api/admin/column/", "admin/column/"})
@@ -41,6 +44,9 @@ public class ColumnSettingRestController {
 
     @Autowired
     private ArticleReadService articleReadService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "saveColumn")
