@@ -15,6 +15,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
+import com.github.paicoding.forum.service.article.conveter.SearchArticleMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
@@ -84,14 +85,24 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Override
     public PageVo<ArticleDTO> getArticleList(SearchArticleReq req) {
-        SearchArticleParams searchArticleParams = ArticleConverter.toSearchParams(req);
+        // 转换参数，从前端获取的参数转换为数据库查询参数
+        SearchArticleParams searchArticleParams = SearchArticleMapper.INSTANCE.toSearchParams(req);
+
+        // 查询文章列表，分页
         List<ArticleDO> articleDOS = articleDao.listArticlesByParams(
                 searchArticleParams, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
+
+        // 转换文章列表，从数据库查询结果转换为前端展示结果
         List<ArticleDTO> articleDTOS = ArticleConverter.toArticleDtoList(articleDOS);
+
+        // 查询文章作者信息
+        // fixme: 这里最好直接从数据库使用多表联合查询，而不是遍历后再查询
         articleDTOS.forEach(articleDTO -> {
             BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
             articleDTO.setAuthorName(user.getUserName());
         });
+
+        // 查询文章总数
         Integer totalCount = articleDao.countArticleByParams(searchArticleParams);
         return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }

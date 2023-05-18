@@ -9,6 +9,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ColumnArticl
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnInfoMapper;
+import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -124,5 +125,20 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
             columnArticleMapper.delete(query);
             baseMapper.deleteById(columnId);
         }
+    }
+
+    public List<ColumnInfoDO> listColumnsByParams(SearchColumnParams params, PageParam pageParam) {
+        LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
+        query.like(ColumnInfoDO::getColumnName, params.getColumn())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByAsc(ColumnInfoDO::getSection);
+        return baseMapper.selectList(query);
+
+    }
+
+    public Integer countColumnsByParams(SearchColumnParams params) {
+        LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
+        query.like(ColumnInfoDO::getColumnName, params.getColumn());
+        return baseMapper.selectCount(query).intValue();
     }
 }
