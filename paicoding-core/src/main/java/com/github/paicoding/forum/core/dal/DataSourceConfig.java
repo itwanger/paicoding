@@ -55,7 +55,7 @@ public class DataSourceConfig {
         }
 
         MyRoutingDataSource myRoutingDataSource = new MyRoutingDataSource();
-        Object key = dsProperties.getPrimary();
+        Object key = dsProperties.getPrimary().toUpperCase();
         if (!targetDataSources.containsKey(key)) {
             if (targetDataSources.containsKey(MasterSlaveDsEnum.MASTER.name())) {
                 // 当们没有配置primary对应的数据源时，存在MASTER数据源，则将主库作为默认的数据源
