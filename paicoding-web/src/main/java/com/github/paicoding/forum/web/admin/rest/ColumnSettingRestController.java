@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
@@ -90,6 +91,12 @@ public class ColumnSettingRestController {
         return ResVo.ok("ok");
     }
 
+    @ApiOperation("获取文章列表")
+    @PostMapping(path = "list")
+    public ResVo<PageVo<ColumnDTO>> list(@RequestBody SearchColumnReq req) {
+        PageVo<ColumnDTO> columnDTOPageVo = columnSettingService.getColumnList(req);
+        return ResVo.ok(columnDTOPageVo);
+    }
 
     @GetMapping(path = "listColumn")
     public ResVo<PageVo<ColumnDTO>> listColumn(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,

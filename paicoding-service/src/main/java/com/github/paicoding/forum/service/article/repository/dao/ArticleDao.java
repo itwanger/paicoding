@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
@@ -327,12 +328,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     }
 
     /**
-     * 文章列表（用于后台）
-     *
-     * @param searchArticleParams
-     * @return
+     * 抽取样板代码
      */
-    public List<ArticleDO> listArticlesByParams(SearchArticleParams searchArticleParams, PageParam pageParam) {
+    private LambdaQueryChainWrapper<ArticleDO> buildQuery(SearchArticleParams searchArticleParams) {
         return lambdaQuery()
                 .like(!StringUtils.isEmpty(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
                 // ID 不为空
@@ -341,7 +339,16 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(Objects.nonNull(searchArticleParams.getStatus()) && searchArticleParams.getStatus() != -1, ArticleDO::getStatus, searchArticleParams.getStatus())
                 .eq(Objects.nonNull(searchArticleParams.getOfficalStat())&& searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
                 .eq(Objects.nonNull(searchArticleParams.getToppingStat())&& searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
-                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
+    }
+
+
+    /**
+     * 文章列表（用于后台）
+     *
+     */
+    public List<ArticleDO> listArticlesByParams(SearchArticleParams searchArticleParams, PageParam pageParam) {
+        return buildQuery(searchArticleParams)
                 .last(PageParam.getLimitSql(pageParam))
                 .orderByDesc(ArticleDO::getId)
                 .list();
@@ -350,18 +357,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     /**
      * 文章总数（用于后台）
      *
-     * @return
      */
     public Integer countArticleByParams(SearchArticleParams searchArticleParams) {
-        return lambdaQuery()
-                .like(!StringUtils.isEmpty(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
-                // ID 不为空
-                .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
-                .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
-                .eq(Objects.nonNull(searchArticleParams.getStatus()) && searchArticleParams.getStatus() != -1, ArticleDO::getStatus, searchArticleParams.getStatus())
-                .eq(Objects.nonNull(searchArticleParams.getOfficalStat())&& searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
-                .eq(Objects.nonNull(searchArticleParams.getToppingStat())&& searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
-                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+        return buildQuery(searchArticleParams)
                 .count().intValue();
     }
 
