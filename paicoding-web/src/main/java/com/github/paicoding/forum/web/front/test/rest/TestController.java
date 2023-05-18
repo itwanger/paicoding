@@ -1,30 +1,34 @@
 package com.github.paicoding.forum.web.front.test.rest;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.dal.DsAno;
+import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
+import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
+import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 用于一些功能测试的入口
+ * 用于一些功能测试的入口，默认都使用从库，不支持修改数据
  *
  * @author YiHui
  * @date 2023/3/19
  */
 @Slf4j
+@DsAno(MasterSlaveDsEnum.SLAVE)
 @RestController
 @RequestMapping(path = "test")
 public class TestController {
@@ -72,10 +76,54 @@ public class TestController {
 
     /**
      * 测试 Knife4j
+     *
      * @return
      */
-    @RequestMapping(value ="/testKnife4j", method = RequestMethod.POST)
+    @RequestMapping(value = "/testKnife4j", method = RequestMethod.POST)
     public String testKnife4j() {
         return "沉默王二又帅又丑";
+    }
+
+
+    @Autowired
+    private StatisticsSettingService statisticsSettingService;
+
+    /**
+     * 只读测试，如果有更新就会报错
+     *
+     * @return
+     */
+    @GetMapping(path = "ds/read")
+    public String readOnly() {
+        // 保存请求计数
+        statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
+        return "使用从库：更新成功!";
+    }
+
+    /**
+     * 只读测试，如果有更新就会报错
+     *
+     * @return
+     */
+    @GetMapping(path = "ds/write2")
+    public String write2() {
+        log.info("------------------- 业务逻辑进入 ----------------------------");
+        int old = statisticsSettingService.getStatisticsCount().getPvCount();
+        DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
+        // 保存请求计数
+        int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        log.info("------------------- 业务逻辑结束 ----------------------------");
+        return "编程式切换主库：更新成功! old=" + old + " new=" + n;
+    }
+
+
+    @DsAno(MasterSlaveDsEnum.MASTER)
+    @GetMapping(path = "ds/write")
+    public String write() {
+        // 保存请求计数
+        int old = statisticsSettingService.getStatisticsCount().getPvCount();
+        statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
+        int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        return "使用主库：更新成功! old=" + old + " new=" + n;
     }
 }
