@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
@@ -14,13 +15,14 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
+import com.github.paicoding.forum.service.article.conveter.SearchColumnArticleMapper;
 import com.github.paicoding.forum.service.article.conveter.SearchColumnMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
-import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper;
+import com.github.paicoding.forum.service.article.repository.params.SearchColumnArticleParams;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.user.service.UserService;
@@ -28,8 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 专栏后台接口
@@ -102,44 +106,49 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public PageVo<ColumnDTO> listColumn(PageParam pageParam) {
-        List<ColumnInfoDO> columnList = columnDao.listColumns(pageParam);
-        List<ColumnDTO> columnDTOS = ColumnConvert.toDtos(columnList);
+    public PageVo<ColumnDTO> getColumnList(SearchColumnReq req) {
+        // 转换参数
+        SearchColumnMapper mapper = SearchColumnMapper.INSTANCE;
+        SearchColumnParams params = mapper.toSearchParams(req);
+        // 查询
+        List<ColumnInfoDO> columnList = columnDao.listColumnsByParams(params, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
+        // 转属性
+        List<ColumnDTO> columnDTOS = mapper.toDtos(columnList);
+
+        // 进行优化，由原来的多次查询用户信息，改为一次查询用户信息
+        // 获取所有需要的用户id
+        List<Long> userIds = columnDTOS.stream().map(ColumnDTO::getAuthor).collect(Collectors.toList());
+
+        // 查询所有的用户信息
+        List<BaseUserInfoDTO> users = userService.queryBasicUserInfos(userIds);
+
+        // 创建一个id到用户信息的映射
+        Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
+
+        // 设置作者信息
         columnDTOS.forEach(columnDTO -> {
-            BaseUserInfoDTO user = userService.queryBasicUserInfo(columnDTO.getAuthor());
+            BaseUserInfoDTO user = userMap.get(columnDTO.getAuthor());
             columnDTO.setAuthorName(user.getUserName());
             columnDTO.setAuthorAvatar(user.getPhoto());
             columnDTO.setAuthorProfile(user.getProfile());
         });
-        Integer totalCount = columnDao.countColumns();
-        return PageVo.build(columnDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+
+
+        Integer totalCount = columnDao.countColumnsByParams(params);
+        return PageVo.build(columnDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }
 
     @Override
-    public PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) throws Exception {
-        List<ColumnArticleDTO> simpleArticleDTOS = new ArrayList<>();
-        List<ColumnArticleDO> columnArticleDOS = columnDao.listColumnArticlesDetail(columnId, pageParam);
-        for (ColumnArticleDO columnArticleDO : columnArticleDOS) {
-            ArticleDO articleDO = articleDao.getById(columnArticleDO.getArticleId());
-            if (articleDO == null) {
-                throw new Exception("文章不存在");
-            }
-            ColumnInfoDO columnInfoDO = columnDao.getById(columnArticleDO.getColumnId());
-            if (columnInfoDO == null) {
-                throw new Exception("课程不存在");
-            }
-            ColumnArticleDTO columnArticleDTO = new ColumnArticleDTO();
-            columnArticleDTO.setId(columnArticleDO.getId());
-            columnArticleDTO.setArticleId(articleDO.getId());
-            columnArticleDTO.setTitle(articleDO.getTitle());
-            columnArticleDTO.setSort(columnArticleDO.getSection());
-            columnArticleDTO.setColumnId(columnArticleDO.getColumnId());
-            columnArticleDTO.setColumn(columnInfoDO.getColumnName());
-            simpleArticleDTOS.add(columnArticleDTO);
-        }
-        Integer totalCount = columnDao.countColumnArticles(columnId);
-        return PageVo.build(simpleArticleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+    public PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req) {
+       // 转换参数
+        SearchColumnArticleMapper mapper = SearchColumnArticleMapper.INSTANCE;
+        SearchColumnArticleParams params = mapper.toSearchParams(req);
+        // 查询
+        List<ColumnArticleDTO> simpleArticleDTOS = columnDao.listColumnArticlesDetail(params, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
+        int totalCount = columnDao.countColumnArticles(params);
+        return PageVo.build(simpleArticleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }
+
 
     @Override
     public List<SimpleColumnDTO> listSimpleColumnByBySearchKey(String key) {
@@ -152,21 +161,5 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         return ColumnConvert.toSimpleColumnDTOs(columnDao.list(query));
     }
 
-    @Override
-    public PageVo<ColumnDTO> getColumnList(SearchColumnReq req) {
-        // 转换参数
-        SearchColumnParams params = SearchColumnMapper.INSTANCE.toSearchParams(req);
-        // 查询
-        List<ColumnInfoDO> columnList = columnDao.listColumnsByParams(params, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
 
-        List<ColumnDTO> columnDTOS = ColumnConvert.toDtos(columnList);
-        columnDTOS.forEach(columnDTO -> {
-            BaseUserInfoDTO user = userService.queryBasicUserInfo(columnDTO.getAuthor());
-            columnDTO.setAuthorName(user.getUserName());
-            columnDTO.setAuthorAvatar(user.getPhoto());
-            columnDTO.setAuthorProfile(user.getProfile());
-        });
-        Integer totalCount = columnDao.countColumnsByParams(params);
-        return PageVo.build(columnDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
-    }
 }

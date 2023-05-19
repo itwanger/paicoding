@@ -23,4 +23,37 @@
         select count(distinct u.user_id) from column_article as a left join user_foot as u on a.article_id = u.document_id
         where u.document_type = 1 and u.read_stat = 1 and a.column_id = #{columnId}
     </select>
+
+    <select id="listColumnArticlesByColumnIdArticleName"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO">
+        select c.id, c.article_id, a.title, c.column_id,
+               col.column_name as `column`, col.cover as column_cover,
+               c.`section` as sort, c.create_time
+        from column_article as c
+            left join article as a on c.article_id = a.id
+            left join column_info as col on c.column_id = col.id
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+            <if test="columnId != null and columnId != -1">
+                and c.column_id = #{columnId}
+            </if>
+            <if test="articleName != null and articleName != ''">
+                and a.title like concat('%', #{articleName}, '%')
+            </if>
+        order by c.section asc
+        <include refid="limit"></include>
+    </select>
+
+    <select id="countColumnArticlesByColumnIdArticleName" resultType="java.lang.Long">
+        select count(1)
+        from column_article as c
+            left join article as a on c.article_id = a.id
+            left join column_info as col on c.column_id = col.id
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+            <if test="columnId != null and columnId != -1">
+                and c.column_id = #{columnId}
+            </if>
+            <if test="articleName != null and articleName != ''">
+                and a.title like concat('%', #{articleName}, '%')
+            </if>
+    </select>
 </mapper>
