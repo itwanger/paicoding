@@ -1,11 +1,11 @@
 package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
@@ -13,7 +13,6 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
@@ -91,35 +90,25 @@ public class ColumnSettingRestController {
         return ResVo.ok("ok");
     }
 
-    @ApiOperation("获取文章列表")
+    @ApiOperation("获取教程列表")
     @PostMapping(path = "list")
     public ResVo<PageVo<ColumnDTO>> list(@RequestBody SearchColumnReq req) {
         PageVo<ColumnDTO> columnDTOPageVo = columnSettingService.getColumnList(req);
         return ResVo.ok(columnDTOPageVo);
     }
 
-    @GetMapping(path = "listColumn")
-    public ResVo<PageVo<ColumnDTO>> listColumn(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                               @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<ColumnDTO> columnDTOPageVo = columnSettingService.listColumn(PageParam.newPageInstance(pageNumber, pageSize));
-        return ResVo.ok(columnDTOPageVo);
-    }
-
-    @GetMapping(path = "listColumnArticle")
-    public ResVo<PageVo<ColumnArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId,
-                                                             @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                                             @RequestParam(name = "pageSize", required = false) Integer pageSize) throws Exception {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        try {
-            PageVo<ColumnArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(
-                    columnId, PageParam.newPageInstance(pageNumber, pageSize));
-            return ResVo.ok(simpleArticleDTOS);
-        } catch (Exception e) {
-            return ResVo.fail(StatusEnum.COLUMN_QUERY_ERROR, e.getMessage());
-        }
+    /**
+     * 获取教程配套的文章列表
+     * <p>
+     *     请求参数有教程名、文章名
+     *     返回教程配套的文章列表
+     *
+     * @return
+     */
+    @PostMapping(path = "listColumnArticle")
+    public ResVo<PageVo<ColumnArticleDTO>> listColumnArticle(@RequestBody SearchColumnArticleReq req) {
+        PageVo<ColumnArticleDTO> vo = columnSettingService.getColumnArticleList(req);
+        return ResVo.ok(vo);
     }
 
     @ApiOperation("专栏搜索")

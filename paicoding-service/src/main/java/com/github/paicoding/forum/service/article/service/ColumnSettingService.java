@@ -1,9 +1,9 @@
 package com.github.paicoding.forum.service.article.service;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
@@ -55,22 +55,6 @@ public interface ColumnSettingService {
     void deleteColumnArticle(Integer id);
 
     /**
-     * 专栏列表
-     *
-     * @param pageParam
-     * @return
-     */
-    PageVo<ColumnDTO> listColumn(PageParam pageParam);
-
-    /**
-     * 查询专栏的文章详情
-     *
-     * @param columnId
-     * @return
-     */
-    PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) throws Exception;
-
-    /**
      * 通过关键词，从标题中找出相似的进行推荐，只返回主键 + 标题
      *
      * @param key
@@ -79,4 +63,6 @@ public interface ColumnSettingService {
     List<SimpleColumnDTO> listSimpleColumnByBySearchKey(String key);
 
     PageVo<ColumnDTO> getColumnList(SearchColumnReq req);
+
+    PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req);
 }

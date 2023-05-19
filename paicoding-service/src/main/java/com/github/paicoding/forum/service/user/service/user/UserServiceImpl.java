@@ -211,4 +211,17 @@ public class UserServiceImpl implements UserService {
         userHomeDTO.setYearArticleList(yearArticleDTOS);
         return userHomeDTO;
     }
+
+    /**
+     * 查询用户基本信息
+     *
+     * @param userIds
+     * @return
+     */
+    @Override
+    public List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds) {
+        // 根据 userIds 查询
+        List<UserInfoDO> users = userDao.getByUserIds(userIds);
+        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
+    }
 }

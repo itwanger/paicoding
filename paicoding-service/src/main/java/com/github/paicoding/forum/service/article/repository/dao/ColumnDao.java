@@ -1,19 +1,23 @@
 package com.github.paicoding.forum.service.article.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnInfoMapper;
+import com.github.paicoding.forum.service.article.repository.params.SearchColumnArticleParams;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author YiHui
@@ -46,9 +50,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      */
     public int countColumnArticles(Long columnId) {
         LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        if (columnId != null && columnId > 0) {
-            query.eq(ColumnArticleDO::getColumnId, columnId);
-        }
+        query.eq(!Objects.nonNull(columnId),ColumnArticleDO::getColumnId, columnId);
         return columnArticleMapper.selectCount(query).intValue();
     }
 
@@ -61,19 +63,19 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
     }
 
     /**
-     * 根据专栏ID查询文章信息列表
-     *
-     * @param columnId
+     * 根据教程ID查询文章信息列表
      * @return
      */
-    public List<ColumnArticleDO> listColumnArticlesDetail(Long columnId, PageParam pageParam) {
-        LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        if (columnId != null && columnId > 0) {
-            query.eq(ColumnArticleDO::getColumnId, columnId);
-        }
-        query.orderByDesc(ColumnArticleDO::getColumnId).orderByAsc(ColumnArticleDO::getSection);
-        query.last(PageParam.getLimitSql(pageParam));
-        return columnArticleMapper.selectList(query);
+    public List<ColumnArticleDTO> listColumnArticlesDetail(SearchColumnArticleParams params,
+                                                           PageParam pageParam) {
+        return columnArticleMapper.listColumnArticlesByColumnIdArticleName(params.getColumnId(),
+                params.getArticleTitle(),
+                pageParam);
+    }
+
+    public Integer countColumnArticles(SearchColumnArticleParams params) {
+        return columnArticleMapper.countColumnArticlesByColumnIdArticleName(params.getColumnId(),
+                params.getArticleTitle()).intValue();
     }
 
     /**
@@ -115,6 +117,8 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
     /**
      * 删除专栏
      *
+     * fixme 改为逻辑删除
+     *
      * @param columnId
      */
     public void deleteColumn(Integer columnId) {
@@ -127,18 +131,25 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         }
     }
 
+    /**
+     * 查询教程
+     */
     public List<ColumnInfoDO> listColumnsByParams(SearchColumnParams params, PageParam pageParam) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        query.like(ColumnInfoDO::getColumnName, params.getColumn())
-                .last(PageParam.getLimitSql(pageParam))
+        // 加上判空条件
+        query.like(!StringUtils.isEmpty(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
+        query.last(PageParam.getLimitSql(pageParam))
                 .orderByAsc(ColumnInfoDO::getSection);
         return baseMapper.selectList(query);
 
     }
 
+    /**
+     * 查询教程总数
+     */
     public Integer countColumnsByParams(SearchColumnParams params) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        query.like(ColumnInfoDO::getColumnName, params.getColumn());
+        lambdaQuery().like(!StringUtils.isEmpty(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
         return baseMapper.selectCount(query).intValue();
     }
 }
