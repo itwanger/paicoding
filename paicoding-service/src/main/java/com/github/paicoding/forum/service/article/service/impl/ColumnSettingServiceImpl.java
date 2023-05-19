@@ -15,8 +15,8 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
-import com.github.paicoding.forum.service.article.conveter.SearchColumnArticleMapper;
-import com.github.paicoding.forum.service.article.conveter.SearchColumnMapper;
+import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMapper;
+import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
@@ -108,12 +108,12 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Override
     public PageVo<ColumnDTO> getColumnList(SearchColumnReq req) {
         // 转换参数
-        SearchColumnMapper mapper = SearchColumnMapper.INSTANCE;
-        SearchColumnParams params = mapper.toSearchParams(req);
+        ColumnStructMapper mapper = ColumnStructMapper.INSTANCE;
+        SearchColumnParams params = mapper.reqToSearchParams(req);
         // 查询
         List<ColumnInfoDO> columnList = columnDao.listColumnsByParams(params, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
         // 转属性
-        List<ColumnDTO> columnDTOS = mapper.toDtos(columnList);
+        List<ColumnDTO> columnDTOS = mapper.infoToDtos(columnList);
 
         // 进行优化，由原来的多次查询用户信息，改为一次查询用户信息
         // 获取所有需要的用户id
@@ -141,7 +141,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Override
     public PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req) {
        // 转换参数
-        SearchColumnArticleMapper mapper = SearchColumnArticleMapper.INSTANCE;
+        ColumnArticleStructMapper mapper = ColumnArticleStructMapper.INSTANCE;
         SearchColumnArticleParams params = mapper.toSearchParams(req);
         // 查询
         List<ColumnArticleDTO> simpleArticleDTOS = columnDao.listColumnArticlesDetail(params, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
@@ -149,16 +149,16 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         return PageVo.build(simpleArticleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }
 
-
     @Override
-    public List<SimpleColumnDTO> listSimpleColumnByBySearchKey(String key) {
+    public List<SimpleColumnDTO> listSimpleColumnBySearchKey(String key) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName)
+        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName, ColumnInfoDO::getCover)
                 .and(!StringUtils.isEmpty(key),
                     v -> v.like(ColumnInfoDO::getColumnName, key)
                 )
                 .orderByDesc(ColumnInfoDO::getId);
-        return ColumnConvert.toSimpleColumnDTOs(columnDao.list(query));
+        List<ColumnInfoDO> articleDOS = columnDao.list(query);
+        return ColumnStructMapper.INSTANCE.infoToSimpleDtos(articleDOS);
     }
 
 

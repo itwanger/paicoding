@@ -6,8 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface SearchColumnArticleMapper {
-    SearchColumnArticleMapper INSTANCE = Mappers.getMapper( SearchColumnArticleMapper.class );
+public interface ColumnArticleStructMapper {
+    ColumnArticleStructMapper INSTANCE = Mappers.getMapper( ColumnArticleStructMapper.class );
 
     SearchColumnArticleParams toSearchParams(SearchColumnArticleReq req);
 }

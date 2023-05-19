@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.article.conveter;
 
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import org.mapstruct.Mapper;
@@ -11,11 +12,21 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper
-public interface SearchColumnMapper {
-    SearchColumnMapper INSTANCE = Mappers.getMapper( SearchColumnMapper.class );
+public interface ColumnStructMapper {
+    ColumnStructMapper INSTANCE = Mappers.getMapper( ColumnStructMapper.class );
 
-    SearchColumnParams toSearchParams(SearchColumnReq req);
+    /**
+     * SearchColumnReq to SearchColumnParams
+     * @param req
+     * @return
+     */
+    SearchColumnParams reqToSearchParams(SearchColumnReq req);
 
+    /**
+     * ColumnInfoDO to ColumnDTO
+     * @param columnInfoDO
+     * @return
+     */
     // sources 是参数，target 是目标
     @Mapping(source = "id", target = "columnId")
     @Mapping(source = "columnName", target = "column")
@@ -24,7 +35,20 @@ public interface SearchColumnMapper {
     @Mapping(target = "publishTime", expression = "java(columnInfoDO.getPublishTime().getTime())")
     @Mapping(target = "freeStartTime", expression = "java(columnInfoDO.getFreeStartTime().getTime())")
     @Mapping(target = "freeEndTime", expression = "java(columnInfoDO.getFreeEndTime().getTime())")
-    ColumnDTO toDto(ColumnInfoDO columnInfoDO);
+    ColumnDTO infotoDto(ColumnInfoDO columnInfoDO);
 
-    List<ColumnDTO> toDtos(List<ColumnInfoDO> columnInfoDOs);
+
+    /**
+     * ColumnInfoDO to SimpleColumnDTO
+     * @param columnInfoDO
+     * @return
+     */
+    // 专栏 ID 、专栏名、封面
+    @Mapping(source = "id", target = "columnId")
+    @Mapping(source = "columnName", target = "column")
+    SimpleColumnDTO infoToSimpleDto(ColumnInfoDO columnInfoDO);
+
+    List<ColumnDTO> infoToDtos(List<ColumnInfoDO> columnInfoDOs);
+
+    List<SimpleColumnDTO> infoToSimpleDtos(List<ColumnInfoDO> columnInfoDOs);
 }

@@ -60,9 +60,10 @@ public interface ColumnSettingService {
      * @param key
      * @return
      */
-    List<SimpleColumnDTO> listSimpleColumnByBySearchKey(String key);
+    List<SimpleColumnDTO> listSimpleColumnBySearchKey(String key);
 
     PageVo<ColumnDTO> getColumnList(SearchColumnReq req);
 
     PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req);
+
 }

@@ -113,8 +113,8 @@ public class ColumnSettingRestController {
 
     @ApiOperation("专栏搜索")
     @GetMapping(path = "query")
-    public ResVo<SearchColumnVo> recommend(@RequestParam(name = "key", required = false) String key) {
-        List<SimpleColumnDTO> list = columnSettingService.listSimpleColumnByBySearchKey(key);
+    public ResVo<SearchColumnVo> query(@RequestParam(name = "key", required = false) String key) {
+        List<SimpleColumnDTO> list = columnSettingService.listSimpleColumnBySearchKey(key);
         SearchColumnVo vo = new SearchColumnVo();
         vo.setKey(key);
         vo.setItems(list);

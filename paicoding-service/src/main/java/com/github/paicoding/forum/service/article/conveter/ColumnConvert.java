@@ -2,17 +2,13 @@ package com.github.paicoding.forum.service.article.conveter;
 
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
-import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
-import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
-import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -72,17 +68,4 @@ public class ColumnConvert {
         return columnArticleDO;
     }
 
-    public static SimpleColumnDTO toSimpleColumnDTO(ColumnInfoDO columnInfoDO) {
-        if (columnInfoDO == null) {
-            return null;
-        }
-        SimpleColumnDTO simpleColumnDTO = new SimpleColumnDTO();
-        simpleColumnDTO.setColumn(columnInfoDO.getColumnName());
-        simpleColumnDTO.setColumnId(columnInfoDO.getId());
-        return simpleColumnDTO;
-    }
-
-    public static List<SimpleColumnDTO> toSimpleColumnDTOs(List<ColumnInfoDO> articleDOS) {
-        return articleDOS.stream().map(ColumnConvert::toSimpleColumnDTO).collect(Collectors.toList());
-    }
 }
