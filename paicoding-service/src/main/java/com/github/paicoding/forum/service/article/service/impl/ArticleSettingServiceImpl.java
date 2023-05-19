@@ -15,7 +15,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
-import com.github.paicoding.forum.service.article.conveter.SearchArticleMapper;
+import com.github.paicoding.forum.service.article.conveter.ArticleStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
@@ -86,7 +86,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     @Override
     public PageVo<ArticleDTO> getArticleList(SearchArticleReq req) {
         // 转换参数，从前端获取的参数转换为数据库查询参数
-        SearchArticleParams searchArticleParams = SearchArticleMapper.INSTANCE.toSearchParams(req);
+        SearchArticleParams searchArticleParams = ArticleStructMapper.INSTANCE.toSearchParams(req);
 
         // 查询文章列表，分页
         List<ArticleDO> articleDOS = articleDao.listArticlesByParams(

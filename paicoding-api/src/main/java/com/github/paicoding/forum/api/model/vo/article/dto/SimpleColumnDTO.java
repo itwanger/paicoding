@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,4 +17,8 @@ public class SimpleColumnDTO implements Serializable {
 
     @ApiModelProperty("专栏名")
     private String column;
+
+    // 封面
+    @ApiModelProperty("封面")
+    private String cover;
 }
