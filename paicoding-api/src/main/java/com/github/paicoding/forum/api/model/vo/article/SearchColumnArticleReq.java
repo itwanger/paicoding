@@ -12,6 +12,10 @@ public class SearchColumnArticleReq {
     @ApiModelProperty("教程名称")
     private String column;
 
+    // 教程 ID
+    @ApiModelProperty("教程 ID")
+    private Long columnId;
+
     // 文章标题
     @ApiModelProperty("文章标题")
     private String articleTitle;
