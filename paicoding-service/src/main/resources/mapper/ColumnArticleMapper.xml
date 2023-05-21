@@ -40,7 +40,7 @@
                 and a.title like concat('%', #{articleName}, '%')
             </if>
         order by c.section asc
-        <include refid="limit"></include>
+        <include refid="limit"/>
     </select>
 
     <select id="countColumnArticlesByColumnIdArticleName" resultType="java.lang.Long">
