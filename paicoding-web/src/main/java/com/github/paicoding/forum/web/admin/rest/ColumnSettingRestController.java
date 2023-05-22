@@ -62,7 +62,7 @@ public class ColumnSettingRestController {
         // 要求文章必须存在，且已经发布
         ArticleDO articleDO = articleReadService.queryBasicArticle(req.getArticleId());
         if (articleDO == null || articleDO.getStatus() == PushStatusEnum.OFFLINE.getCode()) {
-            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在或未发布!");
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程对应的文章不存在或未发布!");
         }
 
         columnSettingService.saveColumnArticle(req);
