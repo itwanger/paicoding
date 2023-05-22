@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author YiHui
@@ -50,7 +49,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      */
     public int countColumnArticles(Long columnId) {
         LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-        query.eq(!Objects.nonNull(columnId),ColumnArticleDO::getColumnId, columnId);
+        query.eq(ColumnArticleDO::getColumnId, columnId);
         return columnArticleMapper.selectCount(query).intValue();
     }
 
