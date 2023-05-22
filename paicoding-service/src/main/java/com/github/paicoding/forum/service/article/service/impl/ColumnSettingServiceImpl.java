@@ -21,6 +21,7 @@ import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper;
@@ -93,6 +94,12 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             }
             columnArticleDO.setSection(maxSection + 1);
             columnArticleMapper.insert(columnArticleDO);
+
+            // 同时，更新 article 的 shortTitle
+            ArticleDO articleDO = new ArticleDO();
+            articleDO.setShortTitle(req.getShortTitle());
+            articleDO.setId(req.getArticleId());
+            articleDao.updateById(articleDO);
         } else {
             columnArticleDO.setId(req.getId());
             columnArticleMapper.updateById(columnArticleDO);
