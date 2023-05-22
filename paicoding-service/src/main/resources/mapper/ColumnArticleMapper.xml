@@ -26,7 +26,7 @@
 
     <select id="listColumnArticlesByColumnIdArticleName"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO">
-        select c.id, c.article_id, a.title, c.column_id,
+        select c.id, c.article_id, a.title, a.short_title, c.column_id,
                col.column_name as `column`, col.cover as column_cover,
                c.`section` as sort, c.create_time
         from column_article as c
