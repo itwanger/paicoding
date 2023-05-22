@@ -54,6 +54,7 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Override
     public ColumnDTO queryBasicColumnInfo(Long columnId) {
+        // 查找专栏信息
         ColumnInfoDO column = columnDao.getById(columnId);
         if (column == null) {
             throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, columnId);

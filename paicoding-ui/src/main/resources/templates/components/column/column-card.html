@@ -45,9 +45,11 @@
                 |
               </span>
 
-              <span class="self-description" th:text="${column.authorProfile}">
-                前端技术专家
+              <span class="self-description"
+                    th:text="${column.authorProfile != null && !column.authorProfile.isEmpty() ? column.authorProfile : '这人很懒，还没留下简介~'}">
+                  前端技术专家
               </span>
+
             </a>
           </object>
         </div>
