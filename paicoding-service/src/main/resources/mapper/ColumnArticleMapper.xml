@@ -39,7 +39,7 @@
             <if test="articleName != null and articleName != ''">
                 and a.title like concat('%', #{articleName}, '%')
             </if>
-        order by c.section asc
+        order by c.section desc
         <include refid="limit"/>
     </select>
 

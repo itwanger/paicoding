@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -49,4 +50,13 @@ public interface ColumnArticleMapper extends BaseMapper<ColumnArticleDO> {
                                                                    @Param("pageParam") PageParam pageParam);
 
     Long countColumnArticlesByColumnIdArticleName(@Param("columnId") Long columnId, @Param("articleName") String articleName);
+
+    /**
+     * 根据教程 ID 查询当前教程中最大的 section
+     * @param columnId
+     * @return
+     */
+    @Select("select max(section) from column_article where column_id = #{columnId}")
+    Integer selectMaxSection(@Param("columnId") Long columnId);
+
 }

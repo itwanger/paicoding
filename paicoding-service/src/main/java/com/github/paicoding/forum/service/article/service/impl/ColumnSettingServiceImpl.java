@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.article.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
@@ -12,10 +13,11 @@ import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
+import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
-import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMapper;
+import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
@@ -71,9 +73,25 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveColumnArticle(ColumnArticleReq req) {
-        ColumnArticleDO columnArticleDO = ColumnConvert.toDo(req);
+        // 转换参数
+        ColumnArticleDO columnArticleDO = ColumnArticleStructMapper.INSTANCE.reqToDO(req);
         if (NumUtil.nullOrZero(req.getId())) {
+            // 插入的时候，需要判断是否已经存在
+            ColumnArticleDO exist = columnArticleMapper.selectOne(Wrappers.<ColumnArticleDO>lambdaQuery()
+                    .eq(ColumnArticleDO::getColumnId, req.getColumnId())
+                    .eq(ColumnArticleDO::getArticleId, req.getArticleId()));
+            if (exist != null) {
+                throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, exist.getId());
+            }
+
+            // section 自增+1
+            Integer maxSection = columnArticleMapper.selectMaxSection(req.getColumnId());
+            if (maxSection == null) {
+                maxSection = 0;
+            }
+            columnArticleDO.setSection(maxSection + 1);
             columnArticleMapper.insert(columnArticleDO);
         } else {
             columnArticleDO.setId(req.getId());
@@ -98,10 +116,18 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteColumnArticle(Integer id) {
         ColumnArticleDO columnArticleDO = columnArticleMapper.selectById(id);
         if (columnArticleDO != null) {
             columnArticleMapper.deleteById(id);
+            // 删除的时候，批量更新 section，比如说原来是 1,2,3,4,5,6,7,8,9,10，删除 5，那么 6-10 的 section 都要减 1
+            columnArticleMapper.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                    .setSql("section = section - 1")
+                    .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
+                    // section 大于 1
+                    .gt(ColumnArticleDO::getSection,1)
+                    .gt(ColumnArticleDO::getSection, columnArticleDO.getSection()));
         }
     }
 
