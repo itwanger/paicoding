@@ -80,7 +80,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
     }
 
     /**
-     * 获取文章列表
+     * 根据教程ID查询文章ID列表
      *
      * @param columnId
      * @return
@@ -91,28 +91,6 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
 
     public Long getColumnArticleId(long columnId, Integer section) {
         return columnArticleMapper.getColumnArticle(columnId, section);
-    }
-
-    /**
-     * 分页查询专辑列表（后台）
-     *
-     * @param pageParam
-     * @return
-     */
-    public List<ColumnInfoDO> listColumns(PageParam pageParam) {
-        LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        query.last(PageParam.getLimitSql(pageParam))
-                .orderByAsc(ColumnInfoDO::getSection);
-        return baseMapper.selectList(query);
-    }
-
-    /**
-     * 查询专辑列表总数（后台）
-     *
-     * @return
-     */
-    public Integer countColumns() {
-        return lambdaQuery().count().intValue();
     }
 
     /**

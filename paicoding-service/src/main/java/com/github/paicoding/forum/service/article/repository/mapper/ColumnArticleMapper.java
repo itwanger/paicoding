@@ -46,10 +46,10 @@ public interface ColumnArticleMapper extends BaseMapper<ColumnArticleDO> {
      * @return
      */
     List<ColumnArticleDTO> listColumnArticlesByColumnIdArticleName(@Param("columnId") Long columnId,
-                                                                   @Param("articleName") String articleName,
+                                                                   @Param("articleTitle") String articleTitle,
                                                                    @Param("pageParam") PageParam pageParam);
 
-    Long countColumnArticlesByColumnIdArticleName(@Param("columnId") Long columnId, @Param("articleName") String articleName);
+    Long countColumnArticlesByColumnIdArticleName(@Param("columnId") Long columnId, @Param("articleTitle") String articleTitle);
 
     /**
      * 根据教程 ID 查询当前教程中最大的 section
