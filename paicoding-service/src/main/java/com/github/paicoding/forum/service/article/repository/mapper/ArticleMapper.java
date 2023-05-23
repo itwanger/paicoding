@@ -2,10 +2,12 @@ package com.github.paicoding.forum.service.article.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
+import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -63,4 +65,8 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
      * @return
      */
     List<YearArticleDTO> listYearArticleByUserId(@Param("userId") Long userId);
+
+    List<ArticleAdminDTO> listArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams, @Param("pageParam") PageParam pageParam);
+
+    Long countArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams);
 }

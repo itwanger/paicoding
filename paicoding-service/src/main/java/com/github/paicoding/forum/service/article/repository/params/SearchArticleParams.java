@@ -25,6 +25,11 @@ public class SearchArticleParams extends PageParam {
     private Long userId;
 
     /**
+     * 作者名称
+     */
+    private String userName;
+
+    /**
      * 文章状态: 0-未发布，1-已发布，2-审核
      */
     private Integer status;

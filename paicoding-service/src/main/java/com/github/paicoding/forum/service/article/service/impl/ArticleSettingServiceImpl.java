@@ -10,11 +10,9 @@ import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.conveter.ArticleStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
@@ -84,26 +82,16 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     }
 
     @Override
-    public PageVo<ArticleDTO> getArticleList(SearchArticleReq req) {
+    public PageVo<ArticleAdminDTO> getArticleList(SearchArticleReq req) {
         // 转换参数，从前端获取的参数转换为数据库查询参数
         SearchArticleParams searchArticleParams = ArticleStructMapper.INSTANCE.toSearchParams(req);
 
         // 查询文章列表，分页
-        List<ArticleDO> articleDOS = articleDao.listArticlesByParams(
+        List<ArticleAdminDTO> articleDTOS = articleDao.listArticlesByParams(
                 searchArticleParams, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
 
-        // 转换文章列表，从数据库查询结果转换为前端展示结果
-        List<ArticleDTO> articleDTOS = ArticleConverter.toArticleDtoList(articleDOS);
-
-        // 查询文章作者信息
-        // fixme: 这里最好直接从数据库使用多表联合查询，而不是遍历后再查询
-        articleDTOS.forEach(articleDTO -> {
-            BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
-            articleDTO.setAuthorName(user.getUserName());
-        });
-
         // 查询文章总数
-        Integer totalCount = articleDao.countArticleByParams(searchArticleParams);
+        Long totalCount = articleDao.countArticleByParams(searchArticleParams);
         return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }
 
