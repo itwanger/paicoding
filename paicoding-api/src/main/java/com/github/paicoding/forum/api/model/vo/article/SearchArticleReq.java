@@ -18,6 +18,9 @@ public class SearchArticleReq {
     @ApiModelProperty("作者ID")
     private Long userId;
 
+    @ApiModelProperty("作者名称")
+    private String userName;
+
     @ApiModelProperty("文章状态: 0-未发布，1-已发布，2-审核")
     private Integer status;
 

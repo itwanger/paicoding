@@ -68,4 +68,39 @@
         group by year
     </select>
 
+    <sql id="articlesByParams">
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <if test="searchParams.title != null and searchParams.title != ''">
+            and a.title like concat('%', #{searchParams.title}, '%')
+        </if>
+        <if test="searchParams.userName != null and searchParams.userName != ''">
+            and u.user_name like concat('%', #{searchParams.userName}, '%')
+        </if>
+        <if test="searchParams.officalStat != null and searchParams.officalStat != -1">
+            and a.offical_stat = #{searchParams.officalStat}
+        </if>
+        <if test="searchParams.toppingStat != null and searchParams.toppingStat != -1">
+            and a.topping_stat = #{searchParams.toppingStat}
+        </if>
+        <if test="searchParams.status != null and searchParams.status != -1">
+            and a.status = #{searchParams.status}
+        </if>
+    </sql>
+
+    <select id="listArticlesByParams"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO">
+        select a.id as article_id, a.title, a.short_title, a.offical_stat,
+               a.topping_stat, a.status, a.cream_stat, a.picture as cover,
+               u.user_id as author, u.user_name as author_name,u.photo as author_avatar
+        from article a
+        left join user_info u on a.user_id = u.user_id
+        <include refid="articlesByParams"/>
+        <include refid="limit"/>
+    </select>
+    <select id="countArticlesByParams" resultType="java.lang.Long">
+        select count(*) from article a
+        left join user_info u on a.user_id = u.user_id
+        <include refid="articlesByParams"/>
+    </select>
+
 </mapper>

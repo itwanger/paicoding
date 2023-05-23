@@ -2,10 +2,11 @@ package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.vo.*;
+import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
@@ -70,8 +71,8 @@ public class ArticleSettingRestController {
 
     @ApiOperation("获取文章列表")
     @PostMapping(path = "list")
-    public ResVo<PageVo<ArticleDTO>> list(@RequestBody SearchArticleReq req) {
-        PageVo<ArticleDTO> articleDTOPageVo = articleSettingService.getArticleList(req);
+    public ResVo<PageVo<ArticleAdminDTO>> list(@RequestBody SearchArticleReq req) {
+        PageVo<ArticleAdminDTO> articleDTOPageVo = articleSettingService.getArticleList(req);
         return ResVo.ok(articleDTOPageVo);
     }
 
