@@ -53,7 +53,7 @@ public enum StatusEnum {
     COLUMN_NOT_EXISTS(200_404_002, "教程不存在:%s"),
     COLUMN_QUERY_ERROR(200_500_003, "教程查询异常:%s"),
     // 教程文章已存在
-    COLUMN_ARTICLE_EXISTS(200_500_004, "教程文章已存在:%s"),
+    COLUMN_ARTICLE_EXISTS(200_500_004, "专栏教程已存在:%s"),
 
     // --------------------------------
 
