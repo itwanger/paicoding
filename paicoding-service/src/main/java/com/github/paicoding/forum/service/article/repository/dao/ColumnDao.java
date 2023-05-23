@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.ColumnStatusEnum;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
+import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper;
@@ -120,12 +122,17 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      *
      * @param columnId
      */
-    public void deleteColumn(Integer columnId) {
+    public void deleteColumn(Long columnId) {
         ColumnInfoDO columnInfoDO = baseMapper.selectById(columnId);
         if (columnInfoDO != null) {
-            LambdaQueryWrapper<ColumnArticleDO> query = Wrappers.lambdaQuery();
-            query.eq(ColumnArticleDO::getColumnId, columnId);
-            columnArticleMapper.delete(query);
+            // 如果专栏对应的文章不为空，则不允许删除
+            // 统计专栏的文章数
+            int count = countColumnArticles(columnId);
+            if (count > 0) {
+                throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS,"请先删除教程");
+            }
+
+            // 删除专栏
             baseMapper.deleteById(columnId);
         }
     }

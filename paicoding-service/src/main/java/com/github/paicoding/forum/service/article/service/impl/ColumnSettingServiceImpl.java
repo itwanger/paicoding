@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -84,7 +85,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                     .eq(ColumnArticleDO::getColumnId, req.getColumnId())
                     .eq(ColumnArticleDO::getArticleId, req.getArticleId()));
             if (exist != null) {
-                throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, exist.getId());
+                throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, "请勿重复添加");
             }
 
             // section 自增+1
@@ -117,14 +118,13 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteColumn(Integer columnId) {
+    public void deleteColumn(Long columnId) {
         columnDao.deleteColumn(columnId);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteColumnArticle(Integer id) {
+    public void deleteColumnArticle(Long id) {
         ColumnArticleDO columnArticleDO = columnArticleMapper.selectById(id);
         if (columnArticleDO != null) {
             columnArticleMapper.deleteById(id);
@@ -150,22 +150,24 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
         // 进行优化，由原来的多次查询用户信息，改为一次查询用户信息
         // 获取所有需要的用户id
-        List<Long> userIds = columnDTOS.stream().map(ColumnDTO::getAuthor).collect(Collectors.toList());
+        // 判断 columnDTOS 是否为空
+        if (CollUtil.isNotEmpty(columnDTOS)) {
+            List<Long> userIds = columnDTOS.stream().map(ColumnDTO::getAuthor).collect(Collectors.toList());
 
-        // 查询所有的用户信息
-        List<BaseUserInfoDTO> users = userService.queryBasicUserInfos(userIds);
+            // 查询所有的用户信息
+            List<BaseUserInfoDTO> users = userService.queryBasicUserInfos(userIds);
 
-        // 创建一个id到用户信息的映射
-        Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
+            // 创建一个id到用户信息的映射
+            Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
 
-        // 设置作者信息
-        columnDTOS.forEach(columnDTO -> {
-            BaseUserInfoDTO user = userMap.get(columnDTO.getAuthor());
-            columnDTO.setAuthorName(user.getUserName());
-            columnDTO.setAuthorAvatar(user.getPhoto());
-            columnDTO.setAuthorProfile(user.getProfile());
-        });
-
+            // 设置作者信息
+            columnDTOS.forEach(columnDTO -> {
+                BaseUserInfoDTO user = userMap.get(columnDTO.getAuthor());
+                columnDTO.setAuthorName(user.getUserName());
+                columnDTO.setAuthorAvatar(user.getPhoto());
+                columnDTO.setAuthorProfile(user.getProfile());
+            });
+        }
 
         Integer totalCount = columnDao.countColumnsByParams(params);
         return PageVo.build(columnDTOS, req.getPageSize(), req.getPageNumber(), totalCount);

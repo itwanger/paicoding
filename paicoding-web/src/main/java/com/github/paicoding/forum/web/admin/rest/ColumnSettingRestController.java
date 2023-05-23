@@ -78,14 +78,14 @@ public class ColumnSettingRestController {
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumn")
-    public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Integer columnId) {
+    public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Long columnId) {
         columnSettingService.deleteColumn(columnId);
         return ResVo.ok("ok");
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumnArticle")
-    public ResVo<String> deleteColumnArticle(@RequestParam(name = "id") Integer id) {
+    public ResVo<String> deleteColumnArticle(@RequestParam(name = "id") Long id) {
         columnSettingService.deleteColumnArticle(id);
         return ResVo.ok("ok");
     }
