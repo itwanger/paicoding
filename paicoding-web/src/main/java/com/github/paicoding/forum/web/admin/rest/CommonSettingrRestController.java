@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @RestController
 @Permission(role = UserRole.LOGIN)
-@Api(value = "后台字典管理控制器", tags = "全局设置")
+@Api(value = "通用接口管理控制器", tags = "全局设置")
 @RequestMapping(path = {"api/admin/common/", "admin/common/"})
 public class CommonSettingrRestController {
 

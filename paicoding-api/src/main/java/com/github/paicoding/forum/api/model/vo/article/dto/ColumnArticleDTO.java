@@ -33,14 +33,24 @@ public class ColumnArticleDTO implements Serializable {
     private String title;
 
     /**
-     * 专栏ID
+     * 教程名称
+     */
+    private String shortTitle;
+
+    /**
+     * 教程ID
      */
     private Long columnId;
 
     /**
-     * 专栏标题
+     * 教程标题
      */
     private String column;
+
+    /**
+     * 教程封面
+     */
+    private String columnCover;
 
     /**
      * 文章排序

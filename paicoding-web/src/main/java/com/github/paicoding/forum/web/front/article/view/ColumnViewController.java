@@ -2,7 +2,6 @@ package com.github.paicoding.forum.web.front.article.view;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ColumnTypeEnum;
-import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
@@ -10,7 +9,6 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticlesDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
-import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
@@ -75,9 +73,6 @@ public class ColumnViewController {
     @GetMapping(path = "{columnId}")
     public String column(@PathVariable("columnId") Long columnId, Model model) {
         ColumnDTO dto = columnService.queryColumnInfo(columnId);
-        if (dto == null) {
-            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, columnId);
-        }
         model.addAttribute("vo", dto);
         return "/views/column-index/index";
     }

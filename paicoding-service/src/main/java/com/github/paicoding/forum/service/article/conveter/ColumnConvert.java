@@ -67,4 +67,5 @@ public class ColumnConvert {
         columnArticleDO.setSection(columnArticleReq.getSort());
         return columnArticleDO;
     }
+
 }
