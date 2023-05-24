@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 public interface UrlHandlerStrategy {
@@ -79,6 +80,24 @@ public interface UrlHandlerStrategy {
         FileWriter writer = new FileWriter(mdPath);
         writer.write(builder.toString());
         log.info("all done, category+filename: {}-{}", category, filename);
+
+        // 调用默认文本编辑器打开文件
+        try {
+            String pathToSublime = "/Applications/Sublime Text.app/Contents/MacOS/sublime_text";
+            String[] command = {pathToSublime, mdPath};
+            Runtime.getRuntime().exec(command);
+
+//            CommandLine cmdLine = new CommandLine(pathToSublime);
+//            cmdLine.addArgument(mdPath); // false 表示不需要引号包围
+//
+//            DefaultExecutor executor = new DefaultExecutor();
+//            executor.setExitValue(1);
+//            ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
+//            executor.setWatchdog(watchdog);
+//            executor.execute(cmdLine);
+        } catch (IOException e) {
+            log.error("open file error", e);
+        }
 
         // 下载封面图
         if (StringUtils.isNotBlank(result.getCover())) {

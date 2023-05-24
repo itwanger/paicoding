@@ -179,6 +179,12 @@
             <version>2.5.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-exec</artifactId>
+            <version>1.3</version>
+        </dependency>
+
         <!-- 引入 JMH 工具包 -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
