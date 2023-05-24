@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -34,7 +35,7 @@ public class Convert2OSS {
 
         ImgOption imgOption = ImgOption.builder()
                 // 本地的都用分隔符
-                .imgDownloadDestPrefix(Constants.destination + "images"+Constants.fileSeparator)
+                .imgDownloadDestPrefix(Paths.get(Constants.DESTINATION ,"images").toString())
                 .imgOssFolder(Constants.ossFolder)
                 .imgCdnPrefix(Constants.ossOrCdnUrls[0])
                 .imgCategory(category)
@@ -44,8 +45,7 @@ public class Convert2OSS {
             // 对整个文档里面的图片链接转链
             // 下载到本地，上传到 OSS，替换链接
             // 正则表达式，找到对应的图片
-            String mdPath = Constants.destination + "docs" + Constants.fileSeparator + imgOption.getImgCategory()
-                    + Constants.fileSeparator + filename + ".md";
+            String mdPath = Paths.get(Constants.DESTINATION,"docs" ,imgOption.getImgCategory()).toString()+ filename + ".md";
             File md = new File(mdPath);
             FileReader fileReader = FileReader.create(md, StandardCharsets.UTF_8);
             // 读取全部内容
