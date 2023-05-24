@@ -2,7 +2,10 @@ package com.github.paicoding.forum.service.user.service.count;
 
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
+import com.github.paicoding.forum.service.statistics.repository.dao.RequestCountDao;
+import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserFootDao;
 import com.github.paicoding.forum.service.user.service.CountService;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,15 @@ public class CountServiceImpl implements CountService {
 
     @Resource
     private CommentReadService commentReadService;
+
+    @Resource
+    private UserDao userDao;
+
+    @Resource
+    private ArticleDao articleDao;
+
+    @Resource
+    private RequestCountDao requestCountDao;
 
     public CountServiceImpl(UserFootDao userFootDao) {
         this.userFootDao = userFootDao;
@@ -60,4 +72,10 @@ public class CountServiceImpl implements CountService {
     public Long queryCommentPraiseCount(Long commentId) {
         return userFootDao.countCommentPraise(commentId);
     }
+
+    @Override
+    public Long getUserCount() {
+        return userDao.getUserCount();
+    }
+
 }

@@ -81,10 +81,10 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         return baseMapper.selectList(query);
     }
 
-    public Integer getUserCount() {
+    public Long getUserCount() {
         return lambdaQuery()
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count().intValue();
+                .count();
     }
 
     public void updateUserInfo(UserInfoDO user) {

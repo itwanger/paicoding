@@ -108,10 +108,10 @@ public class TestController {
     @GetMapping(path = "ds/write2")
     public String write2() {
         log.info("------------------- 业务逻辑进入 ----------------------------");
-        int old = statisticsSettingService.getStatisticsCount().getPvCount();
+        long old = statisticsSettingService.getStatisticsCount().getPvCount();
         DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
         // 保存请求计数
-        int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        long n = statisticsSettingService.getStatisticsCount().getPvCount();
         log.info("------------------- 业务逻辑结束 ----------------------------");
         return "编程式切换主库：更新成功! old=" + old + " new=" + n;
     }
@@ -121,9 +121,9 @@ public class TestController {
     @GetMapping(path = "ds/write")
     public String write() {
         // 保存请求计数
-        int old = statisticsSettingService.getStatisticsCount().getPvCount();
+        long old = statisticsSettingService.getStatisticsCount().getPvCount();
         statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
-        int n = statisticsSettingService.getStatisticsCount().getPvCount();
+        long n = statisticsSettingService.getStatisticsCount().getPvCount();
         return "使用主库：更新成功! old=" + old + " new=" + n;
     }
 }

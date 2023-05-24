@@ -77,11 +77,6 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     }
 
     @Override
-    public Integer getArticleCount() {
-        return articleDao.countArticle();
-    }
-
-    @Override
     public PageVo<ArticleAdminDTO> getArticleList(SearchArticleReq req) {
         // 转换参数，从前端获取的参数转换为数据库查询参数
         SearchArticleParams searchArticleParams = ArticleStructMapper.INSTANCE.toSearchParams(req);

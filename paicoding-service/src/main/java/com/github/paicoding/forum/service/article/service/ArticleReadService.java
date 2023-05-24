@@ -148,4 +148,6 @@ public interface ArticleReadService {
      * @return
      */
     int queryArticleCount(long authorId);
+
+    Long getArticleCount();
 }
