@@ -367,9 +367,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      *
      * @return
      */
-    public Integer countArticle() {
+    public Long countArticle() {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count().intValue();
+                .count();
     }
 }

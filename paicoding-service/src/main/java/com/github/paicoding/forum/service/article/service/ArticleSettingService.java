@@ -22,13 +22,6 @@ public interface ArticleSettingService {
     void updateArticle(ArticlePostReq req);
 
     /**
-     * 获取文章总数
-     *
-     * @return
-     */
-    Integer getArticleCount();
-
-    /**
      * 获取文章列表
      *
      * @param req
