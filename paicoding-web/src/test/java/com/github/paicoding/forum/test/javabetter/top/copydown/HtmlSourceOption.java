@@ -20,10 +20,6 @@ public class HtmlSourceOption {
     private String coverImageKey;
     // 标题 key
     private String titleKey;
-    // 保存 md 路径
-    private String mdDest;
-    // 保存封面图路径
-    private String imgDest;
     // 作者名
     private String authorKey;
     // 昵称
@@ -34,6 +30,5 @@ public class HtmlSourceOption {
     private String keywordsKey;
     // description
     private String descriptionKey;
-
 
 }

@@ -22,10 +22,9 @@ public class Convert2OssFromHtml {
         // 原创
         // 原创需要指定路径
         ImgOption imgOption = ImgOption.builder()
-                .imgDownloadDestPrefix(Constants.destination + "images" + Constants.fileSeparator)
+                .imgDownloadDestPrefix(Constants.DESTINATION + "images" )
                 .imgOssFolder(Constants.ossFolder)
                 .imgCdnPrefix(Constants.ossOrCdnUrls[0])
-                .imgCategory(Constants.html2mdCategory)
                 .imgNamePrefix("other-conggslxmysqldswmysqljslt")
                 .build();
 
@@ -34,7 +33,7 @@ public class Convert2OssFromHtml {
         // 下载到本地，上传到 OSS，替换链接
         // 正则表达式，找到对应的图片
         String [] imgNamePrefixs = imgOption.getImgNamePrefix().split("-");
-        String mdPath = Constants.destination + "docs" + Constants.fileSeparator
+        String mdPath = Constants.DESTINATION + "docs" + Constants.fileSeparator
                 + imgOption.getImgCategory() + Constants.fileSeparator
                 + imgNamePrefixs[0] + Constants.fileSeparator
                 + imgNamePrefixs[1] + ".md";

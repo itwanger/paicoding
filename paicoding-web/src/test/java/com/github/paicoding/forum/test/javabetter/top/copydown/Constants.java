@@ -1,5 +1,7 @@
 package com.github.paicoding.forum.test.javabetter.top.copydown;
 
+import java.nio.file.Paths;
+
 /**
  * 微信搜索「沉默王二」，回复 Java
  *
@@ -7,15 +9,12 @@ package com.github.paicoding.forum.test.javabetter.top.copydown;
  * @date 5/28/22
  */
 public class Constants {
-    // 分隔符
-    public static final String fileSeparator = System.getProperty("file.separator");
     // 文章目录
     // 图片目录
-    public static final String destination = System.getProperty("user.home")
-            +fileSeparator+"Documents" +fileSeparator+
-            "GitHub" +fileSeparator+
-            "toBeBetterJavaer" + fileSeparator;
-    public static final String html2mdCategory = "nice-article";
+    public static final String DESTINATION = Paths.get(System.getProperty("user.home"),
+            "Documents", "GitHub", "toBeBetterJavaer").toString();
+    // 默认作者名
+    public static final String DEFAULT_AUTHOR = "佚名";
 
     // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
     public static final String endpoint = "oss-cn-beijing.aliyuncs.com";
@@ -40,4 +39,5 @@ public class Constants {
 
     // 图片后缀
     public static final String[] imgExtension = {".jpg", ".jpeg", ".png", ".gif"};
+    public static final String fileSeparator = System.getProperty("file.separator");
 }
