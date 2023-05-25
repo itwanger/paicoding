@@ -76,4 +76,6 @@ public interface UserService {
      * @return
      */
     List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds);
+
+    Long getUserCount();
 }

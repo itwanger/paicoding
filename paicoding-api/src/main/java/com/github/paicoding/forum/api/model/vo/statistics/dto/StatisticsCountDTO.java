@@ -24,7 +24,32 @@ public class StatisticsCountDTO {
     private Long userCount;
 
     /**
+     * 总评论数
+     */
+    private Long commentCount;
+
+    /**
+     * 总阅读数
+     */
+    private Long readCount;
+
+    /**
+     * 总点赞数
+     */
+    private Long likeCount;
+
+    /**
+     * 总收藏数
+     */
+    private Long collectCount;
+
+    /**
      * 文章数量
      */
     private Long articleCount;
+
+    /**
+     * 教程数量
+     */
+    private Long tutorialCount;
 }

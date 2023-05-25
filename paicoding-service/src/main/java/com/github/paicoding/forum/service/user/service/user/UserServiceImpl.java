@@ -203,7 +203,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 加入天数
-        Integer joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24));
+        int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24));
         userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
 
         // 创作历程
@@ -223,5 +223,10 @@ public class UserServiceImpl implements UserService {
         // 根据 userIds 查询
         List<UserInfoDO> users = userDao.getByUserIds(userIds);
         return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getUserCount() {
+        return this.userDao.getUserCount();
     }
 }
