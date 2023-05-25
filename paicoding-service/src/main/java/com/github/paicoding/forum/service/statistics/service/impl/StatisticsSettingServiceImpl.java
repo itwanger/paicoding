@@ -53,12 +53,8 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
     }
 
     @Override
-    public List<StatisticsDayDTO> getPvDayList(Integer day) {
-        return requestCountService.getPvDayList(day);
+    public List<StatisticsDayDTO> getPvUvDayList(Integer day) {
+        return requestCountService.getPvUvDayList(day);
     }
 
-    @Override
-    public List<StatisticsDayDTO> getUvDayList(Integer day) {
-        return requestCountService.getUvDayList(day);
-    }
 }

@@ -26,19 +26,11 @@ public interface RequestCountMapper extends BaseMapper<RequestCountDO> {
     Long getPvTotalCount();
 
     /**
-     * 获取 PV 数据列表
+     * 获取 PV UV 数据列表
      * @param day
      * @return
      */
-    List<StatisticsDayDTO> getPvDayList(@Param("day") Integer day);
-
-    /**
-     * 获取 UV 数据列表
-     *
-     * @param day
-     * @return
-     */
-    List<StatisticsDayDTO> getUvDayList(@Param("day") Integer day);
+    List<StatisticsDayDTO> getPvUvDayList(@Param("day") Integer day);
 
     /**
      * 增加计数

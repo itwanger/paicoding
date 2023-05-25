@@ -56,12 +56,8 @@ public class RequestCountServiceImpl implements RequestCountService {
     }
 
     @Override
-    public List<StatisticsDayDTO> getPvDayList(Integer day) {
-        return requestCountDao.getPvDayList(day);
+    public List<StatisticsDayDTO> getPvUvDayList(Integer day) {
+        return requestCountDao.getPvUvDayList(day);
     }
 
-    @Override
-    public List<StatisticsDayDTO> getUvDayList(Integer day) {
-        return requestCountDao.getUvDayList(day);
-    }
 }
