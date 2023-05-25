@@ -65,9 +65,4 @@ public class CountServiceImpl implements CountService {
         return userFootDao.countCommentPraise(commentId);
     }
 
-    @Override
-    public Long getUserCount() {
-        return userDao.getUserCount();
-    }
-
 }

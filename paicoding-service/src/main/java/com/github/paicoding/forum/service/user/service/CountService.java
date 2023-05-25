@@ -45,6 +45,4 @@ public interface CountService {
      */
     Long queryCommentPraiseCount(Long commentId);
 
-    Long getUserCount();
-
 }

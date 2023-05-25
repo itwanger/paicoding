@@ -2,11 +2,14 @@ package com.github.paicoding.forum.service.statistics.service.impl;
 
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsCountDTO;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
 import com.github.paicoding.forum.service.statistics.service.RequestCountService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
-import com.github.paicoding.forum.service.user.service.CountService;
+import com.github.paicoding.forum.service.user.service.UserFootService;
+import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +30,13 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
     private RequestCountService requestCountService;
 
     @Autowired
-    private CountService countService;
+    private UserService userService;
+
+    @Autowired
+    private ColumnService columnService;
+
+    @Autowired
+    private UserFootService userFootService;
 
     @Autowired
     private ArticleReadService articleReadService;
@@ -45,10 +54,17 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
 
     @Override
     public StatisticsCountDTO getStatisticsCount() {
+        // 从 user_foot 表中查询点赞数、收藏数、留言数、阅读数
+        UserFootStatisticDTO userFootStatisticDTO =  userFootService.getFootCount();
         return StatisticsCountDTO.builder()
-                .userCount(countService.getUserCount())
+                .userCount(userService.getUserCount())
                 .articleCount(articleReadService.getArticleCount())
                 .pvCount(requestCountService.getPvTotalCount())
+                .tutorialCount(columnService.getTutorialCount())
+                .commentCount(userFootStatisticDTO.getCommentCount())
+                .collectCount(userFootStatisticDTO.getCollectionCount())
+                .likeCount(userFootStatisticDTO.getPraiseCount())
+                .readCount(userFootStatisticDTO.getReadCount())
                 .build();
     }
 
