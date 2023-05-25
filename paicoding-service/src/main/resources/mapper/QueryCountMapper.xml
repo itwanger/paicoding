@@ -5,7 +5,7 @@
     <select id="getPvUvDayList" resultType="com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO">
         SELECT sum(cnt) as pv_count, count(*) as uv_count, date
         FROM request_count
-        group by date order by date asc
+        group by date order by date desc
         limit #{day};
     </select>
 
