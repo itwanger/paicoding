@@ -28,18 +28,11 @@ public interface StatisticsSettingService {
     StatisticsCountDTO getStatisticsCount();
 
     /**
-     * 获取每天的PV统计数据
+     * 获取每天的PV UV统计数据
      *
      * @param day
      * @return
      */
-    List<StatisticsDayDTO> getPvDayList(Integer day);
+    List<StatisticsDayDTO> getPvUvDayList(Integer day);
 
-    /**
-     * 获取每天的UV统计数据
-     *
-     * @param day
-     * @return
-     */
-    List<StatisticsDayDTO> getUvDayList(Integer day);
 }

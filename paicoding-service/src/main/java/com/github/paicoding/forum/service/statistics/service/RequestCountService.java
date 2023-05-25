@@ -20,7 +20,5 @@ public interface RequestCountService {
 
     Long getPvTotalCount();
 
-    List<StatisticsDayDTO> getPvDayList(Integer day);
-
-    List<StatisticsDayDTO> getUvDayList(Integer day);
+    List<StatisticsDayDTO> getPvUvDayList(Integer day);
 }
