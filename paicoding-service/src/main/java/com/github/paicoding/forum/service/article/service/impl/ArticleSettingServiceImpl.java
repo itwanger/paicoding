@@ -5,7 +5,6 @@ import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
@@ -82,8 +81,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         SearchArticleParams searchArticleParams = ArticleStructMapper.INSTANCE.toSearchParams(req);
 
         // 查询文章列表，分页
-        List<ArticleAdminDTO> articleDTOS = articleDao.listArticlesByParams(
-                searchArticleParams, PageParam.newPageInstance(req.getPageNumber(), req.getPageSize()));
+        List<ArticleAdminDTO> articleDTOS = articleDao.listArticlesByParams(searchArticleParams);
 
         // 查询文章总数
         Long totalCount = articleDao.countArticleByParams(searchArticleParams);

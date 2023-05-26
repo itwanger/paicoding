@@ -31,7 +31,7 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
         LambdaQueryWrapper<TagDO> query = Wrappers.lambdaQuery();
         query.eq(TagDO::getStatus, PushStatusEnum.ONLINE.getCode())
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .and(!StringUtils.isEmpty(key), v -> v.like(TagDO::getTagName, key))
+                .and(StringUtils.isNotBlank(key), v -> v.like(TagDO::getTagName, key))
                 .orderByDesc(TagDO::getId);
         if (pageParam != null) {
             query.last(PageParam.getLimitSql(pageParam));

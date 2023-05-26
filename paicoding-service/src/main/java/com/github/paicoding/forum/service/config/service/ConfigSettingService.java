@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.config.service;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.banner.ConfigReq;
+import com.github.paicoding.forum.api.model.vo.banner.SearchConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 
 /**
@@ -36,11 +37,8 @@ public interface ConfigSettingService {
 
     /**
      * 获取 Banner 列表
-     *
-     * @param pageParam
-     * @return
      */
-    PageVo<ConfigDTO> getConfigList(PageParam pageParam);
+    PageVo<ConfigDTO> getConfigList(SearchConfigReq params);
 
     /**
      * 获取公告列表

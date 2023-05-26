@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.config.repository.dao;
 
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.ConfigTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
@@ -9,9 +10,10 @@ import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.service.config.converter.ConfigConverter;
 import com.github.paicoding.forum.service.config.repository.entity.ConfigDO;
 import com.github.paicoding.forum.service.config.repository.mapper.ConfigMapper;
+import com.github.paicoding.forum.service.config.repository.params.SearchConfigParams;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,25 +39,23 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
         return ConfigConverter.toDTOS(configDOS);
     }
 
+    private LambdaQueryChainWrapper<ConfigDO> createConfigQuery(SearchConfigParams params) {
+        return lambdaQuery()
+                .eq(ConfigDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .like(StringUtils.isNotBlank(params.getName()), ConfigDO::getName, params.getName())
+                .eq(params.getType() != null && params.getType() != -1, ConfigDO::getType, params.getType());
+    }
+
     /**
      * 获取所有 Banner 列表（分页）
      *
      * @return
      */
-    public List<ConfigDTO> listBanner(PageParam pageParam) {
-        List<Integer> typeList = new ArrayList<>();
-        typeList.add(ConfigTypeEnum.HOME_PAGE.getCode());
-        typeList.add(ConfigTypeEnum.SIDE_PAGE.getCode());
-        typeList.add(ConfigTypeEnum.ADVERTISEMENT.getCode());
-        typeList.add(ConfigTypeEnum.NOTICE.getCode());
-        typeList.add(ConfigTypeEnum.COLUMN.getCode());
-        typeList.add(ConfigTypeEnum.PDF.getCode());
-
-        List<ConfigDO> configDOS = lambdaQuery()
-                .in(ConfigDO::getType, typeList)
-                .eq(ConfigDO::getDeleted, YesOrNoEnum.NO.getCode())
+    public List<ConfigDTO> listBanner(SearchConfigParams params) {
+        List<ConfigDO> configDOS = createConfigQuery(params)
                 .orderByAsc(ConfigDO::getRank)
-                .last(PageParam.getLimitSql(pageParam))
+                .last(PageParam.getLimitSql(
+                        PageParam.newPageInstance(params.getPageNum(), params.getPageSize())))
                 .list();
         return ConfigConverter.toDTOS(configDOS);
     }
@@ -65,20 +65,9 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
      *
      * @return
      */
-    public Integer countConfig() {
-        List<Integer> typeList = new ArrayList<>();
-        typeList.add(ConfigTypeEnum.HOME_PAGE.getCode());
-        typeList.add(ConfigTypeEnum.SIDE_PAGE.getCode());
-        typeList.add(ConfigTypeEnum.ADVERTISEMENT.getCode());
-        typeList.add(ConfigTypeEnum.NOTICE.getCode());
-        typeList.add(ConfigTypeEnum.COLUMN.getCode());
-        typeList.add(ConfigTypeEnum.PDF.getCode());
-
-        return lambdaQuery()
-                .in(ConfigDO::getType, typeList)
-                .eq(ConfigDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count()
-                .intValue();
+    public Long countConfig(SearchConfigParams params) {
+        return createConfigQuery(params)
+                .count();
     }
 
     /**
