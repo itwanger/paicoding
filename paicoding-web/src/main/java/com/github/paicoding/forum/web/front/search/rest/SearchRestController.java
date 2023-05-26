@@ -40,8 +40,7 @@ public class SearchRestController extends BaseViewController {
      * @param key
      */
     @GetMapping(path = "hint")
-    public ResVo<SearchArticleVo> recommend(@RequestParam(name = "key", required = false) String key) {
-        List<SimpleArticleDTO> list = articleReadService.querySimpleArticleBySearchKey(key);
+    public ResVo<SearchArticleVo> recommend(@RequestParam(name = "key", required = false) String key) {List<SimpleArticleDTO> list = articleReadService.querySimpleArticleBySearchKey(key);
         SearchArticleVo vo = new SearchArticleVo();
         vo.setKey(key);
         vo.setItems(list);
