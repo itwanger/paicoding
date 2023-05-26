@@ -335,7 +335,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     private LambdaQueryChainWrapper<ArticleDO> buildQuery(SearchArticleParams searchArticleParams) {
         return lambdaQuery()
-                .like(!StringUtils.isEmpty(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
+                .like(StringUtils.isNotBlank(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
                 // ID 不为空
                 .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
                 .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
@@ -350,8 +350,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      * 文章列表（用于后台）
      *
      */
-    public List<ArticleAdminDTO> listArticlesByParams(SearchArticleParams searchArticleParams, PageParam pageParam) {
-        return articleMapper.listArticlesByParams(searchArticleParams, pageParam);
+    public List<ArticleAdminDTO> listArticlesByParams(SearchArticleParams params) {
+        return articleMapper.listArticlesByParams(params,
+                PageParam.newPageInstance(params.getPageNum(), params.getPageSize()));
     }
 
     /**

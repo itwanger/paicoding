@@ -66,7 +66,8 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
      */
     List<YearArticleDTO> listYearArticleByUserId(@Param("userId") Long userId);
 
-    List<ArticleAdminDTO> listArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams, @Param("pageParam") PageParam pageParam);
+    List<ArticleAdminDTO> listArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams,
+                                               @Param("pageParam") PageParam pageParam);
 
     Long countArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams);
 }

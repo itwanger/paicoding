@@ -125,7 +125,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
     public List<ColumnInfoDO> listColumnsByParams(SearchColumnParams params, PageParam pageParam) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
         // 加上判空条件
-        query.like(!StringUtils.isEmpty(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
+        query.like(StringUtils.isNotBlank(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
         query.last(PageParam.getLimitSql(pageParam))
                 .orderByAsc(ColumnInfoDO::getSection);
         return baseMapper.selectList(query);
@@ -137,7 +137,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      */
     public Integer countColumnsByParams(SearchColumnParams params) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        lambdaQuery().like(!StringUtils.isEmpty(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
+        lambdaQuery().like(StringUtils.isNotBlank(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
         return baseMapper.selectCount(query).intValue();
     }
 }
