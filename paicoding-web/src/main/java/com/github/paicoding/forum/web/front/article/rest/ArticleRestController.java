@@ -181,7 +181,6 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
-    @Transactional(rollbackFor = Exception.class)
     public ResVo<Long> post(@RequestBody ArticlePostReq req, HttpServletResponse response) throws IOException {
         Long id = articleWriteService.saveArticle(req, ReqInfoContext.getReqInfo().getUserId());
 //        return "redirect:/article/detail/" + id;
