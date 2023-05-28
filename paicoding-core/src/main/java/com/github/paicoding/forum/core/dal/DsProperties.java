@@ -13,8 +13,9 @@ import java.util.Map;
  * @date 2023/4/30
  */
 @Data
-@ConfigurationProperties(prefix = "spring.dynamic")
+@ConfigurationProperties(prefix = DsProperties.DS_PREFIX)
 public class DsProperties {
+    public static final String DS_PREFIX = "spring.dynamic";
     /**
      * 默认数据源
      */
