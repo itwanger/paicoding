@@ -1,22 +1,21 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.article.SearchTagReq;
 import com.github.paicoding.forum.api.model.vo.article.TagReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
-import com.github.paicoding.forum.service.article.repository.dao.CategoryDao;
+import com.github.paicoding.forum.service.article.conveter.TagStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.TagDao;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
+import com.github.paicoding.forum.service.article.repository.params.SearchTagParams;
 import com.github.paicoding.forum.service.article.service.TagSettingService;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
 
@@ -84,10 +83,13 @@ public class TagSettingServiceImpl implements TagSettingService {
     }
 
     @Override
-    public PageVo<TagDTO> getTagList(PageParam pageParam) {
-        List<TagDTO> tagDTOS = tagDao.listTag(pageParam);
-        Integer totalCount = tagDao.countTag();
-        return PageVo.build(tagDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+    public PageVo<TagDTO> getTagList(SearchTagReq req) {
+        // 转换
+        SearchTagParams params = TagStructMapper.INSTANCE.toSearchParams(req);
+        // 查询
+        List<TagDTO> tagDTOS = tagDao.listTag(params);
+        Long totalCount = tagDao.countTag(params);
+        return PageVo.build(tagDTOS, params.getPageSize(), params.getPageNum(), totalCount);
     }
 
     @Override

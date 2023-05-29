@@ -59,7 +59,6 @@ public class ConfigSettingrRestController {
      *
      * @return
      */
-    @ResponseBody
     @PostMapping(path = "list")
     public ResVo<PageVo<ConfigDTO>> list(@RequestBody SearchConfigReq req) {
         PageVo<ConfigDTO> bannerDTOPageVo = configSettingService.getConfigList(req);
