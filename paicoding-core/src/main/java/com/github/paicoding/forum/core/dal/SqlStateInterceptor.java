@@ -1,7 +1,9 @@
 package com.github.paicoding.forum.core.dal;
 
+import com.alibaba.druid.pool.DruidPooledPreparedStatement;
 import com.baomidou.mybatisplus.core.MybatisParameterHandler;
 import com.github.paicoding.forum.core.util.DateUtil;
+import com.mysql.cj.MysqlConnection;
 import com.zaxxer.hikari.pool.HikariProxyConnection;
 import com.zaxxer.hikari.pool.HikariProxyPreparedStatement;
 import io.github.classgraph.utils.ReflectionUtils;
@@ -18,6 +20,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Statement;
 import java.util.List;
@@ -43,6 +46,14 @@ public class SqlStateInterceptor implements Interceptor {
         if (args[0] instanceof HikariProxyPreparedStatement) {
             HikariProxyConnection connection = (HikariProxyConnection) ((HikariProxyPreparedStatement) invocation.getArgs()[0]).getConnection();
             uname = connection.getMetaData().getUserName();
+        } else if (DruidCheckUtil.hasDuridPkg()) {
+            if (args[0] instanceof DruidPooledPreparedStatement) {
+                Connection connection = ((DruidPooledPreparedStatement) args[0]).getStatement().getConnection();
+                if (connection instanceof MysqlConnection) {
+                    Properties properties = ((MysqlConnection) connection).getProperties();
+                    uname = properties.getProperty("user");
+                }
+            }
         }
 
         Object rs;

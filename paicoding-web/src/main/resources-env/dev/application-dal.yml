@@ -4,17 +4,29 @@ spring:
     username: root
     password:
   dynamic: # 动态数据源
-#    primary: master # 这个表示默认的数据源
+    primary: master # 这个表示默认的数据源
     datasource:
       master:
         # 数据库名，从配置 database.name 中获取
         url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password:
+#        type: com.alibaba.druid.pool.DruidDataSource
+        #DruidDataSource自有属性
+        filters: stat
+        initialSize: 0
+        minIdle: 1
+        maxActive: 200
+        maxWait: 10000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 200000
+        testWhileIdle: true
+        testOnBorrow: true
+        validationQuery: select 1
       slave:
         # 数据库名，从配置 database.name 中获取
         url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
-        username: readonly
+        username: root
         password:
   redis:
     host: localhost
