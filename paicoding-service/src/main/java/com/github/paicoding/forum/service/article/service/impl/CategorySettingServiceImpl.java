@@ -1,13 +1,15 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.CategoryReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchCategoryReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
+import com.github.paicoding.forum.service.article.conveter.CategoryStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.CategoryDao;
 import com.github.paicoding.forum.service.article.repository.entity.CategoryDO;
+import com.github.paicoding.forum.service.article.repository.params.SearchCategoryParams;
 import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.article.service.CategorySettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +64,12 @@ public class CategorySettingServiceImpl implements CategorySettingService {
     }
 
     @Override
-    public PageVo<CategoryDTO> getCategoryList(PageParam pageParam) {
-        List<CategoryDTO> tagDTOS = categoryDao.listCategory(pageParam);
-        Integer totalCount = categoryDao.countCategory();
-        return PageVo.build(tagDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+    public PageVo<CategoryDTO> getCategoryList(SearchCategoryReq req) {
+        // 转换
+        SearchCategoryParams params = CategoryStructMapper.INSTANCE.toSearchParams(req);
+        // 查询
+        List<CategoryDTO> categoryDTOS = categoryDao.listCategory(params);
+        Long totalCount = categoryDao.countCategory(params);
+        return PageVo.build(categoryDTOS, params.getPageSize(), params.getPageNum(), totalCount);
     }
 }
