@@ -1,0 +1,16 @@
+#  Actuator 配置：暴露所有断点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  # 配置暴露 Protheus，并允许将我的列表导入到 Prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: ALWAYS
+  metrics:
+    export:
+      prometheus:
+        enabled: true

@@ -10,7 +10,9 @@ spring:
   #    active: dal,web,config,image
   # 替换上面作废的spring.profiels.actice配置参数
   config:
-    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml,application-rabbitmq.yml
+    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml,application-rabbitmq.yml,application-prometheus.yml
+  application:
+    name: pai_coding
 
   main:
     # 引入下面这个配置，主要是为了解决自定义实现的多数据源功能，自主注册的datasource替换默认的
