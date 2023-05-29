@@ -10,13 +10,16 @@ import com.github.paicoding.forum.service.notify.service.RabbitmqService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.ForumExceptionHandler;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
@@ -29,6 +32,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -72,6 +76,16 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
 
     public static void main(String[] args) {
         SpringApplication.run(QuickForumApplication.class, args);
+    }
+
+    /**
+     * 配置普罗米斯修中显示的服务名称
+     */
+    @Bean
+    MeterRegistryCustomizer<MeterRegistry> configurer(@Value("${spring.application.name}") String applicationName) {
+
+        return (registry -> registry.config().commonTags("application", applicationName));
+
     }
 
     /**
