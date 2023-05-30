@@ -99,7 +99,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
                     Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getArticleId, articleId));
 
             if (count > 0) {
-                throw ExceptionUtil.of(StatusEnum.ARTICLE_RELATION_TUTORIAL, articleId);
+                throw ExceptionUtil.of(StatusEnum.ARTICLE_RELATION_TUTORIAL, articleId, "请先解除文章与教程的关联关系");
             }
 
             dto.setDeleted(YesOrNoEnum.YES.getCode());
