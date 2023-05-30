@@ -15,12 +15,6 @@ public class Constants {
             "Documents", "GitHub", "toBeBetterJavaer").toString();
     // 默认作者名
     public static final String DEFAULT_AUTHOR = "佚名";
-
-    // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
-    public static final String endpoint = "oss-cn-beijing.aliyuncs.com";
-    // 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
-    public static final String accessKeyId = "LTAI5tFgj8xZA6siqiJ3vdRk";
-    public static final String accessKeySecret = "yT2gGIdUBCvDkgQenf9L7MYi2LFTOO";
     // 填写Bucket名称，例如examplebucket。
     public static final String bucketName = "itwanger-oss";
     // OSS 的前缀文件夹
