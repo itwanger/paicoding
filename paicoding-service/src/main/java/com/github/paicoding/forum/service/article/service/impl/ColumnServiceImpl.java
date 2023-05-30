@@ -126,4 +126,5 @@ public class ColumnServiceImpl implements ColumnService {
     public Long getTutorialCount() {
         return this.columnDao.countColumnArticles();
     }
+
 }

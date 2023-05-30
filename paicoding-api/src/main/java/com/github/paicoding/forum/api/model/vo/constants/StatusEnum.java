@@ -54,6 +54,7 @@ public enum StatusEnum {
     COLUMN_QUERY_ERROR(200_500_003, "教程查询异常:%s"),
     // 教程文章已存在
     COLUMN_ARTICLE_EXISTS(200_500_004, "专栏教程已存在:%s"),
+    ARTICLE_RELATION_TUTORIAL(200_500_006, "文章已被添加为教程:%s"),
 
     // --------------------------------
 
@@ -66,8 +67,7 @@ public enum StatusEnum {
     // 用户相关异常
     LOGIN_FAILED_MIXED(400_403_001, "登录失败:%s"),
     USER_NOT_EXISTS(400_404_001, "用户不存在:%s"),
-    USER_PWD_ERROR(400_500_002, "用户名or密码错误"),
-    ;
+    USER_PWD_ERROR(400_500_002, "用户名or密码错误");
 
     private int code;
 
