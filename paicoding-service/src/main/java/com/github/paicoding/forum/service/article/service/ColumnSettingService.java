@@ -34,13 +34,6 @@ public interface ColumnSettingService {
     void saveColumnArticle(ColumnArticleReq req);
 
     /**
-     * 专栏文章排序
-     *
-     * @param columnArticleReqs
-     */
-    void sortColumnArticle(List<ColumnArticleReq> columnArticleReqs);
-
-    /**
      * 删除专栏
      *
      * @param columnId

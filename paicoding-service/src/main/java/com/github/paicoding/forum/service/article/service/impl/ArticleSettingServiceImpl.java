@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
@@ -14,10 +15,11 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
-import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -41,7 +43,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     private ArticleDao articleDao;
 
     @Autowired
-    private UserService userService;
+    private ColumnArticleDao columnArticleDao;
 
     @Override
     @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
@@ -92,6 +94,14 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     public void deleteArticle(Long articleId) {
         ArticleDO dto = articleDao.getById(articleId);
         if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
+            // 查询该文章是否关联了教程，如果已经关联了教程，则不能删除
+            long count = columnArticleDao.count(
+                    Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getArticleId, articleId));
+
+            if (count > 0) {
+                throw ExceptionUtil.of(StatusEnum.ARTICLE_RELATION_TUTORIAL, articleId);
+            }
+
             dto.setDeleted(YesOrNoEnum.YES.getCode());
             articleDao.updateById(dto);
 

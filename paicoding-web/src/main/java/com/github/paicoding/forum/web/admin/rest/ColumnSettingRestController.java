@@ -70,13 +70,6 @@ public class ColumnSettingRestController {
     }
 
     @Permission(role = UserRole.ADMIN)
-    @PostMapping(path = "sortColumnArticle")
-    public ResVo<String> sortColumnArticle(@RequestBody List<ColumnArticleReq> columnArticleReqs) {
-        columnSettingService.sortColumnArticle(columnArticleReqs);
-        return ResVo.ok("ok");
-    }
-
-    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumn")
     public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Long columnId) {
         columnSettingService.deleteColumn(columnId);
