@@ -107,6 +107,8 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
             // 发布文章删除事件
             SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
+        } else {
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
     }
 
