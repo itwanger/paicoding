@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.config.converter;
 
+import com.github.paicoding.forum.api.model.vo.banner.ConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.SearchConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.service.config.repository.entity.ConfigDO;
@@ -23,4 +24,6 @@ public interface ConfigStructMapper {
     ConfigDTO toDTO(ConfigDO configDO);
 
     List<ConfigDTO> toDTOS(List<ConfigDO> configDOS);
+
+    ConfigDO toDO(ConfigReq configReq);
 }

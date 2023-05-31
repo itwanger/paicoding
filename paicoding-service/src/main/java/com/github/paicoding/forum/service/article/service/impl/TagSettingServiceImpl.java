@@ -38,7 +38,7 @@ public class TagSettingServiceImpl implements TagSettingService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveTag(TagReq tagReq) {
-        TagDO tagDO = ArticleConverter.toDO(tagReq);
+        TagDO tagDO = TagStructMapper.INSTANCE.toDO(tagReq);
 
         // 先写 MySQL
         if (NumUtil.nullOrZero(tagReq.getTagId())) {

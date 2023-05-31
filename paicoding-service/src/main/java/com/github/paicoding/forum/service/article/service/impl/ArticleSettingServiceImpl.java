@@ -48,9 +48,14 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     @Override
     @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
     public void updateArticle(ArticlePostReq req) {
+        if (req.getStatus() != PushStatusEnum.OFFLINE.getCode()
+                && req.getStatus() != PushStatusEnum.ONLINE.getCode()
+                && req.getStatus() != PushStatusEnum.REVIEW.getCode()) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "发布状态不合法!");
+        }
         ArticleDO article = articleDao.getById(req.getArticleId());
         if (article == null) {
-            return;
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在!");
         }
 
         if (StringUtils.isNotBlank(req.getTitle())) {

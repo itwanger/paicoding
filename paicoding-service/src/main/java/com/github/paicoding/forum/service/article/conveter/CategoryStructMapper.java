@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.conveter;
 
+import com.github.paicoding.forum.api.model.vo.article.CategoryReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchCategoryReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.service.article.repository.entity.CategoryDO;
@@ -31,4 +32,8 @@ public interface CategoryStructMapper {
     CategoryDTO toDTO(CategoryDO categoryDO);
 
     List<CategoryDTO> toDTOs(List<CategoryDO> list);
+
+    // req to do
+    @Mapping(source = "category", target = "categoryName")
+    CategoryDO toDO(CategoryReq categoryReq);
 }

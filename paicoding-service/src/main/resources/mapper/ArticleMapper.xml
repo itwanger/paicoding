@@ -95,6 +95,7 @@
         from article a
         left join user_info u on a.user_id = u.user_id
         <include refid="articlesByParams"/>
+        order by a.update_time desc
         <include refid="limit"/>
     </select>
     <select id="countArticlesByParams" resultType="java.lang.Long">

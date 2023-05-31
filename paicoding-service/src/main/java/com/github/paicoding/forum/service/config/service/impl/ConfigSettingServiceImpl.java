@@ -7,7 +7,6 @@ import com.github.paicoding.forum.api.model.vo.banner.ConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.SearchConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
-import com.github.paicoding.forum.service.config.converter.ConfigConverter;
 import com.github.paicoding.forum.service.config.converter.ConfigStructMapper;
 import com.github.paicoding.forum.service.config.repository.dao.ConfigDao;
 import com.github.paicoding.forum.service.config.repository.entity.ConfigDO;
@@ -32,7 +31,7 @@ public class ConfigSettingServiceImpl implements ConfigSettingService {
 
     @Override
     public void saveConfig(ConfigReq configReq) {
-        ConfigDO configDO = ConfigConverter.toDO(configReq);
+        ConfigDO configDO = ConfigStructMapper.INSTANCE.toDO(configReq);
         if (NumUtil.nullOrZero(configReq.getConfigId())) {
             configDao.save(configDO);
         } else {
