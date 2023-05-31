@@ -18,7 +18,6 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMapper;
-import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
@@ -62,7 +61,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
     @Override
     public void saveColumn(ColumnReq req) {
-        ColumnInfoDO columnInfoDO = ColumnConvert.toDo(req);
+        ColumnInfoDO columnInfoDO = ColumnStructMapper.INSTANCE.toDo(req);
         if (NumUtil.nullOrZero(req.getColumnId())) {
             columnDao.save(columnInfoDO);
         } else {

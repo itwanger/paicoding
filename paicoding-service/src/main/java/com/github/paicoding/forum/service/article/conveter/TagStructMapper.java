@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.article.conveter;
 
 import com.github.paicoding.forum.api.model.vo.article.SearchTagReq;
+import com.github.paicoding.forum.api.model.vo.article.TagReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchTagParams;
@@ -31,4 +32,7 @@ public interface TagStructMapper {
     TagDTO toDTO(TagDO tagDO);
 
     List<TagDTO> toDTOs(List<TagDO> list);
+
+    @Mapping(source = "tag", target = "tagName")
+    TagDO toDO(TagReq tagReq);
 }

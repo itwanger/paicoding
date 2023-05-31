@@ -34,7 +34,7 @@ public class CategorySettingServiceImpl implements CategorySettingService {
 
     @Override
     public void saveCategory(CategoryReq categoryReq) {
-        CategoryDO categoryDO = ArticleConverter.toDO(categoryReq);
+        CategoryDO categoryDO = CategoryStructMapper.INSTANCE.toDO(categoryReq);
         if (NumUtil.nullOrZero(categoryReq.getCategoryId())) {
             categoryDao.save(categoryDO);
         } else {
