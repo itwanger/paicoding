@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.service.config.converter.ConfigConverter;
+import com.github.paicoding.forum.service.config.converter.ConfigStructMapper;
 import com.github.paicoding.forum.service.config.repository.entity.ConfigDO;
 import com.github.paicoding.forum.service.config.repository.mapper.ConfigMapper;
 import com.github.paicoding.forum.service.config.repository.params.SearchConfigParams;
@@ -53,11 +54,12 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
      */
     public List<ConfigDTO> listBanner(SearchConfigParams params) {
         List<ConfigDO> configDOS = createConfigQuery(params)
+                .orderByDesc(ConfigDO::getUpdateTime)
                 .orderByAsc(ConfigDO::getRank)
                 .last(PageParam.getLimitSql(
                         PageParam.newPageInstance(params.getPageNum(), params.getPageSize())))
                 .list();
-        return ConfigConverter.toDTOS(configDOS);
+        return ConfigStructMapper.INSTANCE.toDTOS(configDOS);
     }
 
     /**

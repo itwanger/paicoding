@@ -2,10 +2,12 @@ package com.github.paicoding.forum.service.article.repository.params;
 
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 专栏查询
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class SearchColumnArticleParams extends PageParam {
 

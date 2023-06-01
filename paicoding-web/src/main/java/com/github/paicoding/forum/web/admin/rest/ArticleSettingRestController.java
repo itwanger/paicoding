@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
-import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
@@ -42,9 +41,6 @@ public class ArticleSettingRestController {
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ArticlePostReq req) {
-        if (req.getStatus() != PushStatusEnum.OFFLINE.getCode() && req.getStatus() != PushStatusEnum.ONLINE.getCode() && req.getStatus() != PushStatusEnum.REVIEW.getCode()) {
-            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "发布状态不合法!");
-        }
         articleSettingService.updateArticle(req);
         return ResVo.ok("ok");
     }

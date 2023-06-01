@@ -4,7 +4,11 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.http.HttpUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.github.paicoding.forum.core.config.ImageProperties;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -18,6 +22,11 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class OSSUtil {
+    @Autowired
+    @Setter
+    @Getter
+    private static ImageProperties properties;
+
     public static boolean needUploadOss(String imageUrl) {
         boolean flag = true;
         for (String url : Constants.ossOrCdnUrls) {
@@ -33,7 +42,9 @@ public class OSSUtil {
         Pattern p = Pattern.compile(Constants.mdImgPattern, Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(md);
 
-        OSS ossClient = new OSSClientBuilder().build(Constants.endpoint, Constants.accessKeyId, Constants.accessKeySecret);
+
+
+        OSS ossClient = new OSSClientBuilder().build(properties.getOss().getEndpoint(), properties.getOss().getAk(), properties.getOss().getSk());
 
         while (m.find()) {
             // 图片描述
