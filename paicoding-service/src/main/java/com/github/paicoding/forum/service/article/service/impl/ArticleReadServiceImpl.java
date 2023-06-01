@@ -11,6 +11,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.ArticleUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
@@ -18,17 +19,24 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
+import com.github.paicoding.forum.service.constant.RedisConstant;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 
 /**
  * 文章查询相关服务类
@@ -79,16 +87,81 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Override
     public ArticleDTO queryDetailArticleInfo(Long articleId) {
-        ArticleDTO article = articleDao.queryArticleDetail(articleId);
+
+        // TODO ygl:引入Redis缓存
+        String redisCacheKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_CACHE + articleId;
+        String articleStr = RedisClient.getStr(redisCacheKey);
+        ArticleDTO article = null;
+        if (!ObjectUtils.isEmpty(articleStr)) {
+            article = JSONUtil.toBean(articleStr, ArticleDTO.class);
+        } else {
+            // TODO ygl:存在缓存击穿问题，引入分布式锁
+
+             /*
+             第一种方式：
+                缺点：不加finally去del锁，那么会出现该线程执行完之后在不过期时间内一直持有该锁不释放，
+             在这过程内导致其他线程无法再次获取锁
+             */
+            // article = this.checkArticleByDBOne(articleId);
+            /*
+            第二种方式：
+                优点：与第一种方式相比增加了finally，在线程执行完之后会立即释放锁
+            即使在执行finally之前宕机了，那么因为有了过期时间，还是会自动释放
+                缺点：可能会释放别人的锁
+            */
+            article = this.checkArticleByDBTwo(articleId);
+
+        }
         if (article == null) {
             throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
+        RedisClient.setStr(redisCacheKey, JSONUtil.toJsonStr(article));
         // 更新分类相关信息
         CategoryDTO category = article.getCategory();
         category.setCategory(categoryService.queryCategoryName(category.getCategoryId()));
 
         // 更新标签信息
         article.setTags(articleTagDao.queryArticleTagDetails(articleId));
+        return article;
+    }
+
+    private ArticleDTO checkArticleByDBTwo(Long articleId) {
+
+        String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+
+        ArticleDTO article = null;
+        Boolean isLockSuccess = RedisClient.setStrWithExpire(redisLockKey, null, 100L);
+        try {
+            if (isLockSuccess) {
+                article = articleDao.queryArticleDetail(articleId);
+            }
+        } finally {
+
+            RedisClient.del(redisLockKey);
+
+        }
+
+
+        return article;
+
+    }
+
+    /**
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBOne(Long articleId) {
+
+        String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+
+        ArticleDTO article = null;
+        Boolean isLockSuccess = RedisClient.setStrWithExpire(redisLockKey, null, 100L);
+
+        if (isLockSuccess) {
+            article = articleDao.queryArticleDetail(articleId);
+        }
+
         return article;
     }
 
@@ -109,7 +182,8 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 文章的操作标记
         if (readUser != null) {
             // 更新用于足迹，并判断是否点赞、评论、收藏
-            UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getAuthor(), readUser, OperateTypeEnum.READ);
+            UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId,
+                    article.getAuthor(), readUser, OperateTypeEnum.READ);
             article.setPraised(Objects.equals(foot.getPraiseStat(), PraiseStatEnum.PRAISE.getCode()));
             article.setCommented(Objects.equals(foot.getCommentStat(), CommentStatEnum.COMMENT.getCode()));
             article.setCollected(Objects.equals(foot.getCollectionStat(), CollectionStatEnum.COLLECTION.getCode()));
