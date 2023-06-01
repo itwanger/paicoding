@@ -39,7 +39,7 @@
             <if test="articleTitle != null and articleTitle != ''">
                 and a.short_title like concat('%', #{articleTitle}, '%')
             </if>
-        order by c.section desc
+        order by c.update_time desc, c.section asc
         <include refid="limit"/>
     </select>
 
