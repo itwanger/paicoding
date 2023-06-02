@@ -4,9 +4,12 @@ import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtItemVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.paicoding.forum.core.ai.ChatGptFactory;
+import com.github.paicoding.forum.core.ai.ChatGptHelper;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.MapUtils;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author YiHui
@@ -159,6 +165,14 @@ public class WxHelper {
             textRes = "技术派后台游客登录账号\n-----------\n登录用户名: guest\n登录密码: 123456";
         } else if ("商务合作".equalsIgnoreCase(content) ) {
             textRes = "商务合作：请添加楼仔微信「lml200701158」，备注\"商务合作\"'";
+        } else if (content.startsWith("chatgpt")) {
+            try {
+                content = content.replaceFirst("chatgpt", "").trim();
+                textRes = SpringUtil.getBean(ChatGptHelper.class).simpleGptReturn(content);
+            } catch (Exception e) {
+                log.error("chatgpt 访问异常! content: {}", content, e);
+                textRes = "chatgpt 出了点小状况，请稍后再试!";
+            }
         }
         // 微信公众号登录
         else if (CodeGenerateUtil.isVerifyCode(content)) {

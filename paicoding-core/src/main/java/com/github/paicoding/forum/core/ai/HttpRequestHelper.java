@@ -6,7 +6,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,11 +17,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -111,7 +109,9 @@ public class HttpRequestHelper {
      * @param <R>
      * @return
      */
-    private static <R> R fetchContent(String url, HttpMethod method, Map<String, String> params, HttpHeaders headers,
+    private static <R> R fetchContent(String url, HttpMethod method,
+                                      Map<String, String> params,
+                                      HttpHeaders headers,
                                       Class<R> responseClass, boolean useProxy) {
         String threadName = Thread.currentThread().getName();
         RestTemplate restTemplate = restTemplateMap.getUnchecked(threadName);
@@ -145,11 +145,7 @@ public class HttpRequestHelper {
             return;
         }
 
-        ImmutablePair<String, Integer> proxy = ProxyCenter.getProxy(host);
-        if (proxy != null) {
-            factory.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy.getLeft(), proxy.getRight())));
-//            factory.setProxy(ProxyCenter.loadProxy());
-        }
+        Optional.ofNullable(ProxyCenter.loadProxy(host)).ifPresent(factory::setProxy);
     }
 
     /**
