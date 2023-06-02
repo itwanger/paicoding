@@ -4,12 +4,10 @@ import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtItemVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
-import com.github.paicoding.forum.core.ai.ChatGptFactory;
-import com.github.paicoding.forum.core.ai.ChatGptHelper;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.MapUtils;
-import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.chatgpt.service.ChatgptService;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +48,9 @@ public class WxHelper {
     private SessionService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
+
+    @Autowired
+    private ChatgptService chatgptService;
 
     private RestTemplate restTemplate;
 
@@ -105,7 +106,14 @@ public class WxHelper {
         String textRes = null;
         // 返回的是图文消息
         List<WxImgTxtItemVo> imgTxtList = null;
-        if ("subscribe".equalsIgnoreCase(eventType)) {
+        if (chatgptService.inChat(fromUser, content)) {
+            try {
+              textRes = chatgptService.chat(fromUser, content);
+            } catch (Exception e) {
+                log.error("chatgpt 访问异常! content: {}", content, e);
+                textRes = "chatgpt 出了点小状况，请稍后再试!";
+            }
+        } else if ("subscribe".equalsIgnoreCase(eventType)) {
             // 订阅
             textRes = "优秀的你一关注，楼仔英俊的脸上就泛起了笑容[奸笑]。我这个废柴，既可以把程序人生写得风趣幽默，也可以把技术文章写得通俗易懂。\n" +
                     "\n" +
@@ -165,14 +173,6 @@ public class WxHelper {
             textRes = "技术派后台游客登录账号\n-----------\n登录用户名: guest\n登录密码: 123456";
         } else if ("商务合作".equalsIgnoreCase(content) ) {
             textRes = "商务合作：请添加楼仔微信「lml200701158」，备注\"商务合作\"'";
-        } else if (content.startsWith("chatgpt")) {
-            try {
-                content = content.replaceFirst("chatgpt", "").trim();
-                textRes = SpringUtil.getBean(ChatGptHelper.class).simpleGptReturn(content);
-            } catch (Exception e) {
-                log.error("chatgpt 访问异常! content: {}", content, e);
-                textRes = "chatgpt 出了点小状况，请稍后再试!";
-            }
         }
         // 微信公众号登录
         else if (CodeGenerateUtil.isVerifyCode(content)) {

@@ -5,7 +5,7 @@ import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.core.ai.ChatGptFactory;
+import com.github.paicoding.forum.core.ai.ChatGptHelper;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
@@ -18,11 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,12 +37,12 @@ public class TestController {
     private AtomicInteger cnt = new AtomicInteger(1);
 
     @Autowired
-    private ChatGptFactory chatGptFactory;
+    private ChatGptHelper chatGptHelper;
 
     @RequestMapping(path = "gptkey")
     public ResVo<String> updateKey(String key, HttpServletRequest request) {
         if ("127.0.0.1".equals(ReqInfoContext.getReqInfo().getHost())) {
-            return ResVo.ok(chatGptFactory.setKey(key));
+            return ResVo.ok(chatGptHelper.setKey(key));
         } else {
             return ResVo.ok("无权限");
         }

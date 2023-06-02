@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,13 @@ import java.util.List;
  * @date 2022-07-20
  */
 public interface UserService {
+    /**
+     * 判断微信用户是否注册过
+     *
+     * @param wxuuid
+     * @return
+     */
+    UserDO getWxUser(String wxuuid);
 
     /**
      * 账号密码方式登录；适用于admin后台登录
