@@ -87,15 +87,15 @@ public class ChatgptServiceImpl implements ChatgptService {
             return ChatGptConstants.CHAT_REPLY_BEGIN;
         }
 
+        // 正常对话
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
         if (content.toLowerCase().trim().equalsIgnoreCase("end") || content.trim().startsWith("结束")) {
             // 结束会话
+            chatCache.invalidate(userId);
             chatCache.cleanUp();
             return ChatGptConstants.CHAT_REPLY_OVER;
         }
 
-
-        // 正常对话
-        Long userId = ReqInfoContext.getReqInfo().getUserId();
         if (!rateLimit(userId)) {
             // 次数已经用完了，直接返回
             chatCache.cleanUp();

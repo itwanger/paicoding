@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.core.ai;
 
-import com.github.paicoding.forum.core.util.JsonUtil;
 import com.plexpt.chatgpt.entity.chat.ChatChoice;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -43,9 +42,17 @@ public class ChatRecord {
     public String reply() {
         lastReturn = true;
         if (!CollectionUtils.isEmpty(res)) {
-            return qas + "\n--------------------\n" + JsonUtil.toStr(res);
+            return qas + "\n================\n" + buildRes();
         }
 
         return sysErr;
+    }
+
+    private String buildRes() {
+        StringBuilder builder = new StringBuilder();
+        for (ChatChoice choice : res) {
+            builder.append(choice.getMessage().getContent()).append("--------------\n\n");
+        }
+        return builder.toString();
     }
 }
