@@ -43,7 +43,7 @@ public class TestController {
     @Autowired
     private ChatGptFactory chatGptFactory;
 
-    @RequestMapping(path = "email")
+    @RequestMapping(path = "gptkey")
     public ResVo<String> updateKey(String key, HttpServletRequest request) {
         if ("127.0.0.1".equals(ReqInfoContext.getReqInfo().getHost())) {
             return ResVo.ok(chatGptFactory.setKey(key));
