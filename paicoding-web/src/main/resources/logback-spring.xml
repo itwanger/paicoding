@@ -12,7 +12,7 @@
     <!-- ConsoleAppender：把日志输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d [%t] %-5level %logger{36}.%M\(%file:%line\) - %msg%n</pattern>
+            <pattern>%d [%t] %-5level|%mdc{traceId}|%mdc{bizCode}|%logger{36}.%M\(%file:%line\) - %msg%n</pattern>
             <!-- 控制台也要使用UTF-8，不要使用GBK，否则会中文乱码 -->
             <charset>UTF-8</charset>
         </encoder>
@@ -51,7 +51,7 @@
         <encoder>
             <!-- pattern节点，用来设置日志的输入格式 -->
             <pattern>
-                [%d{yyyy-MM-dd HH:mm:ss}] {"logger":"%logger{36}", "thread":"%thread", "msg":"%msg"}%n
+                [%d{yyyy-MM-dd HH:mm:ss}]|%mdc{traceId}|%mdc{bizCode}|{"logger":"%logger{36}", "thread":"%thread", "msg":"%msg"}%n
             </pattern>
             <!-- 记录日志的编码:此处设置字符集 - -->
             <charset>UTF-8</charset>
@@ -75,7 +75,7 @@
         <!--日志输出编码格式化-->
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] - %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}|%mdc{traceId}|] - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -83,6 +83,11 @@
         <appender-ref ref="reqLog"/>
     </logger>
 
+
+    <logger name="springfox.documentation.spring" level="warn" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="service"/>
+    </logger>
 
     <!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
     <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->

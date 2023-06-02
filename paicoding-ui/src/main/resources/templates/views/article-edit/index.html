@@ -834,8 +834,6 @@
             pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
             $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
 
-            $(".res-upload-img").attr("src", imagePath);
-            $(".res-upload-wrap").removeClass("hide");
             callback();
             toastr.info("图片上传成功!");
           },

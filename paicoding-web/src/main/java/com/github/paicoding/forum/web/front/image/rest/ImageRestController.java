@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author LouZai
  * @date 2022/9/7
  */
-@RequestMapping(path = "image/")
+@RequestMapping(path = {"image/", "admin/image/", "api/admin/image/",})
 @RestController
 @Slf4j
 public class ImageRestController {

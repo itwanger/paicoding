@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
         return queryBasicUserInfo(user.getId());
     }
 
+    @Override
     public List<SimpleUserInfoDTO> searchUser(String userName) {
         List<UserInfoDO> users = userDao.getByUserNameLike(userName);
         if (CollectionUtils.isEmpty(users)) {
@@ -202,12 +203,30 @@ public class UserServiceImpl implements UserService {
         }
 
         // 加入天数
-        Integer joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24));
+        int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24));
         userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
 
         // 创作历程
         List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
         userHomeDTO.setYearArticleList(yearArticleDTOS);
         return userHomeDTO;
+    }
+
+    /**
+     * 查询用户基本信息
+     *
+     * @param userIds
+     * @return
+     */
+    @Override
+    public List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds) {
+        // 根据 userIds 查询
+        List<UserInfoDO> users = userDao.getByUserIds(userIds);
+        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getUserCount() {
+        return this.userDao.getUserCount();
     }
 }

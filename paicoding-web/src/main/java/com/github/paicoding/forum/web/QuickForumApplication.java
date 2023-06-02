@@ -2,12 +2,17 @@ package com.github.paicoding.forum.web;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paicoding.forum.core.config.RabbitmqProperties;
+import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnectionPool;
 import com.github.paicoding.forum.core.util.SocketUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.notify.service.RabbitmqService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.ForumExceptionHandler;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -25,6 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * 入口，直接运行即可
@@ -43,6 +49,16 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
 
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
+
+    @Resource
+    @Qualifier(value = "taskExecutor")
+    private Executor taskExecutor;
+
+    @Resource
+    private RabbitmqService rabbitmqService;
+
+    @Autowired
+    private RabbitmqProperties rabbitmqProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -77,12 +93,23 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
 
     @Override
     public void run(ApplicationArguments args) {
-        // 设置类型转换
+        // 设置类型转换, 主要用于mybatis读取varchar/json类型数据据，并写入到json格式的实体Entity中
         JacksonTypeHandler.setObjectMapper(new ObjectMapper());
         // 应用启动之后执行
         GlobalViewConfig config = SpringUtil.getBean(GlobalViewConfig.class);
         if (webPort != null) {
             config.setHost("http://127.0.0.1:" + webPort);
+        }
+        // 启动 RabbitMQ 进行消费
+        if (rabbitmqProperties.getSwitchFlag()) {
+            String host = rabbitmqProperties.getHost();
+            Integer port = rabbitmqProperties.getPort();
+            String userName = rabbitmqProperties.getUsername();
+            String password = rabbitmqProperties.getPassport();
+            String virtualhost = rabbitmqProperties.getVirtualhost();
+            Integer poolSize = rabbitmqProperties.getPoolSize();
+            RabbitmqConnectionPool.initRabbitmqConnectionPool(host, port, userName, password, virtualhost, poolSize);
+            taskExecutor.execute(() -> rabbitmqService.processConsumerMsg());
         }
         log.info("启动成功，点击进入首页: {}", config.getHost());
     }

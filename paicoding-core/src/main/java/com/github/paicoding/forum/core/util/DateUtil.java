@@ -11,10 +11,12 @@ import java.time.format.DateTimeFormatter;
  * @date 2022/8/25
  */
 public class DateUtil {
-    private static final DateTimeFormatter UTC_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    private static final DateTimeFormatter BLOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
+    public static final DateTimeFormatter UTC_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-    private static final DateTimeFormatter BLOG_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+    public static final DateTimeFormatter DB_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    public static final DateTimeFormatter BLOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
+
+    public static final DateTimeFormatter BLOG_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
 
     /**
      * 毫秒转日期
@@ -23,7 +25,7 @@ public class DateUtil {
      * @return
      */
     public static String time2day(long timestamp) {
-        return BLOG_TIME_FORMAT.format(time2LocalTime(timestamp));
+        return format(BLOG_TIME_FORMAT, timestamp);
     }
 
     public static String time2day(Timestamp timestamp) {
@@ -35,15 +37,20 @@ public class DateUtil {
     }
 
     public static String time2utc(long timestamp) {
-        LocalDateTime time = time2LocalTime(timestamp);
-        return UTC_FORMAT.format(time);
+        return format(UTC_FORMAT, timestamp);
     }
 
     public static String time2date(long timestamp) {
-        return BLOG_DATE_FORMAT.format(time2LocalTime(timestamp));
+        return format(BLOG_DATE_FORMAT, timestamp);
     }
 
     public static String time2date(Timestamp timestamp) {
         return time2date(timestamp.getTime());
+    }
+
+
+    public static String format(DateTimeFormatter format, long timestamp) {
+        LocalDateTime time = time2LocalTime(timestamp);
+        return format.format(time);
     }
 }

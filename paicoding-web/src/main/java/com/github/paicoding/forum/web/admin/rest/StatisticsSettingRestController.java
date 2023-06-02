@@ -36,18 +36,11 @@ public class StatisticsSettingRestController {
     }
 
     @ResponseBody
-    @GetMapping(path = "pvDayList")
-    public ResVo<List<StatisticsDayDTO>> pvDayList(@RequestParam(name = "day", required = false) Integer day) {
+    @GetMapping(path = "pvUvDayList")
+    public ResVo<List<StatisticsDayDTO>> pvUvDayList(@RequestParam(name = "day", required = false) Integer day) {
         day = (day == null || day == 0) ? DEFAULT_DAY : day;
-        List<StatisticsDayDTO> pvDayList = statisticsSettingService.getPvDayList(day);
+        List<StatisticsDayDTO> pvDayList = statisticsSettingService.getPvUvDayList(day);
         return ResVo.ok(pvDayList);
     }
 
-    @ResponseBody
-    @GetMapping(path = "uvDayList")
-    public ResVo<List<StatisticsDayDTO>> uvDayList(@RequestParam(name = "day", required = false) Integer day) {
-        day = (day == null || day == 0) ? DEFAULT_DAY : day;
-        List<StatisticsDayDTO> pvDayList = statisticsSettingService.getUvDayList(day);
-        return ResVo.ok(pvDayList);
-    }
 }

@@ -68,4 +68,14 @@ public interface UserService {
      * @throws Exception
      */
     UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId);
+
+    /**
+     * 查询用户基本信息，查询多个
+     *
+     * @param userIds
+     * @return
+     */
+    List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds);
+
+    Long getUserCount();
 }

@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.statistics.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -9,20 +10,46 @@ import lombok.Data;
  * @date 2022-10-1
  */
 @Data
+@Builder
 public class StatisticsCountDTO {
 
     /**
      * PV 数量
      */
-    private Integer pvCount;
+    private Long pvCount;
 
     /**
      * 总用户数
      */
-    private Integer userCount;
+    private Long userCount;
+
+    /**
+     * 总评论数
+     */
+    private Long commentCount;
+
+    /**
+     * 总阅读数
+     */
+    private Long readCount;
+
+    /**
+     * 总点赞数
+     */
+    private Long likeCount;
+
+    /**
+     * 总收藏数
+     */
+    private Long collectCount;
 
     /**
      * 文章数量
      */
-    private Integer articleCount;
+    private Long articleCount;
+
+    /**
+     * 教程数量
+     */
+    private Long tutorialCount;
 }

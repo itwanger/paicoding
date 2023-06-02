@@ -41,24 +41,20 @@
 <script src="/js/color-thief.umd.js"></script>
 
 <script>
-  // https://lokeshdhakar.com/projects/color-thief/#getting-started
-  const colorThief = new ColorThief()
-  let cover0 = $("#cover0");
-  console.log(cover0.attr("src"));
-
   const img = document.getElementById("cover0")
   // 服务器 cdn 开启跨域消息头
   img.setAttribute('crossOrigin', '')
-  console.log("img:", img)
 
+  // https://lokeshdhakar.com/projects/color-thief/#getting-started
+  const colorThief = new ColorThief()
 
   function setColor() {
     let color = colorThief.getColor(img)
     console.log("newColor: ", color)
 
     let rgb = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")"
-    let span = document.getElementById("carouseWrap")
-    span.style.background = rgb
+    let div = document.getElementById("carouseWrap")
+    div.style.background = rgb
     // fix bug excel id 4
     $(".home-carouse-item-dot.tag").css("background", rgb)
   }

@@ -5,11 +5,13 @@ import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.user.service.UserService;
-import com.github.paicoding.forum.service.user.service.UserSettingService;
+import com.github.paicoding.forum.web.front.search.vo.SearchUserVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -27,19 +29,15 @@ import java.util.List;
 public class UserSettingRestController {
 
     @Autowired
-    private UserSettingService userSettingService;
-
-    @Autowired
     private UserService userService;
 
-    /**
-     * 根据用户名，查询用户列表
-     *
-     * @param name
-     * @return
-     */
+    @ApiOperation("用户搜索")
     @GetMapping(path = "query")
-    public ResVo<List<SimpleUserInfoDTO>> queryUserList(String name) {
-        return ResVo.ok(userService.searchUser(name));
+    public ResVo<SearchUserVo> queryUserList(@RequestParam(name = "key", required = false) String key) {
+        List<SimpleUserInfoDTO> list = userService.searchUser(key);
+        SearchUserVo vo = new SearchUserVo();
+        vo.setKey(key);
+        vo.setItems(list);
+        return ResVo.ok(vo);
     }
 }
