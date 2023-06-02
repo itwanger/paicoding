@@ -65,6 +65,11 @@ public class UserServiceImpl implements UserService {
     private UserPwdEncoder userPwdEncoder;
 
     @Override
+    public UserDO getWxUser(String wxuuid) {
+        return userDao.getByThirdAccountId(wxuuid);
+    }
+
+    @Override
     public BaseUserInfoDTO passwordLogin(String userName, String password) {
         UserDO user = userDao.getByUserName(userName);
         if (user == null) {
@@ -203,7 +208,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // 加入天数
-        int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime().getTime()) / (1000 * 3600 * 24));
+        int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime()
+                .getTime()) / (1000 * 3600 * 24));
         userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
 
         // 创作历程
