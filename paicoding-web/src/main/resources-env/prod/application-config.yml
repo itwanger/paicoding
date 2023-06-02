@@ -14,7 +14,3 @@ view:
 
 knife4j:
   production: true # 开启屏蔽文档资源
-
-
-chatgpt:
-  key:
