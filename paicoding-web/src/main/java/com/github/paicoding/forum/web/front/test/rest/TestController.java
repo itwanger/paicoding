@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.ai.ChatGptFactory;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,6 +39,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping(path = "test")
 public class TestController {
     private AtomicInteger cnt = new AtomicInteger(1);
+
+    @Autowired
+    private ChatGptFactory chatGptFactory;
+
+    @RequestMapping(path = "email")
+    public ResVo<String> updateKey(String key, HttpServletRequest request) {
+        if ("127.0.0.1".equals(ReqInfoContext.getReqInfo().getHost())) {
+            return ResVo.ok(chatGptFactory.setKey(key));
+        } else {
+            return ResVo.ok("无权限");
+        }
+    }
 
     /**
      * 测试邮件发送
