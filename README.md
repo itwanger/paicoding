@@ -6,7 +6,7 @@
 一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
 <br><br>
 <p align="center">
-  <a href="#公众号"><img src="https://img.shields.io/badge/公众号-楼仔-brightgreen.svg?style=for-the-badge"></a>
+  <a href="https://paicoding.com/article/detail/15"><img src="https://img.shields.io/badge/学习圈子-技术派-brightgreen.svg?style=for-the-badge"></a>
   <a href="#公众号"><img src="https://img.shields.io/badge/技术派-交流群-green.svg?style=for-the-badge"></a>
   <a href="https://paicoding.com/" target="_blank"><img src="https://img.shields.io/badge/技术派-首页-critical?style=for-the-badge"></a>
   <a href="https://github.com/itwanger/paicoding-admin" target="_blank"><img src="https://img.shields.io/badge/技术派-管理端-yellow.svg?style=for-the-badge"></a>
@@ -14,18 +14,16 @@
 </p>
 
 
-## 配套服务
+## 一、配套服务
  
 1. **技术派首页**：[https://paicoding.com](https://paicoding.com)
 2. **技术派全套学习教程**：[https://paicoding.com/column](https://paicoding.com/column) 不仅会更新本项目的文档，还会持续更新 Java、Spring、MySQL、Redis、操作系统、计算机网络、数据结构与算法、微服务&分布式、消息队列等方面的硬核内容。我们的宗旨是：**学编程，就上技术派**😁。
-3. **技术派管理端**，基于 React 实现：[paicoding-admin](https://github.com/itwanger/paicoding-admin) 。
-4. **专属学习圈子**：[不走弯路，少采坑](https://www.yuque.com/itwanger/ydx81p/nksgcaox959w7ie9) 。
-5. **项目交流**：想要加群交流项目的朋友，可以加入[楼仔技术交流群](#公众号) 。
+3. **技术派管理端**：[paicoding-admin](https://github.com/itwanger/paicoding-admin) 。
+4. **专属学习圈子**：[不走弯路，少采坑](https://paicoding.com/article/detail/17) 。
+5. **项目交流**：想要加群交流项目的朋友，可以加入[技术派技术交流群](#公众号) 。
 6. **码云仓库**：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding) （国内访问速度更快）
 
-## 项目介绍
-
-技术派（paicoding）是一个前后端分离的 Java 社区实战项目，基于 SpringBoot+MyBatis-Plus 实现，采用 Docker 容器化部署。包括前台社区系统和后台管理系统。前台社区系统包括社区首页、文章推荐、文章搜索、文章发布、文章详情、优质教程、个人中心等模块；后台管理系统包括文章管理、教程管理、统计报表、权限菜单管理、设置等模块。
+## 二、项目介绍
 
 ### 项目演示
 
@@ -35,7 +33,7 @@
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding)
 - 项目演示地址：[https://paicoding.com](https://paicoding.com)
 
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-front.jpg)
+![](https://cdn.tobebetterjavaer.com/images/20230602/d7d341c557e7470d9fb41245e5bb4209.png)
 
 #### 后台社区系统
 
@@ -43,13 +41,14 @@
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding-admin](https://gitee.com/itwanger/paicoding-admin)
 - 项目演示地址：[https://paicoding.com/admin-view](https://paicoding.com/admin-view/)
 
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-admin.jpg)
+![](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
 
 ### 架构图
 
 #### 系统架构图
 
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-system.jpg)
+![2941685678044_.pic_hd.jpg](https://cdn.tobebetterjavaer.com/images/20230602/1e7d037c0106475984ba1eb87de2305b.jpg)
+
 
 #### 业务架构图
 
@@ -135,7 +134,7 @@ mvn clean install -DskipTests=true -Pprod
 |       jackson       | json/xml处理           | [https://www.jackson.com](https://www.jackson.com)                                                   |
 |      ip2region      | ip地址                 | [https://github.com/zoujingli/ip2region](https://github.com/zoujingli/ip2region)                     |
 
-## 环境搭建
+## 三、环境搭建
 
 ### 开发工具
 
@@ -161,7 +160,7 @@ mvn clean install -DskipTests=true -Pprod
 
 ### 开发环境
 
-|     工具      | 版本        | 下载                                                                                                                   |
+|      工具       | 版本        | 下载                                                                                                                     |
 |:-------------:|:----------|------------------------------------------------------------------------------------------------------------------------|
 |      jdk      | 1.8+      | [https://www.oracle.com/java/technologies/downloads/#java8](https://www.oracle.com/java/technologies/downloads/#java8) |
 |     maven     | 3.4+      | [https://maven.apache.org/](https://maven.apache.org/)                                                                 |
@@ -186,31 +185,32 @@ mvn clean install -DskipTests=true -Pprod
 > [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 > [服务器启动教程](docs/服务器启动教程.md)
 
-## 友情链接
+## 四、友情链接
 
 - [toBeBetterjavaer](https://github.com/itwanger/toBeBetterJavaer) ：一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。学Java，就认准二哥的Java进阶之路😄
+- [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀 paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
 
-## 鸣谢
+## 五、鸣谢
 
-技术派收到了 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses，并已分配给项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
+技术派收到了 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses（详情戳 [这里](https://paicoding.com/article/detail/331) ），并已分配给项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
 
 ![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
 
 
-## star 趋势图
+## 六、star 趋势图
 
 [![Star History Chart](https://api.star-history.com/svg?repos=itwanger/paicoding&type=Date)](https://star-history.com/#itwanger/paicoding&Date)
 
-## 公众号
+## 七、公众号
 
 微信搜索 **楼仔** 关注我们的原创公众号，后台回复「**加群**」即可加入技术交流群，有美团技术大佬、百度技术大佬、小米技术大佬，等你骚扰，学习不再走弯路。
 
 ![公众号图片](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-louzai.jpg)
 
 
-## 许可证
+## 八、许可证
 
-[Apache License 2.0](https://github.com/macrozheng/mall/blob/master/LICENSE)
+[Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
 
 Copyright (c) 2022-2023 技术派（楼仔、沉默王二、一灰、小超）
 
