@@ -25,6 +25,12 @@ public class ChatRecord {
     private volatile boolean lastReturn;
     private String sysErr;
 
+    public ChatRecord() {
+        qasTime = 0L;
+        sysErr = null;
+        lastReturn = false;
+    }
+
     /**
      * 之前没有回复过，且chatgpt出错，或者有结果了，才能继续回复
      *
