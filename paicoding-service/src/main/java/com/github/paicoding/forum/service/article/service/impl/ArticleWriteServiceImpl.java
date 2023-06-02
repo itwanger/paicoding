@@ -1,6 +1,10 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.enums.*;
+import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
+import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
+import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
+import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
+import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
@@ -15,6 +19,7 @@ import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.service.ArticleWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -30,6 +35,7 @@ import java.util.Set;
  * @author louzai
  * @date 2022-07-20
  */
+@Slf4j
 @Service
 public class ArticleWriteServiceImpl implements ArticleWriteService {
 
@@ -68,9 +74,13 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
             @Override
             public Long doInTransaction(TransactionStatus status) {
                 if (NumUtil.nullOrZero(req.getArticleId())) {
-                    return insertArticle(article, content, req.getTagIds());
+                    Long articleId = insertArticle(article, content, req.getTagIds());
+                    log.info("文章发布成功! title={}", req.getTitle());
+                    return articleId;
                 } else {
-                    return updateArticle(article, content, req.getTagIds());
+                    Long articleId = updateArticle(article, content, req.getTagIds());
+                    log.info("文章更新成功！ title={}", article.getTitle());
+                    return articleId;
                 }
             }
         });

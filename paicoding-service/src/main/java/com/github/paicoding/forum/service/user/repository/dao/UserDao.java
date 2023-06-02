@@ -55,8 +55,10 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
      */
     public List<UserInfoDO> getByUserNameLike(String userName) {
         LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
-        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile);
-        query.like(UserInfoDO::getUserName, userName)
+        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
+                .and(!StringUtils.isEmpty(userName),
+                     v -> v.like(UserInfoDO::getUserName, userName)
+                )
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectList(query);
     }
@@ -79,10 +81,10 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         return baseMapper.selectList(query);
     }
 
-    public Integer getUserCount() {
+    public Long getUserCount() {
         return lambdaQuery()
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count().intValue();
+                .count();
     }
 
     public void updateUserInfo(UserInfoDO user) {

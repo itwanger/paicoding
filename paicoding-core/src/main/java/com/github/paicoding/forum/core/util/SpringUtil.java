@@ -52,6 +52,14 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
         return environment.getProperty(key);
     }
 
+    public static String getConfigOrElse(String mainKey, String slaveKey) {
+        String ans = environment.getProperty(mainKey);
+        if (ans == null) {
+            return environment.getProperty(slaveKey);
+        }
+        return ans;
+    }
+
     /**
      * 获取配置
      *

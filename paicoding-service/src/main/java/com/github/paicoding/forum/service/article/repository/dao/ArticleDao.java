@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
@@ -12,6 +13,7 @@ import com.github.paicoding.forum.api.model.enums.OfficalStatEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
@@ -24,6 +26,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleDetailMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ReadCountMapper;
+import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.google.common.collect.Maps;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +48,8 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     private ArticleDetailMapper articleDetailMapper;
     @Resource
     private ReadCountMapper readCountMapper;
+    @Resource
+    private ArticleMapper articleMapper;
 
     /**
      * 查询文章详情
@@ -326,17 +331,36 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     }
 
     /**
+     * 抽取样板代码
+     */
+    private LambdaQueryChainWrapper<ArticleDO> buildQuery(SearchArticleParams searchArticleParams) {
+        return lambdaQuery()
+                .like(StringUtils.isNotBlank(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
+                // ID 不为空
+                .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
+                .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
+                .eq(Objects.nonNull(searchArticleParams.getStatus()) && searchArticleParams.getStatus() != -1, ArticleDO::getStatus, searchArticleParams.getStatus())
+                .eq(Objects.nonNull(searchArticleParams.getOfficalStat())&& searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
+                .eq(Objects.nonNull(searchArticleParams.getToppingStat())&& searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
+    }
+
+
+    /**
      * 文章列表（用于后台）
      *
-     * @param pageParam
-     * @return
      */
-    public List<ArticleDO> listArticles(PageParam pageParam) {
-        return lambdaQuery()
-                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ArticleDO::getId)
-                .list();
+    public List<ArticleAdminDTO> listArticlesByParams(SearchArticleParams params) {
+        return articleMapper.listArticlesByParams(params,
+                PageParam.newPageInstance(params.getPageNum(), params.getPageSize()));
+    }
+
+    /**
+     * 文章总数（用于后台）
+     *
+     */
+    public Long countArticleByParams(SearchArticleParams searchArticleParams) {
+        return articleMapper.countArticlesByParams(searchArticleParams);
     }
 
     /**
@@ -344,9 +368,9 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      *
      * @return
      */
-    public Integer countArticle() {
+    public Long countArticle() {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count().intValue();
+                .count();
     }
 }

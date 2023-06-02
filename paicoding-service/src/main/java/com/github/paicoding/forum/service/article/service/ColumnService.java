@@ -52,4 +52,6 @@ public interface ColumnService {
      * @return
      */
     List<SimpleArticleDTO> queryColumnArticles(long columnId);
+
+    Long getTutorialCount();
 }

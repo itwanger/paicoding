@@ -8,7 +8,9 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.notify.repository.dao.NotifyMsgDao;
+import com.github.paicoding.forum.service.notify.repository.entity.NotifyMsgDO;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
+import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -39,6 +41,7 @@ public class NotifyServiceImpl implements NotifyService {
      *
      * @return
      */
+    @Override
     public PageListVo<NotifyMsgDTO> queryUserNotices(Long userId, NotifyTypeEnum type, PageParam page) {
         List<NotifyMsgDTO> list = notifyMsgDao.listNotifyMsgByUserIdAndType(userId, type, page);
         if (CollectionUtils.isEmpty(list)) {
@@ -90,6 +93,21 @@ public class NotifyServiceImpl implements NotifyService {
 
     private void initCnt(NotifyTypeEnum type, Map<Integer, Integer> map, Map<String, Integer> result) {
         result.put(type.name().toLowerCase(), map.getOrDefault(type.getType(), 0));
+    }
+
+    @Override
+    public void saveArticleNotify(UserFootDO foot, NotifyTypeEnum notifyTypeEnum) {
+        NotifyMsgDO msg = new NotifyMsgDO().setRelatedId(foot.getDocumentId())
+                .setNotifyUserId(foot.getDocumentUserId())
+                .setOperateUserId(foot.getUserId())
+                .setType(notifyTypeEnum.getType() )
+                .setState(NotifyStatEnum.UNREAD.getStat())
+                .setMsg("");
+        NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
+        if (record == null) {
+            // 若之前已经有对应的通知，则不重复记录；因为一个用户对一篇文章，可以重复的点赞、取消点赞，但是最终我们只通知一次
+            notifyMsgDao.save(msg);
+        }
     }
 
 }

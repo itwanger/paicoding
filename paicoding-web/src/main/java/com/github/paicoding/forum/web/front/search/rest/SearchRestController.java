@@ -8,7 +8,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
-import com.github.paicoding.forum.web.front.search.vo.SearchHintsVo;
+import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,9 +40,9 @@ public class SearchRestController extends BaseViewController {
      * @param key
      */
     @GetMapping(path = "hint")
-    public ResVo<SearchHintsVo> recommend(@RequestParam(name = "key", required = false) String key) {
+    public ResVo<SearchArticleVo> recommend(@RequestParam(name = "key", required = false) String key) {
         List<SimpleArticleDTO> list = articleReadService.querySimpleArticleBySearchKey(key);
-        SearchHintsVo vo = new SearchHintsVo();
+        SearchArticleVo vo = new SearchArticleVo();
         vo.setKey(key);
         vo.setItems(list);
         return ResVo.ok(vo);

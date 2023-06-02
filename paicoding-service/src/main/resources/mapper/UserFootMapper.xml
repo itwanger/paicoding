@@ -79,4 +79,14 @@
           AND uf.praise_stat = 1
         order by uf.update_time desc limit #{size}
     </select>
+    <select id="getFootCount"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO">
+        SELECT
+            sum(if (f.praise_stat =${@com.github.paicoding.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (f.collection_stat =${@com.github.paicoding.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
+            sum(if (f.read_stat =${@com.github.paicoding.forum.api.model.enums.ReadStatEnum@READ.code}, 1, 0)) as readCount,
+            sum(if (f.comment_stat =${@com.github.paicoding.forum.api.model.enums.CommentStatEnum@COMMENT.code}, 1, 0)) as commentCount
+        FROM
+            user_foot as f
+    </select>
 </mapper>

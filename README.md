@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://paicoding.com/">
-    <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派" width="300">
+    <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派" width="400">
   </a>
 </p>
 一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
@@ -15,7 +15,7 @@
 
 
 ## 配套服务
-
+ 
 1. **技术派首页**：[https://paicoding.com](https://paicoding.com)
 2. **技术派全套学习教程**：[https://paicoding.com/column](https://paicoding.com/column) 不仅会更新本项目的文档，还会持续更新 Java、Spring、MySQL、Redis、操作系统、计算机网络、数据结构与算法、微服务&分布式、消息队列等方面的硬核内容。我们的宗旨是：**学编程，就上技术派**😁。
 3. **技术派管理端**，基于 React 实现：[paicoding-admin](https://github.com/itwanger/paicoding-admin) 。

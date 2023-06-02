@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.service.article.service;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.article.SearchTagReq;
 import com.github.paicoding.forum.api.model.vo.article.TagReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 
@@ -25,5 +25,7 @@ public interface TagSettingService {
      * @param pageParam
      * @return
      */
-    PageVo<TagDTO> getTagList(PageParam pageParam);
+    PageVo<TagDTO> getTagList(SearchTagReq req);
+
+    TagDTO getTagById(Long tagId);
 }

@@ -4,11 +4,13 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.banner.ConfigReq;
+import com.github.paicoding.forum.api.model.vo.banner.SearchConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
-import com.github.paicoding.forum.service.config.converter.ConfigConverter;
+import com.github.paicoding.forum.service.config.converter.ConfigStructMapper;
 import com.github.paicoding.forum.service.config.repository.dao.ConfigDao;
 import com.github.paicoding.forum.service.config.repository.entity.ConfigDO;
+import com.github.paicoding.forum.service.config.repository.params.SearchConfigParams;
 import com.github.paicoding.forum.service.config.service.ConfigSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ public class ConfigSettingServiceImpl implements ConfigSettingService {
 
     @Override
     public void saveConfig(ConfigReq configReq) {
-        ConfigDO configDO = ConfigConverter.toDO(configReq);
+        ConfigDO configDO = ConfigStructMapper.INSTANCE.toDO(configReq);
         if (NumUtil.nullOrZero(configReq.getConfigId())) {
             configDao.save(configDO);
         } else {
@@ -57,10 +59,13 @@ public class ConfigSettingServiceImpl implements ConfigSettingService {
     }
 
     @Override
-    public PageVo<ConfigDTO> getConfigList(PageParam pageParam) {
-        List<ConfigDTO> configDTOS = configDao.listBanner(pageParam);
-        Integer totalCount = configDao.countConfig();
-        return PageVo.build(configDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+    public PageVo<ConfigDTO> getConfigList(SearchConfigReq req) {
+        // 转换
+        SearchConfigParams params = ConfigStructMapper.INSTANCE.toSearchParams(req);
+        // 查询
+        List<ConfigDTO> configDTOS = configDao.listBanner(params);
+        Long totalCount = configDao.countConfig(params);
+        return PageVo.build(configDTOS, params.getPageSize(), params.getPageNum(), totalCount);
     }
 
     @Override

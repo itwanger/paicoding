@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.CategoryReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.TagReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
@@ -12,6 +13,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.CategoryDO;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
+import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +82,9 @@ public class ArticleConverter {
      * @return
      */
     public static TagDTO toDto(TagDO tag) {
+        if (tag == null) {
+            return null;
+        }
         TagDTO dto = new TagDTO();
         dto.setTag(tag.getTagName());
         dto.setTagId(tag.getId());
@@ -123,5 +128,21 @@ public class ArticleConverter {
         categoryDO.setCategoryName(categoryReq.getCategory());
         categoryDO.setRank(categoryReq.getRank());
         return categoryDO;
+    }
+
+    public static SearchArticleParams toSearchParams(SearchArticleReq req) {
+        if (req == null) {
+            return null;
+        }
+        SearchArticleParams searchArticleParams = new SearchArticleParams();
+        searchArticleParams.setTitle(req.getTitle());
+        searchArticleParams.setArticleId(req.getArticleId());
+        searchArticleParams.setUserId(req.getUserId());
+        searchArticleParams.setStatus(req.getStatus());
+        searchArticleParams.setOfficalStat(req.getOfficalStat());
+        searchArticleParams.setToppingStat(req.getToppingStat());
+        searchArticleParams.setPageNum(req.getPageNumber());
+        searchArticleParams.setPageSize(req.getPageSize());
+        return searchArticleParams;
     }
 }

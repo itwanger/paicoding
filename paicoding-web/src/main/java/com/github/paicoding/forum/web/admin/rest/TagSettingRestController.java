@@ -1,15 +1,14 @@
 package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.article.SearchTagReq;
 import com.github.paicoding.forum.api.model.vo.article.TagReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.service.TagSettingService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,12 +54,9 @@ public class TagSettingRestController {
         return ResVo.ok("ok");
     }
 
-    @GetMapping(path = "list")
-    public ResVo<PageVo<TagDTO>> list(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                      @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<TagDTO> tagDTOPageVo = tagSettingService.getTagList(PageParam.newPageInstance(pageNumber, pageSize));
+    @PostMapping(path = "list")
+    public ResVo<PageVo<TagDTO>> list(@RequestBody SearchTagReq req) {
+        PageVo<TagDTO> tagDTOPageVo = tagSettingService.getTagList(req);
         return ResVo.ok(tagDTOPageVo);
     }
 }

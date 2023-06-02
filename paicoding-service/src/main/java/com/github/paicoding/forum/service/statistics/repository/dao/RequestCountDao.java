@@ -18,6 +18,10 @@ import java.util.List;
 @Repository
 public class RequestCountDao extends ServiceImpl<RequestCountMapper, RequestCountDO> {
 
+    public Long getPvTotalCount() {
+        return baseMapper.getPvTotalCount();
+    }
+
     /**
      * 获取请求数据
      *
@@ -33,30 +37,16 @@ public class RequestCountDao extends ServiceImpl<RequestCountMapper, RequestCoun
     }
 
     /**
-     * 获取 PV 总数
-     *
-     * @return
-     */
-    public Integer getPvTotalCount() {
-        return baseMapper.getPvTotalCount().intValue();
-    }
-
-    /**
-     * 获取 PV 数据列表
+     * 获取 PV UV 数据列表
      * @param day
      * @return
      */
-    public List<StatisticsDayDTO> getPvDayList(Integer day) {
-        return baseMapper.getPvDayList(day);
+    public List<StatisticsDayDTO> getPvUvDayList(Integer day) {
+        return baseMapper.getPvUvDayList(day);
     }
 
-    /**
-     * 获取 UV 数据列表
-     *
-     * @param day
-     * @return
-     */
-    public List<StatisticsDayDTO> getUvDayList(Integer day) {
-        return baseMapper.getUvDayList(day);
+
+    public void incrementCount(Long id) {
+        baseMapper.incrementCount(id);
     }
 }

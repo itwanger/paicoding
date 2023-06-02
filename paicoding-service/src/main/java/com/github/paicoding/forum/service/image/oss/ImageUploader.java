@@ -14,7 +14,7 @@ import java.util.Set;
  * @author YiHui
  * @date 2023/1/12
  */
-public interface IOssUploader {
+public interface ImageUploader {
     String DEFAULT_FILE_TYPE = "txt";
     Set<MediaType> STATIC_IMG_TYPE = new HashSet<>(Arrays.asList(MediaType.ImagePng, MediaType.ImageJpg, MediaType.ImageWebp, MediaType.ImageGif));
 

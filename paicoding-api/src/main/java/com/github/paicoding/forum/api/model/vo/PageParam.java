@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -17,10 +18,10 @@ public class PageParam {
     public static final Long TOP_PAGE_SIZE = 4L;
 
 
-    /**
-     * 请求页数，从1开始计数
-     */
+    @ApiModelProperty("请求页数，从1开始计数")
     private long pageNum;
+
+    @ApiModelProperty("请求页大小，默认为 10")
     private long pageSize;
     private long offset;
     private long limit;

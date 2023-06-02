@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.web.hook.filter;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.util.CrossUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
@@ -12,12 +13,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Optional;
 
 /**
  * 1. 请求参数日志输出过滤器
@@ -30,6 +37,10 @@ import java.net.URLDecoder;
 @WebFilter(urlPatterns = "/*", filterName = "reqRecordFilter", asyncSupported = true)
 public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
+    /**
+     * 返回给前端的traceId，用于日志追踪
+     */
+    private static final String GLOBAL_TRACE_ID_HEADER = "g-trace-id";
 
     @Autowired
     private GlobalInitService globalInitService;
@@ -46,11 +57,13 @@ public class ReqRecordFilter implements Filter {
         long start = System.currentTimeMillis();
         HttpServletRequest request = null;
         try {
-            request = this.initReqInfo((HttpServletRequest) servletRequest);
+            request = this.initReqInfo((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
             CrossUtil.buildCors(request, (HttpServletResponse) servletResponse);
             filterChain.doFilter(request, servletResponse);
         } finally {
             buildRequestLog(ReqInfoContext.getReqInfo(), request, System.currentTimeMillis() - start);
+            // 一个链路请求完毕，清空MDC相关的变量(如GlobalTraceId，用户信息)
+            MdcUtil.clear();
             ReqInfoContext.clear();
         }
     }
@@ -59,13 +72,16 @@ public class ReqRecordFilter implements Filter {
     public void destroy() {
     }
 
-    private HttpServletRequest initReqInfo(HttpServletRequest request) {
-        if (staticURI(request)) {
+    private HttpServletRequest initReqInfo(HttpServletRequest request, HttpServletResponse response) {
+        if (isStaticURI(request)) {
             // 静态资源直接放行
             return request;
         }
 
         try {
+            // 添加全链路的traceId
+            MdcUtil.addTraceId();
+
             // 手动写入一个session，借助 OnlineUserCountListener 实现在线人数实时统计
             request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
 
@@ -80,6 +96,9 @@ public class ReqRecordFilter implements Filter {
             // 初始化登录信息
             globalInitService.initLoginUser(reqInfo);
             ReqInfoContext.addReqInfo(reqInfo);
+
+            // 返回头中记录traceId
+            response.setHeader(GLOBAL_TRACE_ID_HEADER, Optional.ofNullable(MdcUtil.getTraceId()).orElse(""));
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
         }
@@ -88,7 +107,7 @@ public class ReqRecordFilter implements Filter {
     }
 
     private void buildRequestLog(ReqInfoContext.ReqInfo req, HttpServletRequest request, long costTime) {
-        if (req == null || staticURI(request)) {
+        if (req == null || isStaticURI(request)) {
             return;
         }
 
@@ -129,12 +148,14 @@ public class ReqRecordFilter implements Filter {
         return requestWrapper;
     }
 
-    private boolean staticURI(HttpServletRequest request) {
+    private boolean isStaticURI(HttpServletRequest request) {
         return request == null
                 || request.getRequestURI().endsWith("css")
                 || request.getRequestURI().endsWith("js")
                 || request.getRequestURI().endsWith("png")
                 || request.getRequestURI().endsWith("ico")
-                || request.getRequestURI().endsWith("svg");
+                || request.getRequestURI().endsWith("svg")
+                || request.getRequestURI().endsWith("min.js.map")
+                || request.getRequestURI().endsWith("min.css.map");
     }
 }
