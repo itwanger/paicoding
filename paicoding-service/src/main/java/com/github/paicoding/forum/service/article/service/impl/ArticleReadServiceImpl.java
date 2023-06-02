@@ -24,6 +24,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.utils.RedisLuaUtil;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,9 @@ import org.springframework.util.ObjectUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONObject;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 文章查询相关服务类
@@ -45,6 +46,7 @@ import cn.hutool.json.JSONUtil;
  * @date 2022-07-20
  */
 @Service
+@Slf4j
 public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
@@ -55,6 +57,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private RedisLuaUtil redisLuaUtil;
 
     /**
      * 在一个项目中，UserFootService 就是内部服务调用
@@ -97,19 +102,31 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         } else {
             // TODO ygl:存在缓存击穿问题，引入分布式锁
 
-             /*
-             第一种方式：
-                缺点：不加finally去del锁，那么会出现该线程执行完之后在不过期时间内一直持有该锁不释放，
-             在这过程内导致其他线程无法再次获取锁
-             */
+            /*
+            第一种方式：
+            缺点：不加finally去del锁，那么会出现该线程执行完之后在不过期时间内一直持有该锁不释放，
+            在这过程内导致其他线程无法再次获取锁
+            */
             // article = this.checkArticleByDBOne(articleId);
+
             /*
             第二种方式：
                 优点：与第一种方式相比增加了finally，在线程执行完之后会立即释放锁
             即使在执行finally之前宕机了，那么因为有了过期时间，还是会自动释放
-                缺点：可能会释放别人的锁
+                缺点：可能会释放别人的锁。
             */
-            article = this.checkArticleByDBTwo(articleId);
+            // article = this.checkArticleByDBTwo(articleId);
+
+            /*
+            第三种方式：
+                优点：与第二种方式相比解决了其删除别人分布式锁的问题。在加锁时set(key, value);
+            解锁时会对比是否和他加锁时的value是否相等，相等则是他自己的锁，否则是别人锁不能解锁。
+                在解锁时采用了lua脚本保证其原子性
+                缺点：这种方式会出现加锁过期时间不能够根据业务和运行环境很好的设置过期时间；
+            设置时间过短，则会业务还未执行完毕则锁自动释放，那么其他线程依旧可以拿到锁，无法很好解决缓存击穿问题
+            设置时间过长：如果在执行finally释放锁之前系统宕机了，那么还需要等着到时间后才能自动解锁
+            */
+            article = this.checkArticleByDBThree(articleId);
 
         }
         if (article == null) {
@@ -125,6 +142,47 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return article;
     }
 
+    /**
+     * Redis分布式锁第三种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBThree(Long articleId) {
+
+        String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+
+        String value = RandomUtil.randomString(6);
+        Boolean isLockSuccess = RedisClient.setStrWithExpire(redisLockKey, value, 90L);
+        ArticleDTO article = null;
+        try {
+            if (isLockSuccess) {
+                article = articleDao.queryArticleDetail(articleId);
+            }
+        } finally {
+            // 这种先get出value，然后再比较删除；这无法保证原子性，为了保证原子性，采用了lua脚本
+            /*
+            String redisLockValue = RedisClient.getStr(redisLockKey);
+            if (!ObjectUtils.isEmpty(redisLockValue) && StringUtils.equals(value, redisLockValue)) {
+                RedisClient.del(redisLockKey);
+            }
+            */
+            Long cad = redisLuaUtil.cad("pai_" + redisLockKey, value);
+            log.info("lua 脚本删除结果：" + cad);
+
+
+        }
+
+        return article;
+
+    }
+
+    /**
+     * Redis分布式锁第二种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
     private ArticleDTO checkArticleByDBTwo(Long articleId) {
 
         String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
@@ -136,17 +194,15 @@ public class ArticleReadServiceImpl implements ArticleReadService {
                 article = articleDao.queryArticleDetail(articleId);
             }
         } finally {
-
             RedisClient.del(redisLockKey);
-
         }
-
 
         return article;
 
     }
 
     /**
+     * Redis分布式锁第一种方法
      *
      * @param articleId
      * @return ArticleDTO
