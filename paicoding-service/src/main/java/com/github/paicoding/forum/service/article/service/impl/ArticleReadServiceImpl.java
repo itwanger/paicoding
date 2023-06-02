@@ -27,12 +27,15 @@ import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.utils.RedisLuaUtil;
 
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.util.RandomUtil;
@@ -60,6 +63,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private RedisLuaUtil redisLuaUtil;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     /**
      * 在一个项目中，UserFootService 就是内部服务调用
@@ -122,11 +128,17 @@ public class ArticleReadServiceImpl implements ArticleReadService {
                 优点：与第二种方式相比解决了其删除别人分布式锁的问题。在加锁时set(key, value);
             解锁时会对比是否和他加锁时的value是否相等，相等则是他自己的锁，否则是别人锁不能解锁。
                 在解锁时采用了lua脚本保证其原子性
-                缺点：这种方式会出现加锁过期时间不能够根据业务和运行环境很好的设置过期时间；
+                缺点：这种方式会出现加锁过期时间不能够根据业务和运行环境设置合适过期时间；
             设置时间过短，则会业务还未执行完毕则锁自动释放，那么其他线程依旧可以拿到锁，无法很好解决缓存击穿问题
             设置时间过长：如果在执行finally释放锁之前系统宕机了，那么还需要等着到时间后才能自动解锁
             */
-            article = this.checkArticleByDBThree(articleId);
+            // article = this.checkArticleByDBThree(articleId);
+
+            /*
+            第四种方式：
+                优点：解决了第三种方式无法设置合适过期时间
+            */
+            article = this.checkArticleByDBFour(articleId);
 
         }
         if (article == null) {
@@ -139,6 +151,40 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
         // 更新标签信息
         article.setTags(articleTagDao.queryArticleTagDetails(articleId));
+        return article;
+    }
+
+    /**
+     * Redis分布式锁第四种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBFour(Long articleId) {
+
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+        RLock lock = redissonClient.getLock(redisLockKey);
+        //lock.lock();
+        ArticleDTO article = null;
+        try {
+            //尝试加锁,最大等待时间3秒，上锁30秒自动解锁
+            if (lock.tryLock(3, 30, TimeUnit.SECONDS)) {
+                article = articleDao.queryArticleDetail(articleId);
+            } else {
+                // 未获得分布式锁线程睡眠一下；然后再去获取数据
+                Thread.sleep(200);
+                this.queryDetailArticleInfo(articleId);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            //判断该lock是否已经锁 并且 锁是否是自己的
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+
+        }
         return article;
     }
 
