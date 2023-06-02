@@ -10,3 +10,6 @@ spring:
     servlet:
       content-type: text/html
     cache: false
+
+chatgpt:
+  key: # 这里加上gpt的key
