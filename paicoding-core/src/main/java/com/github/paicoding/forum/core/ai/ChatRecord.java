@@ -37,7 +37,7 @@ public class ChatRecord {
     public String reply() {
         lastReturn = true;
         if (!CollectionUtils.isEmpty(res)) {
-            return JsonUtil.toStr(res);
+            return qas + "\n--------------------\n" + JsonUtil.toStr(res);
         }
 
         return sysErr;

@@ -69,6 +69,7 @@ public class ChatgptServiceImpl implements ChatgptService {
         }
 
         // 存在会话记录，表示在会话中
+        ReqInfoContext.getReqInfo().setUserId(user.getId());
         chatCache.cleanUp();
         return chatCache.getIfPresent(user.getId()) != null;
     }
