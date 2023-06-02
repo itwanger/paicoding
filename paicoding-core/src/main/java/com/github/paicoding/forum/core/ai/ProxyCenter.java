@@ -1,8 +1,10 @@
 package com.github.paicoding.forum.core.ai;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,10 +12,27 @@ import java.util.Map;
 
 /**
  * @author YiHui
- * @date 2023/4/20
+ * @date 2023/6/2
  */
-@Slf4j
-class ProxyCenter {
+public class ProxyCenter {
+
+    @Data
+    @Accessors(chain = true)
+    public static class ProxyType {
+        /**
+         * 代理类型
+         */
+        private Proxy.Type type;
+        /**
+         * 代理ip
+         */
+        private String ip;
+        /**
+         * 代理端口
+         */
+        private Integer port;
+    }
+
     /**
      * 记录每个source使用的proxy索引
      */
@@ -21,17 +40,18 @@ class ProxyCenter {
     /**
      * proxy
      */
-    private static final List<ImmutablePair<String, Integer>> PROXIES =
-            new ArrayList<ImmutablePair<String, Integer>>() {{
-                add(ImmutablePair.of("212.50.245.101", 9898));
+    private static final List<ProxyType> PROXIES =
+            new ArrayList<ProxyType>() {{
+                add(new ProxyType().setType(Proxy.Type.SOCKS).setIp("127.0.0.1").setPort(1080));
             }};
+
 
     /**
      * get proxy
      *
      * @return
      */
-    static ImmutablePair<String, Integer> getProxy(String host) {
+    static ProxyType getProxy(String host) {
         int index = -1;
         if (HOST_PROXY_INDEX.containsKey(host)) {
             index = HOST_PROXY_INDEX.get(host);
@@ -42,7 +62,14 @@ class ProxyCenter {
             index = 0;
         }
         HOST_PROXY_INDEX.put(host, index);
-
         return PROXIES.get(index);
+    }
+
+    public static Proxy loadProxy(String host) {
+        ProxyType proxyType = getProxy(host);
+        if (proxyType == null) {
+            return null;
+        }
+        return new Proxy(proxyType.type, new InetSocketAddress(proxyType.ip, proxyType.port));
     }
 }
