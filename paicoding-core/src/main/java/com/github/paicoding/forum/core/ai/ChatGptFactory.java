@@ -1,13 +1,11 @@
 package com.github.paicoding.forum.core.ai;
 
-import com.github.paicoding.forum.core.cache.RedisClient;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.plexpt.chatgpt.ChatGPT;
 import com.plexpt.chatgpt.ChatGPTStream;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +25,12 @@ public class ChatGptFactory {
 
     @PostConstruct
     public void initKey() {
-        String rkey = RedisClient.getStr("chatgpt_key");
-        if (StringUtils.isNotBlank(rkey)) {
-            // redis 存在，则以redis为准
-            this.key = rkey;
-        }
-        log.info("当前选中key:{}, redisVal:{}", key, rkey);
+        log.info("当前选中key:{}", key);
+    }
+
+    public String setKey(String key) {
+        this.key = key;
+        return this.key;
     }
 
     /**
