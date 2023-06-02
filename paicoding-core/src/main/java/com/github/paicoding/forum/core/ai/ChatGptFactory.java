@@ -17,9 +17,12 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class ChatGptFactory {
-    @Value("chatgpt.key")
+    @Value("${chatgpt.key}")
     private String key;
 
+    /**
+     * 每个用户的会话缓存
+     */
     public LoadingCache<Long, ChatGPTStream> cacheStream = CacheBuilder.newBuilder().expireAfterWrite(300, TimeUnit.SECONDS)
             .build(new CacheLoader<Long, ChatGPTStream>() {
                 @Override
