@@ -27,6 +27,6 @@ public class ChatGptConstants {
     public static final String CHAT_REPLY_CNT_OVER = "次数使用完了哦，勾搭一下群主，多申请点使用次数吧~\n微信：lml200701158";
 
 
-    public static final String CHAT_REPLY_TIME_WAITING = "chatgpt还在努力回答中，请继续等待....";
-    public static final String CHAT_REPLY_QAS_TOO_FAST = "提问太频繁了，请稍后...";
+    public static final String CHAT_REPLY_TIME_WAITING = "chatgpt还在努力回答中，请等待几秒之后再问一次吧....";
+    public static final String CHAT_REPLY_QAS_TOO_FAST = "提问太频繁了，喝一杯咖啡，暂缓一下...";
 }
