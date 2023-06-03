@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.chatgpt.service;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.ai.ChatGptHelper;
 import com.github.paicoding.forum.core.ai.ChatRecord;
 import com.github.paicoding.forum.core.cache.RedisClient;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.*;
 
 /**
@@ -49,8 +51,8 @@ public class ChatgptServiceImpl implements ChatgptService {
         return cnt < ChatGptConstants.MAX_CHATGPT_QAS_CNT;
     }
 
-    private void incrCnt(Long userId) {
-        RedisClient.hIncr(ChatGptConstants.USER_RATE_LIMIT_KEY, String.valueOf(userId), 1);
+    private Long incrCnt(Long userId) {
+        return RedisClient.hIncr(ChatGptConstants.USER_RATE_LIMIT_KEY, String.valueOf(userId), 1);
     }
 
     @Autowired
@@ -144,10 +146,11 @@ public class ChatgptServiceImpl implements ChatgptService {
      */
     private ChatRecord doQuery(Long userId, String content, ChatRecord currentChat) {
         // 访问计数+1
-        incrCnt(userId);
+        Long cnt = incrCnt(userId);
 
         // 重新构建当前的聊天记录
-        ChatRecord newRecord = new ChatRecord().setPre(currentChat);
+        ChatRecord newRecord = new ChatRecord().setPre(currentChat)
+                .setQasIndex(Optional.ofNullable(cnt).orElse(1L).intValue());
         newRecord.setQas(content).setLastReturn(false).setQasTime(System.currentTimeMillis());
         currentChat.setNext(newRecord);
         chatCache.put(userId, newRecord);
