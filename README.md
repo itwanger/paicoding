@@ -54,13 +54,6 @@
 
 ![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-business.jpg)
 
-#### 模块介绍
-
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-module.jpg)
-
-#### 开发进度
-
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-plan.jpg)
 
 ### 组织结构
 
