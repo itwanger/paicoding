@@ -341,30 +341,33 @@
                   return;
                 }
 
-                // 根据关键字从内容中获取标题，格式为：title: 一文让你彻底了解Java（简史、特性、前景）
-                const title = content.match(/title: (.*)/)[1];
-                console.log("标题：", title);
-                // 如果标题不为空的话，将标题插入到标题输入框
+                // 使用正则表达式找到前两个 "—" 分隔符之间的内容，以及第二个 "—" 分隔符之后的内容
+                let match = content.match(/^-{3,}([\s\S]*?)-{3,}([\s\S]*)/);
+                if (match && match[1] && match[2]) {
+                  // 提取标题
+                  let titleMatch = match[1].match(/title: (.*)/);
+                  let title = titleMatch && titleMatch[1] ? titleMatch[1].trim() : null;
 
-                // 判断标题是否为空
-                if(title && title.length > 0) {
-                  // 触发标题输入框的change事件
-                  $("#titleInput").val(title);
-                  showSaveBtnByTitle();
-                }
+                  if (title) {
+                    console.log("标题：", title);
+                    $("#titleInput").val(title);
+                    showSaveBtnByTitle();
+                  } else {
+                    console.error("没有找到标题");
+                  }
 
-                // 根据关键字从内容中获取描述，格式为：description: 本文将从Java的简史、特性、前景三个方面来讲解Java，希望能够帮助到大家。
-                const summary = content.match(/description: (.*)/)[1];
-                console.log("描述：", summary);
-                // 将描述插入到描述输入框
-                if(summary && summary.length > 0) {
-                  $("#summary").val(summary);
-                }
+                  // 提取描述
+                  let descMatch = match[1].match(/description: ([^\n]*)/);
+                  let summary = descMatch && descMatch[1] ? descMatch[1].trim() : null;
 
-                // 从内容中获取第二个“---”的位置，用于截取正文
-                if (content.indexOf("---") !== -1 && content.length > 6) {
-                  const index = content.indexOf("---", content.indexOf("---") + 1);
-                  const text = content.substring(index + 3);
+                  if (summary) {
+                    console.log("描述：", summary);
+                    $("#summary").val(summary);
+                  } else {
+                    console.error("没有找到描述");
+                  }
+
+                  let text = match[2].trim();
                   console.log("正文：", text);
 
                   // 插入到编辑器
