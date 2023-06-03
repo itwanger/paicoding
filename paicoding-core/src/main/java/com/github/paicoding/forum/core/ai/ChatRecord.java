@@ -11,6 +11,10 @@ import java.util.List;
 @Accessors(chain = true)
 public class ChatRecord {
     /**
+     * 提问的次数
+     */
+    private int qasIndex;
+    /**
      * 提问内容
      */
     private String qas;
@@ -42,16 +46,20 @@ public class ChatRecord {
     public String reply() {
         lastReturn = true;
         if (!CollectionUtils.isEmpty(res)) {
-            return qas + "\n================\n" + buildRes();
+            return buildResPrefix() + buildRes();
         }
 
-        return sysErr;
+        return buildResPrefix() + sysErr;
+    }
+
+    private String buildResPrefix() {
+        return qasIndex + "/50: " + qas + "\n================\n";
     }
 
     private String buildRes() {
         StringBuilder builder = new StringBuilder();
         for (ChatChoice choice : res) {
-            builder.append(choice.getMessage().getContent()).append("--------------\n\n");
+            builder.append(choice.getMessage().getContent()).append("\n--------------\n\n");
         }
         return builder.toString();
     }
