@@ -36,6 +36,7 @@ public enum StatusEnum {
     FORBID_ERROR(100_403_001, "无权限"),
 
     FORBID_ERROR_MIXED(100_403_002, "无权限:%s"),
+    FORBID_NOTLOGIN(100_403_003, "未登录"),
 
     // 全局，数据不存在
     RECORDS_NOT_EXISTS(100_404_001, "记录不存在:%s"),
