@@ -49,7 +49,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             }
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
                 if (request.getRequestURI().startsWith("/api/admin/") || request.getRequestURI().startsWith("/admin/")){
-                    response.sendRedirect("/admin-view");
+                    response.sendRedirect("/admin-view/#/login");
                 } else if (handlerMethod.getMethod().getAnnotation(ResponseBody.class) != null
                         || handlerMethod.getMethod().getDeclaringClass().getAnnotation(RestController.class) != null) {
                     // 访问需要登录的rest接口
