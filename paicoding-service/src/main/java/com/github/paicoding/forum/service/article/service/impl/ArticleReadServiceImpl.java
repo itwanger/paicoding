@@ -25,6 +25,7 @@ import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.utils.RedisLuaUtil;
+import com.github.paicoding.forum.service.utils.RedisUtil;
 
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -80,6 +81,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
         return articleDao.getById(articleId);
@@ -113,7 +117,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             缺点：不加finally去del锁，那么会出现该线程执行完之后在不过期时间内一直持有该锁不释放，
             在这过程内导致其他线程无法再次获取锁
             */
-            // article = this.checkArticleByDBOne(articleId);
+            article = this.checkArticleByDBOne(articleId);
 
             /*
             第二种方式：
@@ -138,7 +142,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             第四种方式：
                 优点：解决了第三种方式无法设置合适过期时间
             */
-            article = this.checkArticleByDBFour(articleId);
+            // article = this.checkArticleByDBFour(articleId);
 
         }
         if (article == null) {
@@ -196,15 +200,21 @@ public class ArticleReadServiceImpl implements ArticleReadService {
      */
     private ArticleDTO checkArticleByDBThree(Long articleId) {
 
-        String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
 
         String value = RandomUtil.randomString(6);
-        Boolean isLockSuccess = RedisClient.setStrWithExpire(redisLockKey, value, 90L);
+        Boolean isLockSuccess = redisUtil.setIfAbsent(redisLockKey, value, 90L);
         ArticleDTO article = null;
         try {
             if (isLockSuccess) {
                 article = articleDao.queryArticleDetail(articleId);
+            } else {
+                Thread.sleep(200);
+                this.queryDetailArticleInfo(articleId);
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } finally {
             // 这种先get出value，然后再比较删除；这无法保证原子性，为了保证原子性，采用了lua脚本
             /*
@@ -231,14 +241,21 @@ public class ArticleReadServiceImpl implements ArticleReadService {
      */
     private ArticleDTO checkArticleByDBTwo(Long articleId) {
 
-        String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
 
         ArticleDTO article = null;
-        Boolean isLockSuccess = RedisClient.setStrWithExpire(redisLockKey, null, 100L);
+
+        Boolean isLockSuccess = redisUtil.setIfAbsent(redisLockKey, null, 90L);
         try {
             if (isLockSuccess) {
                 article = articleDao.queryArticleDetail(articleId);
+            } else {
+                Thread.sleep(200);
+                this.queryDetailArticleInfo(articleId);
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } finally {
             RedisClient.del(redisLockKey);
         }
@@ -255,13 +272,21 @@ public class ArticleReadServiceImpl implements ArticleReadService {
      */
     private ArticleDTO checkArticleByDBOne(Long articleId) {
 
-        String redisLockKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
 
         ArticleDTO article = null;
-        Boolean isLockSuccess = RedisClient.setStrWithExpire(redisLockKey, null, 100L);
+        Boolean isLockSuccess = redisUtil.setIfAbsent(redisLockKey, null, 90L);
 
         if (isLockSuccess) {
             article = articleDao.queryArticleDetail(articleId);
+        } else {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.queryDetailArticleInfo(articleId);
         }
 
         return article;
