@@ -39,7 +39,7 @@
 
 - 项目仓库（GitHub）：[https://github.com/itwanger/paicoding-admin](https://github.com/itwanger/paicoding-admin)
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding-admin](https://gitee.com/itwanger/paicoding-admin)
-- 项目演示地址：[https://paicoding.com/admin-view](https://paicoding.com/admin-view/)
+- 项目演示地址：[https://paicoding.com/admin-view](https://paicoding.com/admin/)
 
 ![](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
 
