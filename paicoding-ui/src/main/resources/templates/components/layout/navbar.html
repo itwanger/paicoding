@@ -110,9 +110,9 @@
               <div class="nav-user-dropdown">
                 <div class="nav-user-dropdown-inner nav-user-dropdown::before">
                   <!-- 下落框内容 -->
+<!--  调整为所有用户都可以直接看到管理后台  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"-->
                   <a
-                          th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
-                          href="/admin-view"
+                          href="/admin"
                           target="_blank"
                           class="dropdown-item"
                   >
