@@ -11,7 +11,9 @@ import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +29,7 @@ import java.util.Optional;
  */
 @RestController
 @Api(value = "后台登录登出管理控制器", tags = "后台登录")
-@RequestMapping(path = {"/api/admin/login", "/admin/login"})
+@RequestMapping(path = {"/api/admin", "/admin"})
 public class AdminLoginController {
 
     @Autowired
@@ -36,7 +38,7 @@ public class AdminLoginController {
     @Autowired
     private SessionService sessionService;
 
-    @PostMapping(path = {"", "/"})
+    @RequestMapping(path = {"/login"})
     public ResVo<BaseUserInfoDTO> login(HttpServletRequest request,
                                         HttpServletResponse response) {
         String user = request.getParameter("username");
@@ -56,8 +58,8 @@ public class AdminLoginController {
     @GetMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
-        // 重定向到首页
-        response.sendRedirect("/");
+        // 重定向交给前端执行，避免由于前后端分离，本地开发时端口不一致导致的问题
+//        response.sendRedirect("/");
         return ResVo.ok(true);
     }
 }

@@ -33,4 +33,10 @@ public class UserFootStatisticDTO {
      */
     private Long commentCount;
 
+    public UserFootStatisticDTO() {
+        praiseCount = 0L;
+        readCount = 0L;
+        collectionCount = 0L;
+        commentCount = 0L;
+    }
 }

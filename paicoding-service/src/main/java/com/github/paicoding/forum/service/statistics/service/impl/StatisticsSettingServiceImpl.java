@@ -56,6 +56,9 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
     public StatisticsCountDTO getStatisticsCount() {
         // 从 user_foot 表中查询点赞数、收藏数、留言数、阅读数
         UserFootStatisticDTO userFootStatisticDTO =  userFootService.getFootCount();
+        if (userFootStatisticDTO == null) {
+            userFootStatisticDTO = new UserFootStatisticDTO();
+        }
         return StatisticsCountDTO.builder()
                 .userCount(userService.getUserCount())
                 .articleCount(articleReadService.getArticleCount())
