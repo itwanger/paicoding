@@ -352,21 +352,22 @@
     const navUserAvatar = document.querySelector('.nav-user-avatar');
     const navUserDropdown = document.querySelector('.nav-user-dropdown');
 
-    // 当鼠标点击用户头像时显示下落框
-    navUserAvatar.addEventListener('click', () => {
-      // 如果下落框是隐藏的，则显示；如果已经显示，则不处理
-      if (navUserDropdown.style.display === 'none' || navUserDropdown.style.display === '') {
-        navUserDropdown.style.display = 'block';
-      }
-    });
-
-    // 点击其他区域时隐藏下落框
-    document.addEventListener('click', (event) => {
-      // 如果点击的区域不是用户头像和下落框，则隐藏下落框
-      if (!navUserAvatar.contains(event.target) && !navUserDropdown.contains(event.target)) {
-        navUserDropdown.style.display = 'none';
-      }
-    });
+    if (navUserAvatar != null && navUserDropdown != null) {
+      // 当鼠标点击用户头像时显示下落框
+      navUserAvatar.addEventListener('click', () => {
+        // 如果下落框是隐藏的，则显示；如果已经显示，则不处理
+        if (navUserDropdown.style.display === 'none' || navUserDropdown.style.display === '') {
+          navUserDropdown.style.display = 'block';
+        }
+      });
+      // 点击其他区域时隐藏下落框
+      document.addEventListener('click', (event) => {
+        // 如果点击的区域不是用户头像和下落框，则隐藏下落框
+        if (!navUserAvatar.contains(event.target) && !navUserDropdown.contains(event.target)) {
+          navUserDropdown.style.display = 'none';
+        }
+      });
+    }
   </script>
 </div>
 </html>

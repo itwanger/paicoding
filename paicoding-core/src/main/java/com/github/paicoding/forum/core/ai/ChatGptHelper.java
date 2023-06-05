@@ -1,9 +1,11 @@
 package com.github.paicoding.forum.core.ai;
 
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.plexpt.chatgpt.ChatGPT;
+import com.plexpt.chatgpt.entity.billing.CreditGrantsResponse;
 import com.plexpt.chatgpt.entity.chat.ChatChoice;
 import com.plexpt.chatgpt.entity.chat.ChatCompletion;
 import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
@@ -75,6 +77,23 @@ public class ChatGptHelper {
         return cacheStream.getUnchecked(routingKey);
     }
 
+    /**
+     * 账户信息
+     *
+     * @return
+     */
+    public String creditInfo() {
+        CreditGrantsResponse response = getGpt(0L).creditGrants();
+        return JsonUtil.toStr(response);
+    }
+
+    /**
+     * 一个基础的chatgpt问答
+     *
+     * @param routingKey
+     * @param record
+     * @return
+     */
     public boolean simpleGptReturn(Long routingKey, ChatRecord record) {
         ChatGPT gpt = getGpt(routingKey);
         try {
