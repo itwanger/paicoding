@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">
+        派聪明 | 技术派
+    </title>
+</div>
+
+<link rel="stylesheet" href="/css/views/chat-home.css" />
+
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+<div class="custom-home">
+    <div class="chat-wrap">
+        <div class="chat-sidebar">
+            <div class="chat-list">对话列表</div>
+            <div class="chat-settings">设置</div>
+        </div>
+
+        <div class="chat-main">
+            <div class="chat-display">
+                <div class="chat-message">
+                    <div class="message-content">对话内容</div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="input-field" placeholder="来撩我呀">
+                <button id="send-btn">发送</button>
+            </div>
+        </div>
+    </div>
+    <!-- 底部信息 -->
+    <div th:replace="components/layout/footer :: footer"></div>
+</div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.5/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script th:inline="javascript">
+    var socket = new SockJS('/ws');
+    var stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        stompClient.subscribe('/topic/chat', function (message) {
+            showMessage(JSON.parse(message.body).text);
+        });
+    });
+
+
+    // jQuery 点击发送按钮
+    $("#send-btn").click(function () {
+        const inputField = $("#input-field");
+        sendMessage(inputField.val());
+        inputField.val("");
+    });
+
+
+    function sendMessage(text) {
+        stompClient.send("/app/chat", {}, JSON.stringify({'text': text}));
+    }
+
+    function showMessage(text) {
+        // 在这里显示消息
+    }
+</script>
+</html>
