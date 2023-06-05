@@ -78,7 +78,9 @@ public class GlobalInitService {
                     ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             if (request.getRequestURI().startsWith("/column")) {
                 vo.setCurrentDomain("column");
-            } else {
+            } else if (request.getRequestURI().startsWith("/chat")) {
+                vo.setCurrentDomain("chat");
+            } else{
                 vo.setCurrentDomain("article");
             }
         } catch (Exception e) {

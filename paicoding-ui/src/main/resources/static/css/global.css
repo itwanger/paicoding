@@ -483,11 +483,11 @@ button:focus {
 }
 
 .selected-domain {
-  border-bottom: 0 solid #3973ff;
+  border-bottom: 1px solid var(--pai-brand-1-normal);
 }
 
 .selected-domain a {
-  /* color: #3973ff; */
+  /*color: var(--pai-brand-1-normal);*/
 }
 
 .user-info-box {
