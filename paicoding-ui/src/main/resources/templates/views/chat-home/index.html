@@ -6,7 +6,7 @@
     </title>
 </div>
 
-<link rel="stylesheet" href="/css/views/chat-home.css" />
+<link rel="stylesheet" href="/css/views/chat-home.css"/>
 
 <body id="body">
 <!-- 导航栏 -->
@@ -21,13 +21,14 @@
         <div class="chat-main">
             <div class="chat-display">
                 <div class="chat-message">
-                    <div class="message-content">对话内容</div>
+                    <div class="message-content" id="chat-content">
+                    </div>
                 </div>
             </div>
 
             <div class="chat-input">
-                <input type="text" id="input-field" placeholder="来撩我呀">
-                <button id="send-btn">发送</button>
+                <input type="text" id="input-field" placeholder="来撩我呀" disabled="disabled">
+                <button id="send-btn">开始聊天</button>
             </div>
         </div>
     </div>
@@ -40,29 +41,78 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 <script th:inline="javascript">
-    var socket = new SockJS('/ws');
-    var stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        stompClient.subscribe('/topic/chat', function (message) {
-            showMessage(JSON.parse(message.body).text);
-        });
-    });
+    // var socket = new SockJS('/ws');
+    // var stompClient = Stomp.over(socket);
+    // stompClient.connect({}, function (frame) {
+    //     stompClient.subscribe('/topic/chat', function (message) {
+    //         showMessage(JSON.parse(message.body).text);
+    //     });
+    // });
+    //
+    //
+    // // jQuery 点击发送按钮
+    // $("#send-btn").click(function () {
+    //     const inputField = $("#input-field");
+    //     sendMessage(inputField.val());
+    //     inputField.val("");
+    // });
+    //
+    //
+    // function sendMessage(text) {
+    //     stompClient.send("/app/chat", {}, JSON.stringify({'text': text}));
+    // }
+    //
+    // function showMessage(text) {
+    //     // 在这里显示消息
+    // }
 
+    function initWs() {
+        ws = new WebSocket("ws://localhost:8080/chatgpt");
+        ws.onmessage = function (message) {
+            // 接受到消息
+            console.log("接受消息: " + message.data);
+            $("#chat-content").html(document.getElementById("chat-content").innerHTML + "<br/><span style='color:red'>返回：" + message.data + "</><br/>");
+        }
+
+        ws.onclose = function (e) {
+            console.log("ws中断");
+            ws = null;
+            $("#send-btn").text("重新开始");
+            $("#input-field").val("");
+            $("#input-field").addAttributes("disabled", "disabled");
+        }
+    }
+
+    function doSend() {
+        const inputField = $("#input-field");
+        if (ws.readyState === WebSocket.OPEN) {
+            const qa = inputField.val();
+            ws.send(qa);
+            inputField.val("");
+            $("#chat-content").html(document.getElementById("chat-content").innerHTML + "<br/><span>提问：" + qa + "</span><br/>");
+        } else if (ws.readyState == WebSocket.CONNECTING) {
+            // depending on your use case. I believe in you developer!
+            ws.addEventListener('open', () => doSend())
+        }
+    }
 
     // jQuery 点击发送按钮
+    let ws = null;
     $("#send-btn").click(function () {
-        const inputField = $("#input-field");
-        sendMessage(inputField.val());
-        inputField.val("");
+        if (ws == null || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+            initWs();
+            $("#input-field").removeAttr("disabled");
+            $("#send-btn").text("发送消息!");
+        } else {
+            doSend();
+        }
     });
 
-
-    function sendMessage(text) {
-        stompClient.send("/app/chat", {}, JSON.stringify({'text': text}));
-    }
-
-    function showMessage(text) {
-        // 在这里显示消息
-    }
+    $("#input-field").keydown(function (e) {
+        if (e.keyCode == 13) {
+            // 回车监听
+            doSend();
+        }
+    });
 </script>
 </html>
