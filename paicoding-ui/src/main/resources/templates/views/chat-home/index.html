@@ -27,8 +27,13 @@
             </div>
 
             <div class="chat-input">
-                <input type="text" id="input-field" placeholder="来撩我呀" disabled="disabled">
-                <button id="send-btn">开始聊天</button>
+                <textarea id="input-field" class="form-control" rows="3" placeholder="你好，我是派聪明，快来撩我呀"></textarea>
+                <button id="send-btn">
+                    <div class="button_icon-button-icon__qlUH3 no-dark">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" fill="none"><defs><path id="send-white_svg__a" d="M0 0h16v16H0z"></path></defs><g><mask id="send-white_svg__b" fill="#fff"><use xlink:href="#send-white_svg__a"></use></mask><g mask="url(#send-white_svg__b)"><path transform="translate(1.333 2)" d="M0 4.71 6.67 6l1.67 6.67L12.67 0 0 4.71Z" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path><path transform="translate(8.003 6.117)" d="M0 1.89 1.89 0" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path></g></g></svg>
+                    </div>
+                    <div class="button_icon-button-text__k3vob">撩我</div>
+                </button>
             </div>
         </div>
     </div>
@@ -41,77 +46,71 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 <script th:inline="javascript">
-    // var socket = new SockJS('/ws');
-    // var stompClient = Stomp.over(socket);
-    // stompClient.connect({}, function (frame) {
-    //     stompClient.subscribe('/topic/chat', function (message) {
-    //         showMessage(JSON.parse(message.body).text);
-    //     });
-    // });
-    //
-    //
-    // // jQuery 点击发送按钮
-    // $("#send-btn").click(function () {
-    //     const inputField = $("#input-field");
-    //     sendMessage(inputField.val());
-    //     inputField.val("");
-    // });
-    //
-    //
-    // function sendMessage(text) {
-    //     stompClient.send("/app/chat", {}, JSON.stringify({'text': text}));
-    // }
-    //
-    // function showMessage(text) {
-    //     // 在这里显示消息
-    // }
+    let ws = null;
+    const inputField = $("#input-field");
+    const sendBtn = $(".button_icon-button-text__k3vob");
 
     function initWs() {
+        // 建立会话
         ws = new WebSocket("ws://localhost:8080/chatgpt");
+        ws.onopen = function () {
+            // 建立连接
+            console.log("ws连接成功");
+        }
+
         ws.onmessage = function (message) {
             // 接受到消息
             console.log("接受消息: " + message.data);
-            $("#chat-content").html(document.getElementById("chat-content").innerHTML + "<br/><span style='color:red'>返回：" + message.data + "</><br/>");
+            const messageElement = $('<div class="card mb-2 bg-light"><div class="card-body">' + event.data + '</div></div>');
+            $("#chat-content").append(messageElement);
         }
 
         ws.onclose = function (e) {
             console.log("ws中断");
             ws = null;
-            $("#send-btn").text("重新开始");
-            $("#input-field").val("");
-            $("#input-field").addAttributes("disabled", "disabled");
+            // 提醒用户重新连接
+            inputField.attr("disabled", "disabled").val("连接中断，点击右侧按钮重连");
+            sendBtn.text("重撩");
         }
     }
 
+    // 页面加载完成后，执行 initWs
+    $(function () {
+        initWs();
+    });
+
     function doSend() {
-        const inputField = $("#input-field");
         if (ws.readyState === WebSocket.OPEN) {
             const qa = inputField.val();
             ws.send(qa);
+            // 清空 textarea
             inputField.val("");
-            $("#chat-content").html(document.getElementById("chat-content").innerHTML + "<br/><span>提问：" + qa + "</span><br/>");
-        } else if (ws.readyState == WebSocket.CONNECTING) {
+
+            const messageElement = $('<div class="card mb-2"><div class="card-body">' + qa + '</div></div>');
+            $("#chat-content").append(messageElement);
+        } else if (ws.readyState === WebSocket.CONNECTING) {
             // depending on your use case. I believe in you developer!
             ws.addEventListener('open', () => doSend())
         }
     }
 
-    // jQuery 点击发送按钮
-    let ws = null;
+
     $("#send-btn").click(function () {
         if (ws == null || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
             initWs();
-            $("#input-field").removeAttr("disabled");
-            $("#send-btn").text("发送消息!");
+            inputField.removeAttr("disabled");
+            sendBtn.text("开撩");
         } else {
             doSend();
         }
     });
 
-    $("#input-field").keydown(function (e) {
-        if (e.keyCode == 13) {
+    inputField.keydown(function (e) {
+        if (e.keyCode === 13) {
             // 回车监听
             doSend();
+            // 阻止默认行为
+            e.preventDefault();
         }
     });
 </script>
