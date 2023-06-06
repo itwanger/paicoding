@@ -48,6 +48,10 @@ body {
   --pai-hr-color-1: #f0f0f0;
   /*边框颜色*/
   --pai-border-color-1: #d2d9e7;
+
+  --color-canvas-default: transparent;
+  --message-max-width: 80%;
+  --card-shadow: 0px 2px 4px 0px rgba(0,0,0,.05);
   /*外边距*/
   margin: 0;
   /*溢出后隐藏*/
