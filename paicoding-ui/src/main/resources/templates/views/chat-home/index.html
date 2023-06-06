@@ -91,7 +91,7 @@
             ws = null;
             // 提醒用户重新连接
             inputField.attr("disabled", "disabled").val("连接中断，点击右侧按钮重连");
-            sendBtn.attr("disabled", "disabled");
+            sendBtn.removeAttr("disabled");
             sendBtnText.text("重撩");
         }
     }
