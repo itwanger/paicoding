@@ -7,7 +7,7 @@
     width: 30%;
     padding: 10px;
     border-right: 1px solid #ddd;
-    height: calc(100vh - 164px);
+    height: calc(100vh - 159px);
     overflow-y: auto;
 }
 
@@ -24,7 +24,7 @@
 
 .chat-display {
     border: 1px solid #ddd;
-    height: calc(100vh - 214px);
+    height: calc(100vh - 240px);
     padding: 10px;
     overflow-y: auto;
     margin-bottom: 10px;
@@ -33,24 +33,57 @@
 
 .chat-input {
     display: flex;
+    position: relative;
 }
 
 #input-field {
-    flex-grow: 1;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    height: 60px;
+    resize: none;  /* 禁止手动改变大小 */
+    padding: 10px 90px 10px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#input-field:focus  {
+    border: 1px solid var(--pai-brand-3-click);
+    outline: none;
+    box-shadow: none;
 }
 
 #send-btn {
-    width: 20%;
-    margin-left: 5px;
-    padding: 5px;
     background-color: var(--pai-brand-1-normal);
-    color: white;
-    border: none;
-    border-radius: 5px;
+    color: #fff;
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
     cursor: pointer;
+    transition: all .3s ease;
+    overflow: hidden;
+    user-select: none;
+    outline: none;
+    border: none;
+}
+
+.button_icon-button-icon__qlUH3 {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button_icon-button-text__k3vob {
+    margin-left: 5px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #send-btn:hover {

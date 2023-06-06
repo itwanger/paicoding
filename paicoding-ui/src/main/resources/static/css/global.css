@@ -87,7 +87,7 @@ textarea::placeholder {
   font-size: 14px;
 }
 
-textarea:focus {
+textarea:focus  {
   border: 1px solid var(--pai-brand-3-click);
   outline: none;
 }
