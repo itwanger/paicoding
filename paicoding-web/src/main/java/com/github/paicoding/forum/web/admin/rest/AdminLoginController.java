@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -54,9 +54,7 @@ public class AdminLoginController {
         String session = sessionService.login(info.getUserId());
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
-            Cookie cookie = new Cookie(SessionService.SESSION_KEY, session);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+            response.addCookie(SessionUtil.newCookie(SessionService.SESSION_KEY, session));
             return ResVo.ok(info);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录失败，请重试");
@@ -85,8 +83,11 @@ public class AdminLoginController {
     @GetMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
-        // 重定向交给前端执行，避免由于前后端分离，本地开发时端口不一致导致的问题
-//        response.sendRedirect("/");
+        // 为什么不后端实现重定向？ 重定向交给前端执行，避免由于前后端分离，本地开发时端口不一致导致的问题
+        // response.sendRedirect("/");
+
+        // 移除cookie
+        response.addCookie(SessionUtil.delCookie(SessionService.SESSION_KEY));
         return ResVo.ok(true);
     }
 }
