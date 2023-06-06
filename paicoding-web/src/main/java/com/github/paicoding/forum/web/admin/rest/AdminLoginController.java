@@ -38,6 +38,13 @@ public class AdminLoginController {
     @Autowired
     private SessionService sessionService;
 
+    /**
+     * 后台用户名 & 密码的方式登录
+     *
+     * @param request
+     * @param response
+     * @return
+     */
     @RequestMapping(path = {"/login"})
     public ResVo<BaseUserInfoDTO> login(HttpServletRequest request,
                                         HttpServletResponse response) {
@@ -47,13 +54,33 @@ public class AdminLoginController {
         String session = sessionService.login(info.getUserId());
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
-            response.addCookie(new Cookie(SessionService.SESSION_KEY, session));
+            Cookie cookie = new Cookie(SessionService.SESSION_KEY, session);
+            cookie.setPath("/");
+            response.addCookie(cookie);
             return ResVo.ok(info);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录失败，请重试");
         }
     }
 
+    /**
+     * 判断是否有登录
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(path = "/isLogined")
+    public ResVo<Boolean> isLogined(HttpServletRequest request) {
+        return ResVo.ok(ReqInfoContext.getReqInfo().getUserId() != null);
+    }
+
+    /**
+     * 登出
+     *
+     * @param response
+     * @return
+     * @throws IOException
+     */
     @Permission(role = UserRole.LOGIN)
     @GetMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
