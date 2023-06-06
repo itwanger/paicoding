@@ -61,7 +61,7 @@ public class ChatgptServiceImpl implements ChatgptService {
 
     @Override
     public boolean inChat(String wxUuid, String content) {
-        if (content.toLowerCase().trim().startsWith("chat")) {
+        if (content != null && content.toLowerCase().trim().startsWith("chat")) {
             return true;
         }
 
