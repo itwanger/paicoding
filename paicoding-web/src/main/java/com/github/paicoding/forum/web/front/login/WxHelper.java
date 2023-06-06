@@ -106,14 +106,7 @@ public class WxHelper {
         String textRes = null;
         // 返回的是图文消息
         List<WxImgTxtItemVo> imgTxtList = null;
-        if (chatgptService.inChat(fromUser, content)) {
-            try {
-              textRes = chatgptService.chat(fromUser, content);
-            } catch (Exception e) {
-                log.error("chatgpt 访问异常! content: {}", content, e);
-                textRes = "chatgpt 出了点小状况，请稍后再试!";
-            }
-        } else if ("subscribe".equalsIgnoreCase(eventType)) {
+        if ("subscribe".equalsIgnoreCase(eventType)) {
             // 订阅
             textRes = "优秀的你一关注，楼仔英俊的脸上就泛起了笑容[奸笑]。我这个废柴，既可以把程序人生写得风趣幽默，也可以把技术文章写得通俗易懂。\n" +
                     "\n" +
@@ -124,7 +117,14 @@ public class WxHelper {
                     "我从清晨走过，也拥抱夜晚的星辰，人生没有捷径，你我皆平凡，你好，陌生人，一起共勉。\n";
         }
         // 下面是关键词回复
-        else if ("110".equalsIgnoreCase(content)) {
+        else if (chatgptService.inChat(fromUser, content)) {
+            try {
+                textRes = chatgptService.chat(fromUser, content);
+            } catch (Exception e) {
+                log.error("chatgpt 访问异常! content: {}", content, e);
+                textRes = "chatgpt 出了点小状况，请稍后再试!";
+            }
+        } else if ("110".equalsIgnoreCase(content)) {
             textRes = "[机智] [10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
         } else if ("119".equalsIgnoreCase(content) || "高并发".equalsIgnoreCase(content)) {
             textRes = "[机智] [高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm";
