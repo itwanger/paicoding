@@ -42,10 +42,10 @@ class TestControllerTest extends Specification {
         then: "verify result"
         result.contains(keyText)
         where: "param role and result"
-        role     | keyText  | status
-        "ADMIN"  | "true"   | 200
-        "NORMAL" | ""       | 403
-        null     | "未登录" | 200
+        role     | keyText | status
+        "ADMIN"  | "true"  | 200
+        "NORMAL" | ""      | 403
+        null     | "未登录"   | 200
     }
 
     @MockStatic(EmailUtil)
