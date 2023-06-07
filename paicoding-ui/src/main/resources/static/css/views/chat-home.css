@@ -44,7 +44,7 @@
     height: 60px;
     resize: none;  /* 禁止手动改变大小 */
     padding: 10px 90px 10px 10px;
-    font-size: 16px;
+    font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
@@ -74,6 +74,16 @@
     border: none;
 }
 
+#send-btn:hover {
+    background-color: var(--pai-brand-2-hover);
+}
+
+/*send-btn disabled*/
+#send-btn[disabled] {
+    background-color: var(--pai-brand-4-disable);
+    cursor: not-allowed;
+}
+
 .button_icon-button-icon__qlUH3 {
     width: 16px;
     height: 16px;
@@ -88,10 +98,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-#send-btn:hover {
-    background-color: var(--pai-brand-2-hover);
 }
 
 .home_chat-message__rdH_g {
@@ -126,7 +132,7 @@
     position: relative;
 }
 
-.home_chat-message-actions__nrHd1 {
+.home_chat-message-actions__nrHd1, .home_chat-message-actions__loading {
     display: flex;
     flex-direction: row-reverse;
     width: 100%;
@@ -154,7 +160,7 @@
     margin-top: 0!important;
 }
 
-.home_chat-message-action-date__6ToUp {
+.home_chat-message-action-date__6ToUp,.home_chat-message-action-loading__6ToUp {
     color: var(--pai-color-3-gray);
 }
 
@@ -198,4 +204,78 @@
     height: 100%;
     width: 100%;
     border-radius: 10px;
+}
+
+.lds-ellipsis {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 20px;
+}
+
+.lds-ellipsis div {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: lds-ellipsis 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+
+.lds-ellipsis div:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.lds-ellipsis div:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.lds-ellipsis div:nth-child(4) {
+    animation-delay: 0.6s;
+}
+
+@keyframes lds-ellipsis {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+    80%, 90% {
+        transform: scale(0);
+    }
+}
+
+.home_chat-message-top-actions__PfOzb {
+    min-width: 120px;
+    font-size: 12px;
+    position: absolute;
+    right: 20px;
+    top: -26px;
+    left: 30px;
+    transition: all .3s ease;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.home_chat-message-container__plj_e:hover .home_chat-message-top-actions__PfOzb {
+    opacity: 1;
+    transform: translateX(10px);
+    pointer-events: all;
+}
+
+.home_chat-message-top-actions__PfOzb .home_chat-message-top-action__wXKmA {
+    opacity: .5;
+    color: var(--pai-color-3-gray);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.home_chat-message-top-actions__PfOzb .home_chat-message-top-action__wXKmA:not(:first-child) {
+    margin-right: 10px;
+}
+
+.home_chat-message-top-actions__PfOzb .home_chat-message-top-action__wXKmA:hover {
+    opacity: 1;
 }
