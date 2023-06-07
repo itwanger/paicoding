@@ -1,20 +1,15 @@
 .chat-wrap {
     display: flex;
     margin: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
 .chat-sidebar {
     width: 30%;
     padding: 10px;
-    border-right: 1px solid #ddd;
-    height: calc(100vh - 159px);
     overflow-y: auto;
-}
-
-.chat-sidebar h2 {
-    color: #333;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
+    border-right: 1px solid #ddd;
 }
 
 .chat-main {
@@ -23,12 +18,10 @@
 }
 
 .chat-display {
-    border: 1px solid #ddd;
-    height: calc(100vh - 240px);
+    height: calc(100vh - 327px);
     padding: 18px;
     overflow-y: auto;
     margin-bottom: 10px;
-    border-radius: 5px;
 }
 
 #chat-content {
@@ -278,4 +271,33 @@
 
 .home_chat-message-top-actions__PfOzb .home_chat-message-top-action__wXKmA:hover {
     opacity: 1;
+}
+
+.window-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.window-header-title {
+    max-width: calc(100% - 100px);
+    overflow: hidden;
+}
+
+.window-header-title .window-header-main-title {
+    font-size: 20px;
+    font-weight: bolder;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    max-width: 50vw;
+}
+
+.window-header-title .window-header-sub-title {
+    font-size: 14px;
+    margin-top: 5px;
 }
