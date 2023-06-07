@@ -19,6 +19,12 @@
         </div>
 
         <div class="chat-main">
+            <div class="window-header">
+                <div class="window-header-title">
+                    <div class="window-header-main-title home_chat-body-title__5S8w4">新的聊天</div>
+                    <div class="window-header-sub-title">与派聪明的 0 条对话</div>
+                </div>
+            </div>
             <div class="chat-display">
                 <div class="chat-message">
                     <div class="message-content" id="chat-content">
@@ -59,7 +65,9 @@
         if (user) {
             initWs();
         } else {
-            console.log("请先登录")
+            console.log("请先登录");
+            // 提醒用户登录
+            toastr.warning("请先登录");
         }
 
     });
@@ -78,15 +86,24 @@
         ws.onmessage = function (message) {
             // 解析 JSON 字符串
             const data = JSON.parse(message.data);
+            const msg = data.message;
+            // type 转为 number 类型
+            const type = Number(data.type);
 
             // 打印到控制台
-            console.log("接受消息: " + data.message);
+            console.log("接受消息: " + msg);
             console.log("接收时间: " + data.time);
+            console.log("接收类型: " + data.type);
 
-            // 把 home_chat-message-actions__loading 的元素移除，不再显示 loading
-            $(".home_chat-message-actions__loading").remove();
+            if (type === 1) {
+                // 把 home_chat-message-actions__loading 的元素移除，不再显示 loading
+                $(".home_chat-message-actions__loading").remove();
 
-            appendServerMessage(data.message, data.time);
+                appendServerMessage(msg, data.time);
+            } else if (type === 0) {
+                console.log("连接成功")
+                appendServerMessage(msg, data.time);
+            }
 
             // 添加完消息后，恢复按钮的状态
             sendBtn.removeAttr("disabled");
