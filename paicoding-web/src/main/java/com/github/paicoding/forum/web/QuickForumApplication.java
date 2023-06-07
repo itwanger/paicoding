@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
  * @date 2022/7/6
  */
 @Slf4j
-@EnableScheduling
+//@EnableScheduling
 @EnableCaching
 @ServletComponentScan
 @SpringBootApplication

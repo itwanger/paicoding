@@ -153,5 +153,13 @@
             <artifactId>chatgpt</artifactId>
             <version>4.0.5</version>
         </dependency>
+
+        <!--        &lt;!&ndash; 引入xxl_job定时任务 &ndash;&gt;-->
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>2.4.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>

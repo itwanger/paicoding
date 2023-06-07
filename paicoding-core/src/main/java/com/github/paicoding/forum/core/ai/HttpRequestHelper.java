@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +32,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpRequestHelper {
     public static final String CHROME_UA =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 " +
+                    "Safari/537.36";
 
     /**
      * rest template
@@ -59,8 +62,10 @@ public class HttpRequestHelper {
         return new RestTemplate(factory);
     }
 
-    @Scheduled(cron = "0 0 0/1 * * ?")
+    // @Scheduled(cron = "0 0 0/1 * * ?")
+    @XxlJob("refreshRestTemplate")
     public static void refreshRestTemplate() {
+        log.info("xxl_job 定时任务执行");
         restTemplateMap.cleanUp();
     }
 
