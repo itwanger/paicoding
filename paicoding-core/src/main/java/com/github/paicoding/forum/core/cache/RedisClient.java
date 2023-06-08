@@ -154,6 +154,18 @@ public class RedisClient {
         });
     }
 
+    /**
+     * 自增
+     *
+     * @param key
+     * @param filed
+     * @param cnt
+     * @return
+     */
+    public static Long hIncr(String key, String filed, Integer cnt) {
+        return template.execute((RedisCallback<Long>) con -> con.hIncrBy(keyBytes(key), valBytes(filed), cnt));
+    }
+
     public static <T> Boolean hDel(String key, String field) {
         return template.execute(new RedisCallback<Boolean>() {
             @Override

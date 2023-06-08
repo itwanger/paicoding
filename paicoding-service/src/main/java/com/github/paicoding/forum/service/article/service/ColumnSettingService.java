@@ -34,25 +34,18 @@ public interface ColumnSettingService {
     void saveColumnArticle(ColumnArticleReq req);
 
     /**
-     * 专栏文章排序
-     *
-     * @param columnArticleReqs
-     */
-    void sortColumnArticle(List<ColumnArticleReq> columnArticleReqs);
-
-    /**
      * 删除专栏
      *
      * @param columnId
      */
-    void deleteColumn(Integer columnId);
+    void deleteColumn(Long columnId);
 
     /**
      * 删除专栏文章
      *
      * @param id
      */
-    void deleteColumnArticle(Integer id);
+    void deleteColumnArticle(Long id);
 
     /**
      * 通过关键词，从标题中找出相似的进行推荐，只返回主键 + 标题

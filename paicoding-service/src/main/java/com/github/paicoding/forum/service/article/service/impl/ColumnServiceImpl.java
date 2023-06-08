@@ -121,4 +121,10 @@ public class ColumnServiceImpl implements ColumnService {
         articleIds.forEach(id -> Optional.ofNullable(articleMap.get(id)).ifPresent(articleList::add));
         return articleList;
     }
+
+    @Override
+    public Long getTutorialCount() {
+        return this.columnDao.countColumnArticles();
+    }
+
 }

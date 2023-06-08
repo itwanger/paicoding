@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.web.front.login.QrLoginHelper;
 import com.github.paicoding.forum.web.front.login.vo.QrLoginVo;
@@ -46,8 +47,8 @@ public class LoginRestController {
                                 HttpServletResponse response) {
         String session = sessionService.login(code);
         if (StringUtils.isNotBlank(session)) {
-            // cookie中写入用户登录信息
-            response.addCookie(new Cookie(SessionService.SESSION_KEY, session));
+            // cookie中写入用户登录信息，用于身份识别
+            response.addCookie(SessionUtil.newCookie(SessionService.SESSION_KEY, session));
             return ResVo.ok(true);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录码异常，请重新输入");
@@ -60,6 +61,8 @@ public class LoginRestController {
         // 释放会话
         request.getSession().invalidate();
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
+        // 移除cookie
+        response.addCookie(SessionUtil.delCookie(SessionService.SESSION_KEY));
         // 重定向到首页
         response.sendRedirect("/");
         return ResVo.ok(true);

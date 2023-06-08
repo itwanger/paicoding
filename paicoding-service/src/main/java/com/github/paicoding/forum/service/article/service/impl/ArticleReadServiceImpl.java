@@ -319,4 +319,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     public int queryArticleCount(long authorId) {
         return articleDao.countArticleByUser(authorId);
     }
+
+    @Override
+    public Long getArticleCount() {
+        return articleDao.countArticle();
+    }
 }

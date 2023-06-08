@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -17,14 +18,13 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMapper;
-import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
-import com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnArticleParams;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
@@ -48,7 +48,10 @@ import java.util.stream.Collectors;
 public class ColumnSettingServiceImpl implements ColumnSettingService {
 
     @Autowired
-    private ColumnServiceImpl columnService;
+    private UserService userService;
+
+    @Autowired
+    private ColumnArticleDao columnArticleDao;
 
     @Autowired
     private ColumnDao columnDao;
@@ -56,15 +59,9 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Autowired
     private ArticleDao articleDao;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ColumnArticleMapper columnArticleMapper;
-
     @Override
     public void saveColumn(ColumnReq req) {
-        ColumnInfoDO columnInfoDO = ColumnConvert.toDo(req);
+        ColumnInfoDO columnInfoDO = ColumnStructMapper.INSTANCE.toDo(req);
         if (NumUtil.nullOrZero(req.getColumnId())) {
             columnDao.save(columnInfoDO);
         } else {
@@ -78,22 +75,22 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     public void saveColumnArticle(ColumnArticleReq req) {
         // 转换参数
         ColumnArticleDO columnArticleDO = ColumnArticleStructMapper.INSTANCE.reqToDO(req);
-        if (NumUtil.nullOrZero(req.getId())) {
+        if (NumUtil.nullOrZero(columnArticleDO.getId())) {
             // 插入的时候，需要判断是否已经存在
-            ColumnArticleDO exist = columnArticleMapper.selectOne(Wrappers.<ColumnArticleDO>lambdaQuery()
-                    .eq(ColumnArticleDO::getColumnId, req.getColumnId())
-                    .eq(ColumnArticleDO::getArticleId, req.getArticleId()));
+            ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
+                    .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
+                    .eq(ColumnArticleDO::getArticleId, columnArticleDO.getArticleId()));
             if (exist != null) {
-                throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, exist.getId());
+                throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, "请勿重复添加");
             }
 
             // section 自增+1
-            Integer maxSection = columnArticleMapper.selectMaxSection(req.getColumnId());
+            Integer maxSection = columnArticleDao.selectMaxSection(columnArticleDO.getColumnId());
             if (maxSection == null) {
                 maxSection = 0;
             }
             columnArticleDO.setSection(maxSection + 1);
-            columnArticleMapper.insert(columnArticleDO);
+            columnArticleDao.save(columnArticleDO);
 
             // 同时，更新 article 的 shortTitle
             ArticleDO articleDO = new ArticleDO();
@@ -101,35 +98,23 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             articleDO.setId(req.getArticleId());
             articleDao.updateById(articleDO);
         } else {
-            columnArticleDO.setId(req.getId());
-            columnArticleMapper.updateById(columnArticleDO);
+            columnArticleDao.updateById(columnArticleDO);
         }
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void sortColumnArticle(List<ColumnArticleReq> columnArticleReqs) {
-        columnArticleReqs.forEach(columnArticleReq -> {
-            ColumnArticleDO columnArticleDO = columnArticleMapper.selectById(columnArticleReq.getId());
-            columnArticleDO.setSection(columnArticleReq.getSort());
-            columnArticleMapper.updateById(columnArticleDO);
-        });
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteColumn(Integer columnId) {
+    public void deleteColumn(Long columnId) {
         columnDao.deleteColumn(columnId);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteColumnArticle(Integer id) {
-        ColumnArticleDO columnArticleDO = columnArticleMapper.selectById(id);
+    public void deleteColumnArticle(Long id) {
+        ColumnArticleDO columnArticleDO = columnArticleDao.getById(id);
         if (columnArticleDO != null) {
-            columnArticleMapper.deleteById(id);
+            columnArticleDao.removeById(id);
             // 删除的时候，批量更新 section，比如说原来是 1,2,3,4,5,6,7,8,9,10，删除 5，那么 6-10 的 section 都要减 1
-            columnArticleMapper.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
                     .setSql("section = section - 1")
                     .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
                     // section 大于 1
@@ -150,22 +135,24 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
         // 进行优化，由原来的多次查询用户信息，改为一次查询用户信息
         // 获取所有需要的用户id
-        List<Long> userIds = columnDTOS.stream().map(ColumnDTO::getAuthor).collect(Collectors.toList());
+        // 判断 columnDTOS 是否为空
+        if (CollUtil.isNotEmpty(columnDTOS)) {
+            List<Long> userIds = columnDTOS.stream().map(ColumnDTO::getAuthor).collect(Collectors.toList());
 
-        // 查询所有的用户信息
-        List<BaseUserInfoDTO> users = userService.queryBasicUserInfos(userIds);
+            // 查询所有的用户信息
+            List<BaseUserInfoDTO> users = userService.queryBasicUserInfos(userIds);
 
-        // 创建一个id到用户信息的映射
-        Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
+            // 创建一个id到用户信息的映射
+            Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
 
-        // 设置作者信息
-        columnDTOS.forEach(columnDTO -> {
-            BaseUserInfoDTO user = userMap.get(columnDTO.getAuthor());
-            columnDTO.setAuthorName(user.getUserName());
-            columnDTO.setAuthorAvatar(user.getPhoto());
-            columnDTO.setAuthorProfile(user.getProfile());
-        });
-
+            // 设置作者信息
+            columnDTOS.forEach(columnDTO -> {
+                BaseUserInfoDTO user = userMap.get(columnDTO.getAuthor());
+                columnDTO.setAuthorName(user.getUserName());
+                columnDTO.setAuthorAvatar(user.getPhoto());
+                columnDTO.setAuthorProfile(user.getProfile());
+            });
+        }
 
         Integer totalCount = columnDao.countColumnsByParams(params);
         return PageVo.build(columnDTOS, req.getPageSize(), req.getPageNumber(), totalCount);

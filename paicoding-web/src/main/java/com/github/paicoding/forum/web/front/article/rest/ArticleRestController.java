@@ -14,6 +14,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.core.common.CommonConstants;
 import com.github.paicoding.forum.core.config.RabbitmqProperties;
+import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -78,6 +79,7 @@ public class ArticleRestController {
      * @return
      */
     @RequestMapping(path = "recommend")
+    @MdcDot(bizCode = "#articleId")
     public ResVo<NextPageHtmlVo> recommend(@RequestParam(value = "articleId") Long articleId,
                                            @RequestParam(name = "page") Long page,
                                            @RequestParam(name = "size", required = false) Long size) {
@@ -139,6 +141,7 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "favor")
+    @MdcDot(bizCode = "#articleId")
     public ResVo<Boolean> favor(@RequestParam(name = "articleId") Long articleId,
                                 @RequestParam(name = "type") Integer type) throws IOException, TimeoutException {
         OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
@@ -181,9 +184,10 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
-    @Transactional(rollbackFor = Exception.class)
+    @MdcDot(bizCode = "#req.articleId")
     public ResVo<Long> post(@RequestBody ArticlePostReq req, HttpServletResponse response) throws IOException {
         Long id = articleWriteService.saveArticle(req, ReqInfoContext.getReqInfo().getUserId());
+        // 如果使用后端重定向，可以使用下面两种策略
 //        return "redirect:/article/detail/" + id;
 //        response.sendRedirect("/article/detail/" + id);
         // 这里采用前端重定向策略
@@ -199,6 +203,7 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @RequestMapping(path = "delete")
+    @MdcDot(bizCode = "#articleId")
     public ResVo<Boolean> delete(@RequestParam(value = "articleId") Long articleId) {
         articleWriteService.deleteArticle(articleId, ReqInfoContext.getReqInfo().getUserId());
         return ResVo.ok(true);
