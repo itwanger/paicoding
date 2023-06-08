@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -63,8 +62,8 @@ public class LoginRestController {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
         // 移除cookie
         response.addCookie(SessionUtil.delCookie(SessionService.SESSION_KEY));
-        // 重定向到首页
-        response.sendRedirect("/");
+        // 重定向到当前页面
+        response.sendRedirect(request.getHeader("Referer"));
         return ResVo.ok(true);
     }
 
