@@ -48,13 +48,17 @@ body {
   --pai-hr-color-1: #f0f0f0;
   /*边框颜色*/
   --pai-border-color-1: #d2d9e7;
+  /*字体*/
+  --pai-font-2: #515767;
 
+  /*边框*/
   --color-canvas-default: transparent;
+  /*消息的宽度*/
   --message-max-width: 80%;
+  /*卡片的阴影*/
   --card-shadow: 0px 2px 4px 0px rgba(0,0,0,.05);
   /*外边距*/
   margin: 0;
-  /*溢出后隐藏*/
 }
 
 /*全局的色调往前面放*/
@@ -76,9 +80,10 @@ a:hover {
   color: var(--pai-brand-2-hover);
 }
 
-input:focus {
+input:focus,.form-control:focus {
   border: 1px solid var(--pai-brand-3-click);
   outline: none;
+  box-shadow: none;
 }
 
 textarea {
@@ -134,22 +139,33 @@ button:focus {
   display: none;
 }
 
-/*回到顶部*/
-
-#loginModal .modal-header {
-  border-bottom: none;
+.auth-body {
+  display: flex;
 }
 
 #loginModal .modal-dialog {
-  width: 400px;
+  max-width: 600px;
+}
+
+#loginModal .title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+}
+
+.login-main {
+  width: 42rem;
 }
 
 #loginModal .mdnice-user-dialog-footer {
   display: flex;
   justify-content: space-between;
-  background: linear-gradient(216deg, #f9fafb, #f8fafb 57%, #f0f2f6);
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: 0.8rem;
+}
+
+#loginModal .modal-footer {
+  justify-content: center;
 }
 
 #loginModal a {
@@ -166,9 +182,6 @@ button:focus {
 }
 
 #loginModal .close {
-  position: absolute;
-  top: 0;
-  right: 0;
   z-index: 10;
   padding: 0;
   color: rgba(0, 0, 0, 0.45);
@@ -193,25 +206,54 @@ button:focus {
 }
 
 #loginModal .modal-content {
-  border-radius: 2px;
+  border-radius: 8px;
 }
 
 #loginModal .modal-content h2 {
   text-align: center;
-  font-size: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
-#loginModal .modal-content .modal-body {
-  padding: 30px 0 0;
+.other-login-box {
+  display: flex;
+  margin-top: 1rem;
+  color: var(--pai-font-2);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
+
+.oauth-box, .oauth {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  font-size: 0.8rem;
+}
+
+.oauth-bg {
+    border-radius: 50%;
+    background-color: var(--pai-bg-light-1);
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.clickable {
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
 
 #loginModal .modal-content .modal-body .tabpane-container {
-  margin: 10px auto 30px;
+  border-left: 1px solid var(--pai-border-color-1);
+  margin-left: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 80%;
+}
+
+#loginModal input, #loginModal input::placeholder {
+  font-size: 0.8rem;
 }
 
 #loginModal .first {
@@ -222,7 +264,7 @@ button:focus {
 }
 
 #loginModal .first .signin-qrcode {
-  width: 220px;
+  width: 116px;
 }
 
 #loginModal .explain {

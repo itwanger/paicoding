@@ -160,63 +160,99 @@
   >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <div class="modal-header">
+          <h6 class="modal-title">登录技术派畅享更多权益</h6>
+          <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
         <div class="modal-body">
-          <div class="tabpane-container">
-            <h2>微信扫码登录/注册</h2>
-            <div class="first">
-              <img class="signin-qrcode" th:src="${global.siteInfo.contactMeWxQrCode}"/>
+          <div class="auth-body">
+            <div class="login-main">
+              <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
+              <div class="panel">
+                <h1 class="title">密码登录</h1>
+                <!-- 登录表单、用户名和密码 -->
+                <form id="login-form">
+                  <div class="form-group">
+                    <input type="text" required autocomplete="off" class="form-control form-control-sm" id="username" placeholder="输入用户名">
+                  </div>
+                  <div class="form-group">
+                    <input type="password" required class="form-control form-control-sm" id="password" placeholder="输入密码">
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block btn-sm">登录</button>
+                </form>
+              </div>
+              <div class="other-login-box">
+                <div class="oauth-box">
+                  <span>其他登录：</span>
+                  <div class="oauth">
+                    <div class="oauth-bg">
+                      <!-- GitHub 的 log svg -->
+                      <svg data-v-52064cc0="" width="24px" height="24px" viewBox="0 0 46 46" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="github-icon"><title data-v-52064cc0="">icon_GitHub</title><desc data-v-52064cc0="">Created with sketchtool.</desc><defs data-v-52064cc0=""></defs><g data-v-52064cc0="" id="状态" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g data-v-52064cc0="" id="注册" transform="translate(-758.000000, -600.000000)"><g data-v-52064cc0="" id="Group-4" transform="translate(758.000000, 600.000000)"><rect data-v-52064cc0="" id="Rectangle-314" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="46" height="46"></rect><path data-v-52064cc0="" d="M5,23.4307576 C5,31.1317497 10.1024923,37.6642712 17.179508,39.9691117 C18.0705582,40.1296159 18.3952722,39.5913918 18.3952722,39.1291397 C18.3952722,38.7161088 18.3799658,37.61933 18.3712193,36.1651618 C13.4174176,37.2180695 12.3722103,33.8282205 12.3722103,33.8282205 C11.5620653,31.8144276 10.3944069,31.2783436 10.3944069,31.2783436 C8.77739677,30.1976152 10.5168579,30.2190158 10.5168579,30.2190158 C12.3044248,30.342069 13.2446741,32.0155929 13.2446741,32.0155929 C14.8332581,34.6788928 17.413477,33.9095426 18.4280715,33.4633409 C18.5898819,32.3376714 19.0501667,31.5693912 19.5585573,31.1338898 C15.6040438,30.6941082 11.4461741,29.198209 11.4461741,22.5190936 C11.4461741,20.6165837 12.1404279,19.0596928 13.2796601,17.8420009 C13.0959835,17.4011493 12.4848215,15.6281127 13.4545902,13.2291098 C13.4545902,13.2291098 14.9491492,12.7604375 18.3515396,15.0160567 C19.7717533,14.6287065 21.2958318,14.4361015 22.8100705,14.4286113 C24.3232158,14.4361015 25.846201,14.6287065 27.2686013,15.0160567 C30.6688051,12.7604375 32.1611774,13.2291098 32.1611774,13.2291098 C33.1331328,15.6281127 32.5219708,17.4011493 32.3393875,17.8420009 C33.4808064,19.0596928 34.1695936,20.6165837 34.1695936,22.5190936 C34.1695936,29.2153294 30.005164,30.6887581 26.0386241,31.1199794 C26.6771189,31.6582035 27.246735,32.7218115 27.246735,34.3482542 C27.246735,36.6777053 27.2248688,38.5577447 27.2248688,39.1291397 C27.2248688,39.5956719 27.5463028,40.1381761 28.4493795,39.9680417 C35.5209286,37.657851 40.6190476,31.1296097 40.6190476,23.4307576 C40.6190476,13.8037149 32.6444218,6 22.8078838,6 C12.9746258,6 5,13.8037149 5,23.4307576 Z" id="Fill-3" fill="#161614"></path></g></g></g></svg>
+                    </div>
+                  </div>
+                </div>
+                <span class="clickable">
+                  验证码登录
+                </span>
+              </div>
             </div>
+            <div class="tabpane-container">
+              <h2 class="title">微信扫码登录/注册</h2>
+              <div class="first">
+                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeWxQrCode}"/>
+              </div>
 
-            <div class="explain">
-              <bold>关注楼仔公众号，输入验证码</bold>
-              <span
-                      id="code"
-                      th:text="''"
-              ></span>
-              <div id="state"></div>
+              <div class="explain">
+                <bold>输入验证码</bold>
+                <span id="code"></span>
+                <div id="state">有效期为五分钟<a id="refreshCode">过期后请刷新</a></div>
+              </div>
             </div>
-          </div>
-          <div class="mdnice-user-dialog-footer">
-            <p>登录即同意
-              <a href="article/detail/141"
-                 target="_blank" rel="noopener noreferrer">
-                用户协议
-              </a> 和
-              <a href="article/detail/142"
-                 target="_blank" rel="noopener noreferrer">
-                隐私政策
-              </a>
-            </p>
-            <a id="refreshCode">刷新验证码 &gt;</a>
           </div>
         </div>
-        <div class="modal-footer" th:if="${!#strings.equals(global.env, 'prod')}">
-          <!-- 非生产环境，使用模拟登陆  -->
-          <button
-                  id="mockLogin"
-                  type="button"
-                  th:data-verify-code="''"
-                  class="btn btn-danger"
-          >
-            一键登录
-          </button>
+        <div class="modal-footer">
+          <div class="agreement-box">
+            <div class="mdnice-user-dialog-footer">
+              <p>登录即同意
+                <a href="article/detail/141"
+                   target="_blank" rel="noopener noreferrer">
+                  用户协议
+                </a> 和
+                <a href="article/detail/142"
+                   target="_blank" rel="noopener noreferrer">
+                  隐私政策
+                </a>
+              </p>
+            </div>
+          </div>
+          <div class="mock-login" th:if="${!#strings.equals(global.env, 'prod')}">
+            <!-- 非生产环境，使用模拟登陆  -->
+            <button
+                    id="mockLogin2"
+                    type="button"
+                    th:data-verify-code="''"
+                    class="btn btn-sm btn-light"
+            >
+              随机新用户
+            </button>
 
-          <button
-                  id="mockLogin2"
-                  type="button"
-                  th:data-verify-code="''"
-                  class="btn btn-danger"
-          >
-            随机新用户
-          </button>
+            <button
+                    id="mockLogin"
+                    type="button"
+                    th:data-verify-code="''"
+                    class="btn btn-sm btn-dark"
+            >
+              一键登录
+            </button>
+          </div>
+
         </div>
         <div id="testOutput"></div>
       </div>
@@ -227,6 +263,37 @@
           th:if="${!#strings.equals(global.env, 'prod')}"
   ></script>
   <script th:inline="javascript">
+    // 是否自动刷新验证码
+    let autoRefresh;
+    const stateTag = $('#state'), codeTag = $('#code');
+
+    $("#login-form").on("submit", function(event) {
+      event.preventDefault();
+
+      // 获取用户名和密码，没有定义 ID
+      const username = $("#username").val();
+      const password = $("#password").val();
+
+      $.ajax({
+        url: "/login/username",
+        type: "POST",
+        data: {
+          username: username,
+          password: password
+        },
+        success: function(response) {
+          console.log(response);
+          // 根据返回的响应处理你的逻辑
+          refreshPage();
+        },
+        error: function(error) {
+          console.error(error);
+          // 出现错误时如何处理
+        }
+      });
+    });
+
+
     $(".nav-article").click(() => {
       if ([[${global.isLogin}]]) {
         // 新页面打开文章编辑
@@ -236,51 +303,56 @@
       }
     })
 
-    var autoRefresh;
+    // 定义一个刷新页面的方法
+    function refreshPage() {
+      if (window.location.pathname === "/login") {
+        // 登录成功，跳转首页
+        window.location.href = "/";
+      } else {
+        // 刷新当前页面
+        window.location.reload();
+      }
+    }
+
+
     /**
      * 建立半长连接，用于实现自动登录
      * @param code
      */
     function buildConnect(code) {
-      const stateTag = document.getElementById('state');
-      const codeTag = document.getElementById('code');
       const subscribeUrl = "/subscribe?id=" + code;
       const source = new EventSource(subscribeUrl);
+
       source.onmessage = function (event) {
         let text = event.data;
         console.log("receive: " + text);
+
         if (text.startsWith('refresh#')) {
           // 刷新验证码
           const newCode = text.substring(8).trim();
-          codeTag.innerText = newCode;
-          stateTag.innerText = '已刷新';
-          stateTag.style.display = 'block';
+          codeTag.text(newCode);
+          stateTag.text("已刷新");
           if ([[${!#strings.equals(global.env, 'prod')}]]) {
-            document.getElementById("mockLogin").setAttribute('data-verify-code', newCode);
-            document.getElementById("mockLogin2").setAttribute('data-verify-code', newCode);
+            $("#mockLogin").attr('data-verify-code', newCode);
+            $("#mockLogin2").attr('data-verify-code', newCode);
           }
         } else if (text === 'scan') {
           // 二维码扫描
-          stateTag.innerText = '已扫描';
-          stateTag.style.display = 'block';
+          stateTag.text('已扫描');
         } else if (text.startsWith('login#')) {
           // 登录格式为 login#cookie
           if(autoRefresh) {
             window.clearInterval(autoRefresh);
           }
           console.log("登录成功,保存cookie", text)
+
           document.cookie = text.substring(6);
           source.close();
-          if (window.location.pathname === "/login") {
-            // 登录成功，跳转首页
-            window.location.href = "/";
-          } else {
-            // 刷新当前页面
-            window.location.reload();
-          }
+          refreshPage();
+
         } else if (text.startsWith("init#")) {
           const newCode = text.substring(5).trim();
-          codeTag.innerText = newCode;
+          codeTag.text(newCode);
           console.log("初始化验证码: ", newCode);
         }
       };
@@ -292,8 +364,7 @@
         console.log("连接错误，重新开始", evt)
         buildConnect(code);
       }
-      codeTag.innerText = code;
-      stateTag.innerText = '验证码有效期为五分钟，若过期后可刷新验证码';
+      codeTag.text(code);
 
       if(autoRefresh) {
         window.clearInterval(autoRefresh);
@@ -309,8 +380,8 @@
           const code = data['result']['code'];
           buildConnect(code);
           if ([[${!#strings.equals(global.env, 'prod')}]]) {
-            document.getElementById('mockLogin').setAttribute('data-verify-code', code);
-            document.getElementById('mockLogin2').setAttribute('data-verify-code', code);
+            $("#mockLogin").attr('data-verify-code', code);
+            $("#mockLogin2").attr('data-verify-code', code);
           }
         }
       })
@@ -321,18 +392,17 @@
           const code = data['result']['code'];
           const reconnect = data['result']['reconnect']
           console.log("验证码刷新完成: ", data);
+
           if (reconnect) {
             buildConnect(code);
-            document.getElementById('state').innerText = "已刷新!";
+            $('#state').text("已刷新!");
           }
 
           if(code) {
-            const stateTag = document.getElementById('state');
-            const codeTag = document.getElementById('code');
-            if (codeTag.innerText != code) {
+            if (codeTag.text() !== code) {
               console.log("主动刷新验证码!");
-              codeTag.innerText = code;
-              stateTag.innerText = "已刷新!";
+              codeTag.text(code);
+              stateTag.text("已刷新!");
             } else {
               console.log("验证码已刷新了!");
             }
@@ -345,7 +415,7 @@
       loginCode();
     })
     $('#refreshCode').click(() => {
-      refreshCode()
+      refreshCode();
     })
 
     // 获取用户头像和下落框元素

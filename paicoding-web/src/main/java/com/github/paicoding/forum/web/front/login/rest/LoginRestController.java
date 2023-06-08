@@ -54,6 +54,23 @@ public class LoginRestController {
         }
     }
 
+    /**
+     * 用户名和密码登录
+     */
+    @PostMapping("/login/username")
+    public ResVo<Boolean> login(@RequestParam(name = "username") String username,
+                                @RequestParam(name = "password") String password,
+                                HttpServletResponse response) {
+        String session = sessionService.login(username, password);
+        if (StringUtils.isNotBlank(session)) {
+            // cookie中写入用户登录信息，用于身份识别
+            response.addCookie(SessionUtil.newCookie(SessionService.SESSION_KEY, session));
+            return ResVo.ok(true);
+        } else {
+            return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "用户名和密码登录异常，请稍后重试");
+        }
+    }
+
     @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
     public ResVo<Boolean> logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
