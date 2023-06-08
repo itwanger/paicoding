@@ -94,4 +94,11 @@ public class SessionServiceImpl implements SessionService {
         }
         return UserConverter.toDTO(user);
     }
+
+    @Override
+    public String login(String username, String password) {
+        // 用户名和密码登录
+        BaseUserInfoDTO user = userService.passwordLogin(username, password);
+        return login(user.getUserId());
+    }
 }

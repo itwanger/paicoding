@@ -55,4 +55,6 @@ public interface SessionService {
      * @return
      */
     BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
+
+    String login(String username, String password);
 }
