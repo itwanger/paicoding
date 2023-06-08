@@ -301,3 +301,11 @@
     font-size: 14px;
     margin-top: 5px;
 }
+
+.home_chat-body-title__5S8w4:hover {
+    text-decoration: underline;
+}
+
+.home_chat-body-title__5S8w4 {
+    cursor: pointer;
+}

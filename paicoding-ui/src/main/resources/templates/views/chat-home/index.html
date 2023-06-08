@@ -21,7 +21,10 @@
         <div class="chat-main">
             <div class="window-header">
                 <div class="window-header-title">
-                    <div class="window-header-main-title home_chat-body-title__5S8w4">新的聊天</div>
+                    <div class="window-header-main-title home_chat-body-title__5S8w4"
+                         th:data-target="${global.isLogin ? '' : '#loginModal'}"
+                         th:data-toggle="${global.isLogin ? '' : 'modal'}"
+                    >点击登录</div>
                     <div class="window-header-sub-title">与派聪明的 0 条对话</div>
                 </div>
             </div>
@@ -33,12 +36,12 @@
             </div>
 
             <div class="chat-input">
-                <textarea id="input-field" class="form-control" rows="3" placeholder="你好，我是派聪明，快来和我对线吧" disabled></textarea>
+                <textarea id="input-field" class="form-control" rows="3" placeholder="你好，我是派聪明，快登录和我对线吧" disabled></textarea>
                 <button id="send-btn" disabled>
                     <div class="button_icon-button-icon__qlUH3 no-dark">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" fill="none"><defs><path id="send-white_svg__a" d="M0 0h16v16H0z"></path></defs><g><mask id="send-white_svg__b" fill="#fff"><use xlink:href="#send-white_svg__a"></use></mask><g mask="url(#send-white_svg__b)"><path transform="translate(1.333 2)" d="M0 4.71 6.67 6l1.67 6.67L12.67 0 0 4.71Z" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path><path transform="translate(8.003 6.117)" d="M0 1.89 1.89 0" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path></g></g></svg>
                     </div>
-                    <div class="button_icon-button-text__k3vob">等待连接</div>
+                    <div class="button_icon-button-text__k3vob">等待登录</div>
                 </button>
             </div>
         </div>
@@ -56,20 +59,19 @@
     const inputField = $("#input-field");
     const sendBtn = $("#send-btn"), sendBtnText = $(".button_icon-button-text__k3vob");
     const chatContent = $("#chat-content");
+    // 用户名
+    const chatTitle = $(".window-header-main-title");
 
     // 从 global.user.photo 中取出用户头像 thymeleaf 传入的值
-    const user = [[${global.user}]];
+    const isLogin = [[${global.isLogin}]], user = [[${global.user}]];
 
     // 页面加载完成后，执行 initWs
     $(function () {
-        if (user) {
+        if (isLogin) {
             initWs();
         } else {
             console.log("请先登录");
-            // 提醒用户登录
-            toastr.warning("请先登录");
         }
-
     });
 
     function initWs() {
@@ -79,8 +81,12 @@
             // 建立连接
             console.log("ws连接成功");
             inputField.removeAttr("disabled");
+            // 改变 inputField 的 placeholder
+            inputField.attr("placeholder", "可按回车发送");
             sendBtnText.text("发送");
             sendBtn.removeAttr("disabled");
+            // 改变 chatTitle 的内容
+            chatTitle.text(user.userName);
         }
 
         ws.onmessage = function (message) {
