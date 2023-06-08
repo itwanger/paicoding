@@ -14,10 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 基础的websocket实现通讯的方式
+ *
  * @author YiHui
  * @date 2023/6/5
  */
-public class ChatgptHandler extends TextWebSocketHandler {
+public class SimpleChatgptHandler extends TextWebSocketHandler {
 
     // 返回 TextMessage
     private TextMessage getTextMessage(String msg, Integer type) throws JsonProcessingException {
