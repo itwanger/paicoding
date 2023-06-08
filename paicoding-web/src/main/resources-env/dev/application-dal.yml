@@ -1,8 +1,8 @@
 spring:
   datasource: #单数据源
-    url: jdbc:mysql://127.0.0.1:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password: a18736781957
+    password:
   dynamic: # 动态数据源
 #    primary: master # 这个表示默认的数据源
     datasource:
@@ -10,12 +10,12 @@ spring:
         # 数据库名，从配置 database.name 中获取
         url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
-        password: a18736781957
+        password:
       slave:
         # 数据库名，从配置 database.name 中获取
         url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
-        username: root
-        password: a18736781957
+        username: readonly
+        password:
   redis:
     host: localhost
     port: 6379
@@ -24,7 +24,7 @@ spring:
 # elasticsearch配置
 elasticsearch:
   # 是否开启ES？本地启动如果没有安装ES，可以设置为false关闭ES
-  open: false
+  open: true
   # es集群名称
   clusterName: elasticsearch
   hosts: 127.0.0.1:9200
