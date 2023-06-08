@@ -36,10 +36,10 @@
             <if test="columnId != null and columnId != -1">
                 and c.column_id = #{columnId}
             </if>
-            <if test="articleName != null and articleName != ''">
-                and a.title like concat('%', #{articleName}, '%')
+            <if test="articleTitle != null and articleTitle != ''">
+                and a.short_title like concat('%', #{articleTitle}, '%')
             </if>
-        order by c.section desc
+        order by c.update_time desc, c.section asc
         <include refid="limit"/>
     </select>
 
@@ -52,8 +52,8 @@
             <if test="columnId != null and columnId != -1">
                 and c.column_id = #{columnId}
             </if>
-            <if test="articleName != null and articleName != ''">
-                and a.title like concat('%', #{articleName}, '%')
+            <if test="articleTitle != null and articleTitle != ''">
+                and a.short_title like concat('%', #{articleTitle}, '%')
             </if>
     </select>
 </mapper>

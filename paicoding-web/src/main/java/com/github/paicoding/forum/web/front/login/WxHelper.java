@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.MapUtils;
+import com.github.paicoding.forum.service.chatgpt.service.ChatgptService;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author YiHui
@@ -44,6 +48,9 @@ public class WxHelper {
     private SessionService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
+
+    @Autowired
+    private ChatgptService chatgptService;
 
     private RestTemplate restTemplate;
 
@@ -110,7 +117,14 @@ public class WxHelper {
                     "我从清晨走过，也拥抱夜晚的星辰，人生没有捷径，你我皆平凡，你好，陌生人，一起共勉。\n";
         }
         // 下面是关键词回复
-        else if ("110".equalsIgnoreCase(content)) {
+        else if (chatgptService.inChat(fromUser, content)) {
+            try {
+                textRes = chatgptService.chat(fromUser, content);
+            } catch (Exception e) {
+                log.error("chatgpt 访问异常! content: {}", content, e);
+                textRes = "chatgpt 出了点小状况，请稍后再试!";
+            }
+        } else if ("110".equalsIgnoreCase(content)) {
             textRes = "[机智] [10 本校招/社招必刷八股文] 链接: https://pan.baidu.com/s/1-ElSmMtaHXSl9bj8lChXQA?pwd=iw20 提取码: iw20";
         } else if ("119".equalsIgnoreCase(content) || "高并发".equalsIgnoreCase(content)) {
             textRes = "[机智] [高并发手册] 链接: https://pan.baidu.com/s/15UuFz__trjW2iLGugUiCIw?pwd=wwlm 提取码: wwlm";

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import org.apache.ibatis.annotations.Param;
 
@@ -71,4 +72,7 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
     List<SimpleUserInfoDTO> listSimpleUserInfosByArticleId(@Param("documentId") Long documentId,
                                                            @Param("type") Integer type,
                                                            @Param("size") int size);
+
+
+    UserFootStatisticDTO getFootCount();
 }

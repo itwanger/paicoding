@@ -36,6 +36,7 @@ public enum StatusEnum {
     FORBID_ERROR(100_403_001, "无权限"),
 
     FORBID_ERROR_MIXED(100_403_002, "无权限:%s"),
+    FORBID_NOTLOGIN(100_403_003, "未登录"),
 
     // 全局，数据不存在
     RECORDS_NOT_EXISTS(100_404_001, "记录不存在:%s"),
@@ -53,7 +54,8 @@ public enum StatusEnum {
     COLUMN_NOT_EXISTS(200_404_002, "教程不存在:%s"),
     COLUMN_QUERY_ERROR(200_500_003, "教程查询异常:%s"),
     // 教程文章已存在
-    COLUMN_ARTICLE_EXISTS(200_500_004, "教程文章已存在:%s"),
+    COLUMN_ARTICLE_EXISTS(200_500_004, "专栏教程已存在:%s"),
+    ARTICLE_RELATION_TUTORIAL(200_500_006, "文章已被添加为教程:%s"),
 
     // --------------------------------
 
@@ -66,8 +68,7 @@ public enum StatusEnum {
     // 用户相关异常
     LOGIN_FAILED_MIXED(400_403_001, "登录失败:%s"),
     USER_NOT_EXISTS(400_404_001, "用户不存在:%s"),
-    USER_PWD_ERROR(400_500_002, "用户名or密码错误"),
-    ;
+    USER_PWD_ERROR(400_500_002, "用户名or密码错误");
 
     private int code;
 

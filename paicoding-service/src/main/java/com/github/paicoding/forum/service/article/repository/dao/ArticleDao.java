@@ -13,6 +13,7 @@ import com.github.paicoding.forum.api.model.enums.OfficalStatEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
@@ -47,6 +48,8 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     private ArticleDetailMapper articleDetailMapper;
     @Resource
     private ReadCountMapper readCountMapper;
+    @Resource
+    private ArticleMapper articleMapper;
 
 
     /**
@@ -333,7 +336,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     private LambdaQueryChainWrapper<ArticleDO> buildQuery(SearchArticleParams searchArticleParams) {
         return lambdaQuery()
-                .like(!StringUtils.isEmpty(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
+                .like(StringUtils.isNotBlank(searchArticleParams.getTitle()), ArticleDO::getTitle, searchArticleParams.getTitle())
                 // ID 不为空
                 .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
                 .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
@@ -348,20 +351,17 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      * 文章列表（用于后台）
      *
      */
-    public List<ArticleDO> listArticlesByParams(SearchArticleParams searchArticleParams, PageParam pageParam) {
-        return buildQuery(searchArticleParams)
-                .last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ArticleDO::getId)
-                .list();
+    public List<ArticleAdminDTO> listArticlesByParams(SearchArticleParams params) {
+        return articleMapper.listArticlesByParams(params,
+                PageParam.newPageInstance(params.getPageNum(), params.getPageSize()));
     }
 
     /**
      * 文章总数（用于后台）
      *
      */
-    public Integer countArticleByParams(SearchArticleParams searchArticleParams) {
-        return buildQuery(searchArticleParams)
-                .count().intValue();
+    public Long countArticleByParams(SearchArticleParams searchArticleParams) {
+        return articleMapper.countArticlesByParams(searchArticleParams);
     }
 
     /**
@@ -369,10 +369,10 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      *
      * @return
      */
-    public Integer countArticle() {
+    public Long countArticle() {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count().intValue();
+                .count();
     }
 
     public List<ArticleDO> selectByIds(List<Integer> ids) {

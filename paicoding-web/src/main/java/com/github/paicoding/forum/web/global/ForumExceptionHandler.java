@@ -14,6 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -67,6 +68,8 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
     private Status buildToastMsg(Exception ex) {
         if (ex instanceof ForumException) {
             return ((ForumException) ex).getStatus();
+        } else if (ex instanceof AsyncRequestTimeoutException) {
+            return Status.newStatus(StatusEnum.UNEXPECT_ERROR, "超时未登录");
         } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
             return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {

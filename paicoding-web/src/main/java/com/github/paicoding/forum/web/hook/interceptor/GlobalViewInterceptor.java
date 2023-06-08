@@ -52,7 +52,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                         || handlerMethod.getMethod().getDeclaringClass().getAnnotation(RestController.class) != null) {
                     // 访问需要登录的rest接口
                     response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-                    response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "未登录")));
+                    response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_NOTLOGIN)));
                     response.getWriter().flush();
                     return false;
                 } else if (request.getRequestURI().startsWith("/api/admin/") || request.getRequestURI().startsWith("/admin/")){

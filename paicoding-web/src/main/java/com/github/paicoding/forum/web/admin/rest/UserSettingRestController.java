@@ -1,11 +1,12 @@
 package com.github.paicoding.forum.web.admin.rest;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.user.service.UserService;
-import com.github.paicoding.forum.service.user.service.UserSettingService;
 import com.github.paicoding.forum.web.front.search.vo.SearchUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +31,6 @@ import java.util.List;
 public class UserSettingRestController {
 
     @Autowired
-    private UserSettingService userSettingService;
-
-    @Autowired
     private UserService userService;
 
     @ApiOperation("用户搜索")
@@ -43,5 +41,12 @@ public class UserSettingRestController {
         vo.setKey(key);
         vo.setItems(list);
         return ResVo.ok(vo);
+    }
+
+    @ApiOperation("获取当前登录用户信息")
+    @GetMapping("info")
+    public ResVo<BaseUserInfoDTO> info() {
+        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
+        return ResVo.ok(user);
     }
 }
