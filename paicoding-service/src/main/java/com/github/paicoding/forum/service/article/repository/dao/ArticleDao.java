@@ -51,6 +51,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
     @Resource
     private ArticleMapper articleMapper;
 
+
     /**
      * 查询文章详情
      *
@@ -372,5 +373,12 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return lambdaQuery()
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .count();
+    }
+
+    public List<ArticleDO> selectByIds(List<Integer> ids) {
+
+        List<ArticleDO> articleDOS = baseMapper.selectBatchIds(ids);
+        return articleDOS;
+
     }
 }
