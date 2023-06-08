@@ -283,8 +283,13 @@
         },
         success: function(response) {
           console.log(response);
-          // 根据返回的响应处理你的逻辑
-          refreshPage();
+          if(response.status.code === 0) {
+            // 登录成功
+            refreshPage();
+          } else {
+            // 登录失败
+            toastr.error(response.status.msg);
+          }
         },
         error: function(error) {
           console.error(error);
