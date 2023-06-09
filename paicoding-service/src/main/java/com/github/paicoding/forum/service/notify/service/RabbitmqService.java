@@ -11,6 +11,8 @@ import java.util.concurrent.TimeoutException;
  */
 public interface RabbitmqService {
 
+    boolean enabled();
+
     /**
      * 发布消息
      *
