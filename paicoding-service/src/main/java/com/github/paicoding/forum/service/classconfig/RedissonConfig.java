@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * redisson 配置类
  *
@@ -19,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
  * @Version: 1.0
  */
 @Configuration
+@Slf4j
 public class RedissonConfig {
 
     @Value("${spring.redis.host}")
@@ -34,7 +37,16 @@ public class RedissonConfig {
     @Bean
     public RedissonClient redisson() throws IOException {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://" + host + ":" + port);
-        return Redisson.create(config);
+        RedissonClient redissonClient = null;
+        try {
+            config.useSingleServer().setAddress("redis://" + host + ":" + port);
+            redissonClient = Redisson.create(config);
+        } catch (Exception e) {
+
+            log.info("Redis 连接异常");
+
+        }
+
+        return redissonClient;
     }
 }
