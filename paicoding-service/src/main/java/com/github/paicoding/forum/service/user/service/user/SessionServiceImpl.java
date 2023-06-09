@@ -81,7 +81,7 @@ public class SessionServiceImpl implements SessionService {
         }
 
         IpInfo ip = user.getIp();
-        if (!Objects.equals(ip.getLatestIp(), clientIp)) {
+        if (clientIp != null && !Objects.equals(ip.getLatestIp(), clientIp)) {
             // ip不同，需要更新
             ip.setLatestIp(clientIp);
             ip.setLatestRegion(IpUtil.getLocationByIp(clientIp).toRegionStr());
