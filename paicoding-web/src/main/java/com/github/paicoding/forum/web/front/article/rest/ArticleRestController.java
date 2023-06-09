@@ -26,6 +26,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.rabbitmq.client.BuiltinExchangeType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeoutException;
  * @author YiHui
  * @date 2022/9/2
  */
+@Slf4j
 @RequestMapping(path = "article/api")
 @RestController
 public class ArticleRestController {
@@ -66,9 +68,6 @@ public class ArticleRestController {
 
     @Autowired
     private RabbitmqService rabbitmqService;
-
-    @Autowired
-    private RabbitmqProperties rabbitmqProperties;
 
     /**
      * 文章的关联推荐
@@ -144,6 +143,7 @@ public class ArticleRestController {
     @MdcDot(bizCode = "#articleId")
     public ResVo<Boolean> favor(@RequestParam(name = "articleId") Long articleId,
                                 @RequestParam(name = "type") Integer type) throws IOException, TimeoutException {
+        log.info("开始点赞: {}", type);
         OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
         if (operate == OperateTypeEnum.EMPTY) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
@@ -162,7 +162,7 @@ public class ArticleRestController {
         NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
 
         // 点赞消息走 RabbitMQ，其它走 Java 内置消息机制
-        if (notifyType.equals(NotifyTypeEnum.PRAISE) && rabbitmqProperties.getSwitchFlag()) {
+        if (notifyType.equals(NotifyTypeEnum.PRAISE) && rabbitmqService.enabled()) {
             rabbitmqService.publishMsg(
                     CommonConstants.EXCHANGE_NAME_DIRECT,
                     BuiltinExchangeType.DIRECT,
@@ -171,6 +171,7 @@ public class ArticleRestController {
         } else {
             Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
         }
+        log.info("点赞结束: {}", type);
         return ResVo.ok(true);
     }
 
