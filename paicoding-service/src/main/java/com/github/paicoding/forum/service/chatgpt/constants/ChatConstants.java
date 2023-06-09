@@ -1,14 +1,29 @@
 package com.github.paicoding.forum.service.chatgpt.constants;
 
+import com.github.paicoding.forum.api.model.enums.AISourceEnum;
+
 /**
  * @author YiHui
  * @date 2023/6/2
  */
-public class ChatGptConstants {
+public final class ChatConstants {
     /**
      * 记录每个用户的使用次数
      */
-    public static final String USER_RATE_LIMIT_KEY = "chaptGpt.rates";
+    public static String getAiRateKey(AISourceEnum ai) {
+        return "chat.rates." + ai.name().toLowerCase();
+    }
+
+    /**
+     * 聊天历史记录
+     *
+     * @param ai
+     * @param user
+     * @return
+     */
+    public static String getAiHistoryRecordsKey(AISourceEnum ai, String user) {
+        return "chat.history." + ai.name().toLowerCase() + "." + user;
+    }
 
     /**
      * 每个用户的最大使用次数
