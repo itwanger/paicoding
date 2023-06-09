@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -65,8 +66,11 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Autowired
     private RedisLuaUtil redisLuaUtil;
 
-    @Autowired
+    @Autowired(required = false)
     private RedissonClient redissonClient;
+
+    @Value("${spring.redis.isOpen}")
+    private Boolean openRedis;
 
     /**
      * 在一个项目中，UserFootService 就是内部服务调用
@@ -104,20 +108,23 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     public ArticleDTO queryDetailArticleInfo(Long articleId) {
 
         // TODO ygl:引入Redis缓存
-        String redisCacheKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_CACHE + articleId;
-        String articleStr = RedisClient.getStr(redisCacheKey);
         ArticleDTO article = null;
-        if (!ObjectUtils.isEmpty(articleStr)) {
-            article = JSONUtil.toBean(articleStr, ArticleDTO.class);
-        } else {
-            // TODO ygl:存在缓存击穿问题，引入分布式锁
+        // 兼容是否开启Redis
+        if (openRedis) {
+            String redisCacheKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_CACHE + articleId;
+            String articleStr = RedisClient.getStr(redisCacheKey);
+
+            if (!ObjectUtils.isEmpty(articleStr)) {
+                article = JSONUtil.toBean(articleStr, ArticleDTO.class);
+            } else {
+                // TODO ygl:存在缓存击穿问题，引入分布式锁
 
             /*
             第一种方式：
             缺点：不加finally去del锁，那么会出现该线程执行完之后在不过期时间内一直持有该锁不释放，
             在这过程内导致其他线程无法再次获取锁
             */
-            article = this.checkArticleByDBOne(articleId);
+                // article = this.checkArticleByDBOne(articleId);
 
             /*
             第二种方式：
@@ -125,7 +132,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             即使在执行finally之前宕机了，那么因为有了过期时间，还是会自动释放
                 缺点：可能会释放别人的锁。
             */
-            // article = this.checkArticleByDBTwo(articleId);
+                // article = this.checkArticleByDBTwo(articleId);
 
             /*
             第三种方式：
@@ -136,19 +143,27 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             设置时间过短，则会业务还未执行完毕则锁自动释放，那么其他线程依旧可以拿到锁，无法很好解决缓存击穿问题
             设置时间过长：如果在执行finally释放锁之前系统宕机了，那么还需要等着到时间后才能自动解锁
             */
-            // article = this.checkArticleByDBThree(articleId);
+                // article = this.checkArticleByDBThree(articleId);
 
             /*
             第四种方式：
                 优点：解决了第三种方式无法设置合适过期时间
             */
-            // article = this.checkArticleByDBFour(articleId);
+                article = this.checkArticleByDBFour(articleId);
 
+            }
+            if (article != null) {
+                RedisClient.setStr(redisCacheKey, JSONUtil.toJsonStr(article));
+            }
+
+        } else {
+            article = articleDao.queryArticleDetail(articleId);
         }
+
         if (article == null) {
             throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
-        RedisClient.setStr(redisCacheKey, JSONUtil.toJsonStr(article));
+
         // 更新分类相关信息
         CategoryDTO category = article.getCategory();
         category.setCategory(categoryService.queryCategoryName(category.getCategoryId()));
@@ -166,11 +181,12 @@ public class ArticleReadServiceImpl implements ArticleReadService {
      */
     private ArticleDTO checkArticleByDBFour(Long articleId) {
 
+        ArticleDTO article = null;
         String redisLockKey =
                 RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
         RLock lock = redissonClient.getLock(redisLockKey);
         //lock.lock();
-        ArticleDTO article = null;
+
         try {
             //尝试加锁,最大等待时间3秒，上锁30秒自动解锁
             if (lock.tryLock(3, 30, TimeUnit.SECONDS)) {

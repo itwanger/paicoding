@@ -11,7 +11,7 @@ spring:
         url: jdbc:mysql://127.0.0.1:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password: a18736781957
-#        type: com.alibaba.druid.pool.DruidDataSource
+        #        type: com.alibaba.druid.pool.DruidDataSource
         #DruidDataSource自有属性
         filters: stat
         initialSize: 0
@@ -29,6 +29,8 @@ spring:
         username: root
         password:
   redis:
+    # 是否开启Redis-默认false(未开启)
+    isOpen: false
     host: localhost
     port: 6379
     password:
