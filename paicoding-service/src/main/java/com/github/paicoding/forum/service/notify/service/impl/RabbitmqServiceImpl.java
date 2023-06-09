@@ -2,10 +2,10 @@ package com.github.paicoding.forum.service.notify.service.impl;
 
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.core.common.CommonConstants;
-import com.github.paicoding.forum.core.config.RabbitmqProperties;
 import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnection;
 import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnectionPool;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.notify.service.RabbitmqService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
@@ -13,21 +13,27 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-@Component
+@Slf4j
+@Service
 public class RabbitmqServiceImpl implements RabbitmqService {
 
     @Autowired
     private NotifyService notifyService;
+
+    @Override
+    public boolean enabled() {
+        return "true".equalsIgnoreCase(SpringUtil.getConfig("rabbitmq.switchFlag"));
+    }
 
     @Override
     public void publishMsg(String exchange,
@@ -44,7 +50,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             channel.exchangeDeclare(exchange, exchangeType, true, false, null);
             // 发布消息
             channel.basicPublish(exchange, toutingKey, null, message.getBytes());
-            System.out.println("Publish msg:" + message);
+            log.info("Publish msg: {}", message);
             channel.close();
             RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
         } catch (InterruptedException | IOException | TimeoutException e) {
@@ -74,7 +80,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
                                            byte[] body) throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println("Consumer msg:" + message);
+                    log.info("Consumer msg: {}", message);
 
                     // 获取Rabbitmq消息，并保存到DB
                     // 说明：这里仅作为示例，如果有多种类型的消息，可以根据消息判定，简单的用 if...else 处理，复杂的用工厂 + 策略模式
@@ -94,16 +100,16 @@ public class RabbitmqServiceImpl implements RabbitmqService {
 
     @Override
     public void processConsumerMsg() {
-        System.out.println("Begin to processConsumerMsg.");
+        log.info("Begin to processConsumerMsg.");
 
         Integer stepTotal = 1;
         Integer step = 0;
 
         // TODO: 这种方式非常 Low，后续会改造成阻塞 I/O 模式
         while (true) {
-            step ++;
+            step++;
             try {
-                System.out.println("processConsumerMsg cycle.");
+                log.info("processConsumerMsg cycle.");
                 consumerMsg(CommonConstants.EXCHANGE_NAME_DIRECT, CommonConstants.QUERE_NAME_PRAISE,
                         CommonConstants.QUERE_KEY_PRAISE);
                 if (step.equals(stepTotal)) {

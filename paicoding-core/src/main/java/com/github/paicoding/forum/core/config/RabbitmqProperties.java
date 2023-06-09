@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
  */
 @Setter
 @Getter
-@Component
 @ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitmqProperties {
 
