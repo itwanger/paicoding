@@ -6,10 +6,16 @@
 }
 
 .chat-sidebar {
-    width: 30%;
-    padding: 10px;
+    padding: 20px;
     overflow-y: auto;
     border-right: 1px solid #ddd;
+    top: 0;
+    width: var(--pai-sidebar-width);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: width .05s ease;
 }
 
 .chat-main {
@@ -98,16 +104,6 @@
     flex-direction: row;
 }
 
-.home_chat-message-container__plj_e {
-    max-width: var(--message-max-width);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.home_chat-message-avatar__611lI {
-    margin-top: 20px;
-}
 
 .home_chat-message-item__hDEOq {
     box-sizing: border-box;
@@ -308,4 +304,76 @@
 
 .home_chat-body-title__5S8w4 {
     cursor: pointer;
+}
+
+.home_sidebar-header__b5asC {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.home_sidebar-title__d8_c_ {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    animation: home_slide-in__gYZA0 .3s ease;
+}
+
+.home_sidebar-sub-title__IS2Or {
+    font-size: 12px;
+    font-weight: 400;
+    animation: home_slide-in__gYZA0 .3s ease;
+    color: var(--pai-color-4-gray);
+}
+
+.home_sidebar-logo__FFdBS {
+    position: absolute;
+    right: 0;
+    bottom: 18px;
+}
+
+.login-guide-list {
+    display: flex;
+    flex-direction: row;
+    flex: 1 0 auto;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    color: #515767;
+    font-size: 14px;
+    line-height: 22px;
+}
+
+.login-guide-list-item {
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.login-guide-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    background-color: var(--pai-brand-7-light);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-guide-icon {
+    color: var(--pai-brand-1-normal);
+    width: 16px;
+    height: 16px;
+}
+
+.login-guide-text {
+    margin-left: 8px;
+    color: var(--pai-color-4-gray);
+}
+
+.chat-sidebar img {
+    width: 100%;
+    object-fit: cover;
 }

@@ -71,6 +71,23 @@ public class LoginRestController {
         }
     }
 
+    /**
+     * 绑定星球账号
+     */
+    @PostMapping("/login/register")
+    public ResVo<Boolean> register(@RequestParam(name = "username") String username,
+                                   @RequestParam(name = "password") String password,
+                                   @RequestParam(name = "starNumber") String starNumber,
+                               HttpServletResponse response) {
+        if (StringUtils.isNotBlank(starNumber)) {
+            // TODO 绑定账号等待审核
+            return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "等待审核");
+        } else {
+            // 直接调用登录，默认用户登录行为
+            return login(username, password, response);
+        }
+    }
+
     @Permission(role = UserRole.LOGIN)
     @RequestMapping("logout")
     public ResVo<Boolean> logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {

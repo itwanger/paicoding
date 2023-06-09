@@ -27,6 +27,12 @@ public class GlobalViewConfig {
 
     private String contactMeWxQrCode;
 
+    private String contactMeStarQrCode;
+
+    private String zsxqUrl;
+
+    private String zsxqPosterUrl;
+
     private String contactMeTitle;
 
     /**
