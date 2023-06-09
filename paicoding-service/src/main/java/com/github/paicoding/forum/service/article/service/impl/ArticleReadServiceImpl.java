@@ -18,15 +18,31 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
+import com.github.paicoding.forum.service.constant.EsFieldConstant;
+import com.github.paicoding.forum.service.constant.EsIndexConstant;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +63,6 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private CategoryService categoryService;
-
     /**
      * 在一个项目中，UserFootService 就是内部服务调用
      * 拆微服务时，这个会作为远程服务访问
@@ -60,6 +75,13 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private UserService userService;
+
+    // 是否开启ES
+    @Value("${elasticsearch.open}")
+    private Boolean openES;
+
+    @Autowired
+    private RestHighLevelClient restHighLevelClient;
 
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
@@ -109,7 +131,8 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 文章的操作标记
         if (readUser != null) {
             // 更新用于足迹，并判断是否点赞、评论、收藏
-            UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getAuthor(), readUser, OperateTypeEnum.READ);
+            UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId,
+                    article.getAuthor(), readUser, OperateTypeEnum.READ);
             article.setPraised(Objects.equals(foot.getPraiseStat(), PraiseStatEnum.PRAISE.getCode()));
             article.setCommented(Objects.equals(foot.getCommentStat(), CommentStatEnum.COMMENT.getCode()));
             article.setCollected(Objects.equals(foot.getCollectionStat(), CollectionStatEnum.COLLECTION.getCode()));
@@ -176,7 +199,36 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             return Collections.emptyList();
         }
         key = key.trim();
-        List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
+        if (!openES) {
+            List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
+            return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
+                    .collect(Collectors.toList());
+        }
+        // TODO ES整合
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery(key,
+                EsFieldConstant.ES_FIELD_TITLE,
+                EsFieldConstant.ES_FIELD_SHORT_TITLE);
+        searchSourceBuilder.query(multiMatchQueryBuilder);
+
+        SearchRequest searchRequest = new SearchRequest(new String[]{EsIndexConstant.ES_INDEX_ARTICLE},
+                searchSourceBuilder);
+        SearchResponse searchResponse = null;
+        try {
+            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] hitsList = hits.getHits();
+        List<Integer> ids = new ArrayList<>();
+        for (SearchHit documentFields : hitsList) {
+            ids.add(Integer.parseInt(documentFields.getId()));
+        }
+        if (ObjectUtils.isEmpty(ids)) {
+            return null;
+        }
+        List<ArticleDO> records = articleDao.selectByIds(ids);
         return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
                 .collect(Collectors.toList());
     }
