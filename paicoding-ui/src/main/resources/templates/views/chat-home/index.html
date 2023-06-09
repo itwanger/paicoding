@@ -135,8 +135,14 @@
     });
 
     function initWs() {
-        // 建立会话
-        ws = new WebSocket("ws://localhost:8080/chatgpt");
+        // 建立会话, 首先判断一下用户是否已经登录
+        const session = getCookie("f-session");
+        if (!session) {
+            // 提醒用户登录
+            toastr.warning("请先登录");
+            return;
+        }
+        ws = new WebSocket("ws://localhost:8080/chatgpt?session=" + session);
         ws.onopen = function () {
             // 建立连接
             console.log("ws连接成功");

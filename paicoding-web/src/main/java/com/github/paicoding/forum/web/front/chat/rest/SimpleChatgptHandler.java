@@ -3,7 +3,9 @@ package com.github.paicoding.forum.web.front.chat.rest;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ChatMsgTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,10 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 基础的websocket实现通讯的方式
+ *
  * @author YiHui
  * @date 2023/6/5
  */
-public class ChatgptHandler extends TextWebSocketHandler {
+@Slf4j
+public class SimpleChatgptHandler extends TextWebSocketHandler {
 
     // 返回 TextMessage
     private TextMessage getTextMessage(String msg, Integer type) throws JsonProcessingException {
@@ -40,8 +45,10 @@ public class ChatgptHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         // 延迟 10 秒
-        Thread.sleep(10000);
-        session.sendMessage(getTextMessage(message.getPayload(), ChatMsgTypeEnum.Payload.getType()));
+        Thread.sleep(1000);
+        TextMessage msg = getTextMessage(message.getPayload(), ChatMsgTypeEnum.Payload.getType());
+        log.info("返回的内容是! {} = {}", ReqInfoContext.getReqInfo().getUserId(), msg);
+        session.sendMessage(msg);
     }
 
     @Override
