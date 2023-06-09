@@ -44,6 +44,8 @@ body {
   --pai-bg-dark-2: #2c3134;
   /*主题色更深一点*/
   --pai-bg-dark-3: #000000;
+    /*讯飞星火的左侧聊天背景色*/
+  --pai-bg-smart-chat: #f5f5f5;
   /*横线的颜色*/
   --pai-hr-color-1: #f0f0f0;
   /*边框颜色*/
@@ -55,6 +57,8 @@ body {
   --color-canvas-default: transparent;
   /*消息的宽度*/
   --message-max-width: 80%;
+  /*左边宽度*/
+  --pai-sidebar-width: 400px;
   /*卡片的阴影*/
   --card-shadow: 0px 2px 4px 0px rgba(0,0,0,.05);
   /*外边距*/
@@ -139,49 +143,47 @@ button:focus {
   display: none;
 }
 
-.auth-body {
-  display: flex;
-}
+/* 登录、注册弹窗 */
 
-#loginModal .modal-dialog {
+.modal .modal-dialog {
   max-width: 600px;
 }
 
-#loginModal .title {
+.modal .title {
   font-size: 0.8rem;
   font-weight: 500;
   margin: 0 0 1rem;
 }
 
-.login-main {
+.login-main, .register-main {
   width: 42rem;
 }
 
-#loginModal .mdnice-user-dialog-footer {
+.modal .mdnice-user-dialog-footer {
   display: flex;
   justify-content: space-between;
   padding: 10px 20px;
   font-size: 0.8rem;
 }
 
-#loginModal .modal-footer {
+.modal .modal-footer {
   justify-content: center;
 }
 
-#loginModal a {
+.modal a:not([href]) {
   color: var(--pai-brand-1-normal);
   cursor: pointer;
 }
 
-#loginModal a:hover {
+.modal a:not([href]):hover {
   color: var(--pai-brand-2-hover);
 }
 
-#loginModal .mdnice-user-dialog-footer p {
+.modal .mdnice-user-dialog-footer p {
   margin: 0;
 }
 
-#loginModal .close {
+.modal .close {
   z-index: 10;
   padding: 0;
   color: rgba(0, 0, 0, 0.45);
@@ -195,7 +197,7 @@ button:focus {
   transition: color 0.3s;
 }
 
-#loginModal .close span {
+.modal .close span {
   display: block;
   width: 54px;
   height: 54px;
@@ -205,11 +207,11 @@ button:focus {
   text-rendering: auto;
 }
 
-#loginModal .modal-content {
+.modal .modal-content {
   border-radius: 8px;
 }
 
-#loginModal .modal-content h2 {
+.modal .modal-content h2 {
   text-align: center;
   margin-bottom: 10px;
 }
@@ -221,6 +223,10 @@ button:focus {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+}
+
+.auth-body {
+  display: flex;
 }
 
 .oauth-box, .oauth {
@@ -243,7 +249,7 @@ button:focus {
 }
 
 
-#loginModal .modal-content .modal-body .tabpane-container {
+.modal .modal-content .modal-body .tabpane-container {
   border-left: 1px solid var(--pai-border-color-1);
   margin-left: 2rem;
   display: flex;
@@ -252,27 +258,27 @@ button:focus {
   width: 80%;
 }
 
-#loginModal input, #loginModal input::placeholder {
+.modal input, .modal input::placeholder {
   font-size: 0.8rem;
 }
 
-#loginModal .first {
+.modal .first {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-#loginModal .first .signin-qrcode {
+.modal .first .signin-qrcode {
   width: 116px;
 }
 
-#loginModal .explain {
+.modal .explain {
   text-align: center;
   font-size: 12px;
 }
 
-#loginModal #code {
+.modal #code {
   color: var(--pai-brand-6-mq);
   font-size: 20px;
 }

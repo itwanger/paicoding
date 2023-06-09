@@ -198,9 +198,9 @@
                     </div>
                   </div>
                 </div>
-                <span class="clickable">
-                  验证码登录
-                </span>
+                <a class="clickable" data-toggle="modal" data-target="#registerModal" data-dismiss="modal">
+                绑定星球，畅享VIP服务
+                </a>
               </div>
             </div>
             <div class="tabpane-container">
@@ -254,10 +254,59 @@
           </div>
 
         </div>
-        <div id="testOutput"></div>
       </div>
     </div>
   </div>
+
+  <!-- 绑定星球用户 -->
+  <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">绑定星球，畅享VIP服务</h6>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-body">
+            <div class="register-main">
+              <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
+              <div class="panel">
+                <h1 class="title">如果已经绑定星球，编号可不填直接登录</h1>
+                <form id="register-form">
+                  <div class="form-group">
+                    <input type="text" placeholder="请输入星球编号" class="form-control form-control-sm" id="starNumber" autocomplete="off">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" placeholder="请输入你喜欢用户名，最好和星球吻合" class="form-control form-control-sm" id="registerUsername" required autocomplete="off">
+                  </div>
+                  <div class="form-group">
+                    <input type="password" placeholder="请输入密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
+                  </div>
+                  <!-- 绑定过会直接登录 -->
+                  <button type="submit" class="btn btn-primary btn-block btn-sm">绑定/登录</button>
+                </form>
+              </div>
+            </div>
+            <div class="tabpane-container">
+            <h2 class="title">务必添加二哥微信，备注 星球</h2>
+            <div class="first">
+              <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
+            </div>
+
+            <div class="explain">
+              <bold>有我微信的可直接滴滴我</bold>
+              <code>qing_gee</code>
+              <div>我会根据星球编号和用户名进行审核</div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script
           src="/js/mock.js"
           th:if="${!#strings.equals(global.env, 'prod')}"
@@ -267,6 +316,7 @@
     let autoRefresh;
     const stateTag = $('#state'), codeTag = $('#code');
 
+    // 登录
     $("#login-form").on("submit", function(event) {
       event.preventDefault();
 
@@ -278,6 +328,40 @@
         url: "/login/username",
         type: "POST",
         data: {
+          username: username,
+          password: password
+        },
+        success: function(response) {
+          console.log(response);
+          if(response.status.code === 0) {
+            // 登录成功
+            refreshPage();
+          } else {
+            // 登录失败
+            toastr.error(response.status.msg);
+          }
+        },
+        error: function(error) {
+          console.error(error);
+          // 出现错误时如何处理
+        }
+      });
+    });
+
+    // 绑定星球
+    $("#register-form").on("submit", function(event) {
+      event.preventDefault();
+
+      // 获取用户名和密码，没有定义 ID
+      const starNumber = $("#starNumber").val();
+      const username = $("#registerUsername").val();
+      const password = $("#registerPassword").val();
+
+      $.ajax({
+        url: "/login/register",
+        type: "POST",
+        data: {
+          starNumber: starNumber,
           username: username,
           password: password
         },
