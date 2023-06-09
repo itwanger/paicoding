@@ -1,11 +1,12 @@
-package com.github.paicoding.forum.service.chatgpt.service;
+package com.github.paicoding.forum.service.chatgpt.service.impl;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.enums.AISourceEnum;
 import com.github.paicoding.forum.core.ai.ChatGptHelper;
 import com.github.paicoding.forum.core.ai.ChatRecord;
 import com.github.paicoding.forum.core.cache.RedisClient;
-import com.github.paicoding.forum.service.chatgpt.constants.ChatGptConstants;
+import com.github.paicoding.forum.service.chatgpt.constants.ChatConstants;
+import com.github.paicoding.forum.service.chatgpt.service.ChatgptService;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.google.common.cache.CacheBuilder;
@@ -44,15 +45,15 @@ public class ChatgptServiceImpl implements ChatgptService {
             });
 
     private boolean rateLimit(Long userId) {
-        Integer cnt = RedisClient.hGet(ChatGptConstants.USER_RATE_LIMIT_KEY, String.valueOf(userId), Integer.class);
+        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKey(AISourceEnum.CHAT_GPT), String.valueOf(userId), Integer.class);
         if (cnt == null) {
             cnt = 0;
         }
-        return cnt < ChatGptConstants.MAX_CHATGPT_QAS_CNT;
+        return cnt < ChatConstants.MAX_CHATGPT_QAS_CNT;
     }
 
     private Long incrCnt(Long userId) {
-        return RedisClient.hIncr(ChatGptConstants.USER_RATE_LIMIT_KEY, String.valueOf(userId), 1);
+        return RedisClient.hIncr(ChatConstants.getAiRateKey(AISourceEnum.CHAT_GPT), String.valueOf(userId), 1);
     }
 
     @Autowired
@@ -82,11 +83,11 @@ public class ChatgptServiceImpl implements ChatgptService {
             // 开始会话
             UserDO user = userService.getWxUser(wxUuid);
             if (user == null) {
-                return ChatGptConstants.CHAT_REPLY_RECOMMEND;
+                return ChatConstants.CHAT_REPLY_RECOMMEND;
             }
 
             chatCache.put(user.getId(), new ChatRecord());
-            return ChatGptConstants.CHAT_REPLY_BEGIN;
+            return ChatConstants.CHAT_REPLY_BEGIN;
         }
 
         // 正常对话
@@ -95,24 +96,24 @@ public class ChatgptServiceImpl implements ChatgptService {
             // 结束会话
             chatCache.invalidate(userId);
             chatCache.cleanUp();
-            return ChatGptConstants.CHAT_REPLY_OVER;
+            return ChatConstants.CHAT_REPLY_OVER;
         }
 
         if (!rateLimit(userId)) {
             // 次数已经用完了，直接返回
             chatCache.cleanUp();
-            return ChatGptConstants.CHAT_REPLY_CNT_OVER;
+            return ChatConstants.CHAT_REPLY_CNT_OVER;
         }
 
         // 判断用户的上一次访问结果有没有正确返回，如果没有，那么这一次的交互不响应，直接返回上一次的返回结果；
         ChatRecord chatRecord = chatCache.getUnchecked(userId);
-        if (System.currentTimeMillis() - chatRecord.getQasTime() < ChatGptConstants.QAS_TIME_INTERVAL) {
+        if (System.currentTimeMillis() - chatRecord.getQasTime() < ChatConstants.QAS_TIME_INTERVAL) {
             // 限制交互频率
             if (chatRecord.canReply()) {
                 // 上次没有回复时；如果现在有结论了，那就回复一下
                 return chatRecord.reply();
             } else {
-                return ChatGptConstants.CHAT_REPLY_QAS_TOO_FAST;
+                return ChatConstants.CHAT_REPLY_QAS_TOO_FAST;
             }
         }
 
@@ -125,14 +126,14 @@ public class ChatgptServiceImpl implements ChatgptService {
                 return chatRecord.reply();
             } else {
                 // 只有超时没拿到结果的场景，会走这里
-                return ChatGptConstants.CHAT_REPLY_TIME_WAITING;
+                return ChatConstants.CHAT_REPLY_TIME_WAITING;
             }
         } else if (chatRecord.canReply()) {
             // 判断上次的结果是否已经获取到了
             return chatRecord.reply();
         } else {
             // 结果还没有拿到，继续等待
-            return ChatGptConstants.CHAT_REPLY_TIME_WAITING;
+            return ChatConstants.CHAT_REPLY_TIME_WAITING;
         }
     }
 

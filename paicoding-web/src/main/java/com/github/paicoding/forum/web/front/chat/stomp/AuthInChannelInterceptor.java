@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.web.front.chat.stomp;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.messaging.Message;
@@ -53,19 +56,27 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        log.debug("postSend!");
+        final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (StringUtils.equalsIgnoreCase(String.valueOf(message.getHeaders().get("simpMessageType")), "SUBSCRIBE")
+                && accessor != null && accessor.getUser() != null) {
+            // 订阅成功，返回用户历史聊天记录
+            ReqInfoContext.addReqInfo((ReqInfoContext.ReqInfo) accessor.getUser());
+            SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName());
+            ReqInfoContext.clear();
+            return;
+        }
         ChannelInterceptor.super.postSend(message, channel, sent);
     }
 
     @Override
     public boolean preReceive(MessageChannel channel) {
-        log.debug("preReceive!");
+        log.info("preReceive!");
         return ChannelInterceptor.super.preReceive(channel);
     }
 
     @Override
     public Message<?> postReceive(Message<?> message, MessageChannel channel) {
-        log.debug("postReceive");
+        log.info("postReceive");
         return ChannelInterceptor.super.postReceive(message, channel);
     }
 }
