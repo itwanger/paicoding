@@ -16,6 +16,11 @@ public class RedisConstant {
     public static final String REDIS_PAI = "pai";
 
     /**
+     * article前缀默认
+     */
+    public static final String REDIS_PAI_DEFAULT= "pai_";
+
+    /**
      * article前缀
      */
     public static final String REDIS_PRE_ARTICLE = ":article:";
