@@ -154,11 +154,11 @@
             <version>4.0.5</version>
         </dependency>
 
-        <!--        &lt;!&ndash; 引入xxl_job定时任务 &ndash;&gt;-->
+        <!-- 引入xxl_job定时任务 -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.0</version>
         </dependency>
 
     </dependencies>
