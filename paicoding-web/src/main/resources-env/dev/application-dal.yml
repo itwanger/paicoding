@@ -57,6 +57,14 @@ elasticsearch:
   # es 每个路由的最大连接数
   maxConnectNumPerRoute: 100
 
+# canal配置
+canal:
+  # canal的地址
+  server: 127.0.0.1:11111
+  # 默认的数据同步的目的地
+  destination: example
+  username: canal
+  password: canal
 
 
 
