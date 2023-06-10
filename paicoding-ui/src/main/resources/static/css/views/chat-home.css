@@ -377,3 +377,19 @@
     width: 100%;
     object-fit: cover;
 }
+
+.chat_split_hr {
+    height:0;
+    border-top:1px solid #888686;
+    text-align:center;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.chat_split_txt {
+    position:relative;
+    top:-14px;
+    color: #888686;
+    font-size: 0.8em;
+    background-color:#fff;
+}

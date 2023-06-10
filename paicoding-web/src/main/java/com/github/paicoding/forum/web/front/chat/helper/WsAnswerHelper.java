@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.web.front.chat.helper;
 
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
-import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.service.chatgpt.ChatFacade;
 import lombok.extern.slf4j.Slf4j;
@@ -23,29 +22,23 @@ public class WsAnswerHelper {
     private ChatFacade chatFacade;
 
     public void sendMsgToUser(String session, String question) {
-        ChatRecordsVo vo = chatFacade.chat(AISourceEnum.PAI_AI, question);
+        // 模拟问答： 50%的问答直接回复，50%的问答异步返回
+        ChatRecordsVo vo = Math.random() > 0.5f
+                ? chatFacade.chat(AISourceEnum.PAI_AI, question)
+                : chatFacade.asyncChat(AISourceEnum.PAI_AI, question, (res) -> {
+            simpMessagingTemplate.convertAndSendToUser(session, "/chat/rsp", res);
+        });
 
         // convertAndSendToUser 方法可以发送信给给指定用户,
         // 底层会自动将第二个参数目的地址 /chat/rsp 拼接为
         // /user/username/chat/rsp，其中第二个参数 username 即为这里的第一个参数 session
         // username 也是AuthHandshakeHandler中配置的 Principal 用户识别标志
         simpMessagingTemplate.convertAndSendToUser(session, "/chat/rsp", vo);
-        log.info("结果已返回!");
+        log.info("同步直接回复：{}", vo);
     }
-
-    public void sendMsgToUser(String session, ChatItemVo chat) {
-        // convertAndSendToUser 方法可以发送信给给指定用户,
-        // 底层会自动将第二个参数目的地址 /chat/rsp 拼接为
-        // /user/username/chat/rsp，其中第二个参数 username 即为这里的第一个参数 session
-        // username 也是AuthHandshakeHandler中配置的 Principal 用户识别标志
-        simpMessagingTemplate.convertAndSendToUser(session, "/chat/rsp", chat);
-        log.info("结果已返回!");
-    }
-
 
     public void sendMsgHistoryToUser(String session) {
         ChatRecordsVo vo = chatFacade.history(AISourceEnum.PAI_AI);
         simpMessagingTemplate.convertAndSendToUser(session, "/chat/rsp", vo);
-        log.info("聊天历史已经返回");
     }
 }

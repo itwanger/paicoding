@@ -11,8 +11,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * STOMP协议的ChatGpt聊天通讯实现方式
@@ -23,7 +21,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 @RestController
 public class ChatRestController {
-    private ExecutorService executorService = Executors.newFixedThreadPool(5);
     @Autowired
     private WsAnswerHelper answerHelper;
 

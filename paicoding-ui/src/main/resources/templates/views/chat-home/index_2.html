@@ -25,8 +25,9 @@
                     <div class="window-header-main-title home_chat-body-title__5S8w4"
                          th:data-target="${global.isLogin ? '' : '#loginModal'}"
                          th:data-toggle="${global.isLogin ? '' : 'modal'}"
-                    >点击登录</div>
-                    <div class="window-header-sub-title">与派聪明的 0 条对话</div>
+                    >点击登录
+                    </div>
+                    <div class="window-header-sub-title">与派聪明的<span id="chatCnt" style="color: blue"> 0 </span>条对话</div>
                 </div>
             </div>
             <div class="chat-display">
@@ -37,10 +38,27 @@
             </div>
 
             <div class="chat-input">
-                <textarea id="input-field" class="form-control" rows="3" placeholder="你好，我是派聪明，快登录和我对线吧" disabled></textarea>
+                <textarea id="input-field" class="form-control" rows="3" placeholder="你好，我是派聪明，快登录和我对线吧"
+                          disabled></textarea>
                 <button id="send-btn" disabled>
                     <div class="button_icon-button-icon__qlUH3 no-dark">
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" fill="none"><defs><path id="send-white_svg__a" d="M0 0h16v16H0z"></path></defs><g><mask id="send-white_svg__b" fill="#fff"><use xlink:href="#send-white_svg__a"></use></mask><g mask="url(#send-white_svg__b)"><path transform="translate(1.333 2)" d="M0 4.71 6.67 6l1.67 6.67L12.67 0 0 4.71Z" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path><path transform="translate(8.003 6.117)" d="M0 1.89 1.89 0" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path></g></g></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16"
+                             height="16" fill="none">
+                            <defs>
+                                <path id="send-white_svg__a" d="M0 0h16v16H0z"></path>
+                            </defs>
+                            <g>
+                                <mask id="send-white_svg__b" fill="#fff">
+                                    <use xlink:href="#send-white_svg__a"></use>
+                                </mask>
+                                <g mask="url(#send-white_svg__b)">
+                                    <path transform="translate(1.333 2)" d="M0 4.71 6.67 6l1.67 6.67L12.67 0 0 4.71Z"
+                                          style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path>
+                                    <path transform="translate(8.003 6.117)" d="M0 1.89 1.89 0"
+                                          style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path>
+                                </g>
+                            </g>
+                        </svg>
                     </div>
                     <div class="button_icon-button-text__k3vob">等待登录</div>
                 </button>
@@ -80,6 +98,7 @@
     }
 
     var stompClient = null;
+
     function initWs() {
         let socket = new WebSocket(`ws://127.0.0.1:8080/gpt/${session}`);
         // let socket = new SockJS(`/gpt/${session}`);
@@ -100,19 +119,33 @@
                 // 表示这个长连接，订阅了 "/chat/rsp" , 这样后端像这个路径转发消息时，我们就可以拿到对应的返回
                 // 解析 JSON 字符串
                 console.log("rsp:", message);
-                let data = JSON.parse(message.body);
-                data = data.records[0];
-                const msg = data.answer;
-                const answerTime = data.answerTime;
+                let res = JSON.parse(message.body);
+                const data = res.records;
+
+                // 记录聊天次数
+                $("#chatCnt").html(` ${res.usedCnt}/${res.maxCnt} `)
 
                 // 打印到控制台
-                console.log("接受消息: " + msg);
-                console.log("接收时间: " + answerTime);
+                console.log("接受消息: " + data);
 
                 // 把 home_chat-message-actions__loading 的元素移除，不再显示 loading
                 $(".home_chat-message-actions__loading").remove();
 
-                appendServerMessage(msg, answerTime);
+                if (data.length > 1) {
+                    // 返回历史全部信息
+                    chatContent.html('');
+                    for (let i = data.length - 1; i >= 0; i--) {
+                        if (data[i].question) {
+                            addClientMsg(data[i].question);
+                            $(".home_chat-message-actions__loading").remove();
+                        } else {
+                            addSplit();
+                        }
+                        appendServerMessage(data[i].answer, data[i].answerTime)
+                    }
+                } else {
+                    appendServerMessage(data[0].answer, data[0].answerTime);
+                }
                 // 添加完消息后，恢复按钮的状态
                 sendBtn.removeAttr("disabled");
             });
@@ -180,19 +213,19 @@
         const copyBtn = chatMessage.find(".home_chat-message-top-action__wXKmA").get(0);
 
         const clipboard = new ClipboardJS(copyBtn, {
-            text: function(trigger) {
+            text: function (trigger) {
                 let copyInput = chatMessage.find('.markdown-body').get(0);
                 return copyInput.innerText;
             }
         });
 
-        clipboard.on('success', function(e) {
+        clipboard.on('success', function (e) {
             // 复制成功
             toastr.info("复制成功");
             e.clearSelection();
         });
 
-        clipboard.on('error', function(e) {
+        clipboard.on('error', function (e) {
             console.log('复制失败');
         });
     }
@@ -228,6 +261,13 @@
             `;
 
 
+        chatContent.append(userMsg);
+        // 添加完后滚动到底部
+        scrollToBottom();
+    }
+
+    function addSplit() {
+        let userMsg = `<div class="chat_split_hr"><span class="chat_split_txt">&nbsp;&nbsp;历史聊天分割线&nbsp;&nbsp;</span></div>`;
         chatContent.append(userMsg);
         // 添加完后滚动到底部
         scrollToBottom();

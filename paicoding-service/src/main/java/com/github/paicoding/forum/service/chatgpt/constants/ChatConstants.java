@@ -31,6 +31,11 @@ public final class ChatConstants {
     public static final int MAX_CHATGPT_QAS_CNT = 50;
 
     /**
+     * 最多保存的历史聊天记录
+     */
+    public static final int MAX_HISTORY_RECORD_ITEMS = 500;
+
+    /**
      * 两次提问的间隔时间，要求20s
      */
     public static final long QAS_TIME_INTERVAL = 20_000;
