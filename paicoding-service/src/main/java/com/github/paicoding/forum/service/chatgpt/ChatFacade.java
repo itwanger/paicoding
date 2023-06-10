@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * 聊天的门面类
@@ -36,6 +37,17 @@ public class ChatFacade {
      */
     public ChatRecordsVo chat(AISourceEnum source, String question) {
         return chatServiceMap.get(source).chat(String.valueOf(ReqInfoContext.getReqInfo().getUserId()), question);
+    }
+
+    /**
+     * 异步聊天的方式
+     *
+     * @param source
+     * @param question
+     */
+    public ChatRecordsVo asyncChat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
+        return chatServiceMap.get(source)
+                .asyncChat(String.valueOf(ReqInfoContext.getReqInfo().getUserId()), question, callback);
     }
 
 

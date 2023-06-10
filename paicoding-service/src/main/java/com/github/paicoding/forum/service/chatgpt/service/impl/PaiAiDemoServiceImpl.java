@@ -18,7 +18,7 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
     }
 
     @Override
-    public boolean answer(String user, ChatItemVo chat) {
+    public boolean doAnswer(String user, ChatItemVo chat) {
         String ans = chat.getQuestion().replace("吗", "");
         ans = StringUtils.replace(ans, "？", "!");
         ans = StringUtils.replace(ans, "?", "!");

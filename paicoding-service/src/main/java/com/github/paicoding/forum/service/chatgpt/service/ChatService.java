@@ -3,6 +3,8 @@ package com.github.paicoding.forum.service.chatgpt.service;
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 
+import java.util.function.Consumer;
+
 /**
  * @author YiHui
  * @date 2023/6/9
@@ -24,6 +26,16 @@ public interface ChatService {
      * @return chatgpt返回的结果
      */
     ChatRecordsVo chat(String user, String question);
+
+    /**
+     * 异步聊天
+     *
+     * @param user
+     * @param question
+     * @param consumer 执行成功之后，直接异步回调的通知
+     * @return 同步直接返回的结果
+     */
+    ChatRecordsVo asyncChat(String user, String question, Consumer<ChatRecordsVo> consumer);
 
 
     /**
