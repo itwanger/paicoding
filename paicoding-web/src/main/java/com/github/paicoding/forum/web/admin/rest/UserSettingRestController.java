@@ -43,6 +43,7 @@ public class UserSettingRestController {
         return ResVo.ok(vo);
     }
 
+    @Permission(role = UserRole.LOGIN)
     @ApiOperation("获取当前登录用户信息")
     @GetMapping("info")
     public ResVo<BaseUserInfoDTO> info() {
