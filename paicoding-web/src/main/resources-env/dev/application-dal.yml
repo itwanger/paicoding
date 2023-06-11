@@ -63,8 +63,6 @@ canal:
   server: 127.0.0.1:11111
   # 默认的数据同步的目的地
   destination: example
-  username: canal
-  password: canal
 
 
 
