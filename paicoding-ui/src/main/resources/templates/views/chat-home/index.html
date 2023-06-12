@@ -245,6 +245,12 @@
         scrollToBottom();
     }
 
+    function addSplit() {
+        let userMsg = `<div class="chat_split_hr"><span class="chat_split_txt">&nbsp;&nbsp;历史聊天分割线&nbsp;&nbsp;</span></div>`;
+        chatContent.append(userMsg);
+        // 添加完后滚动到底部
+        scrollToBottom();
+    }
 
     // 滚动到底部
     function scrollToBottom() {

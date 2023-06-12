@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.core.ai;
+package com.github.paicoding.forum.core.net;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

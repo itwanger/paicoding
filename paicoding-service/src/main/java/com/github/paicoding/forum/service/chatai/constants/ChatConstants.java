@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.chatgpt.constants;
+package com.github.paicoding.forum.service.chatai.constants;
 
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
 
@@ -49,4 +49,12 @@ public final class ChatConstants {
 
     public static final String CHAT_REPLY_TIME_WAITING = "chatgpt还在努力回答中，请等待几秒之后再问一次吧....";
     public static final String CHAT_REPLY_QAS_TOO_FAST = "提问太频繁了，喝一杯咖啡，暂缓一下...";
+
+
+    public static final String TOKEN_OVER = "您的免费次数已经使用完毕了!";
+
+    /**
+     * 异步聊天时返回得提示文案
+     */
+    public static final String ASYNC_CHAT_TIP = "小派正在努力回答中, 耐心等待一下吧...";
 }

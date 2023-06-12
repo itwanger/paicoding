@@ -1,5 +1,7 @@
-package com.github.paicoding.forum.core.ai;
+package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
+import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.core.net.ProxyCenter;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -26,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class ChatGptHelper {
+public class ChatGptIntegration {
 
     @Value("${chatgpt.key}")
     private String key;
@@ -87,6 +89,28 @@ public class ChatGptHelper {
         return JsonUtil.toStr(response);
     }
 
+    public boolean gptReturn(Long routingKey, ChatItemVo chat) {
+        ChatGPT gpt = getGpt(routingKey);
+        try {
+            ChatCompletion chatCompletion = ChatCompletion.builder()
+                    .model(ChatCompletion.Model.GPT_3_5_TURBO.getName())
+                    .messages(Arrays.asList(Message.of(chat.getQuestion())))
+                    .maxTokens(3000)
+                    .temperature(0.9)
+                    .build();
+            ChatCompletionResponse response = gpt.chatCompletion(chatCompletion);
+            List<ChatChoice> list = response.getChoices();
+            chat.initAnswer(JsonUtil.toStr(list));
+            log.info("chatgpt试用! 传参:{}, 返回:{}", chat, list);
+            return false;
+        } catch (Exception e) {
+            // 对于系统异常，不用继续等待了
+            chat.initAnswer(e.getMessage());
+            log.info("chatgpt执行异常！ key:{}", chat, e);
+            return false;
+        }
+    }
+
     /**
      * 一个基础的chatgpt问答
      *
@@ -94,7 +118,7 @@ public class ChatGptHelper {
      * @param record
      * @return
      */
-    public boolean simpleGptReturn(Long routingKey, ChatRecord record) {
+    public boolean gptReturn(Long routingKey, ChatRecord record) {
         ChatGPT gpt = getGpt(routingKey);
         try {
             ChatCompletion chatCompletion = ChatCompletion.builder()

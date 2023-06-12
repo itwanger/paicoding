@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.core.ai;
+package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
 import com.plexpt.chatgpt.entity.chat.ChatChoice;
 import lombok.Data;

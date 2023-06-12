@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.chatgpt.service;
+package com.github.paicoding.forum.service.chatai.service;
 
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
