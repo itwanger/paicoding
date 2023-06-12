@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.core.ai;
+package com.github.paicoding.forum.core.net;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.cache.CacheBuilder;

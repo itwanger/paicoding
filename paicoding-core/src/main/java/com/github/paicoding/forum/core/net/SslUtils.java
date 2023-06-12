@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.core.ai;
+package com.github.paicoding.forum.core.net;
 
 import javax.net.ssl.*;
 import java.security.cert.CertificateException;

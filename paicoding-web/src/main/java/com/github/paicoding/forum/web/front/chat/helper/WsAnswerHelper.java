@@ -2,7 +2,7 @@ package com.github.paicoding.forum.web.front.chat.helper;
 
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
-import com.github.paicoding.forum.service.chatgpt.ChatFacade;
+import com.github.paicoding.forum.service.chatai.ChatFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

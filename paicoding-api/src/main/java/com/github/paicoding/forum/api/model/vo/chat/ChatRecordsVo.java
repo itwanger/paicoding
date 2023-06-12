@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 聊天记录
@@ -44,7 +44,18 @@ public class ChatRecordsVo implements Serializable, Cloneable {
         vo.source = source;
         vo.maxCnt = maxCnt;
         vo.usedCnt = usedCnt;
-        vo.setRecords(new ArrayList<>());
+        if (records != null) {
+            vo.setRecords(records.stream().map(ChatItemVo::clone).collect(Collectors.toList()));
+        }
         return vo;
+    }
+
+    /**
+     * 判断是否拥有提问次数
+     *
+     * @return true 表示拥有提问次数
+     */
+    public boolean hasQaCnt() {
+        return maxCnt > usedCnt;
     }
 }

@@ -5,7 +5,7 @@ import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.core.ai.ChatGptHelper;
+import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
@@ -37,7 +37,7 @@ public class TestController {
     private AtomicInteger cnt = new AtomicInteger(1);
 
     @Autowired
-    private ChatGptHelper chatGptHelper;
+    private ChatGptIntegration chatGptHelper;
 
     @RequestMapping(path = "gptkey")
     public ResVo<String> updateKey(String key, HttpServletRequest request) {

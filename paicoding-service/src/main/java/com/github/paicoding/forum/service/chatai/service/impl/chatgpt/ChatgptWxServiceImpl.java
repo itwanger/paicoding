@@ -1,12 +1,11 @@
-package com.github.paicoding.forum.service.chatgpt.service.impl;
+package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
-import com.github.paicoding.forum.core.ai.ChatGptHelper;
-import com.github.paicoding.forum.core.ai.ChatRecord;
+import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.cache.RedisClient;
-import com.github.paicoding.forum.service.chatgpt.constants.ChatConstants;
-import com.github.paicoding.forum.service.chatgpt.service.ChatgptService;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
+import com.github.paicoding.forum.service.chatai.service.ChatgptService;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.google.common.cache.CacheBuilder;
@@ -18,7 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * chatgpt 服务：
@@ -31,11 +31,9 @@ import java.util.concurrent.*;
  */
 @Slf4j
 @Service
-public class ChatgptServiceImpl implements ChatgptService {
+public class ChatgptWxServiceImpl implements ChatgptService {
     @Autowired
-    private ChatGptHelper chatGptHelper;
-    private ExecutorService tp = Executors.newFixedThreadPool(2);
-
+    private ChatGptIntegration chatGptHelper;
     private LoadingCache<Long, ChatRecord> chatCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(50).build(new CacheLoader<Long, ChatRecord>() {
                 @Override
@@ -45,7 +43,7 @@ public class ChatgptServiceImpl implements ChatgptService {
             });
 
     private boolean rateLimit(Long userId) {
-        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKey(AISourceEnum.CHAT_GPT), String.valueOf(userId), Integer.class);
+        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKey(AISourceEnum.CHAT_GPT_3_5), String.valueOf(userId), Integer.class);
         if (cnt == null) {
             cnt = 0;
         }
@@ -53,7 +51,7 @@ public class ChatgptServiceImpl implements ChatgptService {
     }
 
     private Long incrCnt(Long userId) {
-        return RedisClient.hIncr(ChatConstants.getAiRateKey(AISourceEnum.CHAT_GPT), String.valueOf(userId), 1);
+        return RedisClient.hIncr(ChatConstants.getAiRateKey(AISourceEnum.CHAT_GPT_3_5), String.valueOf(userId), 1);
     }
 
     @Autowired
@@ -155,10 +153,11 @@ public class ChatgptServiceImpl implements ChatgptService {
         newRecord.setQas(content).setLastReturn(false).setQasTime(System.currentTimeMillis());
         currentChat.setNext(newRecord);
         chatCache.put(userId, newRecord);
-        Future<Boolean> ans = tp.submit(() -> chatGptHelper.simpleGptReturn(userId, newRecord));
+
+
         try {
-            ans.get(3500, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException e) {
+            AsyncUtil.callWithTimeLimit(3500, TimeUnit.MILLISECONDS, () -> chatGptHelper.gptReturn(userId, newRecord));
+        } catch (TimeoutException | InterruptedException e) {
             // 超时中断的场景
             newRecord.setLastReturn(false);
         } catch (Exception e) {

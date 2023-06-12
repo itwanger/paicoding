@@ -1,9 +1,9 @@
-package com.github.paicoding.forum.service.chatgpt;
+package com.github.paicoding.forum.service.chatai;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
-import com.github.paicoding.forum.service.chatgpt.service.ChatService;
+import com.github.paicoding.forum.service.chatai.service.ChatService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
