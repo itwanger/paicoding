@@ -1,14 +1,13 @@
 .chat-wrap {
     display: flex;
-    margin: 10px;
-    border: 1px solid #ddd;
+    margin: 20px;
     border-radius: 5px;
+    min-height: 480px;
+    height: var(--window-height);
 }
 
 .chat-sidebar {
-    padding: 20px;
     overflow-y: auto;
-    border-right: 1px solid #ddd;
     top: 0;
     width: var(--pai-sidebar-width);
     box-sizing: border-box;
@@ -18,20 +17,108 @@
     transition: width .05s ease;
 }
 
-.chat-main {
-    width: 70%;
-    padding: 10px;
+.chat-sidebar .uno-buy-card-foot {
+    margin-right: 20px;
 }
 
-.chat-display {
-    height: calc(100vh - 327px);
-    padding: 18px;
-    overflow-y: auto;
+.chat-sidebar .uno-buy-card-wrap {
+    display: flex;
+    background-color: #fff;
+    padding: 20px;
+    align-items: center;
+}
+
+.chat-sidebar .uno-buy-card-wrap .qrcode {
+    width: 200px;
+}
+
+.chat-sidebar .uno-buy-card-foot-prices {
+}
+
+.chat-sidebar .uno-buy-card-foot-tag-list {
+    height: 22px;
+    font-size: 14px;
+    margin-bottom: 8px;
+    white-space: nowrap;
+}
+
+.chat-sidebar .uno-buy-card-foot-tag-type1 {
+    padding: 4px;
+    background: var(--pai-brand-1-normal);
+    color: var(--pai-color-fff-normal);
+    border: none;
+}
+
+.chat-sidebar .uno-buy-card-foot-tag-type3 {
+    padding: 4px;
+    line-height: 20px;
+    background: transparent;
+    color: #6f7a94;
+    border: 1px solid rgba(111,122,148,.5);
+}
+
+.chat-sidebar .uno-buy-card-foot-price-num {
+    color: var(--pai-brand-1-normal);
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.chat-sidebar .uno-buy-card-foot-price-unit {
+    color: var(--pai-brand-5-bak);
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+.chat-sidebar .uno-buy-card-foot-price-average {
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--pai-color-3-gray);
+    margin-right: 8px;
+}
+
+.chat-sidebar .uno-buy-card-foot-price-original {
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--pai-color-3-gray);
+    text-decoration: line-through;
+}
+
+.chat-sidebar .uno-buy-card-foot-price-detail {
     margin-bottom: 10px;
+}
+
+.chat-sidebar .login-guide-wrap {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #fff;
+}
+
+
+.chat-main {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    background-color: #fff;
+    margin-left: 20px;
+}
+
+#chatCnt {
+    color: var(--pai-brand-6-mq);
 }
 
 #chat-content {
     overflow: auto;
+    flex: 1 1;
+    padding: 20px 20px 40px;
+    position: relative;
+    overscroll-behavior: none;
 }
 
 .chat-input {
@@ -308,7 +395,9 @@
 
 .home_sidebar-header__b5asC {
     position: relative;
-    padding-bottom: 20px;
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .home_sidebar-title__d8_c_ {
@@ -319,7 +408,7 @@
 }
 
 .home_sidebar-sub-title__IS2Or {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
     animation: home_slide-in__gYZA0 .3s ease;
     color: var(--pai-color-4-gray);
