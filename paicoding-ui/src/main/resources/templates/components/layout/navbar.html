@@ -120,7 +120,9 @@
                 <div class="nav-user-dropdown-inner nav-user-dropdown::before">
                   <!-- 下落框内容 -->
 <!--  调整为所有用户都可以直接看到管理后台  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"-->
+                  <!-- 本地环境的时候不显示，本地环境的时候通过后端直接启动管理后台 -->
                   <a
+                          th:if="${#strings.equals(global.env, 'prod')}"
                           href="/admin/#/statistics/index"
                           target="_blank"
                           class="dropdown-item"
