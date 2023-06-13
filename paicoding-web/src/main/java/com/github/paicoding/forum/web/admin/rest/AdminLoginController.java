@@ -10,6 +10,7 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -45,7 +45,7 @@ public class AdminLoginController {
      * @param response
      * @return
      */
-    @RequestMapping(path = {"/login"})
+    @RequestMapping(path = {"login"})
     public ResVo<BaseUserInfoDTO> login(HttpServletRequest request,
                                         HttpServletResponse response) {
         String user = request.getParameter("username");
@@ -64,12 +64,18 @@ public class AdminLoginController {
     /**
      * 判断是否有登录
      *
-     * @param request
      * @return
      */
-    @RequestMapping(path = "/isLogined")
-    public ResVo<Boolean> isLogined(HttpServletRequest request) {
+    @RequestMapping(path = "isLogined")
+    public ResVo<Boolean> isLogined() {
         return ResVo.ok(ReqInfoContext.getReqInfo().getUserId() != null);
+    }
+
+    @ApiOperation("获取当前登录用户信息")
+    @GetMapping("info")
+    public ResVo<BaseUserInfoDTO> info() {
+        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
+        return ResVo.ok(user);
     }
 
     /**
@@ -77,11 +83,10 @@ public class AdminLoginController {
      *
      * @param response
      * @return
-     * @throws IOException
      */
     @Permission(role = UserRole.LOGIN)
     @GetMapping("logout")
-    public ResVo<Boolean> logOut(HttpServletResponse response) throws IOException {
+    public ResVo<Boolean> logOut(HttpServletResponse response) {
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
         // 为什么不后端实现重定向？ 重定向交给前端执行，避免由于前后端分离，本地开发时端口不一致导致的问题
         // response.sendRedirect("/");
