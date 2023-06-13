@@ -40,7 +40,7 @@ public class XunFeiIntegration {
     public String hostUrl = "http://spark-api.xf-yun.com/v1.1/chat";
     @Value("${xunfei.appId:}")
     public String APPID = "";//从开放平台控制台中获取
-    @Value("${xunfei.appKey:}")
+    @Value("${xunfei.apiKey:}")
     public String APIKEY = "";//从开放平台控制台中获取
     @Value("${xunfei.apiSecret:}")
     public String APISecret = "";//从开放平台控制台中获取
