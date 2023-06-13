@@ -90,7 +90,7 @@ public abstract class AbsChatService implements ChatService {
         res.setUsedCnt(usedCnt);
 
         ChatItemVo item = new ChatItemVo().initQuestion(question);
-        if (res.hasQaCnt()) {
+        if (!res.hasQaCnt()) {
             // 次数已经使用完毕
             item.initAnswer(ChatConstants.TOKEN_OVER);
         }

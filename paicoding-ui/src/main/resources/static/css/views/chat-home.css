@@ -59,10 +59,14 @@
 
 .chat-sidebar .uno-buy-card-foot-price-num {
     color: var(--pai-brand-1-normal);
-    font-size: 28px;
+    font-size: 22px;
     line-height: 36px;
     font-weight: 500;
     display: inline-block;
+}
+
+.chat-sidebar .uno-buy-card-foot-tag-item {
+    font-size: 12px;
 }
 
 .chat-sidebar .uno-buy-card-foot-price-unit {
@@ -100,7 +104,7 @@
 
 .chat-main {
     width: 100%;
-    padding: 20px;
+    padding: 0 20px;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -190,7 +194,6 @@
     display: flex;
     flex-direction: row;
 }
-
 
 .home_chat-message-item__hDEOq {
     box-sizing: border-box;
@@ -408,7 +411,7 @@
 }
 
 .home_sidebar-sub-title__IS2Or {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
     animation: home_slide-in__gYZA0 .3s ease;
     color: var(--pai-color-4-gray);
@@ -428,7 +431,7 @@
     justify-content: space-between;
     align-items: center;
     color: #515767;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 22px;
 }
 
