@@ -99,11 +99,13 @@
                 // 解析 JSON 字符串
                 console.log("rsp:", message);
                 let res = JSON.parse(message.body);
+                console.log("res:", res);
 
                 // 记录聊天次数
                 $("#chatCnt").html(` ${res.usedCnt}/${res.maxCnt} `);
 
                 const data = res.records;
+                const source = res.source;
 
                 // 把 home_chat-message-actions__loading 的元素移除，不再显示 loading
                 $(".home_chat-message-actions__loading").remove();
@@ -115,10 +117,10 @@
                         if (data[i].question) {
                             addClientMsg(data[i].question, false);
                         }
-                        appendServerMessage(data[i].answer, data[i].answerTime)
+                        appendServerMessage(data[i].answer, data[i].answerTime, source)
                     }
                 } else {
-                    appendServerMessage(data[0].answer, data[0].answerTime);
+                    appendServerMessage(data[0].answer, data[0].answerTime, source);
                 }
                 // 添加完消息后，恢复按钮的状态
                 sendBtn.removeAttr("disabled");
@@ -143,7 +145,18 @@
 
 
     // 添加服务器端消息
-    function appendServerMessage(content, time) {
+    function appendServerMessage(content, time, source) {
+        // 如果 source 等于"CHAT_GPT_3_5"
+        if("CHAT_GPT_3_5" === source) {
+            // 需要对 body 的 JSON 字符串进行解析
+            const res = JSON.parse(content);
+            console.log("CHAT_GPT_3_5 res:", res);
+            if (res.length === 1) {
+                content = res[0].message.content;
+                console.log("CHAT_GPT_3_5 content:", content);
+            }
+        }
+
         let serverMsg = `
             <div class="home_chat-message__rdH_g">
                 <div class="home_chat-message-container__plj_e">
@@ -158,8 +171,8 @@
                         <div class="home_chat-message-top-actions__PfOzb">
                             <div class="home_chat-message-top-action__wXKmA">复制</div>
                         </div>
-                        <div class="markdown-body" style="font-size: 14px; height: auto;">
-                            <p>${content}</p>
+                        <div class="markdown-body">
+                            <pre><code>${content}</code></pre>
                         </div>
                     </div>
                     <div class="home_chat-message-actions__nrHd1">

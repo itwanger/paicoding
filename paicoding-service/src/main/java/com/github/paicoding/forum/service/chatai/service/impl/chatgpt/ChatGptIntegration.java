@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.net.ProxyCenter;
+import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -12,11 +13,13 @@ import com.plexpt.chatgpt.entity.chat.ChatChoice;
 import com.plexpt.chatgpt.entity.chat.ChatCompletion;
 import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
 import com.plexpt.chatgpt.entity.chat.Message;
+import com.plexpt.chatgpt.util.Proxys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.net.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -66,11 +69,24 @@ public class ChatGptIntegration {
      * @return
      */
     private ChatGPT simpleGPT(Long routingKey) {
+        // 判断是生产环境
+        if (EnvUtil.isPro()) {
+            return ChatGPT.builder()
+                    .apiKey(key)
+                    .proxy(ProxyCenter.loadProxy(String.valueOf(routingKey)))
+                    .timeout(900)
+                    .apiHost("https://api.openai.com/")
+                    .build()
+                    .init();
+        }
+
+        // 如果是开发环境
+        Proxy proxy = Proxys.http("127.0.0.1", 7890);
+
         return ChatGPT.builder()
                 .apiKey(key)
-                .proxy(ProxyCenter.loadProxy(String.valueOf(routingKey)))
-                .timeout(900)
-                .apiHost("https://api.openai.com/")
+                .proxy(proxy)
+                .apiHost("https://api.openai.com/") //反向代理地址
                 .build()
                 .init();
     }
