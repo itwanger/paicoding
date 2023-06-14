@@ -46,7 +46,9 @@ public class WsAnswerHelper {
     }
 
     public void sendMsgHistoryToUser(String session) {
-        ChatRecordsVo vo = chatFacade.history(AISourceEnum.PAI_AI);
+//        ChatRecordsVo vo = chatFacade.history(AISourceEnum.PAI_AI);
+
+        ChatRecordsVo vo = chatFacade.history(AISourceEnum.CHAT_GPT_3_5);
         simpMessagingTemplate.convertAndSendToUser(session, "/chat/rsp", vo);
     }
 }
