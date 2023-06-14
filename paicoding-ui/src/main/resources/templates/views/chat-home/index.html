@@ -144,8 +144,6 @@
 
     function escapeHtml(unsafe) {
         return unsafe
-            // 替换掉所有的换行符
-            .replace(/\n/g, "<br />")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
