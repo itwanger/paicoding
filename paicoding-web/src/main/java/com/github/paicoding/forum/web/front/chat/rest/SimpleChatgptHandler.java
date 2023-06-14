@@ -4,7 +4,7 @@ import cn.hutool.core.date.LocalDateTimeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.ChatMsgTypeEnum;
+import com.github.paicoding.forum.api.model.enums.ChatSocketStateEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -39,20 +39,20 @@ public class SimpleChatgptHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        session.sendMessage(getTextMessage("开始你和派聪明的AI之旅吧", ChatMsgTypeEnum.Established.getType()));
+        session.sendMessage(getTextMessage("开始你和派聪明的AI之旅吧", ChatSocketStateEnum.Established.getCode()));
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         // 延迟 10 秒
         Thread.sleep(1000);
-        TextMessage msg = getTextMessage(message.getPayload(), ChatMsgTypeEnum.Payload.getType());
+        TextMessage msg = getTextMessage(message.getPayload(), ChatSocketStateEnum.Payload.getCode());
         log.info("返回的内容是! {} = {}", ReqInfoContext.getReqInfo().getUserId(), msg);
         session.sendMessage(msg);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        session.sendMessage(getTextMessage("下次再撩吧（笑）", ChatMsgTypeEnum.Closed.getType()));
+        session.sendMessage(getTextMessage("下次再撩吧（笑）", ChatSocketStateEnum.Closed.getCode()));
     }
 }

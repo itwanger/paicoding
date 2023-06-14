@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.chat;
 
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -39,6 +40,11 @@ public class ChatItemVo implements Serializable, Cloneable {
     private String answerTime;
 
     /**
+     * 回答的内容类型，文本、JSON 字符串
+     */
+    private ChatAnswerTypeEnum answerType;
+
+    /**
      * 记录问题及记录时间
      *
      * @param question
@@ -58,6 +64,14 @@ public class ChatItemVo implements Serializable, Cloneable {
      */
     public ChatItemVo initAnswer(String answer) {
         this.answer = answer;
+        this.answerType = ChatAnswerTypeEnum.TEXT;
+        this.answerTime = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss").format(LocalDateTime.now());
+        return this;
+    }
+
+    public ChatItemVo initAnswer(String answer, ChatAnswerTypeEnum answerType) {
+        this.answer = answer;
+        this.answerType = answerType;
         this.answerTime = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss").format(LocalDateTime.now());
         return this;
     }

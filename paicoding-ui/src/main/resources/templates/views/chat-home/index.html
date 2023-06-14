@@ -105,7 +105,6 @@
                 $("#chatCnt").html(` ${res.usedCnt}/${res.maxCnt} `);
 
                 const data = res.records;
-                const source = res.source;
 
                 // 把 home_chat-message-actions__loading 的元素移除，不再显示 loading
                 $(".home_chat-message-actions__loading").remove();
@@ -117,10 +116,10 @@
                         if (data[i].question) {
                             addClientMsg(data[i].question, false);
                         }
-                        appendServerMessage(data[i].answer, data[i].answerTime, source)
+                        appendServerMessage(data[i].answer, data[i].answerTime, data[i].answerType);
                     }
                 } else {
-                    appendServerMessage(data[0].answer, data[0].answerTime, source);
+                    appendServerMessage(data[0].answer, data[0].answerTime, data[0].answerType);
                 }
                 // 添加完消息后，恢复按钮的状态
                 sendBtn.removeAttr("disabled");
@@ -143,11 +142,19 @@
         sendBtnText.text("重连");
     }
 
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
     // 添加服务器端消息
-    function appendServerMessage(content, time, source) {
+    function appendServerMessage(content, time, answerType) {
         // 如果 source 等于"CHAT_GPT_3_5"
-        if("CHAT_GPT_3_5" === source) {
+        if("JSON" === answerType) {
             // 需要对 body 的 JSON 字符串进行解析
             const res = JSON.parse(content);
             console.log("CHAT_GPT_3_5 res:", res);
@@ -155,10 +162,14 @@
                 content = res[0].message.content;
                 console.log("CHAT_GPT_3_5 content:", content);
             }
+
+            content = content.replace(/```(.*?)```/gs, function(match, p1) {
+                return "<pre><code>" + escapeHtml(p1) + "</code></pre>";
+            });
         }
 
         let serverMsg = `
-            <div class="home_chat-message__rdH_g">
+            <div class="home_chat-message__rdH_g server-msg">
                 <div class="home_chat-message-container__plj_e">
                     <div class="home_chat-message-avatar__611lI">
                         <div class="no-dark">
@@ -172,7 +183,7 @@
                             <div class="home_chat-message-top-action__wXKmA">复制</div>
                         </div>
                         <div class="markdown-body">
-                            <pre><code>${content}</code></pre>
+                            <p>${content}</p>
                         </div>
                     </div>
                     <div class="home_chat-message-actions__nrHd1">
@@ -183,6 +194,12 @@
             `;
 
         chatContent.append(serverMsg);
+
+        // 高亮代码
+        // 高亮代码
+        chatContent.find('pre code').each(function(i, block) {
+            hljs.highlightBlock(block);
+        });
 
         // 添加完后滚动到底部
         scrollToBottom();
@@ -242,7 +259,7 @@
                     </div>
                 </div>
                 <div class="home_chat-message-item__hDEOq">
-                    <div class="markdown-body" style="font-size: 14px; height: auto;">
+                    <div class="markdown-body">
                         <p>${messageContent}</p>
                     </div>
                 </div>

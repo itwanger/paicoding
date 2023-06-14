@@ -58,7 +58,7 @@ body {
   /*消息的宽度*/
   --message-max-width: 80%;
   /*左边宽度*/
-  --pai-sidebar-width: 500px;
+  --pai-sidebar-width: 360px;
   /*卡片的阴影*/
   --card-shadow: 0px 2px 4px 0px rgba(0,0,0,.05);
   --window-height: calc(100vh - 170px);

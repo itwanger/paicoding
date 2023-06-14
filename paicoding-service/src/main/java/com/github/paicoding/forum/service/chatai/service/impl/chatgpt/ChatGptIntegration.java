@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.net.ProxyCenter;
 import com.github.paicoding.forum.core.util.EnvUtil;
@@ -69,24 +70,14 @@ public class ChatGptIntegration {
      * @return
      */
     private ChatGPT simpleGPT(Long routingKey) {
-        // 判断是生产环境
-        if (EnvUtil.isPro()) {
-            return ChatGPT.builder()
-                    .apiKey(key)
-                    .proxy(ProxyCenter.loadProxy(String.valueOf(routingKey)))
-                    .timeout(900)
-                    .apiHost("https://api.openai.com/")
-                    .build()
-                    .init();
-        }
-
-        // 如果是开发环境
-        Proxy proxy = Proxys.http("127.0.0.1", 7890);
+        Proxy proxy = EnvUtil.isPro() ? ProxyCenter.loadProxy(String.valueOf(routingKey)) : Proxys.http("127.0.0.1", 7890);
+        // 判断是生产环境还是测试环境
 
         return ChatGPT.builder()
                 .apiKey(key)
                 .proxy(proxy)
                 .apiHost("https://api.openai.com/") //反向代理地址
+                .timeout(900)
                 .build()
                 .init();
     }
@@ -116,9 +107,9 @@ public class ChatGptIntegration {
                     .build();
             ChatCompletionResponse response = gpt.chatCompletion(chatCompletion);
             List<ChatChoice> list = response.getChoices();
-            chat.initAnswer(JsonUtil.toStr(list));
+            chat.initAnswer(JsonUtil.toStr(list), ChatAnswerTypeEnum.JSON);
             log.info("chatgpt试用! 传参:{}, 返回:{}", chat, list);
-            return false;
+            return true;
         } catch (Exception e) {
             // 对于系统异常，不用继续等待了
             chat.initAnswer(e.getMessage());

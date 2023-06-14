@@ -103,7 +103,7 @@
 
 
 .chat-main {
-    width: 100%;
+    width: var(--window-content-width);
     padding: 0 20px;
     display: flex;
     flex-direction: column;
@@ -111,6 +111,19 @@
     height: 100%;
     background-color: #fff;
     margin-left: 20px;
+}
+
+.server-msg .markdown-body pre {
+    padding: 0;
+}
+
+.server-msg .home_chat-message-item__hDEOq {
+    margin-top: 0;
+}
+
+.bg-black {
+    --tw-bg-opacity: 1;
+    background-color: rgba(0,0,0,var(--tw-bg-opacity));
 }
 
 #chatCnt {

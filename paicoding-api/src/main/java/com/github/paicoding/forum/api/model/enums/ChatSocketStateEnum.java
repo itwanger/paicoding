@@ -9,7 +9,7 @@ import lombok.Getter;
  * @date 6/7/23
  */
 @Getter
-public enum ChatMsgTypeEnum {
+public enum ChatSocketStateEnum {
     // code desc
     // 连接成功
     Established(0, "Established"),
@@ -19,24 +19,24 @@ public enum ChatMsgTypeEnum {
     Closed(2, "Closed"),
     ;
 
-    private Integer type;
-    private String msg;
+    private final Integer code;
+    private final String desc;
 
-    ChatMsgTypeEnum(int type, String msg) {
-        this.type = type;
-        this.msg = msg;
+    ChatSocketStateEnum(int code, String desc) {
+        this.code = code;
+        this.desc = desc;
     }
 
-    public static ChatMsgTypeEnum typeOf(int type) {
-        for (ChatMsgTypeEnum value : ChatMsgTypeEnum.values()) {
-            if (value.type.equals(type)) {
+    public static ChatSocketStateEnum typeOf(int type) {
+        for (ChatSocketStateEnum value : ChatSocketStateEnum.values()) {
+            if (value.code.equals(type)) {
                 return value;
             }
         }
         return null;
     }
 
-    public static ChatMsgTypeEnum typeOf(String type) {
+    public static ChatSocketStateEnum typeOf(String type) {
         return valueOf(type.toUpperCase().trim());
     }
 
