@@ -28,6 +28,24 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
 
+  # kafka配置
+  kafka:
+    bootstrap-servers: 124.222.0.1:9092
+    producer:
+      retries: 0
+      acks: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: study_log
+      enable-auto-commit: true
+      auto-commit-interval: 100
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 servlet:
   tomcat:
     max-swallow-size: -1 # 解决上传图片超过2MB之后，出现连接重置的问题
