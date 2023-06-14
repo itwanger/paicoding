@@ -244,6 +244,10 @@
     word-wrap: break-word;
 }
 
+.markdown-body p {
+    white-space: pre-wrap;
+}
+
 .markdown-body>:last-child {
     margin-bottom: 0!important;
 }
