@@ -144,6 +144,8 @@
 
     function escapeHtml(unsafe) {
         return unsafe
+            // 替换掉所有的换行符
+            .replace(/\n/g, "<br />")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
@@ -160,12 +162,14 @@
             console.log("CHAT_GPT_3_5 res:", res);
             if (res.length === 1) {
                 content = res[0].message.content;
-                console.log("CHAT_GPT_3_5 content:", content);
-            }
+                console.log("CHAT_GPT_3_5 content escapeHtml before:", content);
 
-            content = content.replace(/```(.*?)```/gs, function(match, p1) {
-                return "<pre><code>" + escapeHtml(p1) + "</code></pre>";
-            });
+                content = content.replace(/```(.*?)```/gs, function(match, p1) {
+                    return "<pre><code>" + escapeHtml(p1) + "</code></pre>";
+                });
+
+                console.log("CHAT_GPT_3_5 content escapeHtml after:", content);
+            }
         }
 
         let serverMsg = `
@@ -292,7 +296,7 @@
         // 清空 textarea
         inputField.val("");
 
-        addClientMsg(qa, true);
+        addClientMsg(qa.replace(/\n/g, "<br/>"), true);
 
         // 将 button 设为禁用，防止用户连续点击
         sendBtn.attr("disabled", true);
