@@ -1,6 +1,6 @@
 package com.github.paicoding.forum.service.chatai.service;
 
-import com.github.paicoding.forum.api.model.enums.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 
 import java.util.function.Consumer;
@@ -19,13 +19,31 @@ public interface ChatService {
     AISourceEnum source();
 
     /**
+     * 是否时异步优先
+     *
+     * @return
+     */
+    default boolean asyncFirst() {
+        return true;
+    }
+
+    /**
      * 开始进入聊天
      *
      * @param user     提问人
      * @param question 聊天的问题
-     * @return chatgpt返回的结果
+     * @return 返回的结果
      */
     ChatRecordsVo chat(String user, String question);
+
+    /**
+     * 开始进入聊天
+     *
+     * @param user     提问人
+     * @param question 聊天的问题
+     * @return 返回的结果
+     */
+    ChatRecordsVo chat(String user, String question, Consumer<ChatRecordsVo> consumer);
 
     /**
      * 异步聊天

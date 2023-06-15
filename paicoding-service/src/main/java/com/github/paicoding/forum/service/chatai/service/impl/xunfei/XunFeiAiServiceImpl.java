@@ -1,26 +1,25 @@
 package com.github.paicoding.forum.service.chatai.service.impl.xunfei;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.paicoding.forum.api.model.enums.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import com.github.paicoding.forum.api.model.enums.WsConnectStateEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
-import com.github.paicoding.forum.core.async.AsyncUtil;
-import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
-import com.google.common.base.Joiner;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /**
@@ -33,14 +32,9 @@ import java.util.function.BiConsumer;
 @Slf4j
 @Service
 public class XunFeiAiServiceImpl extends AbsChatService {
-    /**
-     * 这里使用Caffeine的内存缓存，再使用层面上与Guava没有太大的差别
-     */
-    private Cache<String, XunFeiChatDecorate> cache;
 
-    public XunFeiAiServiceImpl() {
-        cache = Caffeine.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(100).build();
-    }
+    @Autowired
+    private XunFeiIntegration xunFeiIntegration;
 
     /**
      * 不支持同步提问
@@ -50,8 +44,8 @@ public class XunFeiAiServiceImpl extends AbsChatService {
      * @return
      */
     @Override
-    public boolean doAnswer(String user, ChatItemVo chat) {
-        return false;
+    public AiChatStatEnum doAnswer(String user, ChatItemVo chat) {
+        return AiChatStatEnum.IGNORE;
     }
 
     /**
@@ -60,79 +54,12 @@ public class XunFeiAiServiceImpl extends AbsChatService {
      * @param user
      * @param chatRes  保存提问 & 返回的结果，最终会返回给前端用户
      * @param consumer 具体将 response 写回前端的实现策略
-     * @return
      */
     @Override
-    public boolean doAsyncAnswer(String user, ChatRecordsVo chatRes, BiConsumer<Boolean, ChatRecordsVo> consumer) {
-        XunFeiChatDecorate xunFeiChat = cache.get(user, key -> {
-            XunFeiChatDecorate chat = new XunFeiChatDecorate() {
-                /**
-                 * 接收到讯飞返回的结果，然后将其封装之后返回给用户
-                 * @param webSocket
-                 * @param text
-                 */
-                @Override
-                public void onMessage(WebSocket webSocket, String text) {
-                    super.onMessage(webSocket, text);
-                    ChatItemVo item = chatRes.getRecords().get(0);
-                    XunFeiIntegration.ResponseData responseData = JsonUtil.toObj(text, XunFeiIntegration.ResponseData.class);
-                    if (responseData.successReturn()) {
-                        // 成功获取到结果
-                        XunFeiIntegration.Payload pl = responseData.getPayload();
-                        List<XunFeiIntegration.ChoicesText> txt = pl.getChoices().getText();
-                        String ans = Joiner.on("\n").join(txt);
-                        item.initAnswer(ans);
-
-                        if (responseData.endResponse()) {
-                            // 最后一次返回结果时，打印一下剩余的tokens
-                            XunFeiIntegration.UsageText tokens = pl.getUsage().getText();
-                            log.info("使用tokens:\n" + tokens);
-                        }
-
-                        // 结果响应
-                        consumer.accept(true, chatRes);
-                    } else {
-                        item.initAnswer("AI返回异常:" + responseData.getHeader());
-                        consumer.accept(false, chatRes);
-                    }
-                }
-
-                @Override
-                public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                    super.onFailure(webSocket, t, response);
-                    chatRes.getRecords().get(0).initAnswer("讯飞AI启动失败:" + response.message());
-                    consumer.accept(false, chatRes);
-                }
-            };
-            chat.startConnect();
-            return chat;
-        });
-
-
-        // 基于websocket的连接状态，做一些引导性的回复和业务等待
-        int maxCnt = 100;
-        while (true) {
-            if (--maxCnt <= 0 || xunFeiChat == null) {
-                chatRes.getRecords().get(0).initAnswer("讯飞AI启动失败，请稍后再试");
-                consumer.accept(false, chatRes);
-                break;
-            }
-            if (xunFeiChat.connectState == WsConnectStateEnum.CONNECTED) {
-                xunFeiChat.getWebSocket().send(chatRes.getRecords().get(0).getQuestion());
-                break;
-            } else if (xunFeiChat.connectState == WsConnectStateEnum.CONNECTING || xunFeiChat.connectState == WsConnectStateEnum.INIT) {
-                AsyncUtil.sleep(500);
-            } else if (xunFeiChat.connectState == WsConnectStateEnum.CLOSED) {
-                // websocket 已经关闭了，需要重新连接一下
-                xunFeiChat.startConnect();
-            } else if (xunFeiChat.connectState == WsConnectStateEnum.FAILED) {
-                // 会话连接失败
-                chatRes.getRecords().get(0).initAnswer("讯飞AI连接失败了，请稍后再试吧");
-                consumer.accept(false, chatRes);
-                break;
-            }
-        }
-        return false;
+    public AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+        XunFeiChatWrapper chat = new XunFeiChatWrapper(user, chatRes, consumer);
+        chat.initAndQuestion();
+        return AiChatStatEnum.IGNORE;
     }
 
     @Override
@@ -141,40 +68,122 @@ public class XunFeiAiServiceImpl extends AbsChatService {
     }
 
     /**
-     * 一个简单的ws装饰器，用于包装一下讯飞长连接的交互响应情况
+     * 一个简单的ws装饰器，用于包装一下讯飞长连接的交互情况
+     * 比较蛋疼的是讯飞建立连接60s没有返回主动断开，问了一次返回结果之后也主动断开，下次需要重连
      */
     @Data
-    public static class XunFeiChatDecorate extends WebSocketListener {
-        private volatile WsConnectStateEnum connectState = WsConnectStateEnum.INIT;
-
-
+    public class XunFeiChatWrapper {
+        private OkHttpClient client;
         private WebSocket webSocket;
+        private Request request;
+
+        private BiConsumer<WebSocket, String> onMsg;
+
+        private XunFeiMsgListener listener;
+
+        private ChatItemVo item;
+
+        public XunFeiChatWrapper(String uid, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+            client = xunFeiIntegration.getOkHttpClient();
+            String url = xunFeiIntegration.buildXunFeiUrl();
+            request = new Request.Builder().url(url).build();
+            listener = new XunFeiMsgListener(uid, chatRes, consumer);
+        }
+
+        /**
+         * 首次使用时，开启提问
+         */
+        public void initAndQuestion() {
+            webSocket = client.newWebSocket(request, listener);
+        }
+
+        /**
+         * 追加的提问, 主要是为了
+         */
+        public void appendQuestion(String uid, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+            listener = new XunFeiMsgListener(uid, chatRes, consumer);
+            webSocket = client.newWebSocket(request, listener);
+        }
+
+    }
+
+    @Getter
+    @Setter
+    public class XunFeiMsgListener extends WebSocketListener {
+        private volatile WsConnectStateEnum connectState;
+
+        private String user;
+
+        private ChatRecordsVo chatRecord;
+
+        private BiConsumer<AiChatStatEnum, ChatRecordsVo> callback;
+
+        public XunFeiMsgListener(String user, ChatRecordsVo chatRecord, BiConsumer<AiChatStatEnum, ChatRecordsVo> callback) {
+            this.connectState = WsConnectStateEnum.INIT;
+            this.user = user;
+            this.chatRecord = chatRecord;
+            this.callback = callback;
+        }
 
         //重写onopen
         @Override
         public void onOpen(WebSocket webSocket, Response response) {
             super.onOpen(webSocket, response);
             connectState = WsConnectStateEnum.CONNECTED;
+            // 连接成功之后，发送消息
+            webSocket.send(xunFeiIntegration.buildSendMsg(user, chatRecord.getRecords().get(0).getQuestion()));
+        }
+
+        @Override
+        public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+            super.onMessage(webSocket, text);
+            ChatItemVo item = chatRecord.getRecords().get(0);
+            XunFeiIntegration.ResponseData responseData = xunFeiIntegration.parse2response(text);
+            if (responseData.successReturn()) {
+                // 成功获取到结果
+                StringBuilder msg = new StringBuilder();
+                XunFeiIntegration.Payload pl = responseData.getPayload();
+                pl.getChoices().getText().forEach(s -> {
+                    msg.append(s.getContent());
+                });
+                item.appendAnswer(msg.toString());
+
+                if (responseData.firstResonse()) {
+                    callback.accept(AiChatStatEnum.FIRST, chatRecord);
+                } else if (responseData.endResponse()) {
+                    // 标记流式回答已完成
+                    item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                    // 最后一次返回结果时，打印一下剩余的tokens
+                    XunFeiIntegration.UsageText tokens = pl.getUsage().getText();
+                    log.info("使用tokens:\n" + tokens);
+                    webSocket.close(1001, "会话结束");
+                    callback.accept(AiChatStatEnum.END, chatRecord);
+                } else {
+                    callback.accept(AiChatStatEnum.MID, chatRecord);
+                }
+            } else {
+                item.initAnswer("AI返回异常:" + responseData.getHeader());
+                callback.accept(AiChatStatEnum.ERROR, chatRecord);
+                webSocket.close(responseData.getHeader().getCode(), responseData.getHeader().getMessage());
+            }
         }
 
         @Override
         public void onFailure(WebSocket webSocket, Throwable t, Response response) {
             super.onFailure(webSocket, t, response);
-            log.error("websocket 连接失败! {}", response, t);
+            log.warn("websocket 连接失败! {}", response, t);
             connectState = WsConnectStateEnum.FAILED;
+            chatRecord.getRecords().get(0).initAnswer("讯飞AI连接失败了!" + t.getMessage());
+            callback.accept(AiChatStatEnum.ERROR, chatRecord);
         }
 
         @Override
         public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
             super.onClosed(webSocket, code, reason);
-            log.info("连接中断! code={}, reason={}", code, reason);
+            if (log.isDebugEnabled()) {
+                log.debug("连接中断! code={}, reason={}", code, reason);
+            }
             connectState = WsConnectStateEnum.CLOSED;
-        }
-
-
-        public void startConnect() {
-            this.setConnectState(WsConnectStateEnum.CONNECTING);
-            this.webSocket = SpringUtil.getBean(XunFeiIntegration.class).newWebSocket(this);
         }
     }
 }

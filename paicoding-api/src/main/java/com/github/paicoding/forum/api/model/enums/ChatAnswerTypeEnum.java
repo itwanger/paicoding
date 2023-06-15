@@ -6,8 +6,16 @@ import lombok.Getter;
 public enum ChatAnswerTypeEnum {
     // 纯文本
     TEXT(0, "TEXT"),
-    // JSON
+    // JSON,
     JSON(1, "JSON"),
+    /**
+     * 流式返回
+     */
+    STREAM(2, "STREAM"),
+    /**
+     * 流式结束
+     */
+    STREAM_END(3, "STREAM_END")
     ;
 
     private Integer code;

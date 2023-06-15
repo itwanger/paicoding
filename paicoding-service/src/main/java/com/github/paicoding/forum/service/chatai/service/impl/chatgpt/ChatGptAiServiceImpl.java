@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
-import com.github.paicoding.forum.api.model.enums.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
@@ -21,13 +22,16 @@ public class ChatGptAiServiceImpl extends AbsChatService {
     private ChatGptIntegration chatGptIntegration;
 
     @Override
-    public boolean doAnswer(String user, ChatItemVo chat) {
-        return chatGptIntegration.gptReturn(Long.valueOf(user), chat);
+    public AiChatStatEnum doAnswer(String user, ChatItemVo chat) {
+        if (chatGptIntegration.gptReturn(Long.valueOf(user), chat)) {
+            return AiChatStatEnum.END;
+        }
+        return AiChatStatEnum.ERROR;
     }
 
     @Override
-    public boolean doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<Boolean, ChatRecordsVo> consumer) {
-        return false;
+    public AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+        return AiChatStatEnum.IGNORE;
     }
 
     @Override

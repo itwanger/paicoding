@@ -1,6 +1,8 @@
 package com.github.paicoding.forum.service.chatai.service.impl.pai;
 
-import com.github.paicoding.forum.api.model.enums.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.async.AsyncUtil;
@@ -23,22 +25,32 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
     }
 
     @Override
-    public boolean doAnswer(String user, ChatItemVo chat) {
-        String ans = chat.getQuestion().replace("吗", "");
-        ans = StringUtils.replace(ans, "？", "!");
-        ans = StringUtils.replace(ans, "?", "!");
-        chat.initAnswer(ans);
-        return true;
+    public AiChatStatEnum doAnswer(String user, ChatItemVo chat) {
+        chat.initAnswer(qa(chat.getQuestion()));
+        return AiChatStatEnum.END;
     }
 
     @Override
-    public boolean doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<Boolean, ChatRecordsVo> consumer) {
+    public AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         AsyncUtil.execute(() -> {
             AsyncUtil.sleep(1500);
-            boolean ans = doAnswer(user, response.getRecords().get(0));
-            consumer.accept(ans, response);
+            ChatItemVo item = response.getRecords().get(0);
+            item.appendAnswer(qa(item.getQuestion()));
+            consumer.accept(AiChatStatEnum.FIRST, response);
+
+            AsyncUtil.sleep(1200);
+            item.appendAnswer(qa(item.getQuestion()));
+            item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+            consumer.accept(AiChatStatEnum.END, response);
         });
-        return true;
+        return AiChatStatEnum.END;
+    }
+
+    private String qa(String q) {
+        String ans = q.replace("吗", "");
+        ans = StringUtils.replace(ans, "？", "!");
+        ans = StringUtils.replace(ans, "?", "!");
+        return ans;
     }
 
     @Override
