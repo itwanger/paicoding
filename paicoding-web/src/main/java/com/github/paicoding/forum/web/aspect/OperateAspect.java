@@ -21,10 +21,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
+import com.github.paicoding.forum.api.model.constant.KafkaTopicConstant;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.core.annotation.RecordOperate;
-import com.github.paicoding.forum.core.dto.ArticleKafkaMessageDTO;
+import com.github.paicoding.forum.api.model.dto.ArticleKafkaMessageDTO;
 import com.github.paicoding.forum.core.util.IpUtils;
 import com.github.paicoding.forum.core.util.ServletUtils;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
@@ -129,13 +130,14 @@ public class OperateAspect {
         ArticleDO articleDO = articleReadService.queryBasicArticle(articleId);
         String articleTitle = articleDO.getTitle();
         Long targetUserId = articleDO.getUserId();
+
         ArticleKafkaMessageDTO articleKafkaMessageDTO = new ArticleKafkaMessageDTO();
         articleKafkaMessageDTO.setType(type);
         articleKafkaMessageDTO.setSourceUserName(sourceName);
         articleKafkaMessageDTO.setTargetUserId(targetUserId);
         articleKafkaMessageDTO.setArticleTitle(articleTitle);
         articleKafkaMessageDTO.setTypeName(typeName);
-        kafkaTemplate.send("paicoding_aricle", JSON.toJSONString(articleKafkaMessageDTO));
+        kafkaTemplate.send(KafkaTopicConstant.ARTICLE_TOPIC, JSON.toJSONString(articleKafkaMessageDTO));
 
     }
 
