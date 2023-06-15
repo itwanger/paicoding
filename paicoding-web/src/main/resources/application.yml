@@ -30,7 +30,7 @@ spring:
 
   # kafka配置
   kafka:
-    bootstrap-servers: 124.222.0.1:9092
+    bootstrap-servers: 124.222.158.248:9092
     producer:
       retries: 0
       acks: 0
@@ -39,7 +39,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: study_log
+      group-id: pai_coding_consumer
       enable-auto-commit: true
       auto-commit-interval: 100
       auto-offset-reset: latest
