@@ -5,13 +5,13 @@ import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
+import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -38,15 +37,6 @@ public class TestController {
 
     @Autowired
     private ChatGptIntegration chatGptHelper;
-
-    @RequestMapping(path = "gptkey")
-    public ResVo<String> updateKey(String key, HttpServletRequest request) {
-        if ("127.0.0.1".equals(ReqInfoContext.getReqInfo().getHost())) {
-            return ResVo.ok(chatGptHelper.setKey(key));
-        } else {
-            return ResVo.ok("无权限");
-        }
-    }
 
     /**
      * 测试邮件发送
@@ -123,7 +113,8 @@ public class TestController {
     public String write2() {
         log.info("------------------- 业务逻辑进入 ----------------------------");
         long old = statisticsSettingService.getStatisticsCount().getPvCount();
-        DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
+        DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo()
+                .getClientIp()));
         // 保存请求计数
         long n = statisticsSettingService.getStatisticsCount().getPvCount();
         log.info("------------------- 业务逻辑结束 ----------------------------");

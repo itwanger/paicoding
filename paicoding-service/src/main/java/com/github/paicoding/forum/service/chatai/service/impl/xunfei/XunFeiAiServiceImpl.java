@@ -11,11 +11,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,7 +94,7 @@ public class XunFeiAiServiceImpl extends AbsChatService {
         }
 
         /**
-         * 追加的提问, 主要是为了
+         * 追加的提问, 主要是为了复用websocket的构造参数
          */
         public void appendQuestion(String uid, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
             listener = new XunFeiMsgListener(uid, chatRes, consumer);

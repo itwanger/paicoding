@@ -2,11 +2,14 @@ package com.github.paicoding.forum.core;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import com.github.paicoding.forum.core.net.ProxyCenter;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.concurrent.TimeUnit;
@@ -17,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 @ComponentScan(basePackages = "com.github.paicoding.forum.core")
-public class ForumCoreAutoConfig {
+public class ForumCoreAutoConfig implements EnvironmentAware {
 
     public ForumCoreAutoConfig(RedisTemplate<String, String> redisTemplate) {
         RedisClient.register(redisTemplate);
@@ -40,5 +43,11 @@ public class ForumCoreAutoConfig {
                 .maximumSize(200)
         );
         return cacheManager;
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        // 这里借助手动解析配置信息，并实例化为Java POJO对象，来实现代理池的初始化
+        ProxyCenter.initProxyPool(environment, "net.proxy");
     }
 }

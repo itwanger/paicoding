@@ -1,14 +1,17 @@
 package com.github.paicoding.forum.core.net;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.core.env.Environment;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author YiHui
@@ -36,15 +39,20 @@ public class ProxyCenter {
     /**
      * 记录每个source使用的proxy索引
      */
-    private static final Map<String, Integer> HOST_PROXY_INDEX = new HashMap<>(16);
+    private static final Cache<String, Integer> HOST_PROXY_INDEX = Caffeine.newBuilder().maximumSize(16).build();
     /**
      * proxy
      */
-    private static final List<ProxyType> PROXIES =
-            new ArrayList<ProxyType>() {{
-                add(new ProxyType().setType(Proxy.Type.SOCKS).setIp("127.0.0.1").setPort(1080));
-            }};
+    private static List<ProxyType> PROXIES = new ArrayList<>();
 
+
+    public static void initProxyPool(List<ProxyType> proxyTypes) {
+        PROXIES = proxyTypes;
+    }
+
+    public static void initProxyPool(Environment environment, String proxyConfigPrefix) {
+        PROXIES = Binder.get(environment).bind(proxyConfigPrefix, Bindable.listOf(ProxyType.class)).get();
+    }
 
     /**
      * get proxy
@@ -52,12 +60,12 @@ public class ProxyCenter {
      * @return
      */
     static ProxyType getProxy(String host) {
-        int index = -1;
-        if (HOST_PROXY_INDEX.containsKey(host)) {
-            index = HOST_PROXY_INDEX.get(host);
+        Integer index = HOST_PROXY_INDEX.getIfPresent(host);
+        if (index == null) {
+            index = -1;
         }
 
-        index++;
+        ++index;
         if (index >= PROXIES.size()) {
             index = 0;
         }

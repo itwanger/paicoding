@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class ChatRecord {
+public class ChatRecordWxVo {
     /**
      * 提问的次数
      */
@@ -23,12 +23,12 @@ public class ChatRecord {
      */
     private Long qasTime;
     private List<ChatChoice> res;
-    private ChatRecord next;
-    private ChatRecord pre;
+    private ChatRecordWxVo next;
+    private ChatRecordWxVo pre;
     private volatile boolean lastReturn;
     private String sysErr;
 
-    public ChatRecord() {
+    public ChatRecordWxVo() {
         qasTime = 0L;
         sysErr = null;
         lastReturn = false;
