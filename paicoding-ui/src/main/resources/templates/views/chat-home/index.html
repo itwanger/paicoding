@@ -154,6 +154,12 @@
             .replace(/'/g, "&#039;");
     }
 
+    function prettyCode(content) {
+        return content.replace(/```(.*?)```/gs, function(match, p1) {
+            return "<pre><code>" + escapeHtml(p1) + "</code></pre>";
+        });
+    }
+
     // 添加服务器端消息
     function appendServerMessage(answer) {
         let content = answer.answer;
@@ -170,11 +176,7 @@
             if (res.length === 1) {
                 content = res[0].message.content;
                 console.log("CHAT_GPT_3_5 content escapeHtml before:", content);
-
-                content = content.replace(/```(.*?)```/gs, function(match, p1) {
-                    return "<pre><code>" + escapeHtml(p1) + "</code></pre>";
-                });
-
+                content = prettyCode(content);
                 console.log("CHAT_GPT_3_5 content escapeHtml after:", content);
             }
         } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
@@ -189,9 +191,16 @@
 
                 lastDiv.append(content);
                 appendLastChat = true;
+                if ('STREAM_END' === answerType) {
+                    // 会话结束，对代码的格式化支持
+                    content = lastDiv.text();
+                    content = prettyCode(content);
+                    console.log("格式化之后的内容:", content);
+                    lastDiv.html(content);
+                }
             } else{
                 // 上一次没有输出过，则格式化文本，重新输出
-                content = content.replaceAll('$…$', '');
+                content = prettyCode(content.replaceAll('$…$', ''));
             }
         }
 
