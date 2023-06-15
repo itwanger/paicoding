@@ -105,7 +105,7 @@ public class OperateAspect {
             // 设置标题
             String title = controllerLog.title();
             String[] params = requestValue(joinPoint, request, title).split("&");
-            // TODO 将消息给kafka
+
             this.sendKafkaMessage(params);
 
 
