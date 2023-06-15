@@ -30,4 +30,14 @@ public class RedisConstant {
      */
     public static final String REDIS_LOCK = "lock:";
 
+    /**
+     * 点赞/取消点赞
+     */
+    public static final String PRAISE = "praise:";
+
+    /**
+     * 收藏/取消收藏 COLLECTION
+     */
+    public static final String COLLECTION = "collection:";
+
 }

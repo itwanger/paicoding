@@ -11,6 +11,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.ArticleUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
@@ -18,33 +19,30 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
-import com.github.paicoding.forum.service.constant.EsFieldConstant;
-import com.github.paicoding.forum.service.constant.EsIndexConstant;
+import com.github.paicoding.forum.service.constant.RedisConstant;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.utils.RedisLuaUtil;
+import com.github.paicoding.forum.service.utils.RedisUtil;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.json.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 文章查询相关服务类
@@ -53,6 +51,7 @@ import java.util.stream.Collectors;
  * @date 2022-07-20
  */
 @Service
+@Slf4j
 public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
@@ -63,6 +62,16 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private RedisLuaUtil redisLuaUtil;
+
+    @Autowired(required = false)
+    private RedissonClient redissonClient;
+
+    @Value("${spring.redis.isOpen}")
+    private Boolean openRedis;
+
     /**
      * 在一个项目中，UserFootService 就是内部服务调用
      * 拆微服务时，这个会作为远程服务访问
@@ -76,12 +85,8 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Autowired
     private UserService userService;
 
-    // 是否开启ES
-    @Value("${elasticsearch.open}")
-    private Boolean openES;
-
     @Autowired
-    private RestHighLevelClient restHighLevelClient;
+    private RedisUtil redisUtil;
 
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
@@ -101,16 +106,205 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Override
     public ArticleDTO queryDetailArticleInfo(Long articleId) {
-        ArticleDTO article = articleDao.queryArticleDetail(articleId);
+
+        // TODO ygl:引入Redis缓存
+        ArticleDTO article = null;
+        // 兼容是否开启Redis
+        if (openRedis) {
+            String redisCacheKey = RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_CACHE + articleId;
+            String articleStr = RedisClient.getStr(redisCacheKey);
+
+            if (!ObjectUtils.isEmpty(articleStr)) {
+                article = JSONUtil.toBean(articleStr, ArticleDTO.class);
+            } else {
+                // TODO ygl:存在缓存击穿问题，引入分布式锁
+
+            /*
+            第一种方式：
+            缺点：不加finally去del锁，那么会出现该线程执行完之后在不过期时间内一直持有该锁不释放，
+            在这过程内导致其他线程无法再次获取锁
+            */
+                // article = this.checkArticleByDBOne(articleId);
+
+            /*
+            第二种方式：
+                优点：与第一种方式相比增加了finally，在线程执行完之后会立即释放锁
+            即使在执行finally之前宕机了，那么因为有了过期时间，还是会自动释放
+                缺点：可能会释放别人的锁。
+            */
+                // article = this.checkArticleByDBTwo(articleId);
+
+            /*
+            第三种方式：
+                优点：与第二种方式相比解决了其删除别人分布式锁的问题。在加锁时set(key, value);
+            解锁时会对比是否和他加锁时的value是否相等，相等则是他自己的锁，否则是别人锁不能解锁。
+                在解锁时采用了lua脚本保证其原子性
+                缺点：这种方式会出现加锁过期时间不能够根据业务和运行环境设置合适过期时间；
+            设置时间过短，则会业务还未执行完毕则锁自动释放，那么其他线程依旧可以拿到锁，无法很好解决缓存击穿问题
+            设置时间过长：如果在执行finally释放锁之前系统宕机了，那么还需要等着到时间后才能自动解锁
+            */
+                // article = this.checkArticleByDBThree(articleId);
+
+            /*
+            第四种方式：
+                优点：解决了第三种方式无法设置合适过期时间
+            */
+                article = this.checkArticleByDBFour(articleId);
+
+            }
+            if (article != null) {
+                RedisClient.setStr(redisCacheKey, JSONUtil.toJsonStr(article));
+            }
+
+        } else {
+            article = articleDao.queryArticleDetail(articleId);
+        }
+
         if (article == null) {
             throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
+
         // 更新分类相关信息
         CategoryDTO category = article.getCategory();
         category.setCategory(categoryService.queryCategoryName(category.getCategoryId()));
 
         // 更新标签信息
         article.setTags(articleTagDao.queryArticleTagDetails(articleId));
+        return article;
+    }
+
+    /**
+     * Redis分布式锁第四种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBFour(Long articleId) {
+
+        ArticleDTO article = null;
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+        RLock lock = redissonClient.getLock(redisLockKey);
+        //lock.lock();
+
+        try {
+            //尝试加锁,最大等待时间3秒，上锁30秒自动解锁
+            if (lock.tryLock(3, 30, TimeUnit.SECONDS)) {
+                article = articleDao.queryArticleDetail(articleId);
+            } else {
+                // 未获得分布式锁线程睡眠一下；然后再去获取数据
+                Thread.sleep(200);
+                this.queryDetailArticleInfo(articleId);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            //判断该lock是否已经锁 并且 锁是否是自己的
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+
+        }
+        return article;
+    }
+
+    /**
+     * Redis分布式锁第三种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBThree(Long articleId) {
+
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+
+        String value = RandomUtil.randomString(6);
+        Boolean isLockSuccess = redisUtil.setIfAbsent(redisLockKey, value, 90L);
+        ArticleDTO article = null;
+        try {
+            if (isLockSuccess) {
+                article = articleDao.queryArticleDetail(articleId);
+            } else {
+                Thread.sleep(200);
+                this.queryDetailArticleInfo(articleId);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            // 这种先get出value，然后再比较删除；这无法保证原子性，为了保证原子性，采用了lua脚本
+            /*
+            String redisLockValue = RedisClient.getStr(redisLockKey);
+            if (!ObjectUtils.isEmpty(redisLockValue) && StringUtils.equals(value, redisLockValue)) {
+                RedisClient.del(redisLockKey);
+            }
+            */
+            Long cad = redisLuaUtil.cad("pai_" + redisLockKey, value);
+            log.info("lua 脚本删除结果：" + cad);
+
+
+        }
+
+        return article;
+
+    }
+
+    /**
+     * Redis分布式锁第二种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBTwo(Long articleId) {
+
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+
+        ArticleDTO article = null;
+
+        Boolean isLockSuccess = redisUtil.setIfAbsent(redisLockKey, null, 90L);
+        try {
+            if (isLockSuccess) {
+                article = articleDao.queryArticleDetail(articleId);
+            } else {
+                Thread.sleep(200);
+                this.queryDetailArticleInfo(articleId);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            RedisClient.del(redisLockKey);
+        }
+
+        return article;
+
+    }
+
+    /**
+     * Redis分布式锁第一种方法
+     *
+     * @param articleId
+     * @return ArticleDTO
+     */
+    private ArticleDTO checkArticleByDBOne(Long articleId) {
+
+        String redisLockKey =
+                RedisConstant.REDIS_PAI + RedisConstant.REDIS_PRE_ARTICLE + RedisConstant.REDIS_LOCK + articleId;
+
+        ArticleDTO article = null;
+        Boolean isLockSuccess = redisUtil.setIfAbsent(redisLockKey, null, 90L);
+
+        if (isLockSuccess) {
+            article = articleDao.queryArticleDetail(articleId);
+        } else {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.queryDetailArticleInfo(articleId);
+        }
+
         return article;
     }
 
@@ -199,36 +393,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             return Collections.emptyList();
         }
         key = key.trim();
-        if (!openES) {
-            List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
-            return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
-                    .collect(Collectors.toList());
-        }
-        // TODO ES整合
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery(key,
-                EsFieldConstant.ES_FIELD_TITLE,
-                EsFieldConstant.ES_FIELD_SHORT_TITLE);
-        searchSourceBuilder.query(multiMatchQueryBuilder);
-
-        SearchRequest searchRequest = new SearchRequest(new String[]{EsIndexConstant.ES_INDEX_ARTICLE},
-                searchSourceBuilder);
-        SearchResponse searchResponse = null;
-        try {
-            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        SearchHits hits = searchResponse.getHits();
-        SearchHit[] hitsList = hits.getHits();
-        List<Integer> ids = new ArrayList<>();
-        for (SearchHit documentFields : hitsList) {
-            ids.add(Integer.parseInt(documentFields.getId()));
-        }
-        if (ObjectUtils.isEmpty(ids)) {
-            return null;
-        }
-        List<ArticleDO> records = articleDao.selectByIds(ids);
+        List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
         return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
                 .collect(Collectors.toList());
     }
