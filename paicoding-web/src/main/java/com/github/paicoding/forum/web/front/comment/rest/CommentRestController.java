@@ -10,6 +10,7 @@ import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.core.annotation.RecordOperate;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
@@ -24,8 +25,10 @@ import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,7 +72,8 @@ public class CommentRestController {
         }
         pageNum = Optional.ofNullable(pageNum).orElse(PageParam.DEFAULT_PAGE_NUM);
         pageSize = Optional.ofNullable(pageSize).orElse(PageParam.DEFAULT_PAGE_SIZE);
-        List<TopCommentDTO> result = commentReadService.getArticleComments(articleId, PageParam.newPageInstance(pageNum, pageSize));
+        List<TopCommentDTO> result = commentReadService.getArticleComments(articleId,
+                PageParam.newPageInstance(pageNum, pageSize));
         return ResVo.ok(result);
     }
 
@@ -82,6 +86,7 @@ public class CommentRestController {
     @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
     @ResponseBody
+    @RecordOperate(title = "title")
     public ResVo<String> save(@RequestBody CommentSaveReq req) {
         if (req.getArticleId() == null) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章id为空");
@@ -100,7 +105,8 @@ public class CommentRestController {
         ArticleDetailVo vo = new ArticleDetailVo();
         vo.setArticle(ArticleConverter.toDto(article));
         // 评论信息
-        List<TopCommentDTO> comments = commentReadService.getArticleComments(req.getArticleId(), PageParam.newPageInstance());
+        List<TopCommentDTO> comments = commentReadService.getArticleComments(req.getArticleId(),
+                PageParam.newPageInstance());
         vo.setComments(comments);
 
         // 热门评论
@@ -152,7 +158,8 @@ public class CommentRestController {
                 operate);
         // 点赞、收藏消息
         NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
-        Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
+        Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify
+                , foot)));
         return ResVo.ok(true);
     }
 
