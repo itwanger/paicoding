@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.aspect;
 
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -23,9 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSON;
 import com.github.paicoding.forum.api.model.constant.KafkaTopicConstant;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
-import com.github.paicoding.forum.core.annotation.RecordOperate;
 import com.github.paicoding.forum.api.model.dto.ArticleKafkaMessageDTO;
+import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
+import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
+import com.github.paicoding.forum.core.annotation.RecordOperate;
 import com.github.paicoding.forum.core.util.IpUtils;
 import com.github.paicoding.forum.core.util.ServletUtils;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
@@ -105,7 +107,7 @@ public class OperateAspect {
             String businessType = controllerLog.businessType();
             // 设置标题
             String title = controllerLog.title();
-            String[] params = requestValue(joinPoint, request, title).split("&");
+            String[] params = requestValue(joinPoint, request, title, requestURI).split("&");
 
             this.sendKafkaMessage(params);
 
@@ -125,8 +127,9 @@ public class OperateAspect {
         String articleIdStr = params[0].split("=")[1];
         Long articleId = Long.parseLong(articleIdStr);
         String typeStr = params[1].split("=")[1];
+        // 2-点赞、4-取消点赞；3-收藏、5-取消点赞；1-评论；
         int type = Integer.parseInt(typeStr);
-        String typeName = NotifyTypeEnum.typeOf(type).getMsg();
+        String typeName = OperateTypeEnum.fromCode(type).getDesc();
         ArticleDO articleDO = articleReadService.queryBasicArticle(articleId);
         String articleTitle = articleDO.getTitle();
         Long targetUserId = articleDO.getUserId();
@@ -147,13 +150,30 @@ public class OperateAspect {
      *
      * @throws Exception 异常
      */
-    private String requestValue(JoinPoint joinPoint, HttpServletRequest request, String title) throws Exception {
+    private String requestValue(JoinPoint joinPoint, HttpServletRequest request,
+                                String title, String requestURI) throws Exception {
         String requestMethod = request.getMethod();
         String param = "";
-        if (HttpMethod.PUT.name().equals(requestMethod) || HttpMethod.POST.name().equals(requestMethod)) {
-            String params = argsArrayToString(joinPoint.getArgs());
-            param = StringUtils.substring(params, 0, 2000);
+        // 评论
+        if ((HttpMethod.PUT.name().equals(requestMethod) || HttpMethod.POST.name().equals(requestMethod))
+                && "/comment/api/post".equals(requestURI)) {
+
+            Object[] args = joinPoint.getArgs();
+            CommentSaveReq commentSaveReq = (CommentSaveReq) args[0];
+            Long parentCommentId = commentSaveReq.getParentCommentId();
+            if (ObjectUtils.isEmpty(parentCommentId)) {
+                Long articleId = commentSaveReq.getArticleId();
+                // 评论
+                param = "articleId=" + articleId + "&type=" + 6;
+            } else {
+                // 删除评论
+                Long articleId = commentSaveReq.getArticleId();
+                param = "articleId=" + articleId + "&type=" + 8;
+            }
+
+
         } else {
+            // 点赞 收藏
             if (ObjectUtils.isNotEmpty(request)) {
 
                 Map<String, String[]> parameterMap = request.getParameterMap();

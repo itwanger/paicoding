@@ -40,4 +40,19 @@ public class RedisConstant {
      */
     public static final String COLLECTION = "collection:";
 
+    /**
+     * 评论
+     */
+    public static final String COMMENT = "comment:";
+
+    /**
+     * 回复评论
+     */
+    public static final String RECOVER = "recover:";
+
+    /**
+     * 用户总通知 TOTAL
+     */
+    public static final String TOTAL = "total:";
+
 }

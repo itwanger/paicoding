@@ -59,6 +59,18 @@ public enum OperateTypeEnum {
             return CommentStatEnum.DELETE_COMMENT.getCode();
         }
     },
+    RECOVER(8, "回复评论") {
+        @Override
+        public int getDbStatCode() {
+            return RecoverStatEnum.RECOVER.getCode();
+        }
+    },
+    DELETE_RECOVER(9, "删除恢复评论") {
+        @Override
+        public int getDbStatCode() {
+            return RecoverStatEnum.DELETE_RECOVER.getCode();
+        }
+    },
     ;
 
     OperateTypeEnum(Integer code, String desc) {
