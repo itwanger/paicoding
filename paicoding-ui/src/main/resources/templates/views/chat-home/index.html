@@ -116,13 +116,16 @@
                         if (data[i].question) {
                             addClientMsg(data[i].question, false);
                         }
-                        appendServerMessage(data[i].answer, data[i].answerTime, data[i].answerType);
+                        appendServerMessage(data[i]);
                     }
                 } else {
-                    appendServerMessage(data[0].answer, data[0].answerTime, data[0].answerType);
+                    appendServerMessage(data[0]);
                 }
-                // 添加完消息后，恢复按钮的状态
-                sendBtn.removeAttr("disabled");
+
+                // 添加完消息后，出了流式持续返回这种场景，其他的恢复按钮的状态
+                if(data[data.length - 1].answerType != 'STREAM') {
+                    sendBtn.removeAttr("disabled");
+                }
             });
         });
 
@@ -152,7 +155,13 @@
     }
 
     // 添加服务器端消息
-    function appendServerMessage(content, time, answerType) {
+    function appendServerMessage(answer) {
+        let content = answer.answer;
+        let time = answer.answerTime;
+        let answerType = answer.answerType;
+        let chatId = answer.chatUid
+        let appendLastChat = false;
+        console.log("准备添加内容:", answer);
         // 如果 source 等于"CHAT_GPT_3_5"
         if("JSON" === answerType) {
             // 需要对 body 的 JSON 字符串进行解析
@@ -168,9 +177,26 @@
 
                 console.log("CHAT_GPT_3_5 content escapeHtml after:", content);
             }
+        } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
+            const lastDiv = $(`#${chatId}`)
+            console.log("流式结果返回: ", content, lastDiv);
+            if (lastDiv.length > 0) {
+                // 对于流式返回的结果，找上一次的返回，进行结果的追加，手动将分隔符给干掉
+                let tagIndex = content.lastIndexOf('$…$');
+                if (tagIndex > 0) {
+                    content = content.substring(tagIndex + '$…$'.length);
+                }
+
+                lastDiv.append(content);
+                appendLastChat = true;
+            } else{
+                // 上一次没有输出过，则格式化文本，重新输出
+                content = content.replaceAll('$…$', '');
+            }
         }
 
-        let serverMsg = `
+        if(!appendLastChat) {
+            let serverMsg = `
             <div class="home_chat-message__rdH_g server-msg">
                 <div class="home_chat-message-container__plj_e">
                     <div class="home_chat-message-avatar__611lI">
@@ -185,7 +211,7 @@
                             <div class="home_chat-message-top-action__wXKmA">复制</div>
                         </div>
                         <div class="markdown-body">
-                            <p>${content}</p>
+                            <p id="${chatId}">${content}</p>
                         </div>
                     </div>
                     <div class="home_chat-message-actions__nrHd1">
@@ -195,8 +221,8 @@
             </div>
             `;
 
-        chatContent.append(serverMsg);
-
+            chatContent.append(serverMsg);
+        }
         // 高亮代码
         chatContent.find('pre code').each(function(i, block) {
             hljs.highlightBlock(block);

@@ -1,6 +1,6 @@
 package com.github.paicoding.forum.service.chatai.constants;
 
-import com.github.paicoding.forum.api.model.enums.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 
 /**
  * @author YiHui

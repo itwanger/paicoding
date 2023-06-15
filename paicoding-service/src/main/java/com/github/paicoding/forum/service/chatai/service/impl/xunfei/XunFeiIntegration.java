@@ -1,9 +1,12 @@
 package com.github.paicoding.forum.service.chatai.service.impl.xunfei;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -13,6 +16,7 @@ import okhttp3.WebSocketListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URL;
@@ -34,6 +38,7 @@ import java.util.TimeZone;
  * @date 2023/6/12
  */
 @Slf4j
+@Setter
 @Component
 public class XunFeiIntegration {
     @Value("${xunfei.hostUrl:http://spark-api.xf-yun.com/v1.1/chat}")
@@ -44,12 +49,18 @@ public class XunFeiIntegration {
     public String APIKEY = "";//从开放平台控制台中获取
     @Value("${xunfei.apiSecret:}")
     public String APISecret = "";//从开放平台控制台中获取
+    @Getter
+    private OkHttpClient okHttpClient;
+
+    @PostConstruct
+    public void init() {
+        okHttpClient = new OkHttpClient.Builder().build();
+    }
 
     public WebSocket newWebSocket(WebSocketListener listener) {
         try {
             //构建鉴权httpurl
             String authUrl = getAuthorizationUrl(hostUrl, APIKEY, APISecret);
-            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
             String url = authUrl.replace("https://", "wss://").replace("http://", "ws://");
             log.info("讯飞建立连接:" + url);
             Request request = new Request.Builder().url(url).build();
@@ -57,6 +68,17 @@ public class XunFeiIntegration {
             return socket;
         } catch (Exception e) {
             log.warn("讯飞长连接开启失败！", e);
+            return null;
+        }
+    }
+
+    public String buildXunFeiUrl() {
+        try {
+            String authUrl = getAuthorizationUrl(hostUrl, APIKEY, APISecret);
+            String url = authUrl.replace("https://", "wss://").replace("http://", "ws://");
+            return url;
+        } catch (Exception e) {
+            log.warn("讯飞url创建失败", e);
             return null;
         }
     }
@@ -133,8 +155,12 @@ public class XunFeiIntegration {
         return frame.toString();
     }
 
+    public ResponseData parse2response(String text) {
+        return JsonUtil.toObj(text, ResponseData.class);
+    }
+
     @Data
-    public class ResponseData {
+    public static class ResponseData {
         private Header header;
         private Payload payload;
 
@@ -162,7 +188,7 @@ public class XunFeiIntegration {
     }
 
     @Data
-    public class Header {
+    public static class Header {
         /**
          * 错误码，0表示正常，非0表示出错；详细释义可在接口说明文档最后的错误码说明了解
          */
@@ -182,13 +208,13 @@ public class XunFeiIntegration {
     }
 
     @Data
-    public class Payload {
+    public static class Payload {
         private Choices choices;
         private Usage usage;
     }
 
     @Data
-    public class Choices {
+    public static class Choices {
         /**
          * 文本响应状态，取值为[0,1,2]; 0代表首个文本结果；1代表中间文本结果；2代表最后一个文本结果
          */
@@ -202,7 +228,7 @@ public class XunFeiIntegration {
     }
 
     @Data
-    public class ChoicesText {
+    public static class ChoicesText {
         /**
          * 结果序号，取值为[0,10]; 当前为保留字段，开发者可忽略
          */
@@ -218,12 +244,12 @@ public class XunFeiIntegration {
     }
 
     @Data
-    public class Usage {
+    public static class Usage {
         private UsageText text;
     }
 
     @Data
-    public class UsageText {
+    public static class UsageText {
         /**
          * 保留字段，可忽略
          */

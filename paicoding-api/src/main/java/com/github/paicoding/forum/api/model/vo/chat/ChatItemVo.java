@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 /**
  * 一次qa的聊天记录
@@ -18,6 +19,10 @@ import java.time.format.DateTimeFormatter;
 @Accessors(chain = true)
 public class ChatItemVo implements Serializable, Cloneable {
     private static final long serialVersionUID = 7230339040247758226L;
+    /**
+     * 唯一的聊天id，不要求存在，主要用于简化流式输出时，前端对返回结果的处理
+     */
+    private String chatUid;
 
     /**
      * 提问的内容
@@ -65,13 +70,36 @@ public class ChatItemVo implements Serializable, Cloneable {
     public ChatItemVo initAnswer(String answer) {
         this.answer = answer;
         this.answerType = ChatAnswerTypeEnum.TEXT;
-        this.answerTime = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss").format(LocalDateTime.now());
+        setAnswerTime();
         return this;
     }
 
     public ChatItemVo initAnswer(String answer, ChatAnswerTypeEnum answerType) {
         this.answer = answer;
         this.answerType = answerType;
+        setAnswerTime();
+        return this;
+    }
+
+    /**
+     * 流式的追加返回
+     *
+     * @param answer
+     * @return
+     */
+    public ChatItemVo appendAnswer(String answer) {
+        if (this.answer == null) {
+            this.answer = answer;
+            this.chatUid = UUID.randomUUID().toString().replaceAll("-", "");
+        } else {
+            this.answer += "$…$" + answer;
+        }
+        this.answerType = ChatAnswerTypeEnum.STREAM;
+        setAnswerTime();
+        return this;
+    }
+
+    public ChatItemVo setAnswerTime() {
         this.answerTime = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss").format(LocalDateTime.now());
         return this;
     }

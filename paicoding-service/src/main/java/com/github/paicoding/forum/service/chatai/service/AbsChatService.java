@@ -1,11 +1,11 @@
 package com.github.paicoding.forum.service.chatai.service;
 
+import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -81,6 +81,19 @@ public abstract class AbsChatService implements ChatService {
         return res;
     }
 
+    @Override
+    public ChatRecordsVo chat(String user, String question, Consumer<ChatRecordsVo> consumer) {
+        ChatRecordsVo res = initResVo(user, question);
+        if (!res.hasQaCnt()) {
+            return res;
+        }
+
+        // 同步聊天时，直接返回结果
+        answer(user, res);
+        consumer.accept(res);
+        return res;
+    }
+
     private ChatRecordsVo initResVo(String user, String question) {
         ChatRecordsVo res = new ChatRecordsVo();
         res.setSource(source());
@@ -98,12 +111,13 @@ public abstract class AbsChatService implements ChatService {
         return res;
     }
 
-    protected void answer(String user, ChatRecordsVo res) {
+    protected AiChatStatEnum answer(String user, ChatRecordsVo res) {
         ChatItemVo itemVo = res.getRecords().get(0);
-        boolean ans = doAnswer(user, itemVo);
-        if (ans) {
+        AiChatStatEnum ans = doAnswer(user, itemVo);
+        if (ans == AiChatStatEnum.END) {
             processAfterSuccessedAnswered(user, res);
         }
+        return ans;
     }
 
     /**
@@ -113,7 +127,7 @@ public abstract class AbsChatService implements ChatService {
      * @param chat
      * @return true 表示正确回答了； false 表示回答出现异常
      */
-    public abstract boolean doAnswer(String user, ChatItemVo chat);
+    public abstract AiChatStatEnum doAnswer(String user, ChatItemVo chat);
 
     /**
      * 成功返回之后的后置操作
@@ -148,18 +162,20 @@ public abstract class AbsChatService implements ChatService {
         }
 
         final ChatRecordsVo newRes = res.clone();
-        boolean needReturn = doAsyncAnswer(user, newRes, (ans, vo) -> {
-            // 把结果返回给前端用户
+        AiChatStatEnum needReturn = doAsyncAnswer(user, newRes, (ans, vo) -> {
+            // ai异步返回结果之后，我们将结果推送给前端用户
             consumer.accept(newRes);
-            if (BooleanUtils.isTrue(ans)) {
+            if (ans == AiChatStatEnum.END) {
+                // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
                 processAfterSuccessedAnswered(user, newRes);
             }
         });
 
-        if (needReturn) {
+        if (needReturn.needResponse()) {
             // 异步响应时，直接返回一个稍等得提示文案
             ChatItemVo nowItem = res.getRecords().get(0);
             nowItem.initAnswer(ChatConstants.ASYNC_CHAT_TIP);
+            consumer.accept(res);
         }
         return res;
     }
@@ -170,9 +186,9 @@ public abstract class AbsChatService implements ChatService {
      * @param user
      * @param response 保存提问 & 返回的结果，最终会返回给前端用户
      * @param consumer 具体将 response 写回前端的实现策略
-     * @return true 表示需要返回一个稍等的提示信息； false 表示不需要返回等待信息
+     * @return 返回的会话状态，控制是否需要将结果直接返回给前端
      */
-    public abstract boolean doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<Boolean, ChatRecordsVo> consumer);
+    public abstract AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer);
 
     /**
      * 查询当前用户最多可提问的次数

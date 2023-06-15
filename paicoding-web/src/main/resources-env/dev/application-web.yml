@@ -13,3 +13,9 @@ spring:
 
 chatgpt:
   key: # 这里加上gpt的key
+
+xunfei:
+  hostUrl: http://spark-api.xf-yun.com/v1.1/chat
+  appId:
+  apiKey:
+  apiSecret:

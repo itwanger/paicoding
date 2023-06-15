@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.api.model.enums;
+package com.github.paicoding.forum.api.model.enums.ai;
 
 /**
  * @author YiHui
