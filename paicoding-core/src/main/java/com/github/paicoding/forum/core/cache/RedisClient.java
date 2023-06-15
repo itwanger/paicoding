@@ -2,6 +2,7 @@ package com.github.paicoding.forum.core.cache;
 
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.common.collect.Maps;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
@@ -127,7 +128,8 @@ public class RedisClient {
     }
 
     public static <T> Map<String, T> hGetAll(String key, Class<T> clz) {
-        Map<byte[], byte[]> records = template.execute((RedisCallback<Map<byte[], byte[]>>) con -> con.hGetAll(keyBytes(key)));
+        Map<byte[], byte[]> records =
+                template.execute((RedisCallback<Map<byte[], byte[]>>) con -> con.hGetAll(keyBytes(key)));
         if (records == null) {
             return Collections.emptyMap();
         }
