@@ -8,11 +8,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +19,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * 主体来自讯飞官方java sdk
@@ -55,21 +47,6 @@ public class XunFeiIntegration {
     @PostConstruct
     public void init() {
         okHttpClient = new OkHttpClient.Builder().build();
-    }
-
-    public WebSocket newWebSocket(WebSocketListener listener) {
-        try {
-            //构建鉴权httpurl
-            String authUrl = getAuthorizationUrl(hostUrl, APIKEY, APISecret);
-            String url = authUrl.replace("https://", "wss://").replace("http://", "ws://");
-            log.info("讯飞建立连接:" + url);
-            Request request = new Request.Builder().url(url).build();
-            WebSocket socket = okHttpClient.newWebSocket(request, listener);
-            return socket;
-        } catch (Exception e) {
-            log.warn("讯飞长连接开启失败！", e);
-            return null;
-        }
     }
 
     public String buildXunFeiUrl() {
@@ -119,7 +96,6 @@ public class XunFeiIntegration {
                 addQueryParameter("date", date).
                 addQueryParameter("host", url.getHost()).
                 build();
-        System.out.println("url:" + httpUrl.toString());
         return httpUrl.toString();
     }
 
@@ -151,7 +127,6 @@ public class XunFeiIntegration {
         frame.add("header", header);
         frame.add("parameter", parameter);
         frame.add("payload", payload);
-        System.out.println("frame:\n" + frame.toString());
         return frame.toString();
     }
 

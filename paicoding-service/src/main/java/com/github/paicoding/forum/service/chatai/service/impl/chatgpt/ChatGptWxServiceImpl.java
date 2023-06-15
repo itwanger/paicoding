@@ -31,14 +31,15 @@ import java.util.concurrent.TimeoutException;
  */
 @Slf4j
 @Service
-public class ChatgptWxServiceImpl implements ChatgptService {
+public class ChatGptWxServiceImpl implements ChatgptService {
     @Autowired
     private ChatGptIntegration chatGptHelper;
-    private LoadingCache<Long, ChatRecord> chatCache = CacheBuilder.newBuilder().expireAfterWrite(10, TimeUnit.MINUTES)
-            .maximumSize(50).build(new CacheLoader<Long, ChatRecord>() {
+    private LoadingCache<Long, ChatRecordWxVo> chatCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(50).build(new CacheLoader<Long, ChatRecordWxVo>() {
                 @Override
-                public ChatRecord load(Long userId) throws Exception {
-                    return new ChatRecord();
+                public ChatRecordWxVo load(Long userId) throws Exception {
+                    return new ChatRecordWxVo();
                 }
             });
 
@@ -84,7 +85,7 @@ public class ChatgptWxServiceImpl implements ChatgptService {
                 return ChatConstants.CHAT_REPLY_RECOMMEND;
             }
 
-            chatCache.put(user.getId(), new ChatRecord());
+            chatCache.put(user.getId(), new ChatRecordWxVo());
             return ChatConstants.CHAT_REPLY_BEGIN;
         }
 
@@ -104,7 +105,7 @@ public class ChatgptWxServiceImpl implements ChatgptService {
         }
 
         // 判断用户的上一次访问结果有没有正确返回，如果没有，那么这一次的交互不响应，直接返回上一次的返回结果；
-        ChatRecord chatRecord = chatCache.getUnchecked(userId);
+        ChatRecordWxVo chatRecord = chatCache.getUnchecked(userId);
         if (System.currentTimeMillis() - chatRecord.getQasTime() < ChatConstants.QAS_TIME_INTERVAL) {
             // 限制交互频率
             if (chatRecord.canReply()) {
@@ -119,7 +120,7 @@ public class ChatgptWxServiceImpl implements ChatgptService {
         // 执行正常的提问、应答; 针对上次结果还没有拿到的场景做一个兼容，只有拿到结果之后，才继续响应后续的问答
         if (StringUtils.isBlank(chatRecord.getQas()) || chatRecord.isLastReturn()) {
             // 首次提问 或者上次的提问正确返回了结果
-            ChatRecord newRecord = doQuery(userId, content, chatRecord);
+            ChatRecordWxVo newRecord = doQuery(userId, content, chatRecord);
             if (newRecord.canReply()) {
                 return chatRecord.reply();
             } else {
@@ -143,12 +144,12 @@ public class ChatgptWxServiceImpl implements ChatgptService {
      * @param currentChat
      * @return
      */
-    private ChatRecord doQuery(Long userId, String content, ChatRecord currentChat) {
+    private ChatRecordWxVo doQuery(Long userId, String content, ChatRecordWxVo currentChat) {
         // 访问计数+1
         Long cnt = incrCnt(userId);
 
         // 重新构建当前的聊天记录
-        ChatRecord newRecord = new ChatRecord().setPre(currentChat)
+        ChatRecordWxVo newRecord = new ChatRecordWxVo().setPre(currentChat)
                 .setQasIndex(Optional.ofNullable(cnt).orElse(1L).intValue());
         newRecord.setQas(content).setLastReturn(false).setQasTime(System.currentTimeMillis());
         currentChat.setNext(newRecord);
@@ -156,7 +157,7 @@ public class ChatgptWxServiceImpl implements ChatgptService {
 
 
         try {
-            AsyncUtil.callWithTimeLimit(3500, TimeUnit.MILLISECONDS, () -> chatGptHelper.gptReturn(userId, newRecord));
+            AsyncUtil.callWithTimeLimit(3500, TimeUnit.MILLISECONDS, () -> chatGptHelper.directReturn(userId, newRecord));
         } catch (TimeoutException | InterruptedException e) {
             // 超时中断的场景
             newRecord.setLastReturn(false);
