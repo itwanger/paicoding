@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.core.dto;
+package com.github.paicoding.forum.api.model.dto;
 
 import lombok.Data;
 
