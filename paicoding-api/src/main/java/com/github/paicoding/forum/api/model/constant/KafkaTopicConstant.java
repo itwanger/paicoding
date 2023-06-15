@@ -13,6 +13,6 @@ public class KafkaTopicConstant {
     /**
      * article主题
      */
-    public static final String ARTICLE_TOPIC = "paicoding_aricle";
+    public static final String ARTICLE_TOPIC = "paicoding_article";
 
 }
