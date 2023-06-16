@@ -10,6 +10,10 @@ public enum AISourceEnum {
      */
     CHAT_GPT_3_5("chatGpt3.5"),
     /**
+     * chatgpt 4
+     */
+    CHAT_GPT_4("chatGpt4"),
+    /**
      * 技术派的模拟AI
      */
     PAI_AI("技术派"),

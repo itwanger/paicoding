@@ -2,7 +2,7 @@ package com.github.paicoding.forum.service.chatai.service.impl.chatgpt;
 
 import cn.hutool.core.util.RandomUtil;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
-import com.github.paicoding.forum.api.model.enums.ai.ChatGptModelEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.net.ProxyCenter;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -52,8 +52,8 @@ public class ChatGptIntegration {
         /**
          * 默认的模型
          */
-        private ChatGptModelEnum main;
-        private Map<ChatGptModelEnum, GptConf> conf;
+        private AISourceEnum main;
+        private Map<AISourceEnum, GptConf> conf;
     }
 
     @Data
@@ -70,8 +70,8 @@ public class ChatGptIntegration {
         }
     }
 
-    public static ChatCompletion.Model parse2GptMode(ChatGptModelEnum model) {
-        if (model == ChatGptModelEnum.CHAT_4) {
+    public static ChatCompletion.Model parse2GptMode(AISourceEnum model) {
+        if (model == AISourceEnum.CHAT_GPT_4) {
             return ChatCompletion.Model.GPT_4;
         }
         return ChatCompletion.Model.GPT_3_5_TURBO;
@@ -85,14 +85,14 @@ public class ChatGptIntegration {
     /**
      * 每个用户的会话缓存
      */
-    public LoadingCache<ImmutablePair<Long, ChatGptModelEnum>, ImmutablePair<ChatGPT, ChatGPTStream>> cacheStream;
+    public LoadingCache<ImmutablePair<Long, AISourceEnum>, ImmutablePair<ChatGPT, ChatGPTStream>> cacheStream;
 
     @PostConstruct
     public void initKey() {
         cacheStream = CacheBuilder.newBuilder().expireAfterWrite(300, TimeUnit.SECONDS)
-                .build(new CacheLoader<ImmutablePair<Long, ChatGptModelEnum>, ImmutablePair<ChatGPT, ChatGPTStream>>() {
+                .build(new CacheLoader<ImmutablePair<Long, AISourceEnum>, ImmutablePair<ChatGPT, ChatGPTStream>>() {
                     @Override
-                    public ImmutablePair<ChatGPT, ChatGPTStream> load(ImmutablePair<Long, ChatGptModelEnum> s) throws Exception {
+                    public ImmutablePair<ChatGPT, ChatGPTStream> load(ImmutablePair<Long, AISourceEnum> s) throws Exception {
                         return ImmutablePair.of(null, null);
                     }
                 });
@@ -104,7 +104,7 @@ public class ChatGptIntegration {
      * @param routingKey
      * @return
      */
-    private ChatGPT simpleGPT(Long routingKey, ChatGptModelEnum model) {
+    private ChatGPT simpleGPT(Long routingKey, AISourceEnum model) {
         GptConf conf = config.getConf().getOrDefault(model, config.getConf().get(config.getMain()));
         Proxy proxy = conf.isProxy() ? ProxyCenter.loadProxy(String.valueOf(routingKey)) : Proxy.NO_PROXY;
 
@@ -118,7 +118,7 @@ public class ChatGptIntegration {
      * @param routingKey
      * @return
      */
-    private ChatGPTStream simpleStreamGPT(Long routingKey, ChatGptModelEnum model) {
+    private ChatGPTStream simpleStreamGPT(Long routingKey, AISourceEnum model) {
         GptConf conf = config.getConf().getOrDefault(model, config.getConf().get(config.getMain()));
         Proxy proxy = conf.isProxy() ? ProxyCenter.loadProxy(String.valueOf(routingKey)) : Proxy.NO_PROXY;
 
@@ -126,8 +126,8 @@ public class ChatGptIntegration {
                 .apiHost(conf.getApiHost()).build().init();
     }
 
-    public ChatGPT getGpt(Long routingKey, ChatGptModelEnum model) {
-        ImmutablePair<Long, ChatGptModelEnum> key = ImmutablePair.of(routingKey, model);
+    public ChatGPT getGpt(Long routingKey, AISourceEnum model) {
+        ImmutablePair<Long, AISourceEnum> key = ImmutablePair.of(routingKey, model);
         ImmutablePair<ChatGPT, ChatGPTStream> pair = cacheStream.getUnchecked(key);
         ChatGPT gpt = pair.left;
         if (gpt == null) {
@@ -137,8 +137,8 @@ public class ChatGptIntegration {
         return gpt;
     }
 
-    public ChatGPTStream getGptStream(Long routingKey, ChatGptModelEnum model) {
-        ImmutablePair<Long, ChatGptModelEnum> key = ImmutablePair.of(routingKey, model);
+    public ChatGPTStream getGptStream(Long routingKey, AISourceEnum model) {
+        ImmutablePair<Long, AISourceEnum> key = ImmutablePair.of(routingKey, model);
         ImmutablePair<ChatGPT, ChatGPTStream> pair = cacheStream.getUnchecked(key);
         ChatGPTStream gpt = pair.right;
         if (gpt == null) {
@@ -153,13 +153,13 @@ public class ChatGptIntegration {
      *
      * @return
      */
-    public String creditInfo(ChatGptModelEnum model) {
+    public String creditInfo(AISourceEnum model) {
         CreditGrantsResponse response = getGpt(0L, model).creditGrants();
         return JsonUtil.toStr(response);
     }
 
     public boolean directReturn(Long routingKey, ChatItemVo chat) {
-        ChatGptModelEnum selectModel = config.getMain();
+        AISourceEnum selectModel = config.getMain();
         GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
         ChatGPT gpt = getGpt(routingKey, config.getMain());
         try {
@@ -187,7 +187,7 @@ public class ChatGptIntegration {
      * @return
      */
     public boolean streamReturn(Long routingKey, ChatItemVo chat, EventSourceListener listener) {
-        ChatGptModelEnum selectModel = config.getMain();
+        AISourceEnum selectModel = config.getMain();
         GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
         ChatGPTStream chatGPTStream = simpleStreamGPT(routingKey, selectModel);
 
@@ -205,7 +205,7 @@ public class ChatGptIntegration {
      * @return
      */
     public boolean directReturn(Long routingKey, ChatRecordWxVo record) {
-        ChatGptModelEnum selectModel = config.getMain();
+        AISourceEnum selectModel = config.getMain();
         GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
         ChatGPT gpt = getGpt(routingKey, config.getMain());
         try {

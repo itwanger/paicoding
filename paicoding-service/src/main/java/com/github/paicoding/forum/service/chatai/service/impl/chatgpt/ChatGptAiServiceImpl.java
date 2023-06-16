@@ -40,6 +40,7 @@ public class ChatGptAiServiceImpl extends AbsChatService {
                 // 成功返回结果的场景
                 item.appendAnswer(message);
                 consumer.accept(AiChatStatEnum.MID, chatRes);
+                log.info("完整的返回内容: {}", lastMessage);
             }
 
             @Override
@@ -63,5 +64,11 @@ public class ChatGptAiServiceImpl extends AbsChatService {
     @Override
     public AISourceEnum source() {
         return AISourceEnum.CHAT_GPT_3_5;
+    }
+
+    @Override
+    public boolean asyncFirst() {
+        // true 表示优先使用异步返回； false 表示同步等待结果
+        return true;
     }
 }
