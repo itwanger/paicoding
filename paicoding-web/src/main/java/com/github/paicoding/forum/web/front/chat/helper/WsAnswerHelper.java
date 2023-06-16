@@ -22,7 +22,7 @@ public class WsAnswerHelper {
     private ChatFacade chatFacade;
 
     // fixme ai的切换，交给用户来选择
-    AISourceEnum source = AISourceEnum.XUN_FEI_AI;
+    AISourceEnum source = AISourceEnum.CHAT_GPT_3_5;
 
     public void sendMsgToUser(String session, String question) {
         ChatRecordsVo res = chatFacade.autoChat(source, question, vo -> response(session, vo));

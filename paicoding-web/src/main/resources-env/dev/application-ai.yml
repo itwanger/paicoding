@@ -4,25 +4,21 @@ net:
     - ip: 127.0.0.1
       port: 1080
       type: SOCKS
-    - ip: 127.0.0.1
-      port: 1700
-      type: SOCKS
 
 
 
 # chatgpt
 chatgpt:
-  main: GPT_3_5_TURBO
+  main: CHAT_GPT_3_5
   conf:
-    GPT_3_5_TURBO:
+    CHAT_GPT_3_5:
       keys:
-        - xx1
-        - xx2
+        - # 这里输入你的key
       proxy: true # 表示走上面的代理进行访问
       apiHost: https://api.openai.com/
       timeOut: 900
       maxToken: 3000
-    GPT_4:
+    CHAT_GPT_4:
       keys:
         -
       proxy: true
