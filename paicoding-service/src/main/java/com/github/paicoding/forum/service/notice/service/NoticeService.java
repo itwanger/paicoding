@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.service.notice.service;
 
+import com.github.paicoding.forum.api.model.vo.article.RemoveNotice;
+import com.github.paicoding.forum.api.model.vo.article.dto.NoticeDTO;
+
 /**
  * NoticeService
  *
@@ -9,5 +12,8 @@ package com.github.paicoding.forum.service.notice.service;
  * @Version: 1.0
  */
 public interface NoticeService {
-    Integer getTotal();
+
+    NoticeDTO getTotal();
+
+    void removeNum(RemoveNotice param);
 }
