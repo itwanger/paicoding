@@ -2,7 +2,6 @@ package com.github.paicoding.forum.web.front.chat.rest;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
-import com.github.paicoding.forum.web.front.chat.helper.WsLogicExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -37,7 +36,7 @@ public class ChatRestController {
      */
     @MessageMapping("/chat/{session}")
     public void chat(String msg, @DestinationVariable("session") String session, @Header("simpSessionAttributes") Map<String, Object> attrs) {
-        WsLogicExecutor.execute(attrs, () -> {
+        answerHelper.execute(attrs, () -> {
             log.info("{} 用户开始了对话: {}", ReqInfoContext.getReqInfo().getUser(), msg);
             answerHelper.sendMsgToUser(session, msg);
         });
