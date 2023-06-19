@@ -11,6 +11,7 @@ import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -86,6 +88,20 @@ public class TestController {
     @RequestMapping(value = "/testKnife4j", method = RequestMethod.POST)
     public String testKnife4j() {
         return "沉默王二又帅又丑";
+    }
+
+    // POST 请求，使用 HttpServletRequest 获取请求参数
+    @PostMapping(path = "testPost")
+    public String testPost(HttpServletRequest request) {
+        String name = request.getParameter("name");
+        String age = request.getParameter("age");
+        return "name=" + name + ", age=" + age;
+    }
+
+    // POST 请求，使用 HttpServletRequest 获取请求参数，使用 JSON 把参数转为字符串
+    @PostMapping(path = "testPostJson")
+    public String testPostJson(HttpServletRequest request) {
+        return JsonUtil.toStr(request.getParameterMap());
     }
 
 
