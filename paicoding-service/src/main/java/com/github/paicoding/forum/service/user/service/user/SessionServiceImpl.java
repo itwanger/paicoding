@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.service.user;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
@@ -12,6 +13,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,6 +101,8 @@ public class SessionServiceImpl implements SessionService {
     public String login(String username, String password) {
         // 用户名和密码登录
         BaseUserInfoDTO user = userService.passwordLogin(username, password);
+        ReqInfoContext.getReqInfo().setUserId(user.getUserId());
+        ReqInfoContext.getReqInfo().setUser(user);
         return login(user.getUserId());
     }
 }
