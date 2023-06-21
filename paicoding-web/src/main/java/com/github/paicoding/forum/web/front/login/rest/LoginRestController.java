@@ -9,6 +9,7 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.web.front.login.QrLoginHelper;
 import com.github.paicoding.forum.web.front.login.vo.QrLoginVo;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -57,6 +59,7 @@ public class LoginRestController {
 
     /**
      * 用户名和密码登录
+     * 可以根据星球编号/用户名进行密码匹配
      */
     @PostMapping("/login/username")
     public ResVo<Boolean> login(@RequestParam(name = "username") String username,
@@ -79,7 +82,7 @@ public class LoginRestController {
     public ResVo<Boolean> register(@RequestParam(name = "username") String username,
                                    @RequestParam(name = "password") String password,
                                    @RequestParam(name = "starNumber") String starNumber,
-                               HttpServletResponse response) {
+                                   HttpServletResponse response) {
         if (StringUtils.isNotBlank(starNumber)) {
             // TODO 绑定账号等待审核
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "等待审核");

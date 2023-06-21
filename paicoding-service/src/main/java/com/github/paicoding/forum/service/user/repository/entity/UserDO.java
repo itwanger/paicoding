@@ -42,4 +42,10 @@ public class UserDO extends BaseDO {
      * 登录密码，密文存储
      */
     private String password;
+
+    /**
+     * 知识星球编号
+     */
+    private String starNumber;
+
 }
