@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.login.rest;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
