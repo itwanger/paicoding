@@ -9,9 +9,11 @@ import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
 import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
+
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -42,8 +44,12 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
      */
     public UserDO getByUserName(String userName) {
         LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
-        query.eq(UserDO::getUserName, userName)
+
+        // 支持userName or starNumber查询
+        query.and(wrapper -> wrapper.eq(UserDO::getUserName, userName).or().eq(UserDO::getStarNumber, userName))
                 .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
+        /*query.eq(UserDO::getUserName, userName)
+                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());*/
         return userMapper.selectOne(query);
     }
 
@@ -57,7 +63,7 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
         query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
                 .and(!StringUtils.isEmpty(userName),
-                     v -> v.like(UserInfoDO::getUserName, userName)
+                        v -> v.like(UserInfoDO::getUserName, userName)
                 )
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectList(query);
