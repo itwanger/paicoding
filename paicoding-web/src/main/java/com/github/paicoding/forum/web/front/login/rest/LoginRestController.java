@@ -11,6 +11,7 @@ import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.web.front.login.QrLoginHelper;
 import com.github.paicoding.forum.web.front.login.vo.QrLoginVo;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -82,14 +83,31 @@ public class LoginRestController {
     @PostMapping("/login/register")
     public ResVo<Boolean> register(@RequestParam(name = "username") String username,
                                    @RequestParam(name = "password") String password,
-                                   @RequestParam(name = "starNumber") String starNumber,
+                                   @RequestParam(name = "starNumber", required = false) Integer starNumber,
                                    HttpServletResponse response) {
-        if (StringUtils.isNotBlank(starNumber)) {
-            // TODO 绑定账号等待审核
+
+        if (!ObjectUtils.isEmpty(starNumber)) {
+
+            // 先校验星球编号
+            if (!this.checkStarNumber(starNumber)) {
+                // 根据userName校验是否存在用户
+                if (!sessionService.isHaveUser(username)) {
+                    sessionService.registerUser(username, password);
+                }
+                return this.login(username, password, response);
+
+            }
+
+            sessionService.register(username, password, starNumber);
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "等待审核");
         } else {
+            // 根据userName校验是否存在用户
+            if (!sessionService.isHaveUser(username)) {
+                sessionService.registerUser(username, password);
+            }
             // 直接调用登录，默认用户登录行为
-            return login(username, password, response);
+            return this.login(username, password, response);
+
         }
     }
 
@@ -141,5 +159,13 @@ public class LoginRestController {
             vo.setReconnect(false);
         }
         return ResVo.ok(vo);
+    }
+
+    private Boolean checkStarNumber(Integer starNumber) {
+
+        if (starNumber < 0 || starNumber > 3000) {
+            return false;
+        }
+        return true;
     }
 }

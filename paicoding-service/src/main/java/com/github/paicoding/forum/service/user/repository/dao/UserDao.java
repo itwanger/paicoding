@@ -10,12 +10,17 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
 import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author YiHui
@@ -23,8 +28,51 @@ import java.util.List;
  */
 @Repository
 public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
+
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private UserInfoMapper userInfoMapper;
+
+    /**
+     * 密码加盐，更推荐的做法是每个用户都使用独立的盐，提高安全性
+     */
+    @Value("${security.salt}")
+    private String salt;
+
+    @Value("${security.salt-index}")
+    private Integer saltIndex;
+
+    /**
+     * 注册用户
+     *
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void registerUser(String userName, String password) {
+
+        UserDO userDO = new UserDO();
+        userDO.setUserName(userName);
+        if (password.length() > saltIndex) {
+            password = password.substring(0, saltIndex) + salt + password.substring(saltIndex);
+        } else {
+            password = password + salt;
+        }
+        password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
+        userDO.setPassword(password);
+        userDO.setThirdAccountId("default");
+        userDO.setStarNumber("-1");
+
+        userMapper.insert(userDO);
+
+        UserInfoDO userInfoDO = new UserInfoDO();
+        userInfoDO.setUserId(Long.valueOf(userDO.getId()));
+        userInfoDO.setUserName(userName);
+        userInfoDO.setPhoto("https://cdn.tobebetterjavaer.com/paicoding/avatar/0057.png");
+        userInfoMapper.insert(userInfoDO);
+
+    }
 
     /**
      * 三方账号登录方式
@@ -106,5 +154,20 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         }
         user.setId(record.getId());
         updateById(user);
+    }
+
+    /**
+     * user和星球编号做绑定
+     *
+     * @author: ygl
+     * @date: 2023/6/22 10:56
+     * @return
+     */
+    public void register(String username, Integer starNumber) {
+
+        UserDO userDO = this.getByUserName(username);
+        userDO.setStarNumber(String.valueOf(starNumber));
+        userMapper.updateById(userDO);
+
     }
 }
