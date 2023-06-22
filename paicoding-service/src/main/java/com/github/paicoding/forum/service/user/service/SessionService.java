@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author YiHui
  * @date 2022/8/15
@@ -57,4 +59,10 @@ public interface SessionService {
     BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
 
     String login(String username, String password);
+
+    void register(String username, String password, Integer starNumber);
+
+    Boolean isHaveUser(String username);
+
+    void registerUser(String username, String password);
 }

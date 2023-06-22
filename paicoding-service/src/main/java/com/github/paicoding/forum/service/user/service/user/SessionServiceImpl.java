@@ -9,6 +9,7 @@ import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
@@ -20,6 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 基于验证码、用户名密码的登录方式
  *
@@ -27,6 +32,7 @@ import java.util.Objects;
  * @date 2022/8/15
  */
 @Service
+@Slf4j
 public class SessionServiceImpl implements SessionService {
 
     @Autowired
@@ -105,4 +111,29 @@ public class SessionServiceImpl implements SessionService {
         ReqInfoContext.getReqInfo().setUser(user);
         return login(user.getUserId());
     }
+
+
+    @Override
+    public void register(String username, String password, Integer starNumber) {
+
+        // user和星球编号做绑定
+        userDao.register(username, starNumber);
+
+    }
+
+    @Override
+    public Boolean isHaveUser(String username) {
+        UserDO user = userDao.getByUserName(username);
+        return user != null ? true : false;
+
+    }
+
+    @Override
+    public void registerUser(String username, String password) {
+
+        userDao.registerUser(username, password);
+
+    }
+
+
 }
