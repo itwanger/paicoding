@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -33,6 +34,13 @@ public class RecordsNumberServiceImpl implements RecordsNumberService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Value("${chatgpt.number.normal}")
+    private Integer normalNumber;
+
+    @Value("${chatgpt.number.vip}")
+    private Integer vipNumber;
+
 
     @Override
     public Integer getRecordsNumber() {
@@ -65,7 +73,7 @@ public class RecordsNumberServiceImpl implements RecordsNumberService {
     private Integer getRecordsNumberByUserId() {
 
         // TODO 默认50
-        Integer recordsNumber = 50;
+        Integer recordsNumber = normalNumber;
 
         BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
         if (ObjectUtils.isEmpty(user)) {
@@ -85,7 +93,7 @@ public class RecordsNumberServiceImpl implements RecordsNumberService {
             return recordsNumber;
         }
         // 星球用户100
-        return 100;
+        return vipNumber;
 
     }
 
