@@ -25,6 +25,11 @@ chatgpt:
       apiHost: https://api.openai.com/
       timeOut: 900
       maxToken: 200000
+  number:
+    # 普通用户
+    normal: 50
+    vip: 100
+
 
 
 # 讯飞AI
