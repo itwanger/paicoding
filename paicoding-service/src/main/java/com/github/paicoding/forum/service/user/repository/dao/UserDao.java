@@ -5,24 +5,28 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
+import com.github.paicoding.forum.service.user.repository.mapper.UserAiMapper;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
 import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 /**
+ * UserDao
  * @author YiHui
  * @date 2022/9/2
  */
@@ -44,6 +48,9 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     @Value("${security.salt-index}")
     private Integer saltIndex;
 
+    @Autowired
+    private UserAiMapper userAiMapper;
+
     /**
      * 注册用户
      *
@@ -62,7 +69,6 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
         userDO.setPassword(password);
         userDO.setThirdAccountId("default");
-        userDO.setStarNumber("-1");
 
         userMapper.insert(userDO);
 
@@ -71,6 +77,14 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         userInfoDO.setUserName(userName);
         userInfoDO.setPhoto("https://cdn.tobebetterjavaer.com/paicoding/avatar/0057.png");
         userInfoMapper.insert(userInfoDO);
+
+        UserAiDO userAiDO = new UserAiDO();
+        userAiDO.setUserId(userDO.getId());
+        userAiDO.setStarNumber("-1");
+        userAiDO.setStarType(-1);
+        userAiDO.setInviterUserId(-1);
+        userAiDO.setInviteCode("-1");
+        userAiMapper.insert(userAiDO);
 
     }
 
@@ -91,14 +105,24 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
      * @return
      */
     public UserDO getByUserName(String userName) {
-        LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
+        LambdaQueryWrapper<UserDO> queryUser = Wrappers.lambdaQuery();
+        LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
+
+        queryUserAi.eq(UserAiDO::getStarNumber, userName)
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+        UserAiDO userAiDO = userAiMapper.selectOne(queryUserAi);
+        Long userId = -1L;
+        if (!ObjectUtils.isEmpty(userAiDO)) {
+            userId = userAiDO.getUserId();
+        }
 
         // 支持userName or starNumber查询
-        query.and(wrapper -> wrapper.eq(UserDO::getUserName, userName).or().eq(UserDO::getStarNumber, userName))
+        Long finalUserId = userId;
+        queryUser.and(wrapper -> wrapper.eq(UserDO::getUserName, userName).or().eq(UserDO::getId, finalUserId))
                 .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
         /*query.eq(UserDO::getUserName, userName)
                 .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());*/
-        return userMapper.selectOne(query);
+        return userMapper.selectOne(queryUser);
     }
 
     /**
@@ -166,8 +190,13 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     public void register(String username, Integer starNumber) {
 
         UserDO userDO = this.getByUserName(username);
-        userDO.setStarNumber(String.valueOf(starNumber));
-        userMapper.updateById(userDO);
+        LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
+
+        queryUserAi.eq(UserAiDO::getUserId, userDO.getId())
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+        UserAiDO userAiDO = userAiMapper.selectOne(queryUserAi);
+        userAiDO.setStarNumber(String.valueOf(starNumber));
+        userAiMapper.updateById(userAiDO);
 
     }
 }
