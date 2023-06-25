@@ -15,7 +15,9 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.service.chatai.service.RecordsNumberService;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+import com.github.paicoding.forum.service.user.repository.mapper.UserAiMapper;
 import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,9 @@ public class RecordsNumberServiceImpl implements RecordsNumberService {
 
     @Value("${chatgpt.number.vip}")
     private Integer vipNumber;
+
+    @Autowired
+    private UserAiMapper userAiMapper;
 
 
     @Override
@@ -72,7 +77,7 @@ public class RecordsNumberServiceImpl implements RecordsNumberService {
 
     private Integer getRecordsNumberByUserId() {
 
-        // TODO 默认50
+        // 默认50
         Integer recordsNumber = normalNumber;
 
         BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
@@ -84,12 +89,16 @@ public class RecordsNumberServiceImpl implements RecordsNumberService {
         LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
 
         // 支持userName or starNumber查询
-        query.and(wrapper -> wrapper.eq(UserDO::getId, userId)
-                        .eq(UserDO::getState, 2))
+        query.and(wrapper -> wrapper.eq(UserDO::getId, userId))
                 .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
 
         UserDO userDO = userMapper.selectOne(query);
-        if (ObjectUtils.isEmpty(userDO)) {
+        LambdaQueryWrapper<UserAiDO> queryAi = Wrappers.lambdaQuery();
+        queryAi.eq(UserAiDO::getUserId, userDO.getId())
+                .eq(UserAiDO::getState, 2);
+        UserAiDO userAiDO = userAiMapper.selectOne(queryAi);
+
+        if (ObjectUtils.isEmpty(userAiDO)) {
             return recordsNumber;
         }
         // 星球用户100

@@ -43,14 +43,4 @@ public class UserDO extends BaseDO {
      */
     private String password;
 
-    /**
-     * 知识星球编号
-     */
-    private String starNumber;
-
-    /**
-     * 0 审核中 1 试用中 2 审核通过 3 审核拒绝
-     */
-    private Integer state;
-
 }
