@@ -24,15 +24,15 @@ public class ChatGptAiServiceImpl extends AbsChatService {
     private ChatGptIntegration chatGptIntegration;
 
     @Override
-    public AiChatStatEnum doAnswer(String user, ChatItemVo chat) {
-        if (chatGptIntegration.directReturn(Long.valueOf(user), chat)) {
+    public AiChatStatEnum doAnswer(Long user, ChatItemVo chat) {
+        if (chatGptIntegration.directReturn(user, chat)) {
             return AiChatStatEnum.END;
         }
         return AiChatStatEnum.ERROR;
     }
 
     @Override
-    public AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+    public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         ChatItemVo item = chatRes.getRecords().get(0);
         AbstractStreamListener listener = new AbstractStreamListener() {
             @Override
@@ -57,7 +57,7 @@ public class ChatGptAiServiceImpl extends AbsChatService {
                     .setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, chatRes);
         });
-        chatGptIntegration.streamReturn(Long.valueOf(user), item, listener);
+        chatGptIntegration.streamReturn(user, item, listener);
         return AiChatStatEnum.IGNORE;
     }
 

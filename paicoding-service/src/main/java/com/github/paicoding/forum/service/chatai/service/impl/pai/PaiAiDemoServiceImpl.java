@@ -27,13 +27,13 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
     }
 
     @Override
-    public AiChatStatEnum doAnswer(String user, ChatItemVo chat) {
+    public AiChatStatEnum doAnswer(Long user, ChatItemVo chat) {
         chat.initAnswer(qa(chat.getQuestion()));
         return AiChatStatEnum.END;
     }
 
     @Override
-    public AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+    public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         AsyncUtil.execute(() -> {
             AsyncUtil.sleep(1500);
             ChatItemVo item = response.getRecords().get(0);
@@ -56,7 +56,7 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
     }
 
     @Override
-    protected int getMaxQaCnt(String user) {
+    protected int getMaxQaCnt(Long user) {
         return 65535;
     }
 }

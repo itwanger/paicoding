@@ -8,19 +8,19 @@ public enum AISourceEnum {
     /**
      * chatgpt 3.5
      */
-    CHAT_GPT_3_5("chatGpt3.5"),
+    CHAT_GPT_3_5(0, "chatGpt3.5"),
     /**
      * chatgpt 4
      */
-    CHAT_GPT_4("chatGpt4"),
+    CHAT_GPT_4(1, "chatGpt4"),
     /**
      * 技术派的模拟AI
      */
-    PAI_AI("技术派"),
+    PAI_AI(2, "技术派"),
     /**
      * 讯飞
      */
-    XUN_FEI_AI("讯飞") {
+    XUN_FEI_AI(3,"讯飞") {
         @Override
         public boolean syncSupport() {
             return false;
@@ -29,8 +29,10 @@ public enum AISourceEnum {
     ;
 
     private String name;
+    private Integer code;
 
-    AISourceEnum(String name) {
+    AISourceEnum(Integer code, String name) {
+        this.code = code;
         this.name = name;
     }
 

@@ -21,7 +21,7 @@ public final class ChatConstants {
      * @param user
      * @return
      */
-    public static String getAiHistoryRecordsKey(AISourceEnum ai, String user) {
+    public static String getAiHistoryRecordsKey(AISourceEnum ai, Long user) {
         return "chat.history." + ai.name().toLowerCase() + "." + user;
     }
 
