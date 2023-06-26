@@ -68,6 +68,10 @@ public enum StatusEnum {
     // 用户相关异常
     LOGIN_FAILED_MIXED(400_403_001, "登录失败:%s"),
     USER_NOT_EXISTS(400_404_001, "用户不存在:%s"),
+    // 待审核
+    USER_NOT_AUDIT(400_500_001, "用户未审核:%s"),
+    // 星球编号不存在
+    USER_STAR_NOT_EXISTS(400_404_002, "星球编号不存在:%s"),
     USER_PWD_ERROR(400_500_002, "用户名or密码错误");
 
     private int code;

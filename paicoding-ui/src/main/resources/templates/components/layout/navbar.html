@@ -281,9 +281,6 @@
                     <input type="text" placeholder="请输入星球编号" class="form-control form-control-sm" id="starNumber" autocomplete="off">
                   </div>
                   <div class="form-group">
-                    <input type="text" placeholder="请输入你喜欢用户名，最好和星球吻合" class="form-control form-control-sm" id="registerUsername" required autocomplete="off">
-                  </div>
-                  <div class="form-group">
                     <input type="password" placeholder="请输入密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
                   </div>
                   <div class="form-group">
@@ -301,9 +298,9 @@
             </div>
 
             <div class="explain">
-              <bold>有我微信的可直接滴滴我</bold>
+              <bold>有微信的可直接滴滴我</bold>
               <code>qing_gee</code>
-              <div>我会根据星球编号和用户名进行审核</div>
+              <div>我会根据星球编号进行审核</div>
             </div>
           </div>
           </div>
@@ -359,7 +356,6 @@
 
       // 获取用户名和密码，没有定义 ID
       const starNumber = $("#starNumber").val();
-      const username = $("#registerUsername").val();
       const password = $("#registerPassword").val();
       const invitationCode = $("#invitationCode").val();
 
@@ -368,7 +364,6 @@
         type: "POST",
         data: {
           starNumber: starNumber,
-          username: username,
           password: password,
           invitationCode: invitationCode
         },

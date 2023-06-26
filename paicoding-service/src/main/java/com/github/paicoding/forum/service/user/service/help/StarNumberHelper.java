@@ -17,8 +17,9 @@ public class StarNumberHelper {
     @Value("${star.max-number}")
     private Integer maxStarNumber;
 
-    public Boolean checkStarNumber(Integer starNumber) {
-        return starNumber >= 0 && starNumber <= maxStarNumber;
+    public Boolean checkStarNumber(String starNumber) {
+        // 判断编号是否在 0 - maxStarNumber 之间
+        return Integer.parseInt(starNumber) >= 0 && Integer.parseInt(starNumber) <= maxStarNumber;
     }
 
 }
