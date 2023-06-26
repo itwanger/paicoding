@@ -152,7 +152,7 @@ public class QrLoginHelper {
     }
 
     public boolean login(String loginCode, String verifyCode) {
-        String session = sessionService.login(verifyCode);
+        String session = sessionService.register(verifyCode);
         SseEmitter sseEmitter = verifyCodeCache.getIfPresent(loginCode);
         if (sseEmitter != null) {
             try {

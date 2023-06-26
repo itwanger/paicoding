@@ -5,15 +5,10 @@ import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
-import com.github.paicoding.forum.core.util.IpUtil;
-import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
-import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
@@ -77,7 +72,7 @@ public class LoginOutServiceImpl implements LoginOutService {
     }
 
     @Override
-    public String login(String code) {
+    public String register(String code) {
         Long userId = userSessionHelper.getUserIdByCode(code);
         if (userId == null) {
             return null;
@@ -92,39 +87,7 @@ public class LoginOutServiceImpl implements LoginOutService {
 
 
     @Override
-    public BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp) {
-        if (StringUtils.isBlank(session)) {
-            return null;
-        }
-
-        Long userId = userSessionHelper.getUserIdBySession(session);
-        if (userId == null) {
-            return null;
-        }
-
-        // 查询用户信息，并更新最后一次使用的ip
-        UserInfoDO user = userDao.getByUserId(userId);
-        if (user == null) {
-            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
-        }
-
-        IpInfo ip = user.getIp();
-        if (clientIp != null && !Objects.equals(ip.getLatestIp(), clientIp)) {
-            // ip不同，需要更新
-            ip.setLatestIp(clientIp);
-            ip.setLatestRegion(IpUtil.getLocationByIp(clientIp).toRegionStr());
-
-            if (ip.getFirstIp() == null) {
-                ip.setFirstIp(clientIp);
-                ip.setFirstRegion(ip.getLatestRegion());
-            }
-            userDao.updateById(user);
-        }
-        return UserConverter.toDTO(user);
-    }
-
-    @Override
-    public String login(String username, String password) {
+    public String register(String username, String password) {
         UserDO user = userDao.getUserByUserName(username);
         if (user == null) {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + username);
@@ -148,7 +111,6 @@ public class LoginOutServiceImpl implements LoginOutService {
             throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
         }
 
-        // 星球直接登录时，判断星球用户是否存在
         UserDO user = userDao.getUserByUserName(userName);
         Long userId;
         if (user == null) {

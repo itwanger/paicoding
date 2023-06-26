@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -33,6 +32,15 @@ public interface UserService {
      * @param req
      */
     void saveUserInfo(UserInfoSaveReq req);
+
+    /**
+     * 获取登录的用户信息,并更行丢对应的ip信息
+     *
+     * @param session  用户会话
+     * @param clientIp 用户最新的登录ip
+     * @return 返回用户基本信息
+     */
+    BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
 
     /**
      * 查询用户基本信息
