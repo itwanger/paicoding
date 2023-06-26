@@ -1,18 +1,14 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
@@ -23,12 +19,9 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserService;
-import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
-import com.github.paicoding.forum.service.user.service.help.UserRandomGenHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -61,26 +54,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ArticleDao articleDao;
 
-    @Autowired
-    private UserPwdEncoder userPwdEncoder;
-
     @Override
     public UserDO getWxUser(String wxuuid) {
         return userDao.getByThirdAccountId(wxuuid);
-    }
-
-    @Override
-    public BaseUserInfoDTO passwordLogin(String userName, String password) {
-        UserDO user = userDao.getByUserName(userName);
-        if (user == null) {
-            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + userName);
-        }
-
-        if (!userPwdEncoder.match(password, user.getPassword())) {
-            throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
-        }
-
-        return queryBasicUserInfo(user.getId());
     }
 
     @Override
@@ -96,40 +72,6 @@ public class UserServiceImpl implements UserService {
                         .setProfile(s.getProfile())
                 )
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * 用户存在时，直接返回；不存在时，则初始化
-     *
-     * @param req
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void registerOrGetUserInfo(UserSaveReq req) {
-        UserDO record = userDao.getByThirdAccountId(req.getThirdAccountId());
-        if (record != null) {
-            // 用户存在，不需要注册
-            req.setUserId(record.getId());
-
-            // 用户登录事件
-            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.LOGIN, record.getId()));
-            return;
-        }
-
-        // 用户不存在，则需要注册
-        record = UserConverter.toDO(req);
-        userDao.saveUser(record);
-        req.setUserId(record.getId());
-
-        // 初始化用户信息，随机生成用户昵称 + 头像
-        UserInfoDO userInfo = new UserInfoDO();
-        userInfo.setUserId(req.getUserId());
-        userInfo.setUserName(UserRandomGenHelper.genNickName());
-        userInfo.setPhoto(UserRandomGenHelper.genAvatar());
-        userDao.save(userInfo);
-
-        // 用户注册事件
-        SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REGISTER, userInfo.getUserId()));
     }
 
     @Override

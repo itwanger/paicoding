@@ -27,4 +27,20 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
                 .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
         return userAiMapper.selectOne(queryUserAi);
     }
+
+    public UserAiDO getByUserId(Long userId) {
+        LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
+
+        queryUserAi.eq(UserAiDO::getUserId, userId)
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userAiMapper.selectOne(queryUserAi);
+    }
+
+    public UserAiDO getByInviteCode(String inviteCode) {
+        LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
+
+        queryUserAi.eq(UserAiDO::getInviteCode, inviteCode)
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userAiMapper.selectOne(queryUserAi);
+    }
 }

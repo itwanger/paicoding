@@ -7,7 +7,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +36,7 @@ public class AdminLoginController {
     private UserService userService;
 
     @Autowired
-    private SessionService sessionService;
+    private LoginOutService loginOutService;
 
     /**
      * 后台用户名 & 密码的方式登录
@@ -50,12 +50,11 @@ public class AdminLoginController {
                                         HttpServletResponse response) {
         String user = request.getParameter("username");
         String pwd = request.getParameter("password");
-        BaseUserInfoDTO info = userService.passwordLogin(user, pwd);
-        String session = sessionService.login(info.getUserId());
+        String session = loginOutService.login(user, pwd);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
-            response.addCookie(SessionUtil.newCookie(SessionService.SESSION_KEY, session));
-            return ResVo.ok(info);
+            response.addCookie(SessionUtil.newCookie(LoginOutService.SESSION_KEY, session));
+            return ResVo.ok(userService.queryBasicUserInfo(ReqInfoContext.getReqInfo().getUserId()));
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录失败，请重试");
         }
@@ -87,12 +86,12 @@ public class AdminLoginController {
     @Permission(role = UserRole.LOGIN)
     @GetMapping("logout")
     public ResVo<Boolean> logOut(HttpServletResponse response) {
-        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> sessionService.logout(s.getSession()));
+        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginOutService.logout(s.getSession()));
         // 为什么不后端实现重定向？ 重定向交给前端执行，避免由于前后端分离，本地开发时端口不一致导致的问题
         // response.sendRedirect("/");
 
         // 移除cookie
-        response.addCookie(SessionUtil.delCookie(SessionService.SESSION_KEY));
+        response.addCookie(SessionUtil.delCookie(LoginOutService.SESSION_KEY));
         return ResVo.ok(true);
     }
 }

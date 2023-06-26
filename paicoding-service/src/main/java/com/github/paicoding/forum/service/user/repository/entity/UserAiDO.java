@@ -2,7 +2,6 @@ package com.github.paicoding.forum.service.user.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -37,7 +36,7 @@ public class UserAiDO extends BaseDO {
     /**
      * 当前用户绑定的邀请者
      */
-    private Integer inviterUserId;
+    private Long inviterUserId;
 
     /**
      * 邀请码
@@ -48,6 +47,15 @@ public class UserAiDO extends BaseDO {
      * 当前用户邀请的人数
      */
     private Integer inviteNum;
+
+    /**
+     * 二进制使用姿势
+     * 第0位： = 1 表示已绑定微信公众号
+     * 第1位： = 1 表示绑定了邀请用户
+     * 第2位： = 1 表示绑定了java星球
+     * 第3位： = 1 表示绑定了技术派星球
+     */
+    private Integer condition;
 
     /**
      * 0 审核中 1 试用中 2 审核通过 3 审核拒绝

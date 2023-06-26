@@ -25,23 +25,7 @@ public interface UserService {
      */
     UserDO getWxUser(String wxuuid);
 
-    /**
-     * 账号密码方式登录；适用于admin后台登录
-     *
-     * @param userName
-     * @param password
-     * @return
-     */
-    BaseUserInfoDTO passwordLogin(String userName, String password);
-
     List<SimpleUserInfoDTO> searchUser(String userName);
-
-    /**
-     * 用户存在时，直接返回；不存在时，则初始化
-     *
-     * @param req
-     */
-    void registerOrGetUserInfo(UserSaveReq req);
 
     /**
      * 保存用户详情
