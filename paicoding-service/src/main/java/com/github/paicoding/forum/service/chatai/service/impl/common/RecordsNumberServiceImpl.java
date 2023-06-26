@@ -1,13 +1,5 @@
 package com.github.paicoding.forum.service.chatai.service.impl.common;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
@@ -19,8 +11,14 @@ import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserAiMapper;
 import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * ai记录次数
@@ -34,17 +32,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RecordsNumberServiceImpl implements RecordsNumberService {
 
-    @Autowired
+    @Resource
     UserMapper userMapper;
+    @Resource
+    private UserAiMapper userAiMapper;
 
     @Value("${chatgpt.number.normal}")
     private Integer normalNumber;
 
     @Value("${chatgpt.number.vip}")
     private Integer vipNumber;
-
-    @Autowired
-    private UserAiMapper userAiMapper;
 
 
     @Override
