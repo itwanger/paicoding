@@ -59,23 +59,12 @@ public class RegisterServiceImpl implements RegisterService {
         userAiDO.setUserId(user.getId());
         userAiDO.setStarNumber(star);
         userAiDO.setStarType(StarSourceEnum.JAVA_GUIDE.getSource());
-
-        if (inviteCode != null) {
-            UserAiDO invite = userAiDao.getByInviteCode(inviteCode);
-            if (invite != null) {
-                userAiDO.setInviterUserId(invite.getUserId());
-                userAiDO.setCondition(2);
-            } else {
-                userAiDO.setInviterUserId(0L);
-                userAiDO.setCondition(0);
-            }
-        } else {
-            userAiDO.setInviterUserId(0L);
-            userAiDO.setCondition(0);
-        }
+        userAiDO.setCondition(0);
+        userAiDO.setInviteNum(0);
+        userAiDO.setDeleted(0);
         userAiDO.setInviteCode(UserRandomGenHelper.genInviteCode(user.getId()));
         userAiDO.setState(UserAIStatEnum.IGNORE.getCode());
-        userAiDao.save(userAiDO);
+        userAiDao.saveOrUpdateAiBindInfo(userAiDO, inviteCode);
 
         processAfterUserRegister(user.getId());
         return user.getId();
@@ -105,10 +94,12 @@ public class RegisterServiceImpl implements RegisterService {
         userAiDO.setStarNumber("");
         userAiDO.setStarType(0);
         userAiDO.setInviterUserId(0L);
-        userAiDO.setCondition(1);
+        userAiDO.setCondition(0);
+        userAiDO.setInviteNum(0);
+        userAiDO.setDeleted(0);
         userAiDO.setInviteCode(UserRandomGenHelper.genInviteCode(user.getId()));
         userAiDO.setState(UserAIStatEnum.IGNORE.getCode());
-        userAiDao.save(userAiDO);
+        userAiDao.saveOrUpdateAiBindInfo(userAiDO, null);
 
         processAfterUserRegister(user.getId());
         return user.getId();

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * ai用户表
@@ -14,6 +15,7 @@ import lombok.EqualsAndHashCode;
  * @Version: 1.0
  */
 @Data
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @TableName("user_ai")
 public class UserAiDO extends BaseDO {
