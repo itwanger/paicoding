@@ -9,14 +9,14 @@ import java.util.Set;
  * @author YiHui
  * @date 2022/8/15
  */
-public interface SessionService {
+public interface LoginOutService {
     String SESSION_KEY = "f-session";
     String USER_DEVICE_KEY = "f-device";
     Set<String> LOGIN_CODE_KEY = Sets.newHashSet("登录", "login");
 
 
     /**
-     * 获取登录验证码
+     * 适用于微信公众号登录场景下，自动注册一个用户，并返回登录验证码
      *
      * @param uuid
      * @return
@@ -31,13 +31,6 @@ public interface SessionService {
      */
     String login(String code);
 
-    /**
-     * 用户名密码方式，直接登录获取session
-     *
-     * @param userId
-     * @return
-     */
-    String login(Long userId);
 
     /**
      * 登出
@@ -58,7 +51,5 @@ public interface SessionService {
 
     String login(String username, String password);
 
-    String register(String starNumber, String password, String invitationCode);
-
-    void registerUser(String username, String password);
+    String register(String userName, String password, String starNumber, String invitationCode);
 }

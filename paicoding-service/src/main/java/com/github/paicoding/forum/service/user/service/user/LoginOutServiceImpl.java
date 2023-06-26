@@ -1,8 +1,6 @@
 package com.github.paicoding.forum.service.user.service.user;
 
-import cn.hutool.core.date.DateUtil;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
@@ -13,15 +11,18 @@ import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
-import com.github.paicoding.forum.service.user.service.SessionService;
-import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
+import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -33,11 +34,7 @@ import java.util.Objects;
  */
 @Service
 @Slf4j
-public class SessionServiceImpl implements SessionService {
-
-    @Autowired
-    private UserService userService;
-
+public class LoginOutServiceImpl implements LoginOutService {
     @Autowired
     private UserDao userDao;
 
@@ -50,11 +47,31 @@ public class SessionServiceImpl implements SessionService {
     @Autowired
     private StarNumberHelper starNumberHelper;
 
+    @Autowired
+    private RegisterService registerService;
+
+    @Autowired
+    private UserPwdEncoder userPwdEncoder;
+
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String autoRegisterAndGetVerifyCode(String uuid) {
         UserSaveReq req = new UserSaveReq().setLoginType(0).setThirdAccountId(uuid);
-        userService.registerOrGetUserInfo(req);
+        req.setUserId(registerOrGetUserInfo(req));
         return userSessionHelper.genVerifyCode(req.getUserId());
+    }
+
+    /**
+     * 没有注册时，先注册一个用户；若已经有，则登录
+     *
+     * @param req
+     */
+    private Long registerOrGetUserInfo(UserSaveReq req) {
+        UserDO user = userDao.getByThirdAccountId(req.getThirdAccountId());
+        if (user == null) {
+            return registerService.registerByWechat(req.getThirdAccountId());
+        }
+        return user.getId();
     }
 
     @Override
@@ -64,11 +81,6 @@ public class SessionServiceImpl implements SessionService {
             return null;
         }
         return userSessionHelper.codeVerifySucceed(code, userId);
-    }
-
-    @Override
-    public String login(Long userId) {
-        return userSessionHelper.codeVerifySucceed("", userId);
     }
 
     @Override
@@ -111,53 +123,53 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public String login(String username, String password) {
-        // 用户名和密码登录
-        BaseUserInfoDTO user = userService.passwordLogin(username, password);
-        ReqInfoContext.getReqInfo().setUserId(user.getUserId());
-        ReqInfoContext.getReqInfo().setUser(user);
-        return login(user.getUserId());
+        UserDO user = userDao.getByUserName(username);
+        if (user == null) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + username);
+        }
+
+        if (!userPwdEncoder.match(password, user.getPassword())) {
+            throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
+        }
+
+        // 登录成功，返回对应的session
+        ReqInfoContext.getReqInfo().setUserId(user.getId());
+        return userSessionHelper.genSession(user.getId());
     }
 
 
     @Override
-    public String register(String starNumber, String password, String invitationCode) {
-        // 先校验星球编号，校验通过
-        if (starNumberHelper.checkStarNumber(starNumber)) {
-            // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
-            UserAiDO userAiDO = userAiDao.getByStarNumber(starNumber);
-            // 如果用户存在，且已经审核
-            if (userAiDO != null) {
-                if (UserAIStatEnum.FORMAL.getCode().equals(userAiDO.getState())) {
-                    // 直接登录
-                    return this.login(userAiDO.getUserId());
-                } else if (UserAIStatEnum.TRYING.getCode().equals(userAiDO.getState())) {
-                    // 试用期内，直接登录
-                    // 如果超过 3 天还没有审核，则提示用户等待审核
-                    if (DateUtil.offsetDay(userAiDO.getCreateTime(), 3).isAfter(DateUtil.date())) {
-                        throw ExceptionUtil.of(StatusEnum.USER_NOT_AUDIT, "星球编号=" + starNumber);
-                    } else {
-                        return this.login(userAiDO.getUserId());
-                    }
+    public String register(String userName, String password, String starNumber, String invitationCode) {
+        // 星球直接登录时，判断星球用户是否存在
+        UserDO user = userDao.getByUserName(userName);
+        if (user == null) {
+            // 注册用户
+            Long userId = registerService.registerByUserNameAndPassword(userName, password, String.valueOf(starNumber), invitationCode);
+            return userSessionHelper.genSession(userId);
+        }
 
-                } else {
-                    // 等待审核
-                    throw ExceptionUtil.of(StatusEnum.USER_NOT_AUDIT, "星球编号=" + starNumber);
-                }
-            } else {
-                // 用户不存在，进行注册，注册完进入试用
-                UserAiDO registerUserAI = userDao.registerUser(starNumber, password);
-                return this.login(registerUserAI.getUserId());
-            }
+        // 走登录绑定流程
+        if (!userPwdEncoder.match(password, user.getPassword())) {
+            throw ExceptionUtil.of(StatusEnum.USER_EXISTS, starNumber);
+        }
 
-        } else {
-            // 星球编号校验不通过
+        // 绑定星球号
+        if (starNumber != null && Boolean.FALSE.equals(starNumberHelper.checkStarNumber(starNumber))) {
+            // 星球编号校验不通过，直接抛异常
             throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
         }
-    }
 
-    @Override
-    public void registerUser(String username, String password) {
-        userDao.registerUser(username, password);
+        // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
+        UserAiDO userAiDO = userAiDao.getByUserId(user.getId());
+        userAiDO.setStarNumber(starNumber);
+        if (invitationCode != null) {
+            UserAiDO invite = userAiDao.getByInviteCode(invitationCode);
+            if (invite != null) {
+                userAiDO.setInviterUserId(invite.getUserId());
+                userAiDO.setCondition(userAiDO.getCondition() | 2);
+            }
+        }
+        userAiDao.saveOrUpdate(userAiDO);
+        return userSessionHelper.genSession(user.getId());
     }
-
 }
