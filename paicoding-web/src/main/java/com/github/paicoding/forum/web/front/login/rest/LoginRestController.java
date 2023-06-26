@@ -11,11 +11,7 @@ import com.github.paicoding.forum.web.front.login.QrLoginHelper;
 import com.github.paicoding.forum.web.front.login.vo.QrLoginVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,7 +44,7 @@ public class LoginRestController {
     @PostMapping("/login")
     public ResVo<Boolean> login(@RequestParam(name = "code") String code,
                                 HttpServletResponse response) {
-        String session = loginOutService.login(code);
+        String session = loginOutService.register(code);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息，用于身份识别
             response.addCookie(SessionUtil.newCookie(LoginOutService.SESSION_KEY, session));
@@ -66,7 +62,7 @@ public class LoginRestController {
     public ResVo<Boolean> login(@RequestParam(name = "username") String username,
                                 @RequestParam(name = "password") String password,
                                 HttpServletResponse response) {
-        String session = loginOutService.login(username, password);
+        String session = loginOutService.register(username, password);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息，用于身份识别
             response.addCookie(SessionUtil.newCookie(LoginOutService.SESSION_KEY, session));

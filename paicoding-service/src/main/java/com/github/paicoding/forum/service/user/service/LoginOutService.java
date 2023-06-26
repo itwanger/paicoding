@@ -1,10 +1,5 @@
 package com.github.paicoding.forum.service.user.service;
 
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
-import com.google.common.collect.Sets;
-
-import java.util.Set;
-
 /**
  * @author YiHui
  * @date 2022/8/15
@@ -12,7 +7,6 @@ import java.util.Set;
 public interface LoginOutService {
     String SESSION_KEY = "f-session";
     String USER_DEVICE_KEY = "f-device";
-    Set<String> LOGIN_CODE_KEY = Sets.newHashSet("登录", "login");
 
 
     /**
@@ -29,7 +23,7 @@ public interface LoginOutService {
      * @param code
      * @return
      */
-    String login(String code);
+    String register(String code);
 
 
     /**
@@ -39,17 +33,23 @@ public interface LoginOutService {
      */
     void logout(String session);
 
-
     /**
-     * 获取登录的用户信息,并更行丢对应的ip信息
+     * 用户名密码方式登录
      *
-     * @param session
-     * @param clientIp
+     * @param username
+     * @param password
      * @return
      */
-    BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
+    String register(String username, String password);
 
-    String login(String username, String password);
-
+    /**
+     * 注册登录，并绑定对应的星球、邀请码
+     *
+     * @param userName
+     * @param password
+     * @param starNumber
+     * @param invitationCode
+     * @return
+     */
     String register(String userName, String password, String starNumber, String invitationCode);
 }

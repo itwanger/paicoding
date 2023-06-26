@@ -50,7 +50,7 @@ public class AdminLoginController {
                                         HttpServletResponse response) {
         String user = request.getParameter("username");
         String pwd = request.getParameter("password");
-        String session = loginOutService.login(user, pwd);
+        String session = loginOutService.register(user, pwd);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
             response.addCookie(SessionUtil.newCookie(LoginOutService.SESSION_KEY, session));
