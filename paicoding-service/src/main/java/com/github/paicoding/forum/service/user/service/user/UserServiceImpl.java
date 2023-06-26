@@ -21,6 +21,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ArticleDao articleDao;
+
+    @Autowired
+    private UserSessionHelper userSessionHelper;
 
     @Override
     public UserDO getWxUser(String wxuuid) {
