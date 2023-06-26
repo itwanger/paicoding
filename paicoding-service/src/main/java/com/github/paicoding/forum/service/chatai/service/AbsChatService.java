@@ -5,7 +5,9 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
+import com.github.paicoding.forum.service.user.service.UserAiHistoryService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -22,14 +24,16 @@ import java.util.function.Consumer;
 @Slf4j
 @Service
 public abstract class AbsChatService implements ChatService {
+    @Autowired
+    private UserAiHistoryService userAiHistoryService;
     /**
      * 查询已经使用的次数
      *
      * @param user
      * @return
      */
-    protected int queryUserdCnt(String user) {
-        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKey(source()), user, Integer.class);
+    protected int queryUserdCnt(Long user) {
+        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKey(source()), String.valueOf(user), Integer.class);
         if (cnt == null) {
             cnt = 0;
         }
@@ -43,14 +47,18 @@ public abstract class AbsChatService implements ChatService {
      * @param user
      * @return
      */
-    protected Long incrCnt(String user) {
-        return RedisClient.hIncr(ChatConstants.getAiRateKey(source()), user, 1);
+    protected Long incrCnt(Long user) {
+        return RedisClient.hIncr(ChatConstants.getAiRateKey(source()), String.valueOf(user), 1);
     }
 
     /**
      * 保存聊天记录
      */
-    protected void recordChatItem(String user, ChatItemVo item) {
+    protected void recordChatItem(Long user, ChatItemVo item) {
+        // 写入 MySQL
+        userAiHistoryService.pushChatItem(source(), user, item);
+
+        // 写入 Redis
         RedisClient.lPush(ChatConstants.getAiHistoryRecordsKey(source(), user), item);
     }
 
@@ -59,7 +67,7 @@ public abstract class AbsChatService implements ChatService {
      *
      * @return
      */
-    public ChatRecordsVo getChatHistory(String user) {
+    public ChatRecordsVo getChatHistory(Long user) {
         List<ChatItemVo> chats = RedisClient.lRange(ChatConstants.getAiHistoryRecordsKey(source(), user), 0, 50, ChatItemVo.class);
         chats.add(0, new ChatItemVo().initAnswer("开始你和派聪明的AI之旅吧!"));
         ChatRecordsVo vo = new ChatRecordsVo();
@@ -71,7 +79,7 @@ public abstract class AbsChatService implements ChatService {
     }
 
     @Override
-    public ChatRecordsVo chat(String user, String question) {
+    public ChatRecordsVo chat(Long user, String question) {
         ChatRecordsVo res = initResVo(user, question);
         if (!res.hasQaCnt()) {
             return res;
@@ -82,7 +90,7 @@ public abstract class AbsChatService implements ChatService {
     }
 
     @Override
-    public ChatRecordsVo chat(String user, String question, Consumer<ChatRecordsVo> consumer) {
+    public ChatRecordsVo chat(Long user, String question, Consumer<ChatRecordsVo> consumer) {
         ChatRecordsVo res = initResVo(user, question);
         if (!res.hasQaCnt()) {
             return res;
@@ -94,7 +102,7 @@ public abstract class AbsChatService implements ChatService {
         return res;
     }
 
-    private ChatRecordsVo initResVo(String user, String question) {
+    private ChatRecordsVo initResVo(Long user, String question) {
         ChatRecordsVo res = new ChatRecordsVo();
         res.setSource(source());
         int maxCnt = getMaxQaCnt(user);
@@ -111,7 +119,7 @@ public abstract class AbsChatService implements ChatService {
         return res;
     }
 
-    protected AiChatStatEnum answer(String user, ChatRecordsVo res) {
+    protected AiChatStatEnum answer(Long user, ChatRecordsVo res) {
         ChatItemVo itemVo = res.getRecords().get(0);
         AiChatStatEnum ans = doAnswer(user, itemVo);
         if (ans == AiChatStatEnum.END) {
@@ -127,7 +135,7 @@ public abstract class AbsChatService implements ChatService {
      * @param chat
      * @return true 表示正确回答了； false 表示回答出现异常
      */
-    public abstract AiChatStatEnum doAnswer(String user, ChatItemVo chat);
+    public abstract AiChatStatEnum doAnswer(Long user, ChatItemVo chat);
 
     /**
      * 成功返回之后的后置操作
@@ -135,7 +143,7 @@ public abstract class AbsChatService implements ChatService {
      * @param user
      * @param response
      */
-    protected void processAfterSuccessedAnswered(String user, ChatRecordsVo response) {
+    protected void processAfterSuccessedAnswered(Long user, ChatRecordsVo response) {
         // 回答成功，保存聊天记录，剩余次数-1
         incrCnt(user);
         recordChatItem(user, response.getRecords().get(0));
@@ -155,7 +163,7 @@ public abstract class AbsChatService implements ChatService {
      * @return
      */
     @Override
-    public ChatRecordsVo asyncChat(String user, String question, Consumer<ChatRecordsVo> consumer) {
+    public ChatRecordsVo asyncChat(Long user, String question, Consumer<ChatRecordsVo> consumer) {
         ChatRecordsVo res = initResVo(user, question);
         if (!res.hasQaCnt()) {
             return res;
@@ -188,7 +196,7 @@ public abstract class AbsChatService implements ChatService {
      * @param consumer 具体将 response 写回前端的实现策略
      * @return 返回的会话状态，控制是否需要将结果直接返回给前端
      */
-    public abstract AiChatStatEnum doAsyncAnswer(String user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer);
+    public abstract AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer);
 
     /**
      * 查询当前用户最多可提问的次数
@@ -196,7 +204,7 @@ public abstract class AbsChatService implements ChatService {
      * @param user
      * @return
      */
-    protected int getMaxQaCnt(String user) {
+    protected int getMaxQaCnt(Long user) {
         return ChatConstants.MAX_CHATGPT_QAS_CNT;
     }
 }

@@ -52,7 +52,7 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo chat(AISourceEnum source, String question) {
-        return chatServiceMap.get(source).chat(String.valueOf(ReqInfoContext.getReqInfo().getUserId()), question);
+        return chatServiceMap.get(source).chat(ReqInfoContext.getReqInfo().getUserId(), question);
     }
 
     /**
@@ -63,7 +63,7 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo chat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
-        return chatServiceMap.get(source).chat(String.valueOf(ReqInfoContext.getReqInfo().getUserId()), question, callback);
+        return chatServiceMap.get(source).chat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
     }
 
     /**
@@ -74,7 +74,7 @@ public class ChatFacade {
      */
     public ChatRecordsVo asyncChat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
         return chatServiceMap.get(source)
-                .asyncChat(String.valueOf(ReqInfoContext.getReqInfo().getUserId()), question, callback);
+                .asyncChat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
     }
 
 
@@ -85,7 +85,7 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo history(AISourceEnum source) {
-        return chatServiceMap.get(source).getChatHistory(String.valueOf(ReqInfoContext.getReqInfo().getUserId()));
+        return chatServiceMap.get(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId());
     }
 
 }
