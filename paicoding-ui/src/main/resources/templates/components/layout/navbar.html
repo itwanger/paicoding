@@ -275,7 +275,7 @@
             <div class="register-main">
               <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
               <div class="panel">
-                <h1 class="title">如果已经绑定星球，编号可不填直接登录</h1>
+                <h1 class="title">如果已经绑定星球，可通过编号直接登录</h1>
                 <form id="register-form">
                   <div class="form-group">
                     <input type="text" placeholder="请输入星球编号" class="form-control form-control-sm" id="starNumber" autocomplete="off">
@@ -285,6 +285,9 @@
                   </div>
                   <div class="form-group">
                     <input type="password" placeholder="请输入密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" placeholder="请输入邀请码" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
                   </div>
                   <!-- 绑定过会直接登录 -->
                   <button type="submit" class="btn btn-primary btn-block btn-sm">绑定/登录</button>
@@ -358,6 +361,7 @@
       const starNumber = $("#starNumber").val();
       const username = $("#registerUsername").val();
       const password = $("#registerPassword").val();
+      const invitationCode = $("#invitationCode").val();
 
       $.ajax({
         url: "/login/register",
@@ -365,7 +369,8 @@
         data: {
           starNumber: starNumber,
           username: username,
-          password: password
+          password: password,
+          invitationCode: invitationCode
         },
         success: function(response) {
           console.log(response);
