@@ -14,16 +14,12 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-
-import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于验证码、用户名密码的登录方式
@@ -124,7 +120,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Boolean isHaveUser(String username) {
         UserDO user = userDao.getByUserName(username);
-        return user != null ? true : false;
+        return user != null;
 
     }
 

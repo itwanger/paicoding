@@ -33,7 +33,7 @@ public class ArticleWhiteListContoller {
         return ResVo.ok(articleWhiteListService.queryAllArticleWhiteListAuthors());
     }
 
-    @PostMapping(path = "add")
+    @GetMapping(path = "add")
     @ApiOperation(value = "添加白名单", notes = "将指定作者加入作者白名单列表")
     @ApiImplicitParam(name = "authorId", value = "传入需要添加白名单的作者UserId", required = true, allowEmptyValue = false, example = "1")
     public ResVo<Boolean> addAuthor(@RequestParam("authorId") Long authorId) {
@@ -41,7 +41,7 @@ public class ArticleWhiteListContoller {
         return ResVo.ok(true);
     }
 
-    @PostMapping(path = "remove")
+    @GetMapping(path = "remove")
     @ApiOperation(value = "删除白名单", notes = "将作者从白名单列表")
     @ApiImplicitParam(name = "authorId", value = "传入需要删除白名单的作者UserId", required = true, allowEmptyValue = false, example = "1")
     public ResVo<Boolean> rmAtuhor(@RequestParam("authorId") Long authorId) {

@@ -3,23 +3,20 @@ package com.github.paicoding.forum.web.front.login.rest;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
 import com.github.paicoding.forum.web.front.login.QrLoginHelper;
 import com.github.paicoding.forum.web.front.login.vo.QrLoginVo;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.Optional;
 
@@ -36,6 +33,8 @@ public class LoginRestController {
     private SessionService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
+    @Autowired
+    private StarNumberHelper starNumberHelper;
 
     /**
      * 适用于输入验证码的登录流程；
@@ -84,12 +83,12 @@ public class LoginRestController {
     public ResVo<Boolean> register(@RequestParam(name = "username") String username,
                                    @RequestParam(name = "password") String password,
                                    @RequestParam(name = "starNumber", required = false) Integer starNumber,
+                                   @RequestParam(name = "invitationCode", required = false) String invitationCode,
                                    HttpServletResponse response) {
-
-        if (!ObjectUtils.isEmpty(starNumber)) {
-
-            // 先校验星球编号
-            if (!this.checkStarNumber(starNumber)) {
+        // 星球编号不为空
+        if (ObjectUtils.isNotEmpty(starNumber)) {
+            // 先校验星球编号，校验未通过
+            if (!starNumberHelper.checkStarNumber(starNumber)) {
                 // 根据userName校验是否存在用户
                 if (!sessionService.isHaveUser(username)) {
                     sessionService.registerUser(username, password);
@@ -161,11 +160,4 @@ public class LoginRestController {
         return ResVo.ok(vo);
     }
 
-    private Boolean checkStarNumber(Integer starNumber) {
-
-        if (starNumber < 0 || starNumber > 3000) {
-            return false;
-        }
-        return true;
-    }
 }

@@ -36,6 +36,9 @@ security:
   salt: tech_π # 密码加盐, 更安全的做法是每个用户的密码使用独立的盐，并将其保存在用户表中
   salt-index: 3 # 盐插入的位置
 
+star:
+  max-number: 3000 # 最大的星球编号
+
 
 # 默认的数据库名
 database:
