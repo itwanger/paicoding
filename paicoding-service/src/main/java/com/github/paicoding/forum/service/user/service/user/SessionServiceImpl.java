@@ -1,18 +1,22 @@
 package com.github.paicoding.forum.service.user.service.user;
 
+import cn.hutool.core.date.DateUtil;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
+import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
-import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.SessionService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +42,13 @@ public class SessionServiceImpl implements SessionService {
     private UserDao userDao;
 
     @Autowired
+    private UserAiDao userAiDao;
+
+
+    @Autowired
     private UserSessionHelper userSessionHelper;
+    @Autowired
+    private StarNumberHelper starNumberHelper;
 
     @Override
     public String autoRegisterAndGetVerifyCode(String uuid) {
@@ -110,26 +120,44 @@ public class SessionServiceImpl implements SessionService {
 
 
     @Override
-    public void register(String username, String password, Integer starNumber) {
+    public String register(String starNumber, String password, String invitationCode) {
+        // 先校验星球编号，校验通过
+        if (starNumberHelper.checkStarNumber(starNumber)) {
+            // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
+            UserAiDO userAiDO = userAiDao.getByStarNumber(starNumber);
+            // 如果用户存在，且已经审核
+            if (userAiDO != null) {
+                if (UserAIStatEnum.FORMAL.getCode().equals(userAiDO.getState())) {
+                    // 直接登录
+                    return this.login(userAiDO.getUserId());
+                } else if (UserAIStatEnum.TRYING.getCode().equals(userAiDO.getState())) {
+                    // 试用期内，直接登录
+                    // 如果超过 3 天还没有审核，则提示用户等待审核
+                    if (DateUtil.offsetDay(userAiDO.getCreateTime(), 3).isAfter(DateUtil.date())) {
+                        throw ExceptionUtil.of(StatusEnum.USER_NOT_AUDIT, "星球编号=" + starNumber);
+                    } else {
+                        return this.login(userAiDO.getUserId());
+                    }
 
-        // user和星球编号做绑定
-        userDao.register(username, starNumber);
+                } else {
+                    // 等待审核
+                    throw ExceptionUtil.of(StatusEnum.USER_NOT_AUDIT, "星球编号=" + starNumber);
+                }
+            } else {
+                // 用户不存在，进行注册，注册完进入试用
+                UserAiDO registerUserAI = userDao.registerUser(starNumber, password);
+                return this.login(registerUserAI.getUserId());
+            }
 
-    }
-
-    @Override
-    public Boolean isHaveUser(String username) {
-        UserDO user = userDao.getByUserName(username);
-        return user != null;
-
+        } else {
+            // 星球编号校验不通过
+            throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
+        }
     }
 
     @Override
     public void registerUser(String username, String password) {
-
         userDao.registerUser(username, password);
-
     }
-
 
 }
