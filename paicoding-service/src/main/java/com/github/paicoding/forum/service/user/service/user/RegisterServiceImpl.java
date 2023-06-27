@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.TransactionUtil;
+import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
@@ -38,7 +39,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long registerByUserNameAndPassword(String username, String star, String password, String inviteCode) {
+    public Long registerByUserNameAndPassword(String username, String password, String star, String inviteCode) {
         // 保存用户登录信息
         UserDO user = new UserDO();
         user.setUserName(username);
@@ -58,12 +59,13 @@ public class RegisterServiceImpl implements RegisterService {
         UserAiDO userAiDO = new UserAiDO();
         userAiDO.setUserId(user.getId());
         userAiDO.setStarNumber(star);
+        // 先只支持Java进阶之路的星球绑定
         userAiDO.setStarType(StarSourceEnum.JAVA_GUIDE.getSource());
-        userAiDO.setCondition(0);
+        userAiDO.setStrategy(0);
         userAiDO.setInviteNum(0);
         userAiDO.setDeleted(0);
         userAiDO.setInviteCode(UserRandomGenHelper.genInviteCode(user.getId()));
-        userAiDO.setState(UserAIStatEnum.IGNORE.getCode());
+        userAiDO.setState(UserAIStatEnum.TRYING.getCode());
         userAiDao.saveOrUpdateAiBindInfo(userAiDO, inviteCode);
 
         processAfterUserRegister(user.getId());
@@ -89,16 +91,7 @@ public class RegisterServiceImpl implements RegisterService {
         userDao.save(userInfo);
 
         // 保存ai相互信息
-        UserAiDO userAiDO = new UserAiDO();
-        userAiDO.setUserId(user.getId());
-        userAiDO.setStarNumber("");
-        userAiDO.setStarType(0);
-        userAiDO.setInviterUserId(0L);
-        userAiDO.setCondition(0);
-        userAiDO.setInviteNum(0);
-        userAiDO.setDeleted(0);
-        userAiDO.setInviteCode(UserRandomGenHelper.genInviteCode(user.getId()));
-        userAiDO.setState(UserAIStatEnum.IGNORE.getCode());
+        UserAiDO userAiDO = UserAiConverter.initAi(user.getId());
         userAiDao.saveOrUpdateAiBindInfo(userAiDO, null);
 
         processAfterUserRegister(user.getId());

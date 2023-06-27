@@ -85,6 +85,6 @@ public class UserRandomGenHelper {
      * @return
      */
     public static String genInviteCode(Long prefix) {
-        return String.format("%3x%04x", prefix, System.currentTimeMillis() / 1000 / 60 / 60 / 24).toUpperCase();
+        return String.format("%03x%04x", prefix, System.currentTimeMillis() / 1000 / 60 / 60 / 24).toUpperCase();
     }
 }

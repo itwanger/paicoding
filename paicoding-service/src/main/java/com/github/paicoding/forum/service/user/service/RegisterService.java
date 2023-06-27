@@ -15,7 +15,7 @@ public interface RegisterService {
      * @param password
      * @return
      */
-    Long registerByUserNameAndPassword(String username, String star, String password, String inviteCode);
+    Long registerByUserNameAndPassword(String username, String password, String star, String inviteCode);
 
     /**
      * 通过微信公众号进行注册

@@ -57,7 +57,7 @@ public class UserAiDO extends BaseDO {
      * 第2位： = 1 表示绑定了java星球
      * 第3位： = 1 表示绑定了技术派星球
      */
-    private Integer condition;
+    private Integer strategy;
 
     /**
      * 0 审核中 1 试用中 2 审核通过 3 审核拒绝
