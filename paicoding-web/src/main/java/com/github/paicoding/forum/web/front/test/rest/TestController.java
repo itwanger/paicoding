@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -104,6 +105,50 @@ public class TestController {
         return JsonUtil.toStr(request.getParameterMap());
     }
 
+    // POST 请求，使用 HttpServletRequest 获取 JSON 请求参数
+    @PostMapping(path = "testPostJson2")
+    public String testPostJson2(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return sb.toString();  // body中即是JSON格式的请求参数
+    }
+
+    @PostMapping(path = "testPostJson3")
+    public String testPostJson3(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        log.info("testPostJson3 第一次: {}", sb);
+
+        StringBuilder sb1 = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb1.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        log.info("testPostJson3 第二次: {}", sb1);
+
+        return sb1.toString();  // body中即是JSON格式的请求参数
+    }
 
     @Autowired
     private StatisticsSettingService statisticsSettingService;
