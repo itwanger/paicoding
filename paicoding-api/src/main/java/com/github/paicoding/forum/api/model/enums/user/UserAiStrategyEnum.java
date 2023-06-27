@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum UserAiConditionEnum {
+public enum UserAiStrategyEnum {
     WECHAT(1),
     INVITE_USER(2),
     STAR_JAVA_GUIDE(4),
@@ -32,5 +32,9 @@ public enum UserAiConditionEnum {
             input = 0;
         }
         return input | condition;
+    }
+
+    public boolean match(Integer strategy) {
+        return strategy != null && (strategy & condition) == condition.intValue();
     }
 }

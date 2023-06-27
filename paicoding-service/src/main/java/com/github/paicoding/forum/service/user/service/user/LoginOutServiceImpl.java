@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
+import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
@@ -13,7 +14,6 @@ import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
-import com.github.paicoding.forum.service.user.service.help.UserRandomGenHelper;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -134,23 +134,14 @@ public class LoginOutServiceImpl implements LoginOutService {
         }
 
         // 注册用户
-        return registerService.registerByUserNameAndPassword(userName, password, String.valueOf(starNumber), invitationCode);
+        return registerService.registerByUserNameAndPassword(userName, password, starNumber, invitationCode);
     }
 
     private Long bindUserAccount(Long userId, String starNumber, String invitationCode) {
         // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
         UserAiDO userAiDO = userAiDao.getByUserId(userId);
         if (userAiDO == null) {
-            userAiDO = new UserAiDO();
-            userAiDO.setUserId(userId);
-            userAiDO.setStarNumber("");
-            userAiDO.setStarType(0);
-            userAiDO.setInviterUserId(0L);
-            userAiDO.setCondition(0);
-            userAiDO.setInviteNum(0);
-            userAiDO.setDeleted(0);
-            userAiDO.setInviteCode(UserRandomGenHelper.genInviteCode(userId));
-            userAiDO.setState(UserAIStatEnum.IGNORE.getCode());
+            userAiDO = UserAiConverter.initAi(userId);
         }
         if (!Objects.equals(starNumber, userAiDO.getStarNumber())) {
             // 不同时，更新星球号，并设置为试用

@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.user.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -21,7 +22,7 @@ public class UserAiHistoryDO extends BaseDO {
     /**
      * 问题
      */
-    private String qa;
+    private String question;
 
     /**
      * 答案
@@ -30,7 +31,9 @@ public class UserAiHistoryDO extends BaseDO {
 
     /**
      * AI 类型
+     *
+     * @see AISourceEnum#getCode()
      */
-    private Integer source;
+    private Integer aiType;
 
 }
