@@ -9,6 +9,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiHistoryDO;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 
@@ -26,7 +27,7 @@ public class UserAiServiceImpl implements UserAiService {
         userAiHistoryDO.setAiType(source.getCode());
         userAiHistoryDO.setUserId(user);
         userAiHistoryDO.setQuestion(item.getQuestion());
-        userAiHistoryDO.setAnswer(item.getAnswer());
+        userAiHistoryDO.setAnswer(StringUtils.replace(item.getAnswer(), ChatItemVo.SPLIT_INFO, ""));
         userAiHistoryDao.save(userAiHistoryDO);
     }
 

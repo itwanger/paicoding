@@ -20,6 +20,7 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class ChatItemVo implements Serializable, Cloneable {
     private static final long serialVersionUID = 7230339040247758226L;
+    public static final String SPLIT_INFO = "$…$";
     /**
      * 唯一的聊天id，不要求存在，主要用于简化流式输出时，前端对返回结果的处理
      */
@@ -93,7 +94,7 @@ public class ChatItemVo implements Serializable, Cloneable {
             this.answer = answer;
             this.chatUid = UUID.randomUUID().toString().replaceAll("-", "");
         } else {
-            this.answer += "$…$" + answer;
+            this.answer += SPLIT_INFO + answer;
         }
         this.answerType = ChatAnswerTypeEnum.STREAM;
         setAnswerTime();
