@@ -154,8 +154,8 @@
     }
 
     function prettyCode(content) {
-        return content.replace(/```(.*?)```/gs, function(match, p1) {
-            return "<pre><code>" + escapeHtml(p1) + "</code></pre>";
+        return content.replace(/```(\w*)\s*([\s\S]*?)```/gs, function(match, p1, p2) {
+            return '<pre><code class="' + p1 + '">' + escapeHtml(p2) + '</code></pre>';
         });
     }
 
