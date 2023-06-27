@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
 import com.plexpt.chatgpt.listener.AbstractStreamListener;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +39,11 @@ public class ChatGptAiServiceImpl extends AbsChatService {
             @Override
             public void onMsg(String message) {
                 // 成功返回结果的场景
-                item.appendAnswer(message);
-                consumer.accept(AiChatStatEnum.MID, chatRes);
-                log.info("完整的返回内容: {}", lastMessage);
+                if (StringUtils.isNotBlank(message)) {
+                    item.appendAnswer(message);
+                    consumer.accept(AiChatStatEnum.MID, chatRes);
+                    log.info("ChatGpt返回内容: {}", lastMessage);
+                }
             }
 
             @Override
@@ -53,7 +56,7 @@ public class ChatGptAiServiceImpl extends AbsChatService {
 
         // 注册回答结束的回调钩子
         listener.setOnComplate((s) -> {
-            item.appendAnswer("\n-----------------\n")
+            item.appendAnswer("\n--------回答完成---------\n")
                     .setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, chatRes);
         });

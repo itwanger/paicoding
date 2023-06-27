@@ -3,6 +3,7 @@ package com.github.paicoding.forum.api.model.vo.chat;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -88,7 +89,7 @@ public class ChatItemVo implements Serializable, Cloneable {
      * @return
      */
     public ChatItemVo appendAnswer(String answer) {
-        if (this.answer == null) {
+        if (this.answer == null || this.answer.isEmpty()) {
             this.answer = answer;
             this.chatUid = UUID.randomUUID().toString().replaceAll("-", "");
         } else {
