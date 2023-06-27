@@ -5,7 +5,7 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
-import com.github.paicoding.forum.service.user.service.UserAiHistoryService;
+import com.github.paicoding.forum.service.user.service.UserAiService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,9 @@ import java.util.function.Consumer;
 @Service
 public abstract class AbsChatService implements ChatService {
     @Autowired
-    private UserAiHistoryService userAiHistoryService;
+    private UserAiService userAiService;
+
+
     /**
      * 查询已经使用的次数
      *
@@ -33,7 +35,7 @@ public abstract class AbsChatService implements ChatService {
      * @return
      */
     protected int queryUserdCnt(Long user) {
-        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKey(source()), String.valueOf(user), Integer.class);
+        Integer cnt = RedisClient.hGet(ChatConstants.getAiRateKeyPerDay(source()), String.valueOf(user), Integer.class);
         if (cnt == null) {
             cnt = 0;
         }
@@ -48,7 +50,14 @@ public abstract class AbsChatService implements ChatService {
      * @return
      */
     protected Long incrCnt(Long user) {
-        return RedisClient.hIncr(ChatConstants.getAiRateKey(source()), String.valueOf(user), 1);
+        String key = ChatConstants.getAiRateKeyPerDay(source());
+        Long cnt = RedisClient.hIncr(key, String.valueOf(user), 1);
+        if (cnt == 1L) {
+            // 做一个简单的判定，如果是某个用户的第一次提问，那就刷新一下这个缓存的有效期
+            // fixme 这里有个不太优雅的地方：每新来一个用户，会导致这个有效期重新刷一边，可以通过再查一下hash的key个数，如果只有一个才进行重置有效期；这里出于简单考虑，省了这一步
+            RedisClient.expire(key, 86400L);
+        }
+        return cnt;
     }
 
     /**
@@ -56,7 +65,7 @@ public abstract class AbsChatService implements ChatService {
      */
     protected void recordChatItem(Long user, ChatItemVo item) {
         // 写入 MySQL
-        userAiHistoryService.pushChatItem(source(), user, item);
+        userAiService.pushChatItem(source(), user, item);
 
         // 写入 Redis
         RedisClient.lPush(ChatConstants.getAiHistoryRecordsKey(source(), user), item);
@@ -145,9 +154,8 @@ public abstract class AbsChatService implements ChatService {
      */
     protected void processAfterSuccessedAnswered(Long user, ChatRecordsVo response) {
         // 回答成功，保存聊天记录，剩余次数-1
-        incrCnt(user);
+        response.setUsedCnt(incrCnt(user).intValue());
         recordChatItem(user, response.getRecords().get(0));
-        response.setUsedCnt(response.getUsedCnt() + 1);
         if (response.getUsedCnt() > ChatConstants.MAX_HISTORY_RECORD_ITEMS) {
             // 最多保存五百条历史聊天记录
             RedisClient.lTrim(ChatConstants.getAiHistoryRecordsKey(source(), user), 0, ChatConstants.MAX_HISTORY_RECORD_ITEMS);
@@ -166,17 +174,19 @@ public abstract class AbsChatService implements ChatService {
     public ChatRecordsVo asyncChat(Long user, String question, Consumer<ChatRecordsVo> consumer) {
         ChatRecordsVo res = initResVo(user, question);
         if (!res.hasQaCnt()) {
+            // 次数使用完毕
+            consumer.accept(res);
             return res;
         }
 
         final ChatRecordsVo newRes = res.clone();
         AiChatStatEnum needReturn = doAsyncAnswer(user, newRes, (ans, vo) -> {
-            // ai异步返回结果之后，我们将结果推送给前端用户
-            consumer.accept(newRes);
             if (ans == AiChatStatEnum.END) {
                 // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
                 processAfterSuccessedAnswered(user, newRes);
             }
+            // ai异步返回结果之后，我们将结果推送给前端用户
+            consumer.accept(newRes);
         });
 
         if (needReturn.needResponse()) {
@@ -205,6 +215,6 @@ public abstract class AbsChatService implements ChatService {
      * @return
      */
     protected int getMaxQaCnt(Long user) {
-        return ChatConstants.MAX_CHATGPT_QAS_CNT;
+        return userAiService.getMaxChatCnt(user);
     }
 }

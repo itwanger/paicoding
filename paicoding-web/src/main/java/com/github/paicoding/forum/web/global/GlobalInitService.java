@@ -9,7 +9,8 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -34,7 +34,7 @@ public class GlobalInitService {
     @Value("${env.name}")
     private String env;
     @Autowired
-    private SessionService sessionService;
+    private UserService userService;
 
     @Resource
     private GlobalViewConfig globalViewConfig;
@@ -102,12 +102,12 @@ public class GlobalInitService {
         if (request.getCookies() == null) {
             return;
         }
-        Optional.ofNullable(SessionUtil.findCookieByName(request, SessionService.SESSION_KEY))
+        Optional.ofNullable(SessionUtil.findCookieByName(request, LoginOutService.SESSION_KEY))
                         .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
     }
 
     public void initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
-        BaseUserInfoDTO user = sessionService.getAndUpdateUserIpInfoBySessionId(session, null);
+        BaseUserInfoDTO user = userService.getAndUpdateUserIpInfoBySessionId(session, null);
         reqInfo.setSession(session);
         if (user != null) {
             reqInfo.setUserId(user.getUserId());

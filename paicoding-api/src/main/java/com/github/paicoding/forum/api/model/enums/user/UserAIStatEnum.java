@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.api.model.enums;
+package com.github.paicoding.forum.api.model.enums.user;
 
 import lombok.Getter;
 
@@ -7,7 +7,7 @@ import lombok.Getter;
  */
 @Getter
 public enum UserAIStatEnum {
-
+    IGNORE(-1, "忽略"),
     // 审核中
     AUDITING(0, "审核中"),
     // 试用中

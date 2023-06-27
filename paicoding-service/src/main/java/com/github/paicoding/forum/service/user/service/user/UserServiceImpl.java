@@ -1,40 +1,37 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
-import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
+import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserService;
-import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
-import com.github.paicoding.forum.service.user.service.help.UserRandomGenHelper;
+import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -62,25 +59,11 @@ public class UserServiceImpl implements UserService {
     private ArticleDao articleDao;
 
     @Autowired
-    private UserPwdEncoder userPwdEncoder;
+    private UserSessionHelper userSessionHelper;
 
     @Override
     public UserDO getWxUser(String wxuuid) {
         return userDao.getByThirdAccountId(wxuuid);
-    }
-
-    @Override
-    public BaseUserInfoDTO passwordLogin(String userName, String password) {
-        UserDO user = userDao.getByUserName(userName);
-        if (user == null) {
-            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + userName);
-        }
-
-        if (!userPwdEncoder.match(password, user.getPassword())) {
-            throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
-        }
-
-        return queryBasicUserInfo(user.getId());
     }
 
     @Override
@@ -98,44 +81,42 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 用户存在时，直接返回；不存在时，则初始化
-     *
-     * @param req
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void registerOrGetUserInfo(UserSaveReq req) {
-        UserDO record = userDao.getByThirdAccountId(req.getThirdAccountId());
-        if (record != null) {
-            // 用户存在，不需要注册
-            req.setUserId(record.getId());
-
-            // 用户登录事件
-            SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.LOGIN, record.getId()));
-            return;
-        }
-
-        // 用户不存在，则需要注册
-        record = UserConverter.toDO(req);
-        userDao.saveUser(record);
-        req.setUserId(record.getId());
-
-        // 初始化用户信息，随机生成用户昵称 + 头像
-        UserInfoDO userInfo = new UserInfoDO();
-        userInfo.setUserId(req.getUserId());
-        userInfo.setUserName(UserRandomGenHelper.genNickName());
-        userInfo.setPhoto(UserRandomGenHelper.genAvatar());
-        userDao.save(userInfo);
-
-        // 用户注册事件
-        SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REGISTER, userInfo.getUserId()));
-    }
-
     @Override
     public void saveUserInfo(UserInfoSaveReq req) {
         UserInfoDO userInfoDO = UserConverter.toDO(req);
         userDao.updateUserInfo(userInfoDO);
+    }
+
+    @Override
+    public BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp) {
+        if (StringUtils.isBlank(session)) {
+            return null;
+        }
+
+        Long userId = userSessionHelper.getUserIdBySession(session);
+        if (userId == null) {
+            return null;
+        }
+
+        // 查询用户信息，并更新最后一次使用的ip
+        UserInfoDO user = userDao.getByUserId(userId);
+        if (user == null) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
+        }
+
+        IpInfo ip = user.getIp();
+        if (clientIp != null && !Objects.equals(ip.getLatestIp(), clientIp)) {
+            // ip不同，需要更新
+            ip.setLatestIp(clientIp);
+            ip.setLatestRegion(IpUtil.getLocationByIp(clientIp).toRegionStr());
+
+            if (ip.getFirstIp() == null) {
+                ip.setFirstIp(clientIp);
+                ip.setFirstRegion(ip.getLatestRegion());
+            }
+            userDao.updateById(user);
+        }
+        return UserConverter.toDTO(user);
     }
 
     @Override

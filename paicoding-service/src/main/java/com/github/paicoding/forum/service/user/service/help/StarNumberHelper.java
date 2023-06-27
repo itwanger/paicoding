@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class StarNumberHelper {
-    /**
-     * 密码加盐，更推荐的做法是每个用户都使用独立的盐，提高安全性
-     */
     @Value("${star.max-number}")
     private Integer maxStarNumber;
 

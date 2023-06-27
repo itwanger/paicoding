@@ -2,6 +2,8 @@ package com.github.paicoding.forum.service.chatai.constants;
 
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 
+import java.time.LocalDate;
+
 /**
  * @author YiHui
  * @date 2023/6/2
@@ -12,6 +14,10 @@ public final class ChatConstants {
      */
     public static String getAiRateKey(AISourceEnum ai) {
         return "chat.rates." + ai.name().toLowerCase();
+    }
+
+    public static String getAiRateKeyPerDay(AISourceEnum ai) {
+        return "chat.rates." + ai.name().toLowerCase() + "-" + LocalDate.now();
     }
 
     /**
@@ -28,7 +34,7 @@ public final class ChatConstants {
     /**
      * 每个用户的最大使用次数
      */
-    public static final int MAX_CHATGPT_QAS_CNT = 50;
+    public static final int MAX_CHATGPT_QAS_CNT = 10;
 
     /**
      * 最多保存的历史聊天记录
