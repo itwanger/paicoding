@@ -107,6 +107,19 @@ public class RedisClient {
     }
 
     /**
+     * 设置缓存有效期
+     *
+     * @param key
+     * @param expire
+     */
+    public static void expire(String key, Long expire) {
+        template.execute((RedisCallback<Void>) connection -> {
+            connection.expire(keyBytes(key), expire);
+            return null;
+        });
+    }
+
+    /**
      * 带过期时间的缓存写入
      *
      * @param key

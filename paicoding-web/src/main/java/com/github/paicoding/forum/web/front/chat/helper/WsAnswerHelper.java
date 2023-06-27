@@ -5,7 +5,7 @@ import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -27,10 +27,11 @@ public class WsAnswerHelper {
     private ChatFacade chatFacade;
 
     // fixme ai的切换，交给用户来选择
-    AISourceEnum source = AISourceEnum.CHAT_GPT_3_5;
+    AISourceEnum source = AISourceEnum.PAI_AI;
 
     public void sendMsgToUser(String session, String question) {
         ChatRecordsVo res = chatFacade.autoChat(source, question, vo -> response(session, vo));
+
         log.info("AI直接返回：{}", res);
     }
 
@@ -55,7 +56,7 @@ public class WsAnswerHelper {
 
     public void execute(Map<String, Object> attributes, Runnable func) {
         try {
-            ReqInfoContext.ReqInfo reqInfo = (ReqInfoContext.ReqInfo) attributes.get(SessionService.SESSION_KEY);
+            ReqInfoContext.ReqInfo reqInfo = (ReqInfoContext.ReqInfo) attributes.get(LoginOutService.SESSION_KEY);
             ReqInfoContext.addReqInfo(reqInfo);
             String traceId = (String) attributes.get(MdcUtil.TRACE_ID_KEY);
             MdcUtil.add(MdcUtil.TRACE_ID_KEY, traceId);

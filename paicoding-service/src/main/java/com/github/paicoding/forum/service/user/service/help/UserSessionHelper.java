@@ -65,10 +65,15 @@ public class UserSessionHelper {
      * @return
      */
     public String codeVerifySucceed(String code, Long userId) {
-        String session = "s-" + UUID.randomUUID();
-        RedisClient.setStrWithExpire(session, String.valueOf(userId), SESSION_EXPIRE_TIME);
+        String session = genSession(userId);
         // 验证完之后，移除掉，避免重复使用
         codeUserIdCache.invalidate(code);
+        return session;
+    }
+
+    public String genSession(Long userId) {
+        String session = "s-" + UUID.randomUUID();
+        RedisClient.setStrWithExpire(session, String.valueOf(userId), SESSION_EXPIRE_TIME);
         return session;
     }
 

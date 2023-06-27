@@ -73,10 +73,6 @@
 
     // 建立会话, 首先判断一下用户是否已经登录
     const session = getCookie("f-session");
-    if (!session) {
-        // 提醒用户登录
-        toastr.warning("请先登录");
-    }
 
     function initWs() {
         let socket = new WebSocket(`ws://127.0.0.1:8080/gpt/${session}`);
@@ -115,6 +111,9 @@
                     for (let i = data.length - 1; i >= 0; i--) {
                         if (data[i].question) {
                             addClientMsg(data[i].question, false);
+                        }
+                        if (i == 0) {
+                            addSplit();
                         }
                         appendServerMessage(data[i]);
                     }

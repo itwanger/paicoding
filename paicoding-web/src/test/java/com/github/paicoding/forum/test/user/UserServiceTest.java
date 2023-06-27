@@ -1,13 +1,10 @@
 package com.github.paicoding.forum.test.user;
 
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
-import com.github.paicoding.forum.test.BasicTest;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.test.BasicTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.UUID;
 
 /**
  * @author YiHui
@@ -23,14 +20,8 @@ public class UserServiceTest extends BasicTest {
      */
     @Test
     public void testRegister() {
-        UserSaveReq req = new UserSaveReq();
-        req.setThirdAccountId(UUID.randomUUID().toString());
-        req.setLoginType(0);
-        userService.registerOrGetUserInfo(req);
-        long userId = req.getUserId();
-
         UserInfoSaveReq save = new UserInfoSaveReq();
-        save.setUserId(userId);
+        save.setUserId(1L);
         save.setUserName("一灰灰");
         save.setPhoto("https://spring.hhui.top/spring-blog/css/images/avatar.jpg");
         save.setCompany("xm");
