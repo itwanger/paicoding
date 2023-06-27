@@ -8,7 +8,6 @@
 
 <link rel="stylesheet" href="/css/views/chat-home.css"/>
 
-<script src="/js/sockjs.min.js"></script>
 <script src="/js/stomp.min.js"></script>
 
 <body id="body" class="bg-color">
@@ -75,8 +74,9 @@
     const session = getCookie("f-session");
 
     function initWs() {
-        let socket = new WebSocket(`ws://127.0.0.1:8080/gpt/${session}`);
-        // let socket = new SockJS(`/gpt/${session}`);
+        let protocol = window.location.protocol.replace("http", "ws");
+        let host = window.location.host;
+        let socket = new WebSocket(`${protocol}//${host}/gpt/${session}`);
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('ws连接成功: ' + frame);
