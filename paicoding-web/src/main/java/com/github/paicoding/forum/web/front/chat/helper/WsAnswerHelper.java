@@ -6,12 +6,16 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author YiHui
@@ -26,17 +30,31 @@ public class WsAnswerHelper {
     @Autowired
     private ChatFacade chatFacade;
 
-    // fixme ai的切换，交给用户来选择
-    AISourceEnum source = AISourceEnum.CHAT_GPT_3_5;
+    /**
+     * 基于Guava的单实例缓存
+     */
+    private Supplier<AISourceEnum> aiSourceCache;
+
+    @PostConstruct
+    private void init() {
+        aiSourceCache = Suppliers.memoizeWithExpiration(() -> chatFacade.getRecommendAiSource(), 10, TimeUnit.MINUTES);
+    }
+
+    private AISourceEnum getAiSource() {
+        AISourceEnum sourceEnum = aiSourceCache.get();
+        if (sourceEnum == null) {
+            init();
+        }
+        return aiSourceCache.get();
+    }
 
     public void sendMsgToUser(String session, String question) {
-        ChatRecordsVo res = chatFacade.autoChat(source, question, vo -> response(session, vo));
-
+        ChatRecordsVo res = chatFacade.autoChat(getAiSource(), question, vo -> response(session, vo));
         log.info("AI直接返回：{}", res);
     }
 
     public void sendMsgHistoryToUser(String session) {
-        ChatRecordsVo vo = chatFacade.history(source);
+        ChatRecordsVo vo = chatFacade.history(getAiSource());
         response(session, vo);
     }
 
