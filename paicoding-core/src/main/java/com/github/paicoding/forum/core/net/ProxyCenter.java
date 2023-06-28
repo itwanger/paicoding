@@ -2,11 +2,7 @@ package com.github.paicoding.forum.core.net;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import lombok.Data;
-import lombok.experimental.Accessors;
-import org.springframework.boot.context.properties.bind.Bindable;
-import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.core.env.Environment;
+import com.github.paicoding.forum.core.config.ProxyProperties;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -19,23 +15,6 @@ import java.util.List;
  */
 public class ProxyCenter {
 
-    @Data
-    @Accessors(chain = true)
-    public static class ProxyType {
-        /**
-         * 代理类型
-         */
-        private Proxy.Type type;
-        /**
-         * 代理ip
-         */
-        private String ip;
-        /**
-         * 代理端口
-         */
-        private Integer port;
-    }
-
     /**
      * 记录每个source使用的proxy索引
      */
@@ -43,15 +22,11 @@ public class ProxyCenter {
     /**
      * proxy
      */
-    private static List<ProxyType> PROXIES = new ArrayList<>();
+    private static List<ProxyProperties.ProxyType> PROXIES = new ArrayList<>();
 
 
-    public static void initProxyPool(List<ProxyType> proxyTypes) {
+    public static void initProxyPool(List<ProxyProperties.ProxyType> proxyTypes) {
         PROXIES = proxyTypes;
-    }
-
-    public static void initProxyPool(Environment environment, String proxyConfigPrefix) {
-        PROXIES = Binder.get(environment).bind(proxyConfigPrefix, Bindable.listOf(ProxyType.class)).get();
     }
 
     /**
@@ -59,7 +34,7 @@ public class ProxyCenter {
      *
      * @return
      */
-    static ProxyType getProxy(String host) {
+    static ProxyProperties.ProxyType getProxy(String host) {
         Integer index = HOST_PROXY_INDEX.getIfPresent(host);
         if (index == null) {
             index = -1;
@@ -74,10 +49,10 @@ public class ProxyCenter {
     }
 
     public static Proxy loadProxy(String host) {
-        ProxyType proxyType = getProxy(host);
+        ProxyProperties.ProxyType proxyType = getProxy(host);
         if (proxyType == null) {
             return null;
         }
-        return new Proxy(proxyType.type, new InetSocketAddress(proxyType.ip, proxyType.port));
+        return new Proxy(proxyType.getType(), new InetSocketAddress(proxyType.getIp(), proxyType.getPort()));
     }
 }

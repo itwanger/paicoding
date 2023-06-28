@@ -27,6 +27,10 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
         SpringUtil.environment = environment;
     }
 
+    public static ApplicationContext getContext() {
+        return context;
+    }
+
     /**
      * 获取bean
      *
@@ -38,8 +42,24 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
         return context.getBean(bean);
     }
 
+    public static <T> T getBeanOrNull(Class<T> bean) {
+        try {
+            return context.getBean(bean);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static Object getBean(String beanName) {
         return context.getBean(beanName);
+    }
+
+    public static Object getBeanOrNull(String beanName) {
+        try {
+            return context.getBean(beanName);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

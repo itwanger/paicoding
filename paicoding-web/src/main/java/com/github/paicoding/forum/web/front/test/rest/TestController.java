@@ -1,10 +1,12 @@
 package com.github.paicoding.forum.web.front.test.rest;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
@@ -12,6 +14,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -19,10 +22,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.util.ProxyUtils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -191,5 +203,50 @@ public class TestController {
         statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
         long n = statisticsSettingService.getStatisticsCount().getPvCount();
         return "使用主库：更新成功! old=" + old + " new=" + n;
+    }
+
+
+    /**
+     * 打印日志
+     *
+     * @param beanName
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("print")
+    public String printInfo(String beanName) throws Exception {
+        Object bean = SpringUtil.getBeanOrNull(beanName);
+        if (bean == null) {
+            try {
+                Class clz = ClassUtils.forName(beanName, this.getClass().getClassLoader());
+                bean = SpringUtil.getBeanOrNull(clz);
+            } catch (ClassNotFoundException e) {
+            }
+        }
+
+        if (bean != null && ClassUtils.isCglibProxy(bean)) {
+            return printProxyFields(bean);
+        }
+
+        return JsonUtil.toStr(bean);
+    }
+
+    private String printProxyFields(Object proxy) {
+        Class clz = ProxyUtils.getUserClass(proxy);
+        Field[] fields = clz.getDeclaredFields();
+        JSONObject obj = new JSONObject();
+        for (Field f : fields) {
+            f.setAccessible(true);
+            obj.put(f.getName(), ReflectionUtils.getField(f, proxy));
+        }
+        return obj.toString();
+    }
+
+
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("refresh/config")
+    public String refreshConfig() {
+        DynamicConfigContainer registry = SpringUtil.getBean(DynamicConfigContainer.class);
+        return JsonUtil.toStr(registry.getCache());
     }
 }

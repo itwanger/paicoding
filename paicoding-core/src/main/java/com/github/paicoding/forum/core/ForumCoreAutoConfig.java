@@ -2,16 +2,18 @@ package com.github.paicoding.forum.core;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import com.github.paicoding.forum.core.config.ProxyProperties;
 import com.github.paicoding.forum.core.net.ProxyCenter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,8 +21,11 @@ import java.util.concurrent.TimeUnit;
  * @date 2022/9/4
  */
 @Configuration
+@EnableConfigurationProperties(ProxyProperties.class)
 @ComponentScan(basePackages = "com.github.paicoding.forum.core")
-public class ForumCoreAutoConfig implements EnvironmentAware {
+public class ForumCoreAutoConfig {
+    @Autowired
+    private ProxyProperties proxyProperties;
 
     public ForumCoreAutoConfig(RedisTemplate<String, String> redisTemplate) {
         RedisClient.register(redisTemplate);
@@ -45,9 +50,9 @@ public class ForumCoreAutoConfig implements EnvironmentAware {
         return cacheManager;
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
+    @PostConstruct
+    public void init() {
         // 这里借助手动解析配置信息，并实例化为Java POJO对象，来实现代理池的初始化
-        ProxyCenter.initProxyPool(environment, "net.proxy");
+        ProxyCenter.initProxyPool(proxyProperties.getProxy());
     }
 }
