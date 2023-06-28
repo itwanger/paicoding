@@ -8,12 +8,11 @@ import com.github.paicoding.forum.service.chatai.service.ChatService;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -24,12 +23,10 @@ import java.util.function.Consumer;
  * @author YiHui
  * @date 2023/6/9
  */
+@Slf4j
 @Service
 public class ChatFacade {
     private final Map<AISourceEnum, ChatService> chatServiceMap;
-
-    @Autowired
-    private ChatGptIntegration chatGptIntegration;
 
     public ChatFacade(List<ChatService> chatServiceList) {
         chatServiceMap = Maps.newHashMapWithExpectedSize(chatServiceList.size());
@@ -104,21 +101,20 @@ public class ChatFacade {
      * @return
      */
     public AISourceEnum getRecommendAiSource() {
+        AISourceEnum source;
         try {
             ChatGptIntegration.ChatGptConfig config = SpringUtil.getBean(ChatGptIntegration.ChatGptConfig.class);
             if (!CollectionUtils.isEmpty(config.getConf().get(config.getMain()).getKeys())) {
-                if (chatGptIntegration.creditInfo(AISourceEnum.CHAT_GPT_3_5).getTotalAvailable().compareTo(BigDecimal.ZERO) > 0) {
-                    return AISourceEnum.CHAT_GPT_3_5;
-                }
+                source = AISourceEnum.CHAT_GPT_3_5;
+            } else if (StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class).getApiKey())) {
+                source = AISourceEnum.XUN_FEI_AI;
+            } else {
+                source = AISourceEnum.PAI_AI;
             }
-
-            if (StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class).getApiKey())) {
-                return AISourceEnum.XUN_FEI_AI;
-            }
-
-            return AISourceEnum.PAI_AI;
         } catch (Exception e) {
-            return AISourceEnum.PAI_AI;
+            source = AISourceEnum.PAI_AI;
         }
+        log.info("当前选中的AI模型：{}", source);
+        return source;
     }
 }

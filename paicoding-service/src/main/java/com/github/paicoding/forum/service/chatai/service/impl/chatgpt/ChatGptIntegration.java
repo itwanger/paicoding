@@ -108,7 +108,7 @@ public class ChatGptIntegration {
         GptConf conf = config.getConf().getOrDefault(model, config.getConf().get(config.getMain()));
         Proxy proxy = conf.isProxy() ? ProxyCenter.loadProxy(String.valueOf(routingKey)) : Proxy.NO_PROXY;
 
-        return ChatGPT.builder().apiKey(conf.fetchKey()).proxy(proxy).apiHost(conf.getApiHost()) //反向代理地址
+        return ChatGPT.builder().apiKeyList(conf.getKeys()).proxy(proxy).apiHost(conf.getApiHost()) //反向代理地址
                 .timeout(conf.getTimeOut()).build().init();
     }
 
