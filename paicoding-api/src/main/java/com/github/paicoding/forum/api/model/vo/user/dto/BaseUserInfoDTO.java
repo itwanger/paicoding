@@ -40,7 +40,7 @@ public class BaseUserInfoDTO extends BaseDTO {
     /**
      * 个人简介
      */
-    @ApiModelProperty(value = "用户简洁")
+    @ApiModelProperty(value = "用户简介")
     private String profile;
     /**
      * 职位

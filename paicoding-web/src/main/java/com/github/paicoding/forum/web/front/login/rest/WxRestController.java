@@ -3,7 +3,7 @@ package com.github.paicoding.forum.web.front.login.rest;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.front.login.QrLoginHelper;
 import com.github.paicoding.forum.web.front.login.WxHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class WxRestController {
     @Autowired
-    private SessionService sessionService;
+    private LoginOutService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
     @Autowired

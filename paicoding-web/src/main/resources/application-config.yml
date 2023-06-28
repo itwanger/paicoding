@@ -3,8 +3,11 @@ view:
     websiteName: 技术派
     websiteLogoUrl: https://paicoding.com/img/icon.png
     websiteFaviconIconUrl: https://paicoding.com/img/icon.png
+    zsxqUrl: https://paicoding.com/article/detail/314
+    zsxqPosterUrl: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/javabetter.jpg
     contactMeTitle: 联系我 - louzai
     contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg
+    contactMeStarQrCode: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/qiye-weixin.png
     pageSize: 20
     cdnImgStyle:
     websiteRecord: 豫ICP备2021038026号-3

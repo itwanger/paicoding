@@ -7,8 +7,8 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.MapUtils;
-import com.github.paicoding.forum.service.chatgpt.service.ChatgptService;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.chatai.service.ChatgptService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class WxHelper {
     public static volatile long expireTime = 0L;
 
     @Autowired
-    private SessionService sessionService;
+    private LoginOutService sessionService;
     @Autowired
     private QrLoginHelper qrLoginHelper;
 

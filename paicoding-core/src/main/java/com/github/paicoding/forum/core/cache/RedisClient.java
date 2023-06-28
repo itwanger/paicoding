@@ -10,10 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -107,6 +104,19 @@ public class RedisClient {
      */
     public static void del(String key) {
         template.execute((RedisCallback<Long>) con -> con.del(keyBytes(key)));
+    }
+
+    /**
+     * 设置缓存有效期
+     *
+     * @param key
+     * @param expire
+     */
+    public static void expire(String key, Long expire) {
+        template.execute((RedisCallback<Void>) connection -> {
+            connection.expire(keyBytes(key), expire);
+            return null;
+        });
     }
 
     /**
@@ -266,6 +276,48 @@ public class RedisClient {
         });
     }
 
+
+    public static <T> Long lPush(String key, T val) {
+        return template.execute(new RedisCallback<Long>() {
+            @Override
+            public Long doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.lPush(keyBytes(key), valBytes(val));
+            }
+        });
+    }
+
+    public static <T> Long rPush(String key, T val) {
+        return template.execute(new RedisCallback<Long>() {
+            @Override
+            public Long doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.rPush(keyBytes(key), valBytes(val));
+            }
+        });
+    }
+
+    public static <T> List<T> lRange(String key, int start, int size, Class<T> clz) {
+        return template.execute(new RedisCallback<List<T>>() {
+
+            @Override
+            public List<T> doInRedis(RedisConnection connection) throws DataAccessException {
+                List<byte[]> list = connection.lRange(keyBytes(key), start, size);
+                if (CollectionUtils.isEmpty(list)) {
+                    return new ArrayList<>();
+                }
+                return list.stream().map(k -> toObj(k, clz)).collect(Collectors.toList());
+            }
+        });
+    }
+
+    public static void lTrim(String key, int start, int size) {
+        template.execute(new RedisCallback<Void>() {
+            @Override
+            public Void doInRedis(RedisConnection connection) throws DataAccessException {
+                connection.lTrim(keyBytes(key), start, size);
+                return null;
+            }
+        });
+    }
 
     private static <T> T toObj(byte[] ans, Class<T> clz) {
         if (clz == String.class) {
