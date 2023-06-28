@@ -4,8 +4,11 @@ import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.user.service.UserAiService;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -184,6 +187,9 @@ public abstract class AbsChatService implements ChatService {
             if (ans == AiChatStatEnum.END) {
                 // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
                 processAfterSuccessedAnswered(user, newRes);
+            } else if (ans == AiChatStatEnum.ERROR) {
+                // 执行异常，更新AI模型
+                SpringUtil.getBean(ChatFacade.class).refreshAiSourceCache(Sets.newHashSet(source()));
             }
             // ai异步返回结果之后，我们将结果推送给前端用户
             consumer.accept(newRes);

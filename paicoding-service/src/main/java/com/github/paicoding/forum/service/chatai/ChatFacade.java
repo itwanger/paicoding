@@ -7,14 +7,20 @@ import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatService;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -27,6 +33,56 @@ import java.util.function.Consumer;
 @Service
 public class ChatFacade {
     private final Map<AISourceEnum, ChatService> chatServiceMap;
+
+    /**
+     * 基于Guava的单实例缓存
+     */
+    private Supplier<AISourceEnum> aiSourceCache;
+
+    @PostConstruct
+    private void init() {
+        refreshAiSourceCache(getRecommendAiSource(Collections.emptySet()));
+    }
+
+    public AISourceEnum getRecommendAiSource() {
+        AISourceEnum sourceEnum = aiSourceCache.get();
+        if (sourceEnum == null) {
+            refreshAiSourceCache(getRecommendAiSource(Collections.emptySet()));
+        }
+        return aiSourceCache.get();
+    }
+
+    public void refreshAiSourceCache(AISourceEnum ai) {
+        aiSourceCache = Suppliers.memoizeWithExpiration(() -> ai, 10, TimeUnit.MINUTES);
+    }
+
+    public void refreshAiSourceCache(Set<AISourceEnum> except) {
+        refreshAiSourceCache(getRecommendAiSource(except));
+    }
+
+    /**
+     * 返回推荐的AI模型
+     *
+     * @param except 不选择的AI模型
+     * @return
+     */
+    private AISourceEnum getRecommendAiSource(Set<AISourceEnum> except) {
+        AISourceEnum source;
+        try {
+            ChatGptIntegration.ChatGptConfig config = SpringUtil.getBean(ChatGptIntegration.ChatGptConfig.class);
+            if (!except.contains(AISourceEnum.CHAT_GPT_3_5) && !CollectionUtils.isEmpty(config.getConf().get(config.getMain()).getKeys())) {
+                source = AISourceEnum.CHAT_GPT_3_5;
+            } else if (!except.contains(AISourceEnum.XUN_FEI_AI) && StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class).getApiKey())) {
+                source = AISourceEnum.XUN_FEI_AI;
+            } else {
+                source = AISourceEnum.PAI_AI;
+            }
+        } catch (Exception e) {
+            source = AISourceEnum.PAI_AI;
+        }
+        log.info("当前选中的AI模型：{}", source);
+        return source;
+    }
 
     public ChatFacade(List<ChatService> chatServiceList) {
         chatServiceMap = Maps.newHashMapWithExpectedSize(chatServiceList.size());
@@ -92,29 +148,5 @@ public class ChatFacade {
      */
     public ChatRecordsVo history(AISourceEnum source) {
         return chatServiceMap.get(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId());
-    }
-
-
-    /**
-     * 返回推荐的AI模型
-     *
-     * @return
-     */
-    public AISourceEnum getRecommendAiSource() {
-        AISourceEnum source;
-        try {
-            ChatGptIntegration.ChatGptConfig config = SpringUtil.getBean(ChatGptIntegration.ChatGptConfig.class);
-            if (!CollectionUtils.isEmpty(config.getConf().get(config.getMain()).getKeys())) {
-                source = AISourceEnum.CHAT_GPT_3_5;
-            } else if (StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class).getApiKey())) {
-                source = AISourceEnum.XUN_FEI_AI;
-            } else {
-                source = AISourceEnum.PAI_AI;
-            }
-        } catch (Exception e) {
-            source = AISourceEnum.PAI_AI;
-        }
-        log.info("当前选中的AI模型：{}", source);
-        return source;
     }
 }
