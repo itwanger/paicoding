@@ -3,11 +3,15 @@ package com.github.paicoding.forum.service.chatai;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatService;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
+import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -79,8 +83,7 @@ public class ChatFacade {
      * @param question
      */
     public ChatRecordsVo asyncChat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
-        return chatServiceMap.get(source)
-                .asyncChat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
+        return chatServiceMap.get(source).asyncChat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
     }
 
 
@@ -102,10 +105,18 @@ public class ChatFacade {
      */
     public AISourceEnum getRecommendAiSource() {
         try {
-            if (chatGptIntegration.creditInfo(AISourceEnum.CHAT_GPT_3_5).getTotalAvailable().compareTo(BigDecimal.ZERO) > 0) {
-                return AISourceEnum.CHAT_GPT_3_5;
+            ChatGptIntegration.ChatGptConfig config = SpringUtil.getBean(ChatGptIntegration.ChatGptConfig.class);
+            if (!CollectionUtils.isEmpty(config.getConf().get(config.getMain()).getKeys())) {
+                if (chatGptIntegration.creditInfo(AISourceEnum.CHAT_GPT_3_5).getTotalAvailable().compareTo(BigDecimal.ZERO) > 0) {
+                    return AISourceEnum.CHAT_GPT_3_5;
+                }
             }
-            return AISourceEnum.XUN_FEI_AI;
+
+            if (StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class).getApiKey())) {
+                return AISourceEnum.XUN_FEI_AI;
+            }
+
+            return AISourceEnum.PAI_AI;
         } catch (Exception e) {
             return AISourceEnum.PAI_AI;
         }

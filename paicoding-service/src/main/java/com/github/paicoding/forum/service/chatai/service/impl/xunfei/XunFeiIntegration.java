@@ -139,6 +139,7 @@ public class XunFeiIntegration {
 
     @Component
     @ConfigurationProperties(prefix = "xunfei")
+    @Data
     public static class XunFeiConfig {
         public String hostUrl = "http://spark-api.xf-yun.com/v1.1/chat";
         public String appId = "";
