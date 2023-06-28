@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +38,10 @@ public class ChatFacade {
      */
     private Supplier<AISourceEnum> aiSourceCache;
 
-    @PostConstruct
-    private void init() {
-        refreshAiSourceCache(getRecommendAiSource(Collections.emptySet()));
-    }
-
     public AISourceEnum getRecommendAiSource() {
+        if (aiSourceCache == null) {
+            refreshAiSourceCache(Collections.emptySet());
+        }
         AISourceEnum sourceEnum = aiSourceCache.get();
         if (sourceEnum == null) {
             refreshAiSourceCache(getRecommendAiSource(Collections.emptySet()));
@@ -70,9 +67,11 @@ public class ChatFacade {
         AISourceEnum source;
         try {
             ChatGptIntegration.ChatGptConfig config = SpringUtil.getBean(ChatGptIntegration.ChatGptConfig.class);
-            if (!except.contains(AISourceEnum.CHAT_GPT_3_5) && !CollectionUtils.isEmpty(config.getConf().get(config.getMain()).getKeys())) {
+            if (!except.contains(AISourceEnum.CHAT_GPT_3_5) && !CollectionUtils.isEmpty(config.getConf()
+                    .get(config.getMain()).getKeys())) {
                 source = AISourceEnum.CHAT_GPT_3_5;
-            } else if (!except.contains(AISourceEnum.XUN_FEI_AI) && StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class).getApiKey())) {
+            } else if (!except.contains(AISourceEnum.XUN_FEI_AI) && StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class)
+                    .getApiKey())) {
                 source = AISourceEnum.XUN_FEI_AI;
             } else {
                 source = AISourceEnum.PAI_AI;
