@@ -62,4 +62,14 @@
     <changeSet id="00000000000015" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230415.sql"/>
     </changeSet>
+
+    <!-- AI 聊天相关 -->
+    <changeSet id="00000000000016" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230626.sql"/>
+    </changeSet>
+
+    <!-- db 配置 -->
+    <changeSet id="00000000000017" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230628.sql"/>
+    </changeSet>
 </databaseChangeLog>

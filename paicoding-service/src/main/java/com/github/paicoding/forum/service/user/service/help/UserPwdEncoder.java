@@ -25,13 +25,22 @@ public class UserPwdEncoder {
     private Integer saltIndex;
 
     public boolean match(String plainPwd, String encPwd) {
+        return Objects.equals(encPwd(plainPwd), encPwd);
+    }
+
+    /**
+     * 明文密码处理
+     *
+     * @param plainPwd
+     * @return
+     */
+    public String encPwd(String plainPwd) {
         if (plainPwd.length() > saltIndex) {
             plainPwd = plainPwd.substring(0, saltIndex) + salt + plainPwd.substring(saltIndex);
         } else {
             plainPwd = plainPwd + salt;
         }
-
-        return Objects.equals(DigestUtils.md5DigestAsHex(plainPwd.getBytes(StandardCharsets.UTF_8)), encPwd);
+        return DigestUtils.md5DigestAsHex(plainPwd.getBytes(StandardCharsets.UTF_8));
     }
 
 }

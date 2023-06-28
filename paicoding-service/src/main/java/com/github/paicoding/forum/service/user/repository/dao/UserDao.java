@@ -16,11 +16,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * UserDao
  * @author YiHui
  * @date 2022/9/2
  */
 @Repository
 public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
+
     @Resource
     private UserMapper userMapper;
 
@@ -35,19 +37,6 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     }
 
     /**
-     * 用户名登录
-     *
-     * @param userName
-     * @return
-     */
-    public UserDO getByUserName(String userName) {
-        LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
-        query.eq(UserDO::getUserName, userName)
-                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
-        return userMapper.selectOne(query);
-    }
-
-    /**
      * 根据用户名来查询
      *
      * @param userName
@@ -57,7 +46,7 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
         query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
                 .and(!StringUtils.isEmpty(userName),
-                     v -> v.like(UserInfoDO::getUserName, userName)
+                        v -> v.like(UserInfoDO::getUserName, userName)
                 )
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectList(query);
@@ -100,5 +89,16 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         }
         user.setId(record.getId());
         updateById(user);
+    }
+
+    public UserDO getUserByUserName(String userName) {
+        LambdaQueryWrapper<UserDO> queryUser = Wrappers.lambdaQuery();
+        queryUser.eq(UserDO::getUserName, userName)
+                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userMapper.selectOne(queryUser);
+    }
+
+    public UserDO getUserByUserId(Long userId) {
+        return userMapper.selectById(userId);
     }
 }

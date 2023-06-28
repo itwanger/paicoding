@@ -2,7 +2,7 @@ package com.github.paicoding.forum.web.front.login;
 
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class QrLoginHelper {
-    private final SessionService sessionService;
+    private final LoginOutService sessionService;
     /**
      * key = 验证码, value = 长连接
      */
@@ -37,7 +37,7 @@ public class QrLoginHelper {
      */
     private LoadingCache<String, String> deviceCodeCache;
 
-    public QrLoginHelper(SessionService loginService) {
+    public QrLoginHelper(LoginOutService loginService) {
         this.sessionService = loginService;
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
@@ -152,14 +152,14 @@ public class QrLoginHelper {
     }
 
     public boolean login(String loginCode, String verifyCode) {
-        String session = sessionService.login(verifyCode);
+        String session = sessionService.register(verifyCode);
         SseEmitter sseEmitter = verifyCodeCache.getIfPresent(loginCode);
         if (sseEmitter != null) {
             try {
                 // 登录成功，写入session
                 sseEmitter.send(session);
                 // 设置cookie的路径
-                sseEmitter.send("login#" + SessionService.SESSION_KEY + "=" + session + ";path=/;");
+                sseEmitter.send("login#" + LoginOutService.SESSION_KEY + "=" + session + ";path=/;");
                 return true;
             } catch (Exception e) {
                 log.error("登录异常: {}, {}", loginCode, verifyCode, e);
@@ -183,7 +183,7 @@ public class QrLoginHelper {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : request.getCookies()) {
-                if (SessionService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
+                if (LoginOutService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
                     deviceId = cookie.getValue();
                     break;
                 }
@@ -191,7 +191,7 @@ public class QrLoginHelper {
         }
         if (deviceId == null) {
             deviceId = UUID.randomUUID().toString();
-            response.addCookie(new Cookie(SessionService.USER_DEVICE_KEY, deviceId));
+            response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
         }
         return deviceId;
     }

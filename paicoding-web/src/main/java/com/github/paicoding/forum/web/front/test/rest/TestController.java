@@ -1,26 +1,40 @@
 package com.github.paicoding.forum.web.front.test.rest;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.core.ai.ChatGptHelper;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
+import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.util.ProxyUtils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,16 +51,7 @@ public class TestController {
     private AtomicInteger cnt = new AtomicInteger(1);
 
     @Autowired
-    private ChatGptHelper chatGptHelper;
-
-    @RequestMapping(path = "gptkey")
-    public ResVo<String> updateKey(String key, HttpServletRequest request) {
-        if ("127.0.0.1".equals(ReqInfoContext.getReqInfo().getHost())) {
-            return ResVo.ok(chatGptHelper.setKey(key));
-        } else {
-            return ResVo.ok("无权限");
-        }
-    }
+    private ChatGptIntegration chatGptHelper;
 
     /**
      * 测试邮件发送
@@ -98,6 +103,64 @@ public class TestController {
         return "沉默王二又帅又丑";
     }
 
+    // POST 请求，使用 HttpServletRequest 获取请求参数
+    @PostMapping(path = "testPost")
+    public String testPost(HttpServletRequest request) {
+        String name = request.getParameter("name");
+        String age = request.getParameter("age");
+        return "name=" + name + ", age=" + age;
+    }
+
+    // POST 请求，使用 HttpServletRequest 获取请求参数，使用 JSON 把参数转为字符串
+    @PostMapping(path = "testPostJson")
+    public String testPostJson(HttpServletRequest request) {
+        return JsonUtil.toStr(request.getParameterMap());
+    }
+
+    // POST 请求，使用 HttpServletRequest 获取 JSON 请求参数
+    @PostMapping(path = "testPostJson2")
+    public String testPostJson2(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return sb.toString();  // body中即是JSON格式的请求参数
+    }
+
+    @PostMapping(path = "testPostJson3")
+    public String testPostJson3(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        log.info("testPostJson3 第一次: {}", sb);
+
+        StringBuilder sb1 = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb1.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        log.info("testPostJson3 第二次: {}", sb1);
+
+        return sb1.toString();  // body中即是JSON格式的请求参数
+    }
 
     @Autowired
     private StatisticsSettingService statisticsSettingService;
@@ -123,7 +186,8 @@ public class TestController {
     public String write2() {
         log.info("------------------- 业务逻辑进入 ----------------------------");
         long old = statisticsSettingService.getStatisticsCount().getPvCount();
-        DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp()));
+        DsSelectExecutor.execute(MasterSlaveDsEnum.MASTER, () -> statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo()
+                .getClientIp()));
         // 保存请求计数
         long n = statisticsSettingService.getStatisticsCount().getPvCount();
         log.info("------------------- 业务逻辑结束 ----------------------------");
@@ -139,5 +203,50 @@ public class TestController {
         statisticsSettingService.saveRequestCount(ReqInfoContext.getReqInfo().getClientIp());
         long n = statisticsSettingService.getStatisticsCount().getPvCount();
         return "使用主库：更新成功! old=" + old + " new=" + n;
+    }
+
+
+    /**
+     * 打印日志
+     *
+     * @param beanName
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("print")
+    public String printInfo(String beanName) throws Exception {
+        Object bean = SpringUtil.getBeanOrNull(beanName);
+        if (bean == null) {
+            try {
+                Class clz = ClassUtils.forName(beanName, this.getClass().getClassLoader());
+                bean = SpringUtil.getBeanOrNull(clz);
+            } catch (ClassNotFoundException e) {
+            }
+        }
+
+        if (bean != null && ClassUtils.isCglibProxy(bean)) {
+            return printProxyFields(bean);
+        }
+
+        return JsonUtil.toStr(bean);
+    }
+
+    private String printProxyFields(Object proxy) {
+        Class clz = ProxyUtils.getUserClass(proxy);
+        Field[] fields = clz.getDeclaredFields();
+        JSONObject obj = new JSONObject();
+        for (Field f : fields) {
+            f.setAccessible(true);
+            obj.put(f.getName(), ReflectionUtils.getField(f, proxy));
+        }
+        return obj.toString();
+    }
+
+
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("refresh/config")
+    public String refreshConfig() {
+        DynamicConfigContainer registry = SpringUtil.getBean(DynamicConfigContainer.class);
+        return JsonUtil.toStr(registry.getCache());
     }
 }

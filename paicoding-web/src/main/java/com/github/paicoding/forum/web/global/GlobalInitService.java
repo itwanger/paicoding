@@ -6,9 +6,11 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
-import com.github.paicoding.forum.service.user.service.SessionService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +21,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 /**
  * @author YiHui
@@ -32,7 +34,7 @@ public class GlobalInitService {
     @Value("${env.name}")
     private String env;
     @Autowired
-    private SessionService sessionService;
+    private UserService userService;
 
     @Resource
     private GlobalViewConfig globalViewConfig;
@@ -78,6 +80,8 @@ public class GlobalInitService {
                     ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             if (request.getRequestURI().startsWith("/column")) {
                 vo.setCurrentDomain("column");
+            } else if (request.getRequestURI().startsWith("/chat")) {
+                vo.setCurrentDomain("chat");
             } else {
                 vo.setCurrentDomain("article");
             }
@@ -98,18 +102,17 @@ public class GlobalInitService {
         if (request.getCookies() == null) {
             return;
         }
-        for (Cookie cookie : request.getCookies()) {
-            if (SessionService.SESSION_KEY.equalsIgnoreCase(cookie.getName())) {
-                String session = cookie.getValue();
-                BaseUserInfoDTO user = sessionService.getAndUpdateUserIpInfoBySessionId(session, reqInfo.getClientIp());
-                reqInfo.setSession(session);
-                if (user != null) {
-                    reqInfo.setUserId(user.getUserId());
-                    reqInfo.setUser(user);
-                    reqInfo.setMsgNum(notifyService.queryUserNotifyMsgCount(user.getUserId()));
-                }
-                return;
-            }
+        Optional.ofNullable(SessionUtil.findCookieByName(request, LoginOutService.SESSION_KEY))
+                        .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
+    }
+
+    public void initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
+        BaseUserInfoDTO user = userService.getAndUpdateUserIpInfoBySessionId(session, null);
+        reqInfo.setSession(session);
+        if (user != null) {
+            reqInfo.setUserId(user.getUserId());
+            reqInfo.setUser(user);
+            reqInfo.setMsgNum(notifyService.queryUserNotifyMsgCount(user.getUserId()));
         }
     }
 }
