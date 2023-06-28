@@ -50,6 +50,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
                 response.setHeader("Cache-Control", "no-cache, must-revalidate");
                 response.getWriter().println(JsonUtil.toStr(ResVo.fail(errStatus)));
                 response.getWriter().flush();
+                response.getWriter().close();
                 return new ModelAndView();
             } catch (Exception e) {
                 throw new RuntimeException(e);
