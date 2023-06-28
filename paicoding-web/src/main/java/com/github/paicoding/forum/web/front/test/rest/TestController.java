@@ -207,7 +207,7 @@ public class TestController {
 
 
     /**
-     * 打印日志
+     * 打印配置信息
      *
      * @param beanName
      * @return
@@ -243,10 +243,16 @@ public class TestController {
     }
 
 
+    /**
+     * 刷新global_config动态配置
+     *
+     * @return
+     */
     @Permission(role = UserRole.ADMIN)
     @GetMapping("refresh/config")
     public String refreshConfig() {
         DynamicConfigContainer registry = SpringUtil.getBean(DynamicConfigContainer.class);
+        registry.reloadConfig();
         return JsonUtil.toStr(registry.getCache());
     }
 }
