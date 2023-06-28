@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web.front.test.rest;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
@@ -15,6 +16,7 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -25,12 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -254,5 +251,19 @@ public class TestController {
         DynamicConfigContainer registry = SpringUtil.getBean(DynamicConfigContainer.class);
         registry.reloadConfig();
         return JsonUtil.toStr(registry.getCache());
+    }
+
+    /**
+     * 更新启用的AI模型
+     *
+     * @param ai
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("ai/update")
+    public AISourceEnum updateAi(String ai) {
+        ChatFacade chatFacade = SpringUtil.getBean(ChatFacade.class);
+        chatFacade.refreshAiSourceCache(AISourceEnum.valueOf(ai));
+        return chatFacade.getRecommendAiSource();
     }
 }
