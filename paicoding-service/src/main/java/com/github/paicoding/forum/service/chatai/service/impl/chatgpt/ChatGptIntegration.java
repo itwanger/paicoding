@@ -43,12 +43,12 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ChatGptIntegration {
     @Autowired
-    private ChaptGptConfig config;
+    private ChatGptConfig config;
 
     @Data
     @Configuration
     @ConfigurationProperties(prefix = "chatgpt")
-    public static class ChaptGptConfig {
+    public static class ChatGptConfig {
         /**
          * 默认的模型
          */
@@ -153,9 +153,9 @@ public class ChatGptIntegration {
      *
      * @return
      */
-    public String creditInfo(AISourceEnum model) {
+    public CreditGrantsResponse creditInfo(AISourceEnum model) {
         CreditGrantsResponse response = getGpt(0L, model).creditGrants();
-        return JsonUtil.toStr(response);
+        return response;
     }
 
     public boolean directReturn(Long routingKey, ChatItemVo chat) {

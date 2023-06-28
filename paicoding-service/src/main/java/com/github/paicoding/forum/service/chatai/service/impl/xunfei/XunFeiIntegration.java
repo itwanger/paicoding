@@ -8,8 +8,10 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
-import org.springframework.beans.factory.annotation.Value;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +21,11 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * 主体来自讯飞官方java sdk
@@ -33,14 +39,10 @@ import java.util.*;
 @Setter
 @Component
 public class XunFeiIntegration {
-    @Value("${xunfei.hostUrl:http://spark-api.xf-yun.com/v1.1/chat}")
-    public String hostUrl = "http://spark-api.xf-yun.com/v1.1/chat";
-    @Value("${xunfei.appId:}")
-    public String APPID = "";//从开放平台控制台中获取
-    @Value("${xunfei.apiKey:}")
-    public String APIKEY = "";//从开放平台控制台中获取
-    @Value("${xunfei.apiSecret:}")
-    public String APISecret = "";//从开放平台控制台中获取
+
+    @Autowired
+    private XunFeiConfig xunFeiConfig;
+
     @Getter
     private OkHttpClient okHttpClient;
 
@@ -51,7 +53,7 @@ public class XunFeiIntegration {
 
     public String buildXunFeiUrl() {
         try {
-            String authUrl = getAuthorizationUrl(hostUrl, APIKEY, APISecret);
+            String authUrl = getAuthorizationUrl(xunFeiConfig.hostUrl, xunFeiConfig.apiKey, xunFeiConfig.apiSecret);
             String url = authUrl.replace("https://", "wss://").replace("http://", "ws://");
             return url;
         } catch (Exception e) {
@@ -110,7 +112,7 @@ public class XunFeiIntegration {
         JsonArray ja = new JsonArray();
 
         //填充header
-        header.addProperty("app_id", APPID);
+        header.addProperty("app_id", xunFeiConfig.appId);
         header.addProperty("uid", uid);
         //填充parameter
         chat.addProperty("domain", "general");
@@ -132,6 +134,17 @@ public class XunFeiIntegration {
 
     public ResponseData parse2response(String text) {
         return JsonUtil.toObj(text, ResponseData.class);
+    }
+
+
+    @Component
+    @ConfigurationProperties(prefix = "xunfei")
+    @Data
+    public static class XunFeiConfig {
+        public String hostUrl = "http://spark-api.xf-yun.com/v1.1/chat";
+        public String appId = "";
+        public String apiKey = "";
+        public String apiSecret = "";
     }
 
     @Data
