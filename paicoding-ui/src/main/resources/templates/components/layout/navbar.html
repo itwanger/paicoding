@@ -265,7 +265,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title">绑定星球，畅享VIP服务</h6>
+          <h6 class="modal-title">扫左侧优惠券加入二哥编程星球，无限期使用！</h6>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -278,16 +278,16 @@
                 <h1 class="title">如果已经绑定星球，可通过编号直接登录</h1>
                 <form id="register-form">
                   <div class="form-group">
-                    <input type="text" placeholder="请输入星球编号" class="form-control form-control-sm" id="starNumber" autocomplete="off">
+                    <input type="text" placeholder="星球编号，不知道如何查看请扫右侧二维码添加微信" class="form-control form-control-sm" id="starNumber" autocomplete="off">
                   </div>
                   <div class="form-group">
-                    <input type="text" placeholder="请输入登录用户名" class="form-control form-control-sm" id="registerUser" required>
+                    <input type="text" placeholder="登录用户名，可用微信昵称，可更快匹配上你" class="form-control form-control-sm" id="registerUser" required>
                   </div>
                   <div class="form-group">
-                    <input type="password" placeholder="请输入密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
+                    <input type="password" placeholder="密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
                   </div>
                   <div class="form-group">
-                    <input type="text" placeholder="请输入邀请码" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
+                    <input type="text" placeholder="微信搜沉默王二回复邀请码获取，也可不填" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
                   </div>
                   <!-- 绑定过会直接登录 -->
                   <button type="submit" class="btn btn-primary btn-block btn-sm">绑定/登录</button>
@@ -295,14 +295,14 @@
               </div>
             </div>
             <div class="tabpane-container">
-            <h2 class="title">务必添加二哥微信，备注 星球</h2>
+            <h2 class="title">添加二哥微信备注星球，审核更快</h2>
             <div class="first">
               <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
             </div>
 
             <div class="explain">
-              <bold>有微信的可直接滴滴我</bold>
-              <code>qing_gee</code>
+              <bold>记得备注</bold>
+              <code>星球编号</code>
               <div>我会根据星球编号进行审核</div>
             </div>
           </div>
@@ -359,7 +359,7 @@
 
       // 获取用户名和密码，没有定义 ID
       const registerUser = $('#registerUser').val();
-      const starNumber = $("#starNumber").val();
+      const starNumber = $("#starNumber").val() | 0;
       const password = $("#registerPassword").val();
       const invitationCode = $("#invitationCode").val();
 

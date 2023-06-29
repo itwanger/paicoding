@@ -127,36 +127,36 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         articleDao.updateById(articleDO);
     }
 
-    private boolean setArticleStat(ArticleDO articleDO, OperateArticleEnum operate) {
+    private void setArticleStat(ArticleDO articleDO, OperateArticleEnum operate) {
         switch (operate) {
             case OFFICAL:
             case CANCEL_OFFICAL:
-                return compareAndUpdate(articleDO::getOfficalStat, articleDO::setOfficalStat, operate.getDbStatCode());
+                compareAndUpdate(articleDO::getOfficalStat, articleDO::setOfficalStat, operate.getDbStatCode());
+                return;
             case TOPPING:
             case CANCEL_TOPPING:
-                return compareAndUpdate(articleDO::getToppingStat, articleDO::setToppingStat, operate.getDbStatCode());
+                compareAndUpdate(articleDO::getToppingStat, articleDO::setToppingStat, operate.getDbStatCode());
+                return;
             case CREAM:
             case CANCEL_CREAM:
-                return compareAndUpdate(articleDO::getCreamStat, articleDO::setCreamStat, operate.getDbStatCode());
+                compareAndUpdate(articleDO::getCreamStat, articleDO::setCreamStat, operate.getDbStatCode());
+                return;
             default:
-                return false;
         }
     }
 
     /**
      * 相同则直接返回false不用更新；不同则更新,返回true
      *
+     * @param <T>
      * @param supplier
      * @param consumer
      * @param input
-     * @param <T>
-     * @return
      */
-    private <T> boolean compareAndUpdate(Supplier<T> supplier, Consumer<T> consumer, T input) {
+    private <T> void compareAndUpdate(Supplier<T> supplier, Consumer<T> consumer, T input) {
         if (Objects.equals(supplier.get(), input)) {
-            return false;
+            return;
         }
         consumer.accept(input);
-        return true;
     }
 }

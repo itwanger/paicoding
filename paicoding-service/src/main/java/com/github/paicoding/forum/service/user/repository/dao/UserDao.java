@@ -101,4 +101,8 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     public UserDO getUserByUserId(Long userId) {
         return userMapper.selectById(userId);
     }
+
+    public void updateUser(UserDO userDO) {
+        userMapper.updateById(userDO);
+    }
 }

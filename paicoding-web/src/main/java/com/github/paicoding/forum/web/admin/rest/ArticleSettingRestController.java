@@ -45,7 +45,6 @@ public class ArticleSettingRestController {
         return ResVo.ok("ok");
     }
 
-
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "articleId") Long articleId, @RequestParam(name = "operateType") Integer operateType) {

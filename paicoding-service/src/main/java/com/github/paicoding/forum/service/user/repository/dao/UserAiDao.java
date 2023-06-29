@@ -9,13 +9,17 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.enums.user.StarSourceEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAiStrategyEnum;
+import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.user.dto.ZsxqUserInfoDTO;
 import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserAiMapper;
+import com.github.paicoding.forum.service.user.repository.params.SearchZsxqWhiteParams;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -128,5 +132,20 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
 
         ai.setStrategy(strategy);
         this.saveOrUpdate(ai);
+    }
+
+    public List<ZsxqUserInfoDTO> listZsxqUsersByParams(SearchZsxqWhiteParams params) {
+        return userAiMapper.listZsxqUsersByParams(params,
+                PageParam.newPageInstance(params.getPageNum(), params.getPageSize()));
+    }
+
+    public Long countZsxqUserByParams(SearchZsxqWhiteParams params) {
+        return userAiMapper.countZsxqUsersByParams(params);
+    }
+
+    public void batchUpdateState(List<Long> ids, Integer code) {
+        LambdaUpdateWrapper<UserAiDO> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.in(UserAiDO::getId, ids).set(UserAiDO::getState, code);
+        userAiMapper.update(null, updateWrapper);
     }
 }
