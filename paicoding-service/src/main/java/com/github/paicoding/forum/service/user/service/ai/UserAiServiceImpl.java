@@ -52,10 +52,10 @@ public class UserAiServiceImpl implements UserAiService {
         if (UserAiStrategyEnum.STAR_JAVA_GUIDE.match(strategy) || UserAiStrategyEnum.STAR_TECH_PAI.match(strategy)) {
             if (Objects.equals(ai.getState(), UserAIStatEnum.FORMAL.getCode())) {
                 // 审核通过
-                cnt += 100;
+                cnt += 20;
             } else if (Objects.equals(ai.getState(), UserAIStatEnum.TRYING.getCode()) && (System.currentTimeMillis() - ai.getCreateTime().getTime()) <= (3 * 86400_000L)) {
                 // 试用中
-                cnt += 30;
+                cnt += 10;
             }
         }
 
