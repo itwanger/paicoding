@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.service.ai;
 
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAiStrategyEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 @Service
 public class UserAiServiceImpl implements UserAiService {
@@ -48,7 +50,13 @@ public class UserAiServiceImpl implements UserAiService {
 
         // 星球用户 +100
         if (UserAiStrategyEnum.STAR_JAVA_GUIDE.match(strategy) || UserAiStrategyEnum.STAR_TECH_PAI.match(strategy)) {
-            cnt += 100;
+            if (Objects.equals(ai.getState(), UserAIStatEnum.FORMAL.getCode())) {
+                // 审核通过
+                cnt += 100;
+            } else if (Objects.equals(ai.getState(), UserAIStatEnum.TRYING.getCode()) && (System.currentTimeMillis() - ai.getCreateTime().getTime()) <= (3 * 86400_000L)) {
+                // 试用中
+                cnt += 100;
+            }
         }
 
         // 推荐机制，如果绑定了邀请码，则总次数 + 10%
