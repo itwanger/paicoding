@@ -5,7 +5,19 @@ net:
       port: 1080
       type: SOCKS
 
-
+ai:
+  maxNum:
+    basic: 5 # 默认兜底策略
+    wechat: 10 # 公众号用户
+    star: 100 # 星球用户
+    starTry: 30 # 星球用户
+    invited: 1.1 # 被邀请
+    inviteNum: 1.2 # 邀请人数执行策略
+  source: # 支持的AI模型
+    - CHAT_GPT_3_5
+    - CHAT_GPT_4
+    - PAI_AI
+    - XUN_FEI_AI
 
 # chatgpt
 chatgpt:

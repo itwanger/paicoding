@@ -3,7 +3,6 @@ package com.github.paicoding.forum.api.model.vo.chat;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class ChatItemVo implements Serializable, Cloneable {
     private static final long serialVersionUID = 7230339040247758226L;
-    public static final String SPLIT_INFO = "$…$";
     /**
      * 唯一的聊天id，不要求存在，主要用于简化流式输出时，前端对返回结果的处理
      */
@@ -94,7 +92,7 @@ public class ChatItemVo implements Serializable, Cloneable {
             this.answer = answer;
             this.chatUid = UUID.randomUUID().toString().replaceAll("-", "");
         } else {
-            this.answer += SPLIT_INFO + answer;
+            this.answer += answer;
         }
         this.answerType = ChatAnswerTypeEnum.STREAM;
         setAnswerTime();
