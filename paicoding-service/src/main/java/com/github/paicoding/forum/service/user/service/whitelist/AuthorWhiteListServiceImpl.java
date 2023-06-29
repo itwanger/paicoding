@@ -2,7 +2,7 @@ package com.github.paicoding.forum.service.user.service.whitelist;
 
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
-import com.github.paicoding.forum.service.user.service.ArticleWhiteListService;
+import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.Set;
  * @date 2023/4/9
  */
 @Service
-public class ArticleWhiteListServiceImpl implements ArticleWhiteListService {
+public class AuthorWhiteListServiceImpl implements AuthorWhiteListService {
     /**
      * 实用 redis - set 来存储允许直接发文章的白名单
      */
@@ -49,7 +49,7 @@ public class ArticleWhiteListServiceImpl implements ArticleWhiteListService {
         RedisClient.sPut(ARTICLE_WHITE_LIST, userId);
     }
 
-    public void removeAuthorFromArticelWhiteList(Long userId) {
+    public void removeAuthorFromArticleWhiteList(Long userId) {
         RedisClient.sDel(ARTICLE_WHITE_LIST, userId);
     }
 }

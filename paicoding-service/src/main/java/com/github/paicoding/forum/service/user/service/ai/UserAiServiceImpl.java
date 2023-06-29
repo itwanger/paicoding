@@ -43,9 +43,9 @@ public class UserAiServiceImpl implements UserAiService {
         UserAiDO ai = userAiDao.getOrInitAiInfo(userId);
         int strategy = ai.getStrategy();
         int cnt = 0;
-        // 微信公众号登录用户 +10次
+        // 微信公众号登录用户 +5次
         if (UserAiStrategyEnum.WECHAT.match(strategy)) {
-            cnt += 10;
+            cnt += 5;
         }
 
         // 星球用户 +100
@@ -55,7 +55,7 @@ public class UserAiServiceImpl implements UserAiService {
                 cnt += 100;
             } else if (Objects.equals(ai.getState(), UserAIStatEnum.TRYING.getCode()) && (System.currentTimeMillis() - ai.getCreateTime().getTime()) <= (3 * 86400_000L)) {
                 // 试用中
-                cnt += 100;
+                cnt += 30;
             }
         }
 
@@ -70,9 +70,10 @@ public class UserAiServiceImpl implements UserAiService {
         }
 
         if (cnt == 0) {
-            // 对于登录用户，给五次使用机会
+            // 对于登录用户，给5次使用机会
             cnt = 5;
         }
         return cnt;
     }
+
 }

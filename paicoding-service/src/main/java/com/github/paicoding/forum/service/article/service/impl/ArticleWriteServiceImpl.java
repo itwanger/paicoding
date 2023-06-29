@@ -17,7 +17,7 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.service.image.service.ImageService;
-import com.github.paicoding.forum.service.user.service.ArticleWhiteListService;
+import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    private ArticleWhiteListService articleWhiteListService;
+    private AuthorWhiteListService articleWhiteListService;
 
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
         this.articleDao = articleDao;

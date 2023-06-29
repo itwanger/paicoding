@@ -8,7 +8,7 @@ import java.util.List;
  * @author YiHui
  * @date 2023/4/9
  */
-public interface ArticleWhiteListService {
+public interface AuthorWhiteListService {
 
     /**
      * 判断作者是否再文章发布的白名单中；
@@ -38,6 +38,6 @@ public interface ArticleWhiteListService {
      *
      * @param userId
      */
-    void removeAuthorFromArticelWhiteList(Long userId);
+    void removeAuthorFromArticleWhiteList(Long userId);
 
 }
