@@ -7,11 +7,14 @@ import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatService;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
+import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -32,6 +35,9 @@ import java.util.function.Consumer;
 @Service
 public class ChatFacade {
     private final Map<AISourceEnum, ChatService> chatServiceMap;
+
+    @Autowired
+    private AiConfig aiConfig;
 
     /**
      * 基于Guava的单实例缓存
@@ -78,6 +84,12 @@ public class ChatFacade {
             }
         } catch (Exception e) {
             source = AISourceEnum.PAI_AI;
+        }
+
+        if (source != AISourceEnum.PAI_AI && !aiConfig.getSource().contains(source)) {
+            Set<AISourceEnum> totalExcepts = Sets.newHashSet(except);
+            totalExcepts.add(source);
+            return getRecommendAiSource(totalExcepts);
         }
         log.info("当前选中的AI模型：{}", source);
         return source;
