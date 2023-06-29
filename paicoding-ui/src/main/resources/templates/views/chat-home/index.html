@@ -183,20 +183,9 @@
             console.log("流式结果返回: ", content, lastDiv);
             if (lastDiv.length > 0) {
                 // 对于流式返回的结果，找上一次的返回，进行结果的追加，手动将分隔符给干掉
-                let tagIndex = content.lastIndexOf('$…$');
-                if (tagIndex > 0) {
-                    content = content.substring(tagIndex + '$…$'.length);
-                }
-
-                lastDiv.append(content);
+                content = prettyCode(content.replaceAll('$…$', ''));
+                lastDiv.html(content);
                 appendLastChat = true;
-                if ('STREAM_END' === answerType) {
-                    // 会话结束，对代码的格式化支持
-                    content = lastDiv.text();
-                    content = prettyCode(content);
-                    console.log("格式化之后的内容:", content);
-                    lastDiv.html(content);
-                }
             } else{
                 // 上一次没有输出过，则格式化文本，重新输出
                 content = prettyCode(content.replaceAll('$…$', ''));

@@ -19,6 +19,13 @@ public class DateUtil {
     public static final DateTimeFormatter BLOG_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
 
     /**
+     * 一天对应的毫秒数
+     */
+    public static final Long ONE_DAY_MILL = 86400_000L;
+
+    public static final Long THREE_DAY_MILL = 3 * ONE_DAY_MILL;
+
+    /**
      * 毫秒转日期
      *
      * @param timestamp
