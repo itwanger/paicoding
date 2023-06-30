@@ -10,7 +10,6 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
-import com.github.paicoding.forum.service.article.conveter.TagStructMapper;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
 import com.github.paicoding.forum.service.article.repository.mapper.TagMapper;
 import com.github.paicoding.forum.service.article.repository.params.SearchTagParams;
@@ -68,14 +67,14 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
      *
      * @return
      */
-    public List<TagDTO> listTag(SearchTagParams params) {
+    public List<TagDO> listTag(SearchTagParams params) {
         List<TagDO> list = createTagQuery(params)
                 .orderByDesc(TagDO::getUpdateTime)
                 .last(PageParam.getLimitSql(
                         PageParam.newPageInstance(params.getPageNum(), params.getPageSize())
                 ))
                 .list();
-        return TagStructMapper.INSTANCE.toDTOs(list);
+        return list;
     }
 
 
