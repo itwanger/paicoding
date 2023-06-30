@@ -17,6 +17,14 @@
     transition: width .05s ease;
 }
 
+.window-header-title .name {
+    display: flex;
+}
+
+.window-header-title .name .com-verification {
+    top: 10px;
+}
+
 .chat-sidebar .uno-buy-card-foot {
     margin-right: 20px;
 }

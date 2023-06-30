@@ -23,10 +23,16 @@
         <div class="chat-main">
             <div class="window-header">
                 <div class="window-header-title">
-                    <div class="window-header-main-title home_chat-body-title__5S8w4"
-                         th:data-target="${global.isLogin ? '' : '#registerModal'}"
-                         th:data-toggle="${global.isLogin ? '' : 'modal'}"
-                    >点击登录</div>
+                    <div class="name">
+                        <div class="window-header-main-title home_chat-body-title__5S8w4"
+                             th:data-target="${global.isLogin ? '' : '#registerModal'}"
+                             th:data-toggle="${global.isLogin ? '' : 'modal'}"
+                        >点击登录</div>
+                        <div class="c-bubble-trigger com-verification" th:if="${global.user != null && global.user.starStatus == 2}">
+                            <i class="verified"></i>
+                        </div>
+                    </div>
+
                     <div class="window-header-sub-title">与派聪明的 <span id="chatCnt">0</span> 条对话</div>
                 </div>
             </div>

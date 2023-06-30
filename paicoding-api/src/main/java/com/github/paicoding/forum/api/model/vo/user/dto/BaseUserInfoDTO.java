@@ -71,4 +71,7 @@ public class BaseUserInfoDTO extends BaseDTO {
      */
     @ApiModelProperty(value = "用户最后登录的地理位置", example = "湖北·武汉")
     private String region;
+
+    // 星球状态
+    private Integer starStatus;
 }
