@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
@@ -44,6 +45,14 @@ public class UserConverter {
         userInfoDO.setCompany(req.getCompany());
         userInfoDO.setProfile(req.getProfile());
         return userInfoDO;
+    }
+
+    public static BaseUserInfoDTO toDTO(UserInfoDO info, UserAiDO userAiDO) {
+        BaseUserInfoDTO user = toDTO(info);
+        if (userAiDO != null) {
+            user.setStarStatus(userAiDO.getState());
+        }
+        return user;
     }
 
     public static BaseUserInfoDTO toDTO(UserInfoDO info) {

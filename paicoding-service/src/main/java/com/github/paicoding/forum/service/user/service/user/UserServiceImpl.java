@@ -13,12 +13,10 @@ import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
+import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
-import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
-import com.github.paicoding.forum.service.user.repository.entity.UserDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
+import com.github.paicoding.forum.service.user.repository.entity.*;
 import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
@@ -45,6 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private UserDao userDao;
+
+    @Resource
+    private UserAiDao userAiDao;
 
     @Resource
     private UserRelationDao userRelationDao;
@@ -116,7 +117,11 @@ public class UserServiceImpl implements UserService {
             }
             userDao.updateById(user);
         }
-        return UserConverter.toDTO(user);
+
+        // 查询 user_ai
+        UserAiDO userAiDO = userAiDao.getByUserId(userId);
+
+        return UserConverter.toDTO(user, userAiDO);
     }
 
     @Override
@@ -133,7 +138,7 @@ public class UserServiceImpl implements UserService {
         if (CollectionUtils.isEmpty(users)) {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userIds);
         }
-        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
+        return users.stream().map(info -> UserConverter.toDTO(info)).collect(Collectors.toList());
     }
 
     @Override
@@ -209,7 +214,7 @@ public class UserServiceImpl implements UserService {
     public List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds) {
         // 根据 userIds 查询
         List<UserInfoDO> users = userDao.getByUserIds(userIds);
-        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
+        return users.stream().map(info -> UserConverter.toDTO(info)).collect(Collectors.toList());
     }
 
     @Override
