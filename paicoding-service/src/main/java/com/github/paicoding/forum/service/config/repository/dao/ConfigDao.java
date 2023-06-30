@@ -1,5 +1,7 @@
 package com.github.paicoding.forum.service.config.repository.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.ConfigTypeEnum;
@@ -10,11 +12,15 @@ import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.service.config.converter.ConfigConverter;
 import com.github.paicoding.forum.service.config.converter.ConfigStructMapper;
 import com.github.paicoding.forum.service.config.repository.entity.ConfigDO;
+import com.github.paicoding.forum.service.config.repository.entity.GlobalConfigDO;
 import com.github.paicoding.forum.service.config.repository.mapper.ConfigMapper;
+import com.github.paicoding.forum.service.config.repository.mapper.GlobalConfigMapper;
 import com.github.paicoding.forum.service.config.repository.params.SearchConfigParams;
+import com.github.paicoding.forum.service.config.repository.params.SearchGlobalConfigParams;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -23,6 +29,8 @@ import java.util.List;
  */
 @Repository
 public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
+    @Resource
+    private GlobalConfigMapper globalConfigMapper;
 
     /**
      * 根据类型获取配置列表（无需分页）
@@ -107,5 +115,50 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
         lambdaUpdate().set(ConfigDO::getExtra, extra)
                 .eq(ConfigDO::getId, configId)
                 .update();
+    }
+
+    public List<GlobalConfigDO> listGlobalConfig(SearchGlobalConfigParams params) {
+        LambdaQueryWrapper<GlobalConfigDO> query = buildQuery(params);
+        query.select(GlobalConfigDO::getId, GlobalConfigDO::getKey, GlobalConfigDO::getValue, GlobalConfigDO::getComment);
+        return globalConfigMapper.selectList(query);
+    }
+
+    public Long countGlobalConfig(SearchGlobalConfigParams params) {
+        return globalConfigMapper.selectCount(buildQuery(params));
+    }
+
+    private LambdaQueryWrapper<GlobalConfigDO> buildQuery(SearchGlobalConfigParams params) {
+        LambdaQueryWrapper<GlobalConfigDO> query = Wrappers.lambdaQuery();
+
+                query.and(!StringUtils.isEmpty(params.getKey()),
+                        k -> k.like(GlobalConfigDO::getKey, params.getKey()))
+                .and(!StringUtils.isEmpty(params.getValue()),
+                        v -> v.like(GlobalConfigDO::getValue, params.getValue()))
+                .and(!StringUtils.isEmpty(params.getComment()),
+                        c -> c.like(GlobalConfigDO::getComment, params.getComment()))
+                .eq(GlobalConfigDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return query;
+    }
+
+    public void save(GlobalConfigDO globalConfigDO) {
+        globalConfigMapper.insert(globalConfigDO);
+    }
+
+    public void updateById(GlobalConfigDO globalConfigDO) {
+        globalConfigMapper.updateById(globalConfigDO);
+    }
+
+    public GlobalConfigDO getGlobalConfigById(Long id) {
+        // 查询的时候 deleted 为 0
+        LambdaQueryWrapper<GlobalConfigDO> query = Wrappers.lambdaQuery();
+        query.select(GlobalConfigDO::getId, GlobalConfigDO::getKey, GlobalConfigDO::getValue, GlobalConfigDO::getComment)
+                .eq(GlobalConfigDO::getId, id)
+                .eq(GlobalConfigDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return globalConfigMapper.selectOne(query);
+    }
+
+    public void delete(GlobalConfigDO globalConfigDO) {
+        globalConfigDO.setDeleted(YesOrNoEnum.YES.getCode());
+        globalConfigMapper.updateById(globalConfigDO);
     }
 }

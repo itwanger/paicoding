@@ -7,7 +7,6 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.NumUtil;
-import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.conveter.TagStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.TagDao;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
@@ -87,7 +86,7 @@ public class TagSettingServiceImpl implements TagSettingService {
         // 转换
         SearchTagParams params = TagStructMapper.INSTANCE.toSearchParams(req);
         // 查询
-        List<TagDTO> tagDTOS = tagDao.listTag(params);
+        List<TagDTO> tagDTOS = TagStructMapper.INSTANCE.toDTOs(tagDao.listTag(params));
         Long totalCount = tagDao.countTag(params);
         return PageVo.build(tagDTOS, params.getPageSize(), params.getPageNum(), totalCount);
     }
