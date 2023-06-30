@@ -40,9 +40,7 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
         }
 
         // 正常登录的用户，这个uid实际上应该是 ReqInfo 对象
-        if (log.isDebugEnabled()) {
-            log.debug("初始化用户标识：{}", uid);
-        }
+        log.info("初始化用户标识：{}", uid);
 
 //        注意：这里注释的这种方案，适用于所有的客户端订阅相同的路径，然后请求头中添加用户身份标识，然后再 AuthHandshakeInterceptor 进行身份识别设置全局属性，AuthHandshakeHandler 这里来决定怎么进行转发
 //        if (destination.startsWith("/app")) {
