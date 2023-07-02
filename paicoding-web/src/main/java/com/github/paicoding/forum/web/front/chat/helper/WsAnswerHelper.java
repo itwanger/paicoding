@@ -26,12 +26,12 @@ public class WsAnswerHelper {
     private ChatFacade chatFacade;
 
     public void sendMsgToUser(String session, String question) {
-        ChatRecordsVo res = chatFacade.autoChat(chatFacade.getRecommendAiSource(), question, vo -> response(session, vo));
+        ChatRecordsVo res = chatFacade.autoChat(question, vo -> response(session, vo));
         log.info("AI直接返回：{}", res);
     }
 
     public void sendMsgHistoryToUser(String session) {
-        ChatRecordsVo vo = chatFacade.history(chatFacade.getRecommendAiSource());
+        ChatRecordsVo vo = chatFacade.history();
         response(session, vo);
     }
 

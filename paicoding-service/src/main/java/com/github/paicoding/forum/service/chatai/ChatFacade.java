@@ -4,13 +4,12 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.chatai.service.ChatService;
+import com.github.paicoding.forum.service.chatai.service.ChatServiceFactory;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -34,16 +31,22 @@ import java.util.function.Consumer;
 @Slf4j
 @Service
 public class ChatFacade {
-    private final Map<AISourceEnum, ChatService> chatServiceMap;
 
     @Autowired
     private AiConfig aiConfig;
+    @Autowired
+    private ChatServiceFactory chatServiceFactory;
 
     /**
      * 基于Guava的单实例缓存
      */
     private Supplier<AISourceEnum> aiSourceCache;
 
+    /**
+     * 返回推荐的AI模型
+     *
+     * @return
+     */
     public AISourceEnum getRecommendAiSource() {
         if (aiSourceCache == null) {
             refreshAiSourceCache(Collections.emptySet());
@@ -95,12 +98,18 @@ public class ChatFacade {
         return source;
     }
 
-    public ChatFacade(List<ChatService> chatServiceList) {
-        chatServiceMap = Maps.newHashMapWithExpectedSize(chatServiceList.size());
-        for (ChatService chatService : chatServiceList) {
-            chatServiceMap.put(chatService.source(), chatService);
-        }
+    /**
+     * 高度封装的AI聊天访问入口，对于使用这而言，只需要提问，定义接收返回结果的回调即可
+     *
+     * @param question 提出的问题
+     * @param callback 定义异步聊天接口返回时的回调策略
+     * @return 表示同步直接返回的结果
+     */
+    public ChatRecordsVo autoChat(String question, Consumer<ChatRecordsVo> callback) {
+        AISourceEnum source = getRecommendAiSource();
+        return autoChat(source, question, callback);
     }
+
 
     /**
      * 自动根据AI的支持方式，选择同步/异步的交互方式
@@ -111,7 +120,7 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo autoChat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
-        if (source.asyncSupport() && chatServiceMap.get(source).asyncFirst()) {
+        if (source.asyncSupport() && chatServiceFactory.getChatService(source).asyncFirst()) {
             // 支持异步且异步优先的场景下，自动选择异步方式进行聊天
             return asyncChat(source, question, callback);
         }
@@ -126,7 +135,7 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo chat(AISourceEnum source, String question) {
-        return chatServiceMap.get(source).chat(ReqInfoContext.getReqInfo().getUserId(), question);
+        return chatServiceFactory.getChatService(source).chat(ReqInfoContext.getReqInfo().getUserId(), question);
     }
 
     /**
@@ -137,7 +146,8 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo chat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
-        return chatServiceMap.get(source).chat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
+        return chatServiceFactory.getChatService(source)
+                .chat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
     }
 
     /**
@@ -147,7 +157,17 @@ public class ChatFacade {
      * @param question
      */
     public ChatRecordsVo asyncChat(AISourceEnum source, String question, Consumer<ChatRecordsVo> callback) {
-        return chatServiceMap.get(source).asyncChat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
+        return chatServiceFactory.getChatService(source)
+                .asyncChat(ReqInfoContext.getReqInfo().getUserId(), question, callback);
+    }
+
+    /**
+     * 自动获取用户的聊天历史
+     *
+     * @return
+     */
+    public ChatRecordsVo history() {
+        return history(getRecommendAiSource());
     }
 
 
@@ -158,6 +178,6 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo history(AISourceEnum source) {
-        return chatServiceMap.get(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId());
+        return chatServiceFactory.getChatService(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId());
     }
 }
