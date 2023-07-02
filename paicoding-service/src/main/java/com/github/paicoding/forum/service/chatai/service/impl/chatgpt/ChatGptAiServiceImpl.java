@@ -51,7 +51,8 @@ public class ChatGptAiServiceImpl extends AbsChatService {
             @Override
             public void onError(Throwable throwable, String response) {
                 // 返回异常的场景
-                item.appendAnswer(response);
+                item.appendAnswer("Error:" + (StringUtils.isBlank(response) ? throwable.getMessage() : response))
+                        .setAnswerType(ChatAnswerTypeEnum.STREAM_END);
                 consumer.accept(AiChatStatEnum.ERROR, chatRes);
             }
         };
