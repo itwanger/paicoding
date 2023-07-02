@@ -127,7 +127,7 @@
                     appendServerMessage(data[0]);
                 }
 
-                // 添加完消息后，出了流式持续返回这种场景，其他的恢复按钮的状态
+                // 添加完消息后，除了流式持续返回这种场景，其他的恢复按钮的状态
                 if(data[data.length - 1].answerType != 'STREAM') {
                     sendBtn.removeAttr("disabled");
                 }
