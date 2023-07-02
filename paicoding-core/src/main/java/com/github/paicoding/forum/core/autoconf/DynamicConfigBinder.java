@@ -45,6 +45,10 @@ public class DynamicConfigBinder {
         }
     }
 
+    public <T> void bind(String prefix, Bindable<T> bindable, BindHandler bindHandler) {
+        getBinder().bind(prefix, bindable, bindHandler);
+    }
+
     private BindHandler getBindHandler(ConfigurationProperties annotation) {
         BindHandler handler = new IgnoreTopLevelConverterNotFoundBindHandler();
         if (annotation.ignoreInvalidFields()) {

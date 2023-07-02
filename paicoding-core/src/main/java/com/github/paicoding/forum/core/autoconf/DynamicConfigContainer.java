@@ -85,11 +85,10 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     }
 
     private void bindBeansFromLocalCache(String namespace, Map<String, Object> cache) {
-        MutablePropertySources propertySources = new MutablePropertySources(environment.getPropertySources());
         // 将内存的配置信息设置为最高优先级
         MapPropertySource propertySource = new MapPropertySource(namespace, cache);
-        propertySources.addFirst(propertySource);
-        this.binder = new DynamicConfigBinder(this.applicationContext, propertySources);
+        environment.getPropertySources().addFirst(propertySource);
+        this.binder = new DynamicConfigBinder(this.applicationContext, environment.getPropertySources());
     }
 
     /**
