@@ -102,53 +102,58 @@ mvn clean install -DskipTests=true -Pprod
 
 后端技术栈
 
-|         技术          | 说明                   | 官网                                                                                                   |
-|:-------------------:|----------------------|------------------------------------------------------------------------------------------------------|
-| Spring & SpringMVC  | Java全栈应用程序框架和WEB容器实现 | [https://spring.io/](https://spring.io/)                                                             |
-|     SpringBoot      | Spring应用简化集成开发框架     | [https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)                     |
-|    mybatis-plus     | 数据库orm框架             | [https://baomidou.com/](https://baomidou.com/)                                                       |
+|         技术          | 说明                   | 官网                                                                                                 |
+|:-------------------:|----------------------|----------------------------------------------------------------------------------------------------|
+| Spring & SpringMVC  | Java全栈应用程序框架和WEB容器实现 | [https://spring.io/](https://spring.io/)                                                           |
+|     SpringBoot      | Spring应用简化集成开发框架     | [https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)                   |
+|       mybatis       | 数据库orm框架             | [https://mybatis.org](https://mybatis.org)                                                       |
+|    mybatis-plus     | 数据库orm框架             | [https://baomidou.com/](https://baomidou.com/)                                                     |
 | mybatis PageHelper  | 数据库翻页插件              | [https://github.com/pagehelper/Mybatis-PageHelper](https://github.com/pagehelper/Mybatis-PageHelper) |
-|    elasticsearch    | 近实时文本搜索              | [https://www.elastic.co/cn/elasticsearch/service](https://www.elastic.co/cn/elasticsearch/service)   |
-|        redis        | 内存数据存储               | [https://redis.io](https://redis.io)                                                                 |
-|      rabbitmq       | 消息队列                 | [https://www.rabbitmq.com](https://www.rabbitmq.com)                                                 |
-|       mongodb       | NoSql数据库             | [https://www.mongodb.com/](https://www.mongodb.com/)                                                 |
-|        nginx        | 服务器                  | [https://nginx.org](https://nginx.org)                                                               |
-|       docker        | 应用容器引擎               | [https://www.docker.com](https://www.docker.com)                                                     |
-|      hikariCP       | 数据库连接                | [https://github.com/brettwooldridge/HikariCP](https://github.com/brettwooldridge/HikariCP)           |
-|         oss         | 对象存储                 | [https://letsencrypt.org/](https://letsencrypt.org/)                                                 |
-|         jwt         | jwt登录                | [https://jwt.io](https://jwt.io)                                                                     |
-|       lombok        | Java语言增强库            | [https://projectlombok.org](https://projectlombok.org)                                               |
-|        guava        | google开源的java工具集     | [https://github.com/google/guava](https://github.com/google/guava)                                   |
-|      thymeleaf      | html5模板引擎            | [https://www.thymeleaf.org](https://www.thymeleaf.org)                                               |
-|       swagger       | API文档生成工具            | [https://swagger.io](https://swagger.io)                                                             |
-| hibernate-validator | 验证框架                 | [hibernate.org/validator/](hibernate.org/validator/)                                                 |
-|     quick-media     | 多媒体处理                | [https://github.com/liuyueyi/quick-media](https://github.com/liuyueyi/quick-media)                   |
-|      liquibase      | 数据库版本管理              | [https://www.liquibase.com](https://www.liquibase.com)                                               |
-|       jackson       | json/xml处理           | [https://www.jackson.com](https://www.jackson.com)                                                   |
-|      ip2region      | ip地址                 | [https://github.com/zoujingli/ip2region](https://github.com/zoujingli/ip2region)                     |
+|    elasticsearch    | 近实时文本搜索              | [https://www.elastic.co/cn/elasticsearch/service](https://www.elastic.co/cn/elasticsearch/service) |
+|        redis        | 内存数据存储               | [https://redis.io](https://redis.io)                                                               |
+|      rabbitmq       | 消息队列                 | [https://www.rabbitmq.com](https://www.rabbitmq.com)                                               |
+|       mongodb       | NoSql数据库             | [https://www.mongodb.com/](https://www.mongodb.com/)                                               |
+|        nginx        | 服务器                  | [https://nginx.org](https://nginx.org)                                                             |
+|       docker        | 应用容器引擎               | [https://www.docker.com](https://www.docker.com)                                                   |
+|      hikariCP       | 数据库连接                | [https://github.com/brettwooldridge/HikariCP](https://github.com/brettwooldridge/HikariCP)         |
+|         oss         | 对象存储                 | [https://help.aliyun.com/document_detail/31883.html](https://help.aliyun.com/document_detail/31883.html)                                               |
+|        https        | 证书                   | [https://letsencrypt.org/](https://letsencrypt.org/)                                               |
+|         jwt         | jwt登录                | [https://jwt.io](https://jwt.io)                                                                   |
+|       lombok        | Java语言增强库            | [https://projectlombok.org](https://projectlombok.org)                                             |
+|        guava        | google开源的java工具集     | [https://github.com/google/guava](https://github.com/google/guava)                                 |
+|      thymeleaf      | html5模板引擎            | [https://www.thymeleaf.org](https://www.thymeleaf.org)                                             |
+|       swagger       | API文档生成工具            | [https://swagger.io](https://swagger.io)                                                           |
+| hibernate-validator | 验证框架                 | [hibernate.org/validator/](hibernate.org/validator/)                                               |
+|     quick-media     | 多媒体处理                | [https://github.com/liuyueyi/quick-media](https://github.com/liuyueyi/quick-media)                 |
+|      liquibase      | 数据库版本管理              | [https://www.liquibase.com](https://www.liquibase.com)                                             |
+|       jackson       | json/xml处理           | [https://www.jackson.com](https://www.jackson.com)                                                 |
+|      ip2region      | ip地址                 | [https://github.com/zoujingli/ip2region](https://github.com/zoujingli/ip2region)                   |
+|      websocket      | 长连接                  | [https://docs.spring.io/spring/reference/web/websocket.html](https://docs.spring.io/spring/reference/web/websocket.html)                   |
+|       chatgpt       | chatgpt              | [https://openai.com/blog/chatgpt](https://openai.com/blog/chatgpt)                   |
+|        讯飞星火         | 讯飞星火大模型              | [https://www.xfyun.cn/doc/spark/Web.html](https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E)                   |
 
 ## 三、环境搭建
 
 ### 开发工具
 
-|        工具        | 说明           | 官网                                                                                                                       | 
-|:----------------:|--------------|--------------------------------------------------------------------------------------------------------------------------|
-|       IDEA       | java开发工具     | [https://www.jetbrains.com](https://www.jetbrains.com)                                                                   |
-|     Webstorm     | web开发工具      | [https://www.jetbrains.com/webstorm](https://www.jetbrains.com/webstorm)                                                 |
-|      Chrome      | 浏览器          | [https://www.google.com/google_chrome/download](https://www.google.com/google_chrome/download)                           |
-|   ScreenToGif    | gif录屏        | [https://www.screentogif.com](https://www.screentogif.com)                                                               |
-|     SniPaste     | 截图           | [https://www.snipaste.com](https://www.snipaste.com)                                                                     |
-|     PicPick      | 图片处理工具       | [https://picpick.app](https://picpick.app)                                                                               |
-|     MarkText     | markdown编辑器  | [https://github.com/marktext/marktex](https://github.com/marktext/marktex)                                               |
-|       curl       | http终端请求     | [https://curl.se](https://curl.se)                                                                                       |
-|     Postman      | API接口调试      | [https://www.postman.com](https://www.postman.com)                                                                       |
-|     draw.io      | 流程图、架构图绘制    | [https://www.diagrams.net/](https://www.diagrams.net/)                                                                   |
-|      Axure       | 原型图设计工具      | [https://www.axure.com/axure-rp10](https://www.axure.com/axure-rp10)                                                     |
-|     navicat      | 数据库连接工具      | [https://www.navicat.com](https://www.navicat.com)                                                                       |
-|     DBeaver      | 免费开源的数据库连接工具 | [https://dbeaver.io](https://dbeaver.io)                                                                                 |
-|      iTerm2      | mac终端        | [https://iterm2.com](https://iterm2.com)                                                                                 |
+|        工具        | 说明           | 官网                                                                                                           | 
+|:----------------:|--------------|--------------------------------------------------------------------------------------------------------------|
+|       IDEA       | java开发工具     | [https://www.jetbrains.com](https://www.jetbrains.com)                                                       |
+|     Webstorm     | web开发工具      | [https://www.jetbrains.com/webstorm](https://www.jetbrains.com/webstorm)                                     |
+|      Chrome      | 浏览器          | [https://www.google.com/intl/zh-CN/chrome](https://www.google.com/intl/zh-CN/chrome)                         |
+|   ScreenToGif    | gif录屏        | [https://www.screentogif.com](https://www.screentogif.com)                                                   |
+|     SniPaste     | 截图           | [https://www.snipaste.com](https://www.snipaste.com)                                                         |
+|     PicPick      | 图片处理工具       | [https://picpick.app](https://picpick.app)                                                                   |
+|     MarkText     | markdown编辑器  | [https://github.com/marktext/marktext](https://github.com/marktext/marktext)                                 |
+|       curl       | http终端请求     | [https://curl.se](https://curl.se)                                                                           |
+|     Postman      | API接口调试      | [https://www.postman.com](https://www.postman.com)                                                           |
+|     draw.io      | 流程图、架构图绘制    | [https://www.diagrams.net/](https://www.diagrams.net/)                                                       |
+|      Axure       | 原型图设计工具      | [https://www.axure.com](https://www.axure.com)                                                     |
+|     navicat      | 数据库连接工具      | [https://www.navicat.com](https://www.navicat.com)                                                           |
+|     DBeaver      | 免费开源的数据库连接工具 | [https://dbeaver.io](https://dbeaver.io)                                                                     |
+|      iTerm2      | mac终端        | [https://iterm2.com](https://iterm2.com)                                                                     |
 | windows terminal | win终端        | [https://learn.microsoft.com/en-us/windows/terminal/install](https://learn.microsoft.com/en-us/windows/terminal/install) |
-|   SwitchHosts    | host管理       | [https://github.com/oldj/SwitchHosts/releases](https://github.com/oldj/SwitchHosts/releases)                             |
+|   SwitchHosts    | host管理       | [https://github.com/oldj/SwitchHosts/releases](https://github.com/oldj/SwitchHosts/releases)                 |
 
 
 ### 开发环境
