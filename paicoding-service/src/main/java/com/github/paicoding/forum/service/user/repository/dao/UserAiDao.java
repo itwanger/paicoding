@@ -95,6 +95,10 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
         userAiMapper.update(null, updateWrapper);
     }
 
+    public void saveOrUpdateAiBindInfo(UserAiDO ai) {
+        saveOrUpdateAiBindInfo(ai, null);
+    }
+
     /**
      * 更新userAi绑定信息
      *

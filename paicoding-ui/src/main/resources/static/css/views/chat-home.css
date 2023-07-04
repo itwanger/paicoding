@@ -17,6 +17,12 @@
     transition: width .05s ease;
 }
 
+.name .test {
+    font-size: small;
+    padding-left: 6px;
+    color: var(--pai-color-3-gray);
+}
+
 .window-header-title .name {
     display: flex;
 }
