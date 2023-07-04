@@ -97,9 +97,11 @@ public class LoginOutServiceImpl implements LoginOutService {
             throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
         }
 
+        Long userId = bindUserAccount(user.getId());
+
         // 登录成功，返回对应的session
-        ReqInfoContext.getReqInfo().setUserId(user.getId());
-        return userSessionHelper.genSession(user.getId());
+        ReqInfoContext.getReqInfo().setUserId(userId);
+        return userSessionHelper.genSession(userId);
     }
 
 
@@ -148,6 +150,13 @@ public class LoginOutServiceImpl implements LoginOutService {
             userAiDO.setStarNumber(starNumber).setState(UserAIStatEnum.TRYING.getCode());
         }
         userAiDao.saveOrUpdateAiBindInfo(userAiDO, invitationCode);
+        return userId;
+    }
+
+    private Long bindUserAccount(Long userId) {
+        // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
+        UserAiDO userAiDO = userAiDao.getByUserId(userId);
+        userAiDao.saveOrUpdateAiBindInfo(userAiDO);
         return userId;
     }
 }

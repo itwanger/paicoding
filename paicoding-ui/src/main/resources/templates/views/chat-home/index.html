@@ -28,6 +28,7 @@
                              th:data-target="${global.isLogin ? '' : '#registerModal'}"
                              th:data-toggle="${global.isLogin ? '' : 'modal'}"
                         >点击登录</div>
+                        <span class="test" th:if="${global.user != null && global.user.starStatus == 1}">试用中</span>
                         <div class="c-bubble-trigger com-verification" th:if="${global.user != null && global.user.starStatus == 2}">
                             <i class="verified"></i>
                         </div>

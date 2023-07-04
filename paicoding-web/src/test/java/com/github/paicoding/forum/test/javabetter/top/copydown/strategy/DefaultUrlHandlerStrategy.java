@@ -28,7 +28,7 @@ public class DefaultUrlHandlerStrategy extends Coverter implements UrlHandlerStr
                 "div#article_content", // CSDN
                 "article.article-content", // 小白学堂
                 ".article-content", // 思否
-                ".post-topic-des, .post-content-box", // 牛客
+                ".post-topic-des, .post-content-box, .nc-post-content", // 牛客
                 "article.markdown-body", // GitHub
                 ".e13l6k8o9", // LeetCode
                 // .writing-content 墨滴
