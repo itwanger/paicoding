@@ -78,10 +78,8 @@ public class SitemapServiceImpl implements SitemapService {
         RedisClient.del(SITE_MAP_CACHE_KEY);
         while (true) {
             List<SimpleArticleDTO> list = articleDao.getBaseMapper().listArticlesOrderById(lastId, SCAN_SIZE);
-            RedisClient.hMSet(SITE_MAP_CACHE_KEY,
-                    list.stream().collect(Collectors.toMap(s -> String.valueOf(s.getId()),
-                            s -> s.getCreateTime().getTime(),
-                            (a, b) -> a)));
+            Map<String, Long> map = list.stream().collect(Collectors.toMap(s -> String.valueOf(s.getId()), s -> s.getCreateTime().getTime(), (a, b) -> a));
+            RedisClient.hMSet(SITE_MAP_CACHE_KEY, map);
             if (list.size() < SCAN_SIZE) {
                 break;
             }

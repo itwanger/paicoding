@@ -156,6 +156,9 @@ public class LoginOutServiceImpl implements LoginOutService {
     private Long bindUserAccount(Long userId) {
         // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
         UserAiDO userAiDO = userAiDao.getByUserId(userId);
+        if (userAiDO == null) {
+            userAiDO = UserAiConverter.initAi(userId);
+        }
         userAiDao.saveOrUpdateAiBindInfo(userAiDO);
         return userId;
     }
