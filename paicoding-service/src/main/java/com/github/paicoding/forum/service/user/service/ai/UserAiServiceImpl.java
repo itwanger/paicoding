@@ -65,12 +65,12 @@ public class UserAiServiceImpl implements UserAiService {
 
         // 推荐机制，如果绑定了邀请码，则总次数 + 10%
         if (UserAiStrategyEnum.INVITE_USER.match(strategy)) {
-            cnt = (int) (cnt * aiConfig.getMaxNum().getInvited());
+            cnt = (int) (cnt + cnt * aiConfig.getMaxNum().getInvited());
         }
 
         // 根据推荐的人数，来进行增加
         if (ai.getInviteNum() > 0) {
-            cnt = (int) (cnt * ai.getInviteNum() * aiConfig.getMaxNum().getInviteNum());
+            cnt = cnt + ai.getInviteNum() * ((int) (cnt * aiConfig.getMaxNum().getInviteNum()));
         }
 
         if (cnt == 0) {
