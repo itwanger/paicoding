@@ -9,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.CarouseDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.common.CommonConstants;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
@@ -51,13 +52,17 @@ public class IndexRecommendHelper {
     public IndexVo buildIndexVo(String activeTab) {
         IndexVo vo = new IndexVo();
         CategoryDTO category = categories(activeTab, vo);
-        vo.setArticles(articleList(category.getCategoryId()));
-        vo.setTopArticles(topArticleList(category));
-        vo.setHomeCarouselList(homeCarouselList());
-        vo.setSideBarItems(sidebarService.queryHomeSidebarList());
-        vo.setCurrentCategory(category.getCategory());
         vo.setCategoryId(category.getCategoryId());
-        vo.setUser(loginInfo());
+        vo.setCurrentCategory(category.getCategory());
+        // 并行调度实例，提高响应性能
+        AsyncUtil.concurrentExecutor("首页响应")
+                .runAsyncWithTimeRecord(() -> vo.setArticles(articleList(category.getCategoryId())), "文章列表")
+                .runAsyncWithTimeRecord(() -> vo.setTopArticles(topArticleList(category)), "置顶文章")
+                .runAsyncWithTimeRecord(() -> vo.setHomeCarouselList(homeCarouselList()), "轮播图")
+                .runAsyncWithTimeRecord(() -> vo.setSideBarItems(sidebarService.queryHomeSidebarList()), "侧边栏")
+                .runAsyncWithTimeRecord(() -> vo.setUser(loginInfo()), "用户信息")
+                .allExecuted()
+                .prettyPrint();
         return vo;
     }
 
