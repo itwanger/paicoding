@@ -13,10 +13,6 @@ import java.security.Principal;
  * @date 2022/7/6
  */
 public class ReqInfoContext {
-
-    /**
-     * fixme 注意，下面这种方式导致在子线程中拿不到用户信息
-     */
     private static ThreadLocal<ReqInfo> contexts = new InheritableThreadLocal<>();
 
     public static void addReqInfo(ReqInfo reqInfo) {
