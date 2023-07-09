@@ -157,7 +157,6 @@ public class AsyncUtil {
          * @return
          */
         public CompletableFutureBridge runAsync(Runnable run) {
-//            return runAsync(run, executorService);
             list.add(CompletableFuture.runAsync(runWithTime(run, run.toString()), executorService));
             return this;
         }
@@ -172,7 +171,6 @@ public class AsyncUtil {
         }
 
         public CompletableFutureBridge runAsyncWithTimeRecord(Runnable run, String name, ExecutorService executor) {
-//            list.add(CompletableFuture.runAsync(run, executor));
             list.add(CompletableFuture.runAsync(runWithTime(run, name), executor));
             return this;
         }
