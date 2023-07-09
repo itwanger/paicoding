@@ -41,7 +41,7 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
             consumer.accept(AiChatStatEnum.FIRST, response);
 
             AsyncUtil.sleep(1200);
-            item.appendAnswer(qa(item.getQuestion()));
+            item.appendAnswer("\n" + qa(item.getQuestion()));
             item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, response);
         });

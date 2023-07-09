@@ -41,7 +41,8 @@ public interface ChatService {
      *
      * @param user     提问人
      * @param question 聊天的问题
-     * @return 返回的结果
+     * @param consumer 接收到AI返回之后可执行的回调
+     * @return 同步直接返回的结果
      */
     ChatRecordsVo chat(Long user, String question, Consumer<ChatRecordsVo> consumer);
 

@@ -92,12 +92,15 @@ public abstract class AbsChatService implements ChatService {
 
     @Override
     public ChatRecordsVo chat(Long user, String question) {
+        // 构建提问、返回的实体类，计算使用次数，最大次数
         ChatRecordsVo res = initResVo(user, question);
         if (!res.hasQaCnt()) {
             return res;
         }
 
+        // 执行提问
         answer(user, res);
+        // 返回AI应答结果
         return res;
     }
 
