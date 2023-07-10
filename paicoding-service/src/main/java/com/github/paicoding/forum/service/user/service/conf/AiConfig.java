@@ -29,6 +29,9 @@ public class AiConfig {
          * 星球用户 AI交互次数
          */
         private Integer star;
+
+        // 星球最大编号
+        private Integer starNumber;
         /**
          * 星球试用用户 AI交互次数
          */
