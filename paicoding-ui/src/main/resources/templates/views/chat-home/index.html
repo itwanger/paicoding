@@ -318,7 +318,11 @@
 
     function doSend() {
         const qa = inputField.val();
-        // 表示讲消息转发到那个目标，类似与http请求中的path路径
+        if (qa.length > 512) {
+            toastr.info("提问长度请不要超过512字符哦~");
+            return;
+        }
+        // 表示将消息转发到那个目标，类似与http请求中的path路径
         stompClient.send("/app/chat/" + session, {'s-uid': session}, qa);
         // 清空 textarea
         inputField.val("");
