@@ -1,7 +1,9 @@
 package com.github.paicoding.forum.service.user.service.help;
 
+import com.aliyuncs.utils.TraceUtils;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -72,7 +74,7 @@ public class UserSessionHelper {
     }
 
     public String genSession(Long userId) {
-        String session = "s-" + UUID.randomUUID();
+        String session = "s-" + SelfTraceIdGenerator.generate();
         RedisClient.setStrWithExpire(session, String.valueOf(userId), SESSION_EXPIRE_TIME);
         return session;
     }
