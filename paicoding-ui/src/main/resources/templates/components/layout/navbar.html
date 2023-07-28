@@ -24,6 +24,7 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" href="/">首页</a>
               <a class="dropdown-item" href="/column">教程</a>
+              <a class="dropdown-item" href="/chat">派聪明</a>
             </div>
           </div>
         </div>
@@ -43,6 +44,12 @@
                   class="nav-item"
           >
             <a class="nav-link" href="/column">教程</a>
+          </li>
+          <li
+                  th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'chat') ? ' selected-domain' : '')}"
+                  class="nav-item"
+          >
+            <a class="nav-link" href="/chat">派聪明</a>
           </li>
         </ul>
       </div>
