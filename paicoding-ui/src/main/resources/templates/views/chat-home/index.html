@@ -15,7 +15,10 @@
 <div th:replace="components/layout/navbar :: navbar"></div>
 <div class="custom-home">
     <div class="chat-wrap">
-
+        <div class="chat-sidebar">
+            <!-- 侧边栏 -->
+            <div th:replace="views/chat-home/sidebar/index.html"></div>
+        </div>
         <div class="chat-main">
             <div class="window-header">
                 <div class="window-header-title">
