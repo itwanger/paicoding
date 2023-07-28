@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.service.help;
 
+import com.aliyuncs.utils.TraceUtils;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
