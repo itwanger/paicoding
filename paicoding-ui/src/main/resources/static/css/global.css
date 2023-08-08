@@ -179,6 +179,14 @@ button:focus {
   cursor: pointer;
 }
 
+.mdnice-user-dialog-footer a {
+    color: var(--pai-brand-1-normal);
+}
+
+.mdnice-user-dialog-footer a:hover {
+  color: var(--pai-brand-2-hover);
+}
+
 .modal a:not([href]):hover {
   color: var(--pai-brand-2-hover);
 }
