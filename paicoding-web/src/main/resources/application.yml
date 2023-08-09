@@ -36,6 +36,11 @@ security:
   salt: tech_π # 密码加盐, 更安全的做法是每个用户的密码使用独立的盐，并将其保存在用户表中
   salt-index: 3 # 盐插入的位置
 
+paicoding:
+  sensitive: # 敏感词校验相关配置
+    enable: true
+    deny: # 自定义的敏感词，英文逗号分割
+    allow: # 自定义的非敏感词，英文逗号分割
 
 # 默认的数据库名
 database:

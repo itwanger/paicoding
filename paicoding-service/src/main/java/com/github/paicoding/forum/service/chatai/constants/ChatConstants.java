@@ -63,4 +63,7 @@ public final class ChatConstants {
      * 异步聊天时返回得提示文案
      */
     public static final String ASYNC_CHAT_TIP = "小派正在努力回答中, 耐心等待一下吧...";
+
+
+    public static final String SENSITIVE_QUESTION = "提问中包含敏感词，请替换后再试!";
 }

@@ -153,5 +153,11 @@
             <artifactId>chatgpt</artifactId>
             <version>4.0.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
+            <version>${sensitive.version}</version>
+        </dependency>
     </dependencies>
 </project>
