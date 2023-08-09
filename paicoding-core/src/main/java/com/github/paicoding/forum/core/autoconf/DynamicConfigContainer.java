@@ -15,7 +15,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +45,11 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    /**
+     * 配置变更的回调任务
+     */
+    private Map<Object, Runnable> refreshCallback = Maps.newHashMap();
 
     @Override
     public void setEnvironment(Environment environment) {
@@ -114,6 +118,9 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     private void refreshConfig() {
         applicationContext.getBeansWithAnnotation(ConfigurationProperties.class).values().forEach(bean -> {
             Bindable<?> target = Bindable.ofInstance(bean).withAnnotations(AnnotationUtils.findAnnotation(bean.getClass(), ConfigurationProperties.class));
+            if (refreshCallback.containsKey(bean)) {
+                refreshCallback.get(bean).run();
+            }
             bind(target);
         });
     }
@@ -129,5 +136,15 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
                 log.warn("自动更新db配置信息异常!", e);
             }
         }, 5, 5, TimeUnit.MINUTES);
+    }
+
+    /**
+     * 注册配置变更的回调任务
+     *
+     * @param bean
+     * @param run
+     */
+    public void registerRefreshCallback(Object bean, Runnable run) {
+        refreshCallback.put(bean, run);
     }
 }
