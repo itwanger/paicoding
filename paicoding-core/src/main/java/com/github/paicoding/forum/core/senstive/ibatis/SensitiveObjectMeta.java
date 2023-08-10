@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.core.senstive.ibatis;
+
 import com.github.paicoding.forum.core.senstive.ano.SensitiveField;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -25,17 +25,17 @@ public class SensitiveObjectMeta {
      */
     private Boolean enabledSensitiveReplace;
 
+    /**
+     * 类名
+     */
     private String className;
 
+    /**
+     * 标注 SensitiveField 的成员
+     */
     private List<SensitiveFieldMeta> sensitiveFieldMetaList;
-    private List<SensitiveBindMeta> sensitiveBindFieldMetaList;
 
-    private SensitiveObjectMeta() {
-        sensitiveFieldMetaList = newArrayList();
-        sensitiveBindFieldMetaList = newArrayList();
-    }
-
-    public static Optional<SensitiveObjectMeta> generateSensitiveObjectMeta(Object param) {
+    public static Optional<SensitiveObjectMeta> buildSensitiveObjectMeta(Object param) {
         if (isNull(param)) {
             return Optional.empty();
         }
@@ -44,78 +44,44 @@ public class SensitiveObjectMeta {
         SensitiveObjectMeta sensitiveObjectMeta = new SensitiveObjectMeta();
         sensitiveObjectMeta.setClassName(clazz.getName());
 
-        boolean sensitiveField = hasSensitiveField(clazz);
+        List<SensitiveFieldMeta> sensitiveFieldMetaList = newArrayList();
+        sensitiveObjectMeta.setSensitiveFieldMetaList(sensitiveFieldMetaList);
+        boolean sensitiveField = parseAllSensitiveFields(clazz, sensitiveFieldMetaList);
         sensitiveObjectMeta.setEnabledSensitiveReplace(sensitiveField);
-        if (sensitiveField) {
-            List<SensitiveFieldMeta> sensitiveFieldMetaList = newArrayList();
-            List<SensitiveBindMeta> sensitiveBindFieldMetaList = newArrayList();
-            sensitiveObjectMeta.setSensitiveFieldMetaList(sensitiveFieldMetaList);
-            sensitiveObjectMeta.setSensitiveBindFieldMetaList(sensitiveBindFieldMetaList);
-
-            parseAllSensitiveFields(clazz, sensitiveFieldMetaList, sensitiveBindFieldMetaList);
-        }
-
         return Optional.of(sensitiveObjectMeta);
     }
 
-    private static boolean hasSensitiveField(Class clz) {
-        for (Field f: clz.getDeclaredFields()) {
-            if (f.getAnnotation(SensitiveField.class) != null) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    private static void parseAllSensitiveFields(Class<?> clazz, List<SensitiveFieldMeta> sensitiveFieldMetaList, List<SensitiveBindMeta> sensitiveBindFieldMetaList) {
+    private static boolean parseAllSensitiveFields(Class<?> clazz, List<SensitiveFieldMeta> sensitiveFieldMetaList) {
         Class<?> tempClazz = clazz;
+        boolean hasSensitiveField = false;
         while (nonNull(tempClazz) && !JAVA_LANG_OBJECT.equalsIgnoreCase(tempClazz.getName())) {
             for (Field field : tempClazz.getDeclaredFields()) {
-                if (String.class.equals(field.getType())) {
-
-                    SensitiveField sensitiveField = field.getAnnotation(SensitiveField.class);
-                    if (nonNull(sensitiveField)) {
-                        if (StringUtils.isEmpty(sensitiveField.bind())) {
-                            SensitiveFieldMeta sensitiveFieldMeta = new SensitiveFieldMeta();
-                            sensitiveFieldMeta.setName(field.getName());
-                            sensitiveFieldMetaList.add(sensitiveFieldMeta);
-                        } else {
-                            SensitiveBindMeta sensitiveBindFieldMeta = new SensitiveBindMeta();
-                            sensitiveBindFieldMeta.setName(field.getName());
-                            sensitiveBindFieldMeta.setBindField(sensitiveField.bind());
-                            sensitiveBindFieldMetaList.add(sensitiveBindFieldMeta);
-                        }
-                    }
-                } else if (field.getType().isAssignableFrom(List.class)) {
-                    SensitiveField sensitiveField = field.getAnnotation(SensitiveField.class);
-                    if (nonNull(sensitiveField)) {
-                        SensitiveFieldMeta sensitiveFieldMeta = new SensitiveFieldMeta();
-                        sensitiveFieldMeta.setName(field.getName());
-                        sensitiveFieldMetaList.add(sensitiveFieldMeta);
-                    }
-                } else if (nonNull(field.getType().getAnnotation(SensitiveField.class))) {
-                    SensitiveField sensitiveField = field.getAnnotation(SensitiveField.class);
-                    if (nonNull(sensitiveField)) {
-                        SensitiveFieldMeta sensitiveFieldMeta = new SensitiveFieldMeta();
-                        sensitiveFieldMeta.setName(field.getName());
-                        sensitiveFieldMetaList.add(sensitiveFieldMeta);
-                    }
+                SensitiveField sensitiveField = field.getAnnotation(SensitiveField.class);
+                if (nonNull(sensitiveField)) {
+                    SensitiveFieldMeta sensitiveFieldMeta = new SensitiveFieldMeta();
+                    sensitiveFieldMeta.setName(field.getName());
+                    sensitiveFieldMeta.setBindField(sensitiveField.bind());
+                    sensitiveFieldMetaList.add(sensitiveFieldMeta);
+                    hasSensitiveField = true;
                 }
             }
             tempClazz = tempClazz.getSuperclass();
         }
+        return hasSensitiveField;
     }
 
 
     @Data
     public static class SensitiveFieldMeta {
-        private String name;
-    }
-
-    @Data
-    public static class SensitiveBindMeta {
+        /**
+         * 默认根据字段名，找db中同名的字段
+         */
         private String name;
 
+        /**
+         * 绑定的数据库字段别名
+         */
         private String bindField;
     }
 }
