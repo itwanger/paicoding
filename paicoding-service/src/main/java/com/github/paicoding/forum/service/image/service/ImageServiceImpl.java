@@ -4,15 +4,19 @@ import com.github.hui.quick.plugin.base.constants.MediaType;
 import com.github.hui.quick.plugin.base.file.FileReadUtil;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.async.AsyncUtil;
+import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.util.MdImgLoader;
 import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -85,10 +90,34 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    @MdcDot
     public String mdImgReplace(String content) {
         List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
-        for (MdImgLoader.MdImg img : imgList) {
+        if (CollectionUtils.isEmpty(imgList)) {
+            return content;
+        }
+
+        if (imgList.size() == 1) {
+            // 只有一张图片时，没有必要走异步，直接转存并返回
+            MdImgLoader.MdImg img = imgList.get(0);
             String newImg = saveImg(img.getUrl());
+            return StringUtils.replace(content, img.getOrigin(), "![" + img.getDesc() + "](" + newImg + ")");
+        }
+
+        // 超过1张图片时，做并发的图片转存，提升性能
+        AsyncUtil.CompletableFutureBridge bridge = AsyncUtil.concurrentExecutor("MdImgReplace");
+        Map<MdImgLoader.MdImg, String> imgReplaceMap = Maps.newHashMapWithExpectedSize(imgList.size());
+        for (MdImgLoader.MdImg img : imgList) {
+            bridge.runAsyncWithTimeRecord(() -> {
+                imgReplaceMap.put(img, saveImg(img.getUrl()));
+            }, img.getUrl());
+        }
+        bridge.allExecuted().prettyPrint();
+
+        // 图片替换
+        for (Map.Entry<MdImgLoader.MdImg, String> entry : imgReplaceMap.entrySet()) {
+            MdImgLoader.MdImg img = entry.getKey();
+            String newImg = entry.getValue();
             content = StringUtils.replace(content, img.getOrigin(), "![" + img.getDesc() + "](" + newImg + ")");
         }
         return content;
