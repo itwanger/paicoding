@@ -24,7 +24,7 @@ import java.util.List;
 public class SensitiveService {
     private SensitiveProperty sensitiveConfig;
 
-    private SensitiveWordBs sensitiveWordBs;
+    private volatile SensitiveWordBs sensitiveWordBs;
 
     public SensitiveService(DynamicConfigContainer dynamicConfigContainer, SensitiveProperty sensitiveConfig) {
         this.sensitiveConfig = sensitiveConfig;
@@ -78,4 +78,13 @@ public class SensitiveService {
         return txt;
     }
 
+    /**
+     * 查询文本中所有命中的敏感词
+     *
+     * @param txt 校验文本
+     * @return 命中的敏感词
+     */
+    public List<String> findAll(String txt) {
+        return sensitiveWordBs.findAll(txt);
+    }
 }

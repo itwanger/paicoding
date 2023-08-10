@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.core.autoconf;
 
+import com.github.paicoding.forum.api.model.event.ConfigRefreshEvent;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.common.collect.Maps;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -105,6 +107,7 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     }
 
 
+    @EventListener(classes = ConfigRefreshEvent.class)
     public void reloadConfig() {
         if (loadAllConfigFromDb()) {
             refreshConfig();
