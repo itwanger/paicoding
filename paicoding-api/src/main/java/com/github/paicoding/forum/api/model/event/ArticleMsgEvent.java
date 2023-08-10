@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.api.model.vo.article;
+package com.github.paicoding.forum.api.model.event;
 
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import lombok.EqualsAndHashCode;

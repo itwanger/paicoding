@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.config.service.impl;
 
+import com.github.paicoding.forum.api.model.event.ConfigRefreshEvent;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.config.GlobalConfigReq;
@@ -7,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.config.SearchGlobalConfigReq;
 import com.github.paicoding.forum.api.model.vo.config.dto.GlobalConfigDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.config.converter.ConfigStructMapper;
 import com.github.paicoding.forum.service.config.repository.dao.ConfigDao;
 import com.github.paicoding.forum.service.config.repository.entity.GlobalConfigDO;
@@ -50,6 +52,9 @@ public class GlobalConfigServiceImpl implements GlobalConfigService {
         } else {
             configDao.updateById(globalConfigDO);
         }
+
+        // 配置更新之后，主动触发配置的动态加载
+        SpringUtil.publishEvent(new ConfigRefreshEvent(this, req.getKeywords(), req.getValue()));
     }
 
     @Override
@@ -58,7 +63,7 @@ public class GlobalConfigServiceImpl implements GlobalConfigService {
         if (globalConfigDO != null) {
             configDao.delete(globalConfigDO);
         } else {
-            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS,"记录不存在");
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "记录不存在");
         }
     }
 }

@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.test.rest;
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.event.ConfigRefreshEvent;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
@@ -13,11 +14,11 @@ import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
-import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +28,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -46,9 +53,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping(path = "test")
 public class TestController {
     private AtomicInteger cnt = new AtomicInteger(1);
-
-    @Autowired
-    private ChatGptIntegration chatGptHelper;
 
     /**
      * 测试邮件发送
@@ -248,9 +252,8 @@ public class TestController {
     @Permission(role = UserRole.ADMIN)
     @GetMapping("refresh/config")
     public String refreshConfig() {
-        DynamicConfigContainer registry = SpringUtil.getBean(DynamicConfigContainer.class);
-        registry.reloadConfig();
-        return JsonUtil.toStr(registry.getCache());
+        SpringUtil.publishEvent(new ConfigRefreshEvent(this, null, null));
+        return JsonUtil.toStr(SpringUtil.getBean(DynamicConfigContainer.class).getCache());
     }
 
     /**
@@ -265,5 +268,19 @@ public class TestController {
         ChatFacade chatFacade = SpringUtil.getBean(ChatFacade.class);
         chatFacade.refreshAiSourceCache(AISourceEnum.valueOf(ai));
         return chatFacade.getRecommendAiSource();
+    }
+
+    @Autowired
+    private SensitiveService sensitiveService;
+
+    /**
+     * 敏感词校验
+     *
+     * @param txt
+     * @return
+     */
+    @GetMapping(path = "sensitive/check")
+    public List<String> sensitiveWords(String txt) {
+        return sensitiveService.findAll(txt);
     }
 }

@@ -2,7 +2,7 @@ package com.github.paicoding.forum.service.sitemap.service;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
-import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
+import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
