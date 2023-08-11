@@ -94,6 +94,12 @@ public class TestController {
         throw new ForumAdviceException(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "测试ControllerAdvice异常");
     }
 
+    @RequestMapping(path = "exception")
+    @ResponseBody
+    public String unexpect() {
+        throw new RuntimeException("非预期异常");
+    }
+
     /**
      * 测试 Knife4j
      *
@@ -252,8 +258,9 @@ public class TestController {
     @Permission(role = UserRole.ADMIN)
     @GetMapping("refresh/config")
     public String refreshConfig() {
-        SpringUtil.publishEvent(new ConfigRefreshEvent(this, null, null));
-        return JsonUtil.toStr(SpringUtil.getBean(DynamicConfigContainer.class).getCache());
+        DynamicConfigContainer configContainer = SpringUtil.getBean(DynamicConfigContainer.class);
+        configContainer.forceRefresh();
+        return JsonUtil.toStr(configContainer.getCache());
     }
 
     /**

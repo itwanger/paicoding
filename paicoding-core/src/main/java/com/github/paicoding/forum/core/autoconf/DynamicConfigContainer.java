@@ -51,7 +51,8 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     /**
      * 配置变更的回调任务
      */
-    private Map<Object, Runnable> refreshCallback = Maps.newHashMap();
+    @Getter
+    private Map<Class, Runnable> refreshCallback = Maps.newHashMap();
 
     @Override
     public void setEnvironment(Environment environment) {
@@ -109,10 +110,21 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
 
     @EventListener(classes = ConfigRefreshEvent.class)
     public void reloadConfig() {
-        if (loadAllConfigFromDb()) {
+        log.info("开始加载db全局配置! 当前配置: {}", JsonUtil.toStr(cache));
+        boolean toRefresh = loadAllConfigFromDb();
+        if (toRefresh) {
             refreshConfig();
-            log.info("db配置已全部更新: {}", JsonUtil.toStr(cache));
         }
+        log.info("db配置变更={} 新的配置: {}", toRefresh, JsonUtil.toStr(cache));
+    }
+
+    /**
+     * 强制刷新缓存配置
+     */
+    public void forceRefresh() {
+        loadAllConfigFromDb();
+        refreshConfig();
+        log.info("db配置强制刷新! {}", JsonUtil.toStr(cache));
     }
 
     /**
@@ -121,10 +133,10 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     private void refreshConfig() {
         applicationContext.getBeansWithAnnotation(ConfigurationProperties.class).values().forEach(bean -> {
             Bindable<?> target = Bindable.ofInstance(bean).withAnnotations(AnnotationUtils.findAnnotation(bean.getClass(), ConfigurationProperties.class));
-            if (refreshCallback.containsKey(bean)) {
-                refreshCallback.get(bean).run();
-            }
             bind(target);
+            if (refreshCallback.containsKey(bean.getClass())) {
+                refreshCallback.get(bean.getClass()).run();
+            }
         });
     }
 
@@ -148,6 +160,6 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * @param run
      */
     public void registerRefreshCallback(Object bean, Runnable run) {
-        refreshCallback.put(bean, run);
+        refreshCallback.put(bean.getClass(), run);
     }
 }
