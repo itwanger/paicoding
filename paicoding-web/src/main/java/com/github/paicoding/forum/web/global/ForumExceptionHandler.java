@@ -12,8 +12,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
@@ -73,8 +75,11 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, "超时未登录");
         } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
             return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
+        } else if (ex instanceof HttpRequestMethodNotSupportedException || ex instanceof MethodArgumentTypeMismatchException) {
+            // 请求方法不匹配
+            return Status.newStatus(StatusEnum.ILLEGAL_ARGUMENTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {
-            log.error("unexpect error! {}", ReqInfoContext.getReqInfo(), ex);
+            log.error("unexpect NestedRuntimeException error! {}", ReqInfoContext.getReqInfo(), ex);
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ex.getMessage());
         } else {
             log.error("unexpect error! {}", ReqInfoContext.getReqInfo(), ex);
