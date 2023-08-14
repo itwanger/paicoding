@@ -175,7 +175,7 @@ public class ReqRecordFilter implements Filter {
         if (device == null) {
             String deviceId = UUID.randomUUID().toString();
             if (response != null) {
-                response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
+                response.addCookie(SessionUtil.newCookie(LoginOutService.USER_DEVICE_KEY, deviceId));
             }
             return deviceId;
         }
