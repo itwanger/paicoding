@@ -59,7 +59,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                    response.sendRedirect("/admin");
                 } else {
                     // 访问需要登录的页面时，直接跳转到登录界面
-                    response.sendRedirect("/qrLogin");
+                    response.sendRedirect("/");
                 }
                 return false;
             }

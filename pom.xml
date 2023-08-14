@@ -41,6 +41,7 @@
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <opencv.version>4.6.0-0</opencv.version>
         <sensitive.version>0.8.0</sensitive.version>
+        <jwt.version>4.4.0</jwt.version>
     </properties>
 
     <dependencyManagement>
