@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.web.front.login.vo;
+package com.github.paicoding.forum.web.front.login.wx.vo;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2022/9/5
  */
 @Data
-public class QrLoginVo {
+public class WxLoginVo {
     /**
      * 验证码
      */

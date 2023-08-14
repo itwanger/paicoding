@@ -19,7 +19,7 @@ public class IndexController extends BaseViewController {
     @Autowired
     private IndexRecommendHelper indexRecommendHelper;
 
-    @GetMapping(path = {"/", "", "/index"})
+    @GetMapping(path = {"/", "", "/index", "/login"})
     public String index(Model model, HttpServletRequest request) {
         String activeTab = request.getParameter("category");
         IndexVo vo = indexRecommendHelper.buildIndexVo(activeTab);
