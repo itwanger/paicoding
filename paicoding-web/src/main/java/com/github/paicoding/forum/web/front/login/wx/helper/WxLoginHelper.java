@@ -97,7 +97,7 @@ public class WxLoginHelper {
     }
 
     public String resend() throws IOException {
-        String deviceId = getOrInitDeviceId();
+        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
         // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
         String oldCode = deviceCodeCache.getIfPresent(deviceId);
         SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
@@ -116,7 +116,7 @@ public class WxLoginHelper {
      * @throws IOException
      */
     public String refreshCode() throws IOException {
-        String deviceId = getOrInitDeviceId();
+        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
         // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
         String oldCode = deviceCodeCache.getIfPresent(deviceId);
         SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
@@ -173,35 +173,7 @@ public class WxLoginHelper {
      * @return 验证码
      */
     private String getOrInitVerifyCode() {
-        String deviceId = getOrInitDeviceId();
+        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
         return deviceCodeCache.getUnchecked(deviceId);
-    }
-
-    /**
-     * 初始化设备id
-     *
-     * @return
-     */
-    private String getOrInitDeviceId() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-
-        String deviceId = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if (LoginOutService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
-                    deviceId = cookie.getValue();
-                    break;
-                }
-            }
-        }
-        if (deviceId == null) {
-            deviceId = UUID.randomUUID().toString();
-            if (response != null) {
-                response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
-            }
-        }
-        return deviceId;
     }
 }
