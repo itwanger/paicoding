@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 全局异常处理
@@ -75,7 +76,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, "超时未登录");
         } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
             return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
-        } else if (ex instanceof HttpRequestMethodNotSupportedException || ex instanceof MethodArgumentTypeMismatchException) {
+        } else if (ex instanceof HttpRequestMethodNotSupportedException || ex instanceof MethodArgumentTypeMismatchException || ex instanceof IOException) {
             // 请求方法不匹配
             return Status.newStatus(StatusEnum.ILLEGAL_ARGUMENTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {

@@ -10,21 +10,12 @@ public interface LoginOutService {
 
 
     /**
-     * 适用于微信公众号登录场景下，自动注册一个用户，并返回登录验证码
+     * 适用于微信公众号登录场景下，自动注册一个用户
      *
      * @param uuid
-     * @return
+     * @return userId
      */
-    String autoRegisterAndGetVerifyCode(String uuid);
-
-    /**
-     * 登录
-     *
-     * @param code
-     * @return
-     */
-    String register(String code);
-
+    Long autoRegisterWxUserInfo(String uuid);
 
     /**
      * 登出
@@ -32,6 +23,14 @@ public interface LoginOutService {
      * @param session
      */
     void logout(String session);
+
+    /**
+     * 给微信公众号的用户生成一个用于登录的会话
+     *
+     * @param userId
+     * @return
+     */
+    String register(Long userId);
 
     /**
      * 用户名密码方式登录

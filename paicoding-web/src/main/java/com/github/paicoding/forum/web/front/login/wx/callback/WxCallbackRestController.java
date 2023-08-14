@@ -1,14 +1,18 @@
-package com.github.paicoding.forum.web.front.login.rest;
+package com.github.paicoding.forum.web.front.login.wx.callback;
 
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
-import com.github.paicoding.forum.web.front.login.QrLoginHelper;
-import com.github.paicoding.forum.web.front.login.WxHelper;
+import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
+import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,13 +24,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RequestMapping(path = "wx")
 @RestController
-public class WxRestController {
+public class WxCallbackRestController {
     @Autowired
     private LoginOutService sessionService;
     @Autowired
-    private QrLoginHelper qrLoginHelper;
+    private WxLoginHelper qrLoginHelper;
     @Autowired
-    private WxHelper wxHelper;
+    private WxAckHelper wxHelper;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -62,8 +66,8 @@ public class WxRestController {
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
                 // fixme 带参数二维码需要 微信认证，个人公众号无权限
                 String code = key.substring("qrscene_".length());
-                String verifyCode = sessionService.autoRegisterAndGetVerifyCode(msg.getFromUserName());
-                qrLoginHelper.login(code, verifyCode);
+                sessionService.autoRegisterWxUserInfo(msg.getFromUserName());
+                qrLoginHelper.login(code);
                 WxTxtMsgResVo res = new WxTxtMsgResVo();
                 res.setContent("登录成功");
                 fillResVo(res, msg);
