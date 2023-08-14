@@ -4,7 +4,9 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.util.CrossUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,11 +22,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 1. 请求参数日志输出过滤器
@@ -91,6 +95,7 @@ public class ReqRecordFilter implements Filter {
             reqInfo.setReferer(request.getHeader("referer"));
             reqInfo.setClientIp(IpUtil.getClientIp(request));
             reqInfo.setUserAgent(request.getHeader("User-Agent"));
+            reqInfo.setDeviceId(getOrInitDeviceId(request, response));
 
             request = this.wrapperRequest(request, reqInfo);
             // 初始化登录信息
@@ -157,5 +162,23 @@ public class ReqRecordFilter implements Filter {
                 || request.getRequestURI().endsWith("svg")
                 || request.getRequestURI().endsWith("min.js.map")
                 || request.getRequestURI().endsWith("min.css.map");
+    }
+
+
+    /**
+     * 初始化设备id
+     *
+     * @return
+     */
+    private String getOrInitDeviceId(HttpServletRequest request, HttpServletResponse response) {
+        Cookie device = SessionUtil.findCookieByName(request, LoginOutService.USER_DEVICE_KEY);
+        if (device == null) {
+            String deviceId = UUID.randomUUID().toString();
+            if (response != null) {
+                response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
+            }
+            return deviceId;
+        }
+        return device.getValue();
     }
 }

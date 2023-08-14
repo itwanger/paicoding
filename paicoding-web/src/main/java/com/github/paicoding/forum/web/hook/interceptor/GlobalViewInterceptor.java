@@ -52,7 +52,6 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 return true;
             }
 
-            String deviceId = getOrInitDeviceId(request, response);
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
                 if (handlerMethod.getMethod().getAnnotation(ResponseBody.class) != null
                         || handlerMethod.getMethod().getDeclaringClass().getAnnotation(RestController.class) != null) {
@@ -68,10 +67,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                     response.sendRedirect("/");
                 }
                 return false;
-            } else {
-                ReqInfoContext.getReqInfo().setDeviceId(deviceId);
             }
-
             if (permission.role() == UserRole.ADMIN && !UserRole.ADMIN.name().equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
                 // 设置为无权限
                 response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -79,22 +75,6 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             }
         }
         return true;
-    }
-
-    /**
-     * 初始化设备id
-     *
-     * @return
-     */
-    private String getOrInitDeviceId(HttpServletRequest request, HttpServletResponse response) {
-        Cookie device = SessionUtil.findCookieByName(request, LoginOutService.USER_DEVICE_KEY);
-        if (device == null) {
-            String deviceId = UUID.randomUUID().toString();
-            if (response != null) {
-                response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
-            }
-        }
-        return device.getValue();
     }
 
     @Override
