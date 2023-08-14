@@ -64,8 +64,10 @@ public class SensitiveReadInterceptor implements Interceptor {
             return results;
         }
         Object firstObject = firstOpt.get();
-
+        // 找到需要进行敏感词替换的数据库实体类的成员信息
         SensitiveObjectMeta sensitiveObjectMeta = findSensitiveObjectMeta(firstObject);
+
+        // 执行替换的敏感词替换
         replaceSensitiveResults(results, mappedStatement, sensitiveObjectMeta);
         return results;
     }

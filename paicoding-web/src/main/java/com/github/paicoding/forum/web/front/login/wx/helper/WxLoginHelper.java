@@ -1,5 +1,6 @@
-package com.github.paicoding.forum.web.front.login;
+package com.github.paicoding.forum.web.front.login.wx.helper;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
@@ -16,7 +17,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +26,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class QrLoginHelper {
+public class WxLoginHelper {
+    /**
+     * sse的超时时间，默认15min
+     */
+    private final static Long SSE_EXPIRE_TIME = 15 * 60 * 1000L;
     private final LoginOutService sessionService;
     /**
      * key = 验证码, value = 长连接
@@ -37,7 +41,7 @@ public class QrLoginHelper {
      */
     private LoadingCache<String, String> deviceCodeCache;
 
-    public QrLoginHelper(LoginOutService loginService) {
+    public WxLoginHelper(LoginOutService loginService) {
         this.sessionService = loginService;
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
@@ -61,40 +65,51 @@ public class QrLoginHelper {
     }
 
     /**
-     * 加一层设备id，主要目的就是为了避免不断刷新页面时，不断的往 verifyCodeCache 中塞入新的kv对
-     * 其次就是确保五分钟内，不管刷新多少次，验证码都一样
+     * 保持与前端的长连接
+     * <p>
+     * 直接根据设备拿之前初始化的验证码，不直接使用传过来的code
      *
-     * @param request
-     * @param response
      * @return
      */
-    public String genVerifyCode(HttpServletRequest request, HttpServletResponse response) {
-        String deviceId = initDeviceId(request, response);
-        String code = deviceCodeCache.getUnchecked(deviceId);
-        SseEmitter lastSse = verifyCodeCache.getIfPresent(code);
-        if (lastSse != null) {
-            // 这个设备之前已经建立了连接，则移除旧的，重新再建立一个; 通常是不断刷新登录页面，会出现这个场景
-            lastSse.complete();
-            verifyCodeCache.invalidate(code);
+    public SseEmitter subscribe() throws IOException {
+        String realCode = getOrInitVerifyCode();
+        // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
+        SseEmitter sseEmitter = new SseEmitter(SSE_EXPIRE_TIME);
+        SseEmitter oldSse = verifyCodeCache.getIfPresent(realCode);
+        if (oldSse != null) {
+            oldSse.complete();
         }
-        return code;
+        verifyCodeCache.put(realCode, sseEmitter);
+        sseEmitter.onTimeout(() -> {
+            log.info("sse 超时中断 --> {}", realCode);
+            verifyCodeCache.invalidate(realCode);
+            sseEmitter.complete();
+        });
+        sseEmitter.onError((e) -> {
+            log.warn("sse error! --> {}", realCode, e);
+            verifyCodeCache.invalidate(realCode);
+            sseEmitter.complete();
+        });
+        // 若实际的验证码与前端显示的不同，则通知前端更新
+        sseEmitter.send("initCode!");
+        sseEmitter.send("init#" + realCode);
+        return sseEmitter;
     }
 
     /**
      * 刷新验证码
      *
-     * @param request
-     * @param response
      * @return
      * @throws IOException
      */
-    public String refreshCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String deviceId = initDeviceId(request, response);
+    public String refreshCode() throws IOException {
+        String deviceId = getOrInitDeviceId();
         // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
         String oldCode = deviceCodeCache.getIfPresent(deviceId);
         SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
         if (lastSse == null) {
             log.info("last deviceId:{}, code:{}, sse closed!", deviceId, oldCode);
+            deviceCodeCache.invalidate(deviceId);
             return null;
         }
 
@@ -111,74 +126,53 @@ public class QrLoginHelper {
     }
 
     /**
-     * 保持与前端的长连接
-     * <p>
-     * 直接根据设备拿之前初始化的验证码，不直接使用传过来的code
+     * 微信公众号登录
      *
-     * @param code
+     * @param verifyCode 用户输入的登录验证码
      * @return
      */
-    public SseEmitter subscribe(String code) throws IOException {
-        HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        HttpServletResponse res = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-        String device = initDeviceId(req, res);
-        String realCode = deviceCodeCache.getUnchecked(device);
-
-        // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
-        SseEmitter sseEmitter = new SseEmitter(15 * 60 * 1000L);
-        verifyCodeCache.put(code, sseEmitter);
-        sseEmitter.onTimeout(() -> verifyCodeCache.invalidate(realCode));
-        sseEmitter.onError((e) -> verifyCodeCache.invalidate(realCode));
-        if (!Objects.equals(realCode, code)) {
-            // 若实际的验证码与前端显示的不同，则通知前端更新
-            sseEmitter.send("initCode!");
-            sseEmitter.send("init#" + realCode);
+    public boolean login(String verifyCode) {
+        // 通过验证码找到对应的长连接
+        SseEmitter sseEmitter = verifyCodeCache.getIfPresent(verifyCode);
+        if (sseEmitter == null) {
+            return false;
         }
-        return sseEmitter;
-    }
 
-
-    /**
-     * 二维码已扫描
-     *
-     * @param code
-     * @throws IOException
-     */
-    public void scan(String code) throws IOException {
-        SseEmitter sseEmitter = verifyCodeCache.getIfPresent(code);
-        if (sseEmitter != null) {
-            sseEmitter.send("scan");
-        }
-    }
-
-    public boolean login(String loginCode, String verifyCode) {
-        String session = sessionService.register(verifyCode);
-        SseEmitter sseEmitter = verifyCodeCache.getIfPresent(loginCode);
-        if (sseEmitter != null) {
-            try {
-                // 登录成功，写入session
-                sseEmitter.send(session);
-                // 设置cookie的路径
-                sseEmitter.send("login#" + LoginOutService.SESSION_KEY + "=" + session + ";path=/;");
-                return true;
-            } catch (Exception e) {
-                log.error("登录异常: {}, {}", loginCode, verifyCode, e);
-            } finally {
-                sseEmitter.complete();
-                verifyCodeCache.invalidate(loginCode);
-            }
+        String session = sessionService.register(ReqInfoContext.getReqInfo().getUserId());
+        try {
+            // 登录成功，写入session
+            sseEmitter.send(session);
+            // 设置cookie的路径
+            sseEmitter.send("login#" + LoginOutService.SESSION_KEY + "=" + session + ";path=/;");
+            return true;
+        } catch (Exception e) {
+            log.error("登录异常: {}", verifyCode, e);
+        } finally {
+            sseEmitter.complete();
+            verifyCodeCache.invalidate(verifyCode);
         }
         return false;
     }
 
     /**
+     * 获取or初始化当前用户对应的验证码
+     *
+     * @return 验证码
+     */
+    private String getOrInitVerifyCode() {
+        String deviceId = getOrInitDeviceId();
+        return deviceCodeCache.getUnchecked(deviceId);
+    }
+
+    /**
      * 初始化设备id
      *
-     * @param request
-     * @param response
      * @return
      */
-    public String initDeviceId(HttpServletRequest request, HttpServletResponse response) {
+    private String getOrInitDeviceId() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+
         String deviceId = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -191,7 +185,9 @@ public class QrLoginHelper {
         }
         if (deviceId == null) {
             deviceId = UUID.randomUUID().toString();
-            response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
+            if (response != null) {
+                response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
+            }
         }
         return deviceId;
     }

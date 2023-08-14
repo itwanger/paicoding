@@ -1,28 +1,18 @@
-package com.github.paicoding.forum.web.front.login;
+package com.github.paicoding.forum.web.front.login.wx.helper;
 
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtItemVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
-import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.service.chatai.service.ChatgptService;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author YiHui
@@ -30,71 +20,14 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class WxHelper {
-    public static final String ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx4a128c315d9b1228&secret=077e2d92dee69f04ba6d53a0ef4459f9";
-
-    public static final String QR_CREATE_URL = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=";
-    /**
-     * 访问token
-     */
-    public static volatile String token = "";
-
-    /**
-     * 失效时间
-     */
-    public static volatile long expireTime = 0L;
-
+public class WxAckHelper {
     @Autowired
     private LoginOutService sessionService;
     @Autowired
-    private QrLoginHelper qrLoginHelper;
+    private WxLoginHelper qrLoginHelper;
 
     @Autowired
     private ChatgptService chatgptService;
-
-    private RestTemplate restTemplate;
-
-    public WxHelper() {
-        restTemplate = new RestTemplate();
-    }
-
-    private synchronized void doGetToken() {
-        ResponseEntity<HashMap> entity = restTemplate.getForEntity(ACCESS_TOKEN_URL, HashMap.class);
-        HashMap data = entity.getBody();
-        log.info("getToken:{}", JsonUtil.toStr(entity));
-        token = (String) data.get("access_token");
-        int expire = (int) data.get("expires_in");
-        // 提前至十分钟失效
-        expireTime = System.currentTimeMillis() / 1000 + expire - 600;
-    }
-
-    public String autoUpdateAccessToken() {
-        if (StringUtils.isBlank(token) || System.currentTimeMillis() / 1000 >= expireTime) {
-            doGetToken();
-        }
-        return token;
-    }
-
-    /**
-     * 获取带参数的登录二维码地址
-     *
-     * @param code
-     * @return
-     */
-    public String getLoginQrCode(String code) {
-        String url = QR_CREATE_URL + autoUpdateAccessToken();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        Map<String, Object> params = MapUtils.create("action_name", "QR_LIMIT_SCENE",
-                "expire_seconds", 300,
-                "action_info", MapUtils.create("scene", MapUtils.create("scene_str", code)));
-        HttpEntity<String> request = new HttpEntity<>(JsonUtil.toStr(params), headers);
-
-        Map ans = restTemplate.postForObject(url, request, HashMap.class);
-        String qrcode = (String) ans.get("url");
-        return qrcode;
-    }
-
 
     /**
      * 返回自动响应的文本
@@ -137,13 +70,13 @@ public class WxHelper {
         } else if ("admin".equalsIgnoreCase(content) || "后台".equals(content) || "002".equals(content)) {
             // admin后台登录，返回对应的用户名 + 密码
             textRes = "技术派后台游客登录账号\n-----------\n登录用户名: guest\n登录密码: 123456";
-        } else if ("商务合作".equalsIgnoreCase(content) ) {
+        } else if ("商务合作".equalsIgnoreCase(content)) {
             textRes = "商务合作（非诚勿扰）：请添加二哥微信 qing_geee 备注\"商务合作\"'";
         }
         // 微信公众号登录
         else if (CodeGenerateUtil.isVerifyCode(content)) {
-            String verifyCode = sessionService.autoRegisterAndGetVerifyCode(fromUser);
-            if (qrLoginHelper.login(content, verifyCode)) {
+            sessionService.autoRegisterWxUserInfo(fromUser);
+            if (qrLoginHelper.login(content)) {
                 textRes = "登录成功，开始愉快的玩耍技术派吧！";
             } else {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";

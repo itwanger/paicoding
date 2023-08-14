@@ -52,10 +52,11 @@ public class LoginOutServiceImpl implements LoginOutService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String autoRegisterAndGetVerifyCode(String uuid) {
+    public Long autoRegisterWxUserInfo(String uuid) {
         UserSaveReq req = new UserSaveReq().setLoginType(0).setThirdAccountId(uuid);
-        req.setUserId(registerOrGetUserInfo(req));
-        return userSessionHelper.genVerifyCode(req.getUserId());
+        Long userId = registerOrGetUserInfo(req);
+        ReqInfoContext.getReqInfo().setUserId(userId);
+        return userId;
     }
 
     /**
@@ -72,20 +73,28 @@ public class LoginOutServiceImpl implements LoginOutService {
     }
 
     @Override
-    public String register(String code) {
-        Long userId = userSessionHelper.getUserIdByCode(code);
-        if (userId == null) {
-            return null;
-        }
-        return userSessionHelper.codeVerifySucceed(code, userId);
-    }
-
-    @Override
     public void logout(String session) {
         userSessionHelper.removeSession(session);
     }
 
+    /**
+     * 给微信公众号的用户生成一个用于登录的会话
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public String register(Long userId) {
+        return userSessionHelper.genSession(userId);
+    }
 
+    /**
+     * 用户名密码方式登录注册
+     *
+     * @param username
+     * @param password
+     * @return
+     */
     @Override
     public String register(String username, String password) {
         UserDO user = userDao.getUserByUserName(username);
