@@ -119,7 +119,7 @@
               <div class="nav-user-dropdown">
                 <div class="nav-user-dropdown-inner nav-user-dropdown::before">
                   <!-- 下落框内容 -->
-<!--  调整为所有用户都可以直接看到管理后台  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"-->
+                  <!--  调整为所有用户都可以直接看到管理后台  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"-->
                   <!-- 本地环境的时候不显示，本地环境的时候通过后端直接启动管理后台 -->
                   <a
                           th:if="${#strings.equals(global.env, 'prod')}"
@@ -201,7 +201,7 @@
                   </div>
                 </div>
                 <a class="clickable" data-toggle="modal" data-target="#registerModal" data-dismiss="modal">
-                绑定星球，畅享VIP服务
+                  绑定星球，畅享VIP服务
                 </a>
               </div>
             </div>
@@ -214,7 +214,7 @@
               <div class="explain">
                 <bold>输入验证码</bold>
                 <span id="code"></span>
-                <div id="state">有效期为五分钟<a id="refreshCode">过期后请刷新</a></div>
+                <div><span id="state">有效期五分钟 👉</span> <a id="refreshCode">手动刷新</a></div>
               </div>
             </div>
           </div>
@@ -295,17 +295,17 @@
               </div>
             </div>
             <div class="tabpane-container">
-            <h2 class="title">添加二哥微信备注星球，审核更快</h2>
-            <div class="first">
-              <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
-            </div>
+              <h2 class="title">添加二哥微信备注星球，审核更快</h2>
+              <div class="first">
+                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
+              </div>
 
-            <div class="explain">
-              <bold>记得备注</bold>
-              <code>星球编号</code>
-              <div>我会根据星球编号进行审核</div>
+              <div class="explain">
+                <bold>记得备注</bold>
+                <code>星球编号</code>
+                <div>我会根据星球编号进行审核</div>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -410,78 +410,69 @@
       }
     }
 
+    /**
+     * 记录长连接
+     * @type {null}
+     */
+    let sseSource = null;
 
     /**
      * 建立半长连接，用于实现自动登录
-     * @param code
      */
-    function buildConnect(code) {
-      const subscribeUrl = "/subscribe?id=" + code;
+    function buildConnect() {
+      if (sseSource != null) {
+        try {
+          sseSource.close();
+        } catch (e) {
+          console.log("关闭上次的连接", e);
+        }
+      }
+
+      const subscribeUrl = "/subscribe";
       const source = new EventSource(subscribeUrl);
+      sseSource = source;
 
       source.onmessage = function (event) {
         let text = event.data;
         console.log("receive: " + text);
 
+        let newCode;
         if (text.startsWith('refresh#')) {
           // 刷新验证码
-          const newCode = text.substring(8).trim();
+          newCode = text.substring(8).trim();
           codeTag.text(newCode);
-          stateTag.text("已刷新");
-          if ([[${!#strings.equals(global.env, 'prod')}]]) {
-            $("#mockLogin").attr('data-verify-code', newCode);
-            $("#mockLogin2").attr('data-verify-code', newCode);
-          }
+          stateTag.text("已刷新 ");
         } else if (text === 'scan') {
           // 二维码扫描
-          stateTag.text('已扫描');
+          stateTag.text("已扫描 ");
         } else if (text.startsWith('login#')) {
           // 登录格式为 login#cookie
-          if(autoRefresh) {
-            window.clearInterval(autoRefresh);
-          }
           console.log("登录成功,保存cookie", text)
-
           document.cookie = text.substring(6);
           source.close();
           refreshPage();
-
         } else if (text.startsWith("init#")) {
-          const newCode = text.substring(5).trim();
+          newCode = text.substring(5).trim();
           codeTag.text(newCode);
           console.log("初始化验证码: ", newCode);
+        }
+
+        if ([[${!#strings.equals(global.env, 'prod')}]]) {
+          $("#mockLogin").attr('data-verify-code', newCode);
+          $("#mockLogin2").attr('data-verify-code', newCode);
         }
       };
 
       source.onopen = function (evt) {
         console.log("开始订阅");
       }
-      source.onerror = function (evt) {
-        console.log("连接错误，重新开始", evt)
+      source.onerror = function (e, evt) {
+        console.log("连接错误，重新开始", e, evt)
+        stateTag.text("连接中断,请刷新重连");
         buildConnect(code);
       }
-      codeTag.text(code);
+    }
 
-      if(autoRefresh) {
-        window.clearInterval(autoRefresh);
-      }
-      // 先关闭自动刷新验证码
-      // autoRefresh = setInterval(function () {
-      //     refreshCode();
-      // }, 5 * 60 * 1000)
-    }
-    function loginCode() {
-      $.ajax({
-        url: "/login/code", dataType: "json", type: "get", success: function (data) {
-          const code = data['result']['code'];
-          buildConnect(code);
-          if ([[${!#strings.equals(global.env, 'prod')}]]) {
-            $("#mockLogin").attr('data-verify-code', code);
-            $("#mockLogin2").attr('data-verify-code', code);
-          }
-        }
-      })
-    }
     function refreshCode() {
       $.ajax({
         url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
@@ -490,11 +481,10 @@
           console.log("验证码刷新完成: ", data);
 
           if (reconnect) {
-            buildConnect(code);
+            // 重新建立连接
+            buildConnect();
             $('#state').text("已刷新!");
-          }
-
-          if(code) {
+          } else if(code) {
             if (codeTag.text() !== code) {
               console.log("主动刷新验证码!");
               codeTag.text(code);
@@ -508,7 +498,7 @@
     }
     $('#loginModal').on('show.bs.modal', function () {
       console.log("登录弹窗已展示!");
-      loginCode();
+      buildConnect();
     })
     $('#refreshCode').click(() => {
       refreshCode();

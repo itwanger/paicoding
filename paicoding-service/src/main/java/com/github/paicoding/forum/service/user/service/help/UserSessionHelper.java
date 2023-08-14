@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.service.user.service.help;
 
-import com.aliyuncs.utils.TraceUtils;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
@@ -12,7 +11,7 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.UUID;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,7 +42,13 @@ public class UserSessionHelper {
     }
 
     public String genVerifyCode(Long userId) {
-        int cnt = 0;
+        for (Map.Entry<String, Long> entry : codeUserIdCache.asMap().entrySet()) {
+            if (entry.getValue().equals(userId)) {
+                return entry.getKey();
+            }
+        }
+
+        int cnt = (int) codeUserIdCache.size();
         while (true) {
             String code = CodeGenerateUtil.genCode(cnt++);
             if (codeUserIdCache.getIfPresent(code) != null) {
@@ -74,7 +79,7 @@ public class UserSessionHelper {
     }
 
     public String genSession(Long userId) {
-        String session = "s-" + SelfTraceIdGenerator.generate();
+        String session = "s" + userId + "-" + SelfTraceIdGenerator.generate();
         RedisClient.setStrWithExpire(session, String.valueOf(userId), SESSION_EXPIRE_TIME);
         return session;
     }

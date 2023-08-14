@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.core.mdc;
 
-import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -44,7 +43,10 @@ public class MdcAspect implements ApplicationContextAware {
             Object ans = joinPoint.proceed();
             return ans;
         } finally {
-            log.info("方法执行耗时: {}#{} = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName() , System.currentTimeMillis() - start);
+            log.info("执行耗时: {}#{} = {}ms",
+                    joinPoint.getSignature().getDeclaringType().getSimpleName(),
+                    joinPoint.getSignature().getName(),
+                    System.currentTimeMillis() - start);
             if (hasTag) {
                 MdcUtil.reset();
             }
