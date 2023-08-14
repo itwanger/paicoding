@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.login.wx.helper;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -17,7 +18,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -97,16 +97,35 @@ public class WxLoginHelper {
     }
 
     public String resend() throws IOException {
-        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (!cookie.getName().equalsIgnoreCase(LoginOutService.USER_DEVICE_KEY)) {
+                continue;
+            }
+
+            if (resend(cookie.getValue())) {
+                return "ok";
+            } else {
+                HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+                if (response != null) {
+                    response.addCookie(SessionUtil.delCookie(cookie.getName(), cookie.getPath()));
+                }
+            }
+        }
+        return "fail";
+    }
+
+    private boolean resend(String deviceId) throws IOException {
         // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
         String oldCode = deviceCodeCache.getIfPresent(deviceId);
         SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
         if (lastSse != null) {
             lastSse.send("resend!");
             lastSse.send("init#" + oldCode);
-            return "ok";
+            return true;
         }
-        return "fail";
+        return false;
     }
 
     /**
