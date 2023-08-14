@@ -492,12 +492,6 @@
       $.ajax({
         url: "/login/fetch", type: "get", dataType: "text", success: function (data) {
           console.log("data>>>>>>>>: ", data);
-          if (data == 'ok') {
-            try {
-              window.clearInterval(intHook);
-            } catch (e) {
-            }
-          }
         },
         error: function (e) {
           console.log("some error! ", e);

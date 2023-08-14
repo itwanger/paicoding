@@ -106,11 +106,6 @@ public class WxLoginHelper {
 
             if (resend(cookie.getValue())) {
                 return "ok";
-            } else {
-                HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-                if (response != null) {
-                    response.addCookie(SessionUtil.delCookie(cookie.getName(), cookie.getPath()));
-                }
             }
         }
         return "fail";
@@ -142,7 +137,6 @@ public class WxLoginHelper {
         if (lastSse == null) {
             log.info("last deviceId:{}, code:{}, sse closed!", deviceId, oldCode);
             deviceCodeCache.invalidate(deviceId);
-            return null;
         }
 
         // 重新生成一个验证码
