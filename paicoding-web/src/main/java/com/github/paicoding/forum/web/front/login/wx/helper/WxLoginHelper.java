@@ -96,6 +96,19 @@ public class WxLoginHelper {
         return sseEmitter;
     }
 
+    public String resend() throws IOException {
+        String deviceId = getOrInitDeviceId();
+        // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
+        String oldCode = deviceCodeCache.getIfPresent(deviceId);
+        SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
+        if (lastSse != null) {
+            lastSse.send("resend!");
+            lastSse.send("init#" + oldCode);
+            return "ok";
+        }
+        return "fail";
+    }
+
     /**
      * 刷新验证码
      *

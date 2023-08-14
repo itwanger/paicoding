@@ -39,6 +39,12 @@ public class WxLoginController extends BaseViewController {
         return qrLoginHelper.subscribe();
     }
 
+    @GetMapping(path = "/login/fetch")
+    @ResponseBody
+    public String resendCode() throws IOException {
+        return qrLoginHelper.resend();
+    }
+
     /**
      * 刷新验证码
      *
