@@ -110,12 +110,12 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
 
     @EventListener(classes = ConfigRefreshEvent.class)
     public void reloadConfig() {
-        log.info("开始加载db全局配置! 当前配置: {}", JsonUtil.toStr(cache));
+        String before = JsonUtil.toStr(cache);
         boolean toRefresh = loadAllConfigFromDb();
         if (toRefresh) {
             refreshConfig();
+            log.info("配置刷新! 旧:{}, 新:{}", before, JsonUtil.toStr(cache));
         }
-        log.info("db配置变更={} 新的配置: {}", toRefresh, JsonUtil.toStr(cache));
     }
 
     /**
