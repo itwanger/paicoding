@@ -78,6 +78,8 @@ public class ReqInfoContext {
 
         private Seo seo;
 
+        private String deviceId;
+
         @Override
         public String getName() {
             return session;
