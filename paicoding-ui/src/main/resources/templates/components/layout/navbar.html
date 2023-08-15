@@ -509,7 +509,7 @@
           url: "/login/fetch?deviceId=" + deviceId, type: "get", dataType: "text", success: function (data) {
             console.log("data>>>>>>>>: ", data);
             if (data != 'fail') {
-              codeTag.text(code);
+              codeTag.text(data);
               try {
                 window.clearInterval(intHook);
               } catch (e) {}
