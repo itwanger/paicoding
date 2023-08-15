@@ -436,7 +436,10 @@
         }
       }
 
-      const subscribeUrl = "/subscribe";
+      if(!deviceId) {
+        deviceId = getCookie("f-device");
+      }
+      const subscribeUrl = "/subscribe?deviceId=" + deviceId;
       const source = new EventSource(subscribeUrl);
       sseSource = source;
 
@@ -487,14 +490,30 @@
         buildConnect(code);
       }
 
+      fetchCodeCnt = 0;
       intHook = self.setInterval("fetchCode()", 1000);
     }
 
+    let fetchCodeCnt = 0;
     function fetchCode() {
       if (deviceId) {
+        if (++fetchCodeCnt > 5) {
+          // 为了避免不停的向后端发起请求，做一个最大的重试计数限制
+          try {
+            window.clearInterval(intHook);
+          } catch (e) {}
+          return;
+        }
+
         $.ajax({
           url: "/login/fetch?deviceId=" + deviceId, type: "get", dataType: "text", success: function (data) {
             console.log("data>>>>>>>>: ", data);
+            if (data != 'fail') {
+              codeTag.text(data);
+              try {
+                window.clearInterval(intHook);
+              } catch (e) {}
+            }
           },
           error: function (e) {
             console.log("some error! ", e);
