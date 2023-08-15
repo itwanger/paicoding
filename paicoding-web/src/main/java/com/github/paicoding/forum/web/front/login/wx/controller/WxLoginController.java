@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
@@ -35,8 +36,14 @@ public class WxLoginController extends BaseViewController {
      */
     @MdcDot
     @GetMapping(path = "subscribe", produces = {org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE})
-    public SseEmitter subscribe() throws IOException {
+    public SseEmitter subscribe(HttpServletResponse response) throws IOException {
         return qrLoginHelper.subscribe();
+    }
+
+    @GetMapping(path = "/login/fetch")
+    @ResponseBody
+    public String resendCode(String deviceId) throws IOException {
+        return qrLoginHelper.resend(deviceId);
     }
 
     /**

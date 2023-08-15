@@ -3,11 +3,13 @@ package com.github.paicoding.forum.web.front.login.wx.helper;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,7 +19,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,7 +73,8 @@ public class WxLoginHelper {
      * @return
      */
     public SseEmitter subscribe() throws IOException {
-        String realCode = getOrInitVerifyCode();
+        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
+        String realCode = deviceCodeCache.getUnchecked(deviceId) ;
         // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
         SseEmitter sseEmitter = new SseEmitter(SSE_EXPIRE_TIME);
         SseEmitter oldSse = verifyCodeCache.getIfPresent(realCode);
@@ -96,6 +98,19 @@ public class WxLoginHelper {
         return sseEmitter;
     }
 
+    public String resend(String deviceId) throws IOException {
+        // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
+        deviceId = StringUtils.isBlank(deviceId) ? ReqInfoContext.getReqInfo().getDeviceId() : deviceId;
+        String oldCode = deviceCodeCache.getIfPresent(deviceId);
+        SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
+        if (lastSse != null) {
+            lastSse.send("resend!");
+            lastSse.send("init#" + oldCode);
+            return "ok";
+        }
+        return "fail";
+    }
+
     /**
      * 刷新验证码
      *
@@ -103,7 +118,7 @@ public class WxLoginHelper {
      * @throws IOException
      */
     public String refreshCode() throws IOException {
-        String deviceId = getOrInitDeviceId();
+        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
         // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
         String oldCode = deviceCodeCache.getIfPresent(deviceId);
         SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
@@ -152,43 +167,5 @@ public class WxLoginHelper {
             verifyCodeCache.invalidate(verifyCode);
         }
         return false;
-    }
-
-    /**
-     * 获取or初始化当前用户对应的验证码
-     *
-     * @return 验证码
-     */
-    private String getOrInitVerifyCode() {
-        String deviceId = getOrInitDeviceId();
-        return deviceCodeCache.getUnchecked(deviceId);
-    }
-
-    /**
-     * 初始化设备id
-     *
-     * @return
-     */
-    private String getOrInitDeviceId() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-
-        String deviceId = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if (LoginOutService.USER_DEVICE_KEY.equalsIgnoreCase(cookie.getName())) {
-                    deviceId = cookie.getValue();
-                    break;
-                }
-            }
-        }
-        if (deviceId == null) {
-            deviceId = UUID.randomUUID().toString();
-            if (response != null) {
-                response.addCookie(new Cookie(LoginOutService.USER_DEVICE_KEY, deviceId));
-            }
-        }
-        return deviceId;
     }
 }

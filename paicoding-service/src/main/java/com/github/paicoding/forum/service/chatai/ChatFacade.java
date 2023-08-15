@@ -95,8 +95,7 @@ public class ChatFacade {
             return getRecommendAiSource(totalExcepts);
         }
         log.info("当前选中的AI模型：{}", source);
-        return AISourceEnum.PAI_AI;
-//        return source;
+        return source;
     }
 
     /**
