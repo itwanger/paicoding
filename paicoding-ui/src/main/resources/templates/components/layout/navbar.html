@@ -418,6 +418,7 @@
      */
     let sseSource = null;
     let intHook = null;
+    let deviceId = null;
 
     /**
      * 建立半长连接，用于实现自动登录
@@ -477,7 +478,8 @@
       };
 
       source.onopen = function (evt) {
-        console.log("开始订阅");
+        deviceId = getCookie("f-device");
+        console.log("开始订阅, 设备id=", deviceId, evt);
       }
       source.onerror = function (e, evt) {
         console.log("连接错误，重新开始", e, evt)
@@ -485,23 +487,27 @@
         buildConnect(code);
       }
 
-      intHook = self.setInterval("fetchCode()",1000);
+      intHook = self.setInterval("fetchCode()", 1000);
     }
 
     function fetchCode() {
-      $.ajax({
-        url: "/login/fetch", type: "get", dataType: "text", success: function (data) {
-          console.log("data>>>>>>>>: ", data);
-        },
-        error: function (e) {
-          console.log("some error! ", e);
-        }
-      });
+      if (deviceId) {
+        $.ajax({
+          url: "/login/fetch?deviceId=" + deviceId, type: "get", dataType: "text", success: function (data) {
+            console.log("data>>>>>>>>: ", data);
+          },
+          error: function (e) {
+            console.log("some error! ", e);
+          }
+        });
+      } else {
+        console.log("deviceId未获取，稍后再试!");
+      }
     }
 
     function refreshCode() {
       $.ajax({
-        url: "/login/refresh", dataType: "json", type: "get", success: function (data) {
+        url: "/login/refresh?deviceId=" + deviceId, dataType: "json", type: "get", success: function (data) {
           const code = data['result']['code'];
           const reconnect = data['result']['reconnect']
           console.log("验证码刷新完成: ", data);

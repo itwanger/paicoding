@@ -9,6 +9,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -72,7 +73,8 @@ public class WxLoginHelper {
      * @return
      */
     public SseEmitter subscribe() throws IOException {
-        String realCode = getOrInitVerifyCode();
+        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
+        String realCode = deviceCodeCache.getUnchecked(deviceId) ;
         // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
         SseEmitter sseEmitter = new SseEmitter(SSE_EXPIRE_TIME);
         SseEmitter oldSse = verifyCodeCache.getIfPresent(realCode);
@@ -96,31 +98,17 @@ public class WxLoginHelper {
         return sseEmitter;
     }
 
-    public String resend() throws IOException {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (!cookie.getName().equalsIgnoreCase(LoginOutService.USER_DEVICE_KEY)) {
-                continue;
-            }
-
-            if (resend(cookie.getValue())) {
-                return "ok";
-            }
-        }
-        return "fail";
-    }
-
-    private boolean resend(String deviceId) throws IOException {
+    public String resend(String deviceId) throws IOException {
         // 获取旧的验证码，注意不使用 getUnchecked, 避免重新生成一个验证码
+        deviceId = StringUtils.isBlank(deviceId) ? ReqInfoContext.getReqInfo().getDeviceId() : deviceId;
         String oldCode = deviceCodeCache.getIfPresent(deviceId);
         SseEmitter lastSse = oldCode == null ? null : verifyCodeCache.getIfPresent(oldCode);
         if (lastSse != null) {
             lastSse.send("resend!");
             lastSse.send("init#" + oldCode);
-            return true;
+            return "ok";
         }
-        return false;
+        return "fail";
     }
 
     /**
@@ -137,6 +125,7 @@ public class WxLoginHelper {
         if (lastSse == null) {
             log.info("last deviceId:{}, code:{}, sse closed!", deviceId, oldCode);
             deviceCodeCache.invalidate(deviceId);
+            return null;
         }
 
         // 重新生成一个验证码
@@ -178,15 +167,5 @@ public class WxLoginHelper {
             verifyCodeCache.invalidate(verifyCode);
         }
         return false;
-    }
-
-    /**
-     * 获取or初始化当前用户对应的验证码
-     *
-     * @return 验证码
-     */
-    private String getOrInitVerifyCode() {
-        String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
-        return deviceCodeCache.getUnchecked(deviceId);
     }
 }
