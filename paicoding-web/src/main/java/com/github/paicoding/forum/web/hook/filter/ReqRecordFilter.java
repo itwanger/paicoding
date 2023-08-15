@@ -171,6 +171,10 @@ public class ReqRecordFilter implements Filter {
      * @return
      */
     private String getOrInitDeviceId(HttpServletRequest request, HttpServletResponse response) {
+        if (StringUtils.isNotBlank(request.getParameter("deviceId"))) {
+            return request.getParameter("deviceId");
+        }
+
         Cookie device = SessionUtil.findCookieByName(request, LoginOutService.USER_DEVICE_KEY);
         if (device == null) {
             String deviceId = UUID.randomUUID().toString();
