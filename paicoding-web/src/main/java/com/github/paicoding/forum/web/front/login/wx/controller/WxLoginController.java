@@ -35,6 +35,7 @@ public class WxLoginController extends BaseViewController {
      * @return
      */
     @MdcDot
+    @ResponseBody
     @GetMapping(path = "subscribe", produces = {org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE})
     public SseEmitter subscribe(HttpServletResponse response) throws IOException {
         return qrLoginHelper.subscribe();
