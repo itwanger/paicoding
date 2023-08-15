@@ -106,7 +106,7 @@ public class WxLoginHelper {
         if (lastSse != null) {
             lastSse.send("resend!");
             lastSse.send("init#" + oldCode);
-            return "ok";
+            return oldCode;
         }
         return "fail";
     }
