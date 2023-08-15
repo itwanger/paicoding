@@ -92,6 +92,9 @@ public class WxLoginHelper {
             verifyCodeCache.invalidate(realCode);
             sseEmitter.complete();
         });
+        // 若实际的验证码与前端显示的不同，则通知前端更新
+        sseEmitter.send("initCode!");
+        sseEmitter.send("init#" + realCode);
         return sseEmitter;
     }
 
