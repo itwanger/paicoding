@@ -19,7 +19,7 @@ public class SocketUtil {
      */
     public static boolean isPortAvailable(int port) {
         try {
-            ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 1, InetAddress.getByName("localhost"));
+            ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 1);
             serverSocket.close();
             return true;
         } catch (Exception var3) {
