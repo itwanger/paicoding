@@ -43,6 +43,14 @@ public interface UserService {
     BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
 
     /**
+     * 查询极简的用户信息
+     *
+     * @param userId
+     * @return
+     */
+    SimpleUserInfoDTO querySimpleUserInfo(Long userId);
+
+    /**
      * 查询用户基本信息
      * todo: 可以做缓存优化
      *
@@ -51,6 +59,14 @@ public interface UserService {
      */
     BaseUserInfoDTO queryBasicUserInfo(Long userId);
 
+
+    /**
+     * 批量查询用户基本信息
+     *
+     * @param userIds
+     * @return
+     */
+    List<SimpleUserInfoDTO> batchQuerySimpleUserInfo(Collection<Long> userIds);
 
     /**
      * 批量查询用户基本信息
