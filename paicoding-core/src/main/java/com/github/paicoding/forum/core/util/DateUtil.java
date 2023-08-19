@@ -22,6 +22,9 @@ public class DateUtil {
      * 一天对应的毫秒数
      */
     public static final Long ONE_DAY_MILL = 86400_000L;
+    public static final Long ONE_DAY_SECONDS = 86400L;
+    public static final Long ONE_MONTH_SECONDS = 31 * 86400L;
+
 
     public static final Long THREE_DAY_MILL = 3 * ONE_DAY_MILL;
 
