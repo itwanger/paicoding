@@ -11,8 +11,10 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.ColumnFootCountDTO;
 import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.user.service.UserService;
@@ -38,7 +40,15 @@ public class ColumnServiceImpl implements ColumnService {
     private ArticleDao articleDao;
 
     @Autowired
+    private ColumnArticleDao columnArticleDao;
+
+    @Autowired
     private UserService userService;
+
+    @Override
+    public ColumnArticleDO getColumnArticleRelation(Long articleId) {
+        return columnArticleDao.selectColumnArticleByArticleId(articleId);
+    }
 
     /**
      * 专栏列表
@@ -98,12 +108,12 @@ public class ColumnServiceImpl implements ColumnService {
 
 
     @Override
-    public Long queryColumnArticle(long columnId, Integer section) {
-        Long articleId = columnDao.getColumnArticleId(columnId, section);
-        if (articleId == null) {
+    public ColumnArticleDO queryColumnArticle(long columnId, Integer section) {
+        ColumnArticleDO article = columnDao.getColumnArticleId(columnId, section);
+        if (article == null) {
             throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, section);
         }
-        return articleId;
+        return article;
     }
 
     @Override

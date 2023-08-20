@@ -83,7 +83,7 @@
 
     </div>
 
-    <div th:if="${loginRead && !global.isLogin}">
+    <div th:if="${loginRead == 1 && !global.isLogin}">
       <div style=" width: 100%;
           background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
           background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
@@ -95,6 +95,22 @@
           text-align:center">
         <a class="btn-readmore no-login" style="cursor:pointer;" data-target="#loginModal" data-toggle="modal">
           <span style="color:#ca0c16">登录之后即可阅读全文</span>
+        </a>
+      </div>
+    </div>
+
+    <div th:if="${loginRead == 3}">
+      <div style=" width: 100%;
+          background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
+          background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
+          padding-bottom: 24px; position: relative;
+          padding-top: 160px;
+          margin-top: -220px;
+          z-index: 996;
+          bottom: -1px;
+          text-align:center">
+        <a class="btn-readmore no-login" style="cursor:pointer;" data-target="#loginModal" data-toggle="modal">
+          <span style="color:#ca0c16">星球用户</span>
         </a>
       </div>
     </div>

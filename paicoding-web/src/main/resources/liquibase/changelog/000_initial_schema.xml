@@ -77,4 +77,9 @@
     <changeSet id="00000000000018" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230629.sql"/>
     </changeSet>
+
+    <!-- 新增专栏文章的阅读类型  -->
+    <changeSet id="00000000000019" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230820.sql"/>
+    </changeSet>
 </databaseChangeLog>

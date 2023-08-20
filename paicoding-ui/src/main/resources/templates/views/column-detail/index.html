@@ -19,7 +19,7 @@
         <!--  正文 -->
         <div class="article-content-inter-wrap">
           <div
-            th:replace="components/article/article-detail :: article_info(${vo.article}, null, ${vo.readType == 1})"
+            th:replace="components/article/article-detail :: article_info(${vo.article}, null, ${vo.readType})"
           ></div>
           <!--  评论  -->
           <div id="commentDiv">

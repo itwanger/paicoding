@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author YiHui
@@ -140,27 +140,25 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
     @Override
     public List<RankItemDTO> queryRankList(ActivityRankTimeEnum time, int size) {
         String rankKey = time == ActivityRankTimeEnum.DAY ? todayRankKey() : monthRankKey();
+        // 1. 获取topN的活跃用户
         List<ImmutablePair<String, Double>> rankList = RedisClient.zTopNScore(rankKey, size);
         if (CollectionUtils.isEmpty(rankList)) {
             return Collections.emptyList();
         }
 
+        // 2. 查询用户对应的基本信息
+        // 构建userId -> 活跃评分的map映射，用于补齐用户信息
         Map<Long, Integer> userScoreMap = rankList.stream().collect(Collectors.toMap(s -> Long.valueOf(s.getLeft()), s -> s.getRight().intValue()));
         List<SimpleUserInfoDTO> users = userService.batchQuerySimpleUserInfo(userScoreMap.keySet());
-        List<RankItemDTO> rank = new ArrayList<>();
-        for (SimpleUserInfoDTO user : users) {
-            RankItemDTO item = new RankItemDTO();
-            item.setUser(user);
-            item.setScore(userScoreMap.get(user.getUserId()));
-            rank.add(item);
-        }
 
-        // 根据分数进行倒排
-        rank.sort((o1, o2) -> Integer.compare(o2.getScore(), o1.getScore()));
-        for (int i = 0, rankSize = rank.size(); i < rankSize; i++) {
-            RankItemDTO s = rank.get(i);
-            s.setRank(i + 1);
-        }
+        // 3. 根据评分进行排序
+        List<RankItemDTO> rank = users.stream()
+                .map(user -> new RankItemDTO().setUser(user).setScore(userScoreMap.getOrDefault(user.getUserId(), 0)))
+                .sorted((o1, o2) -> Integer.compare(o2.getScore(), o1.getScore()))
+                .collect(Collectors.toList());
+
+        // 4. 补齐每个用户的排名
+        IntStream.range(0, rank.size()).forEach(i -> rank.get(i).setRank(i + 1));
         return rank;
     }
 }

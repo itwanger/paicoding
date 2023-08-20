@@ -11,8 +11,10 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
+import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
@@ -29,6 +31,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -65,6 +69,9 @@ public class ArticleViewController extends BaseViewController {
 
     @Autowired
     private SidebarService sidebarService;
+
+    @Autowired
+    private ColumnService columnService;
 
     /**
      * 文章编辑页
@@ -110,10 +117,16 @@ public class ArticleViewController extends BaseViewController {
      * @return
      */
     @GetMapping("detail/{articleId}")
-    public String detail(@PathVariable(name = "articleId") Long articleId, Model model) {
+    public String detail(@PathVariable(name = "articleId") Long articleId, Model model, HttpServletResponse response) throws IOException {
+        // 针对专栏文章，做一个重定向
+        ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
+        if (columnArticle != null) {
+            return SpringUtil.getBean(ColumnViewController.class).articles(columnArticle.getColumnId(), columnArticle.getSection(), model);
+        }
+
         ArticleDetailVo vo = new ArticleDetailVo();
         // 文章相关信息
-        ArticleDTO articleDTO = articleService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
         // 返回给前端页面时，转换为html格式
         articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         vo.setArticle(articleDTO);
