@@ -12,10 +12,19 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ActivityRankTimeEnum {
-    DAY(1, "天"),
-    MONTH(2, "月"),
+    DAY(1, "day"),
+    MONTH(2, "month"),
     ;
 
     private int type;
     private String desc;
+
+    public static ActivityRankTimeEnum nameOf(String name) {
+        if (DAY.desc.equalsIgnoreCase(name)) {
+            return DAY;
+        } else if (MONTH.desc.equalsIgnoreCase(name)) {
+            return MONTH;
+        }
+        return null;
+    }
 }

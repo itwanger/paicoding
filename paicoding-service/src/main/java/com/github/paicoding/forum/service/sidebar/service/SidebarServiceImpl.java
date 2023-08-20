@@ -233,7 +233,7 @@ public class SidebarServiceImpl implements SidebarService {
      * @return
      */
     private SideBarDTO rankList() {
-        List<RankItemDTO> list = userActivityRankService.queryRankList(ActivityRankTimeEnum.MONTH);
+        List<RankItemDTO> list = userActivityRankService.queryRankList(ActivityRankTimeEnum.MONTH, 8);
         if (list.isEmpty()) {
             return null;
         }
