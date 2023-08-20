@@ -24,6 +24,13 @@ public class RankController {
     @Autowired
     private UserActivityRankService userActivityRankService;
 
+    /**
+     * 活跃用户排行榜
+     *
+     * @param time
+     * @param model
+     * @return
+     */
     @RequestMapping(path = "/rank/{time}")
     public String rank(@PathVariable(value = "time") String time, Model model) {
         ActivityRankTimeEnum rankTime = ActivityRankTimeEnum.nameOf(time);

@@ -25,7 +25,7 @@ public class ArticleDO extends BaseDO {
     private Long userId;
 
     /**
-     * 文章类型：1-博文，2-问答
+     * 文章类型：1-博文，2-问答, 3-专栏文章
      */
     private Integer articleType;
 

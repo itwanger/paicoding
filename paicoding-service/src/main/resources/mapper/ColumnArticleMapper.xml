@@ -15,8 +15,8 @@
         order by `section` asc
     </select>
 
-    <select id="getColumnArticle" resultType="java.lang.Long">
-        select article_id from column_article where column_id = #{columnId} and `section` = #{section} limit 1
+    <select id="getColumnArticle" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
+        select article_id, `read` from column_article where column_id = #{columnId} and `section` = #{section} limit 1
     </select>
 
     <select id="countColumnReadUserNums" resultType="java.lang.Long">

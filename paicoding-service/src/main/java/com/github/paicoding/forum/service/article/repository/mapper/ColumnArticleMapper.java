@@ -29,7 +29,7 @@ public interface ColumnArticleMapper extends BaseMapper<ColumnArticleDO> {
      * @param section
      * @return
      */
-    Long getColumnArticle(@Param("columnId") Long columnId, @Param("section") Integer section);
+    ColumnArticleDO getColumnArticle(@Param("columnId") Long columnId, @Param("section") Integer section);
 
 
     /**
@@ -42,7 +42,7 @@ public interface ColumnArticleMapper extends BaseMapper<ColumnArticleDO> {
     /**
      * 根据教程 ID 文章名称查询文章列表
      * @param columnId
-     * @param articleName
+     * @param articleTitle
      * @return
      */
     List<ColumnArticleDTO> listColumnArticlesByColumnIdArticleName(@Param("columnId") Long columnId,

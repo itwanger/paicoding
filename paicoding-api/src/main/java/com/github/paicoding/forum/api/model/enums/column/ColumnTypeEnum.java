@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.api.model.enums;
+package com.github.paicoding.forum.api.model.enums.column;
 
 import lombok.Getter;
 
@@ -13,7 +13,9 @@ public enum ColumnTypeEnum {
 
     FREE(0, "免费"),
     LOGIN(1, "登录阅读"),
-    TIME_FREE(2, "限时免费");
+    TIME_FREE(2, "限时免费"),
+    STAR_READ(3, "星球阅读"),
+    ;
 
     ColumnTypeEnum(int code, String desc) {
         this.type = code;

@@ -2,8 +2,8 @@ package com.github.paicoding.forum.service.article.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
-import com.github.paicoding.forum.api.model.enums.ColumnStatusEnum;
-import com.github.paicoding.forum.api.model.enums.ColumnTypeEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
