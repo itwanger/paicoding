@@ -64,6 +64,7 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
             return;
         }
 
+        // 1. 计算活跃度(正为加活跃,负为减活跃)
         String field;
         int score = 0;
         if (activityScore.getPath() != null) {
@@ -95,10 +96,11 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
 
         final String todayRankKey = todayRankKey();
         final String monthRankKey = monthRankKey();
+        // 2. 幂等：判断之前是否有更新过相关的活跃度信息
         final String userActionKey = ACTIVITY_SCORE_KEY + userId + DateUtil.format(DateTimeFormatter.ofPattern("yyyyMMdd"), System.currentTimeMillis());
         Integer ans = RedisClient.hGet(userActionKey, field, Integer.class);
         if (ans == null) {
-            // 之前没有加分记录，执行具体的加分
+            // 2.1 之前没有加分记录，执行具体的加分
             if (score > 0) {
                 // 记录加分记录
                 RedisClient.hSet(userActionKey, field, score);
@@ -114,7 +116,7 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
                 }
             }
         } else if (ans > 0) {
-            // 之前已经加过分，因此这次减分可以执行
+            // 2.2 之前已经加过分，因此这次减分可以执行
             if (score < 0) {
                 Boolean oldHave = RedisClient.hDel(userActionKey, field);
                 if (BooleanUtils.isTrue(oldHave)) {
