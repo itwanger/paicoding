@@ -107,8 +107,10 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
 
                 // 更新当天和当月的活跃度排行榜
                 Double newAns = RedisClient.zIncrBy(todayRankKey, String.valueOf(userId), score);
-                log.info("新增评分! key#field = {}#{}, add = {}, newScore = {}", todayRankKey, userId, score, newAns);
                 RedisClient.zIncrBy(monthRankKey, String.valueOf(userId), score);
+                if (log.isDebugEnabled()) {
+                    log.info("活跃度更新加分! key#field = {}#{}, add = {}, newScore = {}", todayRankKey, userId, score, newAns);
+                }
                 if (newAns <= score) {
                     // 日活跃榜单，保存31天；月活跃榜单，保存1年
                     RedisClient.expire(todayRankKey, 31 * DateUtil.ONE_DAY_SECONDS);
@@ -120,8 +122,11 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
             if (score < 0) {
                 Boolean oldHave = RedisClient.hDel(userActionKey, field);
                 if (BooleanUtils.isTrue(oldHave)) {
-                    RedisClient.zIncrBy(todayRankKey, String.valueOf(userId), score);
+                    Double newAns = RedisClient.zIncrBy(todayRankKey, String.valueOf(userId), score);
                     RedisClient.zIncrBy(monthRankKey, String.valueOf(userId), score);
+                    if (log.isDebugEnabled()) {
+                        log.info("活跃度更新减分! key#field = {}#{}, add = {}, newScore = {}", todayRankKey, userId, score, newAns);
+                    }
                 }
             }
         }
