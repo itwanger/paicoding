@@ -143,7 +143,9 @@ public class ArticleRestController {
     @MdcDot(bizCode = "#articleId")
     public ResVo<Boolean> favor(@RequestParam(name = "articleId") Long articleId,
                                 @RequestParam(name = "type") Integer type) throws IOException, TimeoutException {
-        log.info("开始点赞: {}", type);
+        if (log.isDebugEnabled()) {
+            log.debug("开始点赞: {}", type);
+        }
         OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
         if (operate == OperateTypeEnum.EMPTY) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
@@ -171,7 +173,10 @@ public class ArticleRestController {
         } else {
             Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
         }
-        log.info("点赞结束: {}", type);
+
+        if (log.isDebugEnabled()) {
+            log.info("点赞结束: {}", type);
+        }
         return ResVo.ok(true);
     }
 

@@ -28,6 +28,7 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
 
+
 servlet:
   tomcat:
     max-swallow-size: -1 # 解决上传图片超过2MB之后，出现连接重置的问题
@@ -84,3 +85,7 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.github.paicoding.forum.web.front
+
+logging:
+  level:
+    com.github.paicoding.forum.service.rank.service.impl.*: debug # 指定具体包下的日志输出级别
