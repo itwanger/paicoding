@@ -138,9 +138,9 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
     }
 
     @Override
-    public List<RankItemDTO> queryRankList(ActivityRankTimeEnum time) {
+    public List<RankItemDTO> queryRankList(ActivityRankTimeEnum time, int size) {
         String rankKey = time == ActivityRankTimeEnum.DAY ? todayRankKey() : monthRankKey();
-        List<ImmutablePair<String, Double>> rankList = RedisClient.zTopNScore(rankKey, 10);
+        List<ImmutablePair<String, Double>> rankList = RedisClient.zTopNScore(rankKey, size);
         if (CollectionUtils.isEmpty(rankList)) {
             return Collections.emptyList();
         }

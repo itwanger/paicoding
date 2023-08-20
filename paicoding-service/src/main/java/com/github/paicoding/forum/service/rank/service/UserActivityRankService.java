@@ -36,5 +36,5 @@ public interface UserActivityRankService {
      * @param time
      * @return
      */
-    List<RankItemDTO> queryRankList(ActivityRankTimeEnum time);
+    List<RankItemDTO> queryRankList(ActivityRankTimeEnum time, int size);
 }
