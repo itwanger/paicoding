@@ -2,15 +2,21 @@ package com.github.paicoding.forum.core.cache;
 
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -110,7 +116,7 @@ public class RedisClient {
      * 设置缓存有效期
      *
      * @param key
-     * @param expire
+     * @param expire 有效期，s为单位
      */
     public static void expire(String key, Long expire) {
         template.execute((RedisCallback<Void>) connection -> {
@@ -272,6 +278,77 @@ public class RedisClient {
             public Void doInRedis(RedisConnection connection) throws DataAccessException {
                 connection.sRem(keyBytes(key), valBytes(val));
                 return null;
+            }
+        });
+    }
+
+
+    /**
+     * 分数更新
+     *
+     * @param key
+     * @param value
+     * @param score
+     * @return
+     */
+    public static Double zIncrBy(String key, String value, Integer score) {
+        return template.execute(new RedisCallback<Double>() {
+            @Override
+            public Double doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.zIncrBy(keyBytes(key), score, valBytes(value));
+            }
+        });
+    }
+
+    public static ImmutablePair<Integer, Double> zRankInfo(String key, String value) {
+        double score = zScore(key, value);
+        int rank = zRank(key, value);
+        return ImmutablePair.of(rank, score);
+    }
+
+    /**
+     * 获取分数
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static Double zScore(String key, String value) {
+        return template.execute(new RedisCallback<Double>() {
+            @Override
+            public Double doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.zScore(keyBytes(key), valBytes(value));
+            }
+        });
+    }
+
+    public static Integer zRank(String key, String value) {
+        return template.execute(new RedisCallback<Integer>() {
+            @Override
+            public Integer doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.zRank(keyBytes(key), valBytes(value)).intValue();
+            }
+        });
+    }
+
+    /**
+     * 找出排名靠前的n个
+     *
+     * @param key
+     * @param n
+     * @return
+     */
+    public static List<ImmutablePair<String, Double>> zTopNScore(String key, int n) {
+        return template.execute(new RedisCallback<List<ImmutablePair<String, Double>>>() {
+            @Override
+            public List<ImmutablePair<String, Double>> doInRedis(RedisConnection connection) throws DataAccessException {
+                Set<RedisZSetCommands.Tuple> set = connection.zRangeWithScores(keyBytes(key), -n, -1);
+                if (set == null) {
+                    return Collections.emptyList();
+                }
+                return set.stream()
+                        .map(tuple -> ImmutablePair.of(toObj(tuple.getValue(), String.class), tuple.getScore()))
+                        .sorted((o1, o2) -> Double.compare(o2.getRight(), o1.getRight())).collect(Collectors.toList());
             }
         });
     }
