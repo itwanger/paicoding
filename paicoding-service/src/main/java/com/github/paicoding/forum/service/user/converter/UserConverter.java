@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
@@ -67,6 +68,13 @@ public class UserConverter {
         // 设置用户角色
         user.setRole(RoleEnum.role(info.getUserRole()));
         return user;
+    }
+
+    public static SimpleUserInfoDTO toSimpleInfo(UserInfoDO info) {
+        return new SimpleUserInfoDTO().setUserId(info.getUserId())
+                .setName(info.getUserName())
+                .setAvatar(info.getPhoto())
+                .setProfile(info.getProfile());
     }
 
     public static UserRelationDO toDO(UserRelationReq req) {

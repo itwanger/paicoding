@@ -124,6 +124,14 @@ public class UserServiceImpl implements UserService {
         return UserConverter.toDTO(user, userAiDO);
     }
 
+    public SimpleUserInfoDTO querySimpleUserInfo(Long userId) {
+        UserInfoDO user = userDao.getByUserId(userId);
+        if (user == null) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
+        }
+        return UserConverter.toSimpleInfo(user);
+    }
+
     @Override
     public BaseUserInfoDTO queryBasicUserInfo(Long userId) {
         UserInfoDO user = userDao.getByUserId(userId);
@@ -133,12 +141,20 @@ public class UserServiceImpl implements UserService {
         return UserConverter.toDTO(user);
     }
 
+    public List<SimpleUserInfoDTO> batchQuerySimpleUserInfo(Collection<Long> userIds) {
+        List<UserInfoDO> users = userDao.getByUserIds(userIds);
+        if (CollectionUtils.isEmpty(users)) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userIds);
+        }
+        return users.stream().map(UserConverter::toSimpleInfo).collect(Collectors.toList());
+    }
+
     public List<BaseUserInfoDTO> batchQueryBasicUserInfo(Collection<Long> userIds) {
         List<UserInfoDO> users = userDao.getByUserIds(userIds);
         if (CollectionUtils.isEmpty(users)) {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userIds);
         }
-        return users.stream().map(info -> UserConverter.toDTO(info)).collect(Collectors.toList());
+        return users.stream().map(UserConverter::toDTO).collect(Collectors.toList());
     }
 
     @Override

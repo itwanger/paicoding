@@ -92,6 +92,14 @@ public class ReqRecordFilter implements Filter {
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
             reqInfo.setHost(request.getHeader("host"));
             reqInfo.setPath(request.getPathInfo());
+            if (reqInfo.getPath() == null) {
+                String url = request.getRequestURI();
+                int index = url.indexOf("?");
+                if (index > 0) {
+                    url = url.substring(0, index);
+                }
+                reqInfo.setPath(url);
+            }
             reqInfo.setReferer(request.getHeader("referer"));
             reqInfo.setClientIp(IpUtil.getClientIp(request));
             reqInfo.setUserAgent(request.getHeader("User-Agent"));

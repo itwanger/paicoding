@@ -8,6 +8,9 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.rank.service.UserActivityRankService;
+import com.github.paicoding.forum.service.rank.service.model.ActivityScoreBo;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +52,9 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             }
 
             if (permission == null || permission.role() == UserRole.ALL) {
+                if (ReqInfoContext.getReqInfo() != null) {
+                    SpringUtil.getBean(UserActivityRankService.class).addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setPath(ReqInfoContext.getReqInfo().getPath()));
+                }
                 return true;
             }
 
