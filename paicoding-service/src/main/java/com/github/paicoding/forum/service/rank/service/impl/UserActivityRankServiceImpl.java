@@ -102,15 +102,17 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
             if (score > 0) {
                 // 记录加分记录
                 RedisClient.hSet(userActionKey, field, score);
-                RedisClient.expire(userActionKey, DateUtil.ONE_DAY_SECONDS);
+                // 个人用户的操作记录，保存一个月的有效期，方便用户查询自己最近31天的活跃情况
+                RedisClient.expire(userActionKey, 31 * DateUtil.ONE_DAY_SECONDS);
 
                 // 更新当天和当月的活跃度排行榜
                 Double newAns = RedisClient.zIncrBy(todayRankKey, String.valueOf(userId), score);
                 log.info("新增评分! key#field = {}#{}, add = {}, newScore = {}", todayRankKey, userId, score, newAns);
                 RedisClient.zIncrBy(monthRankKey, String.valueOf(userId), score);
                 if (newAns <= score) {
-                    RedisClient.expire(todayRankKey, DateUtil.ONE_DAY_SECONDS);
-                    RedisClient.expire(monthRankKey, DateUtil.ONE_MONTH_SECONDS);
+                    // 日活跃榜单，保存31天；月活跃榜单，保存1年
+                    RedisClient.expire(todayRankKey, 31 * DateUtil.ONE_DAY_SECONDS);
+                    RedisClient.expire(monthRankKey, 12 * DateUtil.ONE_MONTH_SECONDS);
                 }
             }
         } else if (ans > 0) {
