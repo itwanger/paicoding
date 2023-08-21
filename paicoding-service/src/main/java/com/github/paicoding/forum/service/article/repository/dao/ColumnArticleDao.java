@@ -24,9 +24,9 @@ public class ColumnArticleDao extends ServiceImpl<ColumnArticleMapper, ColumnArt
      * 返回专栏最大更新章节数
      *
      * @param columnId
-     * @return
+     * @return 专栏内无文章时，返回0；否则返回当前最大的章节数
      */
-    public Integer selectMaxSection(Long columnId) {
+    public int selectMaxSection(Long columnId) {
         return columnArticleMapper.selectMaxSection(columnId);
     }
 

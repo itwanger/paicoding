@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.api.model.vo.article;
 
-import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.ArticleTypeEnum;
+import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
 import lombok.Data;
 
@@ -86,6 +86,11 @@ public class ArticlePostReq implements Serializable {
      * POST 发表, SAVE 暂存 DELETE 删除
      */
     private String actionType;
+
+    /**
+     * 专栏序号
+     */
+    private Long columnId;
 
     public PushStatusEnum pushStatus() {
         if ("post".equalsIgnoreCase(actionType)) {

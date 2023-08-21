@@ -46,4 +46,9 @@ public class GlobalViewConfig {
      * 首次登录的欢迎信息
      */
     private String welcomeInfo;
+
+    /**
+     * 星球信息
+     */
+    private String starInfo;
 }

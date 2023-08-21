@@ -20,6 +20,14 @@ import java.util.List;
 public interface ColumnSettingService {
 
     /**
+     * 将文章保存到对应的专栏中
+     *
+     * @param articleId
+     * @param columnId
+     */
+    void saveColumnArticle(Long articleId, Long columnId);
+
+    /**
      * 保存专栏
      *
      * @param columnReq

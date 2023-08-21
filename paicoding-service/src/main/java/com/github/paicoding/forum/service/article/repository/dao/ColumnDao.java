@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
@@ -89,7 +90,7 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
      * @param columnId
      * @return
      */
-    public List<Long> listColumnArticles(Long columnId) {
+    public List<SimpleArticleDTO> listColumnArticles(Long columnId) {
         return columnArticleMapper.listColumnArticles(columnId);
     }
 
