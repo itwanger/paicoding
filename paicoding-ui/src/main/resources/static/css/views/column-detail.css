@@ -467,6 +467,16 @@
   white-space: nowrap;
 }
 
+.right .label-star {
+  color: #17bb98;
+  background: #e9ffdb
+}
+
+.right .label-free {
+  color: #5ab4fe;
+  background: #f2f3f5;
+}
+
 
 .book-directory-comp .section-list .section.active:after {
   content: "";

@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.entity.BaseDO;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
@@ -13,7 +12,6 @@ import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
-import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.service.ColumnService;
@@ -21,11 +19,7 @@ import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -118,18 +112,7 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Override
     public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
-        List<Long> articleIds = columnDao.listColumnArticles(columnId);
-        List<ArticleDO> articles = articleDao.listByIds(articleIds);
-        Map<Long, SimpleArticleDTO> articleMap = articles.stream().collect(Collectors.toMap(BaseDO::getId, s -> {
-            SimpleArticleDTO simple = new SimpleArticleDTO();
-            simple.setId(s.getId());
-            simple.setTitle(s.getShortTitle());
-            simple.setCreateTime(new Timestamp(s.getCreateTime().getTime()));
-            return simple;
-        }));
-        List<SimpleArticleDTO> articleList = new ArrayList<>();
-        articleIds.forEach(id -> Optional.ofNullable(articleMap.get(id)).ifPresent(articleList::add));
-        return articleList;
+        return columnDao.listColumnArticles(columnId);
     }
 
     @Override

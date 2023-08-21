@@ -18,6 +18,7 @@ import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
+import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
 import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +111,7 @@ public class ColumnViewController {
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
-        updateReadType(vo, column, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getRead()));
+        updateReadType(vo, column, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getReadType()));
         vo.setArticle(articleDTO);
         vo.setComments(comments);
         vo.setHotComment(hotComment);
@@ -155,6 +156,10 @@ public class ColumnViewController {
         }
         // 如果是星球 or 登录阅读时，不返回全量的文章内容
         articleDTO.setContent(trimContent(vo.getReadType(), articleDTO.getContent()));
+        if (vo.getReadType() == ColumnTypeEnum.STAR_READ.getType()) {
+            // 星球的文章，移除相关信息
+            articleDTO.setCover(null);
+        }
     }
 
     /**
@@ -165,7 +170,12 @@ public class ColumnViewController {
      * @return
      */
     private String trimContent(int readType, String content) {
-        if (readType == ColumnTypeEnum.STAR_READ.getType() || (readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
+        if (readType == ColumnTypeEnum.STAR_READ.getType()) {
+            // 返回星球相关信息
+            return MarkdownConverter.markdownToHtml(SpringUtil.getBean(GlobalViewConfig.class).getStarInfo());
+        }
+
+        if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
             if (content.length() > 500) {
                 content = content.substring(0, 500);
             } else if (content.length() > 256) {

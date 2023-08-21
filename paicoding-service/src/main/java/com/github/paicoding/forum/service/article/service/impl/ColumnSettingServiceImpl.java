@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,36 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         }
     }
 
+
+    /**
+     * 将文章保存到对应的专栏中
+     *
+     * @param articleId
+     * @param columnId
+     */
+    public void saveColumnArticle(Long articleId, Long columnId) {
+        // 转换参数
+        // 插入的时候，需要判断是否已经存在
+        ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
+                .eq(ColumnArticleDO::getArticleId, articleId));
+        if (exist != null) {
+            if (!Objects.equals(columnId, exist.getColumnId())) {
+                // 更新
+                exist.setColumnId(columnId);
+                columnArticleDao.updateById(exist);
+            }
+        } else {
+            // 将文章保存到专栏中，章节序号+1
+            ColumnArticleDO columnArticleDO = new ColumnArticleDO();
+            columnArticleDO.setColumnId(columnId);
+            columnArticleDO.setArticleId(articleId);
+            // section 自增+1
+            Integer maxSection = columnArticleDao.selectMaxSection(columnId);
+            columnArticleDO.setSection(maxSection + 1);
+            columnArticleDao.save(columnArticleDO);
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveColumnArticle(ColumnArticleReq req) {
@@ -86,19 +117,18 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
             // section 自增+1
             Integer maxSection = columnArticleDao.selectMaxSection(columnArticleDO.getColumnId());
-            if (maxSection == null) {
-                maxSection = 0;
-            }
             columnArticleDO.setSection(maxSection + 1);
             columnArticleDao.save(columnArticleDO);
+        } else {
+            columnArticleDao.updateById(columnArticleDO);
+        }
 
-            // 同时，更新 article 的 shortTitle
+        // 同时，更新 article 的 shortTitle 短标题
+        if (req.getShortTitle() != null) {
             ArticleDO articleDO = new ArticleDO();
             articleDO.setShortTitle(req.getShortTitle());
             articleDO.setId(req.getArticleId());
             articleDao.updateById(articleDO);
-        } else {
-            columnArticleDao.updateById(columnArticleDO);
         }
     }
 
@@ -118,7 +148,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                     .setSql("section = section - 1")
                     .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
                     // section 大于 1
-                    .gt(ColumnArticleDO::getSection,1)
+                    .gt(ColumnArticleDO::getSection, 1)
                     .gt(ColumnArticleDO::getSection, columnArticleDO.getSection()));
         }
     }
@@ -160,7 +190,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
     @Override
     public PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req) {
-       // 转换参数
+        // 转换参数
         ColumnArticleStructMapper mapper = ColumnArticleStructMapper.INSTANCE;
         SearchColumnArticleParams params = mapper.toSearchParams(req);
         // 查询
@@ -174,7 +204,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
         query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName, ColumnInfoDO::getCover)
                 .and(!StringUtils.isEmpty(key),
-                    v -> v.like(ColumnInfoDO::getColumnName, key)
+                        v -> v.like(ColumnInfoDO::getColumnName, key)
                 )
                 .orderByDesc(ColumnInfoDO::getId);
         List<ColumnInfoDO> articleDOS = columnDao.list(query);

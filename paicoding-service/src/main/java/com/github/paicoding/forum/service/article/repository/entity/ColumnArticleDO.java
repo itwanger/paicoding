@@ -32,5 +32,5 @@ public class ColumnArticleDO extends BaseDO {
      *
      * @see ColumnArticleReadEnum#getRead()
      */
-    private Integer read;
+    private Integer readType;
 }

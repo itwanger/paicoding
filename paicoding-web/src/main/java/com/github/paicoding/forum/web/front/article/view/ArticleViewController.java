@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -117,11 +116,11 @@ public class ArticleViewController extends BaseViewController {
      * @return
      */
     @GetMapping("detail/{articleId}")
-    public String detail(@PathVariable(name = "articleId") Long articleId, Model model, HttpServletResponse response) throws IOException {
+    public String detail(@PathVariable(name = "articleId") Long articleId, Model model) throws IOException {
         // 针对专栏文章，做一个重定向
         ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
         if (columnArticle != null) {
-            return SpringUtil.getBean(ColumnViewController.class).articles(columnArticle.getColumnId(), columnArticle.getSection(), model);
+            return String.format("redirect:/column/%d/%d", columnArticle.getColumnId(), columnArticle.getSection());
         }
 
         ArticleDetailVo vo = new ArticleDetailVo();

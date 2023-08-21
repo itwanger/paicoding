@@ -82,4 +82,9 @@
     <changeSet id="00000000000019" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230820.sql"/>
     </changeSet>
+
+    <!-- 添加星球描述信息  -->
+    <changeSet id="00000000000020" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230821.sql"/>
+    </changeSet>
 </databaseChangeLog>
