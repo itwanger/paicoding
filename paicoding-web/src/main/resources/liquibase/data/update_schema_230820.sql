@@ -1,0 +1,2 @@
+alter table column_article add column `read_type` tinyint comment '文章阅读类型 0-沿用专栏规则 1-登录阅读 2-限时免费 3-星球' default 0 after `section`;
+alter table column_info modify column `type` int unsigned NOT NULL DEFAULT '0' COMMENT '专栏类型 0-免费 1-登录阅读 2-限时免费 3-星球';

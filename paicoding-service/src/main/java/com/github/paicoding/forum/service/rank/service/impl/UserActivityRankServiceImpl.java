@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author YiHui
@@ -64,6 +64,7 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
             return;
         }
 
+        // 1. 计算活跃度(正为加活跃,负为减活跃)
         String field;
         int score = 0;
         if (activityScore.getPath() != null) {
@@ -95,10 +96,11 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
 
         final String todayRankKey = todayRankKey();
         final String monthRankKey = monthRankKey();
+        // 2. 幂等：判断之前是否有更新过相关的活跃度信息
         final String userActionKey = ACTIVITY_SCORE_KEY + userId + DateUtil.format(DateTimeFormatter.ofPattern("yyyyMMdd"), System.currentTimeMillis());
         Integer ans = RedisClient.hGet(userActionKey, field, Integer.class);
         if (ans == null) {
-            // 之前没有加分记录，执行具体的加分
+            // 2.1 之前没有加分记录，执行具体的加分
             if (score > 0) {
                 // 记录加分记录
                 RedisClient.hSet(userActionKey, field, score);
@@ -118,7 +120,7 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
                 }
             }
         } else if (ans > 0) {
-            // 之前已经加过分，因此这次减分可以执行
+            // 2.2 之前已经加过分，因此这次减分可以执行
             if (score < 0) {
                 Boolean oldHave = RedisClient.hDel(userActionKey, field);
                 if (BooleanUtils.isTrue(oldHave)) {
@@ -147,27 +149,25 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
     @Override
     public List<RankItemDTO> queryRankList(ActivityRankTimeEnum time, int size) {
         String rankKey = time == ActivityRankTimeEnum.DAY ? todayRankKey() : monthRankKey();
+        // 1. 获取topN的活跃用户
         List<ImmutablePair<String, Double>> rankList = RedisClient.zTopNScore(rankKey, size);
         if (CollectionUtils.isEmpty(rankList)) {
             return Collections.emptyList();
         }
 
+        // 2. 查询用户对应的基本信息
+        // 构建userId -> 活跃评分的map映射，用于补齐用户信息
         Map<Long, Integer> userScoreMap = rankList.stream().collect(Collectors.toMap(s -> Long.valueOf(s.getLeft()), s -> s.getRight().intValue()));
         List<SimpleUserInfoDTO> users = userService.batchQuerySimpleUserInfo(userScoreMap.keySet());
-        List<RankItemDTO> rank = new ArrayList<>();
-        for (SimpleUserInfoDTO user : users) {
-            RankItemDTO item = new RankItemDTO();
-            item.setUser(user);
-            item.setScore(userScoreMap.get(user.getUserId()));
-            rank.add(item);
-        }
 
-        // 根据分数进行倒排
-        rank.sort((o1, o2) -> Integer.compare(o2.getScore(), o1.getScore()));
-        for (int i = 0, rankSize = rank.size(); i < rankSize; i++) {
-            RankItemDTO s = rank.get(i);
-            s.setRank(i + 1);
-        }
+        // 3. 根据评分进行排序
+        List<RankItemDTO> rank = users.stream()
+                .map(user -> new RankItemDTO().setUser(user).setScore(userScoreMap.getOrDefault(user.getUserId(), 0)))
+                .sorted((o1, o2) -> Integer.compare(o2.getScore(), o1.getScore()))
+                .collect(Collectors.toList());
+
+        // 4. 补齐每个用户的排名
+        IntStream.range(0, rank.size()).forEach(i -> rank.get(i).setRank(i + 1));
         return rank;
     }
 }

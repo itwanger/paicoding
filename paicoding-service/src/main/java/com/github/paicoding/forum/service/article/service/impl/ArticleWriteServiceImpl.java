@@ -5,8 +5,8 @@ import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
-import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.NumUtil;
@@ -16,6 +16,7 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
+import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
@@ -42,6 +43,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     private final ArticleDao articleDao;
 
     private final ArticleTagDao articleTagDao;
+
+    @Autowired
+    private ColumnSettingService columnSettingService;
 
     @Autowired
     private UserFootService userFootService;
@@ -73,15 +77,19 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         return transactionTemplate.execute(new TransactionCallback<Long>() {
             @Override
             public Long doInTransaction(TransactionStatus status) {
+                Long articleId;
                 if (NumUtil.nullOrZero(req.getArticleId())) {
-                    Long articleId = insertArticle(article, content, req.getTagIds());
+                    articleId = insertArticle(article, content, req.getTagIds());
                     log.info("文章发布成功! title={}", req.getTitle());
-                    return articleId;
                 } else {
-                    Long articleId = updateArticle(article, content, req.getTagIds());
+                    articleId = updateArticle(article, content, req.getTagIds());
                     log.info("文章更新成功！ title={}", article.getTitle());
-                    return articleId;
                 }
+                if (req.getColumnId() != null) {
+                    // 更新文章对应的专栏信息
+                    columnSettingService.saveColumnArticle(articleId, req.getColumnId());
+                }
+                return articleId;
             }
         });
     }
@@ -100,11 +108,15 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
             // 非白名单中的作者发布文章需要进行审核
             article.setStatus(PushStatusEnum.REVIEW.getCode());
         }
+
+        // 1. 保存文章
         articleDao.save(article);
         Long articleId = article.getId();
 
+        // 2. 保存文章内容
         articleDao.saveArticleContent(articleId, content);
 
+        // 3. 保存文章标签
         articleTagDao.batchSave(articleId, tags);
 
         // 发布文章，阅读计数+1
