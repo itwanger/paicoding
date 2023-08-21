@@ -122,7 +122,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
      * @return
      */
     @Override
-    public ArticleDTO queryTotalArticleInfo(Long articleId, Long readUser) {
+    public ArticleDTO queryFullArticleInfo(Long articleId, Long readUser) {
         ArticleDTO article = queryDetailArticleInfo(articleId);
 
         // 文章阅读计数+1

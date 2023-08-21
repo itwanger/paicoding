@@ -8,15 +8,23 @@
         </if>
     </sql>
 
-    <select id="listColumnArticles" resultType="java.lang.Long">
-        select article_id
-        from column_article
-        where column_id = #{columnId}
-        order by `section` asc
+    <select id="listColumnArticles" resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select
+            ca.article_id as id,
+            (case ca.read_type when 0 then ci.type else ca.read_type end) as `readType`,
+            (case LENGTH(a.short_title) when 0 then a.title else a.short_title end) as title,
+            ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`
+        from
+            column_article ca left join article a on ca.article_id = a.id
+            left join column_info ci on ca.column_id = ci.id
+        where
+            ca.column_id = #{columnId}
+        order by
+            ca.`section` asc
     </select>
 
-    <select id="getColumnArticle" resultType="java.lang.Long">
-        select article_id from column_article where column_id = #{columnId} and `section` = #{section} limit 1
+    <select id="getColumnArticle" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
+        select article_id, `read_type` from column_article where column_id = #{columnId} and `section` = #{section} limit 1
     </select>
 
     <select id="countColumnReadUserNums" resultType="java.lang.Long">
