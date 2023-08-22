@@ -25,7 +25,7 @@ public class DefaultUrlHandlerStrategy extends Coverter implements UrlHandlerStr
         // 字符串，用, 隔开
         String selector = StringUtils.joinWith(",",
                 ".blogpost-body", // 博客园
-                "div#article_content", // CSDN
+                ".article_content", // CSDN
                 "article.article-content", // 小白学堂
                 ".article-content", // 思否
                 ".post-topic-des, .post-content-box, .nc-post-content", // 牛客

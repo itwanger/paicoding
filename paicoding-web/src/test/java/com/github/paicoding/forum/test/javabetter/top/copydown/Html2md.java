@@ -3,6 +3,7 @@ package com.github.paicoding.forum.test.javabetter.top.copydown;
 import com.github.paicoding.forum.test.javabetter.top.copydown.strategy.*;
 import com.github.paicoding.forum.test.javabetter.top.furstenheim.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -14,7 +15,7 @@ import java.util.List;
 @Slf4j
 public class Html2md {
     public static void main(String[] args) throws IOException {
-        String url = "https://www.nowcoder.com/discuss/490203144152981504";
+        String url = "https://blog.csdn.net/misayaaaaa/article/details/127947805";
 
         // itwanger/Documents/GitHub/toBeBetterJavaer/docs/nice-article/
         HtmlSourceOption option = HtmlSourceOption.builder()
@@ -24,7 +25,16 @@ public class Html2md {
                 .url(url)
                 .build();
 
-        Document document = Jsoup.connect(option.getUrl()).get();
+        // 首先登录
+        Connection.Response loginResponse = Jsoup.connect("https://blog.csdn.net/login")
+                .data("username", "www.qing_gee@163.com", "password", "") // 你的登录表单参数
+                .method(Connection.Method.POST)
+                .execute();
+
+        Document document = Jsoup.connect(option.getUrl())
+                .cookies(loginResponse.cookies())
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537")
+                .get();
         // 生成 markdown
         OptionsBuilder optionsBuilder = OptionsBuilder.anOptions();
         // 设置 markdown 选项
