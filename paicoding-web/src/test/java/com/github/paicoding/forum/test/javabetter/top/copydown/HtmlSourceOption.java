@@ -30,5 +30,7 @@ public class HtmlSourceOption {
     private String keywordsKey;
     // description
     private String descriptionKey;
+    // cookie
+    private String cookie;
 
 }
