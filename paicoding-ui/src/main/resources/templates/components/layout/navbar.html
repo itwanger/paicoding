@@ -361,7 +361,7 @@
 
       // 获取用户名和密码，没有定义 ID
       const registerUser = $('#registerUser').val();
-      const starNumber = $("#starNumber").val() | 0;
+      const starNumber = $("#starNumber").val() | '0000';
       const password = $("#registerPassword").val();
       const invitationCode = $("#invitationCode").val();
 
@@ -370,7 +370,7 @@
         type: "POST",
         data: {
           username: registerUser,
-          starNumber: starNumber,
+          starNumber: starNumber.toString().padStart(5, '0'), // "0001",
           password: password,
           invitationCode: invitationCode
         },

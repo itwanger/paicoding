@@ -55,10 +55,10 @@ public class LoginRestController {
     @PostMapping("/login/register")
     public ResVo<Boolean> register(@RequestParam(name = "username") String username,
                                    @RequestParam(name = "password") String password,
-                                   @RequestParam(name = "starNumber", required = false) String starNumber,
+                                   @RequestParam(name = "starNumber") String starNumber,
                                    @RequestParam(name = "invitationCode", required = false) String invitationCode,
                                    HttpServletResponse response) {
-        String session = loginOutService.register(username, password, starNumber, invitationCode);
+        String session = loginOutService.register(username.trim(), password.trim(), starNumber.trim(), invitationCode);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息，用于身份识别
             response.addCookie(SessionUtil.newCookie(LoginOutService.SESSION_KEY, session));

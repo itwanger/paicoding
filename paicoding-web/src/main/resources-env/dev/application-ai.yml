@@ -13,6 +13,7 @@ ai:
     starTry: 30 # 星球用户
     invited: 0.1 # 被邀请
     inviteNum: 0.2 # 邀请人数执行策略
+    starNumber: 4000 # 目前为 4000
   source: # 支持的AI模型
     - CHAT_GPT_3_5
     - CHAT_GPT_4
