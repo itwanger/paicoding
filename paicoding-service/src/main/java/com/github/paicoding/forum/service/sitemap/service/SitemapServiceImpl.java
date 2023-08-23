@@ -179,6 +179,11 @@ public class SitemapServiceImpl implements SitemapService {
             // 判断是今天的首次访问，更新今天的uv+1
             pipelineAction.add(todayKey, "uv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
             pipelineAction.add(todayKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+
+            // 判断是否是用户的首次访问这个path，若是，则全局的path uv计数需要+1
+            if (RedisClient.hIncr(globalKey + "_" + visitIp, "pv_" + path, 1) == 1) {
+                pipelineAction.add(globalKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+            }
         }
 
 
@@ -192,7 +197,6 @@ public class SitemapServiceImpl implements SitemapService {
         // 全局的 PV
         pipelineAction.add(globalKey, "pv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
         pipelineAction.add(globalKey, "pv" + "_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
-        pipelineAction.add(globalKey + "_" + visitIp, "pv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
 
         // 保存访问信息
         pipelineAction.execute();
@@ -202,7 +206,7 @@ public class SitemapServiceImpl implements SitemapService {
     }
 
     /**
-     * 查询站点某一天的访问信息
+     * 查询站点某一天or总的访问信息
      *
      * @param date 日期，为空时，表示查询所有的站点信息
      * @param path 访问路径，为空时表示查站点信息
