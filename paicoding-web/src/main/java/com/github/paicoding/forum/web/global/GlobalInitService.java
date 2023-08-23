@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
+import com.github.paicoding.forum.service.sitemap.service.SitemapService;
 import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.service.user.service.UserService;
@@ -22,6 +23,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -48,6 +50,9 @@ public class GlobalInitService {
     @Resource
     private UserStatisticService userStatisticService;
 
+    @Resource
+    private SitemapService sitemapService;
+
     /**
      * 全局属性配置
      */
@@ -56,6 +61,8 @@ public class GlobalInitService {
         vo.setEnv(env);
         vo.setSiteInfo(globalViewConfig);
         vo.setOnlineCnt(userStatisticService.getOnlineUserCnt());
+        vo.setSiteStatisticInfo(sitemapService.querySiteVisitInfo(null, null));
+        vo.setTodaySiteStatisticInfo(sitemapService.querySiteVisitInfo(LocalDate.now(), null));
 
         if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getSeo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeo().getOgp())) {
             Seo seo = seoInjectService.defaultSeo();
@@ -103,7 +110,7 @@ public class GlobalInitService {
             return;
         }
         Optional.ofNullable(SessionUtil.findCookieByName(request, LoginOutService.SESSION_KEY))
-                        .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
+                .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
     }
 
     public void initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
