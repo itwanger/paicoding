@@ -17,7 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author YiHui
@@ -211,6 +213,22 @@ public class RedisClient {
         });
     }
 
+    public static <T> Map<String, T> hMGet(String key, final List<String> fields, Class<T> clz) {
+        return template.execute(new RedisCallback<Map<String, T>>() {
+            @Override
+            public Map<String, T> doInRedis(RedisConnection connection) throws DataAccessException {
+                byte[][] f = new byte[fields.size()][];
+                IntStream.range(0, fields.size()).forEach(i -> f[i] = valBytes(fields.get(i)));
+                List<byte[]> ans = connection.hMGet(keyBytes(key), f);
+                Map<String, T> result = Maps.newHashMapWithExpectedSize(fields.size());
+                IntStream.range(0, fields.size()).forEach(i -> {
+                    result.put(fields.get(i), toObj(ans.get(i), clz));
+                });
+                return result;
+            }
+        });
+    }
+
     /**
      * 判断value是否再set中
      *
@@ -397,10 +415,64 @@ public class RedisClient {
     }
 
     private static <T> T toObj(byte[] ans, Class<T> clz) {
+        if (ans == null) {
+            return null;
+        }
+
         if (clz == String.class) {
             return (T) new String(ans, CODE);
         }
 
         return JsonUtil.toObj(new String(ans, CODE), clz);
+    }
+
+
+    public static PipelineAction pipelineAction() {
+        return new PipelineAction();
+    }
+
+    /**
+     * redis 管道执行的封装链路
+     */
+    public static class PipelineAction {
+        private List<Runnable> run = new ArrayList<>();
+
+        private RedisConnection connection;
+
+        public PipelineAction add(String key, BiConsumer<RedisConnection, byte[]> conn) {
+            run.add(new Runnable() {
+                @Override
+                public void run() {
+                    conn.accept(connection, RedisClient.keyBytes(key));
+                }
+            });
+            return this;
+        }
+
+        public PipelineAction add(String key, String field, ThreeConsumer<RedisConnection, byte[], byte[]> conn) {
+            run.add(new Runnable() {
+                @Override
+                public void run() {
+                    conn.accept(connection, RedisClient.keyBytes(key), valBytes(field));
+                }
+            });
+            return this;
+        }
+
+        public void execute() {
+            template.executePipelined(new RedisCallback<Object>() {
+                @Override
+                public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                    PipelineAction.this.connection = connection;
+                    run.forEach(Runnable::run);
+                    return null;
+                }
+            });
+        }
+    }
+
+    @FunctionalInterface
+    public interface ThreeConsumer<T, U, P> {
+        void accept(T t, U u, P p);
     }
 }

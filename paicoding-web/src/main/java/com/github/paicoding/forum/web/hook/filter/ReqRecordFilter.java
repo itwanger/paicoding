@@ -1,10 +1,13 @@
 package com.github.paicoding.forum.web.hook.filter;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.util.CrossUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.sitemap.service.SitemapServiceImpl;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
@@ -110,6 +113,8 @@ public class ReqRecordFilter implements Filter {
             globalInitService.initLoginUser(reqInfo);
             ReqInfoContext.addReqInfo(reqInfo);
 
+            // 更新uv/pv计数
+            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath()));
             // 返回头中记录traceId
             response.setHeader(GLOBAL_TRACE_ID_HEADER, Optional.ofNullable(MdcUtil.getTraceId()).orElse(""));
         } catch (Exception e) {

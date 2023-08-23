@@ -5,6 +5,7 @@
   justify-content: center;
   background-color: #000;
   color: #fff;
+  flex-direction: column;
 }
 
 .body-404 footer {
@@ -35,4 +36,9 @@
   border-left: none;
   float: right;
   padding-right: 0;
+}
+
+.foot .visit_cnt {
+  color: #e96900;
+  font-size: 1.2em;
 }
