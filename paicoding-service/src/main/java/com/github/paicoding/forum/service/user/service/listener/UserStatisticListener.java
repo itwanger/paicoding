@@ -1,16 +1,13 @@
-package com.github.paicoding.forum.service.rank.service.listener;
+package com.github.paicoding.forum.service.user.service.listener;
 
-import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
-import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
-import com.github.paicoding.forum.service.rank.service.UserActivityRankService;
-import com.github.paicoding.forum.service.rank.service.model.ActivityScoreBo;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.github.paicoding.forum.service.user.service.constants.UserConstants;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -22,10 +19,7 @@ import org.springframework.stereotype.Component;
  * @date 2023/8/19
  */
 @Component
-public class UserActivityListener {
-    @Autowired
-    private UserActivityRankService userActivityRankService;
-
+public class UserStatisticListener {
     /**
      * 用户操作行为，增加对应的积分
      *
@@ -37,39 +31,43 @@ public class UserActivityListener {
         switch (msgEvent.getNotifyType()) {
             case COMMENT:
             case REPLY:
-                CommentDO comment = (CommentDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setRate(true).setArticleId(comment.getArticleId()));
                 break;
             case COLLECT:
                 UserFootDO foot = (UserFootDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setCollect(true).setArticleId(foot.getDocumentId()));
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + foot.getDocumentUserId(), UserConstants.COLLECTION_COUNT, 1);
                 break;
             case CANCEL_COLLECT:
                 foot = (UserFootDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setCollect(false).setArticleId(foot.getDocumentId()));
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + foot.getDocumentUserId(), UserConstants.COLLECTION_COUNT, -1);
                 break;
             case PRAISE:
                 foot = (UserFootDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setPraise(true).setArticleId(foot.getDocumentId()));
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + foot.getDocumentUserId(), UserConstants.PRAISE_COUNT, 1);
                 break;
             case CANCEL_PRAISE:
                 foot = (UserFootDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setPraise(false).setArticleId(foot.getDocumentId()));
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + foot.getDocumentUserId(), UserConstants.PRAISE_COUNT, -1);
                 break;
             case FOLLOW:
                 UserRelationDO relation = (UserRelationDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setFollow(true).setArticleId(relation.getUserId()));
+                // 主用户粉丝数 + 1
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + relation.getUserId(), UserConstants.FANS_COUNT, 1);
+                // 粉丝的关注数 + 1
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + relation.getFollowUserId(), UserConstants.FOLLOW_COUNT, 1);
                 break;
             case CANCEL_FOLLOW:
                 relation = (UserRelationDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setFollow(false).setArticleId(relation.getUserId()));
+                // 主用户粉丝数 + 1
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + relation.getUserId(), UserConstants.FANS_COUNT, -1);
+                // 粉丝的关注数 + 1
+                RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + relation.getFollowUserId(), UserConstants.FOLLOW_COUNT, -1);
                 break;
             default:
         }
     }
 
     /**
-     * 发布文章，更新对应的积分
+     * 发布文章，更新对应的文章计数
      *
      * @param event
      */
@@ -78,7 +76,9 @@ public class UserActivityListener {
     public void publishArticleListener(ArticleMsgEvent<ArticleDO> event) {
         ArticleEventEnum type = event.getType();
         if (type == ArticleEventEnum.ONLINE) {
-            userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setPublishArticle(true).setArticleId(event.getContent().getId()));
+            RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + event.getContent().getUserId(), UserConstants.ARTICLE_COUNT, 1);
+        } else if (type == ArticleEventEnum.OFFLINE) {
+            RedisClient.hIncr(UserConstants.USER_STATISTIC_INFO + event.getContent().getUserId(), UserConstants.ARTICLE_COUNT, -1);
         }
     }
 

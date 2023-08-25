@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
@@ -106,12 +107,12 @@ public class SitemapServiceImpl implements SitemapService {
      * @param event
      */
     @EventListener(ArticleMsgEvent.class)
-    public void autoUpdateSiteMap(ArticleMsgEvent<Long> event) {
+    public void autoUpdateSiteMap(ArticleMsgEvent<ArticleDO> event) {
         ArticleEventEnum type = event.getType();
         if (type == ArticleEventEnum.ONLINE) {
-            addArticle(event.getContent());
+            addArticle(event.getContent().getId());
         } else if (type == ArticleEventEnum.OFFLINE || type == ArticleEventEnum.DELETE) {
-            rmArticle(event.getContent());
+            rmArticle(event.getContent().getId());
         }
     }
 

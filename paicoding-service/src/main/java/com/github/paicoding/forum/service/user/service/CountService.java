@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 
 import java.util.List;
 
@@ -30,11 +31,13 @@ public interface CountService {
 
 
     /**
-     * 查询做的总阅读相关计数（当前返回评论数）
+     * 查询做的总阅读相关计数（当前未返回评论数）
+     * 本方法直接基于db进行查询相关信息，改用下面的 queryUserStatisticInfo() 方法进行替换
      *
      * @param userId
      * @return
      */
+    @Deprecated
     ArticleFootCountDTO queryArticleCountInfoByUserId(Long userId);
 
     /**
@@ -44,4 +47,13 @@ public interface CountService {
      * @return
      */
     Long queryCommentPraiseCount(Long commentId);
+
+
+    /**
+     * 查询用户的相关统计信息
+     *
+     * @param userId
+     * @return
+     */
+    UserStatisticInfoDTO queryUserStatisticInfo(Long userId);
 }
