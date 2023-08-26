@@ -7,10 +7,12 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
+import com.github.paicoding.forum.service.statistics.service.CountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -39,6 +41,8 @@ public class SitemapServiceImpl implements SitemapService {
 
     @Resource
     private ArticleDao articleDao;
+    @Resource
+    private CountService countService;
 
     public SiteMapVo getSiteMap() {
         // key = 文章id, value = 最后更新时间
@@ -82,6 +86,10 @@ public class SitemapServiceImpl implements SitemapService {
         RedisClient.del(SITE_MAP_CACHE_KEY);
         while (true) {
             List<SimpleArticleDTO> list = articleDao.getBaseMapper().listArticlesOrderById(lastId, SCAN_SIZE);
+            // 刷新文章的统计信息
+            list.forEach(s -> countService.refreshArticleStatisticInfo(s.getId()));
+
+            // 刷新站点地图信息
             Map<String, Long> map = list.stream().collect(Collectors.toMap(s -> String.valueOf(s.getId()), s -> s.getCreateTime().getTime(), (a, b) -> a));
             RedisClient.hMSet(SITE_MAP_CACHE_KEY, map);
             if (list.size() < SCAN_SIZE) {
@@ -106,12 +114,12 @@ public class SitemapServiceImpl implements SitemapService {
      * @param event
      */
     @EventListener(ArticleMsgEvent.class)
-    public void autoUpdateSiteMap(ArticleMsgEvent<Long> event) {
+    public void autoUpdateSiteMap(ArticleMsgEvent<ArticleDO> event) {
         ArticleEventEnum type = event.getType();
         if (type == ArticleEventEnum.ONLINE) {
-            addArticle(event.getContent());
+            addArticle(event.getContent().getId());
         } else if (type == ArticleEventEnum.OFFLINE || type == ArticleEventEnum.DELETE) {
-            rmArticle(event.getContent());
+            rmArticle(event.getContent().getId());
         }
     }
 

@@ -1,6 +1,11 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.enums.*;
+import com.github.paicoding.forum.api.model.enums.CollectionStatEnum;
+import com.github.paicoding.forum.api.model.enums.CommentStatEnum;
+import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
+import com.github.paicoding.forum.api.model.enums.HomeSelectEnum;
+import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
+import com.github.paicoding.forum.api.model.enums.PraiseStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
@@ -20,11 +25,10 @@ import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.constant.EsFieldConstant;
 import com.github.paicoding.forum.service.constant.EsIndexConstant;
+import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
-import com.github.paicoding.forum.service.user.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
@@ -38,12 +42,16 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -126,7 +134,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         ArticleDTO article = queryDetailArticleInfo(articleId);
 
         // 文章阅读计数+1
-        articleDao.incrReadCount(articleId);
+        countService.incrArticleReadCount(article.getAuthor(), articleId);
 
         // 文章的操作标记
         if (readUser != null) {
@@ -144,7 +152,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         }
 
         // 更新文章统计计数
-        article.setCount(countService.queryArticleCountInfoByArticleId(articleId));
+        article.setCount(countService.queryArticleStatisticInfo(articleId));
 
         // 设置文章的点赞列表
         article.setPraisedUsers(userFootService.queryArticlePraisedUsers(articleId));
@@ -154,6 +162,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     /**
      * 查询文章列表
+     *
      * @param categoryId
      * @param page
      * @return
@@ -166,6 +175,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     /**
      * 查询置顶的文章列表
+     *
      * @param categoryId
      * @return
      */
@@ -301,7 +311,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         // 标签列表
         dto.setTags(articleTagDao.queryArticleTagDetails(record.getId()));
         // 阅读计数统计
-        dto.setCount(countService.queryArticleCountInfoByArticleId(record.getId()));
+        dto.setCount(countService.queryArticleStatisticInfo(record.getId()));
         // 作者信息
         BaseUserInfoDTO author = userService.queryBasicUserInfo(dto.getAuthor());
         dto.setAuthorName(author.getUserName());

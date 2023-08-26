@@ -88,11 +88,10 @@ public class UserConverter {
         return userRelationDO;
     }
 
-    public static UserStatisticInfoDTO toUserHomeDTO(BaseUserInfoDTO baseUserInfoDTO) {
+    public static UserStatisticInfoDTO toUserHomeDTO(UserStatisticInfoDTO userHomeDTO, BaseUserInfoDTO baseUserInfoDTO) {
         if (baseUserInfoDTO == null) {
             return null;
         }
-        UserStatisticInfoDTO userHomeDTO = new UserStatisticInfoDTO();
         BeanUtils.copyProperties(baseUserInfoDTO, userHomeDTO);
         return userHomeDTO;
     }

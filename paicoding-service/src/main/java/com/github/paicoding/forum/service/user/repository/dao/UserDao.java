@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
@@ -17,6 +18,7 @@ import java.util.List;
 
 /**
  * UserDao
+ *
  * @author YiHui
  * @date 2022/9/2
  */
@@ -25,6 +27,10 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
 
     @Resource
     private UserMapper userMapper;
+
+    public List<Long> scanUserId(Long userId, Integer size) {
+        return userMapper.getUserIdsOrderByIdAsc(userId, size == null ? PageParam.DEFAULT_PAGE_SIZE : size);
+    }
 
     /**
      * 三方账号登录方式
