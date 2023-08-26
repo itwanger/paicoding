@@ -5,7 +5,6 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -17,7 +16,7 @@ import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
 import com.github.paicoding.forum.service.user.repository.entity.*;
-import com.github.paicoding.forum.service.user.service.CountService;
+import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -160,7 +159,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId) {
         BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
-        UserStatisticInfoDTO userHomeDTO = UserConverter.toUserHomeDTO(userInfoDTO);
+        UserStatisticInfoDTO userHomeDTO = countService.queryUserStatisticInfo(userId);
+        userHomeDTO = UserConverter.toUserHomeDTO(userHomeDTO, userInfoDTO);
 
         // 用户资料完整度
         int cnt = 0;
@@ -174,31 +174,6 @@ public class UserServiceImpl implements UserService {
             ++cnt;
         }
         userHomeDTO.setInfoPercent(cnt * 100 / 3);
-
-
-        // 获取文章相关统计
-        ArticleFootCountDTO articleFootCountDTO = countService.queryArticleCountInfoByUserId(userId);
-        if (articleFootCountDTO != null) {
-            userHomeDTO.setPraiseCount(articleFootCountDTO.getPraiseCount());
-            userHomeDTO.setReadCount(articleFootCountDTO.getReadCount());
-            userHomeDTO.setCollectionCount(articleFootCountDTO.getCollectionCount());
-        } else {
-            userHomeDTO.setPraiseCount(0);
-            userHomeDTO.setReadCount(0);
-            userHomeDTO.setCollectionCount(0);
-        }
-
-        // 获取发布文章总数
-        int articleCount = articleReadService.queryArticleCount(userId);
-        userHomeDTO.setArticleCount(articleCount);
-
-        // 获取关注数
-        Long followCount = userRelationDao.queryUserFollowCount(userId);
-        userHomeDTO.setFollowCount(followCount.intValue());
-
-        // 粉丝数
-        Long fansCount = userRelationDao.queryUserFansCount(userId);
-        userHomeDTO.setFansCount(fansCount.intValue());
 
         // 是否关注
         Long followUserId = ReqInfoContext.getReqInfo().getUserId();

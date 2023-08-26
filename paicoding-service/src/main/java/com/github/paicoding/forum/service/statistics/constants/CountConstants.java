@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.user.service.constants;
+package com.github.paicoding.forum.service.statistics.constants;
 
 /**
  * 用户相关的常量信息
@@ -6,9 +6,16 @@ package com.github.paicoding.forum.service.user.service.constants;
  * @author YiHui
  * @date 2023/8/25
  */
-public interface UserConstants {
+public interface CountConstants {
 
+    /**
+     * 用户相关统计信息
+     */
     String USER_STATISTIC_INFO = "user_statistic_";
+    /**
+     * 文章相关统计信息
+     */
+    String ARTICLE_STATISTIC_INFO = "article_statistic_";
     /**
      * 关注数
      */
@@ -38,4 +45,9 @@ public interface UserConstants {
      * 文章被收藏数
      */
     String COLLECTION_COUNT = "collectionCount";
+
+    /**
+     * 评论数
+     */
+    String COMMENT_COUNT = "commentCount";
 }

@@ -14,7 +14,7 @@ import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
-import com.github.paicoding.forum.service.user.service.CountService;
+import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
