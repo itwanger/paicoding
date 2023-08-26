@@ -3,7 +3,6 @@ package com.github.paicoding.forum.web.front.test.rest;
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
-import com.github.paicoding.forum.api.model.event.ConfigRefreshEvent;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
@@ -20,6 +19,7 @@ import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
+import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -289,5 +289,15 @@ public class TestController {
     @GetMapping(path = "sensitive/check")
     public List<String> sensitiveWords(String txt) {
         return sensitiveService.findAll(txt);
+    }
+
+
+    @Autowired
+    private CountServiceImpl countServiceImpl;
+
+    @GetMapping(path = "autoRefreshUserInfo")
+    public String autoRefreshUserInfo() {
+        countServiceImpl.autoRefreshAllUserStatisticInfo();
+        return "ok";
     }
 }
