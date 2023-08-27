@@ -41,7 +41,6 @@ public class SelfTraceIdGenerator {
         StringBuilder traceId = new StringBuilder();
         try {
             // 1. IP - 8
-            InetAddress ip = InetAddress.getLocalHost();
             traceId.append(convertIp(IpUtil.getLocalIp4Address())).append(".");
             // 2. 时间戳 - 13
             traceId.append(Instant.now().toEpochMilli()).append(".");
