@@ -1,9 +1,11 @@
 package com.github.paicoding.forum.web.hook.filter;
 
+import cn.hutool.core.date.StopWatch;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.util.CrossUtil;
+import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 1. 请求参数日志输出过滤器
@@ -63,15 +66,28 @@ public class ReqRecordFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         long start = System.currentTimeMillis();
         HttpServletRequest request = null;
+        StopWatch stopWatch = new StopWatch("请求耗时");
         try {
+            stopWatch.start("请求参数构建");
             request = this.initReqInfo((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+            stopWatch.stop();
+            stopWatch.start("cors");
             CrossUtil.buildCors(request, (HttpServletResponse) servletResponse);
+            stopWatch.stop();
+            stopWatch.start("业务执行");
             filterChain.doFilter(request, servletResponse);
+            stopWatch.stop();
         } finally {
+            stopWatch.start("输出请求日志");
             buildRequestLog(ReqInfoContext.getReqInfo(), request, System.currentTimeMillis() - start);
             // 一个链路请求完毕，清空MDC相关的变量(如GlobalTraceId，用户信息)
             MdcUtil.clear();
             ReqInfoContext.clear();
+            stopWatch.stop();
+
+            if (!isStaticURI(request) && !EnvUtil.isPro()) {
+                log.info("{} - cost:\n{}", request.getRequestURI(), stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+            }
         }
     }
 
@@ -85,10 +101,14 @@ public class ReqRecordFilter implements Filter {
             return request;
         }
 
+        StopWatch stopWatch = new StopWatch("请求参数构建");
         try {
+            stopWatch.start("traceId");
             // 添加全链路的traceId
             MdcUtil.addTraceId();
+            stopWatch.stop();
 
+            stopWatch.start("请求基本信息");
             // 手动写入一个session，借助 OnlineUserCountListener 实现在线人数实时统计
             request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
 
@@ -109,16 +129,29 @@ public class ReqRecordFilter implements Filter {
             reqInfo.setDeviceId(getOrInitDeviceId(request, response));
 
             request = this.wrapperRequest(request, reqInfo);
+            stopWatch.stop();
+
+            stopWatch.start("登录用户信息");
             // 初始化登录信息
             globalInitService.initLoginUser(reqInfo);
-            ReqInfoContext.addReqInfo(reqInfo);
+            stopWatch.stop();
 
+            ReqInfoContext.addReqInfo(reqInfo);
+            stopWatch.start("pv/uv站点统计");
             // 更新uv/pv计数
             AsyncUtil.execute(() -> SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath()));
+            stopWatch.stop();
+
+            stopWatch.start("回写traceId");
             // 返回头中记录traceId
             response.setHeader(GLOBAL_TRACE_ID_HEADER, Optional.ofNullable(MdcUtil.getTraceId()).orElse(""));
+            stopWatch.stop();
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
+        } finally {
+            if (!EnvUtil.isPro()) {
+                log.info("{} -> 请求构建耗时: \n{}", request.getRequestURI(), stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+            }
         }
 
         return request;
