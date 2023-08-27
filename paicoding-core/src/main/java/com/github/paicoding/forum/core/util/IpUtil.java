@@ -95,18 +95,25 @@ public class IpUtil {
         return Optional.empty();
     }
 
+    private static String LOCAL_IP = null;
+
     /**
      * 获取本地IPv4地址
      *
      * @return Inet4Address>
      */
     public static String getLocalIp4Address() throws SocketException {
+        if (LOCAL_IP != null) {
+            return LOCAL_IP;
+        }
+
         final List<Inet4Address> inet4Addresses = getLocalIp4AddressFromNetworkInterface();
         if (inet4Addresses.size() != 1) {
             final Optional<Inet4Address> ipBySocketOpt = getIpBySocket();
             return ipBySocketOpt.map(Inet4Address::getHostAddress).orElseGet(() -> inet4Addresses.isEmpty() ? DEFAULT_IP : inet4Addresses.get(0).getHostAddress());
         }
-        return inet4Addresses.get(0).getHostAddress();
+        LOCAL_IP =  inet4Addresses.get(0).getHostAddress();
+        return LOCAL_IP;
     }
 
 
