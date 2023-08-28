@@ -110,7 +110,8 @@ public class IpUtil {
         final List<Inet4Address> inet4Addresses = getLocalIp4AddressFromNetworkInterface();
         if (inet4Addresses.size() != 1) {
             final Optional<Inet4Address> ipBySocketOpt = getIpBySocket();
-            return ipBySocketOpt.map(Inet4Address::getHostAddress).orElseGet(() -> inet4Addresses.isEmpty() ? DEFAULT_IP : inet4Addresses.get(0).getHostAddress());
+            LOCAL_IP = ipBySocketOpt.map(Inet4Address::getHostAddress).orElseGet(() -> inet4Addresses.isEmpty() ? DEFAULT_IP : inet4Addresses.get(0).getHostAddress());
+            return LOCAL_IP;
         }
         LOCAL_IP =  inet4Addresses.get(0).getHostAddress();
         return LOCAL_IP;
