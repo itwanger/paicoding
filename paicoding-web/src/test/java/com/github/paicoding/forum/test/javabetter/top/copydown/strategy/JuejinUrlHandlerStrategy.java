@@ -80,6 +80,14 @@ public class JuejinUrlHandlerStrategy extends Coverter implements UrlHandlerStra
         // 转载链接
         result.setSourceLink(option.getUrl());
 
+        // 如果包含 .markdown-body 就直接从这里获取
+        Elements markdownBody = doc.select(".markdown-body");
+        if (markdownBody.size() > 0) {
+            String input = markdownBody.html();
+            result.setMarkdown(getCopyDown().convert(input));
+            return result;
+        }
+
         // 文章内容
         // 掘金的不是以 HTML 格式显示的，所以需要额外的处理
         // mark_content:"
