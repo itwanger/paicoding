@@ -26,8 +26,9 @@ public class DefaultUrlHandlerStrategy extends Coverter implements UrlHandlerStr
         String selector = StringUtils.joinWith(",",
                 ".blogpost-body", // 博客园
                 ".article_content", // CSDN
-                "article.article-content", // 小白学堂
-                ".article-content", // 思否
+                ".article-wrapper", // 开发者社区阿里云
+                "article.article-content", // 小白学堂，麦客搜
+                ".article-content", // 思否 infoq
                 ".post-topic-des, .post-content-box, .nc-post-content", // 牛客
                 "article.markdown-body", // GitHub
                 ".e13l6k8o9", // LeetCode
@@ -35,8 +36,6 @@ public class DefaultUrlHandlerStrategy extends Coverter implements UrlHandlerStr
                 "writing-content",
                 // div.byte-viewer-container 开发者客栈
                 "div.byte-viewer-container",
-                // article.article-content 麦客搜
-                "article.article-content",
                 // div#x-content 廖雪峰
                 "div#x-content",
                 // div.cloud-blog-detail-content-wrap 华为云
