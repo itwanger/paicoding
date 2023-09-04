@@ -7,11 +7,9 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.rank.service.UserActivityRankService;
 import com.github.paicoding.forum.service.rank.service.model.ActivityScoreBo;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +22,8 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
 
 /**
  * 注入全局的配置信息：
@@ -53,6 +49,7 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 
             if (permission == null || permission.role() == UserRole.ALL) {
                 if (ReqInfoContext.getReqInfo() != null) {
+                    // 用户活跃度更新
                     SpringUtil.getBean(UserActivityRankService.class).addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setPath(ReqInfoContext.getReqInfo().getPath()));
                 }
                 return true;

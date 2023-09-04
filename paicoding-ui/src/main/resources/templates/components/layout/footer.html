@@ -2,16 +2,23 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <footer th:fragment="footer" class="footer-wrap">
     <div class="foot">
-      <a class="text-reset" href="https://beian.miit.gov.cn" target="_blank">
-        <span th:text="${global.siteInfo.websiteRecord}">鄂ICP备18017282号</span>
-      </a>
-      <a class="text-reset"
-        href="https://paicoding.com"
-        th:text="'© 2022-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 技术派 '"
-        target="_blank">
-        © 2016-2023 技术派
-      </a>
-      <span th:text="' | ' + ${global.onlineCnt} + ' 人在线'"></span>
+      <div>
+        <a class="text-reset" href="https://beian.miit.gov.cn" target="_blank">
+          <span th:text="${global.siteInfo.websiteRecord}">鄂ICP备18017282号</span>
+        </a>
+        <a class="text-reset"
+          href="https://paicoding.com"
+          th:text="'© 2022-' + ${#dates.format(#dates.createNow(), 'yyyy')} + ' 技术派 '"
+          target="_blank">
+          © 2016-2023 技术派
+        </a>
+        <span th:text="' | ' + ${global.onlineCnt} + ' 人在线'"></span>
+      </div>
+      <div>本站总pv: <span class="visit_cnt" th:text="${global.siteStatisticInfo.pv}">957810</span> &nbsp;
+        | 总uv: <span class="visit_cnt" th:text="${global.siteStatisticInfo.uv}">153147</span> &nbsp; |
+        今日本站pv: <span class="visit_cnt" th:text="${global.todaySiteStatisticInfo.pv}">957810</span> &nbsp;|
+        uv: <span class="visit_cnt" th:text="${global.todaySiteStatisticInfo.uv}">153147</span>
+      </div>
     </div>
   </footer>
 </html>

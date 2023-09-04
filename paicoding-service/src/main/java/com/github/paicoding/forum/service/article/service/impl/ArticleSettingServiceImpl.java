@@ -78,7 +78,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
         if (operateEvent != null) {
             // 发布文章待审核、上线、下线事件
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, operateEvent, article.getId()));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, operateEvent, article));
         }
     }
 
@@ -111,7 +111,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
             articleDao.updateById(dto);
 
             // 发布文章删除事件
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, dto));
         } else {
             throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }

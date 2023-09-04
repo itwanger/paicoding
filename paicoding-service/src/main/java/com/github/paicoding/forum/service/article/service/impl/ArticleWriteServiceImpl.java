@@ -124,9 +124,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
 
         // todo 事件发布这里可以进行优化，一次发送多个事件？ 或者借助bit知识点来表示多种事件状态
         // 发布文章创建事件
-        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.CREATE, articleId));
+        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.CREATE, article));
         // 文章直接上线时，发布上线事件
-        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, articleId));
+        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, article));
         return articleId;
     }
 
@@ -156,10 +156,10 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         // 发布文章待审核事件
         if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {
             // 修改之后依然直接上线 （对于白名单作者而言）
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, article.getId()));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, article));
         } else if (review) {
             // 非白名单作者，修改再审核中的文章，依然是待审核状态
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.REVIEW, article.getId()));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.REVIEW, article));
         }
         return article.getId();
     }
@@ -183,7 +183,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
             articleDao.updateById(dto);
 
             // 发布文章删除事件
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, dto));
         }
     }
 
