@@ -1,18 +1,17 @@
 package com.github.paicoding.forum.core.autoconf;
 
-import com.github.paicoding.forum.api.model.event.ConfigRefreshEvent;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class DynamicConfigContainer implements EnvironmentAware, ApplicationContextAware {
+public class DynamicConfigContainer implements EnvironmentAware, ApplicationContextAware, CommandLineRunner {
     private ConfigurableEnvironment environment;
     private ApplicationContext applicationContext;
     /**
@@ -44,9 +43,6 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     public Map<String, Object> cache;
 
     private DynamicConfigBinder binder;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     /**
      * 配置变更的回调任务
@@ -68,8 +64,6 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     public void init() {
         cache = Maps.newHashMap();
         bindBeansFromLocalCache("dbConfig", cache);
-        reloadConfig();
-        registerConfRefreshTask();
     }
 
     /**
@@ -78,7 +72,7 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * @return true 表示有信息变更; false 表示无信息变更
      */
     private boolean loadAllConfigFromDb() {
-        List<Map<String, Object>> list = jdbcTemplate.queryForList("select `key`, `value` from global_conf where deleted = 0");
+        List<Map<String, Object>> list = SpringUtil.getBean(JdbcTemplate.class).queryForList("select `key`, `value` from global_conf where deleted = 0");
         Map<String, Object> val = Maps.newHashMapWithExpectedSize(list.size());
         for (Map<String, Object> conf : list) {
             val.put(conf.get("key").toString(), conf.get("value").toString());
@@ -108,7 +102,9 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     }
 
 
-    @EventListener(classes = ConfigRefreshEvent.class)
+    /**
+     * 监听配置的变更
+     */
     public void reloadConfig() {
         String before = JsonUtil.toStr(cache);
         boolean toRefresh = loadAllConfigFromDb();
@@ -161,5 +157,18 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      */
     public void registerRefreshCallback(Object bean, Runnable run) {
         refreshCallback.put(bean.getClass(), run);
+    }
+
+
+    /**
+     * 应用启动之后，执行的动态配置初始化
+     *
+     * @param args
+     * @throws Exception
+     */
+    @Override
+    public void run(String... args) throws Exception {
+        reloadConfig();
+        registerConfRefreshTask();
     }
 }

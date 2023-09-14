@@ -8,6 +8,7 @@ import com.github.houbb.sensitive.word.support.deny.WordDenySystem;
 import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,17 +23,15 @@ import java.util.List;
 @Slf4j
 @Service
 public class SensitiveService {
-    private SensitiveProperty sensitiveConfig;
-
     private volatile SensitiveWordBs sensitiveWordBs;
-
-    public SensitiveService(DynamicConfigContainer dynamicConfigContainer, SensitiveProperty sensitiveConfig) {
-        this.sensitiveConfig = sensitiveConfig;
-        dynamicConfigContainer.registerRefreshCallback(sensitiveConfig, this::refresh);
-    }
+    @Autowired
+    private SensitiveProperty sensitiveConfig;
+    @Autowired
+    private DynamicConfigContainer dynamicConfigContainer;
 
     @PostConstruct
     public void refresh() {
+        dynamicConfigContainer.registerRefreshCallback(sensitiveConfig, this::refresh);
         IWordDeny deny = () -> {
             List<String> sub = WordDenySystem.getInstance().deny();
             sub.addAll(sensitiveConfig.getDeny());

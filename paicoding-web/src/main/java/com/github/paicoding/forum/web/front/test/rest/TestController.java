@@ -16,6 +16,7 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
@@ -36,9 +37,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -299,5 +303,12 @@ public class TestController {
     public String autoRefreshUserInfo() {
         countServiceImpl.autoRefreshAllUserStatisticInfo();
         return "ok";
+    }
+
+    @RequestMapping(path = "text", produces = "application/json;charset=utf-8")
+    public void tt(HttpServletResponse response) throws IOException {
+        Map ans = MapUtils.create("hello", 123, "world", "yihui");
+        response.getOutputStream().write(JsonUtil.toStr(ans).getBytes());
+        response.getOutputStream().flush();
     }
 }
