@@ -14,7 +14,11 @@ import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
 import java.net.URI;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -58,7 +62,7 @@ public class ForumDataSourceInitializer {
             // fixme 这种方式不支持后续动态的数据表结构更新、数据变更
             populator.addScripts(DbChangeSetLoader.loadDbChangeSetResources(liquibaseChangeLog).toArray(new ClassPathResource[]{}));
             populator.setSeparator(";");
-            log.info("非Liquibase管理数据库，手动执行数据库表初始化!");
+            log.info("非Liquibase管理数据库，请手动执行数据库表初始化!");
         }
         return populator;
     }
