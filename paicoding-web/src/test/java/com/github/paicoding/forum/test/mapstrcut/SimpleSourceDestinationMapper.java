@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
  * @author 沉默王二
  * @date 9/21/23
  */
-@Mapper(componentModel = "spring")
+@Mapper
 public interface SimpleSourceDestinationMapper {
     SimpleSourceDestinationMapper INSTANCE = Mappers.getMapper(SimpleSourceDestinationMapper.class);
     SimpleDestination sourceToDestination(SimpleSource source);
