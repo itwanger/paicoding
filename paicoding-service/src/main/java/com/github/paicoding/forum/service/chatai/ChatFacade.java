@@ -178,6 +178,6 @@ public class ChatFacade {
      * @return
      */
     public ChatRecordsVo history(AISourceEnum source) {
-        return chatServiceFactory.getChatService(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId());
+        return chatServiceFactory.getChatService(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId(), source);
     }
 }

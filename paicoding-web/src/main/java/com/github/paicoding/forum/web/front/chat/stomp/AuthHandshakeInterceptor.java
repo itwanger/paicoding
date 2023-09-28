@@ -49,7 +49,13 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         // 将用户信息写入到属性中
         attributes.put(MdcUtil.TRACE_ID_KEY, SelfTraceIdGenerator.generate());
         attributes.put(LoginOutService.SESSION_KEY, reqInfo);
+        attributes.put("AI", initAiSource(request.getURI().getPath()));
         return true;
+    }
+
+    private String initAiSource(String path) {
+        int index = path.lastIndexOf("/");
+        return path.substring(index + 1);
     }
 
     @Override
