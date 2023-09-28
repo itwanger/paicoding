@@ -40,9 +40,9 @@
                 <!-- 加一个下拉框，选项是 OpenAI 讯飞星火 技术派 -->
                 <div class="chat-type">
                     <select class="styled-dropdown" id="chat-type">
-                        <option value="XunFeiXingHuo" selected>讯飞星火</option>
-                        <option value="OpenAI">OpenAI</option>
-                        <option value="JiShuPai">技术派</option>
+                        <option value="XUN_FEI_AI" selected>讯飞星火</option>
+                        <option value="CHAT_GPT_4">OpenAI</option>
+                        <option value="PAI_AI">技术派</option>
                     </select>
                 </div>
 
@@ -90,10 +90,22 @@
     // 建立会话, 首先判断一下用户是否已经登录
     const session = getCookie("f-session");
 
+    $('#chat-type').change(function(e) {
+        // 更新了选中的下拉框时，重新建立连接
+        if (isLogin) {
+            disconnect();
+            initWs();
+        } else {
+            console.log("请先登录");
+        }
+    });
+
     function initWs() {
         let protocol = window.location.protocol.replace("http", "ws");
         let host = window.location.host;
-        let socket = new WebSocket(`${protocol}//${host}/gpt/${session}`);
+        let aiType = $('#chat-type').val();
+        console.log("AITYPE = ", aiType);
+        let socket = new WebSocket(`${protocol}//${host}/gpt/${session}/${aiType}`);
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('ws连接成功: ' + frame);

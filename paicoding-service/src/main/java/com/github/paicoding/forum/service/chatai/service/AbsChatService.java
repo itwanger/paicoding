@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.chatai.service;
 
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
@@ -82,8 +83,8 @@ public abstract class AbsChatService implements ChatService {
      *
      * @return
      */
-    public ChatRecordsVo getChatHistory(Long user) {
-        List<ChatItemVo> chats = RedisClient.lRange(ChatConstants.getAiHistoryRecordsKey(source(), user), 0, 50, ChatItemVo.class);
+    public ChatRecordsVo getChatHistory(Long user, AISourceEnum aiSource) {
+        List<ChatItemVo> chats = RedisClient.lRange(ChatConstants.getAiHistoryRecordsKey(aiSource == null ? source(): aiSource, user), 0, 50, ChatItemVo.class);
         chats.add(0, new ChatItemVo().initAnswer("开始你和派聪明的AI之旅吧!"));
         ChatRecordsVo vo = new ChatRecordsVo();
         vo.setMaxCnt(getMaxQaCnt(user));
