@@ -41,11 +41,10 @@
                 <div class="chat-type">
                     <select class="styled-dropdown" id="chat-type">
                         <option value="XUN_FEI_AI" selected>讯飞星火</option>
-                        <option value="CHAT_GPT_4">OpenAI</option>
+                        <option value="CHAT_GPT_3_5">OpenAI</option>
                         <option value="PAI_AI">技术派</option>
                     </select>
                 </div>
-
             </div>
             <div class="message-content" id="chat-content">
             </div>
@@ -93,6 +92,7 @@
     $('#chat-type').change(function(e) {
         // 更新了选中的下拉框时，重新建立连接
         if (isLogin) {
+            chatContent.html('');
             disconnect();
             initWs();
         } else {
