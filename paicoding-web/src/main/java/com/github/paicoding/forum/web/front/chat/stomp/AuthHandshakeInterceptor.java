@@ -6,6 +6,7 @@ import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
@@ -30,7 +31,7 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
      * @param request
      * @param response
      * @param wsHandler
-     * @param attributes
+     * @param attributes: 即对应的是Message中的 simpSessionAttributes 请求头
      * @return
      * @throws Exception
      */
@@ -49,7 +50,13 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         // 将用户信息写入到属性中
         attributes.put(MdcUtil.TRACE_ID_KEY, SelfTraceIdGenerator.generate());
         attributes.put(LoginOutService.SESSION_KEY, reqInfo);
+        attributes.put(WsAnswerHelper.AI_SOURCE_PARAM, initAiSource(request.getURI().getPath()));
         return true;
+    }
+
+    private String initAiSource(String path) {
+        int index = path.lastIndexOf("/");
+        return path.substring(index + 1);
     }
 
     @Override

@@ -61,8 +61,9 @@ public interface ChatService {
      * 查询聊天历史
      *
      * @param user
+     * @param aiSource
      * @return
      */
-    ChatRecordsVo getChatHistory(Long user);
+    ChatRecordsVo getChatHistory(Long user, AISourceEnum aiSource);
 
 }
