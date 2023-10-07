@@ -84,8 +84,11 @@ public abstract class AbsChatService implements ChatService {
      * @return
      */
     public ChatRecordsVo getChatHistory(Long user, AISourceEnum aiSource) {
-        List<ChatItemVo> chats = RedisClient.lRange(ChatConstants.getAiHistoryRecordsKey(aiSource == null ? source(): aiSource, user), 0, 50, ChatItemVo.class);
-        chats.add(0, new ChatItemVo().initAnswer("开始你和派聪明的AI之旅吧!"));
+        if (aiSource == null) {
+            aiSource = source();
+        }
+        List<ChatItemVo> chats = RedisClient.lRange(ChatConstants.getAiHistoryRecordsKey(aiSource, user), 0, 50, ChatItemVo.class);
+        chats.add(0, new ChatItemVo().initAnswer(String.format("开始你和派聪明(%s-大模型)的AI之旅吧!", aiSource.getName())));
         ChatRecordsVo vo = new ChatRecordsVo();
         vo.setMaxCnt(getMaxQaCnt(user));
         vo.setUsedCnt(queryUserdCnt(user));

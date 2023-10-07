@@ -20,6 +20,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class WsAnswerHelper {
+    public static final String AI_SOURCE_PARAM = "AI";
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -41,8 +43,8 @@ public class WsAnswerHelper {
         }
     }
 
-    public void sendMsgHistoryToUser(String session) {
-        ChatRecordsVo vo = chatFacade.history();
+    public void sendMsgHistoryToUser(String session, AISourceEnum ai) {
+        ChatRecordsVo vo = chatFacade.history(ai);
         response(session, vo);
     }
 

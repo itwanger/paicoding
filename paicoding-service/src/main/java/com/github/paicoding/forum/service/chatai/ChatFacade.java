@@ -162,22 +162,13 @@ public class ChatFacade {
     }
 
     /**
-     * 自动获取用户的聊天历史
-     *
-     * @return
-     */
-    public ChatRecordsVo history() {
-        return history(getRecommendAiSource());
-    }
-
-
-    /**
      * 返回历史聊天记录
      *
      * @param source
      * @return
      */
     public ChatRecordsVo history(AISourceEnum source) {
+        source = source == null ? getRecommendAiSource() : source;
         return chatServiceFactory.getChatService(source).getChatHistory(ReqInfoContext.getReqInfo().getUserId(), source);
     }
 }

@@ -37,7 +37,7 @@ public class ChatRestController {
      */
     @MessageMapping("/chat/{session}")
     public void chat(String msg, @DestinationVariable("session") String session, @Header("simpSessionAttributes") Map<String, Object> attrs) {
-        String aiType = (String) attrs.get("AI");
+        String aiType = (String) attrs.get(WsAnswerHelper.AI_SOURCE_PARAM);
         answerHelper.execute(attrs, () -> {
             log.info("{} 用户开始了对话: {} - {}", ReqInfoContext.getReqInfo().getUser(), aiType, msg);
             AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
