@@ -1,4 +1,4 @@
-![image](https://github.com/itwanger/paicoding/assets/14948847/a375c78e-2192-40b8-a5e0-e3db6b530509)<p align="center">
+<p align="center">
   <a href="https://paicoding.com/">
     <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派" width="400">
   </a>
