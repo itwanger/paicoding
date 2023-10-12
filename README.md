@@ -133,6 +133,7 @@ mvn clean install -DskipTests=true -Pprod
 |        讯飞星火         | 讯飞星火大模型              | [https://www.xfyun.cn/doc/spark/Web.html](https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E)                   |
 
 ## 三、技术派教程
+技术派教程共 89 篇，从中整理出 20 篇，供大家免费学习。
 - [（🌟 新人必看）技术派系统架构&功能模块一览](https://paicoding.com/article/detail/15)
 - [（🌟 新人必看）小白如何学习技术派](https://paicoding.com/article/detail/366)
 - [（🌟 新人必看）如何将技术派写入简历](https://paicoding.com/article/detail/373)
@@ -154,9 +155,6 @@ mvn clean install -DskipTests=true -Pprod
 - [（👍 强烈推荐）技术派Session/Cookie身份验证识别](https://paicoding.com/article/detail/449)
 - [（👍 扬帆起航）送给坚持到最后的自己，一起杨帆起航](https://paicoding.com/article/detail/447)
 
-技术派教程共 89 篇，从中整理出 20 篇，供大家免费学习，如果需要查看更多教程，可以加入星球技术派星球。
-
-- [知识星球](https://paicoding.com/article/detail/17)
 
 ## 四、环境搭建
 
