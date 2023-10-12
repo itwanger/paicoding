@@ -46,7 +46,7 @@
 
 #### 系统架构图
 
-![技术派系统架构图](https://cdn.tobebetterjavaer.com/images/20230602/1e7d037c0106475984ba1eb87de2305b.jpg)
+![](https://cdn.tobebetterjavaer.com/images/20230602/1e7d037c0106475984ba1eb87de2305b.jpg)
 
 
 #### 业务架构图
