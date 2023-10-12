@@ -1,4 +1,4 @@
-<p align="center">
+![image](https://github.com/itwanger/paicoding/assets/14948847/a375c78e-2192-40b8-a5e0-e3db6b530509)<p align="center">
   <a href="https://paicoding.com/">
     <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派" width="400">
   </a>
@@ -133,7 +133,6 @@ mvn clean install -DskipTests=true -Pprod
 |        讯飞星火         | 讯飞星火大模型              | [https://www.xfyun.cn/doc/spark/Web.html](https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E)                   |
 
 ## 三、技术派教程
-技术派教程共 89 篇，从中整理出 20 篇，供大家免费学习。
 - [（🌟 新人必看）技术派系统架构&功能模块一览](https://paicoding.com/article/detail/15)
 - [（🌟 新人必看）小白如何学习技术派](https://paicoding.com/article/detail/366)
 - [（🌟 新人必看）如何将技术派写入简历](https://paicoding.com/article/detail/373)
@@ -154,6 +153,10 @@ mvn clean install -DskipTests=true -Pprod
 - [（👍 强烈推荐）技术派微信扫码登录实现](https://paicoding.com/article/detail/453)
 - [（👍 强烈推荐）技术派Session/Cookie身份验证识别](https://paicoding.com/article/detail/449)
 - [（👍 扬帆起航）送给坚持到最后的自己，一起杨帆起航](https://paicoding.com/article/detail/447)
+
+技术派教程共 89 篇，从中整理出 20 篇，供大家免费学习，如果需要查看更多教程，可以加入星球，送一张 30 优惠券。
+
+- [](https://cdn.tobebetterjavaer.com/paicoding/bddc68960b98eca595cf861d1f146e43.png)
 
 ## 四、环境搭建
 
