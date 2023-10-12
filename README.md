@@ -46,7 +46,7 @@
 
 #### 系统架构图
 
-![](https://cdn.tobebetterjavaer.com/images/20230602/1e7d037c0106475984ba1eb87de2305b.jpg)
+![](https://cdn.tobebetterjavaer.com/paicoding/3da165adfcad0f03d40e13e941ed4afb.png)
 
 
 #### 业务架构图
