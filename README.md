@@ -132,7 +132,29 @@ mvn clean install -DskipTests=true -Pprod
 |       chatgpt       | chatgpt              | [https://openai.com/blog/chatgpt](https://openai.com/blog/chatgpt)                   |
 |        讯飞星火         | 讯飞星火大模型              | [https://www.xfyun.cn/doc/spark/Web.html](https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E)                   |
 
-## 三、环境搭建
+## 三、技术派教程
+- [（🌟 新人必看）技术派系统架构&功能模块一览](https://paicoding.com/article/detail/15)
+- [（🌟 新人必看）小白如何学习技术派](https://paicoding.com/article/detail/366)
+- [（🌟 新人必看）如何将技术派写入简历](https://paicoding.com/article/detail/373)
+- [（🌟 新人必看）技术派项目管理流程](https://paicoding.com/article/detail/445)
+- [（🌟 新人必看）技术派MVC分层架构](https://paicoding.com/article/detail/446)
+- [（🌟 新人必看）技术派项目工程搭建手册](https://paicoding.com/article/detail/459)
+- [（👍 强烈推荐）技术派消息队列RabbitMQ](https://paicoding.com/column/6/2)
+- [（👍 强烈推荐）技术派消息队列RabbitMQ连接池](https://paicoding.com/column/6/1)
+- [（👍 强烈推荐）技术派消息队列Kafka](https://paicoding.com/article/detail/460)
+- [（👍 强烈推荐）技术派Mysql/Redis缓存一致性](https://paicoding.com/column/6/3)
+- [（👍 强烈推荐）技术派Cancal实现MySQL和ES同步](https://paicoding.com/column/6/8)
+- [（👍 强烈推荐）技术派ES实现查询](https://paicoding.com/article/detail/341)
+- [（👍 强烈推荐）技术派架构方案设计](https://paicoding.com/column/6/5)
+- [（👍 强烈推荐）技术派技术方案设计](https://paicoding.com/article/detail/208)
+- [（👍 强烈推荐）技术派Redis实现用户活跃排行榜](https://paicoding.com/article/detail/454)
+- [（👍 强烈推荐）技术派定时任务实现](https://paicoding.com/article/detail/457)
+- [（👍 强烈推荐）技术派微信公众号自动登录](https://paicoding.com/article/detail/448)
+- [（👍 强烈推荐）技术派微信扫码登录实现](https://paicoding.com/article/detail/453)
+- [（👍 强烈推荐）技术派Session/Cookie身份验证识别](https://paicoding.com/article/detail/449)
+- [（👍 扬帆起航）送给坚持到最后的自己，一起杨帆起航](https://paicoding.com/article/detail/447)
+
+## 四、环境搭建
 
 ### 开发工具
 
@@ -183,23 +205,23 @@ mvn clean install -DskipTests=true -Pprod
 > [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 > [服务器启动教程](docs/服务器启动教程.md)
 
-## 四、友情链接
+## 五、友情链接
 
 - [toBeBetterjavaer](https://github.com/itwanger/toBeBetterJavaer) ：一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。学Java，就认准二哥的Java进阶之路😄
 - [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀 paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
 
-## 五、鸣谢
+## 六、鸣谢
 
 技术派收到了 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses（详情戳 [这里](https://paicoding.com/article/detail/331) ），并已分配给项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
 
 ![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
 
 
-## 六、star 趋势图
+## 七、star 趋势图
 
 [![Star History Chart](https://api.star-history.com/svg?repos=itwanger/paicoding&type=Date)](https://star-history.com/#itwanger/paicoding&Date)
 
-## 七、公众号
+## 八、公众号
 
 GitHub 上标星 8700+ 的开源知识库《 [二哥的 Java 进阶之路](https://github.com/itwanger/toBeBetterJavaer) 》第一版 PDF 终于来了！包括Java基础语法、数组&字符串、OOP、集合框架、Java IO、异常处理、Java 新特性、网络编程、NIO、并发编程、JVM等等，共计 32 万余字，可以说是通俗易懂、风趣幽默……详情戳：[太赞了，GitHub 上标星 8700+ 的 Java 教程](https://javabetter.cn/overview/)
 
@@ -207,7 +229,7 @@ GitHub 上标星 8700+ 的开源知识库《 [二哥的 Java 进阶之路](https
 
 ![](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/gongzhonghao.png)
 
-## 八、许可证
+## 九、许可证
 
 [Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
 
