@@ -154,9 +154,9 @@ mvn clean install -DskipTests=true -Pprod
 - [（👍 强烈推荐）技术派Session/Cookie身份验证识别](https://paicoding.com/article/detail/449)
 - [（👍 扬帆起航）送给坚持到最后的自己，一起杨帆起航](https://paicoding.com/article/detail/447)
 
-技术派教程共 89 篇，从中整理出 20 篇，供大家免费学习，如果需要查看更多教程，可以加入星球，送一张 30 优惠券。
+技术派教程共 89 篇，从中整理出 20 篇，供大家免费学习，如果需要查看更多教程，可以加入星球技术派星球。
 
-- [](https://cdn.tobebetterjavaer.com/paicoding/bddc68960b98eca595cf861d1f146e43.png)
+- [知识星球](https://paicoding.com/article/detail/17)
 
 ## 四、环境搭建
 
