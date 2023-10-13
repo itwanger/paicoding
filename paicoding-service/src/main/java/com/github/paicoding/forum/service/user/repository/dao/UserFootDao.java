@@ -8,11 +8,13 @@ import com.github.paicoding.forum.api.model.enums.PraiseStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author YiHui
@@ -72,7 +74,10 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
      * @return
      */
     public ArticleFootCountDTO countArticleByUserId(Long author) {
-        return baseMapper.countArticleByUserId(author);
+        // 统计收藏、点赞数
+        ArticleFootCountDTO count = baseMapper.countArticleByUserId(author);
+        Optional.ofNullable(count).ifPresent(s -> s.setReadCount(baseMapper.countArticleReadsByUserId(author)));
+        return count;
     }
 
     /**
@@ -87,5 +92,10 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
                 .eq(UserFootDO::getDocumentType, DocumentTypeEnum.COMMENT.getCode())
                 .eq(UserFootDO::getPraiseStat, PraiseStatEnum.PRAISE.getCode())
                 .count();
+    }
+
+    public UserFootStatisticDTO getFootCount() {
+        return baseMapper.getFootCount();
+
     }
 }

@@ -1,8 +1,8 @@
 package com.github.paicoding.forum.service.article.service;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.CategoryReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchCategoryReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 
 /**
@@ -25,5 +25,5 @@ public interface CategorySettingService {
      * @param pageParam
      * @return
      */
-    PageVo<CategoryDTO> getCategoryList(PageParam pageParam);
+    PageVo<CategoryDTO> getCategoryList(SearchCategoryReq params);
 }

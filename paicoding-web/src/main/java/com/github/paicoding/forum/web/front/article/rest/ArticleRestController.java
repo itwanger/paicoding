@@ -12,14 +12,21 @@ import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.core.common.CommonConstants;
+import com.github.paicoding.forum.core.config.RabbitmqProperties;
+import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.*;
+import com.github.paicoding.forum.service.notify.service.RabbitmqService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
+import com.rabbitmq.client.BuiltinExchangeType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 返回json格式数据
@@ -35,6 +43,7 @@ import java.util.Optional;
  * @author YiHui
  * @date 2022/9/2
  */
+@Slf4j
 @RequestMapping(path = "article/api")
 @RestController
 public class ArticleRestController {
@@ -57,6 +66,9 @@ public class ArticleRestController {
     @Autowired
     private ArticleRecommendService articleRecommendService;
 
+    @Autowired
+    private RabbitmqService rabbitmqService;
+
     /**
      * 文章的关联推荐
      *
@@ -66,6 +78,7 @@ public class ArticleRestController {
      * @return
      */
     @RequestMapping(path = "recommend")
+    @MdcDot(bizCode = "#articleId")
     public ResVo<NextPageHtmlVo> recommend(@RequestParam(value = "articleId") Long articleId,
                                            @RequestParam(name = "page") Long page,
                                            @RequestParam(name = "size", required = false) Long size) {
@@ -127,8 +140,12 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "favor")
+    @MdcDot(bizCode = "#articleId")
     public ResVo<Boolean> favor(@RequestParam(name = "articleId") Long articleId,
-                                @RequestParam(name = "type") Integer type) {
+                                @RequestParam(name = "type") Integer type) throws IOException, TimeoutException {
+        if (log.isDebugEnabled()) {
+            log.debug("开始点赞: {}", type);
+        }
         OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
         if (operate == OperateTypeEnum.EMPTY) {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
@@ -145,7 +162,21 @@ public class ArticleRestController {
                 operate);
         // 点赞、收藏消息
         NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
-        Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
+
+        // 点赞消息走 RabbitMQ，其它走 Java 内置消息机制
+        if (notifyType.equals(NotifyTypeEnum.PRAISE) && rabbitmqService.enabled()) {
+            rabbitmqService.publishMsg(
+                    CommonConstants.EXCHANGE_NAME_DIRECT,
+                    BuiltinExchangeType.DIRECT,
+                    CommonConstants.QUERE_KEY_PRAISE,
+                    JsonUtil.toStr(foot));
+        } else {
+            Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
+        }
+
+        if (log.isDebugEnabled()) {
+            log.info("点赞结束: {}", type);
+        }
         return ResVo.ok(true);
     }
 
@@ -159,9 +190,10 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @PostMapping(path = "post")
-    @Transactional(rollbackFor = Exception.class)
+    @MdcDot(bizCode = "#req.articleId")
     public ResVo<Long> post(@RequestBody ArticlePostReq req, HttpServletResponse response) throws IOException {
         Long id = articleWriteService.saveArticle(req, ReqInfoContext.getReqInfo().getUserId());
+        // 如果使用后端重定向，可以使用下面两种策略
 //        return "redirect:/article/detail/" + id;
 //        response.sendRedirect("/article/detail/" + id);
         // 这里采用前端重定向策略
@@ -177,6 +209,7 @@ public class ArticleRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @RequestMapping(path = "delete")
+    @MdcDot(bizCode = "#articleId")
     public ResVo<Boolean> delete(@RequestParam(value = "articleId") Long articleId) {
         articleWriteService.deleteArticle(articleId, ReqInfoContext.getReqInfo().getUserId());
         return ResVo.ok(true);

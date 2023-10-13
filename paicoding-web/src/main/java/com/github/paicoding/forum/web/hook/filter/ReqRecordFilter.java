@@ -1,9 +1,17 @@
 package com.github.paicoding.forum.web.hook.filter;
 
+import cn.hutool.core.date.StopWatch;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.core.async.AsyncUtil;
+import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.util.CrossUtil;
+import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.sitemap.service.SitemapServiceImpl;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
+import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -12,12 +20,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 1. 请求参数日志输出过滤器
@@ -30,6 +47,10 @@ import java.net.URLDecoder;
 @WebFilter(urlPatterns = "/*", filterName = "reqRecordFilter", asyncSupported = true)
 public class ReqRecordFilter implements Filter {
     private static Logger REQ_LOG = LoggerFactory.getLogger("req");
+    /**
+     * 返回给前端的traceId，用于日志追踪
+     */
+    private static final String GLOBAL_TRACE_ID_HEADER = "g-trace-id";
 
     @Autowired
     private GlobalInitService globalInitService;
@@ -45,13 +66,28 @@ public class ReqRecordFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         long start = System.currentTimeMillis();
         HttpServletRequest request = null;
+        StopWatch stopWatch = new StopWatch("请求耗时");
         try {
-            request = this.initReqInfo((HttpServletRequest) servletRequest);
+            stopWatch.start("请求参数构建");
+            request = this.initReqInfo((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+            stopWatch.stop();
+            stopWatch.start("cors");
             CrossUtil.buildCors(request, (HttpServletResponse) servletResponse);
+            stopWatch.stop();
+            stopWatch.start("业务执行");
             filterChain.doFilter(request, servletResponse);
+            stopWatch.stop();
         } finally {
+            stopWatch.start("输出请求日志");
             buildRequestLog(ReqInfoContext.getReqInfo(), request, System.currentTimeMillis() - start);
+            // 一个链路请求完毕，清空MDC相关的变量(如GlobalTraceId，用户信息)
+            MdcUtil.clear();
             ReqInfoContext.clear();
+            stopWatch.stop();
+
+            if (!isStaticURI(request) && !EnvUtil.isPro()) {
+                log.info("{} - cost:\n{}", request.getRequestURI(), stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+            }
         }
     }
 
@@ -59,41 +95,70 @@ public class ReqRecordFilter implements Filter {
     public void destroy() {
     }
 
-    private HttpServletRequest initReqInfo(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        if (uri.startsWith("/js/") || uri.startsWith("/css/") || uri.endsWith(".js") || uri.endsWith(".css")) {
+    private HttpServletRequest initReqInfo(HttpServletRequest request, HttpServletResponse response) {
+        if (isStaticURI(request)) {
             // 静态资源直接放行
             return request;
         }
 
+        StopWatch stopWatch = new StopWatch("请求参数构建");
         try {
+            stopWatch.start("traceId");
+            // 添加全链路的traceId
+            MdcUtil.addTraceId();
+            stopWatch.stop();
+
+            stopWatch.start("请求基本信息");
+            // 手动写入一个session，借助 OnlineUserCountListener 实现在线人数实时统计
+            request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
+
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
             reqInfo.setHost(request.getHeader("host"));
             reqInfo.setPath(request.getPathInfo());
+            if (reqInfo.getPath() == null) {
+                String url = request.getRequestURI();
+                int index = url.indexOf("?");
+                if (index > 0) {
+                    url = url.substring(0, index);
+                }
+                reqInfo.setPath(url);
+            }
             reqInfo.setReferer(request.getHeader("referer"));
             reqInfo.setClientIp(IpUtil.getClientIp(request));
             reqInfo.setUserAgent(request.getHeader("User-Agent"));
+            reqInfo.setDeviceId(getOrInitDeviceId(request, response));
 
             request = this.wrapperRequest(request, reqInfo);
+            stopWatch.stop();
+
+            stopWatch.start("登录用户信息");
             // 初始化登录信息
             globalInitService.initLoginUser(reqInfo);
+            stopWatch.stop();
+
             ReqInfoContext.addReqInfo(reqInfo);
+            stopWatch.start("pv/uv站点统计");
+            // 更新uv/pv计数
+            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath()));
+            stopWatch.stop();
+
+            stopWatch.start("回写traceId");
+            // 返回头中记录traceId
+            response.setHeader(GLOBAL_TRACE_ID_HEADER, Optional.ofNullable(MdcUtil.getTraceId()).orElse(""));
+            stopWatch.stop();
         } catch (Exception e) {
             log.error("init reqInfo error!", e);
+        } finally {
+            if (!EnvUtil.isPro()) {
+                log.info("{} -> 请求构建耗时: \n{}", request.getRequestURI(), stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+            }
         }
 
         return request;
     }
 
     private void buildRequestLog(ReqInfoContext.ReqInfo req, HttpServletRequest request, long costTime) {
-        // fixme 过滤不需要记录请求日志的场景
-        if (request == null
-                || req == null
-                || request.getRequestURI().endsWith("css")
-                || request.getRequestURI().endsWith("js")
-                || request.getRequestURI().endsWith("png")
-                || request.getRequestURI().endsWith("ico")
-                || request.getRequestURI().endsWith("svg")) {
+        if (req == null || isStaticURI(request)) {
             return;
         }
 
@@ -134,4 +199,37 @@ public class ReqRecordFilter implements Filter {
         return requestWrapper;
     }
 
+    private boolean isStaticURI(HttpServletRequest request) {
+        return request == null
+                || request.getRequestURI().endsWith("css")
+                || request.getRequestURI().endsWith("js")
+                || request.getRequestURI().endsWith("png")
+                || request.getRequestURI().endsWith("ico")
+                || request.getRequestURI().endsWith("svg")
+                || request.getRequestURI().endsWith("min.js.map")
+                || request.getRequestURI().endsWith("min.css.map");
+    }
+
+
+    /**
+     * 初始化设备id
+     *
+     * @return
+     */
+    private String getOrInitDeviceId(HttpServletRequest request, HttpServletResponse response) {
+        String deviceId = request.getParameter("deviceId");
+        if (StringUtils.isNotBlank(deviceId) && !"null".equalsIgnoreCase(deviceId)) {
+            return deviceId;
+        }
+
+        Cookie device = SessionUtil.findCookieByName(request, LoginOutService.USER_DEVICE_KEY);
+        if (device == null) {
+            deviceId = UUID.randomUUID().toString();
+            if (response != null) {
+                response.addCookie(SessionUtil.newCookie(LoginOutService.USER_DEVICE_KEY, deviceId));
+            }
+            return deviceId;
+        }
+        return device.getValue();
+    }
 }

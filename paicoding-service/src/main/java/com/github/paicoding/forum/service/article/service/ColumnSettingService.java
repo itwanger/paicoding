@@ -1,11 +1,13 @@
 package com.github.paicoding.forum.service.article.service;
 
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 
 import java.util.List;
 
@@ -16,6 +18,14 @@ import java.util.List;
  * @date 2022-09-19
  */
 public interface ColumnSettingService {
+
+    /**
+     * 将文章保存到对应的专栏中
+     *
+     * @param articleId
+     * @param columnId
+     */
+    void saveColumnArticle(Long articleId, Long columnId);
 
     /**
      * 保存专栏
@@ -32,39 +42,29 @@ public interface ColumnSettingService {
     void saveColumnArticle(ColumnArticleReq req);
 
     /**
-     * 专栏文章排序
-     *
-     * @param columnArticleReqs
-     */
-    void sortColumnArticle(List<ColumnArticleReq> columnArticleReqs);
-
-    /**
      * 删除专栏
      *
      * @param columnId
      */
-    void deleteColumn(Integer columnId);
+    void deleteColumn(Long columnId);
 
     /**
      * 删除专栏文章
      *
      * @param id
      */
-    void deleteColumnArticle(Integer id);
+    void deleteColumnArticle(Long id);
 
     /**
-     * 专栏列表
+     * 通过关键词，从标题中找出相似的进行推荐，只返回主键 + 标题
      *
-     * @param pageParam
+     * @param key
      * @return
      */
-    PageVo<ColumnDTO> listColumn(PageParam pageParam);
+    List<SimpleColumnDTO> listSimpleColumnBySearchKey(String key);
 
-    /**
-     * 查询专栏的文章详情
-     *
-     * @param columnId
-     * @return
-     */
-    PageVo<ColumnArticleDTO> queryColumnArticles(long columnId, PageParam pageParam) throws Exception;
+    PageVo<ColumnDTO> getColumnList(SearchColumnReq req);
+
+    PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req);
+
 }

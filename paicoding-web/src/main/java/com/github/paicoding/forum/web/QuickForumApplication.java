@@ -8,6 +8,7 @@ import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.ForumExceptionHandler;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +16,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -30,10 +34,14 @@ import java.util.List;
  * @date 2022/7/6
  */
 @Slf4j
+@EnableAsync
+@EnableScheduling
+@EnableCaching
 @ServletComponentScan
 @SpringBootApplication
 public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunner {
-    private Integer webPort = null;
+    @Value("${server.port:8080}")
+    private Integer webPort;
 
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
@@ -61,17 +69,17 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     @ConditionalOnExpression(value = "#{'dev'.equals(environment.getProperty('env.name'))}")
     public TomcatConnectorCustomizer customServerPortTomcatConnectorCustomizer() {
         // 开发环境时，首先判断8080d端口是否可用；若可用则直接使用，否则选择一个可用的端口号启动
-        int port = SocketUtil.findAvailableTcpPort(8000, 10000, 8080);
-        if (port != 8080) {
-            log.info("默认8080端口号被占用，随机启用新端口号: {}", port);
+        int port = SocketUtil.findAvailableTcpPort(8000, 10000, webPort);
+        if (port != webPort) {
+            log.info("默认端口号{}被占用，随机启用新端口号: {}", webPort, port);
             webPort = port;
         }
         return connector -> connector.setPort(port);
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        // 设置类型转换
+    public void run(ApplicationArguments args) {
+        // 设置类型转换, 主要用于mybatis读取varchar/json类型数据据，并写入到json格式的实体Entity中
         JacksonTypeHandler.setObjectMapper(new ObjectMapper());
         // 应用启动之后执行
         GlobalViewConfig config = SpringUtil.getBean(GlobalViewConfig.class);

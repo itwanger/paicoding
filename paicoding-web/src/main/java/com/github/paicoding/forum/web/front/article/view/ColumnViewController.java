@@ -1,8 +1,8 @@
 package com.github.paicoding.forum.web.front.article.view;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.ColumnTypeEnum;
-import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
@@ -10,13 +10,15 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticlesDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
-import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
+import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
+import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
 import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,9 +76,6 @@ public class ColumnViewController {
     @GetMapping(path = "{columnId}")
     public String column(@PathVariable("columnId") Long columnId, Model model) {
         ColumnDTO dto = columnService.queryColumnInfo(columnId);
-        if (dto == null) {
-            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, columnId);
-        }
         model.addAttribute("vo", dto);
         return "/views/column-index/index";
     }
@@ -96,10 +95,12 @@ public class ColumnViewController {
         // 查询专栏
         ColumnDTO column = columnService.queryBasicColumnInfo(columnId);
 
-        Long articleId = columnService.queryColumnArticle(columnId, section);
+        ColumnArticleDO columnArticle = columnService.queryColumnArticle(columnId, section);
+        Long articleId = columnArticle.getArticleId();
         // 文章信息
-        ArticleDTO articleDTO = articleReadService.queryTotalArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-
+        ArticleDTO articleDTO = articleReadService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+        // 返回html格式的文档内容
+        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         // 评论信息
         List<TopCommentDTO> comments = commentReadService.getArticleComments(articleId, PageParam.newPageInstance());
 
@@ -110,7 +111,7 @@ public class ColumnViewController {
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
-        updateReadType(vo, column, articleDTO);
+        updateReadType(vo, column, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getReadType()));
         vo.setArticle(articleDTO);
         vo.setComments(comments);
         vo.setHotComment(hotComment);
@@ -130,33 +131,58 @@ public class ColumnViewController {
      * @param column
      * @param articleDTO
      */
-    private void updateReadType(ColumnArticlesDTO vo, ColumnDTO column, ArticleDTO articleDTO) {
+    private void updateReadType(ColumnArticlesDTO vo, ColumnDTO column, ArticleDTO articleDTO, ColumnArticleReadEnum articleReadEnum) {
         Long loginUser = ReqInfoContext.getReqInfo().getUserId();
         if (loginUser != null && loginUser.equals(articleDTO.getAuthor())) {
-            vo.setReadType(0);
+            vo.setReadType(ColumnTypeEnum.FREE.getType());
             return;
         }
 
-        if (column.getType() == ColumnTypeEnum.TIME_FREE.getType()) {
-            long now = System.currentTimeMillis();
-            if (now > column.getFreeEndTime() || now < column.getFreeStartTime()) {
-                vo.setReadType(ColumnTypeEnum.LOGIN.getType());
+        if (articleReadEnum == ColumnArticleReadEnum.COLUMN_TYPE) {
+            // 专栏中的文章，没有特殊指定时，直接沿用专栏的规则
+            if (column.getType() == ColumnTypeEnum.TIME_FREE.getType()) {
+                long now = System.currentTimeMillis();
+                if (now > column.getFreeEndTime() || now < column.getFreeStartTime()) {
+                    vo.setReadType(ColumnTypeEnum.LOGIN.getType());
+                } else {
+                    vo.setReadType(ColumnTypeEnum.FREE.getType());
+                }
             } else {
-                vo.setReadType(ColumnTypeEnum.FREE.getType());
+                vo.setReadType(column.getType());
             }
         } else {
-            vo.setReadType(column.getType());
+            // 直接使用文章特殊设置的规则
+            vo.setReadType(articleReadEnum.getRead());
+        }
+        // 如果是星球 or 登录阅读时，不返回全量的文章内容
+        articleDTO.setContent(trimContent(vo.getReadType(), articleDTO.getContent()));
+        if (vo.getReadType() == ColumnTypeEnum.STAR_READ.getType()) {
+            // 星球的文章，移除相关信息
+            articleDTO.setCover(null);
+        }
+    }
+
+    /**
+     * 文章内容隐藏
+     *
+     * @param readType
+     * @param content
+     * @return
+     */
+    private String trimContent(int readType, String content) {
+        if (readType == ColumnTypeEnum.STAR_READ.getType()) {
+            // 返回星球相关信息
+            return MarkdownConverter.markdownToHtml(SpringUtil.getBean(GlobalViewConfig.class).getStarInfo());
         }
 
-        // 如果是登录阅读时，不返回全量的文章内容
-        if (vo.getReadType() == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null) {
-            String content = articleDTO.getContent();
+        if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
             if (content.length() > 500) {
                 content = content.substring(0, 500);
-            } else if (content.length() > 128) {
-                content = content.substring(0, 128);
+            } else if (content.length() > 256) {
+                content = content.substring(0, 256);
             }
-            articleDTO.setContent(content);
         }
+
+        return content;
     }
 }

@@ -1,10 +1,10 @@
 package com.github.paicoding.forum.api.model.context;
 
-import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
+import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import lombok.Data;
 
-import java.util.List;
+import java.security.Principal;
 
 /**
  * 请求上下文，携带用户身份相关信息
@@ -13,11 +13,7 @@ import java.util.List;
  * @date 2022/7/6
  */
 public class ReqInfoContext {
-
-    /**
-     * fixme 注意，下面这种方式导致在子线程中拿不到用户信息
-     */
-    private static ThreadLocal<ReqInfo> contexts = new ThreadLocal<>();
+    private static ThreadLocal<ReqInfo> contexts = new InheritableThreadLocal<>();
 
     public static void addReqInfo(ReqInfo reqInfo) {
         contexts.set(reqInfo);
@@ -32,7 +28,7 @@ public class ReqInfoContext {
     }
 
     @Data
-    public static class ReqInfo {
+    public static class ReqInfo implements Principal {
         /**
          * appKey
          */
@@ -80,6 +76,13 @@ public class ReqInfoContext {
          */
         private Integer msgNum;
 
-        private List<SeoTagVo> seoList;
+        private Seo seo;
+
+        private String deviceId;
+
+        @Override
+        public String getName() {
+            return session;
+        }
     }
 }

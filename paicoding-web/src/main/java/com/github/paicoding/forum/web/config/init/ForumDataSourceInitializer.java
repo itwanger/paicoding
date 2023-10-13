@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
@@ -13,7 +14,11 @@ import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
 import java.net.URI;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -25,29 +30,40 @@ import java.util.List;
 @Slf4j
 @Configuration
 public class ForumDataSourceInitializer {
-//    @Value("classpath:liquibase/data/init_schema_221209.sql")
+    //    @Value("classpath:liquibase/data/init_schema_221209.sql")
 //    private Resource schemaSql;
 //    @Value("classpath:liquibase/data/init_data_221209.sql")
 //    private Resource initData;
     @Value("${database.name}")
     private String database;
 
+    @Value("${spring.liquibase.enabled:true}")
+    private Boolean liquibaseEnable;
+
+    @Value("${spring.liquibase.change-log}")
+    private String liquibaseChangeLog;
+
     @Bean
     public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
         final DataSourceInitializer initializer = new DataSourceInitializer();
         // 设置数据源
         initializer.setDataSource(dataSource);
-        initializer.setDatabasePopulator(databasePopulator());
-        initializer.setEnabled(needInit(dataSource));
+        boolean enable = needInit(dataSource);
+        initializer.setEnabled(enable);
+        initializer.setDatabasePopulator(databasePopulator(enable));
         return initializer;
     }
 
-    private DatabasePopulator databasePopulator() {
+    private DatabasePopulator databasePopulator(boolean initEnable) {
         final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         // 下面这种是根据sql文件来进行初始化；改成 liquibase 之后不再使用这种方案，由liquibase来统一管理表结构数据变更
-//        populator.addScripts(schemaSql);
-//        populator.addScripts(initData);
-//        populator.setSeparator(";");
+        if (initEnable && !liquibaseEnable) {
+            // fixme: 首次启动时, 对于不支持liquibase的数据库，如mariadb，采用主动初始化
+            // fixme 这种方式不支持后续动态的数据表结构更新、数据变更
+            populator.addScripts(DbChangeSetLoader.loadDbChangeSetResources(liquibaseChangeLog).toArray(new ClassPathResource[]{}));
+            populator.setSeparator(";");
+            log.info("非Liquibase管理数据库，请手动执行数据库表初始化!");
+        }
         return populator;
     }
 
@@ -73,9 +89,9 @@ public class ForumDataSourceInitializer {
      */
     private boolean autoInitDatabase() {
         // 查询失败，可能是数据库不存在，尝试创建数据库之后再次测试
-        URI url = URI.create(SpringUtil.getConfig("spring.datasource.url").substring(5));
-        String uname = SpringUtil.getConfig("spring.datasource.username");
-        String pwd = SpringUtil.getConfig("spring.datasource.password");
+        URI url = URI.create(SpringUtil.getConfigOrElse("spring.datasource.url", "spring.dynamic.datasource.master.url").substring(5));
+        String uname = SpringUtil.getConfigOrElse("spring.datasource.username", "spring.dynamic.datasource.master.username");
+        String pwd = SpringUtil.getConfigOrElse("spring.datasource.password", "spring.dynamic.datasource.master.password");
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://" + url.getHost() + ":" + url.getPort() +
                 "?useUnicode=true&characterEncoding=UTF-8&useSSL=false", uname, pwd);
              Statement statement = connection.createStatement()) {

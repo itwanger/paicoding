@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.article.repository.dao;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
@@ -11,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
 import com.github.paicoding.forum.service.article.repository.mapper.TagMapper;
+import com.github.paicoding.forum.service.article.repository.params.SearchTagParams;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
         LambdaQueryWrapper<TagDO> query = Wrappers.lambdaQuery();
         query.eq(TagDO::getStatus, PushStatusEnum.ONLINE.getCode())
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .and(!StringUtils.isEmpty(key), v -> v.like(TagDO::getTagName, key))
+                .and(StringUtils.isNotBlank(key), v -> v.like(TagDO::getTagName, key))
                 .orderByDesc(TagDO::getId);
         if (pageParam != null) {
             query.last(PageParam.getLimitSql(pageParam));
@@ -54,30 +56,37 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
                 .intValue();
     }
 
+    private LambdaQueryChainWrapper<TagDO> createTagQuery(SearchTagParams params) {
+        return lambdaQuery()
+                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .like(StringUtils.isNotBlank(params.getTag()), TagDO::getTagName, params.getTag());
+    }
+
     /**
      * 获取所有 Tags 列表（分页）
      *
      * @return
      */
-    public List<TagDTO> listTag(PageParam pageParam) {
-        List<TagDO> list = lambdaQuery()
-                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .orderByDesc(TagDO::getId)
-                .last(PageParam.getLimitSql(pageParam))
+    public List<TagDO> listTag(SearchTagParams params) {
+        List<TagDO> list = createTagQuery(params)
+                .orderByDesc(TagDO::getUpdateTime)
+                .last(PageParam.getLimitSql(
+                        PageParam.newPageInstance(params.getPageNum(), params.getPageSize())
+                ))
                 .list();
-        return ArticleConverter.toDtoList(list);
+        return list;
     }
+
+
 
     /**
      * 获取所有 Tags 总数（分页）
      *
      * @return
      */
-    public Integer countTag() {
-        return lambdaQuery()
-                .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count()
-                .intValue();
+    public Long countTag(SearchTagParams params) {
+        return createTagQuery(params)
+                .count();
     }
 
     /**
@@ -93,5 +102,15 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
                 .last("limit 1")
                 .one();
         return record != null ? record.getId() : null;
+    }
+
+    /**
+     * 查询tag
+     * @param tagId
+     * @return
+     */
+    public TagDTO selectById(Long tagId) {
+        TagDO tagDO = lambdaQuery().eq(TagDO::getId, tagId).one();
+        return ArticleConverter.toDto(tagDO);
     }
 }

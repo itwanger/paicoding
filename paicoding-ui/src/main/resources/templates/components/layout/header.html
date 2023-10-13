@@ -10,15 +10,13 @@
     <meta name="baidu-site-verification" content="codeva-mbGuu7l4Q1" />
     <meta
       name="keywords"
-      content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis"
+      content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis,沉默王二"
+      th:if="${global.ogp == null}"
     />
-    <meta name="description" content="技术派" />
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no"
+    <meta name="description"
+          th:if="${global.ogp == null}"
+          content="技术派，一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。"
     />
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <meta name="robots" content="all">
@@ -27,16 +25,15 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta th:each="tag: ${global.seo}" th:attr="content=${tag.val}" th:property="${tag.key}"/>
+    <meta th:each="tag: ${global.ogp}" th:attr="content=${tag.val}" th:property="${tag.key}"/>
+
+    <script type="application/ld+json" th:utext="${global.jsonLd}"></script>
+
     <link rel="icon" href="/img/icon.png" />
     <link href="/css/three/index.css" rel="stylesheet" />
+    <link href="/css/three/highlightjs.github.min.css" rel="stylesheet" />
     <link href="/css/global.css" rel="stylesheet" />
-    <link
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css"
-      rel="stylesheet"
-    />
-
-    <link rel="stylesheet" href="/css/common.css" />
+    <link href="/css/common.css" rel="stylesheet" />
     <script>
       var _hmt = _hmt || [];
       (function() {
@@ -54,13 +51,15 @@
     <script src="/js/jquery.scrollUp.min.js"></script>
     <script src="/js/md5.min.js"></script>
     <script src="/js/marked.min.js"></script>
-    <script src="/editormd/editormd.js"></script>
     <script src="/js/select2.full.min.js"></script>
     <script src="/js/biz/forum.js"></script>
     <script src="/js/biz/loadMore.js"></script>
     <script src="/js/biz/toolaction.js"></script>
     <script src="/js/biz/login.js"></script>
     <script src="/js/biz/select2.zh_CN.js"></script>
+    <script src="/js/jsonld.min.js"></script>
+    <script src="/js/clipboard.min.js"></script>
+    <script src="/js/highlight.min.js"></script>
 
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />

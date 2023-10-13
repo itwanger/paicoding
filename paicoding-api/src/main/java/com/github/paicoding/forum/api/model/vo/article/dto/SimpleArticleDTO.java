@@ -1,5 +1,7 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
+import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -17,33 +19,27 @@ import java.sql.Timestamp;
 public class SimpleArticleDTO implements Serializable {
     private static final long serialVersionUID = 3646376715620165839L;
 
-    /**
-     * 文章ID
-     */
+    @ApiModelProperty("文章ID")
     private Long id;
 
-    /**
-     * 文章标题
-     */
+    @ApiModelProperty("文章标题")
     private String title;
 
-    /**
-     * 专栏ID
-     */
+    @ApiModelProperty("专栏ID")
     private Long columnId;
 
-    /**
-     * 专栏标题
-     */
+    @ApiModelProperty("专栏标题")
     private String column;
 
-    /**
-     * 文章排序
-     */
+    @ApiModelProperty("文章排序")
     private Integer sort;
 
-    /**
-     * 创建时间
-     */
+    @ApiModelProperty("创建时间")
     private Timestamp createTime;
+
+    /**
+     * @see ColumnArticleReadEnum#getRead()
+     */
+    @ApiModelProperty("阅读模式")
+    private Integer readType;
 }

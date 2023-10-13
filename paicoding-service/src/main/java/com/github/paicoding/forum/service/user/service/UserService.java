@@ -1,9 +1,13 @@
 package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 用户Service接口
@@ -12,22 +16,15 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
  * @date 2022-07-20
  */
 public interface UserService {
-
     /**
-     * 账号密码方式登录；适用于admin后台登录
+     * 判断微信用户是否注册过
      *
-     * @param userName
-     * @param password
+     * @param wxuuid
      * @return
      */
-    BaseUserInfoDTO passwordLogin(String userName, String password);
+    UserDO getWxUser(String wxuuid);
 
-    /**
-     * 用户存在时，直接返回；不存在时，则初始化
-     *
-     * @param req
-     */
-    void registerOrGetUserInfo(UserSaveReq req);
+    List<SimpleUserInfoDTO> searchUser(String userName);
 
     /**
      * 保存用户详情
@@ -35,6 +32,23 @@ public interface UserService {
      * @param req
      */
     void saveUserInfo(UserInfoSaveReq req);
+
+    /**
+     * 获取登录的用户信息,并更行丢对应的ip信息
+     *
+     * @param session  用户会话
+     * @param clientIp 用户最新的登录ip
+     * @return 返回用户基本信息
+     */
+    BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
+
+    /**
+     * 查询极简的用户信息
+     *
+     * @param userId
+     * @return
+     */
+    SimpleUserInfoDTO querySimpleUserInfo(Long userId);
 
     /**
      * 查询用户基本信息
@@ -47,6 +61,22 @@ public interface UserService {
 
 
     /**
+     * 批量查询用户基本信息
+     *
+     * @param userIds
+     * @return
+     */
+    List<SimpleUserInfoDTO> batchQuerySimpleUserInfo(Collection<Long> userIds);
+
+    /**
+     * 批量查询用户基本信息
+     *
+     * @param userIds
+     * @return
+     */
+    List<BaseUserInfoDTO> batchQueryBasicUserInfo(Collection<Long> userIds);
+
+    /**
      * 查询用户主页信息
      *
      * @param userId
@@ -54,4 +84,14 @@ public interface UserService {
      * @throws Exception
      */
     UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId);
+
+    /**
+     * 查询用户基本信息，查询多个
+     *
+     * @param userIds
+     * @return
+     */
+    List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds);
+
+    Long getUserCount();
 }

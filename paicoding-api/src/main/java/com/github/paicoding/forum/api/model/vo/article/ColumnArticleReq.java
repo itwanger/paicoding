@@ -1,9 +1,9 @@
 package com.github.paicoding.forum.api.model.vo.article;
 
+import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 保存Column文章请求参数
@@ -33,4 +33,14 @@ public class ColumnArticleReq implements Serializable {
      * 文章排序
      */
     private Integer sort;
+
+    /**
+     * 教程标题
+     */
+    private String shortTitle;
+
+    /**
+     * 阅读方式
+     */
+    private Integer read;
 }

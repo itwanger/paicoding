@@ -35,5 +35,10 @@
         PDF
       </div>
     </div>
+    <div th:case="8">
+      <div th:replace="components/side/side-rank :: side_rank(${sidebar})">
+        排行榜
+      </div>
+    </div>
   </div>
 </div>

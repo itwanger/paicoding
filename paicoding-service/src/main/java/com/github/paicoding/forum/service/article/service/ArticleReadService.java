@@ -53,7 +53,7 @@ public interface ArticleReadService {
      * @param currentUser 当前查看的用户ID
      * @return
      */
-    ArticleDTO queryTotalArticleInfo(Long articleId, Long currentUser);
+    ArticleDTO queryFullArticleInfo(Long articleId, Long currentUser);
 
     /**
      * 查询某个分类下的文章，支持翻页
@@ -67,6 +67,7 @@ public interface ArticleReadService {
 
     /**
      * 获取 Top 文章
+     *
      * @param categoryId
      * @return
      */
@@ -148,4 +149,11 @@ public interface ArticleReadService {
      * @return
      */
     int queryArticleCount(long authorId);
+
+    /**
+     * 返回总的文章计数
+     *
+     * @return
+     */
+    Long getArticleCount();
 }

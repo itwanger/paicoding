@@ -7,6 +7,9 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.rank.service.UserActivityRankService;
+import com.github.paicoding.forum.service.rank.service.model.ActivityScoreBo;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,25 +48,29 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             }
 
             if (permission == null || permission.role() == UserRole.ALL) {
+                if (ReqInfoContext.getReqInfo() != null) {
+                    // 用户活跃度更新
+                    SpringUtil.getBean(UserActivityRankService.class).addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setPath(ReqInfoContext.getReqInfo().getPath()));
+                }
                 return true;
             }
+
             if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getUserId() == null) {
                 if (handlerMethod.getMethod().getAnnotation(ResponseBody.class) != null
                         || handlerMethod.getMethod().getDeclaringClass().getAnnotation(RestController.class) != null) {
                     // 访问需要登录的rest接口
                     response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-                    response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "未登录")));
+                    response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_NOTLOGIN)));
                     response.getWriter().flush();
                     return false;
-                } else if (request.getRequestURI().startsWith("/api/admin/") || request.getRequestURI().startsWith("/admin/")){
-                   response.sendRedirect("/admin");
+                } else if (request.getRequestURI().startsWith("/api/admin/") || request.getRequestURI().startsWith("/admin/")) {
+                    response.sendRedirect("/admin");
                 } else {
                     // 访问需要登录的页面时，直接跳转到登录界面
-                    response.sendRedirect("/qrLogin");
+                    response.sendRedirect("/");
                 }
                 return false;
             }
-
             if (permission.role() == UserRole.ADMIN && !UserRole.ADMIN.name().equalsIgnoreCase(ReqInfoContext.getReqInfo().getUser().getRole())) {
                 // 设置为无权限
                 response.setStatus(HttpStatus.FORBIDDEN.value());

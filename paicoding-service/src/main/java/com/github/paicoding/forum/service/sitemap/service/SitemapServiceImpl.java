@@ -2,18 +2,26 @@ package com.github.paicoding.forum.service.sitemap.service;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
-import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
+import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
+import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
+import com.github.paicoding.forum.service.statistics.service.CountService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,6 +30,7 @@ import java.util.stream.Collectors;
  * @author YiHui
  * @date 2023/2/13
  */
+@Slf4j
 @Service
 public class SitemapServiceImpl implements SitemapService {
     @Value("${view.site.host:https://paicoding.com}")
@@ -32,6 +41,8 @@ public class SitemapServiceImpl implements SitemapService {
 
     @Resource
     private ArticleDao articleDao;
+    @Resource
+    private CountService countService;
 
     public SiteMapVo getSiteMap() {
         // key = 文章id, value = 最后更新时间
@@ -75,10 +86,12 @@ public class SitemapServiceImpl implements SitemapService {
         RedisClient.del(SITE_MAP_CACHE_KEY);
         while (true) {
             List<SimpleArticleDTO> list = articleDao.getBaseMapper().listArticlesOrderById(lastId, SCAN_SIZE);
-            RedisClient.hMSet(SITE_MAP_CACHE_KEY,
-                    list.stream().collect(Collectors.toMap(s -> String.valueOf(s.getId()),
-                            s -> s.getCreateTime().getTime(),
-                            (a, b) -> a)));
+            // 刷新文章的统计信息
+            list.forEach(s -> countService.refreshArticleStatisticInfo(s.getId()));
+
+            // 刷新站点地图信息
+            Map<String, Long> map = list.stream().collect(Collectors.toMap(s -> String.valueOf(s.getId()), s -> s.getCreateTime().getTime(), (a, b) -> a));
+            RedisClient.hMSet(SITE_MAP_CACHE_KEY, map);
             if (list.size() < SCAN_SIZE) {
                 break;
             }
@@ -101,13 +114,132 @@ public class SitemapServiceImpl implements SitemapService {
      * @param event
      */
     @EventListener(ArticleMsgEvent.class)
-    public void autoUpdateSiteMap(ArticleMsgEvent<Long> event) {
+    public void autoUpdateSiteMap(ArticleMsgEvent<ArticleDO> event) {
         ArticleEventEnum type = event.getType();
         if (type == ArticleEventEnum.ONLINE) {
-            addArticle(event.getContent());
+            addArticle(event.getContent().getId());
         } else if (type == ArticleEventEnum.OFFLINE || type == ArticleEventEnum.DELETE) {
-            rmArticle(event.getContent());
+            rmArticle(event.getContent().getId());
         }
     }
 
+    /**
+     * 采用定时器方案，每天5:15分刷新站点地图，确保数据的一致性
+     */
+    @Scheduled(cron = "0 15 5 * * ?")
+    public void autoRefreshCache() {
+        log.info("开始刷新sitemap.xml的url地址，避免出现数据不一致问题!");
+        refreshSitemap();
+        log.info("刷新完成！");
+    }
+
+
+    /**
+     * 保存站点数据模型
+     * <p>
+     * 站点统计hash：
+     * - visit_info:
+     * ---- pv: 站点的总pv
+     * ---- uv: 站点的总uv
+     * ---- pv_path: 站点某个资源的总访问pv
+     * ---- uv_path: 站点某个资源的总访问uv
+     * - visit_info_ip:
+     * ---- pv: 用户访问的站点总次数
+     * ---- path_pv: 用户访问的路径总次数
+     * - visit_info_20230822每日记录, 一个月一条记录
+     * ---- pv: 12  # field = 月日_pv, pv的计数
+     * ---- uv: 5   # field = 月日_uv, uv的计数
+     * ---- pv_path: 2 # 资源的当前访问计数
+     * ---- uv_path: # 资源的当天访问uv
+     * ---- pv_ip: # 用户当天的访问次数
+     * ---- pv_path_ip: # 用户对资源的当天访问次数
+     *
+     * @param visitIp 访问者ip
+     * @param path    访问的资源路径
+     */
+    @Override
+    public void saveVisitInfo(String visitIp, String path) {
+        String globalKey = SitemapConstants.SITE_VISIT_KEY;
+        String day = SitemapConstants.day(LocalDate.now());
+
+        String todayKey = globalKey + "_" + day;
+
+        // 用户的全局访问计数+1
+        Long globalUserVisitCnt = RedisClient.hIncr(globalKey + "_" + visitIp, "pv", 1);
+        // 用户的当日访问计数+1
+        Long todayUserVisitCnt = RedisClient.hIncr(todayKey, "pv_" + visitIp, 1);
+
+        RedisClient.PipelineAction pipelineAction = RedisClient.pipelineAction();
+        if (globalUserVisitCnt == 1) {
+            // 站点新用户
+            // 今日的uv + 1
+            pipelineAction.add(todayKey, "uv"
+                    , (connection, key, field) -> {
+                        connection.hIncrBy(key, field, 1);
+                    });
+            pipelineAction.add(todayKey, "uv_" + path
+                    , (connection, key, field) -> connection.hIncrBy(key, field, 1));
+
+            // 全局站点的uv
+            pipelineAction.add(globalKey, "uv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
+            pipelineAction.add(globalKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+        } else if (todayUserVisitCnt == 1) {
+            // 判断是今天的首次访问，更新今天的uv+1
+            pipelineAction.add(todayKey, "uv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
+            pipelineAction.add(todayKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+
+            // 判断是否是用户的首次访问这个path，若是，则全局的path uv计数需要+1
+            if (RedisClient.hIncr(globalKey + "_" + visitIp, "pv_" + path, 1) == 1) {
+                pipelineAction.add(globalKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+            }
+        }
+
+
+        // 更新pv 以及 用户的path访问信息
+        // 今天的相关信息 pv
+        pipelineAction.add(todayKey, "pv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
+        pipelineAction.add(todayKey, "pv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+        pipelineAction.add(todayKey, "pv_" + path + "_" + visitIp, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+
+
+        // 全局的 PV
+        pipelineAction.add(globalKey, "pv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
+        pipelineAction.add(globalKey, "pv" + "_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+
+        // 保存访问信息
+        pipelineAction.execute();
+        if (log.isDebugEnabled()) {
+            log.info("用户访问信息更新完成! 当前用户总访问: {}，今日访问: {}", globalUserVisitCnt, todayUserVisitCnt);
+        }
+    }
+
+    /**
+     * 查询站点某一天or总的访问信息
+     *
+     * @param date 日期，为空时，表示查询所有的站点信息
+     * @param path 访问路径，为空时表示查站点信息
+     * @return
+     */
+    public SiteCntVo querySiteVisitInfo(LocalDate date, String path) {
+        String globalKey = SitemapConstants.SITE_VISIT_KEY;
+        String day = null, todayKey = globalKey;
+        if (date != null) {
+            day = SitemapConstants.day(date);
+            todayKey = globalKey + "_" + day;
+        }
+
+        String pvField = "pv", uvField = "uv";
+        if (path != null) {
+            // 表示查询对应路径的访问信息
+            pvField += "_" + path;
+            uvField += "_" + path;
+        }
+
+        Map<String, Integer> map = RedisClient.hMGet(todayKey, Arrays.asList(pvField, uvField), Integer.class);
+        SiteCntVo siteInfo = new SiteCntVo();
+        siteInfo.setDay(day);
+        siteInfo.setPv(map.getOrDefault(pvField, 0));
+        siteInfo.setUv(map.getOrDefault(uvField, 0));
+        return siteInfo;
+    }
 }

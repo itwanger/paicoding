@@ -1,10 +1,10 @@
 package com.github.paicoding.forum.service.article.service;
 
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
-import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 
 /**
  * 文章后台接口
@@ -22,19 +22,12 @@ public interface ArticleSettingService {
     void updateArticle(ArticlePostReq req);
 
     /**
-     * 获取文章总数
-     *
-     * @return
-     */
-    Integer getArticleCount();
-
-    /**
      * 获取文章列表
      *
-     * @param pageParam
+     * @param req
      * @return
      */
-    PageVo<ArticleDTO> getArticleList(PageParam pageParam);
+    PageVo<ArticleAdminDTO> getArticleList(SearchArticleReq req);
 
     /**
      * 删除文章

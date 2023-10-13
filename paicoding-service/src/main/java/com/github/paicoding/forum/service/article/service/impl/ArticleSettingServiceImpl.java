@@ -1,25 +1,28 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.article.ArticleMsgEvent;
+import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
-import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
+import com.github.paicoding.forum.service.article.conveter.ArticleStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
+import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
-import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,13 +43,19 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     private ArticleDao articleDao;
 
     @Autowired
-    private UserService userService;
+    private ColumnArticleDao columnArticleDao;
 
     @Override
+    @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
     public void updateArticle(ArticlePostReq req) {
+        if (req.getStatus() != PushStatusEnum.OFFLINE.getCode()
+                && req.getStatus() != PushStatusEnum.ONLINE.getCode()
+                && req.getStatus() != PushStatusEnum.REVIEW.getCode()) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "发布状态不合法!");
+        }
         ArticleDO article = articleDao.getById(req.getArticleId());
         if (article == null) {
-            return;
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在!");
         }
 
         if (StringUtils.isNotBlank(req.getTitle())) {
@@ -69,36 +78,42 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
         if (operateEvent != null) {
             // 发布文章待审核、上线、下线事件
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, operateEvent, article.getId()));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, operateEvent, article));
         }
     }
 
     @Override
-    public Integer getArticleCount() {
-        return articleDao.countArticle();
-    }
+    public PageVo<ArticleAdminDTO> getArticleList(SearchArticleReq req) {
+        // 转换参数，从前端获取的参数转换为数据库查询参数
+        SearchArticleParams searchArticleParams = ArticleStructMapper.INSTANCE.toSearchParams(req);
 
-    @Override
-    public PageVo<ArticleDTO> getArticleList(PageParam pageParam) {
-        List<ArticleDO> articleDOS = articleDao.listArticles(pageParam);
-        List<ArticleDTO> articleDTOS = ArticleConverter.toArticleDtoList(articleDOS);
-        articleDTOS.forEach(articleDTO -> {
-            BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
-            articleDTO.setAuthorName(user.getUserName());
-        });
-        Integer totalCount = articleDao.countArticle();
-        return PageVo.build(articleDTOS, pageParam.getPageSize(), pageParam.getPageNum(), totalCount);
+        // 查询文章列表，分页
+        List<ArticleAdminDTO> articleDTOS = articleDao.listArticlesByParams(searchArticleParams);
+
+        // 查询文章总数
+        Long totalCount = articleDao.countArticleByParams(searchArticleParams);
+        return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
     }
 
     @Override
     public void deleteArticle(Long articleId) {
         ArticleDO dto = articleDao.getById(articleId);
         if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
+            // 查询该文章是否关联了教程，如果已经关联了教程，则不能删除
+            long count = columnArticleDao.count(
+                    Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getArticleId, articleId));
+
+            if (count > 0) {
+                throw ExceptionUtil.of(StatusEnum.ARTICLE_RELATION_TUTORIAL, articleId, "请先解除文章与教程的关联关系");
+            }
+
             dto.setDeleted(YesOrNoEnum.YES.getCode());
             articleDao.updateById(dto);
 
             // 发布文章删除事件
-            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, articleId));
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.DELETE, dto));
+        } else {
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
     }
 
@@ -112,36 +127,36 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         articleDao.updateById(articleDO);
     }
 
-    private boolean setArticleStat(ArticleDO articleDO, OperateArticleEnum operate) {
+    private void setArticleStat(ArticleDO articleDO, OperateArticleEnum operate) {
         switch (operate) {
             case OFFICAL:
             case CANCEL_OFFICAL:
-                return compareAndUpdate(articleDO::getOfficalStat, articleDO::setOfficalStat, operate.getDbStatCode());
+                compareAndUpdate(articleDO::getOfficalStat, articleDO::setOfficalStat, operate.getDbStatCode());
+                return;
             case TOPPING:
             case CANCEL_TOPPING:
-                return compareAndUpdate(articleDO::getToppingStat, articleDO::setToppingStat, operate.getDbStatCode());
+                compareAndUpdate(articleDO::getToppingStat, articleDO::setToppingStat, operate.getDbStatCode());
+                return;
             case CREAM:
             case CANCEL_CREAM:
-                return compareAndUpdate(articleDO::getCreamStat, articleDO::setCreamStat, operate.getDbStatCode());
+                compareAndUpdate(articleDO::getCreamStat, articleDO::setCreamStat, operate.getDbStatCode());
+                return;
             default:
-                return false;
         }
     }
 
     /**
      * 相同则直接返回false不用更新；不同则更新,返回true
      *
+     * @param <T>
      * @param supplier
      * @param consumer
      * @param input
-     * @param <T>
-     * @return
      */
-    private <T> boolean compareAndUpdate(Supplier<T> supplier, Consumer<T> consumer, T input) {
+    private <T> void compareAndUpdate(Supplier<T> supplier, Consumer<T> consumer, T input) {
         if (Objects.equals(supplier.get(), input)) {
-            return false;
+            return;
         }
         consumer.accept(input);
-        return true;
     }
 }
