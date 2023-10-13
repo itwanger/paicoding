@@ -7,7 +7,9 @@ import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
@@ -46,6 +48,14 @@ public class UserConverter {
         return userInfoDO;
     }
 
+    public static BaseUserInfoDTO toDTO(UserInfoDO info, UserAiDO userAiDO) {
+        BaseUserInfoDTO user = toDTO(info);
+        if (userAiDO != null) {
+            user.setStarStatus(userAiDO.getState());
+        }
+        return user;
+    }
+
     public static BaseUserInfoDTO toDTO(UserInfoDO info) {
         if (info == null) {
             return null;
@@ -60,6 +70,13 @@ public class UserConverter {
         return user;
     }
 
+    public static SimpleUserInfoDTO toSimpleInfo(UserInfoDO info) {
+        return new SimpleUserInfoDTO().setUserId(info.getUserId())
+                .setName(info.getUserName())
+                .setAvatar(info.getPhoto())
+                .setProfile(info.getProfile());
+    }
+
     public static UserRelationDO toDO(UserRelationReq req) {
         if (req == null) {
             return null;
@@ -71,11 +88,10 @@ public class UserConverter {
         return userRelationDO;
     }
 
-    public static UserStatisticInfoDTO toUserHomeDTO(BaseUserInfoDTO baseUserInfoDTO) {
+    public static UserStatisticInfoDTO toUserHomeDTO(UserStatisticInfoDTO userHomeDTO, BaseUserInfoDTO baseUserInfoDTO) {
         if (baseUserInfoDTO == null) {
             return null;
         }
-        UserStatisticInfoDTO userHomeDTO = new UserStatisticInfoDTO();
         BeanUtils.copyProperties(baseUserInfoDTO, userHomeDTO);
         return userHomeDTO;
     }

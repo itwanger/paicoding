@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.global;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.ForumException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
@@ -11,13 +12,17 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 全局异常处理
@@ -29,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Order(-100)
 public class ForumExceptionHandler implements HandlerExceptionResolver {
+
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         Status errStatus = buildToastMsg(ex);
@@ -47,6 +53,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
                 response.setHeader("Cache-Control", "no-cache, must-revalidate");
                 response.getWriter().println(JsonUtil.toStr(ResVo.fail(errStatus)));
                 response.getWriter().flush();
+                response.getWriter().close();
                 return new ModelAndView();
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -65,13 +72,18 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
     private Status buildToastMsg(Exception ex) {
         if (ex instanceof ForumException) {
             return ((ForumException) ex).getStatus();
+        } else if (ex instanceof AsyncRequestTimeoutException) {
+            return Status.newStatus(StatusEnum.UNEXPECT_ERROR, "超时未登录");
         } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
             return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
+        } else if (ex instanceof HttpRequestMethodNotSupportedException || ex instanceof MethodArgumentTypeMismatchException || ex instanceof IOException) {
+            // 请求方法不匹配
+            return Status.newStatus(StatusEnum.ILLEGAL_ARGUMENTS, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof NestedRuntimeException) {
-            log.error("unexpect error", ex);
+            log.error("unexpect NestedRuntimeException error! {}", ReqInfoContext.getReqInfo(), ex);
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ex.getMessage());
         } else {
-            log.error("unexpect error", ex);
+            log.error("unexpect error! {}", ReqInfoContext.getReqInfo(), ex);
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, ExceptionUtils.getStackTrace(ex));
         }
     }
@@ -111,6 +123,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             return true;
         }
 
+        if (isAjaxRequest(request)) {
+            return true;
+        }
+
         // 数据接口请求
         AntPathMatcher pathMatcher = new AntPathMatcher();
         if (pathMatcher.match("/**/api/**", request.getRequestURI())) {
@@ -118,4 +134,10 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         }
         return false;
     }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWith = request.getHeader("X-Requested-With");
+        return "XMLHttpRequest".equals(requestedWith);
+    }
+
 }

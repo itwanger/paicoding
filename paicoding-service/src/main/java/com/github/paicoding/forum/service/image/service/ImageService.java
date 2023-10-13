@@ -24,7 +24,7 @@ public interface ImageService {
     String saveImg(String img);
 
     /**
-     * 上传图片转存
+     * 保存图片
      *
      * @param request
      * @return

@@ -118,13 +118,14 @@ public class UserViewController extends BaseViewController {
      * 返回Home页选择列表标签
      *
      * @param selectType
+     * @param isAuthor true 表示当前为查看自己的个人主页
      * @return
      */
     private List<TagSelectDTO> homeSelectTags(String selectType, boolean isAuthor) {
         List<TagSelectDTO> tags = new ArrayList<>();
         homeSelectTags.forEach(tag -> {
-            if (!isAuthor && tag.equals("read")) {
-                // 只有作者才能看自己的阅读历史
+            if (!isAuthor && "read".equals(tag)) {
+                // 只有本人才能看自己的阅读历史
                 return;
             }
             TagSelectDTO tagSelectDTO = new TagSelectDTO();

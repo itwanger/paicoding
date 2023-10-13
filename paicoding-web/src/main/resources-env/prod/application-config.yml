@@ -3,11 +3,17 @@ view:
     websiteName: 技术派
     websiteLogoUrl: https://paicoding.com/img/logo.svg
     websiteFaviconIconUrl: https://paicoding.com/img/icon.png
-    contactMeTitle: 联系我 - louzai
-    contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg
+    contactMeTitle: 联系我 - 沉默王二的狗腿子
+    contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png
     pageSize: 20
     cdnImgStyle:
-    websiteRecord: 豫ICP备2021038026号-3
+    websiteRecord: 备案被小人偷袭了
     wxLoginUrl: http://weixin.qq.com/r/WxwpMefE-rqBraNS90lJ
     host: https://paicoding.com
     welcomeInfo: 欢迎来到技术派，戳 <a href="/article/detail/155">技术派社区上线！</a> 了解我们
+    zsxqUrl: https://paicoding.com/article/detail/314
+    zsxqPosterUrl: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/javabetter.jpg
+    contactMeStarQrCode: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/qiye-weixin.png
+
+knife4j:
+  production: true # 开启屏蔽文档资源

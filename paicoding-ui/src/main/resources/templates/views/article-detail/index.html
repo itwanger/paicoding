@@ -21,7 +21,7 @@
 
             <!-- 正文 -->
             <div
-              th:replace="components/article/article-detail :: article_info(${vo.article}, ${vo.author}, false)"
+              th:replace="components/article/article-detail :: article_info(${vo.article}, ${vo.author}, 0)"
             ></div>
 
             <!--  评论  -->
@@ -75,35 +75,51 @@
     ></div>
 
     <script th:inline="javascript">
+      /*<![CDATA[*/
       // 内容渲染
       const articleId = [[${vo.article.articleId}]];
-      const content = [[${vo.article.content}]];
-      document.getElementById('articleContent').innerHTML = marked.parse(content);
-      // 文章样式渲染
-      document.addEventListener('DOMContentLoaded', function (event) {
-          if (document.querySelectorAll('pre code').length === 0) {
-              return;
-          }
-
-          // 加载 highlight 样式文件
-          // loadLink('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css');
-          // 加载 highlight 脚本文件
-          loadScript('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js', function () {
-              document.querySelectorAll('pre code').forEach(function (block) {
-                  hljs.highlightBlock(block);
-              });
-          });
-      });
 
       // 生成菜单
-      genTocMenu('#articleContent', '#contentMenu')
+      genTocMenu('#articleContent', '#contentMenu');
+
+      // 高亮代码
+      hljs.addPlugin({
+        'after:highlightElement': ({ el, result }) => {
+          // move the language from the result into the dataset
+          el.setAttribute('lang', result.language);
+          el.classList.add('copyable');
+
+          // 创建复制代码按钮
+          const copyBtn = document.createElement('span');
+          copyBtn.classList.add('copy-code-btn');
+          copyBtn.textContent = '复制代码';
+
+          // 将复制代码按钮添加到代码块后
+          el.parentNode.insertBefore(copyBtn, el.nextSibling);
+        }
+      });
+      hljs.highlightAll();
+
+      const clipboard = new ClipboardJS('.copy-code-btn', {
+        target: function(trigger) {
+          return trigger.previousElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        // 复制成功
+        toastr.info("复制成功");
+        e.clearSelection();
+      });
+
+      clipboard.on('error', function(e) {
+        console.log('复制失败');
+      });
 
       // 跳转到评论的地方
       $("#commentFloatBtn,#commentFloatBtnMd").click(function () {
           document.getElementById("commentList").scrollIntoView(true);
       })
-
-
 
       if (window.location.href.indexOf("#commentList") >= 0) {
           document.getElementById("commentList").scrollIntoView(true);
@@ -362,6 +378,8 @@
 
 
       bindCommentInputEvent();
+
+      /*]]>*/
     </script>
   </body>
 </html>

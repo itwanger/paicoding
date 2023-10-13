@@ -13,6 +13,5 @@ spring:
     cache: true # 开启缓存
 
 
-view:
-  site:
-    host:
+chatgpt:
+  key:

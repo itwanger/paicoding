@@ -5,7 +5,16 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * @author YiHui
@@ -22,6 +31,7 @@ public class DemoTest {
         System.out.println(DateUtil.time2utc(now));
         System.out.println("over");
     }
+
     public static void scan(int maxX, int maxY, BiConsumer<Integer, Integer> consumer) {
         for (int i = 0; i < maxX; i++) {
             for (int j = 0; j < maxY; j++) {
@@ -101,5 +111,42 @@ public class DemoTest {
             }
         });
         System.out.println(ans);
+    }
+
+    public int tt(List<Integer> ans) {
+        try {
+            System.out.println("tt 开始执行!!!");
+            Thread.sleep(2000);
+            System.out.println("tt 结束了!");
+            ans.add(10);
+            return 10;
+        } catch (Exception e) {
+            e.printStackTrace();
+            ans.add(-1);
+            return -1;
+        }
+    }
+
+    @Test
+    public void futureTest() throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Integer> list = new ArrayList<>();
+        Future<Integer> ans = executorService.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return tt(list);
+            }
+        });
+        try {
+            ans.get(1, SECONDS);
+        } catch (TimeoutException e) {
+            System.out.println("超时异常了！");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Thread.sleep(3000);
+        System.out.println("结束了!!!" + list);
+
     }
 }

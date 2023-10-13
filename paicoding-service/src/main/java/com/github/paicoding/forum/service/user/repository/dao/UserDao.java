@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
@@ -12,15 +13,24 @@ import com.github.paicoding.forum.service.user.repository.mapper.UserMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.List;
 
 /**
+ * UserDao
+ *
  * @author YiHui
  * @date 2022/9/2
  */
 @Repository
 public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
+
     @Resource
     private UserMapper userMapper;
+
+    public List<Long> scanUserId(Long userId, Integer size) {
+        return userMapper.getUserIdsOrderByIdAsc(userId, size == null ? PageParam.DEFAULT_PAGE_SIZE : size);
+    }
 
     /**
      * 三方账号登录方式
@@ -33,16 +43,19 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     }
 
     /**
-     * 用户名登录
+     * 根据用户名来查询
      *
      * @param userName
      * @return
      */
-    public UserDO getByUserName(String userName) {
-        LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
-        query.eq(UserDO::getUserName, userName)
-                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
-        return userMapper.selectOne(query);
+    public List<UserInfoDO> getByUserNameLike(String userName) {
+        LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
+        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
+                .and(!StringUtils.isEmpty(userName),
+                        v -> v.like(UserInfoDO::getUserName, userName)
+                )
+                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return baseMapper.selectList(query);
     }
 
     public void saveUser(UserDO user) {
@@ -56,10 +69,17 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         return baseMapper.selectOne(query);
     }
 
-    public Integer getUserCount() {
+    public List<UserInfoDO> getByUserIds(Collection<Long> userIds) {
+        LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
+        query.in(UserInfoDO::getUserId, userIds)
+                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return baseMapper.selectList(query);
+    }
+
+    public Long getUserCount() {
         return lambdaQuery()
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode())
-                .count().intValue();
+                .count();
     }
 
     public void updateUserInfo(UserInfoDO user) {
@@ -75,5 +95,20 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         }
         user.setId(record.getId());
         updateById(user);
+    }
+
+    public UserDO getUserByUserName(String userName) {
+        LambdaQueryWrapper<UserDO> queryUser = Wrappers.lambdaQuery();
+        queryUser.eq(UserDO::getUserName, userName)
+                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userMapper.selectOne(queryUser);
+    }
+
+    public UserDO getUserByUserId(Long userId) {
+        return userMapper.selectById(userId);
+    }
+
+    public void updateUser(UserDO userDO) {
+        userMapper.updateById(userDO);
     }
 }

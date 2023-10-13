@@ -29,11 +29,16 @@ function restart() {
 
 function run() {
     # 重新启动
-    echo "启动脚本：==========="
-    echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &"
-    echo "==========="
-    nohup java -server -Xmn512m -Xmn512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &
-    echo $! 1> pid.log
+    run
+}
+
+function run() {
+  echo "启动脚本：==========="
+  echo "nohup java -server -Xms1g -Xmx1g -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &"
+  echo "==========="
+  # ms 堆大小  mx 最大堆大小  mn 新生代大小
+  nohup java -server -Dspring.devtools.restart.enabled=false -Xms1g -Xmx1g -Xmn256m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &
+  echo $! 1> pid.log
 }
 
 if [ $# == 0 ]; then

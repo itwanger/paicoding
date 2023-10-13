@@ -1,16 +1,16 @@
 package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.banner.ConfigReq;
+import com.github.paicoding.forum.api.model.vo.banner.SearchConfigReq;
 import com.github.paicoding.forum.api.model.vo.banner.dto.ConfigDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.config.service.impl.ConfigSettingServiceImpl;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @Permission(role = UserRole.LOGIN)
+@Api(value = "后台运营配置管理控制器", tags = "配置管理")
 @RequestMapping(path = {"api/admin/config/", "admin/config/"})
 public class ConfigSettingrRestController {
 
@@ -53,13 +54,14 @@ public class ConfigSettingrRestController {
         return ResVo.ok("ok");
     }
 
-    @ResponseBody
-    @GetMapping(path = "list")
-    public ResVo<PageVo<ConfigDTO>> list(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                         @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<ConfigDTO> bannerDTOPageVo = configSettingService.getConfigList(PageParam.newPageInstance(pageNumber, pageSize));
+    /**
+     * 获取配置列表
+     *
+     * @return
+     */
+    @PostMapping(path = "list")
+    public ResVo<PageVo<ConfigDTO>> list(@RequestBody SearchConfigReq req) {
+        PageVo<ConfigDTO> bannerDTOPageVo = configSettingService.getConfigList(req);
         return ResVo.ok(bannerDTOPageVo);
     }
 }

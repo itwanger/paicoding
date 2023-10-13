@@ -34,6 +34,9 @@
           更新时间
         </span>
         <span th:text="'阅读 ' + ${article.count.readCount}">520</span>
+        <span th:if="${article.status != 1}">
+            <span th:text="${article.status == 0 ? '(草稿)' : '(审核中)'}" style="padding-left: 1em; color: red"></span>
+        </span>
         <div
           th:if="${global.isLogin && article.author == global.user.userId}"
           class="detail-content-title-edit"
@@ -76,8 +79,11 @@
       />
     </div>
 
-    <div id="articleContent" class="article-content"></div>
-    <div th:if="${loginRead && !global.isLogin}">
+    <div id="articleContent" class="article-content" th:utext="${article.content}">
+
+    </div>
+
+    <div th:if="${loginRead == 1 && !global.isLogin}">
       <div style=" width: 100%;
           background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
           background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
@@ -92,6 +98,67 @@
         </a>
       </div>
     </div>
+
+    <div th:if="${loginRead == 3}">
+      <div style=" width: 100%;
+          background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
+          background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
+          padding-bottom: 24px; position: relative;
+          padding-top: 160px;
+          margin-top: -220px;
+          z-index: 996;
+          bottom: -1px;
+          text-align:center">
+        <a class="btn-readmore no-login" style="cursor:pointer;" target="_blank" data-target="#starModel" data-toggle="modal">
+          <span style="color:#ca0c16">加入星球，即刻解锁更多专栏内容</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 星球详情  -->
+    <div
+            class="modal fade"
+            id="starModel"
+            data-backdrop="static"
+            data-keyboard="false"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="deleteModalDropLabel"
+            aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <a href="https://t.zsxq.com/11YwgyGmC">
+              <h5 class="modal-title" id="startModel">该文档仅「二哥的编程星球」VIP 用户可见</h5>
+            </a>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div  class="content" style="font-size: 0.8rem;">
+              <p >二哥的编程星球内容包括：</p>
+              <p style="margin-bottom: 0.5rem"><span  style="color: red; font-weight: bold;">1. 付费文档</span>: 技术派、MYDB 等项目配套的 120+篇教程查看权限</p>
+              <p style="margin-bottom: 0.5rem"><span  style="color: red; font-weight: bold;">2. 面试指南</span>: 校招、社招的 40 万+字面试求职攻略</p>
+              <p style="margin-bottom: 0.5rem"><span  style="color: red; font-weight: bold;">3. 智能助手</span>: 无限期使用派聪明 AI 助手，已对接讯飞星火和 ChatGPT双通道，不用花 1 分钱</p>
+              <p style="margin-bottom: 0.5rem"><span  style="color: red; font-weight: bold;">4. 专属问答</span>: 向二哥 1v1 发起提问，内容不限于 offer 选择、学习路线、职业规划等</p>
+              <p style="margin-bottom: 0.5rem"><span  style="color: red; font-weight: bold;">5. 简历修改</span>: 提供简历修改服务，附赠星球 100+优质简历模板可供参考</p>
+              <p style="margin-bottom: 0.5rem"><span  style="color: red; font-weight: bold;">6. 学习环境</span>: 打造一个沉浸式的学习环境，有一种高考冲刺、大学考研的氛围</p> <br >
+              <img  src="https://cdn.tobebetterjavaer.com/paicoding/153ba04898384c0c6b03dfe6ce1cbe76.jpg" alt="二哥的星球" style="cursor: zoom-in;width: 100%"> <br >
+              <p style="margin-bottom: 0.5rem">&gt; 步骤①：微信扫描下方二维码，点击「加入知识星球」按钮</p>
+              <p style="margin-bottom: 0.5rem">&gt; 步骤②：访问星球置顶帖球友必看： <a  href="https://t.zsxq.com/11rEo9Pdu" target="_blank">https://t.zsxq.com/11rEo9Pdu</a>，获取项目配套文档的语雀访问地址和密码</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a id="gotoStar" type="button" class="btn btn-primary" href="https://t.zsxq.com/11YwgyGmC">
+              星球一键直达
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- 再次确认 Modal -->
     <div
@@ -143,7 +210,14 @@
           // 删除文章成功，跳转到首页
           window.location.href = "/";
         });
-      })
+      });
+      let starArticle = [[${loginRead}]] == 3;
+      console.log("starArticle --->", starArticle);
+      if (starArticle) {
+        // 星球专属文章，展示弹窗
+        $('#starModel').modal('show');
+      }
+
     </script>
   </section>
 </html>

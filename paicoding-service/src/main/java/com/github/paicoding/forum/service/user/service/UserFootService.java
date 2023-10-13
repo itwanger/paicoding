@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 
@@ -85,4 +86,6 @@ public interface UserFootService {
      * @return
      */
     UserFootDO queryUserFoot(Long documentId, Integer type, Long userId);
+
+    UserFootStatisticDTO getFootCount();
 }

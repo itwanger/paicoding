@@ -1,20 +1,26 @@
 package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
+import com.github.paicoding.forum.service.image.service.ImageService;
+import com.github.paicoding.forum.web.front.search.vo.SearchColumnVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +33,9 @@ import java.util.List;
  * @date 2022/9/19
  */
 @RestController
+@Slf4j
 @Permission(role = UserRole.LOGIN)
+@Api(value = "专栏及专栏文章管理控制器", tags = "专栏管理")
 @RequestMapping(path = {"api/admin/column/", "admin/column/"})
 public class ColumnSettingRestController {
 
@@ -36,6 +44,9 @@ public class ColumnSettingRestController {
 
     @Autowired
     private ArticleReadService articleReadService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "saveColumn")
@@ -51,7 +62,7 @@ public class ColumnSettingRestController {
         // 要求文章必须存在，且已经发布
         ArticleDO articleDO = articleReadService.queryBasicArticle(req.getArticleId());
         if (articleDO == null || articleDO.getStatus() == PushStatusEnum.OFFLINE.getCode()) {
-            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在或未发布!");
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程对应的文章不存在或未发布!");
         }
 
         columnSettingService.saveColumnArticle(req);
@@ -59,48 +70,47 @@ public class ColumnSettingRestController {
     }
 
     @Permission(role = UserRole.ADMIN)
-    @PostMapping(path = "sortColumnArticle")
-    public ResVo<String> sortColumnArticle(@RequestBody List<ColumnArticleReq> columnArticleReqs) {
-        columnSettingService.sortColumnArticle(columnArticleReqs);
-        return ResVo.ok("ok");
-    }
-
-    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumn")
-    public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Integer columnId) {
+    public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Long columnId) {
         columnSettingService.deleteColumn(columnId);
         return ResVo.ok("ok");
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumnArticle")
-    public ResVo<String> deleteColumnArticle(@RequestParam(name = "id") Integer id) {
+    public ResVo<String> deleteColumnArticle(@RequestParam(name = "id") Long id) {
         columnSettingService.deleteColumnArticle(id);
         return ResVo.ok("ok");
     }
 
-
-    @GetMapping(path = "listColumn")
-    public ResVo<PageVo<ColumnDTO>> listColumn(@RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                               @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        PageVo<ColumnDTO> columnDTOPageVo = columnSettingService.listColumn(PageParam.newPageInstance(pageNumber, pageSize));
+    @ApiOperation("获取教程列表")
+    @PostMapping(path = "list")
+    public ResVo<PageVo<ColumnDTO>> list(@RequestBody SearchColumnReq req) {
+        PageVo<ColumnDTO> columnDTOPageVo = columnSettingService.getColumnList(req);
         return ResVo.ok(columnDTOPageVo);
     }
 
-    @GetMapping(path = "listColumnArticle")
-    public ResVo<PageVo<ColumnArticleDTO>> listColumnArticle(@RequestParam(name = "columnId") Integer columnId,
-                                                             @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-                                                             @RequestParam(name = "pageSize", required = false) Integer pageSize) throws Exception {
-        pageNumber = NumUtil.nullOrZero(pageNumber) ? 1 : pageNumber;
-        pageSize = NumUtil.nullOrZero(pageSize) ? 10 : pageSize;
-        try {
-            PageVo<ColumnArticleDTO> simpleArticleDTOS = columnSettingService.queryColumnArticles(
-                    columnId, PageParam.newPageInstance(pageNumber, pageSize));
-            return ResVo.ok(simpleArticleDTOS);
-        } catch (Exception e) {
-            return ResVo.fail(StatusEnum.COLUMN_QUERY_ERROR, e.getMessage());
-        }
+    /**
+     * 获取教程配套的文章列表
+     * <p>
+     *     请求参数有教程名、文章名
+     *     返回教程配套的文章列表
+     *
+     * @return
+     */
+    @PostMapping(path = "listColumnArticle")
+    public ResVo<PageVo<ColumnArticleDTO>> listColumnArticle(@RequestBody SearchColumnArticleReq req) {
+        PageVo<ColumnArticleDTO> vo = columnSettingService.getColumnArticleList(req);
+        return ResVo.ok(vo);
+    }
+
+    @ApiOperation("专栏搜索")
+    @GetMapping(path = "query")
+    public ResVo<SearchColumnVo> query(@RequestParam(name = "key", required = false) String key) {
+        List<SimpleColumnDTO> list = columnSettingService.listSimpleColumnBySearchKey(key);
+        SearchColumnVo vo = new SearchColumnVo();
+        vo.setKey(key);
+        vo.setItems(list);
+        return ResVo.ok(vo);
     }
 }

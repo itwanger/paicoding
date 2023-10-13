@@ -4,7 +4,7 @@ import com.github.hui.quick.plugin.base.file.FileWriteUtil;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.config.ImageProperties;
-import com.github.paicoding.forum.service.image.oss.IOssUploader;
+import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import java.util.Random;
 @Slf4j
 @ConditionalOnExpression(value = "#{'local'.equals(environment.getProperty('image.oss.type'))}")
 @Component
-public class LocalStorageWrapper implements IOssUploader {
+public class LocalStorageWrapper implements ImageUploader {
     @Autowired
     private ImageProperties imageProperties;
     private Random random;
@@ -75,6 +75,11 @@ public class LocalStorageWrapper implements IOssUploader {
     @Override
     public boolean uploadIgnore(String img) {
         if (StringUtils.isNotBlank(imageProperties.getCdnHost()) && img.startsWith(imageProperties.getCdnHost())) {
+            return true;
+        }
+
+        // 如果是oss的图片，也不需要转存
+        if (StringUtils.isNotBlank(imageProperties.getOss().getHost()) && img.startsWith(imageProperties.getOss().getHost())) {
             return true;
         }
 

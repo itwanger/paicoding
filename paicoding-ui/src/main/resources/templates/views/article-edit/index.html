@@ -4,7 +4,9 @@
     <title th:text="${global.siteInfo.websiteName}">技术派 - 文章发表</title>
   </div>
 
+  <link rel="stylesheet" href="/editormd/css/editormd.css" />
   <link rel="stylesheet" href="/css/views/article-edit.css" />
+  <script src="/editormd/editormd.js"></script>
 
   <body id="body">
     <!-- 正文内容 -->
@@ -182,14 +184,14 @@
                 id="summary"
                 class="form-control form-textarea summary"
                 data-bs-toggle="autosize"
-                placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 128 字符键入摘要文本框"
-                maxlength="128"
+                placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 256 字符键入摘要文本框"
+                maxlength="256"
                 th:text="${vo.article != null ?  vo.article.summary: ''}"
                 oninput="initSummary()"
               ></textarea>
               <span
                 class="form-textarea-limit"
-                th:text="${vo.article != null ?  #strings.length(vo.article.summary) + '/128': '0/128'}"
+                th:text="${vo.article != null ?  #strings.length(vo.article.summary) + '/256': '0/256'}"
               >
                 0/128
               </span>
@@ -232,7 +234,7 @@
               showSaveBtnFlagByTitle = false;
 
       const titleMin = 5, titleMax = 120,
-        contentMin = 6, summaryMax = 128;
+        contentMin = 6, summaryMax = 256;
 
       if (vo && vo.article) {
         articleId = vo.article.articleId;
@@ -266,6 +268,12 @@
           editMaskDom.hide()
         }
       }
+
+      const preprocessMarkdown = (markdown) => {
+        const regex = /(#+) \*\*(.+?)\*\*/g;
+        return markdown.replace(regex, (match, p1, p2) => `${p1} ${p2}`);
+      };
+
       // 编辑器
       let simplemde = editormd("paiEditor", {
         width: "100%",
@@ -295,6 +303,96 @@
         //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
         //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
         //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
+
+        // 自定义菜单
+        toolbarIcons: function () {
+          return [
+            "mdFile","|",
+            "undo", "redo", "|",
+            "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+            "h1", "h2", "h3", "h4", "|",
+            "list-ul", "list-ol", "hr", "|",
+            "reference-link", "image", "code", "code-block", "table", "html-entities", "|",
+            "goto-line", "watch", "fullscreen", "clear", "search", "|",
+            "help"
+          ]
+        },
+
+        // 用于增加自定义工具栏的功能，可以直接插入HTML标签，不使用默认的元素创建图标
+        toolbarIconTexts : {
+          mdFile : "导入MD"
+        },
+        toolbarHandlers: {
+          mdFile : function(cm, icon, cursor, selection){
+            console.log("导入MD");
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = ".md";
+            fileInput.onchange = function(){
+              console.log("文件选择完毕");
+
+              const file = fileInput.files[0];
+              const reader = new FileReader();
+              reader.onload = function(e){
+                // 获取文件内容
+                let content = e.target.result;
+                console.log("文件内容：", content);
+
+                // 如果内容为空的话，直接返回
+                if(!content || content.length <= 0) {
+                  return;
+                }
+
+                // 使用正则表达式找到前两个 "—" 分隔符之间的内容，以及第二个 "—" 分隔符之后的内容
+                let match = content.match(/^-{3,}([\s\S]*?)-{3,}([\s\S]*)/);
+                if (match && match[1] && match[2]) {
+                  // 提取标题
+                  let titleMatch = match[1].match(/title: (.*)/);
+                  let title = titleMatch && titleMatch[1] ? titleMatch[1].trim() : null;
+
+                  if (title) {
+                    console.log("标题：", title);
+                    $("#titleInput").val(title);
+                    showSaveBtnByTitle();
+                  } else {
+                    console.error("没有找到标题");
+                  }
+
+                  // 提取描述
+                  let descMatch = match[1].match(/description: ([^\n]*)/);
+                  let summary = descMatch && descMatch[1] ? descMatch[1].trim() : null;
+
+                  if (summary) {
+                    console.log("描述：", summary);
+                    $("#summary").val(summary);
+                  } else {
+                    console.error("没有找到描述");
+                  }
+
+                  let text = match[2].trim();
+                  console.log("正文：", text);
+
+                  // 插入到编辑器
+                  content = text;
+                } else {
+                  cm.replaceSelection(content);
+                }
+
+                cm.replaceSelection(preprocessMarkdown(content));
+
+              };
+              reader.readAsText(file);
+            };
+            fileInput.click();
+          }
+        },
+        lang: {
+          toolbar: {
+            mdFile: "导入MD"
+          }
+        },
+
+
         imageUpload: true,
         imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
         imageUploadURL: "/image/upload",
@@ -484,7 +582,10 @@
 
         post("/article/api/generateSummary", params, function (data) {
           console.log("提取后的简介:", data)
-          $("#summary").val(data);
+          const $summary = $("#summary");
+          $summary.val(data);
+          // 滚动到底部
+          $summary.scrollTop($summary.prop('scrollHeight'));
           $('.form-textarea-limit').text(data.length + '/' + summaryMax)
         });
 
@@ -738,8 +839,6 @@
             pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
             $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
 
-            $(".res-upload-img").attr("src", imagePath);
-            $(".res-upload-wrap").removeClass("hide");
             callback();
             toastr.info("图片上传成功!");
           },

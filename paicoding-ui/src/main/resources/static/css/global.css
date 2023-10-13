@@ -7,7 +7,7 @@ body {
   /*点击后激活后的颜色*/
   --pai-brand-3-click: #f59e2f;
   /*不可用的颜色*/
-  --pai-brand-4-disable: #f7f8fa;
+  --pai-brand-4-disable: #d1a278;
   /*备用色 非常深的颜色*/
   --pai-brand-5-bak: #fe6617;
   /*消息提醒点*/
@@ -44,13 +44,29 @@ body {
   --pai-bg-dark-2: #2c3134;
   /*主题色更深一点*/
   --pai-bg-dark-3: #000000;
+    /*讯飞星火的左侧聊天背景色*/
+  --pai-bg-smart-chat: #f5f5f5;
   /*横线的颜色*/
   --pai-hr-color-1: #f0f0f0;
   /*边框颜色*/
   --pai-border-color-1: #d2d9e7;
+  /*字体*/
+  --pai-font-2: #515767;
+
+  /*边框*/
+  --color-canvas-default: transparent;
+  /*消息的宽度*/
+  --message-max-width: 80%;
+  /*左边宽度*/
+  --pai-sidebar-width: 360px;
+  /*卡片的阴影*/
+  --card-shadow: 0px 2px 4px 0px rgba(0,0,0,.05);
+  --window-height: calc(100vh - 170px);
+  --window-width: 90vw;
+  --window-content-width: calc(100% - var(--pai-sidebar-width));
+  --second: #e7f8ff;
   /*外边距*/
   margin: 0;
-  /*溢出后隐藏*/
 }
 
 /*全局的色调往前面放*/
@@ -72,9 +88,10 @@ a:hover {
   color: var(--pai-brand-2-hover);
 }
 
-input:focus {
+input:focus,.form-control:focus {
   border: 1px solid var(--pai-brand-3-click);
   outline: none;
+  box-shadow: none;
 }
 
 textarea {
@@ -87,7 +104,7 @@ textarea::placeholder {
   font-size: 14px;
 }
 
-textarea:focus {
+textarea:focus  {
   border: 1px solid var(--pai-brand-3-click);
   outline: none;
 }
@@ -130,41 +147,55 @@ button:focus {
   display: none;
 }
 
-/*回到顶部*/
+/* 登录、注册弹窗 */
 
-#loginModal .modal-header {
-  border-bottom: none;
+.modal .modal-dialog {
+  max-width: 600px;
 }
 
-#loginModal .modal-dialog {
-  width: 400px;
+.modal .title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
 }
 
-#loginModal .mdnice-user-dialog-footer {
+.login-main, .register-main {
+  width: 42rem;
+}
+
+.modal .mdnice-user-dialog-footer {
   display: flex;
   justify-content: space-between;
-  background: linear-gradient(216deg, #f9fafb, #f8fafb 57%, #f0f2f6);
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: 0.8rem;
 }
 
-#loginModal a {
+.modal .modal-footer {
+  justify-content: center;
+}
+
+.modal a:not([href]) {
   color: var(--pai-brand-1-normal);
   cursor: pointer;
 }
 
-#loginModal a:hover {
+.mdnice-user-dialog-footer a {
+    color: var(--pai-brand-1-normal);
+}
+
+.mdnice-user-dialog-footer a:hover {
   color: var(--pai-brand-2-hover);
 }
 
-#loginModal .mdnice-user-dialog-footer p {
+.modal a:not([href]):hover {
+  color: var(--pai-brand-2-hover);
+}
+
+.modal .mdnice-user-dialog-footer p {
   margin: 0;
 }
 
-#loginModal .close {
-  position: absolute;
-  top: 0;
-  right: 0;
+.modal .close {
   z-index: 10;
   padding: 0;
   color: rgba(0, 0, 0, 0.45);
@@ -178,7 +209,7 @@ button:focus {
   transition: color 0.3s;
 }
 
-#loginModal .close span {
+.modal .close span {
   display: block;
   width: 54px;
   height: 54px;
@@ -188,45 +219,78 @@ button:focus {
   text-rendering: auto;
 }
 
-#loginModal .modal-content {
-  border-radius: 2px;
+.modal .modal-content {
+  border-radius: 8px;
 }
 
-#loginModal .modal-content h2 {
+.modal .modal-content h2 {
   text-align: center;
-  font-size: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
-#loginModal .modal-content .modal-body {
-  padding: 30px 0 0;
+.other-login-box {
+  display: flex;
+  margin-top: 1rem;
+  color: var(--pai-font-2);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
-#loginModal .modal-content .modal-body .tabpane-container {
-  margin: 10px auto 30px;
+.auth-body {
+  display: flex;
+}
+
+.oauth-box, .oauth {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  font-size: 0.8rem;
+}
+
+.oauth-bg {
+    border-radius: 50%;
+    background-color: var(--pai-bg-light-1);
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.clickable {
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+
+.modal .modal-content .modal-body .tabpane-container {
+  border-left: 1px solid var(--pai-border-color-1);
+  margin-left: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 80%;
 }
 
-#loginModal .first {
+.modal input, .modal input::placeholder {
+  font-size: 0.8rem;
+}
+
+.modal .first {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-#loginModal .first .signin-qrcode {
-  width: 220px;
+.modal .first .signin-qrcode {
+  width: 116px;
 }
 
-#loginModal .explain {
+.modal .explain {
   text-align: center;
   font-size: 12px;
 }
 
-#loginModal #code {
+.modal #code {
   color: var(--pai-brand-6-mq);
   font-size: 20px;
 }
@@ -483,11 +547,11 @@ button:focus {
 }
 
 .selected-domain {
-  border-bottom: 0 solid #3973ff;
+  border-bottom: 1px solid var(--pai-brand-1-normal);
 }
 
 .selected-domain a {
-  /* color: #3973ff; */
+  /*color: var(--pai-brand-1-normal);*/
 }
 
 .user-info-box {
@@ -993,4 +1057,56 @@ button:focus {
 
 .article-suspended-panel-md .panel-btn {
   margin-bottom: 0;
+}
+
+
+.article-content pre, .article-content pre>code.hljs {
+  color: #333;
+  background: #f8f8f8;
+}
+
+.article-content pre>code {
+  font-size: 12px;
+  padding: 15px 12px;
+  margin: 0;
+  word-break: normal;
+  display: block;
+  overflow-x: auto;
+  color: #333;
+  background: #f8f8f8;
+}
+
+.article-content code, .article-content pre {
+  font-family: Menlo,Monaco,Consolas,Courier New,monospace;
+}
+
+.article-content pre>code.copyable.hljs[lang]:before {
+  right: 70px;
+}
+
+.article-content pre>code.hljs[lang]:before {
+  content: attr(lang);
+  position: absolute;
+  right: 15px;
+  top: 3px;
+  color: hsla(0,0%,54.9%,.8);
+}
+
+.article-content pre .copy-code-btn {
+  position: absolute;
+  top: 6px;
+  right: 15px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  color: hsla(0,0%,54.9%,.8);
+  transition: color .1s;
+}
+
+.article-content pre .copy-code-btn:hover {
+  color: #8c8c8c;
+}
+
+.article-content pre {
+  position: relative;
 }

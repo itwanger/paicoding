@@ -19,5 +19,10 @@ public class StatisticsDayDTO {
     /**
      * 数量
      */
-    private Integer count;
+    private Long pvCount;
+
+    /**
+     * UV数量
+     */
+    private Long uvCount;
 }

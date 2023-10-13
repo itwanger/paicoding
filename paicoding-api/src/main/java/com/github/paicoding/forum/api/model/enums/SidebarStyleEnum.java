@@ -15,7 +15,11 @@ public enum SidebarStyleEnum {
     ABOUT(4),
     COLUMN(5),
     PDF(6),
-    SUBSCRIBE(7);
+    SUBSCRIBE(7),
+    /**
+     * 活跃排行榜
+     */
+    ACTIVITY_RANK(8);
 
     private int style;
 

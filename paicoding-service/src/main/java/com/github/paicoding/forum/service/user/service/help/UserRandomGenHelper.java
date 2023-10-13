@@ -77,4 +77,14 @@ public class UserRandomGenHelper {
     public static String genAvatar() {
         return String.format(AVATAR_TEMPLATE, RANDOM.nextInt(AVATAR_NUM) + 1);
     }
+
+    /**
+     * 生成用户邀请码
+     * 规则：前缀 + 年月日转十六进制
+     *
+     * @return
+     */
+    public static String genInviteCode(Long prefix) {
+        return String.format("%03x%04x", prefix, System.currentTimeMillis() / 1000 / 60 / 60 / 24).toUpperCase();
+    }
 }
