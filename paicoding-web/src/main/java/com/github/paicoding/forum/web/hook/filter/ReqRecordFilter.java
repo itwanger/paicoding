@@ -9,7 +9,7 @@ import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.sitemap.service.SitemapServiceImpl;
+import com.github.paicoding.forum.service.sitemap.service.impl.SitemapServiceImpl;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.user.service.LoginOutService;
 import com.github.paicoding.forum.web.global.GlobalInitService;

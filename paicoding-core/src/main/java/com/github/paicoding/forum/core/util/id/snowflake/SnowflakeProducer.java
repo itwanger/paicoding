@@ -1,6 +1,5 @@
-package com.github.paicoding.forum.core.util.snowflake;
+package com.github.paicoding.forum.core.util.id.snowflake;
 
-import cn.hutool.core.lang.Snowflake;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.BlockingQueue;
@@ -16,7 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Slf4j
 public class SnowflakeProducer {
-    private BlockingQueue<Long> queue = new LinkedBlockingQueue<>(2000);
+    private BlockingQueue<Long> queue;
+    private static final int QUEUE_SIZE = 2000;
     private ExecutorService es = Executors.newSingleThreadExecutor((Runnable r) -> {
         Thread t = new Thread(r);
         t.setName("SnowflakeProducer-generate-thread");
@@ -24,18 +24,12 @@ public class SnowflakeProducer {
         return t;
     });
 
-    private Snowflake snowflake;
-
-    public SnowflakeProducer(int workId, int dataCenter) {
-        snowflake = new Snowflake(workId, dataCenter);
+    public SnowflakeProducer(final IdGenerator generator) {
+        queue = new LinkedBlockingQueue<>(QUEUE_SIZE);
         es.submit(() -> {
             while (true) {
                 try {
-
-                    if (queue == null) {
-                        break;
-                    }
-                    queue.put(snowflake.nextId());
+                    queue.put(generator.nextId());
                 } catch (Exception e) {
                     log.info("gen id error! {}", e.getMessage());
                 }
