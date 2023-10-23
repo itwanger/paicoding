@@ -609,3 +609,27 @@ code.hljs {
     display: inline-block;
     width: 100%
 }
+
+select.styled-dropdown {
+    width: 120px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    padding: 6px;
+    border-radius: 4px;
+    appearance: none; /* removes the default arrow in some browsers */
+    background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"><path d="M7 10L3.5 6h7L7 10z" fill="%23232f3e"/></svg>') no-repeat 90% center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+select.styled-dropdown:focus {
+    border-color: #ff6900;
+    box-shadow: 0 0 5px rgba(255, 105, 0, 0.5);
+    outline: none;
+}
+
+select.styled-dropdown option {
+    font-size: 16px;
+    padding: 8px 10px;
+}

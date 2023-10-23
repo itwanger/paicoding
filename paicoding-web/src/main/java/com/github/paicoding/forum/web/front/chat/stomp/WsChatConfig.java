@@ -39,7 +39,7 @@ public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
         // 注册一个 /gpt/{id} 的 WebSocket endPoint; 其中 {id} 用于让用户连接终端时都可以有自己的路径
         // 作为 Principal 的标识，以便实现向指定用户发送信息
         // sockjs 可以解决浏览器对 WebSocket 的兼容性问题，
-        registry.addEndpoint("/gpt/{id}")
+        registry.addEndpoint("/gpt/{id}/{aiType}")
                 .setHandshakeHandler(new AuthHandshakeHandler())
                 .addInterceptors(new AuthHandshakeInterceptor())
                 // 注意下面这个，不要使用 setAllowedOrigins("*")，使用之后有啥问题可以实操验证一下🐕

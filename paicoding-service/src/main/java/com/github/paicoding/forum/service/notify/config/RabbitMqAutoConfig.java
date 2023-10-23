@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.notify.config;
 
+import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.config.RabbitmqProperties;
 import com.github.paicoding.forum.core.rabbitmq.RabbitmqConnectionPool;
 import com.github.paicoding.forum.service.notify.service.RabbitmqService;
@@ -19,14 +20,9 @@ import java.util.concurrent.Executor;
  * @date 2023/6/9
  */
 @Configuration
-@ConditionalOnProperty(prefix = "rabbitmq.switchFlag", value = "true")
+@ConditionalOnProperty(value = "rabbitmq.switchFlag")
 @EnableConfigurationProperties(RabbitmqProperties.class)
 public class RabbitMqAutoConfig implements ApplicationRunner {
-
-    @Resource
-    @Qualifier(value = "taskExecutor")
-    private Executor taskExecutor;
-
     @Resource
     private RabbitmqService rabbitmqService;
 
@@ -43,6 +39,6 @@ public class RabbitMqAutoConfig implements ApplicationRunner {
         String virtualhost = rabbitmqProperties.getVirtualhost();
         Integer poolSize = rabbitmqProperties.getPoolSize();
         RabbitmqConnectionPool.initRabbitmqConnectionPool(host, port, userName, password, virtualhost, poolSize);
-        taskExecutor.execute(() -> rabbitmqService.processConsumerMsg());
+        AsyncUtil.execute(() -> rabbitmqService.processConsumerMsg());
     }
 }

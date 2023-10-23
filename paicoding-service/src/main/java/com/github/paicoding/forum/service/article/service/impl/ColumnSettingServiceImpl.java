@@ -60,9 +60,12 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Autowired
     private ArticleDao articleDao;
 
+    @Autowired
+    private ColumnStructMapper columnStructMapper;
+
     @Override
     public void saveColumn(ColumnReq req) {
-        ColumnInfoDO columnInfoDO = ColumnStructMapper.INSTANCE.toDo(req);
+        ColumnInfoDO columnInfoDO = columnStructMapper.toDo(req);
         if (NumUtil.nullOrZero(req.getColumnId())) {
             columnDao.save(columnInfoDO);
         } else {

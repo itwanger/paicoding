@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.web.front.chat.stomp;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 
 import java.security.Principal;
+import java.util.Map;
 
 /**
  * 权限拦截器，消息发送前进行拦截
@@ -59,9 +61,11 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
         final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StringUtils.equalsIgnoreCase(String.valueOf(message.getHeaders().get("simpMessageType")), "SUBSCRIBE")
                 && accessor != null && accessor.getUser() != null) {
-            // 订阅成功，返回用户历史聊天记录
+            // 订阅成功，返回用户历史聊天记录； 从请求头中，获取具体选择的大数据模型
             ReqInfoContext.addReqInfo((ReqInfoContext.ReqInfo) accessor.getUser());
-            SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName());
+            String aiType = (String) ((Map) message.getHeaders().get("simpSessionAttributes")).get(WsAnswerHelper.AI_SOURCE_PARAM);
+            AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
+            SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName(), source);
             ReqInfoContext.clear();
             return;
         }
