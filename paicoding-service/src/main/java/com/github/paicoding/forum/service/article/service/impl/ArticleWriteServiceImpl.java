@@ -112,9 +112,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
 
         // 1. 保存文章
         // 使用分布式id生成文章主键
-        article.setId(IdUtil.genId());
-        articleDao.save(article);
-        Long articleId = article.getId();
+        Long articleId = IdUtil.genId();
+        article.setId(articleId);
+        articleDao.saveOrUpdate(article);
 
         // 2. 保存文章内容
         articleDao.saveArticleContent(articleId, content);
