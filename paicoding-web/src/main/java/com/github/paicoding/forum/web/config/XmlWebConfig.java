@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -8,6 +11,7 @@ import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConve
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -20,7 +24,13 @@ import java.util.List;
 public class XmlWebConfig implements WebMvcConfigurer {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(new MappingJackson2HttpMessageConverter());
+        MappingJackson2HttpMessageConverter convert = new MappingJackson2HttpMessageConverter();
+        ObjectMapper mapper = new ObjectMapper();
+        // 长整型序列化返回时，更新为string，避免前端js精度丢失
+        mapper.registerModule(new SimpleModule().addSerializer(BigInteger.class, ToStringSerializer.instance)
+                .addSerializer(Long.class, ToStringSerializer.instance));
+        convert.setObjectMapper(mapper);
+        converters.add(convert);
         converters.add(new MappingJackson2XmlHttpMessageConverter());
     }
 
