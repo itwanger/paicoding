@@ -115,7 +115,7 @@ public class XunFeiIntegration {
         header.addProperty("app_id", xunFeiConfig.appId);
         header.addProperty("uid", uid);
         //填充parameter
-        chat.addProperty("domain", "general");
+        chat.addProperty("domain", xunFeiConfig.domain);
         chat.addProperty("random_threshold", 0);
         chat.addProperty("max_tokens", 1024);
         chat.addProperty("auditing", "default");
@@ -145,6 +145,8 @@ public class XunFeiIntegration {
         public String appId = "";
         public String apiKey = "";
         public String apiSecret = "";
+        // 指定访问的领域,general指向V1.5版本 generalv2指向V2版本。注意：不同的取值对应的url也不一样！
+        public String domain = "general";
     }
 
     @Data

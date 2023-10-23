@@ -47,7 +47,8 @@ chatgpt:
 
 # 讯飞AI
 xunfei:
-  hostUrl: http://spark-api.xf-yun.com/v1.1/chat
+  hostUrl: http://spark-api.xf-yun.com/v2.1/chat
+  domain: "generalv2"
   appId:
   apiKey:
   apiSecret:

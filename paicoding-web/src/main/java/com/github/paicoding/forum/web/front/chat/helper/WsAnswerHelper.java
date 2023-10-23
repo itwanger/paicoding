@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.web.front.chat.helper;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
@@ -19,6 +20,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class WsAnswerHelper {
+    public static final String AI_SOURCE_PARAM = "AI";
+
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -30,8 +33,18 @@ public class WsAnswerHelper {
         log.info("AI直接返回：{}", res);
     }
 
-    public void sendMsgHistoryToUser(String session) {
-        ChatRecordsVo vo = chatFacade.history();
+    public void sendMsgToUser(AISourceEnum ai, String session, String question) {
+        if (ai == null) {
+            // 自动选择AI类型
+            sendMsgToUser(session, question);
+        } else {
+            ChatRecordsVo res = chatFacade.autoChat(ai, question, vo -> response(session, vo));
+            log.info("AI直接返回：{}", res);
+        }
+    }
+
+    public void sendMsgHistoryToUser(String session, AISourceEnum ai) {
+        ChatRecordsVo vo = chatFacade.history(ai);
         response(session, vo);
     }
 
