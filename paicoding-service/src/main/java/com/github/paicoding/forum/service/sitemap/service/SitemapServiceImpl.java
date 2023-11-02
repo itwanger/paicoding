@@ -44,6 +44,10 @@ public class SitemapServiceImpl implements SitemapService {
     @Resource
     private CountService countService;
 
+    /**
+     * 查询站点地图
+     * @return 返回站点地图
+     */
     public SiteMapVo getSiteMap() {
         // key = 文章id, value = 最后更新时间
         Map<String, Long> siteMap = RedisClient.hGetAll(SITE_MAP_CACHE_KEY, Long.class);
@@ -61,21 +65,6 @@ public class SitemapServiceImpl implements SitemapService {
             vo.addUrl(new SiteUrlVo(host + "/article/detail/" + entry.getKey(), DateUtil.time2utc(entry.getValue())));
         }
         return vo;
-    }
-
-    /**
-     * 重新刷新站点地图
-     */
-    public void refreshSitemap() {
-        initSiteMap();
-    }
-
-    public void addArticle(Long articleId) {
-        RedisClient.hSet(SITE_MAP_CACHE_KEY, String.valueOf(articleId), System.currentTimeMillis());
-    }
-
-    public void rmArticle(Long articleId) {
-        RedisClient.hDel(SITE_MAP_CACHE_KEY, String.valueOf(articleId));
     }
 
     /**
@@ -109,6 +98,14 @@ public class SitemapServiceImpl implements SitemapService {
     }
 
     /**
+     * 重新刷新站点地图
+     */
+    @Override
+    public void refreshSitemap() {
+        initSiteMap();
+    }
+
+    /**
      * 基于文章的上下线，自动更新站点地图
      *
      * @param event
@@ -122,6 +119,25 @@ public class SitemapServiceImpl implements SitemapService {
             rmArticle(event.getContent().getId());
         }
     }
+
+    /**
+     * 新增文章并上线
+     *
+     * @param articleId
+     */
+    private void addArticle(Long articleId) {
+        RedisClient.hSet(SITE_MAP_CACHE_KEY, String.valueOf(articleId), System.currentTimeMillis());
+    }
+
+    /**
+     * 删除文章、or文章下线
+     *
+     * @param articleId
+     */
+    private void rmArticle(Long articleId) {
+        RedisClient.hDel(SITE_MAP_CACHE_KEY, String.valueOf(articleId));
+    }
+
 
     /**
      * 采用定时器方案，每天5:15分刷新站点地图，确保数据的一致性
