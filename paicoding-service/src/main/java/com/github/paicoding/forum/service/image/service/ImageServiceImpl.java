@@ -4,6 +4,7 @@ import com.github.hui.quick.plugin.base.constants.MediaType;
 import com.github.hui.quick.plugin.base.file.FileReadUtil;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.async.AsyncExecute;
 import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.util.MdImgLoader;
@@ -89,8 +90,15 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    /**
+     * 外网图片自动转存，添加了执行日志，超时限制；避免出现因为超时导致发布文章异常
+     *
+     * @param content
+     * @return
+     */
     @Override
     @MdcDot
+    @AsyncExecute(timeOutRsp = "#content")
     public String mdImgReplace(String content) {
         List<MdImgLoader.MdImg> imgList = MdImgLoader.loadImgs(content);
         if (CollectionUtils.isEmpty(imgList)) {

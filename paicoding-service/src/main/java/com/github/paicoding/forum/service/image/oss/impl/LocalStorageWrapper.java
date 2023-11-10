@@ -4,6 +4,7 @@ import com.github.hui.quick.plugin.base.file.FileWriteUtil;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.config.ImageProperties;
+import com.github.paicoding.forum.core.util.StopWatchUtil;
 import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +39,13 @@ public class LocalStorageWrapper implements ImageUploader {
 
     @Override
     public String upload(InputStream input, String fileType) {
+        // 记录耗时分布
+        StopWatchUtil stopWatchUtil = StopWatchUtil.init("图片上传");
         try {
             if (fileType == null) {
                 // 根据魔数判断文件类型
-                byte[] bytes = StreamUtils.copyToByteArray(input);
+                InputStream finalInput = input;
+                byte[] bytes = stopWatchUtil.record("流转字节", () -> StreamUtils.copyToByteArray(finalInput));
                 input = new ByteArrayInputStream(bytes);
                 fileType = getFileType((ByteArrayInputStream) input, fileType);
             }
@@ -49,11 +53,15 @@ public class LocalStorageWrapper implements ImageUploader {
             String path = imageProperties.getAbsTmpPath() + imageProperties.getWebImgPath();
             String fileName = genTmpFileName();
 
-            FileWriteUtil.FileInfo file = FileWriteUtil.saveFileByStream(input, path, fileName, fileType);
+            InputStream finalInput = input;
+            String finalFileType = fileType;
+            FileWriteUtil.FileInfo file = stopWatchUtil.record("存储", () -> FileWriteUtil.saveFileByStream(finalInput, path, fileName, finalFileType));
             return imageProperties.buildImgUrl(imageProperties.getWebImgPath() + file.getFilename() + "." + file.getFileType());
         } catch (Exception e) {
             log.error("Parse img from httpRequest to BufferedImage error! e:", e);
             throw ExceptionUtil.of(StatusEnum.UPLOAD_PIC_FAILED);
+        } finally {
+            log.info("图片上传耗时: {}", stopWatchUtil.prettyPrint());
         }
     }
 
