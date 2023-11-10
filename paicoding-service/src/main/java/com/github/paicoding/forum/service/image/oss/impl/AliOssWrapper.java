@@ -89,7 +89,9 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
                     + "such as not being able to access the network. {}", ce.getMessage());
             return null;
         } finally {
-            log.debug("upload image size:{} cost: {}", bytes.length, stopWatchUtil.prettyPrint());
+            if (log.isDebugEnabled()) {
+                log.debug("upload image size:{} cost: {}", bytes.length, stopWatchUtil.prettyPrint());
+            }
         }
     }
 
