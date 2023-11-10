@@ -8,7 +8,6 @@ import com.aliyun.oss.model.PutObjectResult;
 import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.config.ImageProperties;
 import com.github.paicoding.forum.core.util.Md5Util;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +39,9 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     @Getter
     private ImageProperties properties;
     private OSS ossClient;
+
+    @Autowired
+    private DynamicConfigContainer dynamicConfigContainer;
 
     public String upload(InputStream input, String fileType) {
         try {
@@ -111,7 +113,7 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     public void afterPropertiesSet() {
         init();
         // 监听配置变更，然后重新初始化OSSClient实例
-        SpringUtil.getBean(DynamicConfigContainer.class).registerRefreshCallback(properties, () -> {
+        dynamicConfigContainer.registerRefreshCallback(properties, () -> {
             init();
             log.info("ossClient refreshed!");
         });
