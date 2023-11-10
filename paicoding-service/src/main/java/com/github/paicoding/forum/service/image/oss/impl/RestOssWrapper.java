@@ -38,7 +38,7 @@ public class RestOssWrapper implements ImageUploader {
             HashMap<?, ?> map = JsonUtil.toObj(res, HashMap.class);
             return (String) ((Map<?, ?>) map.get("result")).get("imagePath");
         } catch (Exception e) {
-            log.error("upload image error response!", e);
+            log.error("upload image error response! uri:{}", properties.getOss().getEndpoint(), e);
             return null;
         } finally {
             if (log.isDebugEnabled()) {
