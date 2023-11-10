@@ -166,6 +166,13 @@ public class AsyncUtil {
         }
 
 
+        /**
+         * 异步并发执行，并记录耗时
+         *
+         * @param run
+         * @param name
+         * @return
+         */
         public CompletableFutureBridge runAsyncWithTimeRecord(Runnable run, String name) {
             return runAsyncWithTimeRecord(run, name, executorService);
         }
