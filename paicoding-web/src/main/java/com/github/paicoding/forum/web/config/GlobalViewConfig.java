@@ -51,4 +51,9 @@ public class GlobalViewConfig {
      * 星球信息
      */
     private String starInfo;
+
+    /**
+     * oss的地址
+     */
+    private String oss;
 }
