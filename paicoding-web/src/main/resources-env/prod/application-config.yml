@@ -14,6 +14,7 @@ view:
     zsxqUrl: https://paicoding.com/article/detail/314
     zsxqPosterUrl: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/javabetter.jpg
     contactMeStarQrCode: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/qiye-weixin.png
+    oss: https://cdn.tobebetterjavaer.com/paicoding/static
 
 knife4j:
   production: true # 开启屏蔽文档资源

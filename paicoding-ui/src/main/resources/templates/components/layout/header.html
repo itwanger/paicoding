@@ -30,8 +30,8 @@
     <script type="application/ld+json" th:utext="${global.jsonLd}"></script>
 
     <link rel="icon" href="/img/icon.png" />
-    <link href="/css/three/index.css" rel="stylesheet" />
-    <link href="/css/three/highlightjs.github.min.css" rel="stylesheet" />
+    <link href="/css/three/index.css" th:href="@{{oss}/css/three/index.css(oss=${global.siteInfo.oss})}" rel="stylesheet" />
+    <link href="/css/three/highlightjs.github.min.css" th:href="${global.siteInfo.oss + '/css/three/highlightjs.github.min.css'}" rel="stylesheet" />
     <link href="/css/global.css" rel="stylesheet" />
     <link href="/css/common.css" rel="stylesheet" />
     <script>
