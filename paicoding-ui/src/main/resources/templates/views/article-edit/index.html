@@ -229,10 +229,13 @@
               editBtn = $('.edit-save'),close_icon = $(".close_icon");
 
       // 一些变量
-      let vo = [[${ vo }]], uid = "forumId", articleId = 0,
+      let vo = [[${ vo }]];
+      console.log("完整的文章参数: ", vo);
+      let uid = "forumId", articleId = 0,
               cover =[[${ vo.article != null ? vo.article.cover : '' }]],
               showSaveBtnFlagByTitle = false;
 
+      // 校验限制，如标题长度[5,120], 内容必须>=6，简介最多 256字符
       const titleMin = 5, titleMax = 120,
         contentMin = 6, summaryMax = 256;
 
