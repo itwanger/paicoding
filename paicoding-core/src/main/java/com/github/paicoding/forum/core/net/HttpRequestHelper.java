@@ -6,9 +6,11 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,8 +26,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author chenlei
- * @date 2017/12/26
+ * 请求工具类
+ *
+ * @author YiHui
+ * @date 2023/04/23
  */
 @Slf4j
 public class HttpRequestHelper {
@@ -62,6 +66,40 @@ public class HttpRequestHelper {
     @Scheduled(cron = "0 0 0/1 * * ?")
     public static void refreshRestTemplate() {
         restTemplateMap.cleanUp();
+    }
+
+
+    /**
+     * 文件上传
+     *
+     * @param url       上传url
+     * @param paramName 参数名
+     * @param fileName  上传的文件名
+     * @param bytes     上传文件流
+     * @return
+     */
+    public static String upload(String url, String paramName, String fileName, byte[] bytes) {
+        //设置请求头
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        //设置请求体，注意是LinkedMultiValueMap
+        ByteArrayResource fileSystemResource = new ByteArrayResource(bytes) {
+            @Override
+            public String getFilename() {
+                return fileName;
+            }
+        };
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        // post的文件
+        form.add(paramName, fileSystemResource);
+
+        //用HttpEntity封装整个请求报文
+        HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers);
+        String threadName = Thread.currentThread().getName();
+        RestTemplate restTemplate = restTemplateMap.getUnchecked(threadName);
+        HttpEntity<String> res = restTemplate.postForEntity(url, files, String.class);
+        return res.getBody();
     }
 
     /**
