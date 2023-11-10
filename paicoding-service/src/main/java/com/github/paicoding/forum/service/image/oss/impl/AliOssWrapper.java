@@ -5,8 +5,10 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.config.ImageProperties;
 import com.github.paicoding.forum.core.util.Md5Util;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import lombok.Getter;
 import lombok.Setter;
@@ -94,15 +96,24 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         if (ossClient != null) {
             ossClient.shutdown();
         }
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    private void init() {
         // 创建OSSClient实例。
         ossClient = new OSSClientBuilder().build(properties.getOss().getEndpoint(), properties.getOss().getAk(), properties.getOss().getSk());
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        init();
+        // 监听配置变更，然后重新初始化OSSClient实例
+        SpringUtil.getBean(DynamicConfigContainer.class).registerRefreshCallback(properties, () -> {
+            init();
+            log.info("ossClient refreshed!");
+        });
     }
 }
