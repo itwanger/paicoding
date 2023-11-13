@@ -41,7 +41,7 @@ public class ZsxqWhiteListController {
     @GetMapping(path = "operate")
     public ResVo<String> operate(@RequestParam(name = "id") Long id,
                                   @RequestParam(name = "status") Integer status) {
-        UserAIStatEnum operate = UserAIStatEnum.formCode(status);
+        UserAIStatEnum operate = UserAIStatEnum.fromCode(status);
         zsxqWhiteListService.operate(id, operate);
         return ResVo.ok("ok");
     }
@@ -50,7 +50,7 @@ public class ZsxqWhiteListController {
     @ApiOperation("批量审核通过")
     @PostMapping(path = "batchOperate")
     public ResVo<String> batchOperate(@RequestBody ZsxqUserBatchOperateReq req) {
-        UserAIStatEnum operate = UserAIStatEnum.formCode(req.getStatus());
+        UserAIStatEnum operate = UserAIStatEnum.fromCode(req.getStatus());
         zsxqWhiteListService.batchOperate(req.getIds(), operate);
         return ResVo.ok("ok");
     }

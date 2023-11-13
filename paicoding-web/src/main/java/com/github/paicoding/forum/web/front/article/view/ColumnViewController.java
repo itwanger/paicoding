@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.article.view;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
@@ -171,6 +172,11 @@ public class ColumnViewController {
      */
     private String trimContent(int readType, String content) {
         if (readType == ColumnTypeEnum.STAR_READ.getType()) {
+            // 判断登录用户是否绑定了星球，如果是，则直接阅读完整的专栏内容
+            if (ReqInfoContext.getReqInfo().getUser() != null && ReqInfoContext.getReqInfo().getUser().getStarStatus() == UserAIStatEnum.FORMAL) {
+                return content;
+            }
+
             // 返回星球相关信息
             return MarkdownConverter.markdownToHtml(SpringUtil.getBean(GlobalViewConfig.class).getStarInfo());
         }
