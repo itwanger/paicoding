@@ -87,4 +87,9 @@
     <changeSet id="00000000000020" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230821.sql"/>
     </changeSet>
+
+    <!-- 修改文章主键  -->
+    <changeSet id="00000000000021" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_231018.sql"/>
+    </changeSet>
 </databaseChangeLog>

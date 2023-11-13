@@ -11,6 +11,7 @@ import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
@@ -110,8 +111,10 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         }
 
         // 1. 保存文章
-        articleDao.save(article);
-        Long articleId = article.getId();
+        // 使用分布式id生成文章主键
+        Long articleId = IdUtil.genId();
+        article.setId(articleId);
+        articleDao.saveOrUpdate(article);
 
         // 2. 保存文章内容
         articleDao.saveArticleContent(articleId, content);
