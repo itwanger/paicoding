@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.user.converter;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.FollowStateEnum;
 import com.github.paicoding.forum.api.model.enums.RoleEnum;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
@@ -51,7 +52,7 @@ public class UserConverter {
     public static BaseUserInfoDTO toDTO(UserInfoDO info, UserAiDO userAiDO) {
         BaseUserInfoDTO user = toDTO(info);
         if (userAiDO != null) {
-            user.setStarStatus(userAiDO.getState());
+            user.setStarStatus(UserAIStatEnum.fromCode(userAiDO.getState()));
         }
         return user;
     }

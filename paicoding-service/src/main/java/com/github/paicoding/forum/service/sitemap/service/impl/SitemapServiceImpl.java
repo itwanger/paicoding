@@ -45,6 +45,10 @@ public class SitemapServiceImpl implements SitemapService {
     @Resource
     private CountService countService;
 
+    /**
+     * 查询站点地图
+     * @return 返回站点地图
+     */
     public SiteMapVo getSiteMap() {
         // key = 文章id, value = 最后更新时间
         Map<String, Long> siteMap = RedisClient.hGetAll(SITE_MAP_CACHE_KEY, Long.class);
@@ -62,21 +66,6 @@ public class SitemapServiceImpl implements SitemapService {
             vo.addUrl(new SiteUrlVo(host + "/article/detail/" + entry.getKey(), DateUtil.time2utc(entry.getValue())));
         }
         return vo;
-    }
-
-    /**
-     * 重新刷新站点地图
-     */
-    public void refreshSitemap() {
-        initSiteMap();
-    }
-
-    public void addArticle(Long articleId) {
-        RedisClient.hSet(SITE_MAP_CACHE_KEY, String.valueOf(articleId), System.currentTimeMillis());
-    }
-
-    public void rmArticle(Long articleId) {
-        RedisClient.hDel(SITE_MAP_CACHE_KEY, String.valueOf(articleId));
     }
 
     /**
@@ -110,6 +99,14 @@ public class SitemapServiceImpl implements SitemapService {
     }
 
     /**
+     * 重新刷新站点地图
+     */
+    @Override
+    public void refreshSitemap() {
+        initSiteMap();
+    }
+
+    /**
      * 基于文章的上下线，自动更新站点地图
      *
      * @param event
@@ -123,6 +120,25 @@ public class SitemapServiceImpl implements SitemapService {
             rmArticle(event.getContent().getId());
         }
     }
+
+    /**
+     * 新增文章并上线
+     *
+     * @param articleId
+     */
+    private void addArticle(Long articleId) {
+        RedisClient.hSet(SITE_MAP_CACHE_KEY, String.valueOf(articleId), System.currentTimeMillis());
+    }
+
+    /**
+     * 删除文章、or文章下线
+     *
+     * @param articleId
+     */
+    private void rmArticle(Long articleId) {
+        RedisClient.hDel(SITE_MAP_CACHE_KEY, String.valueOf(articleId));
+    }
+
 
     /**
      * 采用定时器方案，每天5:15分刷新站点地图，确保数据的一致性
@@ -147,7 +163,7 @@ public class SitemapServiceImpl implements SitemapService {
      * - visit_info_ip:
      * ---- pv: 用户访问的站点总次数
      * ---- path_pv: 用户访问的路径总次数
-     * - visit_info_20230822每日记录, 一个月一条记录
+     * - visit_info_20230822每日记录, 一天一条记录
      * ---- pv: 12  # field = 月日_pv, pv的计数
      * ---- uv: 5   # field = 月日_uv, uv的计数
      * ---- pv_path: 2 # 资源的当前访问计数
@@ -187,7 +203,10 @@ public class SitemapServiceImpl implements SitemapService {
         } else if (todayUserVisitCnt == 1) {
             // 判断是今天的首次访问，更新今天的uv+1
             pipelineAction.add(todayKey, "uv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
-            pipelineAction.add(todayKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+            if (RedisClient.hIncr(todayKey, "pv_" + path + "_" + visitIp, 1) == 1) {
+                // 判断是否为今天首次访问这个资源，若是，则uv+1
+                pipelineAction.add(todayKey, "uv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+            }
 
             // 判断是否是用户的首次访问这个path，若是，则全局的path uv计数需要+1
             if (RedisClient.hIncr(globalKey + "_" + visitIp, "pv_" + path, 1) == 1) {
@@ -200,7 +219,10 @@ public class SitemapServiceImpl implements SitemapService {
         // 今天的相关信息 pv
         pipelineAction.add(todayKey, "pv", (connection, key, field) -> connection.hIncrBy(key, field, 1));
         pipelineAction.add(todayKey, "pv_" + path, (connection, key, field) -> connection.hIncrBy(key, field, 1));
-        pipelineAction.add(todayKey, "pv_" + path + "_" + visitIp, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+        if (todayUserVisitCnt > 1) {
+            // 非当天首次访问，则pv+1; 因为首次访问时，在前面更新uv时，已经计数+1了
+            pipelineAction.add(todayKey, "pv_" + path + "_" + visitIp, (connection, key, field) -> connection.hIncrBy(key, field, 1));
+        }
 
 
         // 全局的 PV
