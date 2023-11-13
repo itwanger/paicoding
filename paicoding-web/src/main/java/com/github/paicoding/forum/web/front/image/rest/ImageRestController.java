@@ -2,6 +2,8 @@ package com.github.paicoding.forum.web.front.image.rest;
 
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.permission.Permission;
+import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.web.front.image.vo.ImageVo;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 返回json格式数据
+ * 图片服务，要求登录之后才允许操作
  *
  * @author LouZai
  * @date 2022/9/7
  */
+@Permission(role = UserRole.LOGIN)
 @RequestMapping(path = {"image/", "admin/image/", "api/admin/image/",})
 @RestController
 @Slf4j
@@ -32,6 +35,7 @@ public class ImageRestController {
      *
      * @return
      */
+
     @RequestMapping(path = "upload")
     public ResVo<ImageVo> upload(HttpServletRequest request) {
         ImageVo imageVo = new ImageVo();

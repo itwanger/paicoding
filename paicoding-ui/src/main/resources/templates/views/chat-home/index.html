@@ -26,10 +26,10 @@
                         <div class="window-header-main-title home_chat-body-title__5S8w4"
                              th:data-target="${global.isLogin ? '' : '#registerModal'}"
                              th:data-toggle="${global.isLogin ? '' : 'modal'}"
-                        >点击登录，点我绑定星球编号，点我点我点我</div>
+                        >点我绑定二哥编程星球，开始与派聪明AI 助手进行互动</div>
                         <span class="test" th:if="${global.user != null && global.user.starStatus == -1}">赶快升级为 VIP 用户提升额度吧</span>
                         <span class="test" th:if="${global.user != null && global.user.starStatus == 0}">审核中</span>
-                        <span class="test" th:if="${global.user != null && global.user.starStatus == 1}">试用中，审核后额度将会大幅提升</span>
+                        <span class="test" th:if="${global.user != null && global.user.starStatus == 1}">试用中，管理员审核后额度将会大幅提升</span>
                         <div class="c-bubble-trigger com-verification" th:if="${global.user != null && global.user.starStatus == 2}">
                             <i class="verified"></i>
                         </div>

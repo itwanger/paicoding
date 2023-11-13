@@ -83,6 +83,15 @@ a {
   color: var(--pai-color-3-black);
 }
 
+a.underline {
+  color: var(--pai-brand-1-normal);
+}
+
+a:hover.underline {
+  text-decoration: underline;
+  color: var(--pai-brand-2-hover);
+}
+
 a:hover {
   text-decoration: none;
   color: var(--pai-brand-2-hover);

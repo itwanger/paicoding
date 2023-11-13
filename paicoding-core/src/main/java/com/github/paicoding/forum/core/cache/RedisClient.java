@@ -440,33 +440,20 @@ public class RedisClient {
         private RedisConnection connection;
 
         public PipelineAction add(String key, BiConsumer<RedisConnection, byte[]> conn) {
-            run.add(new Runnable() {
-                @Override
-                public void run() {
-                    conn.accept(connection, RedisClient.keyBytes(key));
-                }
-            });
+            run.add(() -> conn.accept(connection, RedisClient.keyBytes(key)));
             return this;
         }
 
         public PipelineAction add(String key, String field, ThreeConsumer<RedisConnection, byte[], byte[]> conn) {
-            run.add(new Runnable() {
-                @Override
-                public void run() {
-                    conn.accept(connection, RedisClient.keyBytes(key), valBytes(field));
-                }
-            });
+            run.add(() -> conn.accept(connection, RedisClient.keyBytes(key), valBytes(field)));
             return this;
         }
 
         public void execute() {
-            template.executePipelined(new RedisCallback<Object>() {
-                @Override
-                public Object doInRedis(RedisConnection connection) throws DataAccessException {
-                    PipelineAction.this.connection = connection;
-                    run.forEach(Runnable::run);
-                    return null;
-                }
+            template.executePipelined((RedisCallback<Object>) connection -> {
+                PipelineAction.this.connection = connection;
+                run.forEach(Runnable::run);
+                return null;
             });
         }
     }

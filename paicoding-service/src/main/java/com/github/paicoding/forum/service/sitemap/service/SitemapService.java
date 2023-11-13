@@ -28,21 +28,6 @@ public interface SitemapService {
     void refreshSitemap();
 
     /**
-     * 新增文章并上线
-     *
-     * @param articleId
-     */
-    void addArticle(Long articleId);
-
-    /**
-     * 删除文章、or文章下线
-     *
-     * @param articleId
-     */
-    void rmArticle(Long articleId);
-
-
-    /**
      * 保存用户访问信息
      *
      * @param visitIp 访问者ip

@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.core.util;
 
 import org.springframework.beans.BeansException;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
@@ -17,6 +18,8 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
     private volatile static ApplicationContext context;
     private volatile static Environment environment;
 
+    private static Binder binder;
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         SpringUtil.context = applicationContext;
@@ -25,6 +28,7 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
     @Override
     public void setEnvironment(Environment environment) {
         SpringUtil.environment = environment;
+        binder = Binder.get(environment);
     }
 
     public static ApplicationContext getContext() {
@@ -98,5 +102,15 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      */
     public static void publishEvent(ApplicationEvent event) {
         context.publishEvent(event);
+    }
+
+
+    /**
+     * 配置绑定类
+     *
+     * @return
+     */
+    public static Binder getBinder() {
+        return binder;
     }
 }

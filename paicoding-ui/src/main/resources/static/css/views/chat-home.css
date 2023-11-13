@@ -421,10 +421,12 @@
 
 .home_chat-body-title__5S8w4:hover {
     text-decoration: underline;
+    color: var(--pai-brand-2-hover);
 }
 
 .home_chat-body-title__5S8w4 {
     cursor: pointer;
+    color: var(--pai-brand-1-normal);
 }
 
 .home_sidebar-header__b5asC {
@@ -492,6 +494,7 @@
 }
 
 .login-guide-text {
+    width: 80%;
     margin-left: 8px;
     color: var(--pai-color-4-gray);
 }

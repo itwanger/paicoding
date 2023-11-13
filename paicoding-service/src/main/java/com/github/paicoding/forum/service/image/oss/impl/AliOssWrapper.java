@@ -5,8 +5,10 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.config.ImageProperties;
 import com.github.paicoding.forum.core.util.Md5Util;
+import com.github.paicoding.forum.core.util.StopWatchUtil;
 import com.github.paicoding.forum.service.image.oss.ImageUploader;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,6 +41,9 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     private ImageProperties properties;
     private OSS ossClient;
 
+    @Autowired
+    private DynamicConfigContainer dynamicConfigContainer;
+
     public String upload(InputStream input, String fileType) {
         try {
             // 创建PutObjectRequest对象。
@@ -56,17 +61,19 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     }
 
     public String upload(byte[] bytes, String fileType) {
+        StopWatchUtil stopWatchUtil = StopWatchUtil.init("图片上传");
         try {
-            // 创建PutObjectRequest对象。
             // 计算md5作为文件名，避免重复上传
-            String fileName = Md5Util.encode(bytes);
+            String fileName = stopWatchUtil.record("md5计算", () -> Md5Util.encode(bytes));
             ByteArrayInputStream input = new ByteArrayInputStream(bytes);
             fileName = properties.getOss().getPrefix() + fileName + "." + getFileType(input, fileType);
+            // 创建PutObjectRequest对象。
             PutObjectRequest putObjectRequest = new PutObjectRequest(properties.getOss().getBucket(), fileName, input);
             // 设置该属性可以返回response。如果不设置，则返回的response为空。
             putObjectRequest.setProcess("true");
-            // 上传字符串。
-            PutObjectResult result = ossClient.putObject(putObjectRequest);
+
+            // 上传文件
+            PutObjectResult result = stopWatchUtil.record("文件上传", () -> ossClient.putObject(putObjectRequest));
             if (SUCCESS_CODE == result.getResponse().getStatusCode()) {
                 return properties.getOss().getHost() + fileName;
             } else {
@@ -81,6 +88,10 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network. {}", ce.getMessage());
             return null;
+        } finally {
+            if (log.isDebugEnabled()) {
+                log.debug("upload image size:{} cost: {}", bytes.length, stopWatchUtil.prettyPrint());
+            }
         }
     }
 
@@ -94,15 +105,24 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         if (ossClient != null) {
             ossClient.shutdown();
         }
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    private void init() {
         // 创建OSSClient实例。
         ossClient = new OSSClientBuilder().build(properties.getOss().getEndpoint(), properties.getOss().getAk(), properties.getOss().getSk());
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        init();
+        // 监听配置变更，然后重新初始化OSSClient实例
+        dynamicConfigContainer.registerRefreshCallback(properties, () -> {
+            init();
+            log.info("ossClient refreshed!");
+        });
     }
 }

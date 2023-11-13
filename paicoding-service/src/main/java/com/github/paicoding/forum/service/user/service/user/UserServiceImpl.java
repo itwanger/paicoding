@@ -11,12 +11,16 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
-import com.github.paicoding.forum.service.user.repository.entity.*;
-import com.github.paicoding.forum.service.statistics.service.CountService;
+import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -117,9 +121,8 @@ public class UserServiceImpl implements UserService {
             userDao.updateById(user);
         }
 
-        // 查询 user_ai
+        // 查询 user_ai信息，标注用户是否为星球专属用户
         UserAiDO userAiDO = userAiDao.getByUserId(userId);
-
         return UserConverter.toDTO(user, userAiDO);
     }
 
