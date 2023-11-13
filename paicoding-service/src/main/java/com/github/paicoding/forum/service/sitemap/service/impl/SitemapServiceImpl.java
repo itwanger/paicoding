@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.sitemap.service;
+package com.github.paicoding.forum.service.sitemap.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
@@ -12,6 +12,7 @@ import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
+import com.github.paicoding.forum.service.sitemap.service.SitemapService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
