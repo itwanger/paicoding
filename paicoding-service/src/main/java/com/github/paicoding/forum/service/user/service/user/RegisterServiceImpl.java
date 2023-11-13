@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.service.user;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.LoginTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.StarSourceEnum;
@@ -20,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 /**
  * 用户注册服务
  *
@@ -35,6 +38,37 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Autowired
     private UserAiDao userAiDao;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void bindOldUser(String userName, String password, String starNumber, String invitationCode, Long userId) {
+        // 之前已经检查过编号是否已经被绑定过了，那我们直接进行绑定
+        UserAiDO userAiDO = userAiDao.getByUserId(userId);
+        if (userAiDO == null) {
+            userAiDO = UserAiConverter.initAi(userId);
+        } else {
+            // 之前有绑定信息，检查是否是同一个星球号
+            if (!Objects.equals(starNumber, userAiDO.getStarNumber())) {
+                // 不同时，更新星球号，并设置为试用
+                userAiDO.setStarNumber(starNumber).setState(UserAIStatEnum.TRYING.getCode());
+            } else {
+                // 改变状态为试用
+                userAiDO.setState(UserAIStatEnum.TRYING.getCode());
+                // 改变登录用户的星球状态
+                ReqInfoContext.getReqInfo().getUser().setStarStatus(UserAIStatEnum.TRYING.getCode());
+            }
+        }
+        userAiDao.saveOrUpdateAiBindInfo(userAiDO, invitationCode);
+
+        // 获取用户，对登录用户名和密码也进行更新，这样就可以通过用户名和密码登录了
+        UserDO user = new UserDO();
+        user.setUserName(userName);
+        user.setId(userId);
+        user.setPassword(userPwdEncoder.encPwd(password));
+        userDao.updateUser(user);
+
+        processAfterUserBind(user.getId());
+    }
 
 
     @Override
@@ -110,6 +144,21 @@ public class RegisterServiceImpl implements RegisterService {
             public void run() {
                 // 用户注册事件
                 SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REGISTER, userId));
+            }
+        });
+    }
+
+    /**
+     * 用户绑定完毕之后触发的动作
+     *
+     * @param userId
+     */
+    private void processAfterUserBind(Long userId) {
+        TransactionUtil.registryAfterCommitOrImmediatelyRun(new Runnable() {
+            @Override
+            public void run() {
+                // 用户注册事件
+                SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.BIND, userId));
             }
         });
     }
