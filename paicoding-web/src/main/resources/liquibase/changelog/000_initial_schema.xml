@@ -92,4 +92,9 @@
     <changeSet id="00000000000021" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_231018.sql"/>
     </changeSet>
+
+    <!-- 添加枚举字典  -->
+    <changeSet id="00000000000022" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_231113.sql"/>
+    </changeSet>
 </databaseChangeLog>

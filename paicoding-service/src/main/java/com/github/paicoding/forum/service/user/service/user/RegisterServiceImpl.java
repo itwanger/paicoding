@@ -55,7 +55,7 @@ public class RegisterServiceImpl implements RegisterService {
                 // 改变状态为试用
                 userAiDO.setState(UserAIStatEnum.TRYING.getCode());
                 // 改变登录用户的星球状态
-                ReqInfoContext.getReqInfo().getUser().setStarStatus(UserAIStatEnum.TRYING.getCode());
+                ReqInfoContext.getReqInfo().getUser().setStarStatus(UserAIStatEnum.TRYING);
             }
         }
         userAiDao.saveOrUpdateAiBindInfo(userAiDO, invitationCode);
