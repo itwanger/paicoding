@@ -475,7 +475,7 @@
       sseSource = source;
 
       source.onmessage = function (event) {
-        let text = event.data;
+        let text = event.data.replaceAll("\"", "").trim();
         console.log("receive: " + text);
 
         let newCode;

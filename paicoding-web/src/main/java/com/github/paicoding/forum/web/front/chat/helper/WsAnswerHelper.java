@@ -5,7 +5,7 @@ import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -64,7 +64,7 @@ public class WsAnswerHelper {
 
     public void execute(Map<String, Object> attributes, Runnable func) {
         try {
-            ReqInfoContext.ReqInfo reqInfo = (ReqInfoContext.ReqInfo) attributes.get(LoginOutService.SESSION_KEY);
+            ReqInfoContext.ReqInfo reqInfo = (ReqInfoContext.ReqInfo) attributes.get(LoginService.SESSION_KEY);
             ReqInfoContext.addReqInfo(reqInfo);
             String traceId = (String) attributes.get(MdcUtil.TRACE_ID_KEY);
             MdcUtil.add(MdcUtil.TRACE_ID_KEY, traceId);

@@ -22,6 +22,12 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 @Configuration
 @EnableWebSocketMessageBroker // 开启websocket代理
 public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
+    /**
+     * 这里定义的是客户端接收服务端消息的相关信息，如派聪明的回答： WsAnswerHelper#response 就是往 "/chat/rsp" 发送消息
+     * 对应的前端订阅的也是 chat/index.html: stompClient.subscribe(`/user/chat/rsp`, xxx)
+     *
+     * @param config
+     */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // 开启一个简单的基于内存的消息代理，前缀是/user的将消息会转发给消息代理 broker
@@ -34,6 +40,12 @@ public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
     }
 
+
+    /**
+     * 添加一个服务端点，来接收客户端的连接
+     * 即客户端创建ws时，指定的地址, chat/index.html: let socket = new WebSocket(`${protocol}//${host}/gpt/${session}/${aiType}`);
+     * @param registry
+     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册一个 /gpt/{id} 的 WebSocket endPoint; 其中 {id} 用于让用户连接终端时都可以有自己的路径
@@ -43,6 +55,8 @@ public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
                 .setHandshakeHandler(new AuthHandshakeHandler())
                 .addInterceptors(new AuthHandshakeInterceptor())
                 // 注意下面这个，不要使用 setAllowedOrigins("*")，使用之后有啥问题可以实操验证一下🐕
+                // setAllowedOrigins接受一个字符串数组作为参数，每个元素代表一个允许访问的客户端地址，内部的值为具体的 "http://localhost:8080"
+                // setAllowedOriginPatterns接受一个正则表达式数组作为参数，每个元素代表一个允许访问的客户端地址的模式, 内部值可以为正则，如 "*", "http://*:8080"
                 .setAllowedOriginPatterns("*")
         ;
     }

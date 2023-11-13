@@ -21,7 +21,7 @@ public class PaiSnowflakeIdGenerator implements IdGenerator {
     /**
      * 自增序号位数
      */
-    private static final long SEQUENCE_BITS = 12L;
+    private static final long SEQUENCE_BITS = 10L;
 
     /**
      * 机器位数
@@ -94,7 +94,7 @@ public class PaiSnowflakeIdGenerator implements IdGenerator {
         if (log.isDebugEnabled()) {
             log.debug("seconds:{}, datacenter:{}, work:{}, seq:{}, ans={}", nowTime % DateUtil.ONE_DAY_SECONDS, dataCenter, workId, sequence, ans);
         }
-        return Long.parseLong(String.format("%s%012d", getDaySegment(nowTime), ans));
+        return Long.parseLong(String.format("%s%011d", getDaySegment(nowTime), ans));
     }
 
     /**

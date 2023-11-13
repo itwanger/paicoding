@@ -35,6 +35,12 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
     @Resource
     private UserDao userDao;
 
+    /**
+     * 根据星球编号反查用户
+     *
+     * @param starNumber
+     * @return
+     */
     public UserAiDO getByStarNumber(String starNumber) {
         LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
 
@@ -72,7 +78,7 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
     /**
      * 根据邀请码，查找对应的邀请人
      *
-     * @param inviteCode
+     * @param inviteCode 邀请码
      * @return
      */
     public UserAiDO getByInviteCode(String inviteCode) {

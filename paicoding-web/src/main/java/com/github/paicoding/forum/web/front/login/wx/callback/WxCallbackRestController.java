@@ -3,7 +3,7 @@ package com.github.paicoding.forum.web.front.login.wx.callback;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class WxCallbackRestController {
     @Autowired
-    private LoginOutService sessionService;
+    private LoginService sessionService;
     @Autowired
     private WxLoginHelper qrLoginHelper;
     @Autowired

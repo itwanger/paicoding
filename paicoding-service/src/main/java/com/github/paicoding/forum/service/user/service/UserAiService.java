@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 
 public interface UserAiService {
     /**
@@ -20,4 +21,12 @@ public interface UserAiService {
      * @return
      */
     int getMaxChatCnt(Long userId);
+
+    /**
+     * 重建用户绑定的星球编号
+     *
+     * @param loginReq
+     */
+
+    void initOrUpdateAiInfo(UserPwdLoginReq loginReq);
 }

@@ -10,7 +10,7 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.sitemap.service.SitemapService;
 import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
@@ -109,7 +109,7 @@ public class GlobalInitService {
         if (request.getCookies() == null) {
             return;
         }
-        Optional.ofNullable(SessionUtil.findCookieByName(request, LoginOutService.SESSION_KEY))
+        Optional.ofNullable(SessionUtil.findCookieByName(request, LoginService.SESSION_KEY))
                 .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
     }
 

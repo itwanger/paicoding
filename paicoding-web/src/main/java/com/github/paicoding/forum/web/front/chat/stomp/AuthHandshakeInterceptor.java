@@ -5,7 +5,7 @@ import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         log.info("准备开始握手了!");
-        String session = SessionUtil.findCookieByName(request, LoginOutService.SESSION_KEY);
+        String session = SessionUtil.findCookieByName(request, LoginService.SESSION_KEY);
         ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
         SpringUtil.getBean(GlobalInitService.class).initLoginUser(session, reqInfo);
 
@@ -49,7 +49,7 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
         // 将用户信息写入到属性中
         attributes.put(MdcUtil.TRACE_ID_KEY, SelfTraceIdGenerator.generate());
-        attributes.put(LoginOutService.SESSION_KEY, reqInfo);
+        attributes.put(LoginService.SESSION_KEY, reqInfo);
         attributes.put(WsAnswerHelper.AI_SOURCE_PARAM, initAiSource(request.getURI().getPath()));
         return true;
     }

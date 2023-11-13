@@ -11,7 +11,7 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.sitemap.service.impl.SitemapServiceImpl;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -222,11 +222,11 @@ public class ReqRecordFilter implements Filter {
             return deviceId;
         }
 
-        Cookie device = SessionUtil.findCookieByName(request, LoginOutService.USER_DEVICE_KEY);
+        Cookie device = SessionUtil.findCookieByName(request, LoginService.USER_DEVICE_KEY);
         if (device == null) {
             deviceId = UUID.randomUUID().toString();
             if (response != null) {
-                response.addCookie(SessionUtil.newCookie(LoginOutService.USER_DEVICE_KEY, deviceId));
+                response.addCookie(SessionUtil.newCookie(LoginService.USER_DEVICE_KEY, deviceId));
             }
             return deviceId;
         }
