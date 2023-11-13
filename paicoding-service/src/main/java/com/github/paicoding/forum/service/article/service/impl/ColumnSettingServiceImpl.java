@@ -173,7 +173,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             List<Long> userIds = columnDTOS.stream().map(ColumnDTO::getAuthor).collect(Collectors.toList());
 
             // 查询所有的用户信息
-            List<BaseUserInfoDTO> users = userService.queryBasicUserInfos(userIds);
+            List<BaseUserInfoDTO> users = userService.batchQueryBasicUserInfo(userIds);
 
             // 创建一个id到用户信息的映射
             Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));

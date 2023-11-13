@@ -6,7 +6,7 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatgptService;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ import java.util.List;
 @Component
 public class WxAckHelper {
     @Autowired
-    private LoginOutService sessionService;
+    private LoginService sessionService;
     @Autowired
     private WxLoginHelper qrLoginHelper;
 

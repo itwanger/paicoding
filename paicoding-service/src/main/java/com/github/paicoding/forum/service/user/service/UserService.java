@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -24,6 +25,12 @@ public interface UserService {
      */
     UserDO getWxUser(String wxuuid);
 
+    /**
+     * 根据用户名模糊搜索用户
+     *
+     * @param userName 用户名
+     * @return
+     */
     List<SimpleUserInfoDTO> searchUser(String userName);
 
     /**
@@ -86,12 +93,14 @@ public interface UserService {
     UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId);
 
     /**
-     * 查询用户基本信息，查询多个
+     * 用户计数
      *
-     * @param userIds
      * @return
      */
-    List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds);
-
     Long getUserCount();
+
+    /**
+     * 绑定用户信息
+     */
+    void bindUserInfo(UserPwdLoginReq loginReq);
 }

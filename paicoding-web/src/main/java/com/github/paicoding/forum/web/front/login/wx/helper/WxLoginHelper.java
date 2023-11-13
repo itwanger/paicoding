@@ -3,21 +3,14 @@ package com.github.paicoding.forum.web.front.login.wx.helper;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
-import com.github.paicoding.forum.core.util.SessionUtil;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +25,7 @@ public class WxLoginHelper {
      * sse的超时时间，默认15min
      */
     private final static Long SSE_EXPIRE_TIME = 15 * 60 * 1000L;
-    private final LoginOutService sessionService;
+    private final LoginService sessionService;
     /**
      * key = 验证码, value = 长连接
      */
@@ -42,7 +35,7 @@ public class WxLoginHelper {
      */
     private LoadingCache<String, String> deviceCodeCache;
 
-    public WxLoginHelper(LoginOutService loginService) {
+    public WxLoginHelper(LoginService loginService) {
         this.sessionService = loginService;
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
@@ -153,12 +146,12 @@ public class WxLoginHelper {
             return false;
         }
 
-        String session = sessionService.register(ReqInfoContext.getReqInfo().getUserId());
+        String session = sessionService.loginByWx(ReqInfoContext.getReqInfo().getUserId());
         try {
             // 登录成功，写入session
             sseEmitter.send(session);
             // 设置cookie的路径
-            sseEmitter.send("login#" + LoginOutService.SESSION_KEY + "=" + session + ";path=/;");
+            sseEmitter.send("login#" + LoginService.SESSION_KEY + "=" + session + ";path=/;");
             return true;
         } catch (Exception e) {
             log.error("登录异常: {}", verifyCode, e);

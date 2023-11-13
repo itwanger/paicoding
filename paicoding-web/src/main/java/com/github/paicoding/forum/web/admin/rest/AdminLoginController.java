@@ -7,7 +7,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
-import com.github.paicoding.forum.service.user.service.LoginOutService;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -38,7 +36,7 @@ public class AdminLoginController {
     private UserService userService;
 
     @Autowired
-    private LoginOutService loginOutService;
+    private LoginService loginOutService;
 
     /**
      * 后台用户名 & 密码的方式登录
@@ -52,10 +50,10 @@ public class AdminLoginController {
                                         HttpServletResponse response) {
         String user = request.getParameter("username");
         String pwd = request.getParameter("password");
-        String session = loginOutService.register(user, pwd);
+        String session = loginOutService.loginByUserPwd(user, pwd);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
-            response.addCookie(SessionUtil.newCookie(LoginOutService.SESSION_KEY, session));
+            response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
             return ResVo.ok(userService.queryBasicUserInfo(ReqInfoContext.getReqInfo().getUserId()));
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录失败，请重试");
@@ -93,7 +91,7 @@ public class AdminLoginController {
         // response.sendRedirect("/");
 
         // 移除cookie
-        response.addCookie(SessionUtil.delCookie(LoginOutService.SESSION_KEY));
+        response.addCookie(SessionUtil.delCookie(LoginService.SESSION_KEY));
         return ResVo.ok(true);
     }
 }

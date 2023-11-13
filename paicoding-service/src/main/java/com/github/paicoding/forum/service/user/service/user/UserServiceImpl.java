@@ -5,12 +5,12 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
-import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
@@ -21,7 +21,9 @@ import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
+import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +56,6 @@ public class UserServiceImpl implements UserService {
     private UserRelationDao userRelationDao;
 
     @Autowired
-    private ArticleReadService articleReadService;
-
-    @Autowired
     private CountService countService;
 
     @Autowired
@@ -64,6 +63,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserSessionHelper userSessionHelper;
+
+    @Autowired
+    private UserPwdEncoder userPwdEncoder;
+
+    @Autowired
+    private UserAiService userAiService;
 
     @Override
     public UserDO getWxUser(String wxuuid) {
@@ -198,21 +203,31 @@ public class UserServiceImpl implements UserService {
         return userHomeDTO;
     }
 
-    /**
-     * 查询用户基本信息
-     *
-     * @param userIds
-     * @return
-     */
-    @Override
-    public List<BaseUserInfoDTO> queryBasicUserInfos(List<Long> userIds) {
-        // 根据 userIds 查询
-        List<UserInfoDO> users = userDao.getByUserIds(userIds);
-        return users.stream().map(info -> UserConverter.toDTO(info)).collect(Collectors.toList());
-    }
-
     @Override
     public Long getUserCount() {
         return this.userDao.getUserCount();
+    }
+
+    @Override
+    public void bindUserInfo(UserPwdLoginReq loginReq) {
+        // 0. 绑定用户名 & 密码 前置校验
+        UserDO user = userDao.getUserByUserName(loginReq.getUsername());
+        if (user == null) {
+            // 用户名不存在，则标识当前登录用户可以使用这个用户名
+            user = new UserDO();
+            user.setId(loginReq.getUserId());
+        } else if (!Objects.equals(loginReq.getUserId(), user.getId())) {
+            // 登录用户名已经存在了
+            throw ExceptionUtil.of(StatusEnum.USER_LOGIN_NAME_REPEAT);
+        }
+
+        // 1. 更新用户名密码
+        user.setUserName(loginReq.getUsername());
+        user.setPassword(loginReq.getPassword());
+        userDao.saveUser(user);
+
+
+        // 2. 更新ai相关信息
+        userAiService.initOrUpdateAiInfo(loginReq);
     }
 }
