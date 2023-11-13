@@ -17,7 +17,7 @@
     transition: width .05s ease;
 }
 
-.name .test {
+.name .annotation {
     font-size: small;
     padding-left: 6px;
     color: var(--pai-color-3-gray);
@@ -28,7 +28,7 @@
 }
 
 .window-header-title .name .com-verification {
-    top: 10px;
+    top: 2px;
 }
 
 .chat-sidebar .uno-buy-card-foot {

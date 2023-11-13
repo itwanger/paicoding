@@ -231,3 +231,20 @@
     align-items: center;
   }
 }
+
+.vip span {
+  color: var(--pai-brand-1-normal);
+  padding: 0;
+  height: 48px;
+  line-height: 48px;
+  font-size: 14px;
+}
+
+.vip img {
+  position: relative;
+  vertical-align: middle;
+  width: 14px;
+  top: -2px;
+  left: 0;
+  display: inline-block;
+}

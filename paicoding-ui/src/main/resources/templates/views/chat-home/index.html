@@ -24,15 +24,26 @@
                 <div class="window-header-title">
                     <div class="name">
                         <div class="window-header-main-title home_chat-body-title__5S8w4"
-                             th:data-target="${global.isLogin ? '' : '#registerModal'}"
-                             th:data-toggle="${global.isLogin ? '' : 'modal'}"
-                        >点我绑定二哥编程星球，开始与派聪明AI 助手进行互动</div>
-                        <span class="test" th:if="${global.user != null && global.user.starStatus == -1}">赶快升级为 VIP 用户提升额度吧</span>
-                        <span class="test" th:if="${global.user != null && global.user.starStatus == 0}">审核中</span>
-                        <span class="test" th:if="${global.user != null && global.user.starStatus == 1}">试用中，管理员审核后额度将会大幅提升</span>
-                        <div class="c-bubble-trigger com-verification" th:if="${global.user != null && global.user.starStatus == 2}">
-                            <i class="verified"></i>
+                             th:data-target="${!global.isLogin ? '#loginModal' : (global.user.starStatus == -1 ? '#registerModal' : '')}"
+                             th:data-toggle="${!global.isLogin || global.user.starStatus == -1 ? 'modal' : ''}">
+                            点击登录，体验派聪明AI助手
                         </div>
+                        <div th:if="${global.user != null}">
+                            <div th:switch="${global.user.starStatus}">
+                                <a th:case="-1"
+                                   href="#"
+                                  class="annotation"
+                                  data-target="#registerModal"
+                                  data-toggle="modal"
+                                >绑定二哥编程星球，提升每天对话次数</a>
+                                <span th:case="0" class="annotation">审核中</span>
+                                <span th:case="1" class="annotation">试用中，添加管理员微信 itwanger 催审核</span>
+                                <div class="c-bubble-trigger com-verification" th:case="2">
+                                    <i class="verified"></i>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="window-header-sub-title">与派聪明的 <span id="chatCnt">0</span> 条对话（以天为单位，无限期重置）</div>

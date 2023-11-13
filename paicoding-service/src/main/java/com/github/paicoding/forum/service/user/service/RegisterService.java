@@ -24,4 +24,6 @@ public interface RegisterService {
      * @return
      */
     Long registerByWechat(String thirdAccount);
+
+    void bindOldUser(String userName, String password, String starNumber, String invitationCode, Long userId);
 }

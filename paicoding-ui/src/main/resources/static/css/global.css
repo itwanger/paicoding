@@ -169,7 +169,7 @@ button:focus {
 }
 
 .login-main, .register-main {
-  width: 42rem;
+  width: 32rem;
 }
 
 .modal .mdnice-user-dialog-footer {
@@ -291,7 +291,7 @@ button:focus {
 }
 
 .modal .first .signin-qrcode {
-  width: 116px;
+  width: 140px;
 }
 
 .modal .explain {

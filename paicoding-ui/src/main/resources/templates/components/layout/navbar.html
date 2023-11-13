@@ -84,6 +84,7 @@
                         th:text="${global.msgNum}"
                         class="navbar-count-msg"
                 ></span>
+              <!-- 消息提醒的角标 -->
               <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="icon"
@@ -104,6 +105,25 @@
               </svg>
             </a>
           </li>
+          <!-- 增加一个 VIP 的角标 -->
+          <li class="nav-item vip" th:if="${global.user != null && global.user.starStatus == 2}">
+              <span th:text="星球VIP会员"></span>
+              <!-- VIP 的 SVG -->
+              <img src="/img/vip.gif" alt="VIP" />
+          </li>
+          <li class="nav-item vip" th:if="${global.user != null && global.user.starStatus == -1}">
+            <a
+                    href="#"
+                    data-target="#registerModal"
+                    data-toggle="modal"
+            >
+              <span th:text="绑定星球编号"></span>
+              <!-- VIP 的 SVG -->
+              <img src="/img/vip.gif" alt="VIP" />
+            </a>
+
+          </li>
+
           <!-- 头像框 -->
           <div class="nav-right-user">
             <div class="nav-user-avatar">
@@ -178,7 +198,7 @@
             <div class="login-main">
               <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
               <div class="panel">
-                <h1 class="title">密码登录</h1>
+                <h1 class="title">用户名密码登录</h1>
                 <!-- 登录表单、用户名和密码 -->
                 <form id="login-form">
                   <div class="form-group">
@@ -208,7 +228,7 @@
               </div>
             </div>
             <div class="tabpane-container">
-              <h2 class="title">微信扫码登录/注册</h2>
+              <h2 class="title">微信扫码登录，更快</h2>
               <div class="first">
                 <img class="signin-qrcode" th:src="${global.siteInfo.contactMeWxQrCode}"/>
               </div>
@@ -284,24 +304,31 @@
                 </h1>
                 <form id="register-form">
                   <div class="form-group">
-                    <input type="text" placeholder="星球编号，戳上面的链接有详细教程" class="form-control form-control-sm" id="starNumber" autocomplete="off">
+                    <input type="text"
+                           placeholder="星球编号，戳上面的链接有详细教程"
+                           class="form-control form-control-sm"
+                           required
+                           id="starNumber"
+                           autocomplete="off">
                   </div>
                   <div class="form-group">
-                    <input type="text" placeholder="登录用户名，可用微信昵称，可更快匹配上你" class="form-control form-control-sm" id="registerUser" required>
+                    <input type="text"
+                           placeholder="用户名密码登录时用"
+                           class="form-control form-control-sm"
+                           id="registerUser" required>
                   </div>
                   <div class="form-group">
                     <input type="password" placeholder="密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
                   </div>
-                  <div class="form-group">
-                    <input type="text" placeholder="微信搜沉默王二回复邀请码获取，也可不填" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
-                  </div>
                   <!-- 绑定过会直接登录 -->
-                  <button type="submit" class="btn btn-primary btn-block btn-sm">绑定/登录</button>
+                  <button type="submit"
+                          class="btn btn-primary btn-block btn-sm"
+                          th:text="${global.isLogin} ? '绑定' : '绑定后登录'">绑定/绑定后登录</button>
                 </form>
               </div>
             </div>
             <div class="tabpane-container">
-              <h2 class="title">添加二哥微信备注星球，审核更快</h2>
+              <h2 class="title">添加二哥微信 itwanger 审核更快</h2>
               <div class="first">
                 <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
               </div>
@@ -365,7 +392,7 @@
 
       // 获取用户名和密码，没有定义 ID
       const registerUser = $('#registerUser').val();
-      const starNumber = $("#starNumber").val() | '0000';
+      const starNumber = $("#starNumber").val() | '00000';
       const password = $("#registerPassword").val();
       const invitationCode = $("#invitationCode").val();
 
@@ -374,7 +401,7 @@
         type: "POST",
         data: {
           username: registerUser,
-          starNumber: starNumber.toString().padStart(5, '0'), // "0001",
+          starNumber: starNumber.toString().padStart(5, '0'), // "00001",
           password: password,
           invitationCode: invitationCode
         },

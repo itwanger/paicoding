@@ -25,6 +25,7 @@ public enum NotifyTypeEnum {
 
     // 注册、登录添加系统相关提示消息
     REGISTER(6, "用户注册"),
+    BIND(6, "绑定星球"),
     LOGIN(6, "用户登录"),
     ;
 

@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
@@ -20,8 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 /**
  * 基于验证码、用户名密码的登录方式
@@ -122,48 +119,27 @@ public class LoginOutServiceImpl implements LoginOutService {
             throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
         }
 
-        UserDO user = userDao.getUserByUserName(userName);
-        Long userId;
-        if (user == null) {
-            // 用户不存在，走注册流程
-            userId = registerNewUser(userName, password, starNumber, invitationCode);
-        } else if (userPwdEncoder.match(password, user.getPassword())) {
-            // 走登录绑定流程
-            userId = bindUserAccount(user.getId(), starNumber, invitationCode);
-        } else {
-            // 用户名密码不匹配
-            throw ExceptionUtil.of(StatusEnum.USER_EXISTS, userName);
-        }
-
-        return userSessionHelper.genSession(userId);
-    }
-
-    private Long registerNewUser(String userName, String password, String starNumber, String invitationCode) {
         if (StringUtils.isNotBlank(starNumber) && userAiDao.getByInviteCode(starNumber) != null) {
             // 判断星球是否已经被绑定了
             throw ExceptionUtil.of(StatusEnum.USER_EXISTS, starNumber);
         }
 
-        // 注册用户
-        return registerService.registerByUserNameAndPassword(userName, password, starNumber, invitationCode);
-    }
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
 
-    private Long bindUserAccount(Long userId, String starNumber, String invitationCode) {
-        // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
-        UserAiDO userAiDO = userAiDao.getByUserId(userId);
-        if (userAiDO == null) {
-            userAiDO = UserAiConverter.initAi(userId);
+        // 如果用户已经登录，则是一个绑定操作
+        if (userId != null) {
+            // 走绑定流程
+            registerService.bindOldUser(userName, password, starNumber, invitationCode, userId);
+        } else {
+            // 走注册流程
+            userId = registerService.registerByUserNameAndPassword(userName, password, starNumber, invitationCode);
         }
-        if (!Objects.equals(starNumber, userAiDO.getStarNumber())) {
-            // 不同时，更新星球号，并设置为试用
-            userAiDO.setStarNumber(starNumber).setState(UserAIStatEnum.TRYING.getCode());
-        }
-        userAiDao.saveOrUpdateAiBindInfo(userAiDO, invitationCode);
-        return userId;
+
+        return userSessionHelper.genSession(userId);
     }
 
     private Long bindUserAccount(Long userId) {
-        // 根据星球编号直接查询用户是否存在，存在则直接登录，不存在则进行注册
+        // 用户名密码注册的时候初始化用户AI信息
         UserAiDO userAiDO = userAiDao.getByUserId(userId);
         if (userAiDO == null) {
             userAiDO = UserAiConverter.initAi(userId);
