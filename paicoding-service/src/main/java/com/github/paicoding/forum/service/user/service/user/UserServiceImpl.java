@@ -28,6 +28,7 @@ import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -209,6 +210,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void bindUserInfo(UserPwdLoginReq loginReq) {
         // 0. 绑定用户名 & 密码 前置校验
         UserDO user = userDao.getUserByUserName(loginReq.getUsername());
@@ -218,7 +220,7 @@ public class UserServiceImpl implements UserService {
             user.setId(loginReq.getUserId());
         } else if (!Objects.equals(loginReq.getUserId(), user.getId())) {
             // 登录用户名已经存在了
-            throw ExceptionUtil.of(StatusEnum.USER_LOGIN_NAME_REPEAT);
+            throw ExceptionUtil.of(StatusEnum.USER_LOGIN_NAME_REPEAT, loginReq.getUsername());
         }
 
         // 1. 更新用户名密码

@@ -1,12 +1,14 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.RegisterService;
@@ -179,7 +181,9 @@ public class LoginServiceImpl implements LoginService {
                 throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
             }
 
-            if (userAiDao.getByStarNumber(starNumber) != null) {
+            UserAiDO userAi = userAiDao.getByStarNumber(starNumber);
+
+            if (userAi != null && UserAIStatEnum.FORMAL.getCode().equals(userAi.getState())) {
                 // 判断星球是否已经被绑定了
                 throw ExceptionUtil.of(StatusEnum.USER_STAR_REPEAT, starNumber);
             }
