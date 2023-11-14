@@ -93,14 +93,14 @@ public class PaiWebConfig implements WebMvcConfigurer {
      */
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter convert = new MappingJackson2HttpMessageConverter();
-        ObjectMapper mapper = new ObjectMapper();
-        // 长整型序列化返回时，更新为string，避免前端js精度丢失
-        // 注意这个仅适用于json数据格式的返回，对于Thymeleaf的模板渲染依然会出现精度问题
-        mapper.registerModule(JsonUtil.bigIntToStrsimpleModule());
-        convert.setObjectMapper(mapper);
-        converters.add(0, convert);
         converters.add(new MappingJackson2XmlHttpMessageConverter());
+        converters.forEach(s -> {
+            if (s instanceof MappingJackson2HttpMessageConverter) {
+                // 长整型序列化返回时，更新为string，避免前端js精度丢失
+                // 注意这个仅适用于json数据格式的返回，对于Thymeleaf的模板渲染依然会出现精度问题
+                ((MappingJackson2HttpMessageConverter) s).getObjectMapper().registerModule(JsonUtil.bigIntToStrsimpleModule());
+            }
+        });
     }
 
     /**
