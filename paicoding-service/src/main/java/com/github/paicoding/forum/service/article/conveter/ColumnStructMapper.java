@@ -38,6 +38,8 @@ public interface ColumnStructMapper {
     @Mapping(target = "freeEndTime", expression = "java(columnInfoDO.getFreeEndTime().getTime())")
     ColumnDTO infotoDto(ColumnInfoDO columnInfoDO);
 
+    List<ColumnDTO> infoToDtos(List<ColumnInfoDO> columnInfoDOs);
+
 
     /**
      * ColumnInfoDO to SimpleColumnDTO
@@ -48,8 +50,6 @@ public interface ColumnStructMapper {
     @Mapping(source = "id", target = "columnId")
     @Mapping(source = "columnName", target = "column")
     SimpleColumnDTO infoToSimpleDto(ColumnInfoDO columnInfoDO);
-
-    List<ColumnDTO> infoToDtos(List<ColumnInfoDO> columnInfoDOs);
 
     List<SimpleColumnDTO> infoToSimpleDtos(List<ColumnInfoDO> columnInfoDOs);
 

@@ -241,10 +241,16 @@
 }
 
 .vip img {
+  margin-left: 10px;
   position: relative;
   vertical-align: middle;
   width: 14px;
-  top: -2px;
+  height: 24px;
+  top: 11px;
   left: 0;
   display: inline-block;
+}
+
+.vip {
+  display: flex;
 }
