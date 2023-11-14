@@ -1,4 +1,5 @@
-详情主体样式 .detail-content-title {
+
+.detail-content-title {
   color: rgba(0, 0, 0, 0.85);
   font-size: 26px;
   line-height: 31px;
@@ -299,3 +300,4 @@
     margin-bottom: 72px;
   }
 }
+

@@ -24,12 +24,12 @@
                 <div class="window-header-title">
                     <div class="name">
                         <div class="window-header-main-title home_chat-body-title__5S8w4"
-                             th:data-target="${!global.isLogin ? '#loginModal' : (global.user.starStatus == -1 ? '#registerModal' : '')}"
-                             th:data-toggle="${!global.isLogin || global.user.starStatus == -1 ? 'modal' : ''}">
+                             th:data-target="${!global.isLogin ? '#loginModal' : (global.user.starStatus.code == -1 ? '#registerModal' : '')}"
+                             th:data-toggle="${!global.isLogin || global.user.starStatus.code == -1 ? 'modal' : ''}">
                             点击登录，体验派聪明AI助手
                         </div>
                         <div th:if="${global.user != null}">
-                            <div th:switch="${global.user.starStatus}">
+                            <div th:switch="${global.user.starStatus.code}">
                                 <a th:case="-1"
                                    href="#"
                                   class="annotation"

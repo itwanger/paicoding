@@ -493,3 +493,33 @@
 .book-directory-comp .section-list .section.active .left .index {
   color: var(--pai-brand-2-hover);
 }
+
+.needlock {
+  width: 100%;
+  text-align: center;
+  font-size: xx-large;
+  font-weight: 400;
+  background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
+  background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
+  padding-bottom: 24px; position: relative;
+  padding-top: 160px;
+  margin-top: -220px;
+  z-index: 996;
+  bottom: -1px;
+}
+
+.needlock h2 {
+  font-size: 1.5rem;
+}
+
+.join-star {
+  font-size: small;
+}
+
+.join-star p {
+    margin-bottom: 8px;
+}
+.join-star .category {
+  color: var(--pai-brand-1-normal);
+  font-weight: bold;
+}
