@@ -6,7 +6,7 @@
     </title>
 </div>
 
-<link rel="stylesheet" href="/css/views/rank.css"/>
+<link rel="stylesheet" href="/css/views/rank.css" th:href="${global.siteInfo.oss + '/css/views/rank.css'}"/>
 <body id="body" class="bg-color">
 <!-- 导航栏 -->
 <div th:replace="components/layout/navbar :: navbar"></div>

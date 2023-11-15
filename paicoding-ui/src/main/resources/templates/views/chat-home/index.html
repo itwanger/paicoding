@@ -6,9 +6,9 @@
     </title>
 </div>
 
-<link rel="stylesheet" href="/css/views/chat-home.css"/>
+<link rel="stylesheet" href="/css/views/chat-home.css" th:href="${global.siteInfo.oss + '/css/views/chat-home.css'}"/>
 
-<script src="/js/stomp.min.js"></script>
+<script src="/js/stomp.min.js" th:src="${global.siteInfo.oss + '/js/stomp.min.js'}"></script>
 
 <body id="body" class="bg-color">
 <!-- 导航栏 -->

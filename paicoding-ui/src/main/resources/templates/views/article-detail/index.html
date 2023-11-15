@@ -4,7 +4,7 @@
     <title th:text="${vo.article.title} + '-技术派'">技术派</title>
   </div>
 
-  <link rel="stylesheet" href="/css/views/article-detail.css" />
+  <link rel="stylesheet" href="/css/views/article-detail.css" th:href="${global.siteInfo.oss + '/css/views/article-detail.css'}" />
 
   <body id="body" class="bg-color">
     <!-- 导航栏 -->
