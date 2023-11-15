@@ -8,8 +8,8 @@
     <div class="nav-body">
       <div class="nav-logo-wrap-lg">
         <a class="navbar-logo-wrap" href="/">
-          <img class="logo" src="/img/logo.svg" />
-          <img src="/img/icon.png" class="logo-lg" alt="" />
+          <img class="logo" src="/img/logo.svg" th:src="${global.siteInfo.oss + '/img/logo.svg'}"/>
+          <img src="/img/icon.png" class="logo-lg" alt="" th:src="${global.siteInfo.oss + '/img/icon.png'}"/>
         </a>
         <div class="dropdown nav-menu-lg">
           <div class="dropdown">
@@ -113,7 +113,7 @@
                 <span th:text="绑定星球编号"></span>
               </a>
             </div>
-            <img src="/img/vip.gif" alt="VIP" />
+            <img src="/img/vip.gif" alt="VIP" th:src="${global.siteInfo.oss + '/img/vip.gif'}"/>
           </li>
 
           <!-- 头像框 -->
