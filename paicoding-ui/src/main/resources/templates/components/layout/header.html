@@ -29,11 +29,11 @@
 
     <script type="application/ld+json" th:utext="${global.jsonLd}"></script>
 
-    <link rel="icon" href="/img/icon.png" />
+    <link rel="icon" href="/img/icon.png" th:href="${global.siteInfo.oss + '/img/icon.png'}"/>
     <link href="/css/three/index.css" th:href="@{{oss}/css/three/index.css(oss=${global.siteInfo.oss})}" rel="stylesheet" />
     <link href="/css/three/highlightjs.github.min.css" th:href="${global.siteInfo.oss + '/css/three/highlightjs.github.min.css'}" rel="stylesheet" />
-    <link href="/css/global.css" rel="stylesheet" />
-    <link href="/css/common.css" rel="stylesheet" />
+    <link href="/css/global.css" th:href="${global.siteInfo.oss + '/css/global.css'}" rel="stylesheet" />
+    <link href="/css/common.css" th:href="${global.siteInfo.oss + '/css/common.css'}" rel="stylesheet" />
     <script>
       var _hmt = _hmt || [];
       (function() {
@@ -44,22 +44,22 @@
       })();
     </script>
 
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/popper.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/toastr.min.js"></script>
-    <script src="/js/jquery.scrollUp.min.js"></script>
-    <script src="/js/md5.min.js"></script>
-    <script src="/js/marked.min.js"></script>
-    <script src="/js/select2.full.min.js"></script>
-    <script src="/js/biz/forum.js"></script>
-    <script src="/js/biz/loadMore.js"></script>
-    <script src="/js/biz/toolaction.js"></script>
-    <script src="/js/biz/login.js"></script>
-    <script src="/js/biz/select2.zh_CN.js"></script>
-    <script src="/js/jsonld.min.js"></script>
-    <script src="/js/clipboard.min.js"></script>
-    <script src="/js/highlight.min.js"></script>
+    <script src="/js/jquery.min.js" th:src="${global.siteInfo.oss + '/js/jquery.min.js'}"></script>
+    <script src="/js/popper.min.js" th:src="${global.siteInfo.oss + '/js/popper.min.js'}"></script>
+    <script src="/js/bootstrap.min.js" th:src="${global.siteInfo.oss + '/js/bootstrap.min.js'}"></script>
+    <script src="/js/toastr.min.js" th:src="${global.siteInfo.oss + '/js/toastr.min.js'}"></script>
+    <script src="/js/jquery.scrollUp.min.js" th:src="${global.siteInfo.oss + '/js/jquery.scrollUp.min.js'}"></script>
+    <script src="/js/md5.min.js" th:src="${global.siteInfo.oss + '/js/md5.min.js'}"></script>
+    <script src="/js/marked.min.js" th:src="${global.siteInfo.oss + '/js/marked.min.js'}"></script>
+    <script src="/js/select2.full.min.js" th:src="${global.siteInfo.oss + '/js/select2.full.min.js'}"></script>
+    <script src="/js/biz/forum.js" th:src="${global.siteInfo.oss + '/js/biz/forum.js'}"></script>
+    <script src="/js/biz/loadMore.js" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}"></script>
+    <script src="/js/biz/toolaction.js" th:src="${global.siteInfo.oss + '/js/biz/toolaction.js'}"></script>
+    <script src="/js/biz/login.js" th:src="${global.siteInfo.oss + '/js/biz/login.js'}"></script>
+    <script src="/js/biz/select2.zh_CN.js" th:src="${global.siteInfo.oss + '/js/biz/select2.zh_CN.js'}"></script>
+    <script src="/js/jsonld.min.js" th:src="${global.siteInfo.oss + '/js/jsonld.min.js'}"></script>
+    <script src="/js/clipboard.min.js" th:src="${global.siteInfo.oss + '/js/clipboard.min.js'}"></script>
+    <script src="/js/highlight.min.js" th:src="${global.siteInfo.oss + '/js/highlight.min.js'}"></script>
 
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />

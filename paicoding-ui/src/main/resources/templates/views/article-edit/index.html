@@ -4,9 +4,9 @@
     <title th:text="${global.siteInfo.websiteName}">技术派 - 文章发表</title>
   </div>
 
-  <link rel="stylesheet" href="/editormd/css/editormd.css" />
-  <link rel="stylesheet" href="/css/views/article-edit.css" />
-  <script src="/editormd/editormd.js"></script>
+  <link rel="stylesheet" href="/editormd/css/editormd.css" th:href="${global.siteInfo.oss + '/editormd/css/editormd.css'}" />
+  <link rel="stylesheet" href="/css/views/article-edit.css" th:href="${global.siteInfo.oss + '/css/views/article-edit.css'}" />
+  <script src="/editormd/editormd.js" th:src="${global.siteInfo.oss + '/editormd/editormd.js'}"></script>
 
   <body id="body">
     <!-- 正文内容 -->
