@@ -278,10 +278,11 @@
       };
 
       // 编辑器
+      const jspath = [[${global.siteInfo.oss}]] + '/editormd/lib/';
       let simplemde = editormd("paiEditor", {
         width: "100%",
         // height: 740,
-        path: '../editormd/lib/',
+        path: jspath,
         // autoHeight : true,
         // theme : "dark",
         // previewTheme : "dark",
