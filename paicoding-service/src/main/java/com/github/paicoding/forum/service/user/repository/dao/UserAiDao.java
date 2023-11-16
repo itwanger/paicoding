@@ -124,6 +124,11 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
             }
         }
 
+        // 如果绑定了微信公众号
+        UserDO user = userDao.getUserByUserId(ai.getUserId());
+        if (StringUtils.isNotBlank(user.getThirdAccountId())) {
+            strategy = UserAiStrategyEnum.WECHAT.updateCondition(strategy);
+        }
 
         if (StringUtils.isNotBlank(ai.getStarNumber()) && Objects.equals(ai.getState(), UserAIStatEnum.FORMAL.getCode())) {
             // 绑定了星球，且审核通过
@@ -132,12 +137,6 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
             } else {
                 strategy = UserAiStrategyEnum.STAR_TECH_PAI.updateCondition(strategy);
             }
-        }
-
-        // 如果绑定了微信公众号
-        UserDO user = userDao.getUserByUserId(ai.getUserId());
-        if (StringUtils.isNotBlank(user.getThirdAccountId())) {
-            strategy = UserAiStrategyEnum.WECHAT.updateCondition(strategy);
         }
 
         ai.setStrategy(strategy);
