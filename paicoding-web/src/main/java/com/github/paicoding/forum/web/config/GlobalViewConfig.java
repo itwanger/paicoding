@@ -56,4 +56,11 @@ public class GlobalViewConfig {
      * oss的地址
      */
     private String oss;
+
+    public String getOss() {
+        if (oss == null) {
+            this.oss = "";
+        }
+        return this.oss;
+    }
 }
