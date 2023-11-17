@@ -221,19 +221,19 @@ svg:not(:root).svg-inline--fa {
     margin-right: 0;
   }
 
-  .user-article-item-title {
-    -webkit-line-clamp: 5;
-  }
   .user-article-item-value-text {
-    -webkit-line-clamp: 5;
+    -webkit-line-clamp: 3;
   }
   .home-inter-wrap {
     width: auto;
     display: block;
   }
   .user-article-img {
-    width: 100px;
-    height: 80px;
+    width: 110px;
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    right: 0;
   }
   .align-content-start {
     padding: 4px 18px;
@@ -243,5 +243,9 @@ svg:not(:root).svg-inline--fa {
   }
   .article-show-wrap {
     margin-right: 8px;
+  }
+
+  .cdc-article-panel__inner:has(.user-article-img) .cdc-article-panel__media {
+    max-width: 65%;
   }
 }
