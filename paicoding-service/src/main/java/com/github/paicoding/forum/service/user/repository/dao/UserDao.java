@@ -104,7 +104,8 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     public UserDO getUserByUserName(String userName) {
         LambdaQueryWrapper<UserDO> queryUser = Wrappers.lambdaQuery();
         queryUser.eq(UserDO::getUserName, userName)
-                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
+                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last("limit 1");
         return userMapper.selectOne(queryUser);
     }
 
