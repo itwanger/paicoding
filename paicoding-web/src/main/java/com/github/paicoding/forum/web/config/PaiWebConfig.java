@@ -1,14 +1,7 @@
 package com.github.paicoding.forum.web.config;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.id.IdUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -25,17 +18,9 @@ import org.thymeleaf.standard.serializer.IStandardJavaScriptSerializer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
  * 注册xml解析器

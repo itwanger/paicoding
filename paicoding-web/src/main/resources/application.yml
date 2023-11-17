@@ -3,6 +3,9 @@ server:
   servlet:
     session:
       timeout: 5m # 设置session的有效期为五分钟
+  compression:
+    enabled: true # 开启返回结果压缩，减少传输耗时
+    min-response-size: 2KB
 
 spring:
   #  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
