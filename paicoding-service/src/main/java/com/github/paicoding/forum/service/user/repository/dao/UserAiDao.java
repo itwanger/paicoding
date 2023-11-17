@@ -43,7 +43,8 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
         LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
 
         queryUserAi.eq(UserAiDO::getStarNumber, starNumber)
-                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last("limit 1");
         return userAiMapper.selectOne(queryUserAi);
     }
 
