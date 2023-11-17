@@ -6,6 +6,7 @@
   background-color: #000;
   color: #fff;
   flex-direction: column;
+  font-size: 14px;
 }
 
 .body-404 footer {
