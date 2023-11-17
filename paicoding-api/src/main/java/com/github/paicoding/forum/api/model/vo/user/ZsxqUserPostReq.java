@@ -20,4 +20,6 @@ public class ZsxqUserPostReq implements Serializable {
     private String name;
     // 星球编号
     private String starNumber;
+    // AI 策略
+    private Integer strategy;
 }

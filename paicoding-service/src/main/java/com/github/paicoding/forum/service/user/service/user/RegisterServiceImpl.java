@@ -51,6 +51,7 @@ public class RegisterServiceImpl implements RegisterService {
         user.setUserName(loginReq.getUsername());
         user.setPassword(userPwdEncoder.encPwd(loginReq.getPassword()));
         user.setThirdAccountId("");
+        // 用户名密码注册
         user.setLoginType(LoginTypeEnum.USER_PWD.getType());
         userDao.saveUser(user);
 

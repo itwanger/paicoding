@@ -51,10 +51,10 @@ public class UserAiDO extends BaseDO {
     private Integer inviteNum;
 
     /**
-     * 二进制使用姿势
-     * 第0位： = 1 表示已绑定微信公众号
-     * 第1位： = 1 表示绑定了邀请用户
-     * 第2位： = 1 表示绑定了java星球
+     * 二进制使用姿势<br/>
+     * 第0位： = 1 表示已绑定微信公众号<br/>
+     * 第1位： = 1 表示绑定了邀请用户<br/>
+     * 第2位： = 1 表示绑定了java星球<br/>
      * 第3位： = 1 表示绑定了技术派星球
      */
     private Integer strategy;

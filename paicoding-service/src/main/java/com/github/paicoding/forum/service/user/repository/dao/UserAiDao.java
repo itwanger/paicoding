@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.enums.user.StarSourceEnum;
-import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAiStrategyEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.user.dto.ZsxqUserInfoDTO;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author YiHui
@@ -124,18 +122,23 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
             }
         }
 
-        // 如果绑定了微信公众号
-        UserDO user = userDao.getUserByUserId(ai.getUserId());
-        if (StringUtils.isNotBlank(user.getThirdAccountId())) {
-            strategy = UserAiStrategyEnum.WECHAT.updateCondition(strategy);
-        }
-
-        if (StringUtils.isNotBlank(ai.getStarNumber()) && Objects.equals(ai.getState(), UserAIStatEnum.FORMAL.getCode())) {
+        // 这里有点问题
+        // 用户名密码注册的时候，还没有审核通过，所以即使有星球编号，也无法绑定 AI 策略
+        // 去掉用户审核通过的判断，如果用户绑定了星球，就直接更新策略，默认为进阶之路
+        // 后面获取册数的时候会根据用户的审核状态，计算次数
+        if (StringUtils.isNotBlank(ai.getStarNumber())) {
             // 绑定了星球，且审核通过
-            if (ai.getStarType() == StarSourceEnum.JAVA_GUIDE.getSource()) {
-                strategy = UserAiStrategyEnum.STAR_JAVA_GUIDE.updateCondition(strategy);
-            } else {
+            if (ai.getStarType() == StarSourceEnum.TECH_PAI.getSource()) {
                 strategy = UserAiStrategyEnum.STAR_TECH_PAI.updateCondition(strategy);
+            } else {
+                strategy = UserAiStrategyEnum.STAR_JAVA_GUIDE.updateCondition(strategy);
+            }
+        } else {
+            // 有星球编号就直接走上面的判断，不走这里公众号的判断了
+            // 如果绑定了微信公众号
+            UserDO user = userDao.getUserByUserId(ai.getUserId());
+            if (StringUtils.isNotBlank(user.getThirdAccountId())) {
+                strategy = UserAiStrategyEnum.WECHAT.updateCondition(strategy);
             }
         }
 

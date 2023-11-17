@@ -27,8 +27,9 @@
     <select id="listZsxqUsersByParams"
             resultType="com.github.paicoding.forum.api.model.vo.user.dto.ZsxqUserInfoDTO">
         select a.id, a.user_id, a.star_number, a.invite_code,
-        a.invite_num, a.state, u.user_name as user_code,
-        ui.user_name as name, ui.photo as avatar
+            a.invite_num, a.state, u.user_name as user_code,
+            a.strategy, u.login_type,
+            ui.user_name as name, ui.photo as avatar
         from user_ai a
         left join user u on u.id = a.user_id
         left join user_info ui on a.user_id = ui.user_id

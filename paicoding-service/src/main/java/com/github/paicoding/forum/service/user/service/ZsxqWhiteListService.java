@@ -22,4 +22,6 @@ public interface ZsxqWhiteListService {
     void update(ZsxqUserPostReq req);
 
     void batchOperate(List<Long> ids, UserAIStatEnum operate);
+
+    void reset(Integer authorId);
 }

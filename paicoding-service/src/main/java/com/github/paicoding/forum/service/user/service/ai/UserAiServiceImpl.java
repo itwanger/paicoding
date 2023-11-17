@@ -6,7 +6,6 @@ import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAiStrategyEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
-import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiHistoryDao;
@@ -51,19 +50,21 @@ public class UserAiServiceImpl implements UserAiService {
         UserAiDO ai = userAiDao.getOrInitAiInfo(userId);
         int strategy = ai.getStrategy();
         int cnt = 0;
-        // 微信公众号登录用户 +5次
-        if (UserAiStrategyEnum.WECHAT.match(strategy)) {
-            cnt += aiConfig.getMaxNum().getWechat();
-        }
 
         // 星球用户 +100
         if (UserAiStrategyEnum.STAR_JAVA_GUIDE.match(strategy) || UserAiStrategyEnum.STAR_TECH_PAI.match(strategy)) {
             if (Objects.equals(ai.getState(), UserAIStatEnum.FORMAL.getCode())) {
                 // 审核通过
                 cnt += aiConfig.getMaxNum().getStar();
-            } else if (Objects.equals(ai.getState(), UserAIStatEnum.TRYING.getCode()) && (System.currentTimeMillis() - ai.getCreateTime().getTime()) <= DateUtil.THREE_DAY_MILL) {
+            } else if (Objects.equals(ai.getState(), UserAIStatEnum.TRYING.getCode())) {
                 // 试用中
                 cnt += aiConfig.getMaxNum().getStarTry();
+            }
+        } else {
+            // 有星球走星球，无星球再走公众号
+            // 微信公众号登录用户 +5次
+            if (UserAiStrategyEnum.WECHAT.match(strategy)) {
+                cnt += aiConfig.getMaxNum().getWechat();
             }
         }
 
@@ -95,10 +96,13 @@ public class UserAiServiceImpl implements UserAiService {
         } else if (StringUtils.isBlank(loginReq.getStarNumber()) && StringUtils.isBlank(loginReq.getInvitationCode())) {
             // 没有传递星球和邀请码时，直接返回，不用更新ai信息
             return;
-        } else if (StringUtils.isNotBlank(loginReq.getStarNumber()) && !Objects.equals(loginReq.getStarNumber(), userAiDO.getStarNumber())) {
-            // 之前有绑定信息，检查到与之前的不一致，则执行更新星球编号流程，并设置为试用
-            userAiDO.setStarNumber(loginReq.getStarNumber())
-                    .setState(UserAIStatEnum.TRYING.getCode());
+        } else if (StringUtils.isNotBlank(loginReq.getStarNumber())) {
+            // 之前有绑定信息，检查到与之前的不一致，则执行更新星球编号流程
+            if (!Objects.equals(loginReq.getStarNumber(), userAiDO.getStarNumber())) {
+                userAiDO.setStarNumber(loginReq.getStarNumber());
+            }
+            // 并设置为试用
+            userAiDO.setState(UserAIStatEnum.TRYING.getCode());
             if (ReqInfoContext.getReqInfo().getUser() != null) {
                 ReqInfoContext.getReqInfo().getUser().setStarStatus(UserAIStatEnum.TRYING);
             }
