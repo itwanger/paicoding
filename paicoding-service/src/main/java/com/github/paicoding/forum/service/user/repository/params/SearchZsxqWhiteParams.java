@@ -33,4 +33,5 @@ public class SearchZsxqWhiteParams extends PageParam {
      * 用户编号
      */
     private String userCode;
+
 }
