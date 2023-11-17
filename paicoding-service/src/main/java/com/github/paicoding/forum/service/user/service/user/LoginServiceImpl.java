@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
@@ -183,7 +182,8 @@ public class LoginServiceImpl implements LoginService {
 
             UserAiDO userAi = userAiDao.getByStarNumber(starNumber);
 
-            if (userAi != null && UserAIStatEnum.FORMAL.getCode().equals(userAi.getState())) {
+            // 如果星球编号已经被绑定了
+            if (userAi != null) {
                 // 判断星球是否已经被绑定了
                 throw ExceptionUtil.of(StatusEnum.USER_STAR_REPEAT, starNumber);
             }

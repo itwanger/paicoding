@@ -225,7 +225,7 @@ public class UserServiceImpl implements UserService {
 
         // 1. 更新用户名密码
         user.setUserName(loginReq.getUsername());
-        user.setPassword(loginReq.getPassword());
+        user.setPassword(userPwdEncoder.encPwd(loginReq.getPassword()));
         userDao.saveUser(user);
 
         // 2. 更新ai相关信息

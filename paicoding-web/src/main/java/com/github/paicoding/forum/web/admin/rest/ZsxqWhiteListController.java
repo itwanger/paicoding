@@ -46,6 +46,13 @@ public class ZsxqWhiteListController {
         return ResVo.ok("ok");
     }
 
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "reset")
+    public ResVo<String> reset(@RequestParam(name = "authorId") Integer authorId) {
+        zsxqWhiteListService.reset(authorId);
+        return ResVo.ok("ok");
+    }
+
     // 批量审核通过
     @ApiOperation("批量审核通过")
     @PostMapping(path = "batchOperate")

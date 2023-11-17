@@ -48,4 +48,12 @@ public class ZsxqUserInfoDTO implements Serializable {
     // 状态
     @ApiModelProperty("状态")
     private Integer state;
+
+    // login_type
+    @ApiModelProperty("登录类型")
+    private Integer loginType;
+
+    // strategy
+    @ApiModelProperty("AI策略")
+    private Integer strategy;
 }
