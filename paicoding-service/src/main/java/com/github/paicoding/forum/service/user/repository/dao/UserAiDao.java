@@ -112,9 +112,9 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
      */
     public void saveOrUpdateAiBindInfo(UserAiDO ai, String inviteCode) {
         int strategy = ai.getStrategy();
-        if (!UserAiStrategyEnum.INVITE_USER.match(ai.getStrategy()) && StringUtils.isNotBlank(inviteCode)) {
+        if (StringUtils.isNotBlank(inviteCode)) {
             // todo 待支持更新邀请绑定
-            // 对于没有绑定邀请码的用户，需要将邀请他的用户找出来，计数 + 1
+            // 对于绑定邀请码的用户，需要将邀请他的用户找出来，计数 + 1
             UserAiDO inviteUser = getByInviteCode(inviteCode);
             if (inviteUser != null) {
                 ai.setInviterUserId(inviteUser.getUserId());
