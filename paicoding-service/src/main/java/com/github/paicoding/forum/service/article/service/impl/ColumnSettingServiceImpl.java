@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.*;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
@@ -153,6 +150,62 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                     // section 大于 1
                     .gt(ColumnArticleDO::getSection, 1)
                     .gt(ColumnArticleDO::getSection, columnArticleDO.getSection()));
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void sortColumnArticleApi(SortColumnArticleReq req) {
+        // 根据 req 的两个 ID 调换两篇文章的顺序
+        ColumnArticleDO activeDO = columnArticleDao.getById(req.getActiveId());
+        ColumnArticleDO overDO = columnArticleDao.getById(req.getOverId());
+        if (activeDO != null && overDO != null && !activeDO.getId().equals(overDO.getId())) {
+            Integer activeSection = activeDO.getSection();
+            Integer overSection = overDO.getSection();
+            // 假如原始顺序为1、2、3、4
+            //
+            //把 1 拖到 4 后面 2 变 1 3 变 2 4 变 3 1 变 4
+            //把 1 拖到 3 后面 2 变 1 3 变 2 4 不变 1 变 3
+            //把 1 拖到 2 后面 2 变 1 3 不变 4 不变 1 变 2
+            //把 2 拖到 4 后面 1 不变 3 变 2 4 变 3 2 变 4
+            //把 2 拖到 3 后面 1 不变 3 变 2 4 不变 2 变 3
+            //把 3 拖到 4 后面 1 不变 2 不变 4 变 3 3 变 4
+            //把 4 拖到 1 前面 1 变 2 2 变 3 3 变 4
+            //把 4 拖到 2 前面 1 不变 2 变 3 3 变 4  4 变 1
+            //把 4 拖到 3 前面 1 不变 2 不变 3 变 4 4 变 1
+            //把 3 拖到 1 前面 1 变 2 2 变 3 3 变 4 4 变 1
+            //依次类推
+            // 1. 如果 activeSection > overSection，那么 activeSection - 1 到 overSection 的 section 都要 +1
+            // 向上拖动
+            if (activeSection > overSection) {
+                // 当 activeSection 大于 overSection 时，表示文章被向上拖拽。
+                // 需要将 activeSection 到 overSection（不包括 activeSection 本身）之间的所有文章的 section 加 1，
+                // 并将 activeSection 设置为 overSection。
+                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                        .setSql("section = section + 1") // 将符合条件的记录的 section 字段的值增加 1
+                        .eq(ColumnArticleDO::getColumnId, overDO.getColumnId()) // 指定要更新记录的 columnId 条件
+                        .ge(ColumnArticleDO::getSection, overSection) // 指定 section 字段的下限（包含此值）
+                        .lt(ColumnArticleDO::getSection, activeSection)); // 指定 section 字段的上限
+
+                // 将 activeDO 的 section 设置为 overSection
+                activeDO.setSection(overSection);
+                columnArticleDao.updateById(activeDO);
+            } else {
+                // 2. 如果 activeSection < overSection，
+                // 那么 activeSection + 1 到 overSection 的 section 都要 -1
+                // 向下拖动
+                // 需要将 activeSection 到 overSection（包括 overSection）之间的所有文章的 section 减 1
+                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                        .setSql("section = section - 1") // 将符合条件的记录的 section 字段的值减少 1
+                        .eq(ColumnArticleDO::getColumnId, overDO.getColumnId()) // 指定要更新记录的 columnId 条件
+                        .gt(ColumnArticleDO::getSection, activeSection) // 指定 section 字段的下限（不包含此值）
+                        .le(ColumnArticleDO::getSection, overSection)); // 指定 section 字段的上限（包含此值）
+
+                // 将 activeDO 的 section 设置为 overSection -1
+                activeDO.setSection(overSection);
+                columnArticleDao.updateById(activeDO);
+
+            }
         }
     }
 

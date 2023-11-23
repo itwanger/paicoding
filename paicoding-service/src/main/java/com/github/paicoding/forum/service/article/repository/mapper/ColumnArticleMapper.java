@@ -62,5 +62,4 @@ public interface ColumnArticleMapper extends BaseMapper<ColumnArticleDO> {
      */
     @Select("select ifnull(max(section), 0) from column_article where column_id = #{columnId}")
     int selectMaxSection(@Param("columnId") Long columnId);
-
 }
