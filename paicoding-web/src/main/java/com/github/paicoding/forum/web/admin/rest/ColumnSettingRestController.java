@@ -3,10 +3,7 @@ package com.github.paicoding.forum.web.admin.rest;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
-import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.*;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
@@ -80,6 +77,13 @@ public class ColumnSettingRestController {
     @GetMapping(path = "deleteColumnArticle")
     public ResVo<String> deleteColumnArticle(@RequestParam(name = "id") Long id) {
         columnSettingService.deleteColumnArticle(id);
+        return ResVo.ok("ok");
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "sortColumnArticleApi")
+    public ResVo<String> sortColumnArticleApi(@RequestBody SortColumnArticleReq req) {
+        columnSettingService.sortColumnArticleApi(req);
         return ResVo.ok("ok");
     }
 

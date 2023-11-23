@@ -1,10 +1,7 @@
 package com.github.paicoding.forum.service.article.service;
 
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.*;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
@@ -67,4 +64,5 @@ public interface ColumnSettingService {
 
     PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req);
 
+    void sortColumnArticleApi(SortColumnArticleReq req);
 }
