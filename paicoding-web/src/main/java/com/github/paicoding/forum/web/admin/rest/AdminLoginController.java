@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
@@ -38,6 +39,9 @@ public class AdminLoginController {
     @Autowired
     private LoginService loginOutService;
 
+    @Autowired
+    private AuthorWhiteListService articleWhiteListService;
+
     /**
      * 后台用户名 & 密码的方式登录
      *
@@ -48,13 +52,20 @@ public class AdminLoginController {
     @RequestMapping(path = {"login"})
     public ResVo<BaseUserInfoDTO> login(HttpServletRequest request,
                                         HttpServletResponse response) {
-        String user = request.getParameter("username");
+        String username = request.getParameter("username");
         String pwd = request.getParameter("password");
-        String session = loginOutService.loginByUserPwd(user, pwd);
+        String session = loginOutService.loginByUserPwd(username, pwd);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
             response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
-            return ResVo.ok(userService.queryBasicUserInfo(ReqInfoContext.getReqInfo().getUserId()));
+
+            // 把 admin 用户加入白名单
+            BaseUserInfoDTO user = userService.queryBasicUserInfo(ReqInfoContext.getReqInfo().getUserId());
+            if (user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name())) {
+                articleWhiteListService.addAuthor2ArticleWhitList(user.getUserId());
+            }
+
+            return ResVo.ok(user);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录失败，请重试");
         }

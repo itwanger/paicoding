@@ -5,9 +5,9 @@ import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
@@ -61,7 +61,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (StringUtils.isNotBlank(req.getTitle())) {
             article.setTitle(req.getTitle());
         }
-        article.setShortTitle(req.getShortTitle());
+        if (StringUtils.isNotBlank(req.getShortTitle())) {
+            article.setShortTitle(req.getShortTitle());
+        }
 
         ArticleEventEnum operateEvent = null;
         if (req.getStatus() != null) {

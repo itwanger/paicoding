@@ -1,20 +1,25 @@
 package com.github.paicoding.forum.web.admin.rest;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
+import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,9 +43,27 @@ public class ArticleSettingRestController {
     @Autowired
     private ArticleReadService articleReadService;
 
+    @Autowired
+    private ArticleWriteService articleWriteService;
+
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ArticlePostReq req) {
+        if (StringUtils.isBlank(req.getContent())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS, "文章内容不能为空");
+        }
+        if (req.getArticleId() != null) {
+            this.articleWriteService.updateArticle(req);
+        } else {
+            // 新增文章
+            this.articleWriteService.saveArticle(req, ReqInfoContext.getReqInfo().getUserId());
+        }
+        return ResVo.ok("ok");
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "update")
+    public ResVo<String> update(@RequestBody ArticlePostReq req) {
         articleSettingService.updateArticle(req);
         return ResVo.ok("ok");
     }
@@ -62,6 +85,19 @@ public class ArticleSettingRestController {
     public ResVo<String> delete(@RequestParam(name = "articleId") Long articleId) {
         articleSettingService.deleteArticle(articleId);
         return ResVo.ok("ok");
+    }
+
+    // 根据文章id获取文章详情
+    @ApiOperation("根据文章id获取文章详情")
+    @GetMapping(path = "detail")
+    public ResVo<ArticleDTO> detail(@RequestParam(name = "articleId", required = false) Long articleId) {
+        ArticleDTO articleDTO = new ArticleDTO();
+        if (articleId != null) {
+            // 查询文章详情
+            articleDTO = articleReadService.queryDetailArticleInfo(articleId);
+        }
+
+        return ResVo.ok(articleDTO);
     }
 
     @ApiOperation("获取文章列表")

@@ -3,6 +3,7 @@ package com.github.paicoding.forum.api.model.vo.article.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 文章信息
@@ -67,5 +68,8 @@ public class ArticleAdminDTO implements Serializable {
      * 是否加精
      */
     private Integer creamStat;
+
+    // 更新时间
+    private Date updateTime;
 
 }
