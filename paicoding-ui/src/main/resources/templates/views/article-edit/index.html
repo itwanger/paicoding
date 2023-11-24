@@ -412,10 +412,6 @@
           //this.resize("100%", 640);
         },
         onchange: function () {
-          console.log('onchange，打开遮罩层', this);
-          // 打开遮罩，这样太频繁了，不好
-          // showMask();
-
           let newVal = this.getMarkdown();
           let add;
           if (newVal.startsWith(lastVal)) {
@@ -446,33 +442,43 @@
             }
 
             // 前端这里可以做一个上传请求的幂等，避免相同的url重复上传
-            for(let i = 0; i < imgs.length; i++) {
-              let upload = imgs[i];
-              let lastUploadTime = uploadUrls[upload.url];
-              let now = new Date().getTime();
-              if (lastUploadTime && now - lastUploadTime < 30_000) {
-                console.log("30s内防重复提交，忽略:", upload.url)
-                continue;
-              }
-              uploadUrls[upload.url] = now;
-              console.log("start to upload: ", upload.url, now);
-              get("/image/save?img=" + upload.url, "", function (result) {
-                let newImg = `![${upload.title}](${result.imagePath})`;
-                if (upload.target !== newImg) {
-                  // 获取光标位置，替换之后重新设置
-                  let cursor = simplemde.getCursor();
-                  simplemde.setValue(simplemde.getMarkdown().replaceAll(upload.target, newImg));
-                  simplemde.setCursor({line: cursor.line, ch: cursor.ch})
+            if (imgs.length > 0) {
+              console.log("打开遮罩层，imgs: ", imgs);
+              showMask();
+              NProgress.start();
+
+              // 上传图片
+              for(let i = 0; i < imgs.length; i++) {
+                let upload = imgs[i];
+                let lastUploadTime = uploadUrls[upload.url];
+                let now = new Date().getTime();
+                if (lastUploadTime && now - lastUploadTime < 30_000) {
+                  console.log("30s内防重复提交，忽略:", upload.url)
+                  continue;
                 }
-              });
+                uploadUrls[upload.url] = now;
+
+                console.log("start to upload: ", upload.url, now);
+                get("/image/save?img=" + upload.url, "", function (result) {
+                  let newImg = `![${upload.title}](${result.imagePath})`;
+                  if (upload.target !== newImg) {
+                    // 获取光标位置，替换之后重新设置
+                    let cursor = simplemde.getCursor();
+                    simplemde.setValue(simplemde.getMarkdown().replaceAll(upload.target, newImg));
+                    simplemde.setCursor({line: cursor.line, ch: cursor.ch})
+                  }
+                });
+              }
             }
+
             lastVal = newVal;
           } catch (e) {
             console.log(e);
           } finally {
             // 关闭遮罩
-            console.log('onchange，关闭遮罩层', this);
-            // hideMask();
+            console.log('onchange，关闭遮罩层');
+            hideMask();
+            NProgress.done();
           }
         }
       });
