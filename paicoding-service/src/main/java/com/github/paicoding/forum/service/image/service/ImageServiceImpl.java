@@ -151,6 +151,7 @@ public class ImageServiceImpl implements ImageService {
             }
             return ans;
         } catch (Exception e) {
+            log.error("外网图片转存异常! img:{}", img, e);
             return buildUploadFailImgUrl(img);
         }
     }

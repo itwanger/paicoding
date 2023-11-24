@@ -412,11 +412,10 @@
           //this.resize("100%", 640);
         },
         onchange: function () {
-          console.log('onchange', this);
-          // 打开遮罩，厉害了
-          showMask()
-          // 关闭遮罩
-          hideMask()
+          console.log('onchange，打开遮罩层', this);
+          // 打开遮罩，这样太频繁了，不好
+          // showMask();
+
           let newVal = this.getMarkdown();
           let add;
           if (newVal.startsWith(lastVal)) {
@@ -470,6 +469,10 @@
             lastVal = newVal;
           } catch (e) {
             console.log(e);
+          } finally {
+            // 关闭遮罩
+            console.log('onchange，关闭遮罩层', this);
+            // hideMask();
           }
         }
       });
@@ -508,6 +511,12 @@
 
           let formData = new FormData()
           formData.append("image", file)
+
+          // 在请求开始前启动 NProgress
+          NProgress.start();
+          // 开启遮罩层
+          showMask();
+
           $.ajax({
             url: "/image/upload",
             type: "post",
@@ -525,6 +534,15 @@
                 toastr.error(data.status.msg);
               }
             },
+            error: function(jqXHR, textStatus, errorThrown) {
+              toastr.error("上传失败: " + textStatus);
+            },
+            complete: function() {
+              // 无论成功或失败，请求完成后停止 NProgress
+              NProgress.done();
+              // 关闭遮罩
+              hideMask();
+            }
           })
         }
       });

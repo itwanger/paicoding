@@ -32,6 +32,7 @@
     <link rel="icon" href="/img/icon.png" th:href="${global.siteInfo.oss + '/img/icon.png'}"/>
     <link href="/css/three/index.css" th:href="@{{oss}/css/three/index.css(oss=${global.siteInfo.oss})}" rel="stylesheet" />
     <link href="/css/three/highlightjs.github.min.css" th:href="${global.siteInfo.oss + '/css/three/highlightjs.github.min.css'}" rel="stylesheet" />
+    <link href="/css/three/nprogress.css" th:href="${global.siteInfo.oss + '/css/three/nprogress.css'}" rel="stylesheet" />
     <link href="/css/global.css" th:href="${global.siteInfo.oss + '/css/global.css'}" rel="stylesheet" />
     <link href="/css/common.css" th:href="${global.siteInfo.oss + '/css/common.css'}" rel="stylesheet" />
     <script>
@@ -60,6 +61,7 @@
     <script src="/js/jsonld.min.js" th:src="${global.siteInfo.oss + '/js/jsonld.min.js'}"></script>
     <script src="/js/clipboard.min.js" th:src="${global.siteInfo.oss + '/js/clipboard.min.js'}"></script>
     <script src="/js/highlight.min.js" th:src="${global.siteInfo.oss + '/js/highlight.min.js'}"></script>
+    <script src="/js/nprogress.js" th:src="${global.siteInfo.oss + '/js/nprogress.js'}"></script>
 
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />
