@@ -128,8 +128,8 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         // 加上判空条件
         query.like(StringUtils.isNotBlank(params.getColumn()), ColumnInfoDO::getColumnName, params.getColumn());
         query.last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ColumnInfoDO::getUpdateTime)
-                .orderByAsc(ColumnInfoDO::getSection);
+                .orderByAsc(ColumnInfoDO::getSection)
+                .orderByDesc(ColumnInfoDO::getUpdateTime);
         return baseMapper.selectList(query);
 
     }

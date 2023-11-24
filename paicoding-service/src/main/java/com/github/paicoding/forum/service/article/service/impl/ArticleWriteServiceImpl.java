@@ -1,10 +1,6 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
-import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
-import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
-import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
-import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.enums.*;
 import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
@@ -26,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 
@@ -95,6 +93,24 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         });
     }
 
+    @Override
+    public void updateArticle(ArticlePostReq req) {
+        // 更新文章，没有文章详情
+        ArticleDO articleDO = this.articleDao.getById(req.getArticleId());
+        if (articleDO == null) {
+            throw  ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在");
+        }
+
+        // 如果文章内容为空，则不更新
+        String content = imageService.mdImgReplace(req.getContent());
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                updateArticle(articleDO, content, req.getTagIds());
+            }
+        });
+    }
+
     /**
      * 新建文章
      *
@@ -148,13 +164,16 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
             article.setStatus(PushStatusEnum.REVIEW.getCode());
         }
         // 更新文章
+        article.setUpdateTime(new Date());
         articleDao.updateById(article);
 
         // 更新内容
         articleDao.updateArticleContent(article.getId(), content, review);
 
         // 标签更新
-        articleTagDao.updateTags(article.getId(), tags);
+        if (tags != null && tags.size() > 0) {
+            articleTagDao.updateTags(article.getId(), tags);
+        }
 
         // 发布文章待审核事件
         if (article.getStatus() == PushStatusEnum.ONLINE.getCode()) {

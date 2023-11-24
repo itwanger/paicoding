@@ -20,4 +20,6 @@ public interface ArticleWriteService {
      * @param loginUserId 执行操作的用户
      */
     void deleteArticle(Long articleId, Long loginUserId);
+
+    void updateArticle(ArticlePostReq req);
 }
