@@ -52,4 +52,9 @@ public class StatisticsCountDTO {
      * 教程数量
      */
     private Long tutorialCount;
+
+    /**
+     * 星球付费人数
+     */
+    private Integer starPayCount;
 }

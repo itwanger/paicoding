@@ -87,6 +87,13 @@ public class ColumnSettingRestController {
         return ResVo.ok("ok");
     }
 
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "sortColumnArticleByIDApi")
+    public ResVo<String> sortColumnArticleByIDApi(@RequestBody SortColumnArticleByIDReq req) {
+        columnSettingService.sortColumnArticleByIDApi(req);
+        return ResVo.ok("ok");
+    }
+
     @ApiOperation("获取教程列表")
     @PostMapping(path = "list")
     public ResVo<PageVo<ColumnDTO>> list(@RequestBody SearchColumnReq req) {

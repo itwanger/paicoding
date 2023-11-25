@@ -65,4 +65,6 @@ public interface ColumnSettingService {
     PageVo<ColumnArticleDTO> getColumnArticleList(SearchColumnArticleReq req);
 
     void sortColumnArticleApi(SortColumnArticleReq req);
+
+    void sortColumnArticleByIDApi(SortColumnArticleByIDReq req);
 }

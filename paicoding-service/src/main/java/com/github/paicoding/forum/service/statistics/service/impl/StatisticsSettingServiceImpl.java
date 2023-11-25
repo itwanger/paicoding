@@ -10,10 +10,12 @@ import com.github.paicoding.forum.service.statistics.service.RequestCountService
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -40,6 +42,9 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
 
     @Autowired
     private ArticleReadService articleReadService;
+
+    @Resource
+    private AiConfig aiConfig;
 
     @Override
     public void saveRequestCount(String host) {
@@ -68,6 +73,7 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
                 .collectCount(userFootStatisticDTO.getCollectionCount())
                 .likeCount(userFootStatisticDTO.getPraiseCount())
                 .readCount(userFootStatisticDTO.getReadCount())
+                .starPayCount(aiConfig.getMaxNum().getStarNumber())
                 .build();
     }
 
