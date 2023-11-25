@@ -46,4 +46,11 @@ public class ColumnArticleDao extends ServiceImpl<ColumnArticleMapper, ColumnArt
         }
         return list.get(0);
     }
+
+    public ColumnArticleDO selectBySection(Long columnId, Integer sort) {
+        return lambdaQuery()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .eq(ColumnArticleDO::getSection, sort)
+                .one();
+    }
 }

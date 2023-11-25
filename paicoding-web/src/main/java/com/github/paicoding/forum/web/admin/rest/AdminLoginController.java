@@ -58,14 +58,7 @@ public class AdminLoginController {
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息
             response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
-
-            // 把 admin 用户加入白名单
-            BaseUserInfoDTO user = userService.queryBasicUserInfo(ReqInfoContext.getReqInfo().getUserId());
-            if (user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name())) {
-                articleWhiteListService.addAuthor2ArticleWhitList(user.getUserId());
-            }
-
-            return ResVo.ok(user);
+            return ResVo.ok(userService.queryBasicUserInfo(ReqInfoContext.getReqInfo().getUserId()));
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "登录失败，请重试");
         }

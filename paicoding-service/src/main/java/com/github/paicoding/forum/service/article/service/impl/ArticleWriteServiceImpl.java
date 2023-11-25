@@ -1,10 +1,13 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.*;
 import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
@@ -25,6 +28,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
@@ -52,7 +56,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Autowired
     private ImageService imageService;
 
-    @Autowired
+    @Resource
     private TransactionTemplate transactionTemplate;
 
     @Autowired
@@ -217,6 +221,11 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @return
      */
     private boolean needToReview(ArticleDO article) {
+        // 把 admin 用户加入白名单
+        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
+        if (user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name())) {
+            return false;
+        }
         return article.getStatus() == PushStatusEnum.ONLINE.getCode() && !articleWhiteListService.authorInArticleWhiteList(article.getUserId());
     }
 }

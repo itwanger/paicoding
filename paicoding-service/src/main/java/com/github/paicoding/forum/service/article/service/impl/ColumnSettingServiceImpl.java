@@ -210,6 +210,42 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void sortColumnArticleByIDApi(SortColumnArticleByIDReq req) {
+        // 获取要重新排序的专栏文章
+        ColumnArticleDO columnArticleDO = columnArticleDao.getById(req.getId());
+        // 不等于空
+        if (columnArticleDO == null) {
+            throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, "教程不存在");
+        }
+        // 如果顺序没变
+        if (req.getSort().equals(columnArticleDO.getSection())) {
+            return;
+        }
+        // 获取教程可以调整的最大顺序
+        Integer maxSection = columnArticleDao.selectMaxSection(columnArticleDO.getColumnId());
+        // 如果输入的顺序大于最大顺序，提示错误
+        if (req.getSort() > maxSection) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "顺序超出范围");
+        }
+        // 查看输入的顺序是否存在
+        ColumnArticleDO changeColumnArticleDO = columnArticleDao.selectBySection(columnArticleDO.getColumnId(), req.getSort());
+        // 如果存在，交换顺序
+        if (changeColumnArticleDO != null) {
+            // 交换顺序
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                    .set(ColumnArticleDO::getSection, columnArticleDO.getSection())
+                    .eq(ColumnArticleDO::getId, changeColumnArticleDO.getId()));
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                    .set(ColumnArticleDO::getSection, changeColumnArticleDO.getSection())
+                    .eq(ColumnArticleDO::getId, columnArticleDO.getId()));
+        } else {
+            // 如果不存在，直接修改顺序
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "输入的顺序不存在，无法完成交换");
+        }
+    }
+
+    @Override
     public PageVo<ColumnDTO> getColumnList(SearchColumnReq req) {
         // 转换参数
         ColumnStructMapper mapper = ColumnStructMapper.INSTANCE;
