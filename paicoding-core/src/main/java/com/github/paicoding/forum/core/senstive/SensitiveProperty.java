@@ -14,8 +14,9 @@ import java.util.List;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "paicoding.sensitive")
+@ConfigurationProperties(prefix = SensitiveProperty.SENSITIVE_KEY_PREFIX)
 public class SensitiveProperty {
+    public static final String SENSITIVE_KEY_PREFIX = "paicoding.sensitive";
     /**
      * true 表示开启敏感词校验
      */

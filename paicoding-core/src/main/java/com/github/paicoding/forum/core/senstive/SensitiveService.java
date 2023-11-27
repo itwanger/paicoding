@@ -6,13 +6,17 @@ import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import com.github.houbb.sensitive.word.support.allow.WordAllowSystem;
 import com.github.houbb.sensitive.word.support.deny.WordDenySystem;
 import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
+import com.github.paicoding.forum.core.cache.RedisClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 敏感词服务类
@@ -23,6 +27,10 @@ import java.util.List;
 @Slf4j
 @Service
 public class SensitiveService {
+    /**
+     * 敏感词命中计数统计
+     */
+    private static final String SENSITIVE_WORD_CNT_PREFIX = "sensitive_word";
     private volatile SensitiveWordBs sensitiveWordBs;
     @Autowired
     private SensitiveProperty sensitiveConfig;
@@ -53,16 +61,44 @@ public class SensitiveService {
     /**
      * 判断是否包含敏感词
      *
-     * @param txt
-     * @return
+     * @param txt 需要校验的文本
+     * @return 返回命中的敏感词
      */
-    public boolean contains(String txt) {
-        if (BooleanUtils.isTrue(sensitiveConfig.getEnable())) {
-            return sensitiveWordBs.contains(txt);
+    public List<String> contains(String txt) {
+        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable())) {
+            return Collections.emptyList();
         }
-        return false;
+
+        List<String> ans = sensitiveWordBs.findAll(txt);
+        if (CollectionUtils.isEmpty(ans)) {
+            return ans;
+        }
+
+        // 敏感词命中次数+1
+        RedisClient.PipelineAction action = RedisClient.pipelineAction();
+        ans.forEach(key -> action.add(SENSITIVE_WORD_CNT_PREFIX, key, (connection, k, v) -> connection.hIncrBy(k, v, 1)));
+        action.execute();
+        return ans;
     }
 
+
+    /**
+     * 返回已命中的敏感词
+     *
+     * @return key: 敏感词， value：计数
+     */
+    public Map<String, Integer> getHitSensitiveWords() {
+        return RedisClient.hGetAll(SENSITIVE_WORD_CNT_PREFIX, Integer.class);
+    }
+
+    /**
+     * 移除敏感词
+     *
+     * @param word
+     */
+    public void removeSensitiveWord(String word) {
+        RedisClient.hDel(SENSITIVE_WORD_CNT_PREFIX, word);
+    }
 
     /**
      * 敏感词替换

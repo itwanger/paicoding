@@ -16,9 +16,9 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
+import com.github.paicoding.forum.service.config.service.GlobalConfigService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -37,9 +37,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -296,6 +294,31 @@ public class TestController {
     }
 
 
+    /**
+     * 返回所有命中的敏感词
+     *
+     * @return
+     */
+    @GetMapping(path = "sensitive/all")
+    public Map<String, Integer> showAllHitSensitiveWords() {
+        return sensitiveService.getHitSensitiveWords();
+    }
+
+
+    /**
+     * 将敏感词添加到白名单内
+     *
+     * @param word
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "sensitive/addAllowWord")
+    public String addSensitiveAllowWord(String word) {
+        SpringUtil.getBean(GlobalConfigService.class).addSensitiveWhiteWord(word);
+        return "ok";
+    }
+
+
     @Autowired
     private CountServiceImpl countServiceImpl;
 
@@ -305,10 +328,4 @@ public class TestController {
         return "ok";
     }
 
-    @RequestMapping(path = "text", produces = "application/json;charset=utf-8")
-    public void tt(HttpServletResponse response) throws IOException {
-        Map ans = MapUtils.create("hello", 123, "world", "yihui");
-        response.getOutputStream().write(JsonUtil.toStr(ans).getBytes());
-        response.getOutputStream().flush();
-    }
 }

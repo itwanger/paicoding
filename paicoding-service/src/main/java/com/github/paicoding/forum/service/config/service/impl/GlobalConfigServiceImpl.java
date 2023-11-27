@@ -7,6 +7,8 @@ import com.github.paicoding.forum.api.model.vo.config.GlobalConfigReq;
 import com.github.paicoding.forum.api.model.vo.config.SearchGlobalConfigReq;
 import com.github.paicoding.forum.api.model.vo.config.dto.GlobalConfigDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.senstive.SensitiveProperty;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.config.converter.ConfigStructMapper;
@@ -65,5 +67,32 @@ public class GlobalConfigServiceImpl implements GlobalConfigService {
         } else {
             throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "记录不存在");
         }
+    }
+
+    /**
+     * 添加敏感词白名单
+     *
+     * @param word
+     */
+    @Override
+    public void addSensitiveWhiteWord(String word) {
+        String key = SensitiveProperty.SENSITIVE_KEY_PREFIX + ".allow";
+        GlobalConfigReq req = new GlobalConfigReq();
+        req.setKeywords(key);
+
+        GlobalConfigDO config = configDao.getGlobalConfigByKey(key);
+        if (config == null) {
+            req.setValue(word);
+            req.setComment("敏感词白名单");
+        } else {
+            req.setValue(config.getValue() + "," + word);
+            req.setComment(config.getComment());
+            req.setId(config.getId());
+        }
+        // 更新敏感词白名单
+        save(req);
+
+        // 移除敏感词记录
+        SpringUtil.getBean(SensitiveService.class).removeSensitiveWord(word);
     }
 }

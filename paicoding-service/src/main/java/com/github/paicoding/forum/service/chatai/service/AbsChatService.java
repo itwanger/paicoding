@@ -12,8 +12,10 @@ import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.lucene.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -144,8 +146,9 @@ public abstract class AbsChatService implements ChatService {
     protected AiChatStatEnum answer(Long user, ChatRecordsVo res) {
         ChatItemVo itemVo = res.getRecords().get(0);
         AiChatStatEnum ans;
-        if (sensitiveService.contains(itemVo.getQuestion())) {
-            itemVo.initAnswer(ChatConstants.SENSITIVE_QUESTION);
+        List<String> sensitiveWords = sensitiveService.contains(itemVo.getQuestion());
+        if (!CollectionUtils.isEmpty(sensitiveWords)) {
+            itemVo.initAnswer(String.format(ChatConstants.SENSITIVE_QUESTION, sensitiveWords));
             ans = AiChatStatEnum.ERROR;
         } else {
             ans = doAnswer(user, itemVo);
@@ -198,9 +201,10 @@ public abstract class AbsChatService implements ChatService {
             return res;
         }
 
-        if (sensitiveService.contains(res.getRecords().get(0).getQuestion())) {
+        List<String> sensitiveWord = sensitiveService.contains(res.getRecords().get(0).getQuestion());
+        if (!CollectionUtils.isEmpty(sensitiveWord)) {
             // 包含敏感词的提问，直接返回异常
-            res.getRecords().get(0).initAnswer(ChatConstants.SENSITIVE_QUESTION);
+            res.getRecords().get(0).initAnswer(String.format(ChatConstants.SENSITIVE_QUESTION, sensitiveWord));
             consumer.accept(res);
         } else {
             final ChatRecordsVo newRes = res.clone();
