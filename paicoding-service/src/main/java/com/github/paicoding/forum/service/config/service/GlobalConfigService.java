@@ -17,4 +17,11 @@ public interface GlobalConfigService {
     void save(GlobalConfigReq req);
 
     void delete(Long id);
+
+    /**
+     * 添加敏感词白名单
+     *
+     * @param word
+     */
+    void addSensitiveWhiteWord(String word);
 }

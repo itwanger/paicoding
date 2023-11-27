@@ -130,7 +130,7 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
     private LambdaQueryWrapper<GlobalConfigDO> buildQuery(SearchGlobalConfigParams params) {
         LambdaQueryWrapper<GlobalConfigDO> query = Wrappers.lambdaQuery();
 
-                query.and(!StringUtils.isEmpty(params.getKey()),
+        query.and(!StringUtils.isEmpty(params.getKey()),
                         k -> k.like(GlobalConfigDO::getKey, params.getKey()))
                 .and(!StringUtils.isEmpty(params.getValue()),
                         v -> v.like(GlobalConfigDO::getValue, params.getValue()))
@@ -148,11 +148,32 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
         globalConfigMapper.updateById(globalConfigDO);
     }
 
+    /**
+     * 根据id查询全局配置
+     *
+     * @param id
+     * @return
+     */
     public GlobalConfigDO getGlobalConfigById(Long id) {
         // 查询的时候 deleted 为 0
         LambdaQueryWrapper<GlobalConfigDO> query = Wrappers.lambdaQuery();
         query.select(GlobalConfigDO::getId, GlobalConfigDO::getKey, GlobalConfigDO::getValue, GlobalConfigDO::getComment)
                 .eq(GlobalConfigDO::getId, id)
+                .eq(GlobalConfigDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return globalConfigMapper.selectOne(query);
+    }
+
+    /**
+     * 根据key查询全局配置
+     *
+     * @param key
+     * @return
+     */
+    public GlobalConfigDO getGlobalConfigByKey(String key) {
+        // 查询的时候 deleted 为 0
+        LambdaQueryWrapper<GlobalConfigDO> query = Wrappers.lambdaQuery();
+        query.select(GlobalConfigDO::getId, GlobalConfigDO::getKey, GlobalConfigDO::getValue, GlobalConfigDO::getComment)
+                .eq(GlobalConfigDO::getKey, key)
                 .eq(GlobalConfigDO::getDeleted, YesOrNoEnum.NO.getCode());
         return globalConfigMapper.selectOne(query);
     }
