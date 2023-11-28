@@ -13,7 +13,6 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.core.common.CommonConstants;
-import com.github.paicoding.forum.core.config.RabbitmqProperties;
 import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
@@ -28,7 +27,6 @@ import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.rabbitmq.client.BuiltinExchangeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -106,15 +104,9 @@ public class ArticleRestController {
      */
     @GetMapping(path = "tag/list")
     public ResVo<PageVo<TagDTO>> queryTags(@RequestParam(name = "key", required = false) String key,
-                                           @RequestParam(name = "articleId", required = false) Long articleId,
                                            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
                                            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
-        PageVo<TagDTO> tagDTOPageVo;
-        if (articleId != null && articleId > 0) {
-            tagDTOPageVo = articleService.queryTagsByArticleId(articleId);
-        } else {
-            tagDTOPageVo = tagService.queryTags(key, PageParam.newPageInstance(pageNumber, pageSize));
-        }
+        PageVo<TagDTO> tagDTOPageVo = tagService.queryTags(key, PageParam.newPageInstance(pageNumber, pageSize));
         return ResVo.ok(tagDTOPageVo);
     }
 

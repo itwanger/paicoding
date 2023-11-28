@@ -70,15 +70,6 @@
       </div>
     </div>
 
-    <!--  封面图  -->
-    <div th:if="${!#strings.isEmpty(article.cover)}">
-      <img
-        th:src="${article.cover}"
-        src="https://spring.hhui.top/spring-blog/imgs/220425/logo.jpg"
-        class="detail-head-img"
-      />
-    </div>
-
     <div id="articleContent" class="article-content" th:utext="${article.content}">
 
     </div>
