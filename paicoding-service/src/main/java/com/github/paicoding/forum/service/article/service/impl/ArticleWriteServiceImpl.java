@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
@@ -93,24 +92,6 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
                     columnSettingService.saveColumnArticle(articleId, req.getColumnId());
                 }
                 return articleId;
-            }
-        });
-    }
-
-    @Override
-    public void updateArticle(ArticlePostReq req) {
-        // 更新文章，没有文章详情
-        ArticleDO articleDO = this.articleDao.getById(req.getArticleId());
-        if (articleDO == null) {
-            throw  ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在");
-        }
-
-        // 如果文章内容为空，则不更新
-        String content = imageService.mdImgReplace(req.getContent());
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                updateArticle(articleDO, content, req.getTagIds());
             }
         });
     }

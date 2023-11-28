@@ -2,7 +2,6 @@ package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
-import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
@@ -13,13 +12,13 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,14 +48,11 @@ public class ArticleSettingRestController {
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ArticlePostReq req) {
-        if (StringUtils.isBlank(req.getContent())) {
-            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS, "文章内容不能为空");
-        }
-        if (req.getArticleId() != null) {
-            this.articleWriteService.updateArticle(req);
-        } else {
+        if (NumUtil.nullOrZero(req.getArticleId())) {
             // 新增文章
             this.articleWriteService.saveArticle(req, ReqInfoContext.getReqInfo().getUserId());
+        } else {
+            this.articleWriteService.saveArticle(req, null);
         }
         return ResVo.ok("ok");
     }
@@ -116,4 +112,5 @@ public class ArticleSettingRestController {
         vo.setItems(list);
         return ResVo.ok(vo);
     }
+
 }
