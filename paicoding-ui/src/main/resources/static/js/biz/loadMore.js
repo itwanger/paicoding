@@ -10,32 +10,27 @@ const loadMore = function (loadMoreSelector, url, params, listId, callback) {
   let lastReqCondition = "" // 上一次请求条件
   let isNeedMore = true // 是否需要加载更多的标志
 
-  // 定义一个检测是否为微信浏览器的函数
-    const isWeixinBrowser = () => {
-      const userAgent = navigator.userAgent.toLowerCase();
-      console.log("userAgent", userAgent);
-      return userAgent.includes('micromessenger');
-    }
-
   // 滚动事件处理函数
   const handleScroll = () => {
     const scrollEle = document.querySelector("html") // 获取滚动元素
 
-    const scrollTop = scrollEle.scrollTop // 已滚动的距离
+    const scrollTop =  window.pageYOffset || scrollEle.scrollTop  || document.body.scrollTop // 已滚动的距离
     const windowHeight = scrollEle.clientHeight // 可视区域的高度
     const scrollHeight = scrollEle.scrollHeight // 滚动条的总高度
 
+    // 把上面这些数据发送到后端的 testLoadMore 接口
+      post("/test/loadmore", {
+            scrollTop: scrollTop,
+            windowHeight: windowHeight,
+              isNeedMore: isNeedMore,
+            scrollHeight: scrollHeight
+        }, (res) => {
+            console.log(res)
+        })
+
     if (!isNeedMore) return false // 如果不需要加载更多，直接返回
 
-    let triggerThreshold = 100;
-    // 如果是微信浏览器
-    if (isWeixinBrowser()) {
-        // 设置一页为 5 条数据
-        params["size"] = 5;
-        triggerThreshold = 400;
-    }
-
-    if (scrollTop + windowHeight + triggerThreshold >= scrollHeight) {
+    if (scrollTop + windowHeight + params["triggerThreshold"] >= scrollHeight) {
       // 生成本次请求的条件字符串
       let newReqCondition = params["category"] + "_" + params["page"]
       if (newReqCondition === lastReqCondition) {

@@ -29,12 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -326,6 +321,12 @@ public class TestController {
     public String autoRefreshUserInfo() {
         countServiceImpl.autoRefreshAllUserStatisticInfo();
         return "ok";
+    }
+
+    // 前端把一些数据发送到这里并打印出来
+    @PostMapping(path = "loadmore")
+    public void testLoadMore(@RequestBody String loadmore) {
+        log.info("loadmore: {}", loadmore);
     }
 
 }

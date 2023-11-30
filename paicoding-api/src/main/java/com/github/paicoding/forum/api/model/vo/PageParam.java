@@ -14,7 +14,6 @@ public class PageParam {
 
     public static final Long DEFAULT_PAGE_NUM = 1L;
     public static final Long DEFAULT_PAGE_SIZE = 10L;
-    public static final Long DEFAULT_WEIXIN_PAGE_SIZE = 5L;
 
     public static final Long TOP_PAGE_SIZE = 4L;
 
@@ -29,10 +28,6 @@ public class PageParam {
 
     public static PageParam newPageInstance() {
         return newPageInstance(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE);
-    }
-
-    public static PageParam newPageInstance(boolean isWeChatBrowser) {
-        return newPageInstance(DEFAULT_PAGE_NUM, isWeChatBrowser ? DEFAULT_WEIXIN_PAGE_SIZE : DEFAULT_PAGE_SIZE);
     }
 
     public static PageParam newPageInstance(Integer pageNum, Integer pageSize) {
