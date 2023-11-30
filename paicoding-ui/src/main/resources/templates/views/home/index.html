@@ -39,8 +39,23 @@
     <script th:inline="javascript">
       const archiveId = [[${vo.categoryId}]]
       const category = [[${ vo.currentCategory }]]
+
+      // 定义一个检测是否为微信浏览器的函数
+      const isWeixinBrowser = () => {
+        const userAgent = navigator.userAgent.toLowerCase();
+        return userAgent.includes('micromessenger');
+      }
+
+      let triggerThreshold = 100;
+
+      // 如果是微信浏览器
+      if (isWeixinBrowser()) {
+        triggerThreshold = 400;
+      }
+
       const params = {
           "category": category ? category : '全部',
+          "triggerThreshold": triggerThreshold,
           "page": 2
       }
       loadMore("#articleList", '/article/api/list/category/' + archiveId, params, "articleList");

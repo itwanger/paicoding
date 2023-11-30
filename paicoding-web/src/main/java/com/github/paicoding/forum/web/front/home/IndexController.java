@@ -21,7 +21,8 @@ public class IndexController extends BaseViewController {
 
     @GetMapping(path = {"/", "", "/index", "/login"})
     public String index(Model model, HttpServletRequest request) {
-        IndexVo vo = indexRecommendHelper.buildIndexVo(request);
+        String activeTab = request.getParameter("category");
+        IndexVo vo = indexRecommendHelper.buildIndexVo(activeTab);
         model.addAttribute("vo", vo);
         return "views/home/index";
     }
