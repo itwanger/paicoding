@@ -27,8 +27,13 @@ const loadMore = function (loadMoreSelector, url, params, listId, callback) {
 
     if (!isNeedMore) return false // 如果不需要加载更多，直接返回
 
-    // 当滚动到底部时触发加载
-    const triggerThreshold = isWeixinBrowser() ? 400 : 100;
+    let triggerThreshold = 100;
+    // 如果是微信浏览器
+    if (isWeixinBrowser()) {
+        // 设置一页为 5 条数据
+        params["size"] = 5;
+        triggerThreshold = 400;
+    }
 
     if (scrollTop + windowHeight + triggerThreshold >= scrollHeight) {
       // 生成本次请求的条件字符串

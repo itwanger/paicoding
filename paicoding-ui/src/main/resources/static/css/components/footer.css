@@ -42,3 +42,19 @@
 .foot .visit_cnt {
   color: #e96900;
 }
+
+/* 宽屏布局 */
+.stats-container {
+  display: flex;
+  justify-content: space-between; /* 使两个 .stats-row 分布在容器两端 */
+}
+
+/* 媒体查询，针对小屏幕设备 */
+@media screen and (max-width: 600px) {
+  .stats-row {
+    white-space: nowrap; /* 防止内容换行 */
+  }
+  .stats-container {
+    display: block; /* 使 .stats-row 堆叠显示 */
+  }
+}

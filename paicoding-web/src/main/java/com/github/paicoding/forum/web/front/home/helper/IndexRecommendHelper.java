@@ -20,6 +20,7 @@ import com.github.paicoding.forum.web.front.home.vo.IndexVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,14 +50,21 @@ public class IndexRecommendHelper {
     @Autowired
     private ConfigService configService;
 
-    public IndexVo buildIndexVo(String activeTab) {
+    public IndexVo buildIndexVo(HttpServletRequest request) {
         IndexVo vo = new IndexVo();
+
+        String activeTab = request.getParameter("category");
+
+        // 微信浏览器，分页的大小为 5
+        String userAgent = request.getHeader("User-Agent");
+        boolean isWeChatBrowser = userAgent != null && userAgent.contains("MicroMessenger");
+
         CategoryDTO category = categories(activeTab, vo);
         vo.setCategoryId(category.getCategoryId());
         vo.setCurrentCategory(category.getCategory());
         // 并行调度实例，提高响应性能
         AsyncUtil.concurrentExecutor("首页响应")
-                .runAsyncWithTimeRecord(() -> vo.setArticles(articleList(category.getCategoryId())), "文章列表")
+                .runAsyncWithTimeRecord(() -> vo.setArticles(articleList(category.getCategoryId(), isWeChatBrowser)), "文章列表")
                 .runAsyncWithTimeRecord(() -> vo.setTopArticles(topArticleList(category)), "置顶文章")
                 .runAsyncWithTimeRecord(() -> vo.setHomeCarouselList(homeCarouselList()), "轮播图")
                 .runAsyncWithTimeRecord(() -> vo.setSideBarItems(sidebarService.queryHomeSidebarList()), "侧边栏")
@@ -91,8 +99,8 @@ public class IndexRecommendHelper {
     /**
      * 文章列表
      */
-    private PageListVo<ArticleDTO> articleList(Long categoryId) {
-        return articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance());
+    private PageListVo<ArticleDTO> articleList(Long categoryId, boolean isWeChatBrowser) {
+        return articleService.queryArticlesByCategory(categoryId, PageParam.newPageInstance(isWeChatBrowser));
     }
 
     /**
