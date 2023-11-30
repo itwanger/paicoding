@@ -4,48 +4,60 @@
  * @param url 向后端请求下一页的url
  * @param params 传参
  * @param listId 存放下一页内容的标签id
+ * @param callback 回调函数
  */
 const loadMore = function (loadMoreSelector, url, params, listId, callback) {
-  let lastReqCondition = ""
-  let isNeedMore = true
+  let lastReqCondition = "" // 上一次请求条件
+  let isNeedMore = true // 是否需要加载更多的标志
+
+  // 定义一个检测是否为微信浏览器的函数
+    const isWeixinBrowser = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      console.log("userAgent", userAgent);
+      return userAgent.includes('micromessenger');
+    }
+
+  // 滚动事件处理函数
   const handleScroll = () => {
-    const scrollEle = document.querySelector("html")
+    const scrollEle = document.querySelector("html") // 获取滚动元素
 
-    const scrollTop = scrollEle.scrollTop
-    //变量windowHeight是可视区的高度
-    const windowHeight = scrollEle.clientHeight
-    //变量scrollHeight是滚动条的总高度
-    const scrollHeight = scrollEle.scrollHeight
-    if (!isNeedMore) return false
+    const scrollTop = scrollEle.scrollTop // 已滚动的距离
+    const windowHeight = scrollEle.clientHeight // 可视区域的高度
+    const scrollHeight = scrollEle.scrollHeight // 滚动条的总高度
 
-    //一般来说需要提前触发:scrollTop+windowHeight + 200 >=scrollHeight
-    if (scrollTop + windowHeight + 100 >= scrollHeight) {
-      // 模拟加载新的数据
+    if (!isNeedMore) return false // 如果不需要加载更多，直接返回
+
+    // 当滚动到底部时触发加载
+    const triggerThreshold = isWeixinBrowser() ? 400 : 100;
+
+    if (scrollTop + windowHeight + triggerThreshold >= scrollHeight) {
+      // 生成本次请求的条件字符串
       let newReqCondition = params["category"] + "_" + params["page"]
       if (newReqCondition === lastReqCondition) {
-        // 和上次的请求参数相同，做一个幂等处理
+        // 如果本次请求条件与上次相同，则不重复请求
         return
       }
-      lastReqCondition = newReqCondition
-      console.log("触底了，当前请求加载下一页参数：", params)
+      lastReqCondition = newReqCondition // 更新最后一次请求条件
+
+      // 请求下一页数据
       nextPageText(
-        url,
-        params,
-        listId,
-        (hasMore) => {
-          if (!hasMore) {
-            isNeedMore = false
+          url,
+          params,
+          listId,
+          (hasMore) => {
+            if (!hasMore) {
+              isNeedMore = false // 更新是否需要加载更多的标志
+            }
+            params["page"] = params["page"] + 1 // 更新请求参数中的页码
+            if (callback) {
+              callback() // 执行回调函数
+            }
+          },
+          () => {
+            lastReqCondition = "" // 请求失败时重置最后一次请求条件
           }
-          params["page"] = params["page"] + 1
-          if (callback) {
-            callback()
-          }
-        },
-        () => {
-          lastReqCondition = ""
-        }
       )
     }
   }
-  window.addEventListener("scroll", handleScroll, true)
+  window.addEventListener("scroll", handleScroll, true) // 添加滚动事件监听器
 }
