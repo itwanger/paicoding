@@ -80,6 +80,10 @@
   -webkit-line-clamp: 1;
 }
 
+.cdc-tag-links__item:not(:first-child):not(:last-child) {
+  margin: 0;
+}
+
 /*文章的简介描述*/
 .cdc-article-panel__media {
   display: flex;

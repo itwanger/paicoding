@@ -221,6 +221,10 @@ svg:not(:root).svg-inline--fa {
     margin-right: 0;
   }
 
+  .home-wrap {
+    padding-top: 0;
+  }
+
   .user-article-item-value-text {
     -webkit-line-clamp: 3;
   }
