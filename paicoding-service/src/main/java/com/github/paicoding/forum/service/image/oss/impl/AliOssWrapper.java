@@ -51,12 +51,12 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
             return upload(bytes, fileType);
         } catch (OSSException oe) {
             log.error("Oss rejected with an error response! msg:{}, code:{}, reqId:{}, host:{}", oe.getErrorMessage(), oe.getErrorCode(), oe.getRequestId(), oe.getHostId());
-            return null;
+            return "";
         } catch (Exception ce) {
             log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network. {}", ce.getMessage());
-            return null;
+            return "";
         }
     }
 
@@ -78,16 +78,17 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
                 return properties.getOss().getHost() + fileName;
             } else {
                 log.error("upload to oss error! response:{}", result.getResponse().getStatusCode());
-                return null;
+                // Guava 不允许回传 null
+                return "";
             }
         } catch (OSSException oe) {
             log.error("Oss rejected with an error response! msg:{}, code:{}, reqId:{}, host:{}", oe.getErrorMessage(), oe.getErrorCode(), oe.getRequestId(), oe.getHostId());
-            return null;
+            return  "";
         } catch (Exception ce) {
             log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network. {}", ce.getMessage());
-            return null;
+            return  "";
         } finally {
             if (log.isDebugEnabled()) {
                 log.debug("upload image size:{} cost: {}", bytes.length, stopWatchUtil.prettyPrint());
@@ -113,6 +114,7 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
 
     private void init() {
         // 创建OSSClient实例。
+        log.info("init ossClient");
         ossClient = new OSSClientBuilder().build(properties.getOss().getEndpoint(), properties.getOss().getAk(), properties.getOss().getSk());
     }
 

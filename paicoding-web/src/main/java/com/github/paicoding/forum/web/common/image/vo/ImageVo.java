@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.web.front.image.vo;
+package com.github.paicoding.forum.web.common.image.vo;
 
 import lombok.Data;
 
