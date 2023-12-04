@@ -339,7 +339,8 @@
       </div>
     </div>
   </div>
-
+  <script src="/js/sockjs.min.js" th:src="${global.siteInfo.oss + '/js/sockjs.min.js'}"></script>
+  <script src="/js/stomp.min.js" th:src="${global.siteInfo.oss + '/js/stomp.min.js'}"></script>
   <script
           src="/js/mock.js"
           th:if="${!#strings.equals(global.env, 'prod')}"
@@ -601,6 +602,34 @@
         }
       });
     }
+
+
+    // 下面进入全局聊天的入口
+    function autoBuildNotifyWsConnect() {
+      const logined = [[${global.isLogin}]]
+      if (!logined) {
+        // 未登录
+        return;
+      }
+
+      const session = getCookie("f-session");
+      if (session) {
+        console.log("登录成功，准备建立连接!!!");
+        let protocol = window.location.protocol.replace("http", "ws");
+        let host = window.location.host;
+        let socket = new WebSocket(`${protocol}//${host}/notify`);
+        let stompClient = Stomp.over(socket);
+        stompClient.connect({"uname": $("#uname").val()}, function (frame) {
+          console.log('Connected: ' + frame);
+          stompClient.subscribe(`/user/msg`, function (message) {
+            // 订阅用户的私人broker，用于接收系统私发消息； 后台通过向 /user/xxx/topic/notify 发送消息，来传递给某个私人用户
+            console.log("系统消息: ", message);
+          });
+        }, {id: session});
+      }
+    }
+    autoBuildNotifyWsConnect();
+
   </script>
 </div>
 </html>

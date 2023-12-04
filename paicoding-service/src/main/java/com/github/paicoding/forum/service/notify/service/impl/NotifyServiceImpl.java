@@ -7,16 +7,23 @@ import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.notify.repository.dao.NotifyMsgDao;
 import com.github.paicoding.forum.service.notify.repository.entity.NotifyMsgDO;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
+import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +37,9 @@ public class NotifyServiceImpl implements NotifyService {
 
     @Resource
     private UserRelationService userRelationService;
+
+    @Resource
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public int queryUserNotifyMsgCount(Long userId) {
@@ -100,7 +110,7 @@ public class NotifyServiceImpl implements NotifyService {
         NotifyMsgDO msg = new NotifyMsgDO().setRelatedId(foot.getDocumentId())
                 .setNotifyUserId(foot.getDocumentUserId())
                 .setOperateUserId(foot.getUserId())
-                .setType(notifyTypeEnum.getType() )
+                .setType(notifyTypeEnum.getType())
                 .setState(NotifyStatEnum.UNREAD.getStat())
                 .setMsg("");
         NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
@@ -110,4 +120,9 @@ public class NotifyServiceImpl implements NotifyService {
         }
     }
 
+    public void notifyToUser(Long userId, String msg) {
+        SpringUtil.getBean(UserSessionHelper.class).getUserTokens(userId).forEach(session -> {
+            simpMessagingTemplate.convertAndSendToUser(session, NOTICE_TOPIC, String.format("您有一条新的信息[%s]，请注意查收!", msg));
+        });
+    }
 }
