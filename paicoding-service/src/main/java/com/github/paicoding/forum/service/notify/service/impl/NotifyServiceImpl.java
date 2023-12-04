@@ -122,7 +122,7 @@ public class NotifyServiceImpl implements NotifyService {
 
     public void notifyToUser(Long userId, String msg) {
         SpringUtil.getBean(UserSessionHelper.class).getUserTokens(userId).forEach(session -> {
-            simpMessagingTemplate.convertAndSendToUser(session, NOTICE_TOPIC, String.format("您有一条新的信息[%s]，请注意查收!", msg));
+            simpMessagingTemplate.convertAndSendToUser(session, NOTICE_TOPIC, msg);
         });
     }
 }

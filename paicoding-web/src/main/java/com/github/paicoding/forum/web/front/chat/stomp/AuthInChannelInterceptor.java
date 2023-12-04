@@ -69,7 +69,7 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
 
         if (destination.contains("/chat")) {
             // 派聪明：长连接入口
-            if (!Objects.equals(accessor.getCommand(), StompCommand.SUBSCRIBE)) {
+            if (Objects.equals(accessor.getCommand(), StompCommand.SUBSCRIBE)) {
                 // 订阅成功，返回用户历史聊天记录； 从请求头中，获取具体选择的大数据模型
                 ReqInfoContext.addReqInfo((ReqInfoContext.ReqInfo) accessor.getUser());
                 String aiType = (String) (accessor.getSessionAttributes().get(WsAnswerHelper.AI_SOURCE_PARAM));
