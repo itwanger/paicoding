@@ -27,6 +27,9 @@ public enum NotifyTypeEnum {
     REGISTER(6, "用户注册"),
     BIND(6, "绑定星球"),
     LOGIN(6, "用户登录"),
+
+    // 聊天私信
+    MSG(7, "私信"),
     ;
 
 

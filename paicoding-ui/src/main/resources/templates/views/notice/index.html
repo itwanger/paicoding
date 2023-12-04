@@ -36,7 +36,7 @@
       </div>
       <div class="notice-content">
         <div id="itemList">
-          <div th:if="${#lists.isEmpty(vo.list.list)}">
+          <div th:if="${vo.selectType != 'msg' && #lists.isEmpty(vo.list.list)}">
             <div class="notification" th:text="暂无通知消息"></div>
           </div>
           <div th:if="${!#lists.isEmpty(vo.list.list)}">
@@ -46,6 +46,9 @@
             <div th:replace="views/notice/tab/notify-collect"></div>
             <div th:replace="views/notice/tab/notify-follow"></div>
             <div th:replace="views/notice/tab/notify-system"></div>
+          </div>
+          <div th:if="${vo.selectType == 'msg'}">
+            <div th:replace="views/notice/tab/notify-msg"></div>
           </div>
         </div>
       </div>

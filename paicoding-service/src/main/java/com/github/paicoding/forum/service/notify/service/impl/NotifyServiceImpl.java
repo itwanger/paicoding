@@ -97,6 +97,7 @@ public class NotifyServiceImpl implements NotifyService {
         initCnt(NotifyTypeEnum.PRAISE, map, ans);
         initCnt(NotifyTypeEnum.COLLECT, map, ans);
         initCnt(NotifyTypeEnum.FOLLOW, map, ans);
+        initCnt(NotifyTypeEnum.MSG, map, ans);
         initCnt(NotifyTypeEnum.SYSTEM, map, ans);
         return ans;
     }
