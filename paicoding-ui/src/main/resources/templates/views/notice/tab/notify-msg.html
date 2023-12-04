@@ -1,0 +1,101 @@
+<!-- 主体内容 -->
+<div class="container mt-3 main-container">
+    <div class="card">
+        <!-- 应用容器 -->
+        <div class="card-body">
+            <div class="row">
+                <!-- 左侧面板 -->
+                <div class="col-sm-12 col-md-5">
+                    <!-- 发包设置 -->
+                    <div class="col-sm-12 mt-3">
+                        <h5 class="card-title">全局频道</h5>
+                        <hr class="divider divider-dashed">
+                        <!-- 自动发送 -->
+                        <div class="card-text">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">订阅</div>
+                                </div>
+                                <!-- 默认订阅的Broker -->
+                                <input value="globalChannel" type="text" class="form-control text-center"
+                                       id="topic1">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-block btn-success" id="subsBtn"> 开始订阅
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 右侧面板 -->
+                <div class="col-sm-12 col-md-5">
+                    <!-- 调试消息 -->
+                    <div class="col-sm-12 mt-3">
+                        <h5 class="card-title">调试消息</h5>
+                        <hr class="divider divider-dashed">
+                        <div class="card-text">
+                            <div class="card-title console-box" id="msgContent">
+                                <div class="mb-2">
+                                    <strong :class="'text-'+item.type">{{item.time}} => </strong>
+                                    <span>{{item.content}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 发包设置 -->
+                    <div class="col-sm-12 mt-3">
+                        <!-- 手动发送 -->
+                        <div class="card-text mt-2">
+                                            <textarea class="form-control mt-1" id="toSendMsg" rows="2"
+                                                      placeholder="需要发送到服务端的内容"></textarea>
+                        </div>
+                        <div class="card-text mt-2">
+                            <button class="btn btn-block btn-success" id="sendBtn">
+                                发送到服务端
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    let wsState = {};
+
+    // 自动加入全局群聊
+    function subscribeMsgChannel(channel) {
+        if (userWsClient == null) {
+            return;
+        }
+
+        wsState[channel] = true;
+        const session = getCookie("f-session");
+        userWsClient.subscribe(`/msg/${channel}`, function (message) {
+            console.log("系统消息: ", message);
+            showChatMsg(message.body);
+        }, {id: session});
+    }
+
+    function showChatMsg(txt) {
+        $('#msgContent').prepend(`<div class="mb-2"> <strong :class="'text-'+item.type"> ${txt} </strong> </div>`)
+    }
+
+    function sendMsgToChannel(channel) {
+        const msg = $('#toSendMsg').val();
+        if (wsState[channel] && userWsClient) {
+            userWsClient.send('/app/msg/' + channel, {}, msg);
+        }
+    }
+
+    // 添加全局的渠道
+    $('#subsBtn').click(function () {
+        subscribeMsgChannel("globalChannel");
+    });
+
+    $('#sendBtn').click(function () {
+        sendMsgToChannel("globalChannel");
+    });
+
+</script>

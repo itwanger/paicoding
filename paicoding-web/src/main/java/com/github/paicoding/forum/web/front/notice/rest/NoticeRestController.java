@@ -9,12 +9,20 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.MapUtils;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.front.notice.vo.NoticeResVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -77,8 +85,8 @@ public class NoticeRestController {
      */
     @RequestMapping(path = "items")
     public ResVo<NextPageHtmlVo> listForView(@RequestParam(name = "type") String type,
-                                       @RequestParam("page") Long page,
-                                       @RequestParam(name = "pageSize", required = false) Long pageSize) {
+                                             @RequestParam("page") Long page,
+                                             @RequestParam(name = "pageSize", required = false) Long pageSize) {
         type = type.toLowerCase().trim();
         PageListVo<NotifyMsgDTO> list = listItems(type, page, pageSize);
         NoticeResVo vo = new NoticeResVo();
@@ -86,5 +94,18 @@ public class NoticeRestController {
         vo.setSelectType(type);
         String html = templateEngineHelper.render("views/notice/tab/notify-" + type, vo);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
+    }
+
+
+    /**
+     * 聊天
+     *
+     * @param content
+     * @param channel
+     */
+    @MessageMapping("/msg/{channel}")
+    public void sayHello(String content, @DestinationVariable("channel") String channel, SimpMessageHeaderAccessor headerAccessor) {
+        ReqInfoContext.ReqInfo user = (ReqInfoContext.ReqInfo) headerAccessor.getUser();
+        SpringUtil.getBean(SimpMessagingTemplate.class).convertAndSend("/msg/" + channel, JsonUtil.toStr(MapUtils.create("user", user.getUser().getUserName(), "msg", content)));
     }
 }
