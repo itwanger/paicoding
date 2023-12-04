@@ -18,16 +18,6 @@ const loadMore = function (loadMoreSelector, url, params, listId, callback) {
     const windowHeight = scrollEle.clientHeight // 可视区域的高度
     const scrollHeight = scrollEle.scrollHeight // 滚动条的总高度
 
-    // 把上面这些数据发送到后端的 testLoadMore 接口
-      post("/test/loadmore", {
-            scrollTop: scrollTop,
-            windowHeight: windowHeight,
-              isNeedMore: isNeedMore,
-            scrollHeight: scrollHeight
-        }, (res) => {
-            console.log(res)
-        })
-
     if (!isNeedMore) return false // 如果不需要加载更多，直接返回
 
     if (scrollTop + windowHeight + params["triggerThreshold"] >= scrollHeight) {
