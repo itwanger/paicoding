@@ -100,7 +100,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         notifyMsgDao.save(msg);
 
         // 消息通知
-        notifyService.notifyToUser(msg.getNotifyUserId(), comment.getContent());
+        notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的评论，快去看看吧~");
     }
 
     /**
@@ -121,7 +121,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         notifyMsgDao.save(msg);
 
         // 消息通知
-        notifyService.notifyToUser(msg.getNotifyUserId(), comment.getContent());
+        notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的回复，请注意查收!");
     }
 
     /**
@@ -143,7 +143,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             notifyMsgDao.save(msg);
 
             // 消息通知
-            notifyService.notifyToUser(msg.getNotifyUserId(), event.getNotifyType().getMsg());
+            notifyService.notifyToUser(msg.getNotifyUserId(), String.format("太棒了，您的文章【%s】数+1!!!", event.getNotifyType().getMsg()));
         }
     }
 
@@ -184,7 +184,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
 
-            notifyService.notifyToUser(msg.getNotifyUserId(), event.getNotifyType().getMsg());
+            notifyService.notifyToUser(msg.getNotifyUserId(), "恭喜新增一个粉丝用户~");
         }
     }
 
@@ -219,7 +219,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
 
-            notifyService.notifyToUser(msg.getNotifyUserId(), "系统通知消息");
+            notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的系统通知消息，请注意查收");
         }
     }
 
