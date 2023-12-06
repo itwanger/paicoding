@@ -87,6 +87,16 @@
   </body>
 
   <script th:inline="javascript">
+    // 菜单滚动到选中的位置
+    const sectiona = $("a.active.section");
+    if (sectiona.length > 0) {
+      sectiona[0].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+
     // 内容渲染
     const articleId = [[${ vo.article.articleId }]];
 
@@ -183,10 +193,7 @@
         tag.addClass("show")
       }
     })
-  </script>
 
-  <!-- 评论逻辑 -->
-  <script type="text/javascript">
     function bindCommentInputEvent() {
       // 直接评论
       const commentContent = $("#commentContent")
