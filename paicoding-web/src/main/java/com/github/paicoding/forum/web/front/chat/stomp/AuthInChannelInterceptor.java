@@ -3,8 +3,8 @@ package com.github.paicoding.forum.web.front.chat.stomp;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
-import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
+import com.github.paicoding.forum.service.notify.service.NotifyChatService;
+import com.github.paicoding.forum.web.front.chat.helper.ChatAnswerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.messaging.Message;
@@ -72,22 +72,14 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
             if (Objects.equals(accessor.getCommand(), StompCommand.SUBSCRIBE)) {
                 // 订阅成功，返回用户历史聊天记录； 从请求头中，获取具体选择的大数据模型
                 ReqInfoContext.addReqInfo((ReqInfoContext.ReqInfo) accessor.getUser());
-                String aiType = (String) (accessor.getSessionAttributes().get(WsAnswerHelper.AI_SOURCE_PARAM));
+                String aiType = (String) (accessor.getSessionAttributes().get(ChatAnswerHelper.AI_SOURCE_PARAM));
                 AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
-                SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName(), source);
+                SpringUtil.getBean(ChatAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName(), source);
                 ReqInfoContext.clear();
             }
-        } else {
-            // 全局私信、通知长连接入口
-            ReqInfoContext.ReqInfo user = (ReqInfoContext.ReqInfo) accessor.getUser();
-            switch (accessor.getCommand()) {
-                case SUBSCRIBE:
-                    SpringUtil.getBean(UserSessionHelper.class).addUserToken(user.getUserId(), user.getSession());
-                    break;
-                case DISCONNECT:
-                    SpringUtil.getBean(UserSessionHelper.class).releaseUserToken(user.getUserId(), user.getSession());
-                    break;
-            }
+        } else if (destination.startsWith("/msg/")) {
+            // 私信聊天
+            SpringUtil.getBean(NotifyChatService.class).chatWrapper(accessor);
         }
     }
 }

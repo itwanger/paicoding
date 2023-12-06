@@ -2,12 +2,14 @@ package com.github.paicoding.forum.web.front.chat.rest;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
-import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
+import com.github.paicoding.forum.core.ws.WebSocketResponseUtil;
+import com.github.paicoding.forum.web.front.chat.helper.ChatAnswerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -22,7 +24,7 @@ import java.util.Map;
 @RestController
 public class ChatRestController {
     @Autowired
-    private WsAnswerHelper answerHelper;
+    private ChatAnswerHelper answerHelper;
 
     /**
      * 接收用户发送的消息
@@ -36,12 +38,17 @@ public class ChatRestController {
      * @Headers 实现请求头格式的参数解析, @Header("headName") 表示获取某个请求头的内容
      */
     @MessageMapping("/chat/{session}")
-    public void chat(String msg, @DestinationVariable("session") String session, @Header("simpSessionAttributes") Map<String, Object> attrs) {
-        String aiType = (String) attrs.get(WsAnswerHelper.AI_SOURCE_PARAM);
-        answerHelper.execute(attrs, () -> {
+    public void chat(String msg, @DestinationVariable("session") String session, @Header("simpSessionAttributes") Map<String, Object> attrs, SimpMessageHeaderAccessor accessor) {
+        String aiType = (String) attrs.get(ChatAnswerHelper.AI_SOURCE_PARAM);
+        WebSocketResponseUtil.execute(accessor, () -> {
             log.info("{} 用户开始了对话: {} - {}", ReqInfoContext.getReqInfo().getUser(), aiType, msg);
             AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
             answerHelper.sendMsgToUser(source, session, msg);
         });
+//        answerHelper.execute(attrs, () -> {
+//            log.info("{} 用户开始了对话: {} - {}", ReqInfoContext.getReqInfo().getUser(), aiType, msg);
+//            AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
+//            answerHelper.sendMsgToUser(source, session, msg);
+//        });
     }
 }

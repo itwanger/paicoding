@@ -58,6 +58,16 @@ public class DateUtil {
         return time2date(timestamp.getTime());
     }
 
+    /**
+     * 时间戳转字符串格式日期
+     *
+     * @param format    转换格式
+     * @param timestamp 时间戳
+     * @return
+     */
+    public static String time2str(String format, long timestamp) {
+        return format(DateTimeFormatter.ofPattern(format), timestamp);
+    }
 
     public static String format(DateTimeFormatter format, long timestamp) {
         LocalDateTime time = time2LocalTime(timestamp);
