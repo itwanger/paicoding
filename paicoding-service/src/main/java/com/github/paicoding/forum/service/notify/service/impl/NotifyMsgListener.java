@@ -10,7 +10,7 @@ import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.notify.repository.dao.NotifyMsgDao;
 import com.github.paicoding.forum.service.notify.repository.entity.NotifyMsgDO;
-import com.github.paicoding.forum.service.notify.service.NotifyService;
+import com.github.paicoding.forum.service.notify.service.NotifyChatService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
     private final NotifyMsgDao notifyMsgDao;
 
     @Resource
-    private NotifyService notifyService;
+    private NotifyChatService notifyChatService;
 
     public NotifyMsgListener(ArticleReadService articleReadService,
                              CommentReadService commentReadService,
@@ -100,7 +100,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         notifyMsgDao.save(msg);
 
         // 消息通知
-        notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的评论，快去看看吧~");
+        notifyChatService.notifyToUser(msg.getNotifyUserId(), "您有一个新的评论，快去看看吧~");
     }
 
     /**
@@ -121,7 +121,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         notifyMsgDao.save(msg);
 
         // 消息通知
-        notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的回复，请注意查收!");
+        notifyChatService.notifyToUser(msg.getNotifyUserId(), "您有一个新的回复，请注意查收!");
     }
 
     /**
@@ -143,7 +143,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             notifyMsgDao.save(msg);
 
             // 消息通知
-            notifyService.notifyToUser(msg.getNotifyUserId(), String.format("太棒了，您的文章【%s】数+1!!!", event.getNotifyType().getMsg()));
+            notifyChatService.notifyToUser(msg.getNotifyUserId(), String.format("太棒了，您的文章【%s】数+1!!!", event.getNotifyType().getMsg()));
         }
     }
 
@@ -184,7 +184,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
 
-            notifyService.notifyToUser(msg.getNotifyUserId(), "恭喜新增一个粉丝用户~");
+            notifyChatService.notifyToUser(msg.getNotifyUserId(), "恭喜新增一个粉丝用户~");
         }
     }
 
@@ -219,7 +219,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
 
-            notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的系统通知消息，请注意查收");
+            notifyChatService.notifyToUser(msg.getNotifyUserId(), "您有一个新的系统通知消息，请注意查收");
         }
     }
 

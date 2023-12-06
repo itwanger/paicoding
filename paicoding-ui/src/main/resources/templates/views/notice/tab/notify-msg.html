@@ -1,101 +1,979 @@
 <!-- 主体内容 -->
-<div class="container mt-3 main-container">
-    <div class="card">
-        <!-- 应用容器 -->
-        <div class="card-body">
-            <div class="row">
-                <!-- 左侧面板 -->
-                <div class="col-sm-12 col-md-5">
-                    <!-- 发包设置 -->
-                    <div class="col-sm-12 mt-3">
-                        <h5 class="card-title">全局频道</h5>
-                        <hr class="divider divider-dashed">
-                        <!-- 自动发送 -->
-                        <div class="card-text">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">订阅</div>
-                                </div>
-                                <!-- 默认订阅的Broker -->
-                                <input value="globalChannel" type="text" class="form-control text-center"
-                                       id="topic1">
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-block btn-success" id="subsBtn"> 开始订阅
-                                    </button>
+<style type="text/css">
+    .index-box {
+        height: 100%;
+        width: 100%;
+    }
+
+    .indexPage {
+        width: 1150px;
+        margin: auto;
+        height: 100%;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #fff;
+        -webkit-box-shadow: 0 0 2px 0 rgba(0, 0, 0, .06);
+        box-shadow: 0 0 2px 0 rgba(0, 0, 0, .06);
+    }
+
+    .indexPage .left-menu {
+        border-right: 1px solid #e8e8ed;
+        width: 300px;
+        height: 100%;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+    }
+
+    .indexPage .right-content {
+        position: relative;
+        width: 100%;
+    }
+
+    .rightContent .chat-container, .rightContent {
+        height: 100%;
+    }
+
+    .leftMenu {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        color: #000;
+    }
+
+    .chat-list {
+        position: relative;
+        height: calc(100% - 64px);
+        overflow: auto;
+    }
+
+    .unimportant-chat-list {
+        color: #999aaa;
+    }
+
+    .leftMenu .main-chat-list {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .leftMenu .chat-list .fold-msg-item, .leftMenu .chat-list .msg-item, .leftMenu .fold-chat-list .fold-msg-item, .leftMenu .fold-chat-list .msg-item {
+        position: relative;
+        background: #fff;
+        padding: 0 8px 0 24px;
+        cursor: pointer;
+    }
+
+    .leftMenu .chat-list .fold-msg-item .msg-item_inner, .leftMenu .chat-list .msg-item .msg-item_inner, .leftMenu .fold-chat-list .fold-msg-item .msg-item_inner, .leftMenu .fold-chat-list .msg-item .msg-item_inner {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        padding: 20px 0;
+        border-bottom: 1px solid #e8e8ed;
+    }
+
+
+    .leftMenu .chat-list .fold-msg-item, .leftMenu .chat-list .msg-item, .leftMenu .fold-chat-list .fold-msg-item, .leftMenu .fold-chat-list .msg-item {
+        position: relative;
+        background: #fff;
+        padding: 0 8px 0 24px;
+        cursor: pointer
+    }
+
+    .leftMenu .chat-list .fold-msg-item:last-child .msg-item_inner, .leftMenu .chat-list .msg-item:last-child .msg-item_inner, .leftMenu .fold-chat-list .fold-msg-item:last-child .msg-item_inner, .leftMenu .fold-chat-list .msg-item:last-child .msg-item_inner {
+        border-bottom: none
+    }
+
+    .leftMenu .chat-list .fold-msg-item .msg-item_inner, .leftMenu .chat-list .msg-item .msg-item_inner, .leftMenu .fold-chat-list .fold-msg-item .msg-item_inner, .leftMenu .fold-chat-list .msg-item .msg-item_inner {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        padding: 20px 0;
+        border-bottom: 1px solid #e8e8ed
+    }
+
+    .leftMenu .chat-list .fold-msg-item.is-top, .leftMenu .chat-list .msg-item.is-top, .leftMenu .fold-chat-list .fold-msg-item.is-top, .leftMenu .fold-chat-list .msg-item.is-top {
+        background: rgba(232, 232, 237, .4)
+    }
+
+    .leftMenu .chat-list .fold-msg-item:hover, .leftMenu .chat-list .msg-item:hover, .leftMenu .fold-chat-list .fold-msg-item:hover, .leftMenu .fold-chat-list .msg-item:hover {
+        background: rgba(232, 232, 237, .7)
+    }
+
+    .leftMenu .chat-list .fold-msg-item:hover .right .more-actions, .leftMenu .chat-list .msg-item:hover .right .more-actions, .leftMenu .fold-chat-list .fold-msg-item:hover .right .more-actions, .leftMenu .fold-chat-list .msg-item:hover .right .more-actions {
+        opacity: 1
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left, .leftMenu .chat-list .msg-item .left, .leftMenu .fold-chat-list .fold-msg-item .left, .leftMenu .fold-chat-list .msg-item .left {
+        margin-right: 10px;
+        display: inline-block;
+        height: 42px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left .headimg, .leftMenu .chat-list .msg-item .left .headimg, .leftMenu .fold-chat-list .fold-msg-item .left .headimg, .leftMenu .fold-chat-list .msg-item .left .headimg {
+        position: relative;
+        width: 42px;
+        height: 42px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left .headimg img, .leftMenu .chat-list .msg-item .left .headimg img, .leftMenu .fold-chat-list .fold-msg-item .left .headimg img, .leftMenu .fold-chat-list .msg-item .left .headimg img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        vertical-align: middle
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left .headimg .user-title, .leftMenu .chat-list .msg-item .left .headimg .user-title, .leftMenu .fold-chat-list .fold-msg-item .left .headimg .user-title, .leftMenu .fold-chat-list .msg-item .left .headimg .user-title {
+        position: absolute;
+        bottom: 0;
+        right: 3px;
+        width: 16px;
+        height: 16px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left .headimg .user-title img, .leftMenu .chat-list .msg-item .left .headimg .user-title img, .leftMenu .fold-chat-list .fold-msg-item .left .headimg .user-title img, .leftMenu .fold-chat-list .msg-item .left .headimg .user-title img {
+        vertical-align: top
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left .headimg .unread-num, .leftMenu .chat-list .msg-item .left .headimg .unread-num, .leftMenu .fold-chat-list .fold-msg-item .left .headimg .unread-num, .leftMenu .fold-chat-list .msg-item .left .headimg .unread-num {
+        min-height: 8px;
+        min-width: 16px;
+        position: absolute;
+        top: 0;
+        left: 27px;
+        padding: 0 3px;
+        background: #fc5531;
+        border-radius: 8px;
+        border: 1px solid #fff;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 14px;
+        color: #fff;
+        text-align: center;
+        z-index: 1
+    }
+
+    .leftMenu .chat-list .fold-msg-item .left .headimg .unread-num.is-dot, .leftMenu .chat-list .msg-item .left .headimg .unread-num.is-dot, .leftMenu .fold-chat-list .fold-msg-item .left .headimg .unread-num.is-dot, .leftMenu .fold-chat-list .msg-item .left .headimg .unread-num.is-dot {
+        min-width: 1px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right, .leftMenu .chat-list .msg-item .right, .leftMenu .fold-chat-list .fold-msg-item .right, .leftMenu .fold-chat-list .msg-item .right {
+        display: inline-block;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        height: 100%;
+        font-weight: 400;
+        font-size: 14px;
+        position: relative;
+        overflow: hidden;
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left, .leftMenu .chat-list .msg-item .right .r-left, .leftMenu .fold-chat-list .fold-msg-item .right .r-left, .leftMenu .fold-chat-list .msg-item .right .r-left {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        white-space: nowrap
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name, .leftMenu .chat-list .msg-item .right .r-left .who-name, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name {
+        -webkit-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        font-size: 0;
+        display: inline-block
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name .who-msg, .leftMenu .chat-list .msg-item .right .r-left .who-name .who-msg, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name .who-msg, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name .who-msg {
+        display: inline-block;
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica, Arial, PingFangSC-Medium, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;
+        font-weight: 500;
+        color: #222226;
+        line-height: 16px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name .who-msg-norela, .leftMenu .chat-list .msg-item .right .r-left .who-name .who-msg-norela, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name .who-msg-norela, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name .who-msg-norela {
+        max-width: 182px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name .msg-relation, .leftMenu .chat-list .msg-item .right .r-left .who-name .msg-relation, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name .msg-relation, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name .msg-relation {
+        position: relative;
+        color: #999aaa;
+        margin-left: 4px;
+        display: inline-block;
+        height: 18px;
+        line-height: 18px;
+        border-radius: 10px;
+        padding: 0 6px;
+        font-size: 12px;
+        background: -webkit-gradient(linear, left bottom, left top, from(#4e4e4e), to(#464646));
+        background: linear-gradient(1turn, #4e4e4e, #464646);
+        background: #f7f7f7;
+        vertical-align: middle
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name .msg-relation.relation-0, .leftMenu .chat-list .msg-item .right .r-left .who-name .msg-relation.relation-0, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name .msg-relation.relation-0, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name .msg-relation.relation-0 {
+        color: #26a1ff;
+        border-color: transparent;
+        background: rgba(38, 161, 255, .1)
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name .msg-relation.relation-2, .leftMenu .chat-list .msg-item .right .r-left .who-name .msg-relation.relation-2, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name .msg-relation.relation-2, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name .msg-relation.relation-2 {
+        color: #ff7e0e;
+        border-color: transparent;
+        background: rgba(255, 126, 14, .1)
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-left .who-name .msg-relation.is-coupon, .leftMenu .chat-list .msg-item .right .r-left .who-name .msg-relation.is-coupon, .leftMenu .fold-chat-list .fold-msg-item .right .r-left .who-name .msg-relation.is-coupon, .leftMenu .fold-chat-list .msg-item .right .r-left .who-name .msg-relation.is-coupon {
+        color: #fc5531;
+        background-color: rgba(252, 85, 49, .1)
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .r-right, .leftMenu .chat-list .msg-item .right .r-right, .leftMenu .fold-chat-list .fold-msg-item .right .r-right, .leftMenu .fold-chat-list .msg-item .right .r-right {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        position: relative
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .last-msg, .leftMenu .chat-list .msg-item .right .last-msg, .leftMenu .fold-chat-list .fold-msg-item .right .last-msg, .leftMenu .fold-chat-list .msg-item .right .last-msg {
+        width: 182px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 8px;
+        font-size: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica, Arial, PingFangSC-Regular, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;
+        font-weight: 400;
+        color: #555666;
+        line-height: 16px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .last-msg a, .leftMenu .chat-list .msg-item .right .last-msg a, .leftMenu .fold-chat-list .fold-msg-item .right .last-msg a, .leftMenu .fold-chat-list .msg-item .right .last-msg a {
+        color: #999
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .last-msg .msg-emoji, .leftMenu .chat-list .msg-item .right .last-msg .msg-emoji, .leftMenu .fold-chat-list .fold-msg-item .right .last-msg .msg-emoji, .leftMenu .fold-chat-list .msg-item .right .last-msg .msg-emoji {
+        width: 18px;
+        height: 18px;
+        vertical-align: top
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .last-msg .msg-monkey, .leftMenu .chat-list .msg-item .right .last-msg .msg-monkey, .leftMenu .fold-chat-list .fold-msg-item .right .last-msg .msg-monkey, .leftMenu .fold-chat-list .msg-item .right .last-msg .msg-monkey {
+        width: 20px;
+        height: 20px;
+        vertical-align: top
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .last-msg .online-type, .leftMenu .chat-list .msg-item .right .last-msg .online-type, .leftMenu .fold-chat-list .fold-msg-item .right .last-msg .online-type, .leftMenu .fold-chat-list .msg-item .right .last-msg .online-type {
+        margin-right: 3px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .time, .leftMenu .chat-list .msg-item .right .time, .leftMenu .fold-chat-list .fold-msg-item .right .time, .leftMenu .fold-chat-list .msg-item .right .time {
+        color: #999;
+        font-size: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica, Arial, PingFangSC-Regular, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;
+        font-weight: 400;
+        color: #8f8fa6;
+        line-height: 16px
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .more-actions, .leftMenu .chat-list .fold-msg-item .right .status, .leftMenu .chat-list .msg-item .right .more-actions, .leftMenu .chat-list .msg-item .right .status, .leftMenu .fold-chat-list .fold-msg-item .right .more-actions, .leftMenu .fold-chat-list .fold-msg-item .right .status, .leftMenu .fold-chat-list .msg-item .right .more-actions, .leftMenu .fold-chat-list .msg-item .right .status {
+        position: absolute;
+        right: 0;
+        bottom: 5px;
+        opacity: 0;
+        cursor: pointer;
+        font-size: 16px;
+        color: #999
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .more-actions-box, .leftMenu .chat-list .msg-item .right .more-actions-box, .leftMenu .fold-chat-list .fold-msg-item .right .more-actions-box, .leftMenu .fold-chat-list .msg-item .right .more-actions-box {
+        width: 100px;
+        z-index: 1;
+        background: #fff;
+        -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .4);
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .4);
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+        position: absolute;
+        right: 15px;
+        top: 35px;
+        line-height: 30px;
+        text-align: center;
+        display: none
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .more-actions-box > div, .leftMenu .chat-list .msg-item .right .more-actions-box > div, .leftMenu .fold-chat-list .fold-msg-item .right .more-actions-box > div, .leftMenu .fold-chat-list .msg-item .right .more-actions-box > div {
+        cursor: pointer
+    }
+
+    .leftMenu .chat-list .fold-msg-item .right .more-actions-box > div:hover, .leftMenu .chat-list .msg-item .right .more-actions-box > div:hover, .leftMenu .fold-chat-list .fold-msg-item .right .more-actions-box > div:hover, .leftMenu .fold-chat-list .msg-item .right .more-actions-box > div:hover {
+        color: #fc5531
+    }
+
+    .chatMsg {
+        width: 100%;
+        padding: 10px 24px
+    }
+
+
+    .chatMsg .msg-item {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        overflow: visible;
+        padding: 8px 0
+    }
+
+    .chatMsg .msg-item-right {
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: reverse;
+        -ms-flex-direction: row-reverse;
+        flex-direction: row-reverse;
+    }
+
+    .chatMsg .msg-item .system-prompt {
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        color: #999;
+    }
+
+    .chatMsg .msg-item .system-prompt .pure-text {
+        padding-bottom: 8px;
+    }
+
+    .chatMsg .msg-item img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: block;
+        float: left;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .chatMsg .msg-item-right .msg-err, .chatMsg .msg-item-right img {
+        float: right;
+    }
+
+    .chatMsg .msg-item .msg {
+        float: left;
+        line-height: 28px;
+        padding: 4px 12px;
+        max-width: 641px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #1c1c28;
+        background: #f5f5f5;
+        -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .1);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .1);
+        border-radius: 4px;
+        margin-left: 8px;
+        word-break: break-word;
+        position: relative;
+        white-space: pre-wrap;
+    }
+
+    .blankTip {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        text-align: center;
+        padding: 1em;
+        color: #bec9d2;
+    }
+
+    .rightContent .chat-container, .rightContent {
+        height: 100%
+    }
+
+    .rightContent .chat-container header {
+        height: 64px;
+        border-bottom: 1px solid #ebebeb;
+        padding-left: 24px;
+        line-height: 48px;
+        color: #3d3d3d;
+        font-size: 16px
+    }
+
+    .rightContent .chat-container .msg-content-box {
+        height: calc(100% - 162px);
+        position: relative;
+        outline: lightgray solid thin;
+    }
+
+    .rightContent .chat-container .msg-content-box p.loading {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        padding: 16px 0;
+        font-size: 12px;
+        color: #999
+    }
+
+    .rightContent .chat-container .msg-content-box p.loading i {
+        font-size: 16px;
+        vertical-align: bottom
+    }
+
+    .rightContent .chat-container .msg-content-box .msg-content {
+        position: relative;
+        padding: 0;
+        height: 100%;
+        border-bottom: 1px solid #ebebeb;
+        overflow: hidden auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none
+    }
+
+    .rightContent .chat-container .msg-content-box .msg-content::-webkit-scrollbar {
+        display: none
+    }
+
+    .rightContent .chat-container .msg-content-box .backmsg-bottom {
+        position: absolute;
+        right: 24px;
+        bottom: 6px;
+        width: 104px;
+        height: 32px;
+        background: #fff;
+        -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .09);
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .09);
+        border-radius: 4px;
+        border: 1px solid #ebebeb;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #3399ea;
+        text-align: left;
+        line-height: 32px;
+        cursor: pointer;
+        padding-left: 21px
+    }
+
+    .rightContent .chat-container .msg-content-box .backmsg-bottom svg {
+        width: 12px;
+        height: 12px;
+        position: absolute;
+        left: 6px;
+        top: 9.5px
+    }
+
+    .rightContent .chat-container .msg-content-box .backmsg-bottom svg image {
+        width: 100%;
+        height: 100%
+    }
+
+    .rightContent .chat-container .expression-bar {
+        height: 34px;
+        padding: 0 16px
+    }
+
+    .rightContent .chat-container .send-msg-box {
+        height: 162px
+    }
+
+    .editContent {
+        height: 100%;
+        position: relative;
+    }
+
+    .editContent .edit-textarea {
+        height: calc(100% - 40px);
+        padding: 8px;
+    }
+
+    .Editor {
+        width: 100%;
+        height: 100%;
+    }
+
+    .Editor #toSendMsg {
+        position: relative;
+        margin-right: 2px;
+        font: 14px/1.5 Helvetica, Arial, Tahoma, 微软雅黑;
+        width: 100%;
+        height: 106px;
+        outline: none;
+        background: #fff;
+        border: 0 none;
+        overflow-y: auto;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        resize: none;
+        vertical-align: middle;
+        display: inline-block;
+    }
+
+    .editContent footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        padding: 0 16px;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+
+</style>
+<div>
+    <!-- 应用容器 -->
+    <div class="index-box">
+        <div class="indexPage">
+            <!-- 左侧面板 -->
+            <div class="left-menu">
+                <!-- 发包设置 -->
+                <div class="leftMenu">
+                    <div class="card-title" style="padding-left: 1em; padding-top: 0.8em">
+                        <span th:if="${global.isLogin}">
+                            <h5 th:text="${global.user.userName}">登录用户名</h5>
+                            <a href="#" class="badge badge-success">在线</a>
+                        </span>
+                        <span th:if="!${global.isLogin}">
+                            <h5>请登录</h5>
+                        </span>
+
+                    </div>
+                    <hr class="divider divider-dashed">
+                    <!-- 自动发送 -->
+                    <div class="chat-list">
+                        <div class="main-chat-list">
+                            <div class="chatListMenu hasVBar">
+                                <div style="position: relative; box-sizing: border-box; height: 100%; overflow: hidden scroll; margin-right: -5px;">
+                                    <div class="unimportant-chat-list" id="chatList">
+                                        <div class="msg-item" onclick="subscribeMsgChannel('globalChannel')">
+                                            <div class="msg-item_inner">
+                                                <div class="left">
+                                                    <div class="headimg">
+                                                        <img src="https://cdn.tobebetterjavaer.com/paicodingui5/static/img/icon.png">
+                                                    </div>
+                                                </div>
+                                                <div class="right">
+                                                    <div class="r-left">
+                                                        <div class="who-name"><span
+                                                                class="who-msg">技术派在线</span><span
+                                                                class="msg-relation relation-0">官方</span></div>
+                                                        <div class="time"
+                                                             th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2str('yy-MM-dd', T(java.lang.System).currentTimeMillis())}">
+                                                            09-07
+                                                        </div>
+                                                    </div>
+                                                    <div class="r-right"><p class="last-msg">
+                                                        在线实时聊天窗口</p>
+                                                        <div class="session-status"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="msg-item" onclick="subscribeMsgChannel('singleChannel')"
+                                             th:if="${global.isLogin}">
+                                            <div class="msg-item_inner">
+                                                <div class="left">
+                                                    <div class="headimg">
+                                                        <img th:src="${global.user.photo}">
+                                                    </div>
+                                                </div>
+                                                <div class="right">
+                                                    <div class="r-left">
+                                                        <div class="who-name"><span class="who-msg"
+                                                                                    th:text="'我 (' + ${global.user.userName} + ')'"></span><span
+                                                                class="msg-relation relation-2">个人</span></div>
+                                                        <div class="time"
+                                                             th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2str('yy-MM-dd', T(java.lang.System).currentTimeMillis())}">
+                                                            09-07
+                                                        </div>
+                                                    </div>
+                                                    <div class="r-right"><p class="last-msg">在线实时聊天窗口</p>
+                                                        <div class="session-status"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="input-group" style="padding: 1em">
+                                        <input placeholder="输入聊天室/频道号" type="text"
+                                               class="form-control " id="topic">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-success"
+                                                    id="subsBtn"> 加入
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
-                <!-- 右侧面板 -->
-                <div class="col-sm-12 col-md-5">
-                    <!-- 调试消息 -->
-                    <div class="col-sm-12 mt-3">
-                        <h5 class="card-title">调试消息</h5>
-                        <hr class="divider divider-dashed">
-                        <div class="card-text">
-                            <div class="card-title console-box" id="msgContent">
-                                <div class="mb-2">
-                                    <strong :class="'text-'+item.type">{{item.time}} => </strong>
-                                    <span>{{item.content}}</span>
+            </div>
+            <!-- 右侧面板 -->
+            <div class="right-content">
+                <!-- 调试消息 -->
+                <div class="rightContent">
+                    <div class="chat-container">
+                        <div class="msg-content-box">
+                            <h5 class="card-title" id="msgTitle" style="padding:0.4em">聊天窗口</h5>
+                            <hr class="divider divider-dashed">
+                            <div class="msg-content">
+                                <h3 class="blankTip" id="blankTip">您还未选中或发起聊天，快去加入大群聊一聊吧~</h3>
+                                <div class="chatMsg" id="msgContent">
                                 </div>
                             </div>
                         </div>
+                        <div class="send-msg-box">
+                            <div class="editContent">
+                                <div class="edit-textarea">
+                                    <div class="Editor">
+                                        <form>
+                                            <textarea id="toSendMsg" autofocus="autofocus" maxlength="500"
+                                                      disabled></textarea>
+                                        </form>
+                                    </div>
+                                </div>
+                                <footer><p><span>0</span>/500</p>
+                                    <div class="send"><span>按下Enter发送内容</span>
+                                        <button id="sendBtn" class="btn btn-success" style="border-radius: 1em;"
+                                                disabled>发送
+                                        </button>
+                                    </div>
+                                </footer>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- 发包设置 -->
-                    <div class="col-sm-12 mt-3">
-                        <!-- 手动发送 -->
-                        <div class="card-text mt-2">
-                                            <textarea class="form-control mt-1" id="toSendMsg" rows="2"
-                                                      placeholder="需要发送到服务端的内容"></textarea>
-                        </div>
-                        <div class="card-text mt-2">
-                            <button class="btn btn-block btn-success" id="sendBtn">
-                                发送到服务端
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <script th:inline="javascript">
-    let wsState = {};
+    // 当前登录用户
+    const loginUserId = [[${global.user.userId}]];
+    const session = getCookie("f-session");
 
-    // 自动加入全局群聊
+    // 记录每个聊天的状态
+    let wsState = {
+        'globalChannel': {
+            'title': '技术派在线',
+            'state': false,
+            'type': 'group', // 群组聊天
+            'history': '',
+            'latestResponseTime': 0,
+        }
+    };
+    wsState[session] = {
+        'title': '我 (' + [[${global.isLogin ? global.user.userName: '离线'}]] + ')',
+        'state': false,
+        'type': 'single', // 私人聊天
+        'history': '',
+        'latestResponseTime': 0, // 最新一次响应时间
+    };
+
+    // 当前选中的聊天窗口
+    let chooseChannel = null;
+
+    /**
+     * 订阅加入群聊
+     *
+     * @param channel
+     */
     function subscribeMsgChannel(channel) {
         if (userWsClient == null) {
+            // ws没有建立连接
+            toastr.info("长连接未正确建立，请刷新页面再试一下吧~");
             return;
         }
 
-        wsState[channel] = true;
-        const session = getCookie("f-session");
-        userWsClient.subscribe(`/msg/${channel}`, function (message) {
+        if (channel == 'singleChannel') {
+            // 私人会话，以自己的session作为topic
+            channel = session;
+        }
+
+        if (!updateChatChannel(channel)) {
+            return;
+        }
+
+        userWsClient.subscribe(`/msg/${wsState[channel].type}/${channel}`, function (message) {
             console.log("系统消息: ", message);
-            showChatMsg(message.body);
-        }, {id: session});
+            let des = message.headers.destination;
+            showChatMsg(des.replace("/msg/group/", '').replace('/msg/single/', ''), message.body);
+        }, {'title': wsState[channel].title});
+
+        // 注册关闭事件
+        registerDisconnect();
     }
 
-    function showChatMsg(txt) {
-        $('#msgContent').prepend(`<div class="mb-2"> <strong :class="'text-'+item.type"> ${txt} </strong> </div>`)
+    /**
+     * 更新选中的聊天窗口
+     * @param channel
+     * @return true 表示新的窗口需要进行订阅
+     */
+    function updateChatChannel(channel) {
+        // 选中了聊天窗口，放开发送消息的限制
+        $('#blankTip').hide();
+        $('#sendBtn').removeAttr("disabled");
+        $('#toSendMsg').removeAttr("disabled");
+        $('#toSendMsg').focus();
+
+        if (chooseChannel != channel) {
+            // 切换聊天面板，保存历史聊天记录；切换新的聊天记录
+            console.log("更新会话", chooseChannel, '->', channel);
+            if (chooseChannel != null) {
+                // 保存当前会话
+                wsState[chooseChannel].history = $('#msgContent').html();
+                console.log("wsState", wsState);
+                // 更新为新的会话内容
+                $('#msgContent').html(wsState[channel].history);
+            }
+
+            $('#msgTitle').text(wsState[channel].title);
+            chooseChannel = channel;
+        }
+
+        if (wsState[channel].state) {
+            // 之前已订阅，无需再次订阅
+            return false;
+        }
+        wsState[channel].state = true;
+        return true;
     }
 
-    function sendMsgToChannel(channel) {
-        const msg = $('#toSendMsg').val();
-        if (wsState[channel] && userWsClient) {
-            userWsClient.send('/app/msg/' + channel, {}, msg);
+    /**
+     * 注册ws连接关闭事件
+     */
+    function registerDisconnect() {
+        if (userWsClient == null || userWsSocket == null) {
+            return;
+        }
+        userWsSocket.onclose = function () {
+            for (let key in wsState) {
+                const target = wsState[key];
+                target.state = false;
+            }
         }
     }
 
-    // 添加全局的渠道
+    /**
+     * 发送消息
+     * @param channel
+     */
+    function sendMsgToChannel(channel) {
+        const msg = $('#toSendMsg').val().trim();
+        if (!msg || msg.length > 500) {
+            toastr.info("输入长度1-500的非空白字符");
+            $('#toSendMsg').val('');
+            return;
+        }
+        if (wsState[channel].state && userWsClient) {
+            userWsClient.send(`/app/msg/${wsState[channel].type}/${channel}`, {}, msg);
+            // 清空发送内容
+            $('#toSendMsg').val('');
+            $('#toSendMsg').focus();
+        } else {
+            toastr.info("连接中断，不支持发送!");
+        }
+    }
+
+    /**
+     * 处理回传的消息；显示再对应的输出框
+     * @param channel
+     * @param txt
+     */
+    function showChatMsg(channel, txt) {
+        console.log("showChatMsg", channel, "current", chooseChannel, txt);
+        let content = JSON.parse(txt);
+        if (content.msgType >= 100) {
+            // 用户聊天消息
+            const userName = content.userName;
+            const avatar = content.avatar;
+            const msg = content.content;
+
+            // 聊天时间格式化
+            function formatDate(lastTime, currentDate) {
+                // 超过整点五分时，才显示时间；聊天对话超过10s,且两次的对话之间，在五分前后，则显示对话时间
+                if (parseInt(currentDate / 300_000) - parseInt(lastTime / 300_000) > 0 && currentDate - lastTime > 10_000) {
+                    console.log("上次: ", parseInt(lastTime / 300_000), '本次:', parseInt(currentDate / 300_000));
+                    const subDate = new Date(parseInt(currentDate));
+                    console.log("current date: ", subDate);
+                    const month = (subDate.getMonth() + 1).toString().padStart(2, '0');
+                    const day = subDate.getDate().toString().padStart(2, '0');
+                    const hours = subDate.getHours().toString().padStart(2, '0');
+                    const minutes = subDate.getMinutes().toString().padStart(2, '0');
+                    return `${month}-${day} ${hours}:${minutes}`;
+                }
+                return '';
+            }
+
+            const date = formatDate(wsState[channel].latestResponseTime, content.date);
+            wsState[channel].latestResponseTime = content.date;
+
+            let html;
+            if (content.userId == loginUserId) {
+                // 当前用户发出的消息；放在右边
+                html = `<div class="msg-item msg-item-right">
+        <div class="system-prompt">
+            <div class="pure-text">${date}</div>
+        </div>
+        <div class="text-box">
+            <img src="${avatar}" alt="" class="clearTpaErr">
+            <div class="msg">${msg}</div>
+        </div>
+    </div>`
+            } else {
+                // 其他用户发出的消息；放在左边
+                html = `<div class="msg-item">
+        <div class="system-prompt">
+            <div class="pure-text">${date}</div>
+        </div>
+        <div class="text-box">
+            <div style="float: left">
+                <img src="${avatar}" alt="" class="clearTpaErr">
+                <div style="font-size: 12px;color: #999;text-align: center;">
+                    ${userName}
+                </div>
+            </div>
+            <div class="msg">${msg}</div>
+        </div>
+    </div>`
+            }
+
+            // 显示聊天内容
+            if (channel == chooseChannel) {
+                // 当前会话的聊天内容，直接显示
+                $('#msgContent').append(html);
+            } else {
+                // 其他会话的聊天内容，放在历史记录
+                wsState[channel].history += html;
+            }
+        } else {
+            if (content.msgType == 1) {
+                if (wsState[channel].type == 'group') {
+                    // 1. 更新在线人数
+                    if (chooseChannel == channel) {
+                        $('#msgTitle').html(wsState[channel].title + `<small style="color:lightgray">&nbsp;&nbsp;在线•${content.content}</small>`);
+                    }
+                }
+            } else if (content.msgType == 0) {
+                if (content.userId != loginUserId) {
+                    //  2. 系统提示，加入群聊
+                    let html = `<div class="msg-item">
+        <div class="system-prompt">
+            <div class="pure-text">${content.content}</div>
+        </div></div>`;
+                    // 显示聊天内容
+                    if (channel == chooseChannel) {
+                        // 当前会话的聊天内容，直接显示
+                        $('#msgContent').append(html);
+                    } else {
+                        // 其他会话的聊天内容，放在历史记录
+                        wsState[channel].history += html;
+                    }
+                }
+            }
+        }
+    }
+
+
+    const colorList = ['lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow'];
+    // 添加新的聊天窗口
     $('#subsBtn').click(function () {
-        subscribeMsgChannel("globalChannel");
+        let topic = $('#topic').val().trim();
+        if (!topic) {
+            toastr.error("请输入合法的频道号");
+            return;
+        }
+
+        console.log("添加新的聊天：", topic);
+        get("/notice/api/tmpChannel?channelId=" + topic, "", function (data) {
+            let channel;
+            if (data['title']) {
+                // 如果输入的是频道号且别人已经建立过，则表示加入私聊；直接使用别人新建的群组信息来初始化
+                topic = data['title'];
+                channel = data['channel'].replace("/msg/group/", "");
+            } else {
+                // 没有人建立过这个频道，则新建一个聊天通道
+                channel = parseInt(Math.random() * 1000_000 + 1000_00);
+            }
+
+            $('#topic').value = '';
+            wsState[channel] = {
+                'title': topic,
+                'state': false,
+                'type': "group",
+                'latestResponseTime': 0,
+                'history': ''
+            }
+
+            const now = new Date();
+            const day = (now.getFullYear() % 100) + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+            const color = colorList[parseInt(Math.random() * colorList.length)];
+            let appendHtml = `<div class="msg-item" onclick="subscribeMsgChannel('${channel}')">
+                                            <div class="msg-item_inner">
+                                                <div class="left">
+                                                    <div class="headimg">
+                                                        <img class="rounded-circle" style="background: ${color}">
+                                                    </div>
+                                                </div>
+                                                <div class="right">
+                                                    <div class="r-left">
+                                                        <div class="who-name"><span class="who-msg">${topic}</span><span class="msg-relation relation-3">临时</span></div>
+                                                        <div class="time"> ${day} </div>
+                                                    </div>
+                                                    <div class="r-right"><p class="last-msg"> 私聊号：${channel}</p></div>
+                                                </div>
+                                            </div>
+                                        </div>`
+            $("#chatList").append(appendHtml);
+
+            // 进入私聊
+            subscribeMsgChannel(channel);
+        })
     });
 
+    // 点击发送按钮
     $('#sendBtn').click(function () {
-        sendMsgToChannel("globalChannel");
+        console.log("发送消息到服务端:", chooseChannel);
+        sendMsgToChannel(chooseChannel);
     });
+    // 输入框回车事件，发送消息
+    $('#toSendMsg').keypress(function (e) {
+        if (e.which === 13) {
+            sendMsgToChannel(chooseChannel);
+        }
+    })
+
 
 </script>

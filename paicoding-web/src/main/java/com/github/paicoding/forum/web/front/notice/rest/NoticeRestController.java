@@ -9,20 +9,20 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
-import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.MapUtils;
-import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.ws.WebSocketResponseUtil;
+import com.github.paicoding.forum.service.notify.service.NotifyChatService;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.front.notice.vo.NoticeResVo;
+import com.github.paicoding.forum.web.front.notice.vo.NotifyChannelDescResVo;
+import com.github.paicoding.forum.web.front.notice.vo.NotifyChatResVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,8 +43,11 @@ public class NoticeRestController {
 
     private NotifyService notifyService;
 
-    public NoticeRestController(NotifyService notifyService) {
+    private NotifyChatService notifyChatService;
+
+    public NoticeRestController(NotifyService notifyService, NotifyChatService notifyChatService) {
         this.notifyService = notifyService;
+        this.notifyChatService = notifyChatService;
     }
 
     private PageListVo<NotifyMsgDTO> listItems(String type, Long page, Long pageSize) {
@@ -98,14 +101,34 @@ public class NoticeRestController {
 
 
     /**
-     * 聊天
+     * 实时在线聊天
      *
-     * @param content
-     * @param channel
+     * @param content 发送的内容
+     * @param type    群组类型
+     * @param channel 目标地址
      */
-    @MessageMapping("/msg/{channel}")
-    public void sayHello(String content, @DestinationVariable("channel") String channel, SimpMessageHeaderAccessor headerAccessor) {
+    @MessageMapping("/msg/{type}/{channel}")
+    public void sayHello(String content, @DestinationVariable("type") String type, @DestinationVariable("channel") String channel, SimpMessageHeaderAccessor headerAccessor) {
         ReqInfoContext.ReqInfo user = (ReqInfoContext.ReqInfo) headerAccessor.getUser();
-        SpringUtil.getBean(SimpMessagingTemplate.class).convertAndSend("/msg/" + channel, JsonUtil.toStr(MapUtils.create("user", user.getUser().getUserName(), "msg", content)));
+        NotifyChatResVo resVo = new NotifyChatResVo().setUserId(user.getUser().getUserId())
+                .setUserName(user.getUser().getUserName())
+                .setAvatar(user.getUser().getPhoto())
+                .setContent(content)
+                .setMsgType(NotifyChatService.NotifyChatMsgType.USER_MSG)
+                .setDate(System.currentTimeMillis());
+        WebSocketResponseUtil.broadcastMsg("/msg/" + type + "/" + channel, resVo);
+    }
+
+
+    /**
+     * 返回临时聊天室的描述
+     *
+     * @param channelId
+     * @return
+     */
+    @GetMapping(path = "/tmpChannel")
+    public ResVo<NotifyChannelDescResVo> getChannelDesc(String channelId) {
+        String desc = notifyChatService.getTmpChatChannelInfo(channelId);
+        return ResVo.ok(new NotifyChannelDescResVo().setChannel(channelId).setTitle(desc));
     }
 }

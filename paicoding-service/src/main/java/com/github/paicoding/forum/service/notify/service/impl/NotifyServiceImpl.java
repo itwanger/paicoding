@@ -7,13 +7,11 @@ import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.notify.repository.dao.NotifyMsgDao;
 import com.github.paicoding.forum.service.notify.repository.entity.NotifyMsgDO;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
-import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -119,11 +117,5 @@ public class NotifyServiceImpl implements NotifyService {
             // 若之前已经有对应的通知，则不重复记录；因为一个用户对一篇文章，可以重复的点赞、取消点赞，但是最终我们只通知一次
             notifyMsgDao.save(msg);
         }
-    }
-
-    public void notifyToUser(Long userId, String msg) {
-        SpringUtil.getBean(UserSessionHelper.class).getUserTokens(userId).forEach(session -> {
-            simpMessagingTemplate.convertAndSendToUser(session, NOTICE_TOPIC, msg);
-        });
     }
 }

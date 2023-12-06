@@ -51,10 +51,6 @@ public class UserSessionHelper {
         private Long expire;
     }
 
-    /**
-     * 记录用户与对应的jwt token之间的缓存关系；用于websocket的广播通知
-     */
-    private LoadingCache<Long, Set<String>> wsUserSessionCache;
 
     private final JwtProperties jwtProperties;
 
@@ -65,16 +61,6 @@ public class UserSessionHelper {
         this.jwtProperties = jwtProperties;
         algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
         verifier = JWT.require(algorithm).withIssuer(jwtProperties.getIssuer()).build();
-
-        wsUserSessionCache = CacheBuilder.newBuilder()
-                .maximumSize(200)
-                .expireAfterAccess(1, TimeUnit.HOURS)
-                .build(new CacheLoader<Long, Set<String>>() {
-                    @Override
-                    public Set<String> load(Long aLong) throws Exception {
-                        return new HashSet<>();
-                    }
-                });
     }
 
     public String genSession(Long userId) {
@@ -118,36 +104,5 @@ public class UserSessionHelper {
             log.info("jwt token校验失败! token: {}, msg: {}", session, e.getMessage());
             return null;
         }
-    }
-
-
-    /**
-     * 用户建立连接时，添加用户信息
-     *
-     * @param userId 用户id
-     * @return
-     */
-    public Set<String> getUserTokens(Long userId) {
-        return wsUserSessionCache.getUnchecked(userId);
-    }
-
-    /**
-     * 用户建立连接时，添加用户信息
-     *
-     * @param userId  用户id
-     * @param session jwt token
-     */
-    public void addUserToken(Long userId, String session) {
-        wsUserSessionCache.getUnchecked(userId).add(session);
-    }
-
-    /**
-     * 断开连接时，移除用户信息
-     *
-     * @param userId  用户id
-     * @param session jwt token
-     */
-    public void releaseUserToken(Long userId, String session) {
-        wsUserSessionCache.getUnchecked(userId).remove(session);
     }
 }

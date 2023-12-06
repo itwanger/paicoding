@@ -9,13 +9,12 @@ import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import java.util.Map;
 
 /**
+ * 通知服务类
+ *
  * @author YiHui
  * @date 2022/9/3
  */
 public interface NotifyService {
-    String NOTICE_TOPIC = "/msg";
-
-
     /**
      * 查询用户未读消息数量
      *
@@ -49,12 +48,4 @@ public interface NotifyService {
      * @param notifyTypeEnum
      */
     void saveArticleNotify(UserFootDO foot, NotifyTypeEnum notifyTypeEnum);
-
-    /**
-     * 通知发送给用户
-     *
-     * @param userId
-     * @param msg
-     */
-    void notifyToUser(Long userId, String msg);
 }
