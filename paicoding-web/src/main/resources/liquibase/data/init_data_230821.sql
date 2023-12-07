@@ -1,4 +1,4 @@
-INSERT INTO pai_coding.global_conf (`key`, value, comment, deleted)
+INSERT INTO global_conf (`key`, value, comment, deleted)
 VALUES ('view.site.starInfo', '## 该文档仅「二哥的编程星球」VIP 用户可见
 
 二哥的编程星球内容包括：
