@@ -55,7 +55,7 @@ public class SeoInjectService {
 
         String title = detail.getArticle().getTitle();
         String description = detail.getArticle().getSummary();
-        String authorName = detail.getOther().getAuthor().getUserName();
+        String authorName = detail.getAuthor().getUserName();
         String updateTime = DateUtil.time2LocalTime(detail.getArticle().getLastUpdateTime()).toString();
         String publishedTime = DateUtil.time2LocalTime(detail.getArticle().getCreateTime()).toString();
         String image = detail.getArticle().getCover();

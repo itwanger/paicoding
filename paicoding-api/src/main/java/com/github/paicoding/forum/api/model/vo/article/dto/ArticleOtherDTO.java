@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
-import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import lombok.Data;
 
 /**
@@ -11,8 +10,6 @@ import lombok.Data;
  */
 @Data
 public class ArticleOtherDTO {
-    // 作者信息
-    private UserStatisticInfoDTO author;
     // 文章的阅读类型
     private Integer readType;
     // 教程的翻页
