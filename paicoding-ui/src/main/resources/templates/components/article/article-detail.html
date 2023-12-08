@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 文章内容 -->
   <section
-    th:fragment="article_info(article, other)"
+    th:fragment="article_info(article, author, other)"
     class="article-info-wrap com-2-panel col-2-article J-articlePanel"
   >
     <span class="com-2-mark-triangle article-mark">
@@ -17,11 +17,11 @@
       标题
     </div>
     <div>
-      <div class="detail-content-title-other-wrap relative" th:if="${other.author != null}">
-        <img th:src="${other.author.photo}" class="detail-content-title-other-img" />
+      <div class="detail-content-title-other-wrap relative" th:if="${author != null}">
+        <img th:src="${author.photo}" class="detail-content-title-other-img" />
         <a
-          th:href="${'/user/' + other.author.userId}"
-          th:text="${other.author.userName}"
+          th:href="${'/user/' + author.userId}"
+          th:text="${author.userName}"
           class="detail-content-title-other-name"
         >
           作者

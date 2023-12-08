@@ -145,7 +145,7 @@ public class ArticleViewController extends BaseViewController {
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());
         articleDTO.setAuthorName(user.getUserName());
         articleDTO.setAuthorAvatar(user.getPhoto());
-        other.setAuthor(user);
+        vo.setAuthor(user);
 
         vo.setOther(other);
 
