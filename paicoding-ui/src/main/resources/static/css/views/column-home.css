@@ -209,3 +209,35 @@
     content: "·";
     margin: 0 4px;
 }
+
+@media screen and (max-width: 700px) {
+    .custom-home {
+        padding-top: 0;
+        height: calc(100vh - 140px);
+    }
+
+    .custom-home-right {
+        display: none;
+    }
+
+    .custom-home-wrap {
+        width: 100%;
+        margin: 0;
+        display: block;
+    }
+
+    .custom-home-body {
+        margin-right: 0;
+    }
+
+    .self-description {
+        display: none;
+    }
+
+    .other {
+        // 最多显示一行，超出部分省略号
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

@@ -21,7 +21,7 @@
 
             <!-- 正文 -->
             <div
-              th:replace="components/article/article-detail :: article_info(${vo.article}, ${vo.author}, 0)"
+              th:replace="components/article/article-detail :: article_info(${vo.article}, ${vo.other})"
             ></div>
 
             <!--  评论  -->
@@ -44,7 +44,7 @@
           <div class="layout-side">
             <!-- 用户相关信息 -->
             <div
-              th:replace="components/user/user-card :: user_card(${vo.author}, ${vo.article.author}, ${global.isLogin})"
+              th:replace="components/user/user-card :: user_card(${vo.other.author}, ${vo.article.author}, ${global.isLogin})"
             ></div>
 
             <!-- 活动推荐 -->
