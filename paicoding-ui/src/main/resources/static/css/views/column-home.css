@@ -213,7 +213,6 @@
 @media screen and (max-width: 768px) {
     .custom-home {
         padding-top: 0;
-        height: calc(100vh - 140px);
     }
 
     .custom-home-right {
