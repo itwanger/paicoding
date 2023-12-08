@@ -210,7 +210,7 @@
     margin: 0 4px;
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 768px) {
     .custom-home {
         padding-top: 0;
         height: calc(100vh - 140px);

@@ -314,7 +314,7 @@
 }
 
 /* home 适配 */
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 768px) {
   .article-title-wrap,
   .cdc-article-panel__date {
     display: none;

@@ -28,7 +28,7 @@
                              th:data-toggle="${!global.isLogin || global.user.starStatus.code == -1 ? 'modal' : ''}">
                             点击登录，体验派聪明AI助手
                         </div>
-                        <div th:if="${global.user != null}">
+                        <div class="chat-annotation" th:if="${global.user != null}">
                             <div th:switch="${global.user.starStatus.code}">
                                 <a th:case="-1"
                                    href="#"
@@ -46,7 +46,8 @@
 
                     </div>
 
-                    <div class="window-header-sub-title">与派聪明的 <span id="chatCnt">0</span> 条对话（以天为单位，无限期重置）</div>
+                    <div class="window-header-sub-title">与派聪明的 <span id="chatCnt">0</span> 条对话
+                        <span class="info">以天为单位，无限期重置）</span></div>
                 </div>
                 <!-- 加一个下拉框，选项是 OpenAI 讯飞星火 技术派 -->
                 <div class="chat-type">
