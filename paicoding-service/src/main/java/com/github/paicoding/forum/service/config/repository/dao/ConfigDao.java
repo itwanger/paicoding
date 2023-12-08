@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -119,7 +120,10 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
 
     public List<GlobalConfigDO> listGlobalConfig(SearchGlobalConfigParams params) {
         LambdaQueryWrapper<GlobalConfigDO> query = buildQuery(params);
-        query.select(GlobalConfigDO::getId, GlobalConfigDO::getKey, GlobalConfigDO::getValue, GlobalConfigDO::getComment);
+        query.select(GlobalConfigDO::getId,
+                GlobalConfigDO::getKey,
+                GlobalConfigDO::getValue,
+                GlobalConfigDO::getComment);
         return globalConfigMapper.selectList(query);
     }
 
@@ -136,7 +140,8 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
                         v -> v.like(GlobalConfigDO::getValue, params.getValue()))
                 .and(!StringUtils.isEmpty(params.getComment()),
                         c -> c.like(GlobalConfigDO::getComment, params.getComment()))
-                .eq(GlobalConfigDO::getDeleted, YesOrNoEnum.NO.getCode());
+                .eq(GlobalConfigDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .orderByDesc(GlobalConfigDO::getUpdateTime);
         return query;
     }
 
@@ -145,6 +150,7 @@ public class ConfigDao extends ServiceImpl<ConfigMapper, ConfigDO> {
     }
 
     public void updateById(GlobalConfigDO globalConfigDO) {
+        globalConfigDO.setUpdateTime(new Date());
         globalConfigMapper.updateById(globalConfigDO);
     }
 
