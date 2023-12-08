@@ -209,7 +209,7 @@
 
 
 /* home 适配 */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 700px) {
   .nav-article {
     display: none;
   }
@@ -220,7 +220,8 @@
     display: block;
   }
   .navbar {
-    padding: 0 18px;
+    padding-left: 18px;
+    padding-right: 32px;
   }
   .collapse:not(.show) {
     display: none;

@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 文章内容 -->
   <section
-    th:fragment="article_info(article, author, loginRead)"
+    th:fragment="article_info(article, other)"
     class="article-info-wrap com-2-panel col-2-article J-articlePanel"
   >
     <span class="com-2-mark-triangle article-mark">
@@ -17,11 +17,11 @@
       标题
     </div>
     <div>
-      <div class="detail-content-title-other-wrap relative" th:if="${author != null}">
-        <img th:src="${author.photo}" class="detail-content-title-other-img" />
+      <div class="detail-content-title-other-wrap relative" th:if="${other.author != null}">
+        <img th:src="${other.author.photo}" class="detail-content-title-other-img" />
         <a
-          th:href="${'/user/' + author.userId}"
-          th:text="${author.userName}"
+          th:href="${'/user/' + other.author.userId}"
+          th:text="${other.author.userName}"
           class="detail-content-title-other-name"
         >
           作者
@@ -71,10 +71,59 @@
     </div>
 
     <div id="articleContent" class="article-content" th:utext="${article.content}">
-
     </div>
 
-    <div th:if="${loginRead == 1 && !global.isLogin}">
+    <!-- 左右切换 -->
+    <div class="article-change direction" th:if="${other.flip != null}">
+      <a class="step-btn--prev"
+         th:href="${other.flip.prevHref}"
+         th:if="${other.flip.prevShow}"
+      >
+        <div class="article-change-item">
+          <svg
+                  t="1670064682276"
+                  class="icon"
+                  viewBox="0 0 1024 1024"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  p-id="9458"
+                  width="32"
+                  height="32"
+          >
+            <path
+                    d="M671.968176 911.99957c-12.287381 0-24.576482-4.67206-33.951566-14.047144L286.048434 545.984249c-18.751888-18.719204-18.751888-49.12028 0-67.872168L638.016611 126.111222c18.751888-18.751888 49.12028-18.751888 67.872168 0 18.751888 18.719204 18.751888 49.12028 0 67.872168l-318.016611 318.047574L705.888778 830.047574c18.751888 18.751888 18.751888 49.12028 0 67.872168C696.544658 907.32751 684.255557 911.99957 671.968176 911.99957z"
+                    p-id="9459"
+                    fill="#ffffff"
+            ></path>
+          </svg>
+        </div>
+      </a>
+      <a class="step-btn--next"
+         th:href="${other.flip.nextHref}"
+         th:if="${other.flip.nextShow}"
+      >
+        <div class="article-change-item">
+          <svg
+                  t="1670064662589"
+                  class="icon"
+                  viewBox="0 0 1024 1024"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  p-id="8352"
+                  width="32"
+                  height="32"
+          >
+            <path
+                    d="M761.055557 532.128047c0.512619-0.992555 1.343475-1.823411 1.792447-2.848649 8.800538-18.304636 5.919204-40.703346-9.664077-55.424808L399.935923 139.743798c-19.264507-18.208305-49.631179-17.344765-67.872168 1.888778-18.208305 19.264507-17.375729 49.631179 1.888778 67.872168l316.960409 299.839269L335.199677 813.631716c-19.071845 18.399247-19.648112 48.767639-1.247144 67.872168 9.407768 9.791372 21.984142 14.688778 34.560516 14.688778 12.000108 0 24.000215-4.479398 33.311652-13.439914l350.048434-337.375729c0.672598-0.672598 0.927187-1.599785 1.599785-2.303346 0.512619-0.479935 1.056202-0.832576 1.567101-1.343475C757.759656 538.879828 759.199462 535.391265 761.055557 532.128047z"
+                    p-id="8353"
+                    fill="#ffffff"
+            ></path>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+    <div th:if="${other.readType == 1 && !global.isLogin}">
       <div class="needlock">
         <a class="btn-readmore no-login underline" data-target="#loginModal" data-toggle="modal">
           <span>登录之后即可阅读全文</span>
@@ -82,7 +131,7 @@
       </div>
     </div>
 
-    <div th:if="${loginRead == 3 && !(global.user != null && global.user.starStatus.code == 2)}">
+    <div th:if="${other.readType == 3 && !(global.user != null && global.user.starStatus.code == 2)}">
       <div class="needlock">
         <a class="btn-readmore no-login underline" href="#" target="_blank" data-target="#registerModal" data-toggle="modal">
           <H2>已加入二哥编程星球，即刻绑定星球编号解锁🔐</H2>
@@ -91,8 +140,7 @@
     </div>
 
     <!-- 星球详情  -->
-    <div
-            class="modal fade"
+    <div class="modal fade"
             id="starModel"
             data-backdrop="static"
             data-keyboard="false"
@@ -136,9 +184,8 @@
     </div>
 
 
-    <!-- 再次确认 Modal -->
-    <div
-            class="modal fade"
+    <!-- 删除文章再次确认 Modal -->
+    <div class="modal fade"
             id="deleteModal"
             data-backdrop="static"
             data-keyboard="false"
@@ -151,8 +198,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="deleteModalDropLabel">删除提醒</h5>
-            <button
-                    type="button"
+            <button type="button"
                     class="close"
                     data-dismiss="modal"
                     aria-label="Close"
@@ -187,7 +233,7 @@
           window.location.href = "/";
         });
       });
-      let loginRead = [[${loginRead}]];
+      let loginRead = [[${other.readType}]];
       let user = [[${global.user}]];
       if (loginRead == 3) {
         console.log(loginRead, user)

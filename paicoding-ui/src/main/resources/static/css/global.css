@@ -936,6 +936,7 @@ button:focus {
   box-sizing: content-box;
   background-color: #fff;
   margin: 0 auto;
+  display: block;
 }
 
 .article-content h1 {

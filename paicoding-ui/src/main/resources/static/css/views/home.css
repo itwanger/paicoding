@@ -212,7 +212,7 @@ svg:not(:root).svg-inline--fa {
 }
 
 /* home 适配 */
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 700px) {
   .home-right,
   .home-carouse-wrap {
     display: none;
