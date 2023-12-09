@@ -519,6 +519,16 @@
   .step-btn--prev .article-change-item {
     left: -6%;
   }
+
+  .book-summary__footer {
+    display: none;
+  }
+
+  .article-change-item {
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+  }
 }
 
 @media (min-width: 721px) {
