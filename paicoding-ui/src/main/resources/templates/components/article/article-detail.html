@@ -226,6 +226,7 @@
     <!--  点赞放这里-->
     <div th:replace="components/article/praise :: praise(${article})"></div>
     <script th:inline="javascript">
+      // 删除文章
       let id = [[${article.articleId}]]
       $('#deleteBtn').click(function () {
         get("/article/api/delete?articleId=" + id, {}, function (data) {
@@ -233,6 +234,42 @@
           window.location.href = "/";
         });
       });
+
+      // 高亮代码
+      hljs.addPlugin({
+        'after:highlightElement': ({ el, result }) => {
+          // move the language from the result into the dataset
+          el.setAttribute('lang', result.language);
+          el.classList.add('copyable');
+
+          // 创建复制代码按钮
+          const copyBtn = document.createElement('span');
+          copyBtn.classList.add('copy-code-btn');
+          copyBtn.textContent = '复制代码';
+
+          // 将复制代码按钮添加到代码块后
+          el.parentNode.insertBefore(copyBtn, el.nextSibling);
+        }
+      });
+      hljs.highlightAll();
+
+      const clipboard = new ClipboardJS('.copy-code-btn', {
+        target: function(trigger) {
+          return trigger.previousElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        // 复制成功
+        toastr.info("复制成功");
+        e.clearSelection();
+      });
+
+      clipboard.on('error', function(e) {
+        console.log('复制失败');
+      });
+
+      // 星球文章的权限控制
       let loginRead = [[${other.readType}]];
       let user = [[${global.user}]];
       if (loginRead == 3) {
