@@ -105,7 +105,7 @@
               </svg>
             </a>
           </li>
-          <li class="nav-item vip" th:if="${global.user != null}">
+          <li class="nav-item vip" th:if="${global.user != null && global.user.starStatus != null}">
             <div th:switch="${global.user.starStatus.code}">
               <span th:case="2" th:text="星球VIP会员"></span>
               <span th:case="1" th:text="待审核"></span>
