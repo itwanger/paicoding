@@ -220,7 +220,8 @@
     display: block;
   }
   .navbar {
-    padding: 0 18px;
+    padding-left: 18px;
+    padding-right: 32px;
   }
   .collapse:not(.show) {
     display: none;

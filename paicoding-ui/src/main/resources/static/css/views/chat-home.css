@@ -636,3 +636,20 @@ select.styled-dropdown option {
     font-size: 16px;
     padding: 8px 10px;
 }
+
+/*手机端适配*/
+@media screen and (max-width: 768px) {
+    .chat-sidebar, .chat-annotation, .window-header-sub-title .info {
+        display: none;
+    }
+
+    .chat-main {
+        width: 100%;
+        padding: 0;
+        margin-left: 0;
+    }
+
+    .window-header-title .window-header-main-title {
+        font-size: 15px;
+    }
+}

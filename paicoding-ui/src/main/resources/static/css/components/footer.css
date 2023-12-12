@@ -50,9 +50,10 @@
 }
 
 /* 媒体查询，针对小屏幕设备 */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .stats-row {
     white-space: nowrap; /* 防止内容换行 */
+    text-align: center; /* 使内容居中 */
   }
   .stats-container {
     display: block; /* 使 .stats-row 堆叠显示 */

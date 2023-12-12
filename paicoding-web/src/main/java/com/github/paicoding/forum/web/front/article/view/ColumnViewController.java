@@ -6,10 +6,7 @@ import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
-import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticlesDTO;
-import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
-import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.*;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
@@ -112,13 +109,31 @@ public class ColumnViewController {
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
-        updateReadType(vo, column, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getReadType()));
         vo.setArticle(articleDTO);
         vo.setComments(comments);
         vo.setHotComment(hotComment);
         vo.setColumn(columnId);
         vo.setSection(section);
         vo.setArticleList(articles);
+
+        ArticleOtherDTO other = new ArticleOtherDTO();
+
+        // 教程类型
+        updateReadType(other, column, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getReadType()));
+
+
+        // 把是文章翻页的参数封装到这里
+        // prev 的 href 和 是否显示的 flag
+        ColumnArticleFlipDTO flip = new ColumnArticleFlipDTO();
+        flip.setPrevHref("/column/" + columnId + "/" + (section - 1));
+        flip.setPrevShow(section > 1);
+        // next 的 href 和 是否显示的 flag
+        flip.setNextHref("/column/" + columnId + "/" + (section + 1));
+        flip.setNextShow(section < articles.size());
+        other.setFlip(flip);
+
+        // 放入 model 中
+        vo.setOther(other);
         model.addAttribute("vo", vo);
 
         SpringUtil.getBean(SeoInjectService.class).initColumnSeo(vo, column);
@@ -132,7 +147,7 @@ public class ColumnViewController {
      * @param column
      * @param articleDTO
      */
-    private void updateReadType(ColumnArticlesDTO vo, ColumnDTO column, ArticleDTO articleDTO, ColumnArticleReadEnum articleReadEnum) {
+    private void updateReadType(ArticleOtherDTO vo, ColumnDTO column, ArticleDTO articleDTO, ColumnArticleReadEnum articleReadEnum) {
         Long loginUser = ReqInfoContext.getReqInfo().getUserId();
         if (loginUser != null && loginUser.equals(articleDTO.getAuthor())) {
             vo.setReadType(ColumnTypeEnum.FREE.getType());
@@ -157,10 +172,7 @@ public class ColumnViewController {
         }
         // 如果是星球 or 登录阅读时，不返回全量的文章内容
         articleDTO.setContent(trimContent(vo.getReadType(), articleDTO.getContent()));
-        if (vo.getReadType() == ColumnTypeEnum.STAR_READ.getType()) {
-            // 星球的文章，移除相关信息
-            articleDTO.setCover(null);
-        }
+        // fix 关于 cover 封面，文章详情的前端已经不显示了，这里直接删除
     }
 
     /**
