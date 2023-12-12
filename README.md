@@ -42,6 +42,11 @@
 
 ![](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
 
+#### 代码展示
+
+![](https://cdn.tobebetterjavaer.com/images/20231205/b8f76cb8e09f4ebca84b3ddd3b61c13e.png)
+
+
 ### 架构图
 
 #### 系统架构图
@@ -52,7 +57,6 @@
 #### 业务架构图
 
 ![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-business.jpg)
-
 
 ### 组织结构
 

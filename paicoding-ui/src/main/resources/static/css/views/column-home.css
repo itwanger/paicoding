@@ -209,3 +209,49 @@
     content: "·";
     margin: 0 4px;
 }
+
+@media screen and (max-width: 768px) {
+    .custom-home {
+        padding-top: 0;
+    }
+
+    .custom-home-right,
+    .self-description,
+    .article-count,
+    .sale-tooltip,
+    .read-count:before {
+        display: none;
+    }
+
+    .custom-home-wrap {
+        width: 100%;
+        margin: 0;
+        display: block;
+    }
+
+    .custom-home-body {
+        margin-right: 0;
+    }
+
+    .other {
+        /*最多显示一行，超出部分省略号*/
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 0;
+    }
+
+    .item {
+        padding: 15px;
+    }
+
+    .poster {
+        width: 90px;
+        height: 140px;
+    }
+
+    .title {
+        font-size: 16px;
+        line-height: 22px;
+    }
+}

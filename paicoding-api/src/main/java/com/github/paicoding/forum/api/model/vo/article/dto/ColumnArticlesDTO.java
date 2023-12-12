@@ -50,4 +50,7 @@ public class ColumnArticlesDTO {
      * 文章目录列表
      */
     private List<SimpleArticleDTO> articleList;
+
+    // 翻页
+    private ArticleOtherDTO other;
 }

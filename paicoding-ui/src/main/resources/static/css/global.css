@@ -702,88 +702,6 @@ button:focus {
   text-align: center;
 }
 
-/* @media (max-width: 768px) {
-  body {
-    color: red !important;
-  }
-} */
-
-/* 设备适配样式 */
-/* @media (max-width: 768px) {
-  html {
-    padding-top: 68px;
-  }
-
-  .navbar {
-    padding: 0.5rem 1rem;
-  }
-
-  .foot-link {
-    padding: 10px 0;
-  }
-
-  .foot li {
-    display: block;
-    padding: 10px 0 0 0;
-  }
-
-  .foot li:last-child {
-    float: none;
-  }
-
-  .tag-box,
-  .no-comment-box,
-  .posts-author-box,
-  .posts-box,
-  .card {
-    margin-bottom: 10px;
-  }
-  .carousel .page-box,
-  .user-info-box {
-    margin-bottom: 10px;
-  }
-
-  .user-info-date-box {
-    display: none;
-  }
-
-  .user-info-desc-box {
-    padding-left: 10px;
-    padding-right: 0;
-  }
-
-  .best-answer {
-    margin-left: 10px;
-  }
-
-  .posts-comment-box,
-  .posts-box,
-  .editor-form-box,
-  .card-body,
-  .card-header,
-  .list-group-item,
-  .faq-solution-box,
-  .editor-title {
-    padding: 10px;
-  }
-
-  .type-box {
-    padding: 0;
-  }
-
-  .posts-comment-input-box {
-    margin-top: -10px;
-  }
-
-  .user-edit-btn {
-    display: none;
-  }
-
-  .message-block {
-    margin-right: 5px;
-  }
-} */
-
 .hidden {
   display: none;
 }
@@ -933,10 +851,10 @@ button:focus {
 
 .article-content img {
   max-width: 100%;
-  max-height: 500px;
   box-sizing: content-box;
   background-color: #fff;
   margin: 0 auto;
+  display: block;
 }
 
 .article-content h1 {
@@ -1118,4 +1036,23 @@ button:focus {
 
 .article-content pre {
   position: relative;
+}
+
+@media (max-width: 768px) {
+  #registerModal .modal-content .modal-body .tabpane-container,
+  #loginModal .modal-content .modal-body .login-main, #loginModal .modal-footer {
+    display: none;
+  }
+
+  .modal input, .modal input::placeholder,.modal .title {
+    font-size: 1rem;
+  }
+
+  #loginModal .modal-content .modal-body .tabpane-container {
+    border-left: none;
+  }
+
+  #loginModal .first .signin-qrcode {
+    width: 180px;
+  }
 }

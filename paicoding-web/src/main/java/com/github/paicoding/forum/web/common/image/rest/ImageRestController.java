@@ -1,11 +1,11 @@
-package com.github.paicoding.forum.web.front.image.rest;
+package com.github.paicoding.forum.web.common.image.rest;
 
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.image.service.ImageService;
-import com.github.paicoding.forum.web.front.image.vo.ImageVo;
+import com.github.paicoding.forum.web.common.image.vo.ImageVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

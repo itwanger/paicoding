@@ -40,8 +40,6 @@ public class ImageServiceImpl implements ImageService {
     @Autowired
     private ImageUploader imageUploader;
 
-    private static final MediaType[] STATIC_IMG_TYPE = new MediaType[]{MediaType.ImagePng, MediaType.ImageJpg, MediaType.ImageWebp, MediaType.ImageGif};
-
     /**
      * 外网图片转存缓存
      */
@@ -91,6 +89,31 @@ public class ImageServiceImpl implements ImageService {
     }
 
     /**
+     * 外网图片转存
+     *
+     * @param img
+     * @return
+     */
+    @Override
+    public String saveImg(String img) {
+        if (imageUploader.uploadIgnore(img)) {
+            // 已经转存过，不需要再次转存；非http图片，不处理
+            return img;
+        }
+
+        try {
+            String ans = imgReplaceCache.get(img);
+            if (StringUtils.isBlank(ans)) {
+                return buildUploadFailImgUrl(img);
+            }
+            return ans;
+        } catch (Exception e) {
+            log.error("外网图片转存异常! img:{}", img, e);
+            return buildUploadFailImgUrl(img);
+        }
+    }
+
+    /**
      * 外网图片自动转存，添加了执行日志，超时限制；避免出现因为超时导致发布文章异常
      *
      * @param content
@@ -131,31 +154,6 @@ public class ImageServiceImpl implements ImageService {
         return content;
     }
 
-    /**
-     * 外网图片转存
-     *
-     * @param img
-     * @return
-     */
-    @Override
-    public String saveImg(String img) {
-        if (imageUploader.uploadIgnore(img)) {
-            // 已经转存过，不需要再次转存；非http图片，不处理
-            return img;
-        }
-
-        try {
-            String ans = imgReplaceCache.get(img);
-            if (StringUtils.isBlank(ans)) {
-                return buildUploadFailImgUrl(img);
-            }
-            return ans;
-        } catch (Exception e) {
-            log.error("外网图片转存异常! img:{}", img, e);
-            return buildUploadFailImgUrl(img);
-        }
-    }
-
     private String buildUploadFailImgUrl(String img) {
         return img.contains("saveError") ? img : img + "?&cause=saveError!";
     }
@@ -175,7 +173,7 @@ public class ImageServiceImpl implements ImageService {
         if (mime.contains(MediaType.ImageJpg.getExt())) {
             mime = mime.replace("jpg", "jpeg");
         }
-        for (MediaType type : STATIC_IMG_TYPE) {
+        for (MediaType type : ImageUploader.STATIC_IMG_TYPE) {
             if (type.getMime().equals(mime)) {
                 return type.getExt();
             }
