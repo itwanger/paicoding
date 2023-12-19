@@ -100,6 +100,7 @@
         width                : "100%",
         height               : "100%",
         path                 : "./lib/",       // Dependents module file directory
+        katexURL             : {},
         pluginPath           : "",             // If this empty, default use settings.path + "../plugins/"
         delay                : 300,            // Delay parse markdown to html, Uint : ms
         autoLoadModules      : true,           // Automatic load dependent module files
@@ -1493,17 +1494,14 @@
         
         katexRender : function() {
             
-            if (timer === null)
-            {
-                return this;
-            }
-            
             this.previewContainer.find("." + editormd.classNames.tex).each(function(){
                 var tex  = $(this);
                 editormd.$katex.render(tex.text(), tex[0]);
-                
-                tex.find(".katex").css("font-size", "1.6em");
-            });   
+            });
+
+            // 块内的已经渲染了 CSS 所以可以找到，但是行内的则不行
+            // 行内的需要特殊处理
+            katexRender(this.previewContainer[0]);
 
             return this;
         },
@@ -4178,13 +4176,12 @@
     
     // 使用国外的CDN，加载速度有时会很慢，或者自定义URL
     // You can custom KaTeX load url.
-    editormd.katexURL  = {
-        css : "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min",
-        js  : "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min"
-    };
     
     editormd.kaTeXLoaded = false;
-    
+    editormd.katexURL    = {
+        css : "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min",
+        js  : "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.3.0/katex.min"
+    }
     /**
      * 加载KaTeX文件
      * load KaTeX files
@@ -4193,9 +4190,8 @@
      */
     
     editormd.loadKaTeX = function (callback) {
-        editormd.loadCSS(editormd.katexURL.css, function(){
-            editormd.loadScript(editormd.katexURL.js, callback || function(){});
-        });
+       callback = callback || function() {};
+       callback();
     };
         
     /**
