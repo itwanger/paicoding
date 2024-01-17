@@ -40,7 +40,7 @@ public interface UrlHandlerStrategy {
         }
         if(StringUtils.isNotBlank(result.getKeywords())) {
             hasMeta = true;
-            builder.append("tags:" + "\n");
+            builder.append("tag:" + "\n");
             builder.append("  - 优质文章" + "\n");
         }
 
