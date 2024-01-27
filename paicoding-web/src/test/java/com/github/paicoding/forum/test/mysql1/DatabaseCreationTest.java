@@ -32,7 +32,7 @@ public class DatabaseCreationTest {
 
     @Test
     public void createDatabaseTest() throws SQLException {
-        String dbName = "pai_coding";
+        String dbName = "itwanger";
         if (!databaseExists(dbName)) {
             jdbcTemplate.execute("CREATE DATABASE IF NOT EXISTS " + dbName);
             System.out.println("创建成功");

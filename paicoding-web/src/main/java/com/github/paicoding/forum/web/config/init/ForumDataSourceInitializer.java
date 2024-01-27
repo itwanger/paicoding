@@ -32,10 +32,6 @@ import java.util.Objects;
 @Slf4j
 @Configuration
 public class ForumDataSourceInitializer {
-    //    @Value("classpath:liquibase/data/init_schema_221209.sql")
-//    private Resource schemaSql;
-//    @Value("classpath:liquibase/data/init_data_221209.sql")
-//    private Resource initData;
     @Value("${database.name}")
     private String database;
 
