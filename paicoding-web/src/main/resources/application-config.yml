@@ -1,5 +1,7 @@
 view:
   site:
+    needLoginArticleReadCount: 30 # 需要登录才能阅读的文章阅读次数
+    zsxqArticleReadCount: 20 # 知识星球用户才能阅读的文章阅读次数统计间隔，单位：分钟
     websiteName: 技术派
     websiteLogoUrl: https://paicoding.com/img/icon.png
     websiteFaviconIconUrl: https://paicoding.com/img/icon.png

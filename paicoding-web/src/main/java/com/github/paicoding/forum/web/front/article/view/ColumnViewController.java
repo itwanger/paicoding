@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -47,6 +48,9 @@ public class ColumnViewController {
 
     @Autowired
     private SidebarService sidebarService;
+
+    @Resource
+    private GlobalViewConfig globalViewConfig;
 
     /**
      * 专栏主页，展示专栏列表
@@ -189,16 +193,16 @@ public class ColumnViewController {
                 return content;
             }
 
-            // 返回星球相关信息
-            return MarkdownConverter.markdownToHtml(SpringUtil.getBean(GlobalViewConfig.class).getStarInfo());
+            // 如果没有绑定星球，则返回 10% 的内容
+            // 10% 从全局的配置参数中获取
+            int count = Integer.parseInt(globalViewConfig.getZsxqArticleReadCount());
+            return content.substring(0, content.length() * count / 100);
         }
 
         if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
-            if (content.length() > 500) {
-                content = content.substring(0, 500);
-            } else if (content.length() > 256) {
-                content = content.substring(0, 256);
-            }
+            // 如果是登录阅读，但是用户没有登录，则返回 20% 的内容
+            int count = Integer.parseInt(globalViewConfig.getNeedLoginArticleReadCount());
+            return content.substring(0, content.length() * count / 100);
         }
 
         return content;
