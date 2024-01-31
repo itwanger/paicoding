@@ -57,6 +57,12 @@ public class GlobalViewConfig {
      */
     private String oss;
 
+    // 知识星球文章可阅读数
+    private String zsxqArticleReadCount;
+
+    // 需要登录文章可阅读数
+    private String needLoginArticleReadCount;
+
     public String getOss() {
         if (oss == null) {
             this.oss = "";
