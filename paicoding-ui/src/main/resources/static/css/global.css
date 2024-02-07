@@ -942,12 +942,12 @@ button:focus {
   margin-bottom: 5px;
 }
 
-.article-content a {
+.article-content p a {
   color: var(--pai-brand-1-normal);
   text-decoration: underline;
 }
 
-.article-content a:hover {
+.article-content p a:hover {
   color: var(--pai-brand-2-hover);
 }
 
