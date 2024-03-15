@@ -5,6 +5,8 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
@@ -115,6 +117,7 @@ public class LoginServiceImpl implements LoginService {
         userAiService.initOrUpdateAiInfo(new UserPwdLoginReq().setUserId(userId).setUsername(username).setPassword(password));
 
         // 登录成功，返回对应的session
+        ReqInfoContext.getReqInfo().setUser(userService.queryBasicUserInfo(userId));
         ReqInfoContext.getReqInfo().setUserId(userId);
         return userSessionHelper.genSession(userId);
     }

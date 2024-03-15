@@ -105,4 +105,44 @@
         <include refid="articlesByParams"/>
     </select>
 
+
+    <!--  排行棒  -->
+    <!-- 1.根据阅读人数进行倒排  -->
+    <select id="rankByReadCount" resultType="com.github.paicoding.forum.service.article.repository.entity.ArticleDO">
+        select a.*
+        from article a left join read_count rc on a.id = rc.document_id
+        where
+          a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+          and a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+          and a.article_type = ${@com.github.paicoding.forum.api.model.enums.ArticleTypeEnum@BLOG.code}
+        order by rc.cnt DESC
+        <include refid="limit"/>
+    </select>
+
+    <!-- 2.根据评论人数进行倒排  -->
+    <select id="rankByCommentCount" resultType="com.github.paicoding.forum.service.article.repository.entity.ReadCountDO">
+        select
+            article_id as documentId, count(*) as cnt
+        from
+            comment c
+        where
+            deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        group by
+            article_id
+        order by cnt desc
+        <include refid="limit"/>
+    </select>
+
+    <!--  3.根据点赞数进行倒排  -->
+    <select id="rankByPraiseCount" resultType="com.github.paicoding.forum.service.article.repository.entity.ReadCountDO">
+        select document_id as documentId, count(*) as cnt
+        from user_foot uf
+        where
+        praise_stat = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@YES.code}
+        and document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        group by document_id
+        order by cnt desc
+        <include refid="limit"/>
+    </select>
+
 </mapper>

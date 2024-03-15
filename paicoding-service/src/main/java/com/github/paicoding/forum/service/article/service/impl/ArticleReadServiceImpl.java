@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.HomeSelectEnum;
 import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PraiseStatEnum;
+import com.github.paicoding.forum.api.model.enums.article.ArticleRankTypeEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
@@ -333,5 +334,26 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Override
     public Long getArticleCount() {
         return articleDao.countArticle();
+    }
+
+    /**
+     * 查询文章排行棒
+     *
+     * @param type      排行类型
+     * @param pageParam 分页
+     * @return
+     */
+    public PageListVo<ArticleDTO> queryRankList(ArticleRankTypeEnum type, PageParam pageParam) {
+        List<ArticleDO> list = null;
+        switch (type) {
+            case READ_COUNT: list = articleDao.rankByReadCount(pageParam); break;
+            case PRAISE_COUNT:list = articleDao.rankByPraiseCount(pageParam); break;
+            case COMMENT_COUNT: list = articleDao.rankByCommentCount(pageParam); break;
+        }
+        if (CollectionUtils.isEmpty(list)) {
+            return PageListVo.emptyVo();
+        }
+
+        return buildArticleListVo(list, pageParam.getPageSize());
     }
 }

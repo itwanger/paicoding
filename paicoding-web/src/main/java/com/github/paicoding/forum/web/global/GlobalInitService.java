@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web.global;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
@@ -22,9 +23,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.util.Optional;
 
 /**
  * @author YiHui
@@ -100,17 +101,25 @@ public class GlobalInitService {
 
     /**
      * 初始化用户信息
+     * - 两种用户识别方式
+     * - app -> token
+     * - pc -> cookie
      *
      * @param reqInfo
      */
     public void initLoginUser(ReqInfoContext.ReqInfo reqInfo) {
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        if (request.getCookies() == null) {
-            return;
+        String token = request.getParameter("token");
+        if (StringUtils.isBlank(token)) {
+            Cookie ck = SessionUtil.findCookieByName(request, LoginService.SESSION_KEY);
+            if (ck != null) {
+                token = ck.getValue();
+            }
         }
-        Optional.ofNullable(SessionUtil.findCookieByName(request, LoginService.SESSION_KEY))
-                .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
+        if (StringUtils.isNotBlank(token)) {
+            initLoginUser(token, reqInfo);
+        }
     }
 
     public void initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {

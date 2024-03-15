@@ -53,4 +53,14 @@ public class PageParam {
         return String.format("limit %s,%s", pageParam.offset, pageParam.limit);
     }
 
+    public static PageParam buildPageParam(Long page, Long size) {
+        if (page == null || page <= 0) {
+            page = PageParam.DEFAULT_PAGE_NUM;
+        }
+        if (size == null || size > PageParam.DEFAULT_PAGE_SIZE) {
+            size = PageParam.DEFAULT_PAGE_SIZE;
+        }
+        return PageParam.newPageInstance(page, size);
+    }
+
 }

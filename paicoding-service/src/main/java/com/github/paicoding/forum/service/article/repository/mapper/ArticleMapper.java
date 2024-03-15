@@ -70,4 +70,31 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
                                                @Param("pageParam") PageParam pageParam);
 
     Long countArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams);
+
+
+    // ---------------- 文章排行棒 --------
+
+    /**
+     * 阅读排行棒
+     *
+     * @param pageParam 分页信息
+     * @return
+     */
+    List<ArticleDO> rankByReadCount(@Param("pageParam") PageParam pageParam);
+
+    /**
+     * 评价排行棒
+     *
+     * @param pageParam 分页信息
+     * @return
+     */
+    List<ReadCountDO> rankByCommentCount(@Param("pageParam") PageParam pageParam);
+
+    /**
+     * 点赞排行棒
+     *
+     * @param pageParam 分页信息
+     * @return
+     */
+    List<ReadCountDO> rankByPraiseCount(@Param("pageParam") PageParam pageParam);
 }

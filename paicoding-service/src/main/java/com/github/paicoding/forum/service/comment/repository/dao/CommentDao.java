@@ -21,6 +21,21 @@ import java.util.Map;
 public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
 
     /**
+     * 根据时间获取对应的评论
+     *
+     * @param articleId
+     * @param pageParam
+     * @return
+     */
+    public List<CommentDO> listRecentComments(Long articleId, PageParam pageParam) {
+        return lambdaQuery()
+                .eq(CommentDO::getArticleId, articleId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(CommentDO::getCreateTime).list();
+    }
+
+    /**
      * 获取评论列表
      *
      * @param pageParam
