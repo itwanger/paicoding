@@ -30,7 +30,7 @@ public class CommentConverter {
         return commentDO;
     }
 
-    private static <T extends BaseCommentDTO> void parseDto(CommentDO comment, T sub) {
+    public static <T extends BaseCommentDTO> void parseDto(CommentDO comment, T sub) {
         sub.setCommentId(comment.getId());
         sub.setUserId(comment.getUserId());
         sub.setCommentContent(comment.getContent());

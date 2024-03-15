@@ -2,10 +2,12 @@ package com.github.paicoding.forum.service.comment.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.entity.BaseDO;
 import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PraiseStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.comment.dto.BaseCommentDTO;
+import com.github.paicoding.forum.api.model.vo.comment.dto.CurrentCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.SubCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
@@ -13,14 +15,19 @@ import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
-import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.statistics.service.CountService;
+import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +54,45 @@ public class CommentReadServiceImpl implements CommentReadService {
     @Override
     public CommentDO queryComment(Long commentId) {
         return commentDao.getById(commentId);
+    }
+
+    /**
+     * 查询最新的评论列表
+     *
+     * @param articleId 文章
+     * @param page      分页
+     * @return
+     */
+    public List<CurrentCommentDTO> queryLatestComments(Long articleId, PageParam page) {
+        // 1.查询一级评论
+        List<CommentDO> comments = commentDao.listRecentComments(articleId, page);
+        Set<Long> parentCommentIds = comments.stream().map(CommentDO::getParentCommentId).filter(s -> s > 0).collect(Collectors.toSet());
+        Map<Long, CommentDO> parentCommentMap;
+        if (!parentCommentIds.isEmpty()) {
+            List<CommentDO> parent = commentDao.listByIds(parentCommentIds);
+            parentCommentMap = parent.stream().collect(Collectors.toMap(BaseDO::getId, s -> s));
+        } else {
+            parentCommentMap = Collections.emptyMap();
+        }
+
+        return comments.stream().map(cmt -> {
+            CurrentCommentDTO comment = new CurrentCommentDTO();
+            CommentConverter.parseDto(cmt, comment);
+            comment.setTopCommentId(cmt.getTopCommentId());
+            fillCommentInfo(comment);
+
+            // 查询父评论
+            CommentDO parentDO = parentCommentMap.get(cmt.getParentCommentId());
+            if (parentDO != null) {
+                CurrentCommentDTO parent = new CurrentCommentDTO();
+                CommentConverter.parseDto(parentDO, parent);
+                parent.setTopCommentId(parentDO.getTopCommentId());
+                fillCommentInfo(parent);
+                comment.setParentComment(parent);
+            }
+            return comment;
+        }).collect(Collectors.toList());
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.article.service;
 
 import com.github.paicoding.forum.api.model.enums.HomeSelectEnum;
+import com.github.paicoding.forum.api.model.enums.article.ArticleRankTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
@@ -156,4 +157,14 @@ public interface ArticleReadService {
      * @return
      */
     Long getArticleCount();
+
+
+    /**
+     * 查询文章排行棒
+     *
+     * @param type      排行类型
+     * @param pageParam 分页
+     * @return
+     */
+    PageListVo<ArticleDTO> queryRankList(ArticleRankTypeEnum type, PageParam pageParam);
 }
