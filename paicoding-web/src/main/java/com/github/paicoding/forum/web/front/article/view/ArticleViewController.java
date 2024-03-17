@@ -132,7 +132,7 @@ public class ArticleViewController extends BaseViewController {
         vo.setArticle(articleDTO);
 
         // 评论信息
-        List<TopCommentDTO> comments = commentService.getArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
+        List<TopCommentDTO> comments = commentService.queryArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
         vo.setComments(comments);
 
         // 热门评论

@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.CurrentCommentDTO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.comment.service.AppCommentReadService;
 import com.github.paicoding.forum.web.app.article.extend.AppArticleServiceExtend;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import io.swagger.annotations.Api;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author YiHui
@@ -31,6 +33,9 @@ public class AppArticleController {
 
     @Resource
     private AppArticleServiceExtend appArticleServiceExtend;
+
+    @Resource
+    private AppCommentReadService appCommentReadService;
 
     /**
      * 排行棒列表
@@ -63,6 +68,7 @@ public class AppArticleController {
                                                          @RequestParam(name = "page", required = false) Long page,
                                                          @RequestParam(name = "size", required = false) Long size) {
         PageParam pageParam = PageParam.buildPageParam(page, size);
-        return ResVo.ok(appArticleServiceExtend.queryComments(articleId, pageParam));
+        List<CurrentCommentDTO> list = appCommentReadService.queryLatestComments(articleId, pageParam);
+        return ResVo.ok(PageListVo.newVo(list, pageParam.getPageSize()));
     }
 }

@@ -16,17 +16,14 @@ import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
-import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
-import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
+import com.github.paicoding.forum.service.user.repository.entity.*;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -141,6 +138,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "'user_info' + #userId", cacheManager = "caffeineCacheManager", cacheNames = "user")
     public BaseUserInfoDTO queryBasicUserInfo(Long userId) {
         UserInfoDO user = userDao.getByUserId(userId);
         if (user == null) {
@@ -185,13 +183,7 @@ public class UserServiceImpl implements UserService {
         userHomeDTO.setInfoPercent(cnt * 100 / 3);
 
         // 是否关注
-        Long followUserId = ReqInfoContext.getReqInfo().getUserId();
-        if (followUserId != null) {
-            UserRelationDO userRelationDO = userRelationDao.getUserRelationByUserId(userId, followUserId);
-            userHomeDTO.setFollowed((userRelationDO == null) ? Boolean.FALSE : Boolean.TRUE);
-        } else {
-            userHomeDTO.setFollowed(Boolean.FALSE);
-        }
+        userHomeDTO.setFollowed(followed(userId));
 
         // 加入天数
         int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime()
@@ -202,6 +194,18 @@ public class UserServiceImpl implements UserService {
         List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
         userHomeDTO.setYearArticleList(yearArticleDTOS);
         return userHomeDTO;
+    }
+
+    @Override
+    public boolean followed(Long targetUserId) {
+        // 是否关注
+        Long followUserId = ReqInfoContext.getReqInfo().getUserId();
+        if (followUserId == null) {
+            return Boolean.FALSE;
+        }
+
+        UserRelationDO userRelationDO = userRelationDao.getUserRelationByUserId(targetUserId, followUserId);
+        return (userRelationDO == null) ? Boolean.FALSE : Boolean.TRUE;
     }
 
     @Override

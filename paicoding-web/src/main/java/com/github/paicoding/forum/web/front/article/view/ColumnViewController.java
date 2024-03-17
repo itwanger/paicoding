@@ -104,7 +104,7 @@ public class ColumnViewController {
         // 返回html格式的文档内容
         articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         // 评论信息
-        List<TopCommentDTO> comments = commentReadService.getArticleComments(articleId, PageParam.newPageInstance());
+        List<TopCommentDTO> comments = commentReadService.queryArticleComments(articleId, PageParam.newPageInstance());
 
         // 热门评论
         TopCommentDTO hotComment = commentReadService.queryHotComment(articleId);

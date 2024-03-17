@@ -317,6 +317,11 @@ public class TestController {
     @Autowired
     private CountServiceImpl countServiceImpl;
 
+    /**
+     * 刷新用户的统计信息
+     *
+     * @return
+     */
     @GetMapping(path = "autoRefreshUserInfo")
     public String autoRefreshUserInfo() {
         countServiceImpl.autoRefreshAllUserStatisticInfo();

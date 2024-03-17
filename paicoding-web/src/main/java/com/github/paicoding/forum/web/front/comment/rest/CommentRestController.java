@@ -69,7 +69,7 @@ public class CommentRestController {
         }
         pageNum = Optional.ofNullable(pageNum).orElse(PageParam.DEFAULT_PAGE_NUM);
         pageSize = Optional.ofNullable(pageSize).orElse(PageParam.DEFAULT_PAGE_SIZE);
-        List<TopCommentDTO> result = commentReadService.getArticleComments(articleId, PageParam.newPageInstance(pageNum, pageSize));
+        List<TopCommentDTO> result = commentReadService.queryArticleComments(articleId, PageParam.newPageInstance(pageNum, pageSize));
         return ResVo.ok(result);
     }
 
@@ -100,7 +100,7 @@ public class CommentRestController {
         ArticleDetailVo vo = new ArticleDetailVo();
         vo.setArticle(ArticleConverter.toDto(article));
         // 评论信息
-        List<TopCommentDTO> comments = commentReadService.getArticleComments(req.getArticleId(), PageParam.newPageInstance());
+        List<TopCommentDTO> comments = commentReadService.queryArticleComments(req.getArticleId(), PageParam.newPageInstance());
         vo.setComments(comments);
 
         // 热门评论

@@ -93,6 +93,13 @@ public interface UserService {
     UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId);
 
     /**
+     * 判断当前登录用户是否关注目标用户
+     * @param targetUserId 目标用户
+     * @return true 表示已关注 false 未关注
+     */
+    boolean followed(Long targetUserId);
+
+    /**
      * 用户计数
      *
      * @return
