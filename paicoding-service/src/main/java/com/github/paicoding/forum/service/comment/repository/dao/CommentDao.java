@@ -36,6 +36,21 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
     }
 
     /**
+     * 根据时间获取对应的评论
+     *
+     * @param userId    用户id
+     * @param pageParam
+     * @return
+     */
+    public List<CommentDO> listRecentCommentsByUser(Long userId, PageParam pageParam) {
+        return lambdaQuery()
+                .eq(CommentDO::getUserId, userId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(CommentDO::getCreateTime).list();
+    }
+
+    /**
      * 获取评论列表
      *
      * @param pageParam

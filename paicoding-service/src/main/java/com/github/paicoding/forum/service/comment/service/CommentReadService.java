@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.comment.service;
 
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.comment.dto.CurrentCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 
@@ -24,22 +23,13 @@ public interface CommentReadService {
     CommentDO queryComment(Long commentId);
 
     /**
-     * 查询最新的评论列表
-     *
-     * @param articleId 文章
-     * @param page      分页
-     * @return
-     */
-    List<CurrentCommentDTO> queryLatestComments(Long articleId, PageParam page);
-
-    /**
      * 查询文章评论列表
      *
      * @param articleId
      * @param page
      * @return
      */
-    List<TopCommentDTO> getArticleComments(Long articleId, PageParam page);
+    List<TopCommentDTO> queryArticleComments(Long articleId, PageParam page);
 
     /**
      * 查询热门评论

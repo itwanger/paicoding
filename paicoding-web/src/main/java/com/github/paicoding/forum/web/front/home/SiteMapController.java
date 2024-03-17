@@ -43,6 +43,11 @@ public class SiteMapController {
         return ans.getBytes(Charset.defaultCharset());
     }
 
+    /**
+     * 刷新站点地图，刷新每篇文章的统计计数
+     *
+     * @return
+     */
     @GetMapping(path = "/sitemap/refresh")
     public Boolean refresh() {
         sitemapService.refreshSitemap();

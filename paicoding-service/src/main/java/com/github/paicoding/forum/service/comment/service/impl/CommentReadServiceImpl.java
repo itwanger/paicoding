@@ -1,33 +1,17 @@
 package com.github.paicoding.forum.service.comment.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.entity.BaseDO;
-import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
-import com.github.paicoding.forum.api.model.enums.PraiseStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.comment.dto.BaseCommentDTO;
-import com.github.paicoding.forum.api.model.vo.comment.dto.CurrentCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.SubCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
-import com.github.paicoding.forum.service.statistics.service.CountService;
-import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
-import com.github.paicoding.forum.service.user.service.UserFootService;
-import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,66 +21,17 @@ import java.util.stream.Collectors;
  * @date 2022-07-24
  */
 @Service
-public class CommentReadServiceImpl implements CommentReadService {
-
+public class CommentReadServiceImpl extends BaseCommentService implements CommentReadService {
     @Autowired
-    private CommentDao commentDao;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CountService countService;
-
-    @Autowired
-    private UserFootService userFootService;
+    protected CommentDao commentDao;
 
     @Override
     public CommentDO queryComment(Long commentId) {
         return commentDao.getById(commentId);
     }
 
-    /**
-     * 查询最新的评论列表
-     *
-     * @param articleId 文章
-     * @param page      分页
-     * @return
-     */
-    public List<CurrentCommentDTO> queryLatestComments(Long articleId, PageParam page) {
-        // 1.查询一级评论
-        List<CommentDO> comments = commentDao.listRecentComments(articleId, page);
-        Set<Long> parentCommentIds = comments.stream().map(CommentDO::getParentCommentId).filter(s -> s > 0).collect(Collectors.toSet());
-        Map<Long, CommentDO> parentCommentMap;
-        if (!parentCommentIds.isEmpty()) {
-            List<CommentDO> parent = commentDao.listByIds(parentCommentIds);
-            parentCommentMap = parent.stream().collect(Collectors.toMap(BaseDO::getId, s -> s));
-        } else {
-            parentCommentMap = Collections.emptyMap();
-        }
-
-        return comments.stream().map(cmt -> {
-            CurrentCommentDTO comment = new CurrentCommentDTO();
-            CommentConverter.parseDto(cmt, comment);
-            comment.setTopCommentId(cmt.getTopCommentId());
-            fillCommentInfo(comment);
-
-            // 查询父评论
-            CommentDO parentDO = parentCommentMap.get(cmt.getParentCommentId());
-            if (parentDO != null) {
-                CurrentCommentDTO parent = new CurrentCommentDTO();
-                CommentConverter.parseDto(parentDO, parent);
-                parent.setTopCommentId(parentDO.getTopCommentId());
-                fillCommentInfo(parent);
-                comment.setParentComment(parent);
-            }
-            return comment;
-        }).collect(Collectors.toList());
-
-    }
-
     @Override
-    public List<TopCommentDTO> getArticleComments(Long articleId, PageParam page) {
+    public List<TopCommentDTO> queryArticleComments(Long articleId, PageParam page) {
         // 1.查询一级评论
         List<CommentDO> comments = commentDao.listTopCommentList(articleId, page);
         if (CollectionUtils.isEmpty(comments)) {
@@ -156,42 +91,6 @@ public class CommentReadServiceImpl implements CommentReadService {
         Collections.sort(comment.getChildComments());
     }
 
-    /**
-     * 填充评论对应的信息，如用户信息，点赞数等
-     *
-     * @param comment
-     */
-    private void fillCommentInfo(BaseCommentDTO comment) {
-        BaseUserInfoDTO userInfoDO = userService.queryBasicUserInfo(comment.getUserId());
-        if (userInfoDO == null) {
-            // 如果用户注销，给一个默认的用户
-            comment.setUserName("默认用户");
-            comment.setUserPhoto("");
-            if (comment instanceof TopCommentDTO) {
-                ((TopCommentDTO) comment).setCommentCount(0);
-            }
-        } else {
-            comment.setUserName(userInfoDO.getUserName());
-            comment.setUserPhoto(userInfoDO.getPhoto());
-            if (comment instanceof TopCommentDTO) {
-                ((TopCommentDTO) comment).setCommentCount(((TopCommentDTO) comment).getChildComments().size());
-            }
-        }
-
-        // 查询点赞数
-        Long praiseCount = countService.queryCommentPraiseCount(comment.getCommentId());
-        comment.setPraiseCount(praiseCount.intValue());
-
-        // 查询当前登录用于是否点赞过
-        Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
-        if (loginUserId != null) {
-            // 判断当前用户是否点过赞
-            UserFootDO foot = userFootService.queryUserFoot(comment.getCommentId(), DocumentTypeEnum.COMMENT.getCode(), loginUserId);
-            comment.setPraised(foot != null && Objects.equals(foot.getPraiseStat(), PraiseStatEnum.PRAISE.getCode()));
-        } else {
-            comment.setPraised(false);
-        }
-    }
 
     /**
      * 查询回帖最多的评论
