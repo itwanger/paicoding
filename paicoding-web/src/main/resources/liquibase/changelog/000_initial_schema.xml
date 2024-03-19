@@ -97,4 +97,9 @@
     <changeSet id="00000000000022" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_231113.sql"/>
     </changeSet>
+
+    <!-- 新增feed流  -->
+    <changeSet id="00000000000023" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_240318.sql"/>
+    </changeSet>
 </databaseChangeLog>

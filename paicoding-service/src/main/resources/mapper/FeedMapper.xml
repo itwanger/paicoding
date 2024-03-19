@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.feed.repository.mapper.FeedMapper">
+
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+    <select id="queryByFollow" resultType="com.github.paicoding.forum.service.feed.repository.entity.FeedDO">
+        select f.* from user_relation ur left join feed f on ur.user_id = f.user_id
+        where f.deleted = 0
+        and f.status = 1
+        and f.view in (0, 1, 2)
+        order by f.create_time desc
+        <include refid="limit"/>
+    </select>
+
+</mapper>

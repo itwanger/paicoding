@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -86,6 +87,17 @@ public interface UserFootService {
      * @return
      */
     UserFootDO queryUserFoot(Long documentId, Integer type, Long userId);
+
+
+    /**
+     * 批量查询用户记录，用于判断是否点过赞、是否评论、是否收藏过
+     *
+     * @param documentIds
+     * @param type
+     * @param userId
+     * @return
+     */
+    List<UserFootDO> batchQueryUserFoot(Collection<Long> documentIds, Integer type, Long userId);
 
     UserFootStatisticDTO getFootCount();
 }

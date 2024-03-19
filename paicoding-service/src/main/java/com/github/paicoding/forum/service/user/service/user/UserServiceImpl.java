@@ -74,18 +74,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<SimpleUserInfoDTO> searchUser(String userName) {
-        List<UserInfoDO> users = userDao.getByUserNameLike(userName);
-        if (CollectionUtils.isEmpty(users)) {
-            return Collections.emptyList();
-        }
-        return users.stream().map(s -> new SimpleUserInfoDTO()
-                        .setUserId(s.getUserId())
-                        .setName(s.getUserName())
-                        .setAvatar(s.getPhoto())
-                        .setProfile(s.getProfile())
-                )
-                .collect(Collectors.toList());
+    public List<SimpleUserInfoDTO> searchUser(String nickName) {
+        List<UserInfoDO> users = userDao.getByUserNameLike(nickName);
+        return UserConverter.toSimpleInfo(users);
+    }
+
+
+    public List<SimpleUserInfoDTO> batchQuerySimpleUserInfoByNickNames(Collection<String> nickNames) {
+        List<UserInfoDO> users = userDao.listByNickNames(nickNames);
+        return UserConverter.toSimpleInfo(users);
     }
 
     @Override

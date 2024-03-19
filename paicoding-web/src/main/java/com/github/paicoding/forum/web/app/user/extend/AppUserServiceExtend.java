@@ -35,7 +35,7 @@ public class AppUserServiceExtend {
         // 更新当前登录用户与这些用户列表的关系
         Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
         if (!Objects.isNull(loginUserId) && !CollectionUtils.isEmpty(fansList.getList())) {
-            userRelationService.updateUserFollowRelationId(fansList, loginUserId);
+            userRelationService.updateUserFollowRelationId(fansList.getList(), loginUserId);
         }
         return fansList;
     }

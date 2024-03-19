@@ -5,15 +5,15 @@ import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
-import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
-import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.user.repository.dao.UserFootDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -29,12 +29,6 @@ import java.util.function.Supplier;
 @Service
 public class UserFootServiceImpl implements UserFootService {
     private final UserFootDao userFootDao;
-
-    @Autowired
-    private ArticleReadService articleReadService;
-
-    @Autowired
-    private CommentReadService commentReadService;
 
     public UserFootServiceImpl(UserFootDao userFootDao) {
         this.userFootDao = userFootDao;
@@ -145,9 +139,19 @@ public class UserFootServiceImpl implements UserFootService {
 
     @Override
     public UserFootDO queryUserFoot(Long documentId, Integer type, Long userId) {
+        if (userId == null) {
+            return null;
+        }
         return userFootDao.getByDocumentAndUserId(documentId, type, userId);
     }
 
+    @Override
+    public List<UserFootDO> batchQueryUserFoot(Collection<Long> documentIds, Integer type, Long userId) {
+        if (CollectionUtils.isEmpty(documentIds) || userId == null) {
+            return Collections.emptyList();
+        }
+        return userFootDao.listByDocumentAndUserId(documentIds, type, userId);
+    }
     @Override
     public UserFootStatisticDTO getFootCount() {
         return userFootDao.getFootCount();

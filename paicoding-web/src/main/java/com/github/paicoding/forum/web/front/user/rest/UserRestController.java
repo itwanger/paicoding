@@ -122,7 +122,7 @@ public class UserRestController {
 
         Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
         if (!Objects.equals(loginUserId, userId) || needUpdateRelation) {
-            userRelationService.updateUserFollowRelationId(followList, userId);
+            userRelationService.updateUserFollowRelationId(followList.getList(), userId);
         }
         String html = templateEngineHelper.renderToVo("views/user/follows/index", "followList", followList);
         return ResVo.ok(new NextPageHtmlVo(html, followList.getHasMore()));

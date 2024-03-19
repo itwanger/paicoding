@@ -53,9 +53,9 @@ public class UserRelationServiceImpl implements UserRelationService {
     }
 
     @Override
-    public void updateUserFollowRelationId(PageListVo<FollowUserInfoDTO> followList, Long loginUserId) {
+    public <T extends FollowUserInfoDTO> void updateUserFollowRelationId(List<T> followList, Long loginUserId) {
         if (loginUserId == null) {
-            followList.getList().forEach(r -> {
+            followList.forEach(r -> {
                 r.setRelationId(null);
                 r.setFollowed(false);
             });
@@ -63,14 +63,14 @@ public class UserRelationServiceImpl implements UserRelationService {
         }
 
         // 判断登录用户与给定的用户列表的关注关系
-        Set<Long> userIds = followList.getList().stream().map(FollowUserInfoDTO::getUserId).collect(Collectors.toSet());
+        Set<Long> userIds = followList.stream().map(FollowUserInfoDTO::getUserId).collect(Collectors.toSet());
         if (CollectionUtils.isEmpty(userIds)) {
             return;
         }
 
         List<UserRelationDO> relationList = userRelationDao.listUserRelations(loginUserId, userIds);
         Map<Long, UserRelationDO> relationMap = MapUtils.toMap(relationList, UserRelationDO::getUserId, r -> r);
-        followList.getList().forEach(follow -> {
+        followList.forEach(follow -> {
             UserRelationDO relation = relationMap.get(follow.getUserId());
             if (relation == null) {
                 follow.setRelationId(null);

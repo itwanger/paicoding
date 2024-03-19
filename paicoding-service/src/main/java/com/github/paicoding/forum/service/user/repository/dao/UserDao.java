@@ -45,15 +45,29 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
     /**
      * 根据用户名来查询
      *
-     * @param userName
+     * @param nickName
      * @return
      */
-    public List<UserInfoDO> getByUserNameLike(String userName) {
+    public List<UserInfoDO> getByUserNameLike(String nickName) {
         LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
         query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
-                .and(!StringUtils.isEmpty(userName),
-                        v -> v.like(UserInfoDO::getUserName, userName)
+                .and(!StringUtils.isEmpty(nickName),
+                        v -> v.like(UserInfoDO::getUserName, nickName)
                 )
+                .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return baseMapper.selectList(query);
+    }
+
+    /**
+     * 根据昵称找用户
+     *
+     * @param nickNames 用户昵称
+     * @return
+     */
+    public List<UserInfoDO> listByNickNames(Collection<String> nickNames) {
+        LambdaQueryWrapper<UserInfoDO> query = Wrappers.lambdaQuery();
+        query.select(UserInfoDO::getUserId, UserInfoDO::getUserName, UserInfoDO::getPhoto, UserInfoDO::getProfile)
+                .in(UserInfoDO::getUserName, nickNames)
                 .eq(UserInfoDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectList(query);
     }

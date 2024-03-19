@@ -13,6 +13,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserFootMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,14 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
                 .eq(UserFootDO::getDocumentType, type)
                 .eq(UserFootDO::getUserId, userId);
         return baseMapper.selectOne(query);
+    }
+
+    public List<UserFootDO> listByDocumentAndUserId(Collection<Long> documentIds, Integer type, Long userId) {
+        LambdaQueryWrapper<UserFootDO> query = Wrappers.lambdaQuery();
+        query.in(UserFootDO::getDocumentId, documentIds)
+                .eq(UserFootDO::getDocumentType, type)
+                .eq(UserFootDO::getUserId, userId);
+        return baseMapper.selectList(query);
     }
 
     public List<SimpleUserInfoDTO> listDocumentPraisedUsers(Long documentId, Integer type, int size) {
