@@ -199,7 +199,7 @@ public class UserViewController extends BaseViewController {
 
         Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
         if (!Objects.equals(loginUserId, userId) || needUpdateRelation) {
-            userRelationService.updateUserFollowRelationId(followList, loginUserId);
+            userRelationService.updateUserFollowRelationId(followList.getList(), loginUserId);
         }
         vo.setFollowList(followList);
     }

@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.converter;
 
+import com.beust.jcommander.internal.Lists;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.FollowStateEnum;
 import com.github.paicoding.forum.api.model.enums.RoleEnum;
@@ -15,6 +16,10 @@ import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户转换
@@ -76,6 +81,14 @@ public class UserConverter {
                 .setName(info.getUserName())
                 .setAvatar(info.getPhoto())
                 .setProfile(info.getProfile());
+    }
+
+    public static List<SimpleUserInfoDTO> toSimpleInfo(List<UserInfoDO> info) {
+        if (CollectionUtils.isEmpty(info)) {
+            return Lists.newArrayList(0);
+        }
+
+        return info.stream().map(UserConverter::toSimpleInfo).collect(Collectors.toList());
     }
 
     public static UserRelationDO toDO(UserRelationReq req) {

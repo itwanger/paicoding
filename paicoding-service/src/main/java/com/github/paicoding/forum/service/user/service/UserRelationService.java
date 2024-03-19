@@ -41,7 +41,7 @@ public interface UserRelationService {
      * @param followList
      * @param loginUserId
      */
-    void updateUserFollowRelationId(PageListVo<FollowUserInfoDTO> followList, Long loginUserId);
+    <T extends FollowUserInfoDTO> void updateUserFollowRelationId(List<T> followList, Long loginUserId);
 
     /**
      * 根据登录用户从给定用户列表中，找出已关注的用户id

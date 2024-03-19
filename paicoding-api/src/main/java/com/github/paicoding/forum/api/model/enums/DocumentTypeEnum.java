@@ -13,7 +13,9 @@ public enum DocumentTypeEnum {
 
     EMPTY(0, ""),
     ARTICLE(1, "文章"),
-    COMMENT(2, "评论");
+    COMMENT(2, "评论"),
+    FEED(3, "动态"),
+    ;
 
     DocumentTypeEnum(Integer code, String desc) {
         this.code = code;

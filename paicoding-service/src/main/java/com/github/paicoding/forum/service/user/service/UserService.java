@@ -28,10 +28,18 @@ public interface UserService {
     /**
      * 根据用户名模糊搜索用户
      *
-     * @param userName 用户名
+     * @param nickName 用户名
      * @return
      */
-    List<SimpleUserInfoDTO> searchUser(String userName);
+    List<SimpleUserInfoDTO> searchUser(String nickName);
+
+    /**
+     * 根据用户昵称进行搜索用户列表
+     *
+     * @param nickNames 用户昵称
+     * @return
+     */
+    List<SimpleUserInfoDTO> batchQuerySimpleUserInfoByNickNames(Collection<String> nickNames);
 
     /**
      * 保存用户详情
@@ -94,6 +102,7 @@ public interface UserService {
 
     /**
      * 判断当前登录用户是否关注目标用户
+     *
      * @param targetUserId 目标用户
      * @return true 表示已关注 false 未关注
      */
