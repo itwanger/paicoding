@@ -4,7 +4,11 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
-import com.github.paicoding.forum.api.model.vo.*;
+import com.github.paicoding.forum.api.model.vo.NextPageHtmlVo;
+import com.github.paicoding.forum.api.model.vo.PageListVo;
+import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.ContentPostReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
@@ -12,26 +16,42 @@ import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.common.CommonConstants;
 import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
-import com.github.paicoding.forum.service.article.service.*;
+import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.article.service.ArticleRecommendService;
+import com.github.paicoding.forum.service.article.service.ArticleWriteService;
+import com.github.paicoding.forum.service.article.service.CategoryService;
+import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.notify.service.RabbitmqService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
+import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
+import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.rabbitmq.client.BuiltinExchangeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
@@ -66,6 +86,33 @@ public class ArticleRestController {
 
     @Autowired
     private RabbitmqService rabbitmqService;
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * 文章详情页
+     * - 参数解析知识点
+     * - fixme * [1.Get请求参数解析姿势汇总 | 一灰灰Learning](https://hhui.top/spring-web/01.request/01.190824-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8Bget%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%A7%BF%E5%8A%BF%E6%B1%87%E6%80%BB/)
+     *
+     * @param articleId
+     * @return
+     */
+    @GetMapping("/data/detail/{articleId}")
+    public ResVo<ArticleDetailVo> detail(@PathVariable(name = "articleId") Long articleId) throws IOException {
+        ArticleDetailVo vo = new ArticleDetailVo();
+        // 文章相关信息
+        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+        // 返回给前端页面时，转换为html格式
+        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
+        vo.setArticle(articleDTO);
+
+        // 作者信息
+        BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
+        articleDTO.setAuthorName(user.getUserName());
+        articleDTO.setAuthorAvatar(user.getPhoto());
+        return ResVo.ok(vo);
+    }
 
     /**
      * 文章的关联推荐
@@ -116,8 +163,15 @@ public class ArticleRestController {
      * @return
      */
     @GetMapping(path = "category/list")
-    public ResVo<List<CategoryDTO>> getCategoryList(@RequestParam(name = "categoryId", required = false) Long categoryId) {
+    public ResVo<List<CategoryDTO>> getCategoryList(@RequestParam(name = "categoryId", required = false) Long categoryId,
+                                                    @RequestParam(name = "ignoreNoArticles", required = false) Boolean ignoreNoArticles) {
         List<CategoryDTO> list = categoryService.loadAllCategories();
+        if (Objects.equals(Boolean.TRUE, ignoreNoArticles)) {
+            // 查询所有分类的对应的文章数
+            Map<Long, Long> articleCnt = articleService.queryArticleCountsByCategory();
+            // 过滤掉文章数为0的分类
+            list.removeIf(c -> articleCnt.getOrDefault(c.getCategoryId(), 0L) <= 0L);
+        }
         list.forEach(c -> c.setSelected(c.getCategoryId().equals(categoryId)));
         return ResVo.ok(list);
     }
