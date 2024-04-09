@@ -36,6 +36,8 @@ public class ABCPrinter {
             }
         });
 
+        t1.stop();
+
         t1.start();
         t2.start();
         t3.start();
