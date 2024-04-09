@@ -51,11 +51,24 @@ public class AsyncUtil {
     private static SimpleTimeLimiter simpleTimeLimiter;
 
     static {
-        initExecutorService(0, 50);
+        initExecutorService(Runtime.getRuntime().availableProcessors() * 2, 50);
     }
 
     public static void initExecutorService(int core, int max) {
-        executorService = new ExecutorBuilder().setCorePoolSize(core).setMaxPoolSize(max).setKeepAliveTime(0).setKeepAliveTime(0, TimeUnit.SECONDS).setWorkQueue(new SynchronousQueue<Runnable>()).setHandler(new ThreadPoolExecutor.CallerRunsPolicy()).setThreadFactory(THREAD_FACTORY).buildFinalizable();
+        // 异步工具类的默认线程池构建, 参数选择原则:
+        //  1. 技术派不存在cpu密集型任务，大部分操作都设计到 redis/mysql 等io操作
+        //  2. 统一的异步封装工具，这里的线程池是一个公共的执行仓库，不希望被其他的线程执行影响，因此队列长度为0, 核心线程数满就创建线程执行，超过最大线程，就直接当前线程执行
+        //  3. 同样因为属于通用工具类，再加上技术派的异步使用的情况实际上并不是非常饱和的，因此空闲线程直接回收掉即可；大部分场景下，cpu * 2的线程数即可满足要求了
+        max = Math.max(core, max);
+        executorService = new ExecutorBuilder()
+                .setCorePoolSize(core)
+                .setMaxPoolSize(max)
+                .setKeepAliveTime(0)
+                .setKeepAliveTime(0, TimeUnit.SECONDS)
+                .setWorkQueue(new SynchronousQueue<Runnable>())
+                .setHandler(new ThreadPoolExecutor.CallerRunsPolicy())
+                .setThreadFactory(THREAD_FACTORY)
+                .buildFinalizable();
         simpleTimeLimiter = SimpleTimeLimiter.create(executorService);
     }
 

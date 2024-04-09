@@ -80,6 +80,16 @@ public class RedisClient {
     }
 
     /**
+     * 返回key的有效期
+     *
+     * @param key
+     * @return
+     */
+    public static Long ttl(String key) {
+        return template.execute((RedisCallback<Long>) con -> con.ttl(keyBytes(key)));
+    }
+
+    /**
      * 查询缓存
      *
      * @param key
