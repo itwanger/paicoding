@@ -33,10 +33,15 @@ public class ResVo<T> implements Serializable {
     }
 
     public static <T> ResVo<T> ok(T t) {
-        return new ResVo<T>(t);
+        return new ResVo<>(t);
     }
 
-    @SuppressWarnings("unchecked")
+    private static final String OK_DEFAULT_MESSAGE = "ok";
+
+    public static ResVo<String> ok() {
+        return ok(OK_DEFAULT_MESSAGE);
+    }
+
     public static <T> ResVo<T> fail(StatusEnum status, Object... args) {
         return new ResVo<>(Status.newStatus(status, args));
     }
