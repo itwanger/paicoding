@@ -5,7 +5,7 @@ import org.springframework.util.StopWatch;
 import java.util.concurrent.Callable;
 
 /**
- * 统计耗时工具类
+ * 统计耗时工具类, 这个只支持同步的耗时打印，不支持异步的场景
  *
  * @author YiHui
  * @date 2023/11/10
@@ -28,7 +28,7 @@ public class StopWatchUtil {
     }
 
     /**
-     * 计时
+     * 同步耗时计时
      *
      * @param task 任务名
      * @param call 执行业务逻辑
@@ -47,7 +47,7 @@ public class StopWatchUtil {
     }
 
     /**
-     * 计时
+     * 同步耗时计时
      *
      * @param task 任务名
      * @param run  执行业务逻辑
