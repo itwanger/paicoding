@@ -56,11 +56,11 @@ public class IndexRecommendHelper {
         vo.setCurrentCategory(category.getCategory());
         // 并行调度实例，提高响应性能
         AsyncUtil.concurrentExecutor("首页响应")
-                .runAsyncWithTimeRecord(() -> vo.setArticles(articleList(category.getCategoryId())), "文章列表")
-                .runAsyncWithTimeRecord(() -> vo.setTopArticles(topArticleList(category)), "置顶文章")
-                .runAsyncWithTimeRecord(() -> vo.setHomeCarouselList(homeCarouselList()), "轮播图")
-                .runAsyncWithTimeRecord(() -> vo.setSideBarItems(sidebarService.queryHomeSidebarList()), "侧边栏")
-                .runAsyncWithTimeRecord(() -> vo.setUser(loginInfo()), "用户信息")
+                .async(() -> vo.setArticles(articleList(category.getCategoryId())), "文章列表")
+                .async(() -> vo.setTopArticles(topArticleList(category)), "置顶文章")
+                .async(() -> vo.setHomeCarouselList(homeCarouselList()), "轮播图")
+                .async(() -> vo.setSideBarItems(sidebarService.queryHomeSidebarList()), "侧边栏")
+                .async(() -> vo.setUser(loginInfo()), "用户信息")
                 .allExecuted()
                 .prettyPrint();
         return vo;
