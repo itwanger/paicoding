@@ -17,6 +17,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.ArticleUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
@@ -29,6 +30,7 @@ import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
@@ -60,6 +62,7 @@ import java.util.stream.Collectors;
  * @author louzai
  * @date 2022-07-20
  */
+@Slf4j
 @Service
 public class ArticleReadServiceImpl implements ArticleReadService {
 
@@ -85,11 +88,8 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     private UserService userService;
 
     // 是否开启ES
-    @Value("${elasticsearch.open}")
+    @Value("${elasticsearch.open:false}")
     private Boolean openES;
-
-    @Autowired
-    private RestHighLevelClient restHighLevelClient;
 
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
@@ -225,9 +225,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
                 searchSourceBuilder);
         SearchResponse searchResponse = null;
         try {
-            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            searchResponse = SpringUtil.getBean(RestHighLevelClient.class).search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("failed to query from es: key", e);
         }
         SearchHits hits = searchResponse.getHits();
         SearchHit[] hitsList = hits.getHits();

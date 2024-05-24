@@ -39,6 +39,12 @@
             <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>2.14.5</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
