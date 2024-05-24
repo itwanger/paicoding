@@ -2,17 +2,21 @@ package com.github.paicoding.forum.core.async;
 
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.ArrayUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.github.paicoding.forum.core.util.EnvUtil;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
+import java.io.Closeable;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +37,7 @@ import java.util.function.Supplier;
  */
 @Slf4j
 public class AsyncUtil {
+    private static final TransmittableThreadLocal<CompletableFutureBridge> THREAD_LOCAL = new TransmittableThreadLocal<>();
     private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
         private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
         private final AtomicInteger threadNumber = new AtomicInteger(1);
@@ -69,6 +74,8 @@ public class AsyncUtil {
                 .setHandler(new ThreadPoolExecutor.CallerRunsPolicy())
                 .setThreadFactory(THREAD_FACTORY)
                 .buildFinalizable();
+        // 包装一下线程池，避免出现上下文复用场景
+        executorService = TtlExecutors.getTtlExecutorService(executorService);
         simpleTimeLimiter = SimpleTimeLimiter.create(executorService);
     }
 
@@ -123,75 +130,72 @@ public class AsyncUtil {
     }
 
 
-    public static class CompletableFutureBridge {
+    public static class CompletableFutureBridge implements Closeable {
         private List<CompletableFuture> list;
         private Map<String, Long> cost;
         private String taskName;
+        private boolean markOver;
+        private ExecutorService executorService;
 
         public CompletableFutureBridge() {
-            this("CompletableFutureExecute");
+            this(AsyncUtil.executorService, "CompletableFutureExecute");
         }
 
-        public CompletableFutureBridge(String task) {
+        public CompletableFutureBridge(ExecutorService executorService, String task) {
             this.taskName = task;
-            list = new ArrayList<>();
-            cost = new ConcurrentHashMap<>();
+            list = new CopyOnWriteArrayList<>();
+            // 支持排序的耗时记录
+            cost = new ConcurrentSkipListMap<>();
             cost.put(task, System.currentTimeMillis());
+            this.executorService = TtlExecutors.getTtlExecutorService(executorService);
+            this.markOver = true;
         }
 
         /**
          * 异步执行，带返回结果
          *
-         * @param supplier
+         * @param supplier 执行任务
+         * @param name     耗时标识
          * @return
          */
-        public CompletableFutureBridge supplyAsync(Supplier supplier) {
-            return supplyAsync(supplier, executorService);
-        }
-
-        public CompletableFutureBridge supplyAsync(Supplier supplier, ExecutorService executor) {
-            return supplyAsyncWithTimeRecord(supplier, supplier.toString(), executor);
-        }
-
-        public CompletableFutureBridge supplyAsyncWithTimeRecord(Supplier supplier, String name) {
-            return supplyAsyncWithTimeRecord(supplier, name, executorService);
-        }
-
-        public CompletableFutureBridge supplyAsyncWithTimeRecord(Supplier supplier, String name, ExecutorService executor) {
-            list.add(CompletableFuture.supplyAsync(supplyWithTime(supplier, name), executor));
+        public <T> CompletableFutureBridge async(Supplier<T> supplier, String name) {
+            list.add(CompletableFuture.supplyAsync(supplyWithTime(supplier, name), this.executorService));
             return this;
         }
 
+        /**
+         * 同步执行，待返回结果
+         *
+         * @param supplier 执行任务
+         * @param name     耗时标识
+         * @param <T>      返回类型
+         * @return 任务的执行返回结果
+         */
+        public <T> T sync(Supplier<T> supplier, String name) {
+            return supplyWithTime(supplier, name).get();
+        }
 
         /**
-         * 异步并发执行，无返回结果
+         * 异步执行，无返回结果
          *
-         * @param run
+         * @param run  执行任务
+         * @param name 耗时标识
          * @return
          */
-        public CompletableFutureBridge runAsync(Runnable run) {
-            list.add(CompletableFuture.runAsync(runWithTime(run, run.toString()), executorService));
+        public CompletableFutureBridge async(Runnable run, String name) {
+            list.add(CompletableFuture.runAsync(runWithTime(run, name), this.executorService));
             return this;
         }
 
-        public CompletableFutureBridge runAsync(Runnable run, ExecutorService executor) {
-            return runAsyncWithTimeRecord(run, run.toString(), executor);
-        }
-
-
         /**
-         * 异步并发执行，并记录耗时
+         * 同步执行，无返回结果
          *
-         * @param run
-         * @param name
+         * @param run  执行任务
+         * @param name 耗时标识
          * @return
          */
-        public CompletableFutureBridge runAsyncWithTimeRecord(Runnable run, String name) {
-            return runAsyncWithTimeRecord(run, name, executorService);
-        }
-
-        public CompletableFutureBridge runAsyncWithTimeRecord(Runnable run, String name, ExecutorService executor) {
-            list.add(CompletableFuture.runAsync(runWithTime(run, name), executor));
+        public CompletableFutureBridge sync(Runnable run, String name) {
+            runWithTime(run, name).run();
             return this;
         }
 
@@ -206,7 +210,7 @@ public class AsyncUtil {
             };
         }
 
-        private Supplier supplyWithTime(Supplier call, String name) {
+        private <T> Supplier<T> supplyWithTime(Supplier<T> call, String name) {
             return () -> {
                 startRecord(name);
                 try {
@@ -218,7 +222,10 @@ public class AsyncUtil {
         }
 
         public CompletableFutureBridge allExecuted() {
-            CompletableFuture.allOf(ArrayUtil.toArray(list, CompletableFuture.class)).join();
+            if (!CollectionUtils.isEmpty(list)) {
+                CompletableFuture.allOf(ArrayUtil.toArray(list, CompletableFuture.class)).join();
+            }
+            this.markOver = true;
             endRecord(this.taskName);
             return this;
         }
@@ -229,10 +236,24 @@ public class AsyncUtil {
 
         private void endRecord(String name) {
             long now = System.currentTimeMillis();
-            cost.put(name, now - cost.getOrDefault(name, now));
+            long last = cost.getOrDefault(name, now);
+            if (last >= now / 1000) {
+                // 之前存储的是时间戳，因此我们需要更新成执行耗时 ms单位
+                cost.put(name, now - last);
+            }
         }
 
         public void prettyPrint() {
+            if (EnvUtil.isPro()) {
+                // 生产环境默认不打印执行耗时日志
+                return;
+            }
+
+            if (!this.markOver) {
+                // 在格式化输出时，要求所有任务执行完毕
+                this.allExecuted();
+            }
+
             StringBuilder sb = new StringBuilder();
             sb.append('\n');
             long totalCost = cost.remove(taskName);
@@ -254,16 +275,59 @@ public class AsyncUtil {
                     sb.append(entry.getKey()).append("\n");
                 }
             }
-            if (!EnvUtil.isPro()) {
-                log.info("\n---------------------\n{}\n--------------------\n", sb);
+
+            log.info("\n---------------------\n{}\n--------------------\n", sb);
+        }
+
+        @Override
+        public void close() {
+            try {
+                if (!this.markOver) {
+                    // 做一个兜底，避免业务侧没有手动结束，导致异步任务没有执行完就提前返回结果
+                    this.allExecuted();
+                }
+
+                AsyncUtil.release();
+                prettyPrint();
+            } catch (Exception e) {
+                log.error("释放耗时上下文异常! {}", taskName, e);
             }
         }
     }
 
     public static CompletableFutureBridge concurrentExecutor(String... name) {
         if (name.length > 0) {
-            return new CompletableFutureBridge(name[0]);
+            return new CompletableFutureBridge(AsyncUtil.executorService, name[0]);
         }
         return new CompletableFutureBridge();
+    }
+
+    /**
+     * 开始桥接类
+     *
+     * @param executorService 线程池
+     * @param name            标记名
+     * @return 桥接类
+     */
+    public static CompletableFutureBridge startBridge(ExecutorService executorService, String name) {
+        CompletableFutureBridge bridge = new CompletableFutureBridge(executorService, name);
+        THREAD_LOCAL.set(bridge);
+        return bridge;
+    }
+
+    /**
+     * 获取计时桥接类
+     *
+     * @return 桥接类
+     */
+    public static CompletableFutureBridge getBridge() {
+        return THREAD_LOCAL.get();
+    }
+
+    /**
+     * 释放统计
+     */
+    public static void release() {
+        THREAD_LOCAL.remove();
     }
 }

@@ -136,14 +136,14 @@ public class ImageServiceImpl implements ImageService {
         }
 
         // 超过1张图片时，做并发的图片转存，提升性能
-        AsyncUtil.CompletableFutureBridge bridge = AsyncUtil.concurrentExecutor("MdImgReplace");
         Map<MdImgLoader.MdImg, String> imgReplaceMap = Maps.newHashMapWithExpectedSize(imgList.size());
-        for (MdImgLoader.MdImg img : imgList) {
-            bridge.runAsyncWithTimeRecord(() -> {
-                imgReplaceMap.put(img, saveImg(img.getUrl()));
-            }, img.getUrl());
+        try(AsyncUtil.CompletableFutureBridge bridge = AsyncUtil.concurrentExecutor("MdImgReplace")) {
+            for (MdImgLoader.MdImg img : imgList) {
+                bridge.async(() -> {
+                    imgReplaceMap.put(img, saveImg(img.getUrl()));
+                }, img.getUrl());
+            }
         }
-        bridge.allExecuted().prettyPrint();
 
         // 图片替换
         for (Map.Entry<MdImgLoader.MdImg, String> entry : imgReplaceMap.entrySet()) {

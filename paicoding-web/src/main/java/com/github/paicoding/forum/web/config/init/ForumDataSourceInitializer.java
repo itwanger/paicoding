@@ -104,12 +104,18 @@ public class ForumDataSourceInitializer {
      */
     private boolean autoInitDatabase() {
         // 查询失败，可能是数据库不存在，尝试创建数据库之后再次测试
+
+        // 数据库链接
         URI url = URI.create(SpringUtil.getConfigOrElse("spring.datasource.url", "spring.dynamic.datasource.master.url").substring(5));
+        // 用户名
         String uname = SpringUtil.getConfigOrElse("spring.datasource.username", "spring.dynamic.datasource.master.username");
+        // 密码
         String pwd = SpringUtil.getConfigOrElse("spring.datasource.password", "spring.dynamic.datasource.master.password");
+        // 创建连接
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://" + url.getHost() + ":" + url.getPort() +
                 "?useUnicode=true&characterEncoding=UTF-8&useSSL=false", uname, pwd);
              Statement statement = connection.createStatement()) {
+            // 查询数据库是否存在
             ResultSet set = statement.executeQuery("select schema_name from information_schema.schemata where schema_name = '" + database + "'");
             if (!set.next()) {
                 // 不存在时，创建数据库
