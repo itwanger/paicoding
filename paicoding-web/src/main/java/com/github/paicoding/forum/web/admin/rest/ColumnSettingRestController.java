@@ -49,7 +49,7 @@ public class ColumnSettingRestController {
     @PostMapping(path = "saveColumn")
     public ResVo<String> saveColumn(@RequestBody ColumnReq req) {
         columnSettingService.saveColumn(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
@@ -63,35 +63,35 @@ public class ColumnSettingRestController {
         }
 
         columnSettingService.saveColumnArticle(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumn")
     public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Long columnId) {
         columnSettingService.deleteColumn(columnId);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "deleteColumnArticle")
     public ResVo<String> deleteColumnArticle(@RequestParam(name = "id") Long id) {
         columnSettingService.deleteColumnArticle(id);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "sortColumnArticleApi")
     public ResVo<String> sortColumnArticleApi(@RequestBody SortColumnArticleReq req) {
         columnSettingService.sortColumnArticleApi(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "sortColumnArticleByIDApi")
     public ResVo<String> sortColumnArticleByIDApi(@RequestBody SortColumnArticleByIDReq req) {
         columnSettingService.sortColumnArticleByIDApi(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @ApiOperation("获取教程列表")
