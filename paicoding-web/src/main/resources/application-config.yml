@@ -1,0 +1,19 @@
+view:
+  site:
+    needLoginArticleReadCount: 30 # 需要登录才能阅读的文章阅读次数
+    zsxqArticleReadCount: 20 # 知识星球用户才能阅读的文章阅读次数统计间隔，单位：分钟
+    websiteName: 技术派
+    websiteLogoUrl: https://paicoding.com/img/icon.png
+    websiteFaviconIconUrl: https://paicoding.com/img/icon.png
+    zsxqUrl: ''
+    zsxqPosterUrl: ''
+    contactMeTitle: 联系我 - 小灰飞
+    contactMeWxQrCode: https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg
+    contactMeStarQrCode: https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg
+    pageSize: 20
+    cdnImgStyle:
+    websiteRecord:  备案号:冀ICP备2023036490号-1
+    wxLoginUrl: http://weixin.qq.com/r/WxwpMefE-rqBraNS90lJ
+    host: http://127.0.0.1:${server.port}
+    welcomeInfo: 欢迎来到技术派 ~~
+    oss:

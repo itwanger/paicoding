@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:mysql://pre.hhui.top/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: pre_root
+    password:
+  redis:
+    host: localhost
+    port: 6379
+    password:
+
+# elasticsearch配置
+elasticsearch:
+  # 是否开启ES？本地启动如果没有安装ES，可以设置为false关闭ES
+  open: false
+  # es集群名称
+  clusterName: elasticsearch
+  hosts: 127.0.0.1:9200
+  userName: elastic
+  password: elastic
+  # es 请求方式
+  scheme: http
+  # es 连接超时时间
+  connectTimeOut: 1000
+  # es socket 连接超时时间
+  socketTimeOut: 30000
+  # es 请求超时时间
+  connectionRequestTimeOut: 500
+  # es 最大连接数
+  maxConnectNum: 100
+  # es 每个路由的最大连接数
+  maxConnectNumPerRoute: 100

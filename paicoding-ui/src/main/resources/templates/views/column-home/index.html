@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">专栏首页</title>
+</div>
+
+<link rel="stylesheet" href="/css/views/column-home.css" th:href="${global.siteInfo.oss + '/css/views/column-home.css'}">
+
+<body id="body" class="bg-color">
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+
+<!-- 专栏首页 -->
+<div class="custom-home">
+    <div class="custom-home-wrap">
+        <div class="custom-home-body">
+            <!-- 文章列表 -->
+            <div class="bg-color-white">
+                <div id="articleList">
+                    <div th:replace="views/column-home/list/index">专栏列表</div>
+                </div>
+                <button
+                        th:if="${vo.columns.hasMore}"
+                        id="loadMoreTag"
+                        type="button"
+                        class="btn btn-outline-primary btn-lg btn-block"
+                        th:text="加载更多"
+                ></button>
+            </div>
+        </div>
+
+        <div class="custom-home-right">
+            <!--   侧边推荐栏   -->
+            <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
+                <div th:replace="views/column-home/sidebar/index"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 底部信息 -->
+    <div th:replace="components/layout/footer :: footer"></div>
+</div>
+</body>
+</html>

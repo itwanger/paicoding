@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 创作历程 -->
+<div class="card" th:fragment="user_process(user)">
+    <div class="card-body process-wrap">
+        <div class="card-title process-title">创造历程</div>
+        <div th:if="${!#lists.isEmpty(user.yearArticleList)}">
+            <div class="card-text" th:text="${year.year} + ' 年共发表文章 ' + ${year.articleCount} + ' 篇'"
+                 th:each="year: ${user.yearArticleList}">
+                描述
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(user.yearArticleList)}">
+            <div class="card-text" th:text="'暂未发布任何内容哦~'"></div>
+        </div>
+    </div>
+</div>
+</html>

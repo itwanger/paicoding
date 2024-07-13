@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.user.repository.mapper.UserFootMapper">
+
+
+    <!-- 注意文章的阅读计数不能使用SUM，因为read_count表中记录的已经是总数了   -->
+    <select id="countArticleByArticleId"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO">
+        SELECT
+            sum(if (f.praise_stat =${@com.github.paicoding.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (f.collection_stat =${@com.github.paicoding.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
+            avg(r.`cnt`) as readCount
+        FROM
+            read_count as r left join user_foot as f  on f.document_id = r.document_id and f.document_type = r.document_type
+        WHERE
+            r.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+            AND r.document_id = #{articleId}
+
+    </select>
+
+
+    <select id="countArticleByUserId"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO">
+        SELECT
+            sum(if (f.praise_stat =${@com.github.paicoding.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (f.collection_stat =${@com.github.paicoding.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount
+        FROM
+            user_foot as f
+        WHERE
+            f.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+            AND f.document_user_id = #{userId}
+
+    </select>
+
+    <select id="countArticleReadsByUserId" resultType="java.lang.Integer">
+        SELECT
+            sum(r.`cnt`) as readCount
+        FROM
+           article a left join read_count as r on a.id = r.document_id
+        WHERE
+            r.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+          AND a.user_id = #{userId}
+
+    </select>
+
+    <select id="listCollectedArticlesByUserId" resultType="java.lang.Long">
+        SELECT
+           `document_id`
+        FROM user_foot
+        WHERE
+            user_id = #{userId} and document_type = 1 and collection_stat = 1 order by update_time desc
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+
+    </select>
+
+    <select id="listReadArticleByUserId" resultType="java.lang.Long">
+        SELECT
+            `document_id`
+        FROM user_foot
+        WHERE
+            user_id = #{userId} and document_type = 1 and read_stat = 1 order by update_time desc
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+
+    </select>
+
+    <select id="listSimpleUserInfosByArticleId"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO">
+        SELECT ui.user_id as userId,
+               ui.user_name as name,
+               ui.photo as avatar
+        FROM user_foot uf
+                 left join user_info ui on uf.user_id = ui.user_id
+        WHERE uf.document_type = #{type}
+          AND uf.document_id = #{documentId}
+          AND uf.praise_stat = 1
+        order by uf.update_time desc limit #{size}
+    </select>
+    <select id="getFootCount"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO">
+        SELECT
+            sum(if (f.praise_stat =${@com.github.paicoding.forum.api.model.enums.PraiseStatEnum@PRAISE.code}, 1, 0)) as praiseCount,
+            sum(if (f.collection_stat =${@com.github.paicoding.forum.api.model.enums.CollectionStatEnum@COLLECTION.code}, 1, 0)) as collectionCount,
+            sum(if (f.read_stat =${@com.github.paicoding.forum.api.model.enums.ReadStatEnum@READ.code}, 1, 0)) as readCount,
+            sum(if (f.comment_stat =${@com.github.paicoding.forum.api.model.enums.CommentStatEnum@COMMENT.code}, 1, 0)) as commentCount
+        FROM
+            user_foot as f
+    </select>
+</mapper>

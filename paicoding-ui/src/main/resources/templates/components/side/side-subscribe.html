@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 侧边栏 -->
+<div class="home-right-item-wrap p-0" th:fragment="side_subscribe(side)">
+    <div class="cdc-card mod-subscribe">
+        <div class="cdc-card__inner">
+            <div class="cdc-card__hd">
+                <div class="cdc-card__title">订阅</div>
+            </div>
+            <div class="cdc-card__bd">
+                <div class="cdc-card__bd">
+                    <div class="mod-subscribe__title">微信搜<em th:text="${side.subTitle}">开发者</em>回复关键字<em>110</em></div>
+                    <div class="mod-subscribe__content">
+                        <div class="mod-subscribe__content-tag">将获得</div>
+                        <div class="mod-subscribe__content-inner">
+                            <div class="mod-subscribe__content-detail">
+                                <div class="mod-subscribe__content-prize"
+                                     th:text="${side.content}">10元无门槛代金券</div>
+                                <div class="mod-subscribe__content-desc">技术派良心推荐</div>
+                            </div>
+                            <div class="mod-subscribe__content-qr">
+                                <img th:src="${side.img}" th:alt="${side.subTitle}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

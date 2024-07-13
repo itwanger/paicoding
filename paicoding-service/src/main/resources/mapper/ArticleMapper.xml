@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper">
+
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+    <select id="listArticlesOrderById" resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select id, title, update_time as createTime from article
+        where id > #{lastId}
+        and status =${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        order by id asc limit #{size}
+    </select>
+
+    <select id="listArticlesByReadCounts"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select rc.document_id as id, a.title as title, a.create_time as createTime
+        from read_count as rc left join article as a on rc.document_id = a.id
+        where rc.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code} order by rc.cnt desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="listArticleByCategoryAndTags"
+            resultType="com.github.paicoding.forum.service.article.repository.entity.ReadCountDO">
+        select DISTINCT(a.id) as documentId, rc.cnt as cnt from article a
+        left join article_tag as t on a.id = t.article_id
+        left join read_count rc on rc.document_id  = a.id
+        where rc.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <if test="categoryId != null">
+            and a.category_id = #{categoryId}
+        </if>
+        and t.tag_id in
+        <if test="tags != null and tags.size > 0">
+            <foreach collection="tags" item="tagId" open="(" close=")" separator=",">
+                #{tagId}
+            </foreach>
+        </if>
+        order by rc.cnt desc, a.id desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="listArticlesByUserIdOrderByReadCounts"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select rc.document_id as id, a.title as title, a.create_time as createTime
+        from read_count as rc left join article as a on rc.document_id = a.id
+        where rc.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+        and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+        and a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code} and a.user_id = #{userId} order
+        by rc.cnt desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="listYearArticleByUserId"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO">
+        select DATE_FORMAT(create_time, "%Y") as year, count(*) as articleCount
+        from article
+        where user_id = #{userId}
+          and status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+          and deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        group by year
+    </select>
+
+    <sql id="articlesByParams">
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <if test="searchParams.title != null and searchParams.title != ''">
+            and a.title like concat('%', #{searchParams.title}, '%')
+        </if>
+        <if test="searchParams.userName != null and searchParams.userName != ''">
+            and u.user_name like concat('%', #{searchParams.userName}, '%')
+        </if>
+        <if test="searchParams.officalStat != null and searchParams.officalStat != -1">
+            and a.offical_stat = #{searchParams.officalStat}
+        </if>
+        <if test="searchParams.toppingStat != null and searchParams.toppingStat != -1">
+            and a.topping_stat = #{searchParams.toppingStat}
+        </if>
+        <if test="searchParams.status != null and searchParams.status != -1">
+            and a.status = #{searchParams.status}
+        </if>
+    </sql>
+
+    <select id="listArticlesByParams"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO">
+        select a.id as article_id, a.title, a.short_title, a.offical_stat,
+               a.topping_stat, a.status, a.cream_stat, a.picture as cover,
+               a.update_time,
+               u.user_id as author, u.user_name as author_name,u.photo as author_avatar
+        from article a
+        left join user_info u on a.user_id = u.user_id
+        <include refid="articlesByParams"/>
+        order by a.update_time desc
+        <include refid="limit"/>
+    </select>
+    <select id="countArticlesByParams" resultType="java.lang.Long">
+        select count(*) from article a
+        left join user_info u on a.user_id = u.user_id
+        <include refid="articlesByParams"/>
+    </select>
+    <select id="listHistoryArticlesByUserId"
+            resultType="com.github.paicoding.forum.service.article.repository.entity.ArticleDO">
+        select a.* from article a
+            inner join
+            (select document_id, update_time, read_stat
+             from user_foot
+             where user_id = #{userId} and read_stat = 1)
+#                 这里注意要加上deleted = 0，否则会查询到已删除的文章
+                as u on a.id = u.document_id and a.deleted = 0
+                   order by u.update_time desc
+    </select>
+
+    <select id="listStarArticlesByUserId"
+            resultType="com.github.paicoding.forum.service.article.repository.entity.ArticleDO">
+        select a.* from article a
+            inner join
+            (select document_id, update_time, collection_stat
+             from user_foot
+             where user_id = #{userId} and collection_stat = 1)
+#                 这里注意要加上deleted = 0，否则会查询到已删除的文章；还有就是status = 1，只查询已发布的文章
+                as u on a.id = u.document_id and a.deleted = 0 and a.status = 1
+            order by u.update_time desc
+    </select>
+
+</mapper>

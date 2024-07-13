@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.user.repository.mapper.UserRelationMapper">
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+    <!-- 查询用户的关注列表，即粉丝id是自己   -->
+    <select id="queryUserFollowList"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO">
+
+        SELECT
+            u.user_id as userId,
+            u.user_name as userName,
+            u.photo as avatar,
+            r.id as relationId,
+            true as followed
+        FROM user_relation as r
+            left join user_info as u on r.user_id = u.user_id
+        WHERE
+            r.follow_user_id = #{followUserId}
+            and r.follow_state = ${@com.github.paicoding.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
+        ORDER BY u.id desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="queryUserFansList"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO">
+
+        SELECT
+            u.user_id as userId,
+            u.user_name as userName,
+            u.photo as avatar,
+            r.id as relationId
+            FROM user_relation as r
+            left join user_info as u on r.follow_user_id = u.user_id
+        WHERE
+            r.user_id = #{userId}
+            and r.follow_state = ${@com.github.paicoding.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
+        ORDER BY u.id desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="queryUserFollowListPagination"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO">
+        SELECT u.user_id as userId,
+               u.user_name as userName,
+               u.photo as avatar,
+               r.id as relationId,
+               true as followed
+        FROM user_relation as r
+        inner join user_info as u on r.user_id = u.user_id and r.follow_state =  ${@com.github.paicoding.forum.api.model.enums.FollowStateEnum@FOLLOW.code}
+        where r.follow_user_id = #{userId}
+
+    </select>
+    <select id="queryUserFansListPagination"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO">
+        select t1.userId as userId,
+                t1.userName as userName,
+                t1.avatar as avatar,
+                t1.relationId as relationId,
+               CASE
+                   WHEN t2.follow_state = 1 THEN TRUE
+                   ELSE FALSE
+               END AS followed
+        from
+#             查询关注我的用户，但是不知道是否我也关注了他们
+            (SELECT u.user_id as userId,
+                    u.user_name as userName,
+                    u.photo as avatar,
+                    r.id as relationId
+             FROM user_relation as r
+                      inner join user_info as u on r.follow_user_id = u.user_id
+             where r.user_id = #{userId}) as t1
+                left outer join
+#                 查询我关注的用户，然后和上面的结果集进行关联，这样就得到了关注我的用户中我是否也关注了
+            (select r2.user_id, r2.follow_state from user_relation as r2 where r2.follow_user_id = #{userId}) as t2
+            on t2.user_id in (t1.userId)
+    </select>
+
+
+</mapper>

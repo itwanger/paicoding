@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+  </div>
+
+  <link rel="stylesheet" href="/css/views/notice.css" th:href="${global.siteInfo.oss + '/css/views/notice.css'}" />
+  <body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="components/layout/navbar :: navbar"></div>
+
+    <!-- 正文内容 -->
+    <div class="notice-wrap">
+      <!-- 文章列表 -->
+      <div th:fragment="category(list)" class="notice-nav">
+        <div class="notice-nav-inner">
+          <!-- each循环，但是不要当前这个span标签 -->
+          <span th:each="type, stat: ${vo.unreadCountMap}" th:remove="tag">
+            <a
+              th:href="'/notice/' + ${type.key}"
+              th:class="${#strings.equalsIgnoreCase(type.key,vo.selectType) ? 'notice-nav-item--active': 'notice-nav-item'}"
+            >
+              <span
+                th:text="${T(com.github.paicoding.forum.api.model.enums.NotifyTypeEnum).typeOf(type.key).getMsg()}"
+              />
+              <span
+                th:text="${stat.current.value}"
+                th:if="${stat.current.value > 0}"
+                class="unread-count"
+              >
+                未读数
+              </span>
+            </a>
+          </span>
+        </div>
+      </div>
+      <div class="notice-content">
+        <div id="itemList">
+          <div th:if="${#lists.isEmpty(vo.list.list)}">
+            <div class="notification" th:text="暂无通知消息"></div>
+          </div>
+          <div th:if="${!#lists.isEmpty(vo.list.list)}">
+            <div th:replace="views/notice/tab/notify-comment"></div>
+            <div th:replace="views/notice/tab/notify-reply"></div>
+            <div th:replace="views/notice/tab/notify-praise"></div>
+            <div th:replace="views/notice/tab/notify-collect"></div>
+            <div th:replace="views/notice/tab/notify-follow"></div>
+            <div th:replace="views/notice/tab/notify-system"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 底部信息 -->
+      <div th:replace="components/layout/footer :: footer"></div>
+    </div>
+
+    <script th:inline="javascript">
+      const selectType = [[${vo.selectType}]].toLowerCase()
+      const params = {
+          "type": selectType,
+          "page": 2
+      }
+      loadMore("#itemList", "/notice/api/items", params, "itemList")
+    </script>
+  </body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="navbar">
+  <nav
+          th:data-islogin="${global.isLogin}"
+          class="navbar navbar-expand-md bg-color-white fixed-top"
+  >
+    <div class="nav-body">
+      <div class="nav-logo-wrap-lg">
+        <a class="navbar-logo-wrap" href="/">
+          <img class="logo" src="/img/logo.svg" th:src="${global.siteInfo.oss + '/img/logo.svg'}"/>
+          <img src="/img/icon.png" class="logo-lg" alt="" th:src="${global.siteInfo.oss + '/img/icon.png'}"/>
+        </a>
+        <div class="dropdown nav-menu-lg">
+          <div class="dropdown">
+            <div
+                    class="nav-menu-lg-btn dropdown-toggle"
+                    type="button"
+                    data-toggle="dropdown"
+                    aria-expanded="false"
+            >
+              首页
+            </div>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/">首页</a>
+              <a class="dropdown-item" href="/column">教程</a>
+              <a class="dropdown-item" href="/chat">派聪明</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav">
+          <li
+                  th:class="${'nav-item' + (!#strings.equals(global.currentDomain, 'column')
+                    && !#strings.equals(global.currentDomain, 'follow')
+                    && !#strings.equals(global.currentDomain, 'chat')? ' selected-domain' : '')}"
+                  class="nav-item"
+          >
+            <a class="nav-link" href="/">首页</a>
+          </li>
+          <li
+                  th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'column') ? ' selected-domain' : '')}"
+                  class="nav-item"
+          >
+            <a class="nav-link" href="/column">教程</a>
+          </li>
+          <li
+                  th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'chat') ? ' selected-domain' : '')}"
+                  class="nav-item"
+          >
+            <a class="nav-link" href="/chat">派聪明</a>
+          </li>
+        </ul>
+      </div>
+      <div class="nav-right">
+        <button
+                type="button"
+                class="btn btn-primary nav-article"
+                th:data-target="${global.isLogin ? '' : '#loginModal'}"
+                th:data-toggle="${global.isLogin ? '' : 'modal'}"
+        >
+          写文章
+        </button>
+        <ul th:if="${!global.isLogin}">
+          <!--  待登录 -->
+          <li class="nav-item">
+            <a
+                    class="nav-link"
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#loginModal"
+            >
+              登录
+            </a>
+          </li>
+        </ul>
+        <ul th:if="${global.isLogin}" class="nav-right-user">
+          <!--  已登录 -->
+          <li class="nav-item nav-notice">
+            <a class="nav-link navbar-count-msg-box" href="/notice/">
+                <span
+                        th:if="${global.msgNum != null && global.msgNum > 0}"
+                        th:text="${global.msgNum}"
+                        class="navbar-count-msg"
+                ></span>
+              <!-- 消息提醒的角标 -->
+              <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      stroke-width="2"
+                      stroke="currentColor"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path
+                        d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"
+                ></path>
+                <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+              </svg>
+            </a>
+          </li>
+          <li class="nav-item vip" th:if="${global.user != null && global.user.starStatus != null}">
+            <div th:switch="${global.user.starStatus.code}">
+              <span th:case="2" th:text="星球VIP会员"></span>
+              <span th:case="1" th:text="待审核"></span>
+              <a href="#" data-target="#registerModal" data-toggle="modal" th:case="-1">
+                <span th:text="绑定星球编号"></span>
+              </a>
+            </div>
+            <img src="/img/vip.gif" alt="VIP" th:src="${global.siteInfo.oss + '/img/vip.gif'}"/>
+          </li>
+
+          <!-- 头像框 -->
+          <div class="nav-right-user">
+            <div class="nav-user-avatar">
+              <img
+                      class="nav-login-img"
+                      style="border-radius: 50%"
+                      th:src="${global.user.photo}"
+                      src="https://static.developers.pub/static/img/logo.b2ff606.jpeg"
+                      alt=""
+                      loading="lazy"
+              />
+              <div class="nav-user-arrow"></div>
+              <div class="nav-user-dropdown">
+                <div class="nav-user-dropdown-inner nav-user-dropdown::before">
+                  <!-- 下落框内容 -->
+                  <!--  调整为所有用户都可以直接看到管理后台  th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"-->
+                  <!-- 本地环境的时候不显示，本地环境的时候通过后端直接启动管理后台 -->
+                  <a
+                          th:if="${#strings.equals(global.env, 'prod')}"
+                          href="/admin/#/statistics/index"
+                          target="_blank"
+                          class="dropdown-item"
+                  >
+                    管理后台
+                  </a>
+                  <div
+                          th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                          class="dropdown-divider"
+                  ></div>
+                  <a
+                          th:href="${'/user/home?userId=' + global.user.userId}"
+                          class="dropdown-item"
+                          href="#"
+                  >
+                    个人主页
+                  </a>
+                  <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- 登录 Modal -->
+  <div
+          th:if="${!global.isLogin}"
+          class="modal fade"
+          id="loginModal"
+          data-backdrop="static"
+          data-keyboard="false"
+          tabindex="-1"
+          role="dialog"
+          aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">登录技术派畅享更多权益</h6>
+          <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-body">
+            <div class="login-main">
+              <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
+              <div class="panel">
+                <h1 class="title">用户名密码登录</h1>
+                <!-- 登录表单、用户名和密码 -->
+                <form id="login-form">
+                  <div class="form-group">
+                    <input type="text" required autocomplete="off" class="form-control form-control-sm" id="username" placeholder="输入用户名">
+                  </div>
+                  <div class="form-group">
+                    <input type="password" required class="form-control form-control-sm" id="password" placeholder="输入密码">
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block btn-sm">登录</button>
+                </form>
+              </div>
+              <div class="other-login-box">
+                <div class="oauth-box">
+                  <span>其他登录：</span>
+                  <div class="oauth">
+                    <div class="oauth-bg">
+                      <!-- GitHub 的 log svg -->
+                      <svg data-v-52064cc0="" width="24px" height="24px" viewBox="0 0 46 46" version="1.1"
+                           xmlns="http://www.w3.org/2000/svg"
+                           class="github-icon"><title data-v-52064cc0="">icon_GitHub</title><desc data-v-52064cc0="">Created with sketchtool.</desc><defs data-v-52064cc0=""></defs><g data-v-52064cc0="" id="状态" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g data-v-52064cc0="" id="注册" transform="translate(-758.000000, -600.000000)"><g data-v-52064cc0="" id="Group-4" transform="translate(758.000000, 600.000000)"><rect data-v-52064cc0="" id="Rectangle-314" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="46" height="46"></rect><path data-v-52064cc0="" d="M5,23.4307576 C5,31.1317497 10.1024923,37.6642712 17.179508,39.9691117 C18.0705582,40.1296159 18.3952722,39.5913918 18.3952722,39.1291397 C18.3952722,38.7161088 18.3799658,37.61933 18.3712193,36.1651618 C13.4174176,37.2180695 12.3722103,33.8282205 12.3722103,33.8282205 C11.5620653,31.8144276 10.3944069,31.2783436 10.3944069,31.2783436 C8.77739677,30.1976152 10.5168579,30.2190158 10.5168579,30.2190158 C12.3044248,30.342069 13.2446741,32.0155929 13.2446741,32.0155929 C14.8332581,34.6788928 17.413477,33.9095426 18.4280715,33.4633409 C18.5898819,32.3376714 19.0501667,31.5693912 19.5585573,31.1338898 C15.6040438,30.6941082 11.4461741,29.198209 11.4461741,22.5190936 C11.4461741,20.6165837 12.1404279,19.0596928 13.2796601,17.8420009 C13.0959835,17.4011493 12.4848215,15.6281127 13.4545902,13.2291098 C13.4545902,13.2291098 14.9491492,12.7604375 18.3515396,15.0160567 C19.7717533,14.6287065 21.2958318,14.4361015 22.8100705,14.4286113 C24.3232158,14.4361015 25.846201,14.6287065 27.2686013,15.0160567 C30.6688051,12.7604375 32.1611774,13.2291098 32.1611774,13.2291098 C33.1331328,15.6281127 32.5219708,17.4011493 32.3393875,17.8420009 C33.4808064,19.0596928 34.1695936,20.6165837 34.1695936,22.5190936 C34.1695936,29.2153294 30.005164,30.6887581 26.0386241,31.1199794 C26.6771189,31.6582035 27.246735,32.7218115 27.246735,34.3482542 C27.246735,36.6777053 27.2248688,38.5577447 27.2248688,39.1291397 C27.2248688,39.5956719 27.5463028,40.1381761 28.4493795,39.9680417 C35.5209286,37.657851 40.6190476,31.1296097 40.6190476,23.4307576 C40.6190476,13.8037149 32.6444218,6 22.8078838,6 C12.9746258,6 5,13.8037149 5,23.4307576 Z" id="Fill-3" fill="#161614"></path></g></g></g></svg>
+                    </div>
+                  </div>
+                </div>
+                <a class="clickable" data-toggle="modal" data-target="#registerModal" data-dismiss="modal">
+                  绑定星球，畅享VIP服务
+                </a>
+              </div>
+            </div>
+            <div class="tabpane-container">
+              <h2 class="title">微信扫码/长按识别登录</h2>
+              <div class="first">
+                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeWxQrCode}"/>
+              </div>
+
+              <div class="explain">
+                <bold>输入验证码</bold>
+                <span id="code"></span>
+                <div><span id="state">有效期五分钟 👉</span> <a id="refreshCode">手动刷新</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="agreement-box">
+            <div class="mdnice-user-dialog-footer">
+              <p>登录即同意
+                <a href="article/detail/141"
+                   target="_blank" rel="noopener noreferrer">
+                  用户协议
+                </a> 和
+                <a href="article/detail/142"
+                   target="_blank" rel="noopener noreferrer">
+                  隐私政策
+                </a>
+              </p>
+            </div>
+          </div>
+          <div class="mock-login" th:if="${!#strings.equals(global.env, 'prod')}">
+            <!-- 非生产环境，使用模拟登陆  -->
+            <button
+                    id="mockLogin2"
+                    type="button"
+                    th:data-verify-code="''"
+                    class="btn btn-sm btn-light"
+            >
+              随机新用户
+            </button>
+
+            <button
+                    id="mockLogin"
+                    type="button"
+                    th:data-verify-code="''"
+                    class="btn btn-sm btn-dark"
+            >
+              一键登录
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 绑定星球用户 -->
+  <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">绑定二哥编程星球，畅享 VIP 尊享服务！</h6>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-body">
+            <div class="register-main">
+              <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
+              <div class="panel">
+                <h1 class="title">
+                  <a target="_blank"
+                     class="underline"
+                     href="https://paicoding.com/article/detail/358">戳我了解如何获取星球编号，新窗口打开</a>
+                </h1>
+                <form id="register-form">
+                  <div class="form-group">
+                    <input type="text"
+                           placeholder="星球编号，戳上面的链接有详细教程"
+                           class="form-control form-control-sm"
+                           required
+                           id="starNumber"
+                           autocomplete="off">
+                  </div>
+                  <div class="form-group">
+                    <input type="text"
+                           placeholder="用户名密码登录时用"
+                           class="form-control form-control-sm"
+                           id="registerUser" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" placeholder="密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" placeholder="微信搜沉默王二回复邀请码获取，也可不填" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
+                  </div>
+                  <!-- 绑定过会直接登录 -->
+                  <button type="submit"
+                          class="btn btn-primary btn-block btn-sm"
+                          th:text="${global.isLogin} ? '绑定' : '绑定后登录'">绑定/绑定后登录</button>
+                </form>
+              </div>
+            </div>
+            <div class="tabpane-container">
+              <h2 class="title">添加二哥微信 itwanger 审核更快</h2>
+              <div class="first">
+                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
+              </div>
+
+              <div class="explain">
+                <bold>记得备注</bold>
+                <code>星球编号</code>
+                <div>我会根据星球编号进行审核</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script
+          src="/js/mock.js"
+          th:if="${!#strings.equals(global.env, 'prod')}"
+  ></script>
+  <script th:inline="javascript">
+    // 是否自动刷新验证码
+    let autoRefresh;
+    const stateTag = $('#state'), codeTag = $('#code');
+
+    // 登录
+    $("#login-form").on("submit", function(event) {
+      event.preventDefault();
+
+      // 获取用户名和密码，没有定义 ID
+      const username = $("#username").val();
+      const password = $("#password").val();
+
+      $.ajax({
+        url: "/login/username",
+        type: "POST",
+        data: {
+          username: username,
+          password: password
+        },
+        success: function(response) {
+          console.log(response);
+          if(response.status.code === 0) {
+            // 登录成功
+            refreshPage();
+          } else {
+            // 登录失败
+            toastr.error(response.status.msg);
+          }
+        },
+        error: function(error) {
+          console.error(error);
+          // 出现错误时如何处理
+        }
+      });
+    });
+
+    // 绑定星球
+    $("#register-form").on("submit", function(event) {
+      event.preventDefault();
+
+      // 获取用户名和密码，没有定义 ID
+      const registerUser = $('#registerUser').val();
+      const starNumber = $("#starNumber").val() | '00000';
+      const password = $("#registerPassword").val();
+      const invitationCode = $("#invitationCode").val();
+
+      $.ajax({
+        url: "/login/register",
+        type: "POST",
+        data: {
+          username: registerUser,
+          starNumber: starNumber.toString().padStart(5, '0'), // "00001",
+          password: password,
+          invitationCode: invitationCode
+        },
+        success: function(response) {
+          console.log(response);
+          if(response.status.code === 0) {
+            // 登录成功
+            refreshPage();
+          } else {
+            // 登录失败
+            toastr.error(response.status.msg);
+          }
+        },
+        error: function(error) {
+          console.error(error);
+          // 出现错误时如何处理
+        }
+      });
+    });
+
+
+    $(".nav-article").click(() => {
+      if ([[${global.isLogin}]]) {
+        // 新页面打开文章编辑
+        // 移除本地缓存
+        localStorage.removeItem('articleTitle');
+        window.open("/article/edit")
+      }
+    })
+
+    // 定义一个刷新页面的方法
+    function refreshPage() {
+      if (window.location.pathname === "/login") {
+        // 登录成功，跳转首页
+        window.location.href = "/";
+      } else {
+        // 刷新当前页面
+        window.location.reload();
+      }
+    }
+
+    /**
+     * 记录长连接
+     * @type {null}
+     */
+    let sseSource = null;
+    let intHook = null;
+    let deviceId = null;
+
+    /**
+     * 建立半长连接，用于实现自动登录
+     */
+    function buildConnect() {
+      if (sseSource != null) {
+        try {
+          sseSource.close();
+        } catch (e) {
+          console.log("关闭上次的连接", e);
+        }
+        try {
+          window.clearInterval(intHook);
+        } catch (e) {
+        }
+      }
+
+      if(!deviceId) {
+        deviceId = getCookie("f-device");
+      }
+      const subscribeUrl = "/subscribe?deviceId=" + deviceId;
+      const source = new EventSource(subscribeUrl);
+      sseSource = source;
+
+      source.onmessage = function (event) {
+        let text = event.data.replaceAll("\"", "").trim();
+        console.log("receive: " + text);
+
+        let newCode;
+        if (text.startsWith('refresh#')) {
+          // 刷新验证码
+          newCode = text.substring(8).trim();
+          codeTag.text(newCode);
+          stateTag.text("已刷新 ");
+        } else if (text === 'scan') {
+          // 二维码扫描
+          stateTag.text("已扫描 ");
+        } else if (text.startsWith('login#')) {
+          // 登录格式为 login#cookie
+          console.log("登录成功,保存cookie", text)
+          document.cookie = text.substring(6);
+          source.close();
+          refreshPage();
+        } else if (text.startsWith("init#")) {
+          newCode = text.substring(5).trim();
+          codeTag.text(newCode);
+          console.log("初始化验证码: ", newCode);
+        }
+
+        if (newCode != null) {
+          try {
+            window.clearInterval(intHook);
+          } catch (e) {}
+        }
+
+        if ([[${!#strings.equals(global.env, 'prod')}]]) {
+          $("#mockLogin").attr('data-verify-code', newCode);
+          $("#mockLogin2").attr('data-verify-code', newCode);
+        }
+      };
+
+      source.onopen = function (evt) {
+        deviceId = getCookie("f-device");
+        console.log("开始订阅, 设备id=", deviceId, evt);
+      }
+      source.onerror = function (e, evt) {
+        console.log("连接错误，重新开始", e, evt)
+        stateTag.text("连接中断,请刷新重连");
+        buildConnect(code);
+      }
+
+      fetchCodeCnt = 0;
+      intHook = self.setInterval("fetchCode()", 1000);
+    }
+
+    let fetchCodeCnt = 0;
+    function fetchCode() {
+      if (deviceId) {
+        if (++fetchCodeCnt > 5) {
+          // 为了避免不停的向后端发起请求，做一个最大的重试计数限制
+          try {
+            window.clearInterval(intHook);
+          } catch (e) {}
+          return;
+        }
+
+        $.ajax({
+          url: "/login/fetch?deviceId=" + deviceId, type: "get", dataType: "text", success: function (data) {
+            console.log("data>>>>>>>>: ", data);
+            if (data != 'fail') {
+              codeTag.text(data);
+              try {
+                window.clearInterval(intHook);
+              } catch (e) {}
+            }
+          },
+          error: function (e) {
+            console.log("some error! ", e);
+          }
+        });
+      } else {
+        console.log("deviceId未获取，稍后再试!");
+      }
+    }
+
+    function refreshCode() {
+      $.ajax({
+        url: "/login/refresh?deviceId=" + deviceId, dataType: "json", type: "get", success: function (data) {
+          const code = data['result']['code'];
+          const reconnect = data['result']['reconnect']
+          console.log("验证码刷新完成: ", data);
+
+          if (reconnect) {
+            // 重新建立连接
+            buildConnect();
+            $('#state').text("已刷新!");
+          } else if(code) {
+            if (codeTag.text() !== code) {
+              console.log("主动刷新验证码!");
+              codeTag.text(code);
+              stateTag.text("已刷新!");
+            } else {
+              console.log("验证码已刷新了!");
+            }
+          }
+        }
+      })
+    }
+    $('#loginModal').on('show.bs.modal', function () {
+      console.log("登录弹窗已展示!");
+      buildConnect();
+    })
+    $('#refreshCode').click(() => {
+      refreshCode();
+    })
+
+    // 获取用户头像和下落框元素
+    const navUserAvatar = document.querySelector('.nav-user-avatar');
+    const navUserDropdown = document.querySelector('.nav-user-dropdown');
+
+    if (navUserAvatar != null && navUserDropdown != null) {
+      // 当鼠标点击用户头像时显示下落框
+      navUserAvatar.addEventListener('click', () => {
+        // 如果下落框是隐藏的，则显示；如果已经显示，则不处理
+        if (navUserDropdown.style.display === 'none' || navUserDropdown.style.display === '') {
+          navUserDropdown.style.display = 'block';
+        }
+      });
+      // 点击其他区域时隐藏下落框
+      document.addEventListener('click', (event) => {
+        // 如果点击的区域不是用户头像和下落框，则隐藏下落框
+        if (!navUserAvatar.contains(event.target) && !navUserDropdown.contains(event.target)) {
+          navUserDropdown.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</div>
+</html>

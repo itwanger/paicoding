@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.notify.repository.mapper.NotifyMsgMapper">
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+
+    <select id="listArticleRelatedNotices" resultType="com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO">
+        select m.id as msgId,
+        m.operate_user_id as operateUserId,
+        u.user_name as operateUserName,
+        u.photo as operateUserPhoto,
+        m.msg as msg,
+        m.type as type,
+        m.state as state,
+        m.related_id as relatedId,
+        a.title as relatedInfo,
+        m.create_time as createTime
+        from notify_msg as m
+        left join user_info as u on m.operate_user_id = u.user_id
+        left join article as a on m.related_id = a.id
+        where
+        m.notify_user_id = #{userId} and m.type = #{type}
+        order by m.create_time desc
+        <include refid="limit"/>
+    </select>
+
+    <select id="listNormalNotices" resultType="com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO">
+        select m.id as msgId,
+        m.operate_user_id as operateUserId,
+        u.user_name as operateUserName,
+        u.photo as operateUserPhoto,
+        m.msg as msg,
+        m.type as type,
+        m.state as state,
+        m.create_time as createTime
+        from notify_msg as m
+        left join user_info as u on m.operate_user_id = u.user_id
+        where
+        m.notify_user_id = #{userId} and m.type = #{type}
+        order by m.create_time desc
+        <include refid="limit"/>
+    </select>
+    <select id="listArticleRelatedNoticesPagination"
+            resultType="com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO">
+        select m.id as msgId,
+               m.operate_user_id as operateUserId,
+               u.user_name as operateUserName,
+               u.photo as operateUserPhoto,
+               m.msg as msg,
+               m.type as type,
+               m.state as state,
+               m.related_id as relatedId,
+               a.title as relatedInfo,
+               m.create_time as createTime
+        from notify_msg as m
+                 left join user_info as u on m.operate_user_id = u.user_id
+                 left join article as a on m.related_id = a.id
+        where
+            m.notify_user_id = #{userId} and m.type = #{type}
+        order by m.create_time desc
+    </select>
+    <select id="listNormalNoticesPagination"
+            resultType="com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO">
+        select m.id as msgId,
+               m.operate_user_id as operateUserId,
+               u.user_name as operateUserName,
+               u.photo as operateUserPhoto,
+               m.msg as msg,
+               m.type as type,
+               m.state as state,
+               m.create_time as createTime
+        from notify_msg as m
+                 left join user_info as u on m.operate_user_id = u.user_id
+        where
+            m.notify_user_id = #{userId} and m.type = #{type}
+        order by m.create_time desc
+    </select>
+
+    <update id="updateNoticeRead">
+        update notify_msg set `state` = 1 where `id` in
+        <foreach collection="ids" open="(" close=")" separator="," item="id" index="index">
+            #{id}
+        </foreach>
+    </update>
+
+
+</mapper>

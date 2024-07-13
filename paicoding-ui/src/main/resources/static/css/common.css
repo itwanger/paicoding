@@ -1,0 +1,16 @@
+/* 页面公共组件样式 */
+
+/* 导航栏 */
+@import "./components/navbar.css";
+
+/* 底部 */
+@import "./components/footer.css";
+
+/* 文章样式 */
+@import "./components/article-item.css";
+
+/* 侧边栏 */
+@import "./components/side-column.css";
+
+/* 文章底部 */
+@import "./components/article-footer.css";

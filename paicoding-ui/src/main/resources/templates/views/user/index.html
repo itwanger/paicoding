@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+  </div>
+
+  <link href="/css/views/user.css" th:href="${global.siteInfo.oss + '/css/views/user.css'}"  rel="stylesheet" />
+
+  <body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="components/layout/navbar :: navbar"></div>
+
+    <!-- 正文内容 -->
+    <div class="user">
+      <div th:replace="views/user/info/index :: user_info(${vo.userHome})"></div>
+      <div class="user-wrap">
+        <div class="user-content">
+          <!-- 主要内容 -->
+          <div class="user-body">
+            <!-- 选择标签列表 -->
+            <div
+              th:replace="views/user/navbar/home-bar :: select_tag(${vo.homeSelectTags}, ${vo.userHome.userId})"
+            ></div>
+
+            <!-- 标签内容列表 -->
+            <div class="user-article-wrap">
+              <!-- 文章列表 -->
+              <div
+                id="articleList"
+                th:if="${vo.homeSelectType == 'article' || vo.homeSelectType == 'read' || vo.homeSelectType == 'collection'}"
+              >
+                <div th:replace="views/user/articles/index">文章列表</div>
+              </div>
+
+              <!-- 粉丝关注列表-->
+              <a th:if="${vo.homeSelectType == 'follow'}">
+                <div th:replace="views/user/navbar/follow-bar :: select_tag(${vo.followSelectTags}, ${vo.userHome.userId})">
+                </div>
+                <div th:replace="views/user/follows/index">关注列表</div>
+                <div
+                  th:if="${#lists.isEmpty(vo.followList.list)}"
+                  id="followList">
+                  <div style="color: gray">列表为空~</div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <!-- 左侧内容 -->
+          <div class="user-left">
+            <!-- <div
+            th:replace="views/user/info/index :: user_info(${vo.userHome})"
+          ></div> -->
+            <div
+              th:replace="views/user/achievement/index :: user_achievement(${vo.userHome})"
+            ></div>
+            <div
+              th:replace="views/user/history/index :: user_process(${vo.userHome})"
+            ></div>
+          </div>
+        </div>
+      </div>
+      <div th:replace="components/layout/footer :: footer"></div>
+
+      <!--  个人用户修改弹窗  -->
+      <div th:replace="views/user/info/edit"></div>
+    </div>
+
+    <script th:inline="javascript">
+      // 切换关注按钮
+      $(".attention-btn").click(function (e) {
+          e.stopPropagation()
+          if ($(this)[0].innerText === "+关注") {
+              $(this)[0].innerText = "已关注"
+          } else {
+              $(this)[0].innerText = "+关注"
+          }
+      })
+
+      // 自动下滑翻页
+      const selectType = [[${vo.homeSelectType}]].toLowerCase()
+      const userId = [[${vo.userHome.userId}]]
+      if (selectType === 'follow') {
+          const params = {
+              "userId": userId,
+              "followSelectType": [[${vo.followSelectType}]].toLowerCase(),
+              "page": 2
+          }
+          loadMore("#followList", "/user/api/followList", params, "followList");
+      } else {
+          const params = {
+              "userId": userId,
+              "homeSelectType": selectType,
+              "page": 2
+          }
+          loadMore("#articleList", "/user/api/articleList", params, "articleList");
+      }
+    </script>
+  </body>
+</html>

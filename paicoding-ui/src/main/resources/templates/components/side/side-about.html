@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 侧边栏 -->
+<div class="home-right-item-wrap" th:fragment="side_about(side)">
+    <div class="home-right-item-title">
+        <h5 th:text="${side.title}">关于社区</h5>
+    </div>
+    <div class="home-right-item-about-content" th:text="${side.content}">
+        一个开源社区
+    </div>
+</div>

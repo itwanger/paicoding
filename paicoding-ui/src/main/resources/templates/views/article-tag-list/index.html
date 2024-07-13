@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+</div>
+
+<link rel="stylesheet" href="/css/views/article-tag.css" th:href="${global.siteInfo.oss + '/css/views/article-tag.css'}">
+
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+
+<!-- 正文内容 -->
+<div class="tag-wrap-out">
+    <div class="tag-wrap">
+        <!-- 文章列表 -->
+        <div class="tag-list">
+            <div id="articleList">
+                <div th:replace="views/article-tag-list/article/list">文章列表</div>
+            </div>
+        </div>
+    </div>
+    <!-- 底部信息 -->
+    <!-- <div th:replace="layout/footer :: footer"></div> -->
+</div>
+<script src="/js/biz/loadMore.js"></script>
+<script th:inline="javascript">
+    const archiveId = [[${ vo.archiveId }]]
+    const params = {
+        "page": 2
+    }
+    loadMore("#articleList", '/article/api/list/tag/' + archiveId, params, "articleList");
+</script>
+</body>
+</html>

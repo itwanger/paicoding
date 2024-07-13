@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+</div>
+
+<!-- 导航栏 -->
+<div th:replace="components/layout/container :: container_all(~{::content})">
+    <content>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalDropLabel">二维码登录</h5>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <img class="col-6" th:src="${vo.qr}" style="max-width: 400px;">
+                    <div class="col-6">
+                        <bold>关注微信公众号，输入下面的验证码</bold>
+                        <span style="color:red;font-size: 2em" th:text="${vo.code}"></span>
+                        <br/>
+                        <div id="state" style="color: blue; font-size: 2.2em">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- 非生产环境，使用模拟登陆  -->
+                <button th:if="${!#strings.equals(global.env, 'prod')}"
+                        id="mockLogin" type="button"
+                        th:data-verify-code="${vo.code}"
+                        class="btn btn-danger">一键登录(测试用)
+                </button>
+            </div>
+            <div id="testOutput"></div>
+        </div>
+    </content>
+</div>
+
+<div th:replace="components/layout/footer :: footer"></div>
+<script src="/js/mock.js" th:if="${!#strings.equals(global.env, 'prod')}"></script>
+<script th:inline="javascript">
+    const stateTag = document.getElementById('state');
+    const code = [[${vo.code}]];
+    const subscribeUrl = "/subscribe?id=" + code;
+    const source = new EventSource(subscribeUrl);
+    source.onmessage = function (event) {
+        text = event.data;
+        console.log("receive: " + text);
+        if (text === 'scan') {
+            stateTag.innerText = '二维码已扫描，请在五分钟内输入微信公众号内输入验证码：【' + code + '】';
+            stateTag.style.display = 'block';
+        } else if (text.startsWith('login#')) {
+            // 登录格式为 login#cookie
+            document.cookie = text.substring(6);
+            source.close();
+            window.location.href = "/";
+        }
+    };
+
+    source.onopen = function (evt) {
+        console.log("开始订阅");
+    }
+</script>
+
+</body>
+</html>

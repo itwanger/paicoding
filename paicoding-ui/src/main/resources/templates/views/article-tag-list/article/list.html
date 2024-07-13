@@ -1,0 +1,4 @@
+<!-- 文章列表 -->
+<div th:each="article : ${vo.articles.list}">
+  <div th:replace="components/article/article-card :: article_card(${article})">正文</div>
+</div>

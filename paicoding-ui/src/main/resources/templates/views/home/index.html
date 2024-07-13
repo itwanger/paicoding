@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+  </div>
+  <link href="/css/views/home.css" th:href="${global.siteInfo.oss + '/css/views/home.css'}" rel="stylesheet"/>
+
+  <body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="components/layout/navbar :: navbar"></div>
+
+    <!-- 正文内容 -->
+    <div class="home">
+      <!-- 类别筛选 -->
+      <div
+        th:replace="views/home/navbar/index :: navbar(${vo.categories})"
+      ></div>
+      <div th:replace="views/home/recommend/index">精选推荐文章列表</div>
+
+      <div class="home-wrap bg-color">
+        <div class="home-inter-wrap">
+          <div class="home-body">
+            <div id="articleList" class="cdc-article-panel__list">
+              <div th:replace="views/home/article/list">文章列表</div>
+            </div>
+          </div>
+
+          <div class="home-right">
+            <!-- 侧边公告 -->
+            <div th:if="${!#lists.isEmpty(vo.sideBarItems)}">
+              <div th:replace="views/home/sidebar/index"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 底部信息 -->
+      <div th:replace="components/layout/footer :: footer"></div>
+    </div>
+    <script th:inline="javascript">
+      const archiveId = [[${vo.categoryId}]]
+      const category = [[${ vo.currentCategory }]]
+
+      // 定义一个检测是否为微信浏览器的函数
+      const isWeixinBrowser = () => {
+        const userAgent = navigator.userAgent.toLowerCase();
+        return userAgent.includes('micromessenger');
+      }
+
+      let triggerThreshold = 100;
+
+      // 如果是微信浏览器
+      if (isWeixinBrowser()) {
+        triggerThreshold = 400;
+      }
+
+      const params = {
+          "category": category ? category : '全部',
+          "triggerThreshold": triggerThreshold,
+          "page": 2
+      }
+      loadMore("#articleList", '/article/api/list/category/' + archiveId, params, "articleList");
+    </script>
+  </body>
+</html>
