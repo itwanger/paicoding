@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派 - 文章发表</title>
+  </div>
+
+  <link rel="stylesheet" href="/editormd/css/editormd.css" th:href="${global.siteInfo.oss + '/editormd/css/editormd.css'}" />
+  <link rel="stylesheet" href="/css/views/article-edit.css" th:href="${global.siteInfo.oss + '/css/views/article-edit.css'}" />
+  <script src="/editormd/editormd.js" th:src="${global.siteInfo.oss + '/editormd/editormd.js'}"></script>
+
+  <body id="body">
+    <!-- 正文内容 -->
+    <div class="edit-nav">
+      <form action="/save" method="get" class="edit-title-form">
+        <input
+          id="titleInput"
+          type="text"
+          class="edit-title-input"
+          th:value="${vo.article != null ? vo.article.title: ''}"
+          placeholder="输入文章标题..."
+          oninput="showSaveBtnByTitle()"
+        />
+      </form>
+      <div class="edit-save">
+        <span>保 存</span>
+      </div>
+      <div class="dropdown">
+        <img
+          class="nav-login-img dropdown-toggle"
+          data-toggle="dropdown"
+          th:src="${global.user.photo}"
+        />
+        <!-- 下拉框 -->
+        <div class="dropdown-menu nav-login-menu">
+          <div
+            th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+            class="dropdown-divider"
+          ></div>
+          <a
+            th:href="${'/user/home?userId=' + global.user.userId}"
+            class="dropdown-item"
+            href="#"
+          >
+            个人主页
+          </a>
+          <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" id="paiEditor">
+      <textarea
+        style="display: none"
+        th:text="${vo.article != null ? vo.article.content: ''}"
+      ></textarea>
+    </div>
+
+    <div
+      class="modal fade"
+      id="saveModel"
+      role="dialog"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">发布文章</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="edit-sort-wrap form-group category required">
+              <label class="form-label">分类:</label>
+              <div class="form-selectgroup">
+                <label
+                  th:each="category : ${vo.categories}"
+                  th:class="'form-selectgroup-item ' + ${category.selected ? 'form-selectgroup-item--active': ''}"
+                >
+                  <input
+                    type="radio"
+                    name="category"
+                    th:value="${category.categoryId}"
+                    th:checked="${category.selected}"
+                    class="form-selectgroup-input"
+                  />
+                  <span
+                    class="form-selectgroup-label"
+                    th:text="${category.category}"
+                  >
+                    后端
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group edit-tag-wrap required">
+              <label class="form-label">添加标签:</label>
+              <select id="tag-select" class="form-control" multiple="multiple">
+                <option
+                  th:each="tag : ${vo.tags}"
+                  th:text="${tag.tag}"
+                  th:value="${tag.tagId}"
+                  selected="selected"
+                ></option>
+              </select>
+            </div>
+
+            <div class="input-group cover">
+              <label class="form-label">文章封面:</label>
+              <div class="custom-file">
+                <div class="person-img-inter-wrap">
+                  <div class="click-cover">
+                    <svg
+                      t="1670660402857"
+                      class="icon"
+                      viewBox="0 0 1024 1024"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      p-id="2974"
+                      width="16"
+                      height="16"
+                    >
+                      <path
+                        d="M782.72512 327.9104l-242.54464-242.54464a35.84512 35.84512 0 0 0-13.76256-10.7008c-0.22016-0.09728-0.44032-0.2048-0.67072-0.30208a33.97632 33.97632 0 0 0-13.34272-2.73408l-0.08704 0.00512-0.32256-0.01536c-0.09216 0-0.1792 0.01536-0.27136 0.01536-0.09728 0-0.18944-0.01536-0.2816-0.01536a33.7664 33.7664 0 0 0-20.21376 6.66624 35.96288 35.96288 0 0 0-6.79936 6.27712l-243.3536 243.36384c-6.97856 6.97856-10.85952 15.97952-11.0848 25.4208a35.4304 35.4304 0 0 0 9.3696 24.9344l0.512 0.512a34.49344 34.49344 0 0 0 24.01792 9.57952 36.5568 36.5568 0 0 0 26.33728-11.29472L476.16 191.14496v499.99872a35.84 35.84 0 1 0 71.68 0v-499.8144l185.73312 185.73312c6.97856 6.97856 15.97952 10.85952 25.41568 11.0848l0.86016 0.01024c9.1136 0 17.60768-3.43552 24.07936-9.37984l0.512-0.512c13.30176-13.83424 12.76928-36.38272-1.7152-50.3552z"
+                        fill="#ffffff"
+                        p-id="2975"
+                      ></path>
+                      <path
+                        d="M880.64 747.57632v61.44c0 39.58784-32.09216 71.68-71.68 71.68H215.04c-39.58784 0-71.68-32.09216-71.68-71.68v-61.44a35.84 35.84 0 1 0-71.68 0v61.44c0 79.17568 64.18432 143.36 143.36 143.36h593.92c79.17568 0 143.36-64.18432 143.36-143.36v-61.44a35.84 35.84 0 1 0-71.68 0z"
+                        fill="#ffffff"
+                        p-id="2976"
+                      ></path>
+                    </svg>
+                    <div class="click-text">点击上传封面</div>
+                  </div>
+                  <img class="person-img" id="pic" />
+                  <span class="close_icon">X</span>
+
+                  <svg
+                    t="1670660844412"
+                    class="upload-icon-up"
+                    viewBox="0 0 1029 1024"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    p-id="3248"
+                    width="24"
+                    height="24"
+                  >
+                    <path
+                      d="M661.23 1003.042H119.672c-64.034 0-116.053-51.883-116.053-115.712V115.917C3.618 52.224 55.638 0.068 119.671 0.068H893.27c63.898 0 115.985 52.02 115.985 115.849v539.99c0 21.23-17.34 38.775-38.707 38.775s-38.912-17.34-38.912-38.776v-539.99c0-21.23-17.34-38.638-38.57-38.638H119.67c-21.299 0-38.912 17.408-38.912 38.639v771.14c0 21.231 17.613 38.639 38.912 38.639h541.492c21.162 0 38.707 17.203 38.707 38.639 0.068 21.3-17.545 38.707-38.64 38.707z"
+                      fill="#bfbfbf"
+                      p-id="3249"
+                    ></path>
+                    <path
+                      d="M42.325 771.755c-9.762 0-19.729-4.028-27.238-11.606-14.95-14.95-14.95-39.458 0-54.408l192.785-192.034c35.157-35.158 89.156-44.169 133.803-21.777L551.39 596.65c14.814 7.578 32.768 4.643 44.373-7.167l347.614-346.317c14.95-15.019 39.458-15.019 54.682 0 15.223 14.882 15.087 39.39 0 54.545l-347.75 346.317c-35.09 35.089-88.816 43.759-133.667 21.367L306.86 561.084c-14.95-7.578-32.7-4.506-44.374 7.168L69.7 760.012c-7.51 7.578-17.34 11.743-27.375 11.743zM351.71 385.775c-63.898 0-116.053-51.746-116.053-115.712 0-63.898 51.882-115.712 116.053-115.712 63.76 0 116.053 51.883 116.053 115.712 0 63.898-52.36 115.712-116.053 115.712z m0-154.146c-21.163 0-38.776 17.271-38.776 38.502 0 21.368 17.477 38.64 38.776 38.64 21.163 0 38.639-17.272 38.639-38.64 0-21.23-17.34-38.502-38.64-38.502zM834.833 1024c-21.367 0-38.844-17.203-38.844-38.775V753.869c0-21.095 17.204-38.64 38.844-38.64 21.163 0 38.776 17.34 38.776 38.64v231.356c-0.069 21.572-17.545 38.775-38.776 38.775z"
+                      fill="#bfbfbf"
+                      p-id="3250"
+                    ></path>
+                    <path
+                      d="M989.389 868.284c-9.49 0-18.978-3.345-26.76-10.377l-127.864-120.15-128.478 120.15c-15.36 14.404-39.8 13.858-54.409-1.57-14.677-15.633-13.994-39.868 1.707-54.682L788.89 674.611c11.127-13.721 27.58-21.436 45.533-21.436 17.818 0 34.27 7.988 45.261 21.436l135.441 127.044c15.702 14.814 16.52 38.912 1.775 54.682-6.758 7.782-17.066 11.947-27.511 11.947z"
+                      fill="#bfbfbf"
+                      p-id="3251"
+                    ></path>
+                  </svg>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="upload"
+                    class="click-input"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="input-group input-textarea required">
+              <label class="form-label">文章摘要:</label>
+              <textarea
+                id="summary"
+                class="form-control form-textarea summary"
+                data-bs-toggle="autosize"
+                placeholder="摘要（必填）：会在推荐、列表等场景外露，帮助读者快速了解内容，支持一键将正文前 256 字符键入摘要文本框"
+                maxlength="256"
+                th:text="${vo.article != null ?  vo.article.summary: ''}"
+                oninput="initSummary()"
+              ></textarea>
+              <span
+                class="form-textarea-limit"
+                th:text="${vo.article != null ?  #strings.length(vo.article.summary) + '/256': '0/256'}"
+              >
+                0/128
+              </span>
+              <button
+                type="button"
+                class="el-button btn-getdistill el-button--default el-button--mini is-round"
+              >
+                <span>一键提取</span>
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="publish" type="button" class="btn btn-primary">
+              发布
+            </button>
+            <button id="tmpSave" type="button" class="btn btn-secondary">
+              存草稿
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-mask">
+      <img src="/img/icon.png" class="edit-mask-img" alt="" th:src="${global.siteInfo.oss + '/img/icon.png'}">
+      <span>文件解析中...</span>
+    </div>
+
+
+    <script th:inline="javascript">
+      // 一些 jQuery 对象
+      let pic = $("#pic"),tagSelect = $('#tag-select'),
+              upload = $("#upload"), clickCover = $(".click-cover"),
+              titleInput = $('#titleInput'), categoryLabel = $('.form-selectgroup-item'),
+              editBtn = $('.edit-save'),close_icon = $(".close_icon");
+
+      // 一些变量
+      let vo = [[${ vo }]];
+      console.log("完整的文章参数: ", vo);
+      let uid = "forumId", articleId = 0,
+              cover =[[${ vo.article != null ? vo.article.cover : '' }]],
+              showSaveBtnFlagByTitle = false;
+
+      // 校验限制，如标题长度[5,120], 内容必须>=6，简介最多 256字符
+      const titleMin = 5, titleMax = 120,
+        contentMin = 6, summaryMax = 256;
+
+      if (vo && vo.article) {
+        articleId = vo.article.articleId;
+        uid = uid + "_" + articleId;
+      }
+
+      // 已知的参数
+      let defaults = {
+        articleId: articleId,
+        articleType: "BLOG",
+        source: 2,
+        sourceUrl: "",
+        cover: cover,
+      };
+
+      // 展示遮罩
+      const showMask = () => {
+        const editMaskDom =  $(".edit-mask")
+        const isVisible = editMaskDom.is(':visible')
+        console.log({isVisible});
+        if(!isVisible){
+          editMaskDom.css('display','flex')
+        }
+      }
+
+      // 隐藏遮罩
+      const hideMask = () => {
+        const editMaskDom =  $(".edit-mask")
+        const isVisible = editMaskDom.is(':visible')
+        if(isVisible){
+          editMaskDom.hide()
+        }
+      }
+
+      const preprocessMarkdown = (markdown) => {
+        const regex = /(#+) \*\*(.+?)\*\*/g;
+        return markdown.replace(regex, (match, p1, p2) => `${p1} ${p2}`);
+      };
+
+      // 编辑器
+      // oss 路径
+      const oss = [[${global.siteInfo.oss}]];
+      const jspath = oss + '/editormd/lib/';
+      let simplemde = editormd("paiEditor", {
+        path: jspath,
+        width: "100%",
+        height: calculateEditorHeight(),
+        katexURL : {
+            css : oss + "/katex/katex",
+            js : oss + "/katex/katex",
+
+        }, // KaTeX 的基本 URL
+        // autoHeight : true,
+        // theme : "dark",
+        // previewTheme : "dark",
+        // editorTheme : "pastel-on-dark",
+        // markdown : md.result,
+        codeFold: true,
+        //syncScrolling : false,
+        saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+        searchReplace: true,
+        //watch : false,                // 关闭实时预览
+        htmlDecode: true,            // 开启 HTML 标签解析，为了安全性，默认不开启
+        //toolbar  : false,             //关闭工具栏
+        //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+        emoji: true,
+        taskList: true,
+        tocm: true,         // Using [TOCM]
+        tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+        flowChart: true,             // 开启流程图支持，默认关闭
+        sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+        //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
+        //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
+        //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
+        //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
+        //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
+
+        // 自定义菜单
+        toolbarIcons: function () {
+          return [
+            "mdFile","|",
+            "undo", "redo", "|",
+            "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+            "h1", "h2", "h3", "h4", "|",
+            "list-ul", "list-ol", "hr", "|",
+            "reference-link", "image", "code", "code-block", "table", "html-entities", "|",
+            "goto-line", "watch", "fullscreen", "clear", "search", "|",
+            "help"
+          ]
+        },
+
+        // 用于增加自定义工具栏的功能，可以直接插入HTML标签，不使用默认的元素创建图标
+        toolbarIconTexts : {
+          mdFile : "导入MD"
+        },
+        toolbarHandlers: {
+          mdFile : function(cm, icon, cursor, selection){
+            console.log("导入MD");
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = ".md";
+            fileInput.onchange = function(){
+              console.log("文件选择完毕");
+
+              const file = fileInput.files[0];
+              const reader = new FileReader();
+              reader.onload = function(e){
+                // 获取文件内容
+                let content = e.target.result;
+                console.log("文件内容：", content);
+
+                // 如果内容为空的话，直接返回
+                if(!content || content.length <= 0) {
+                  return;
+                }
+
+                // 使用正则表达式找到前两个 "—" 分隔符之间的内容，以及第二个 "—" 分隔符之后的内容
+                let match = content.match(/^-{3,}([\s\S]*?)-{3,}([\s\S]*)/);
+                if (match && match[1] && match[2]) {
+                  // 提取标题
+                  let titleMatch = match[1].match(/title: (.*)/);
+                  let title = titleMatch && titleMatch[1] ? titleMatch[1].trim() : null;
+
+                  if (title) {
+                    console.log("标题：", title);
+                    $("#titleInput").val(title);
+                    showSaveBtnByTitle();
+                  } else {
+                    console.error("没有找到标题");
+                  }
+
+                  // 提取描述
+                  let descMatch = match[1].match(/description: ([^\n]*)/);
+                  let summary = descMatch && descMatch[1] ? descMatch[1].trim() : null;
+
+                  if (summary) {
+                    console.log("描述：", summary);
+                    $("#summary").val(summary);
+                  } else {
+                    console.error("没有找到描述");
+                  }
+
+                  let text = match[2].trim();
+                  console.log("正文：", text);
+
+                  // 插入到编辑器
+                  content = text;
+                } else {
+                  cm.replaceSelection(content);
+                }
+
+                cm.replaceSelection(preprocessMarkdown(content));
+
+              };
+              reader.readAsText(file);
+            };
+            fileInput.click();
+          }
+        },
+        lang: {
+          toolbar: {
+            mdFile: "导入MD"
+          }
+        },
+
+
+        imageUpload: true,
+        imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+        imageUploadURL: "/image/upload",
+        onload: function () {
+          console.log('onload', this);
+          //this.fullscreen();
+          //this.unwatch();
+          //this.watch().fullscreen();
+
+          //this.setMarkdown("#PHP");
+          //this.width("100%");
+          //this.height(480);
+          //this.resize("100%", 640);
+        },
+        onchange: function () {
+          let newVal = this.getMarkdown();
+          let add;
+          if (newVal.startsWith(lastVal)) {
+            add = newVal.substring(lastVal.length);
+          } else if (lastVal.startsWith(newVal)) {
+            lastVal = newVal;
+            return;
+          } else {
+            add = newVal;
+          }
+
+          // 获取变化的内容，判断新增内容中是否存在图片
+          const pattern = /!\[(.*?)\]\((.*?)\)/mg;
+          let matcher;
+          let imgs = [];
+          try {
+            while ((matcher = pattern.exec(add)) !== null) {
+              let target = matcher[0];
+              let title = matcher[1];
+              let url = matcher[2];
+              if (url.length > 0 && url.startsWith("http") && url.indexOf("saveError") < 0) {
+                imgs.push({
+                  'target': target,
+                  'title': title,
+                  'url': url,
+                })
+              }
+            }
+
+            // 前端这里可以做一个上传请求的幂等，避免相同的url重复上传
+            if (imgs.length > 0) {
+              console.log("打开遮罩层，imgs: ", imgs);
+              showMask();
+              NProgress.start();
+
+              // 上传图片
+              for(let i = 0; i < imgs.length; i++) {
+                let upload = imgs[i];
+                let lastUploadTime = uploadUrls[upload.url];
+                let now = new Date().getTime();
+                if (lastUploadTime && now - lastUploadTime < 30_000) {
+                  console.log("30s内防重复提交，忽略:", upload.url)
+                  continue;
+                }
+                uploadUrls[upload.url] = now;
+
+                console.log("start to upload: ", upload.url, now);
+                get("/image/save?img=" + upload.url, "", function (result) {
+                  let newImg = `![${upload.title}](${result.imagePath})`;
+                  if (upload.target !== newImg) {
+                    // 获取光标位置，替换之后重新设置
+                    let cursor = simplemde.getCursor();
+                    simplemde.setValue(simplemde.getMarkdown().replaceAll(upload.target, newImg));
+                    simplemde.setCursor({line: cursor.line, ch: cursor.ch})
+                  }
+                });
+              }
+            }
+
+            lastVal = newVal;
+          } catch (e) {
+            console.log(e);
+          } finally {
+            // 关闭遮罩
+            console.log('onchange，关闭遮罩层');
+            hideMask();
+            NProgress.done();
+          }
+        }
+      });
+      let lastVal = "";
+      let uploadUrls = {}
+
+      // 复制粘贴图片
+      document.addEventListener('paste', function (event) {
+        let items = (event.clipboardData || window.clipboardData).items;
+        let file = null;
+        if (items && items.length) {
+          // 搜索剪切板items
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+              file = items[i].getAsFile();
+              break;
+            }
+          }
+        } else {
+          toastr.error("当前浏览器不支持");
+          return;
+        }
+        if (!file) {
+          return;
+        }
+
+        // 此时需要先上传到服务器端，然后
+        let objUrl = getObjectURL(file); //获取图片的路径，该路径不是图片在本地的路径
+        console.log("文章编辑器中上传图片：" + { objUrl });
+
+        if (objUrl) {
+
+          if (!checkFileSize(file)) {
+            return;
+          }
+
+          let formData = new FormData()
+          formData.append("image", file)
+
+          // 在请求开始前启动 NProgress
+          NProgress.start();
+          // 开启遮罩层
+          showMask();
+
+          $.ajax({
+            url: "/image/upload",
+            type: "post",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+              if (data.status.code === 0) {
+                // 插入一个空行
+                simplemde.insertValue("\n");
+                simplemde.replaceSelection("![](" + data.result.imagePath + ")");
+                simplemde.insertValue("\n");
+              } else {
+                toastr.error(data.status.msg);
+              }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              toastr.error("上传失败: " + textStatus);
+            },
+            complete: function() {
+              // 无论成功或失败，请求完成后停止 NProgress
+              NProgress.done();
+              // 关闭遮罩
+              hideMask();
+            }
+          })
+        }
+      });
+
+      function calculateEditorHeight() {
+        // 根据需要计算编辑器的高度，例如基于视口高度
+        var windowHeight = $(window).height();
+        return windowHeight - 55; // 减去需要的边距
+      }
+
+      $(window).resize(function() {
+        var newHeight = calculateEditorHeight();
+        simplemde.height(newHeight);
+      });
+
+      tagSelect.select2({
+        placeholder: '请选择你需要的标签，最多三个', // 提示
+        width: '70%', // 宽度
+        allowClear: true, // 可清空
+        debug: true, // 上线后关闭
+        language: 'zh-CN', // 中文
+        maximumSelectionLength: 3, //最多选三个
+        multiple: true, // 可多选
+        // 动态请求数据
+        ajax: {
+          url: '/article/api/tag/list',
+          data: function (params) {
+            var query = {
+              pageNumber: params.page,
+              pageSize: 10,
+              key: params.term,
+            }
+
+            // 查询参数将是 ?search=[term]&type=public
+            return query;
+          },
+          dataType: 'json',
+          processResults: function (response, params) {
+            console.log("response: ", response)
+            console.log("page: ", params.page)
+            var data = $.map(response.result.list, function (obj) {
+              obj.id = obj.id || obj.tagId;
+              obj.text = obj.text || obj.tag;// 用您的标识符替换pk
+
+              return obj;
+            });
+            return {
+              results: data,
+              pagination: {
+                more: response.result.pageNum < response.result.pageTotal// 总页数为10，那么1-9页的时候都可以下拉刷新
+              }
+            };
+          }
+        }
+      });
+
+      // 提取简介
+      $(".btn-getdistill").on("click", function () {
+        // 获取文章内容
+        let content = checkContent().trim();
+        // 准备提交到后端
+        if (content.length > 600) {
+          content = content.substring(0, 600)
+        }
+
+        const params = {
+          content: content,
+        };
+
+        post("/article/api/generateSummary", params, function (data) {
+          console.log("提取后的简介:", data)
+          const $summary = $("#summary");
+          $summary.val(data);
+          // 滚动到底部
+          $summary.scrollTop($summary.prop('scrollHeight'));
+          $('.form-textarea-limit').text(data.length + '/' + summaryMax)
+        });
+
+      });
+
+      // 检查标题的长度
+      function checkTitle() {
+        const title = titleInput.val();
+        if (title.length <= titleMin) {
+          toastr.error("文章标题太短!")
+          return false;
+        }
+        if (title.length > titleMax) {
+          toastr.error("文章标题太长了!");
+          return false;
+        }
+        return title;
+      }
+
+      // 检查内容的长度
+      function checkContent() {
+        const content = simplemde.getMarkdown();
+
+        if (content.length <= contentMin) {
+          toastr.error("文章内容太短了！");
+          return false;
+        }
+
+        return content;
+      }
+
+      //  发表文章
+      $("#publish").on("click", function () {
+        doPostArticle("post")
+      })
+      // 保存草稿
+      $("#tmpSave").on("click", function () {
+        doPostArticle("save")
+      })
+
+      // 获取表单类容
+      function doPostArticle(action) {
+        const title = checkTitle();
+        if (!title) {
+          return;
+        }
+
+        const content = checkContent();
+        if (!content) {
+          return;
+        }
+
+        // 分类选择
+        const category = getChooseCategoryId()
+        if (parseInt(category) <= 0) {
+          toastr.error("请选择文章分类");
+          return;
+        }
+        // 处理标签
+        const tagsAll = [];
+        $.each(tagSelect.select2('data'), function (index, value) {
+          tagsAll.push(value.id);
+        });
+
+        if (tagsAll.length <= 0 || tagsAll.length > 3) {
+          toastr.error("请选择1-3个标签!");
+          return;
+        }
+
+        const summary = $("#summary").val()
+        if (summary.length < contentMin || summary.length > summaryMax) {
+          toastr.error("简介字数应该在6-128之间哦!");
+          return;
+        }
+
+        let options = {
+          title: title,
+          content: content,
+          categoryId: category,
+          tagIds: tagsAll,
+          summary: summary,
+          actionType: action, // post 表示发表, save表示暂存
+        }
+
+        let params = $.extend( {}, defaults, options );
+        console.log(params);
+
+        post("/article/api/post", params, function (data) {
+          console.log("返回结果:", data)
+          window.location.href = "/article/detail/" + data
+        })
+      }
+
+      function getChooseCategoryId() {
+        const category = $("input[name='category']:radio:checked")
+        if (category.length > 0) {
+          return category.val()
+        }
+        return -1
+      }
+
+      // 检查输入简介摘要的长度
+      function initSummary() {
+        let len = $('#summary').val().length
+        if (len > summaryMax) {
+          len = summaryMax;
+        }
+        $('.form-textarea-limit').text(len + '/' + summaryMax)
+      }
+
+      // 控制文章分类的选择
+      categoryLabel.each(function (index) {
+        (function (index) {
+          categoryLabel.eq(index).on('click', function () {
+            categoryLabel.removeClass('form-selectgroup-item--active')
+              .eq(index).addClass('form-selectgroup-item--active')
+          })
+        })(index)
+      })
+
+
+      // 处理按钮隐藏时不可编辑
+      editBtn.click(() => {
+        if (!showSaveBtnFlagByTitle) return false
+        $("#saveModel").modal();
+      })
+
+      // 处理title输入保存以及按钮显隐的问题
+      const showSaveBtnByTitle = () => {
+        const value = titleInput.val()
+        const len = value.length
+        console.log(value)
+
+        // 保存到本地
+        localStorage.setItem('articleTitle', value)
+
+        if (len > titleMin) {
+          editBtn.addClass('edit-save--active')
+          showSaveBtnFlagByTitle = true
+        } else {
+          editBtn.removeClass('edit-save--active')
+          showSaveBtnFlagByTitle = false
+        }
+      }
+
+      // 从本地初始化标题
+      initTitleFormLocalStorage();
+
+      function initTitleFormLocalStorage() {
+        const editTitle = titleInput.val();
+        // 编辑的时候不从本地取
+        if (editTitle) {
+
+        } else {
+          const titleValue = localStorage.getItem('articleTitle')
+          if (titleValue) {
+            titleInput.val(titleValue)
+          }
+        }
+
+        showSaveBtnByTitle();
+      }
+
+      function showByMouseover() {
+        let objUrl = pic.attr("src");
+        // 已经上传过了
+        if (objUrl) {
+          close_icon.css('display', 'block');
+          $('.upload-icon-up').css('visibility', 'hidden');
+        } else {
+          clickCover.css("visibility", "visible")
+        }
+      }
+
+      // 是否显示封面
+      function initCover() {
+        // 文章 ID，新建文章
+        if (articleId != 0) {
+          // 编辑的时候，显示图片，如果为空的时候不显示
+          if (cover.length > 0) {
+            pic.attr("src", cover);
+            showByMouseover();
+          }
+        }
+      }
+
+      // 初始化封面
+      initCover();
+
+      // 封面上传相关
+      $(".custom-file").on("mouseover", ".person-img-inter-wrap", function () {
+        console.log("出现上传的按钮")
+        showByMouseover();
+      }).on("mouseleave", ".person-img-inter-wrap", function () {
+        clickCover.css("visibility", "hidden")
+      })
+
+      clickCover.click(function () {
+        upload.click() //隐藏了input:file样式后，点击头像就可以本地上传
+      })
+
+      upload.on("change", function (e) {
+        let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+
+        if (objUrl) {
+          console.log("uploadImg", this.value)
+          uploadImg(() => (this.value = null), objUrl)
+        }
+      })
+
+      // 删除图片后
+      close_icon.click(function () {
+        pic.attr("src", "").css('visibility', 'hidden');
+        close_icon.css('display', 'none');
+        $('.upload-icon-up').css('visibility', 'visible');
+
+        // 删除图片后置空
+        defaults['cover'] = "";
+      })
+
+      // 上传头图到服务器
+      function uploadImg(callback, objUrl) {
+        let uploadPic = upload[0].files[0]
+        console.log("准备上传", uploadPic)
+
+        if (!checkFileSize(uploadPic)) {
+          return;
+        }
+
+        let file = new FormData()
+        file.append("image", uploadPic)
+        $.ajax({
+          url: "/image/upload",
+          type: "post",
+          data: file,
+          cache: false,
+          contentType: false,
+          processData: false,
+          success: function (data) {
+            console.log("response data", data);
+            if (data.status.code > 0) {
+              // 图片上传失败
+              toastr.error(data.status.msg, "图片上传失败!");
+              return;
+            }
+
+            const {result: { imagePath },} = data || {}
+            defaults['cover'] = imagePath;
+
+            //将图片路径存入src中，显示出图片
+            pic.attr("src", objUrl).css('visibility', 'visible') // 展示图片
+            $('.upload-icon-up').css('visibility', 'hidden') // 隐藏上传
+
+            callback();
+            toastr.info("图片上传成功!");
+          },
+          error : function(jqXHR, textStatus, errorThrown) {
+            toastr.error(jqXHR.responseText, "图片上传失败!");
+          },
+        })
+      }
+    </script>
+  </body>
+</html>

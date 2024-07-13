@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">
+      专栏内容详情页 | 技术派
+    </title>
+  </div>
+
+  <link rel="stylesheet" href="/css/views/column-detail.css" th:href="${global.siteInfo.oss + '/css/views/column-detail.css'}" />
+
+  <body id="body">
+    <!-- 导航栏 -->
+    <div th:replace="components/layout/navbar :: navbar"></div>
+    <div class="article-wrap">
+        <!-- 目录 -->
+        <div th:replace="views/column-detail/column-menu/index"></div>
+        <!-- 内容 -->
+        <div class="article-content-wrap bg-color">
+          <!--  增加一个搜索的 Form 表单和左侧目录折叠的按钮  -->
+          <div class="for-menu">
+            <form class="bd-search d-flex align-items-center">
+              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+              <!-- 折叠目录按钮 -->
+              <button class="btn bd-search-docs-toggle d-md-none pl-1 pr-0"
+                      type="button"
+                      data-toggle="collapse"
+                      data-target="#collapseMenu"
+                      aria-controls="collapseMenu"
+                      aria-expanded="false"
+                      aria-label="Toggle docs navigation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false"><title>Menu</title><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"/></svg>
+              </button>
+            </form>
+          </div>
+
+          <!--  正文 -->
+          <div class="article-content-inter-wrap">
+            <div th:replace="components/article/article-detail :: article_info(${vo.article}, null, ${vo.other})"></div>
+            <!--  评论  -->
+            <div id="commentDiv">
+              <div th:replace="components/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"
+              >
+                评论列表
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </body>
+
+  <script th:inline="javascript">
+    // menu 是否显示
+    function checkMediaQuery() {
+      if (window.matchMedia('(min-width: 700px)').matches) {
+        // 如果屏幕宽度大于600px，添加 'show' 类
+        $('#collapseMenu').addClass('show');
+      } else {
+        // 否则，移除 'show' 类
+        $('#collapseMenu').removeClass('show');
+      }
+    }
+
+    // 监听窗口大小变化
+    $(window).resize(checkMediaQuery);
+
+    // 初始检查
+    checkMediaQuery();
+
+    // menu 滚动到指定位置
+    function scrollToMenu() {
+      const sectiona = $("a.active.section");
+      if (sectiona.length > 0) {
+        sectiona[0].scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "center",
+        });
+      }
+    }
+
+    $('#collapseMenu').on('shown.bs.collapse', function () {
+      scrollToMenu();
+    })
+
+    scrollToMenu();
+
+    // 内容渲染
+    const articleId = [[${ vo.article.articleId }]];
+
+    // 跳转到评论的地方
+    $("#commentFloatBtn").click(function () {
+      document.getElementById("commentList").scrollIntoView(true);
+    })
+
+    // 点赞
+    let praisedCount = [[${ vo.article.count.praiseCount }]]
+    let praised = [[${ vo.article.praised }]]
+    const isLogin = [[${ global.isLogin }]]
+    const currentUserId = isLogin ? [[${ global.user != null ? global.user.userId : '' }]] : '';
+    const currentUserAvatar = isLogin ? [[${ global.user != null ? global.user.photo : '' }]] : '';
+    $("#praiseBtn").on('click', function () {
+      if (!isLogin) {
+        // 未登录，不执行相关操作
+        return;
+      }
+      praised = !praised;
+      praiseArticle(articleId, praised, function (data) {
+        let avatarList = $('#praiseUsers')
+        if (praised) {
+          // 点赞
+          praisedCount += 1;
+          $("#praiseBtn").addClass("active")
+
+          // 添加当前点赞用户的头像
+          avatarList.prepend('' +
+            '            <a class="g-user-popover approval-img" href="/user/' + currentUserId + '">\n' +
+            '                <img src="' + currentUserAvatar + '">\n' +
+            '            </a>')
+        } else {
+          // 取消点赞
+          praisedCount -= 1;
+          $("#praiseBtn").removeClass("active")
+
+          // 移除当前点赞用户的头像
+          let subItems = avatarList.children();
+          for (let i = 0; i < subItems.length; i++) {
+            let target = subItems[i];
+            if (target.innerHTML.indexOf(currentUserAvatar) >= 0) {
+              // 移除当前用户头像
+              target.remove();
+              break;
+            }
+          }
+        }
+        if (praisedCount > 0) {
+          $('#praiseDesc').text(String(praisedCount) + '人已点赞');
+        } else {
+          $('#praiseDesc').text('真诚点赞，诚不我欺');
+        }
+      });
+    });
+
+    // 收藏
+    let collectionCount = [[${ vo.article.count.collectionCount }]]
+    let collected = [[${ vo.article.collected }]]
+    $("#collectFloatBtn").click(function () {
+      if (!isLogin) {
+        // 未登录，不执行相关操作
+        return;
+      }
+
+      collected = !collected;
+
+      collectArticle(articleId, collected, function (data) {
+        if (collected) {
+          // 点赞
+          collectionCount += 1;
+          $("#collectFloatBtn").addClass("active")
+        } else {
+          collectionCount -= 1;
+          $("#collectFloatBtn").removeClass("active")
+        }
+
+        if (collectionCount > 0) {
+          $("#collectFloatBtn").addClass("with-badge")
+          $('#collectFloatBtn').attr("badge", collectionCount)
+        } else {
+          $("#collectFloatBtn").removeClass("with-badge")
+          $('#collectFloatBtn').removeAttr("badge")
+        }
+      });
+    })
+
+    // 二维码
+    $("#qrIconTag").click(function () {
+      const tag = $("#qrTipsTag")
+      if (tag.hasClass("show")) {
+        tag.removeClass("show")
+      } else {
+        tag.addClass("show")
+      }
+    })
+
+    function bindCommentInputEvent() {
+      // 直接评论
+      const commentContent = $("#commentContent")
+      const commentBtn = $("#commentBtn")
+      commentBtn.click(function () {
+        const content = commentContent.val()
+        if (!content || content.length > 512) {
+          toastr.error("评论内容长度要求在[1,512]之间")
+          return
+        }
+        // 提交评论
+        const params = {
+          // 文章id
+          articleId: articleId,
+          // 评论内容
+          commentContent: content,
+        }
+        post("/comment/api/post", params, function (data) {
+          // 使用 Ajax 的方式，直接更新评论列表
+          document.getElementById("commentDiv").innerHTML = data
+          bindCommentInputEvent()
+        })
+      })
+
+      // 直接评论监听
+      $(document).on("input propertychange", "#commentContent", function () {
+        const val = $(this).val()
+        console.log(val)
+        if (val) {
+          $("#commentBtn").attr("disabled", false).removeClass("c-btn-disabled")
+        } else {
+          $("#commentBtn").attr("disabled", true).addClass("c-btn-disabled")
+        }
+      })
+    }
+
+    // 回复
+    $(document).on("click", ".reply-comment", function () {
+      const currentDom = $(this)
+      createComment(currentDom)
+    })
+
+    // 回复编辑
+    $(document).on("click", ".hf-pl", function () {
+      const currentDom = $(this)
+      commentSubmit(currentDom)
+    })
+
+    $(document).on("input propertychange", ".hf-input", function () {
+      const currentDom = $(this)
+      listenCommentBtn(currentDom)
+    })
+
+    // 点击回复创建评论
+    const createComment = function (currentDom) {
+      // 移除其他回复
+      $(".hf-con").remove()
+
+      // 获取回复人的名字
+      var fhName = currentDom
+        .parents(".common-item-content")
+        .find(".comment-name")
+        .html()
+      //回复@
+      var fhN = "回复@" + fhName + "："
+      var fhHtml =
+        '<div class="hf-con pull-left"><textarea class="hf-input" placeholder="" "></textarea><button disabled class="hf-pl hf-pl--disabled">评论</button></div>'
+      if (currentDom.is(".hf-con-block")) {
+        const currentWrap =
+          (currentDom.parents(".comment-item-wrap").length &&
+            currentDom.parents(".comment-item-wrap")) ||
+          (currentDom.parents(".comment-item-wrap-second").length &&
+            currentDom.parents(".comment-item-wrap-second"))
+
+        currentWrap.find(".common-item-content").append(fhHtml)
+        currentDom.removeClass("hf-con-block")
+        //input框自动聚焦
+        currentDom
+          .parents(".common-item-content")
+          .find(".hf-input")
+          .val("")
+          .focus()
+          .attr("placeholder", fhN)
+        // 取消回复
+        currentDom.find(".reply-comment-text").hide()
+        currentDom.find(".reply-comment-text-none").show()
+      } else {
+        currentDom.addClass("hf-con-block")
+        currentDom.parents(".common-item-content").find(".pull-left").remove()
+        // 回复
+        currentDom.find(".reply-comment-text").show()
+        currentDom.find(".reply-comment-text-none").hide()
+      }
+    }
+
+    // 评论编辑&提交
+    const commentSubmit = function (currentDom) {
+      const replyContent = currentDom.siblings(".hf-input")
+      const replyBtn = currentDom
+        .parents(".common-item-content")
+        .find(".reply-comment")
+
+      if (!replyContent.val()) {
+        toastr.error("回复内容不能为空")
+        return
+      }
+      // 提交评论
+      const params = {
+        // 文章id
+        articleId: $("#postsTitle").attr("data-id"),
+        // 评论内容
+        commentContent: replyContent.val(),
+        // 回复的评论id
+        parentCommentId: replyBtn.attr("data-reply-id"),
+        // 回复的一级评论id
+        topCommentId: replyBtn.attr("data-reply-top"),
+      }
+      post("/comment/api/post", params, function (data) {
+        document.getElementById("commentDiv").innerHTML = data
+        bindCommentInputEvent()
+      })
+    }
+
+    // 监听按钮
+    const listenCommentBtn = function (currentDom) {
+      if (!currentDom.val()) {
+        $(".hf-pl").attr("disabled", true).addClass("hf-pl--disabled")
+      } else {
+        $(".hf-pl").attr("disabled", false).removeClass("hf-pl--disabled")
+      }
+    }
+
+    bindCommentInputEvent()
+  </script>
+</html>

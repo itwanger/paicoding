@@ -1,0 +1,12 @@
+log:
+  path: logs
+env:
+  name: dev
+
+spring:
+  thymeleaf:
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    cache: false

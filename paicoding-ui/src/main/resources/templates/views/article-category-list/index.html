@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+</div>
+
+<style>
+    .category-wrap-out {
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+
+    .category-wrap {
+        width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .category-list {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+</style>
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+
+<!-- 正文内容 -->
+<div class="category-wrap-out">
+    <div class="category-wrap">
+        <!-- 文章列表 -->
+        <div class="category-list">
+            <div id="articleList">
+                <div th:replace="views/article-category-list/article/list">文章列表</div>
+            </div>
+        </div>
+    </div>
+    <!-- 底部信息 -->
+    <div th:replace="components/layout/footer :: footer"></div>
+</div>
+<script src="/js/biz/loadMore.js" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}" ></script>
+<script th:inline="javascript">
+    const archiveId = [[${ vo.archiveId }]]
+    const params = {
+        "page": 2
+    }
+    loadMore('.category-wrap-out', '/article/api/list/category/' + archiveId, params, "articleList");
+</script>
+</body>
+
+</html>
+

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="now" value="now()" dbms="mysql"/>
+    <property name="autoIncrement" value="true"/>
+
+    <changeSet id="00000000000001" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_schema_221209.sql"/>
+    </changeSet>
+
+    <changeSet id="00000000000002" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_221209.sql"/>
+    </changeSet>
+
+    <changeSet id="00000000000003" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_221210.sql"/>
+    </changeSet>
+
+    <changeSet id="00000000000005" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_221216.sql"/>
+    </changeSet>
+
+    <!--  专栏类型，新增免费开始时间、结束时间  -->
+    <changeSet id="00000000000006" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_221223.sql"/>
+    </changeSet>
+
+    <!-- user_info表添加ip字段，用于记录访问用户所在地   -->
+    <changeSet id="00000000000007" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_221229.sql"/>
+    </changeSet>
+
+    <!-- 配置表新增 extra 字段 -->
+    <changeSet id="00000000000008" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230103.sql"/>
+    </changeSet>
+
+    <!-- 技术派介绍文章 -->
+    <changeSet id="00000000000009" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230103.sql"/>
+    </changeSet>
+
+    <!-- 重新更新标签 -->
+    <changeSet id="00000000000012" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230105.sql"/>
+    </changeSet>
+
+    <!-- 添加审核中 -->
+    <changeSet id="00000000000013" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230130.sql"/>
+    </changeSet>
+
+    <!-- 添加用户角色 -->
+    <changeSet id="00000000000014" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230131.sql"/>
+    </changeSet>
+
+    <!-- 重新调整初始化的相关文章内容 -->
+    <changeSet id="00000000000015" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230415.sql"/>
+    </changeSet>
+
+    <!-- AI 聊天相关 -->
+    <changeSet id="00000000000016" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230626.sql"/>
+    </changeSet>
+
+    <!-- db 配置 -->
+    <changeSet id="00000000000017" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230628.sql"/>
+    </changeSet>
+
+    <!-- 添加枚举字典 -->
+    <changeSet id="00000000000018" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230629.sql"/>
+    </changeSet>
+
+    <!-- 新增专栏文章的阅读类型  -->
+    <changeSet id="00000000000019" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_230820.sql"/>
+    </changeSet>
+
+    <!-- 添加星球描述信息  -->
+    <changeSet id="00000000000020" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_230821.sql"/>
+    </changeSet>
+
+    <!-- 修改文章主键  -->
+    <changeSet id="00000000000021" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_231018.sql"/>
+    </changeSet>
+
+    <!-- 添加枚举字典  -->
+    <changeSet id="00000000000022" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_231113.sql"/>
+    </changeSet>
+</databaseChangeLog>

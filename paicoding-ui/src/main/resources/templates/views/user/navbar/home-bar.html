@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:fragment="select_tag(list, userId)" class="user-slect-tag">
+    <div class="user-select-tag-wrap">
+      <a
+        th:each="selectTag : ${list}"
+        th:text="${selectTag.selectDesc}"
+        th:href="${'?' + 'userId=' + userId + '&homeSelectType=' + selectTag.selectType}"
+        th:class="${'tag-select ' + (selectTag.selected ? 'tag-select-active' : ' ')}"
+      >
+        用户文章/浏览记录/关注/收藏
+      </a>
+    </div>
+  </div>
+</html>

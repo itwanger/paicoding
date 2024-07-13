@@ -1,0 +1,19 @@
+image:
+  abs-tmp-path: /Users/mengloulv/storage
+  web-img-path: forum/imge/
+  tmp-upload-path: /tmp/forum/
+  cdn-host:
+  oss:
+    type: local
+    prefix: paicoding/
+    endpoint:
+    ak:
+    sk:
+    bucket:
+    host:
+
+spring:
+  web:
+    resources:
+      # 支持本地图片上传之后的链接，其中 file:///d的用于win系统，后面的file: 适用于mac/linux系统
+      static-locations: classpath:/static/, file:///d:${image.abs-tmp-path}, file:${image.abs-tmp-path}

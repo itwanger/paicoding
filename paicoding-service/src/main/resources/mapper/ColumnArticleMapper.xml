@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.article.repository.mapper.ColumnArticleMapper">
+
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+    <select id="listColumnArticles" resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
+        select
+            ca.article_id as id,
+            (case ca.read_type when 0 then ci.type else ca.read_type end) as `readType`,
+            (case LENGTH(a.short_title) when 0 then a.title else a.short_title end) as title,
+            ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`
+        from
+            column_article ca left join article a on ca.article_id = a.id
+            left join column_info ci on ca.column_id = ci.id
+        where
+            ca.column_id = #{columnId}
+        order by
+            ca.`section` asc
+    </select>
+
+    <select id="getColumnArticle" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
+        select article_id, `read_type` from column_article where column_id = #{columnId} and `section` = #{section} limit 1
+    </select>
+
+    <select id="countColumnReadUserNums" resultType="java.lang.Long">
+        select count(distinct u.user_id) from column_article as a left join user_foot as u on a.article_id = u.document_id
+        where u.document_type = 1 and u.read_stat = 1 and a.column_id = #{columnId}
+    </select>
+
+    <select id="listColumnArticlesByColumnIdArticleName"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO">
+        select c.id, c.article_id, a.title, a.short_title, c.column_id,
+               col.column_name as `column`, col.cover as column_cover,
+               c.`section` as sort, c.create_time
+        from column_article as c
+            left join article as a on c.article_id = a.id
+            left join column_info as col on c.column_id = col.id
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+            <if test="columnId != null and columnId != -1">
+                and c.column_id = #{columnId}
+            </if>
+            <if test="articleTitle != null and articleTitle != ''">
+                and a.short_title like concat('%', #{articleTitle}, '%')
+            </if>
+        order by c.section asc
+        <include refid="limit"/>
+    </select>
+
+    <select id="countColumnArticlesByColumnIdArticleName" resultType="java.lang.Long">
+        select count(1)
+        from column_article as c
+            left join article as a on c.article_id = a.id
+            left join column_info as col on c.column_id = col.id
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+            <if test="columnId != null and columnId != -1">
+                and c.column_id = #{columnId}
+            </if>
+            <if test="articleTitle != null and articleTitle != ''">
+                and a.short_title like concat('%', #{articleTitle}, '%')
+            </if>
+    </select>
+</mapper>

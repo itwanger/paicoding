@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 关注卡片 -->
+<div th:fragment="follow_card(follow)">
+    <div class="follow-item">
+        <div>
+            <a th:href="'/user/' + ${follow.userId}">
+                <img th:src="${follow.avatar}"
+                     src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdpic.tiankong.com%2Fet%2Fjg%2FQJ9108977402.jpg&refer=http%3A%2F%2Fdpic.tiankong.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1664861850&t=281d7109272f158ecb9fbee9c0fd0efb"
+                     alt=""
+                />
+                <span th:text="${follow.userName}">用户名</span>
+            </a>
+        </div>
+
+        <div th:if="${global.user != null && follow.userId != global.user.userId}">
+            <span class="follow-item-icon" th:if="${follow.followed != null && follow.followed}"
+                  th:data-user-id="${follow.userId}" th:data-followed="'true'" onclick="followAction(this)">
+             取消关注
+             </span>
+            <span class="follow-item-icon" th:if="${follow.followed == null || !follow.followed}"
+                  th:data-user-id="${follow.userId}" th:data-followed="'false'" onclick="followAction(this)">
+            关注
+            </span>
+        </div>
+    </div>
+</div>
+</html>

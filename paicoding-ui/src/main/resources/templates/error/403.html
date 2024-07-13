@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+</div>
+
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+
+<div th:replace="components/layout/container :: container_all(~{::content})">
+    <content>
+        <div style="background-color: #fff;text-align: center;height: 600px;margin-bottom: 20px;padding-top: 265px;">
+            <p>
+                <span style="font-size: 30px;">403无权限！！！</span>
+                <span th:if="${!#strings.isEmpty(toast)}"
+                      th:text="${'（' + toast + '）'}"
+                      style="font-size: 20px;color: red;">系统异常</span>
+            </p>
+        </div>
+    </content>
+</div>
+<div th:replace="components/layout/footer :: footer"></div>
+</body>
+</html>

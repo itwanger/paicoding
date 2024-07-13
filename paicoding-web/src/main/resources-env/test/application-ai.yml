@@ -1,0 +1,40 @@
+net:
+  proxy:
+    # 代理相关信息
+    - ip: 127.0.0.1
+      port: 1080
+      type: SOCKS
+
+
+
+# chatgpt
+chatgpt:
+  main: CHAT_GPT_3_5
+  conf:
+    CHAT_GPT_3_5:
+      keys:
+        - # 这里输入你的key
+      proxy: true # 表示走上面的代理进行访问
+      apiHost: https://api.openai.com/
+      timeOut: 900
+      maxToken: 3000
+    CHAT_GPT_4:
+      keys:
+        -
+      proxy: true
+      apiHost: https://api.openai.com/
+      timeOut: 900
+      maxToken: 200000
+  number:
+    # 普通用户
+    normal: 50
+    vip: 100
+
+
+
+# 讯飞AI
+xunfei:
+  hostUrl: http://spark-api.xf-yun.com/v1.1/chat
+  appId:
+  apiKey:
+  apiSecret:

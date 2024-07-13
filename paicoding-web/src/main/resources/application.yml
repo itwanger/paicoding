@@ -1,0 +1,94 @@
+
+server:
+  port: 8081
+  servlet:
+    session:
+      timeout: 5m # 设置session的有效期为五分钟
+  compression:
+    enabled: true # 开启返回结果压缩，减少传输耗时
+    min-response-size: 2KB
+
+spring:
+  #  profiles:
+  #    active: dal,web,config,image
+  # 替换上面作废的spring.profiels.actice配置参数
+  config:
+    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml,application-rabbitmq.yml,application-ai.yml
+
+  main:
+    # 引入下面这个配置，主要是为了解决自定义实现的多数据源功能，自主注册的datasource替换默认的
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  mvc:
+    async:
+      request-timeout:
+  liquibase:
+    change-log: classpath:liquibase/master.xml
+    enabled: true # 当实际使用的数据库不支持liquibase，如 mariadb 时，将这个参数设置为false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+
+servlet:
+  tomcat:
+    max-swallow-size: -1 # 解决上传图片超过2MB之后，出现连接重置的问题
+
+security:
+  salt: tech_π # 密码加盐, 更安全的做法是每个用户的密码使用独立的盐，并将其保存在用户表中
+  salt-index: 3 # 盐插入的位置
+
+paicoding:
+  sensitive: # 敏感词校验相关配置
+    enable: true
+    deny: # 自定义的敏感词，英文逗号分割
+    allow: # 自定义的非敏感词，英文逗号分割
+  jwt:
+    issuer: pai_coding # 签发者
+    secret: hello_world # 签名密钥
+    expire: 2592000000 # jwt的有效期，默认30天
+
+# 默认的数据库名
+database:
+  name: pai_coding
+
+# mybatis 相关统一配置
+mybatis-plus:
+  configuration:
+    #开启下划线转驼峰
+    map-underscore-to-camel-case: true
+  type-aliases-package: classpath:mapper/*.xml
+
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN
+  openapi:
+    title: 技术派
+    description: 一个基于 Spring Boot3、MyBatis-Plus、MySQL、Redis、ElasticSearch、RabbitMQ、Vue.js 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
+    version: 1.0.0
+    concat:
+      - 小灰飞
+      - http://xuyifei.site
+#      - https://github.com/itwanger/paicoding
+    license: Apache License 2.0
+#    license-url: https://github.com/itwanger/paicoding/blob/main/License
+    email: 857998989@qq.com
+    group:
+      admin:
+        group-name: 后台接口分组
+        api-rule: package
+        api-rule-resources:
+          - com.github.paicoding.forum.web.admin
+      front:
+        group-name: 前台接口分组
+        api-rule: package
+        api-rule-resources:
+          - com.github.paicoding.forum.web.front
+
+logging:
+  level:
+    com.github.paicoding.forum.service.rank.service.impl.*: debug # 指定具体包下的日志输出级别

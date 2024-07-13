@@ -1,0 +1,17 @@
+log:
+  path: /home/ubuntu/tech-pai/logs # 请使用实际的地址进行替换
+env:
+  name: dev
+
+
+spring:
+  thymeleaf:
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    cache: true # 开启缓存
+
+
+chatgpt:
+  key:

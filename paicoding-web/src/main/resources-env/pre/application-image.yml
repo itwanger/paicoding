@@ -1,0 +1,12 @@
+image:
+  abs-tmp-path: /home/work/storage
+  web-img-path: forum/imge/
+  tmp-upload-path: /tmp/forum/
+  oss:
+    type: local
+    endpoint:
+    prefix: paicoding/
+    ak:
+    sk:
+    bucket:
+    host:

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">
+        排行榜 | 技术派
+    </title>
+</div>
+
+<link rel="stylesheet" href="/css/views/rank.css" th:href="${global.siteInfo.oss + '/css/views/rank.css'}"/>
+<body id="body" class="bg-color">
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+<div class="custom-home">
+    <div class="custom-home-wrap">
+        <div class="hot-list-wrap">
+            <div class="hot-list-header">
+                <div><span class="hot-title"> 活跃排行榜 </span></div>
+                <div class="author-type-select">
+                    <a href="/rank/day"
+                       th:class="'author-type-link ' + ${#strings.equalsIgnoreCase(vo.result.time, 'day') ? 'router-link-exact-active route-active author-type-link-active' : ''}"><span>日榜</span></a>
+                    <a href="/rank/month"
+                       th:class="'author-type-link ' + ${#strings.equalsIgnoreCase(vo.result.time, 'month') ? 'router-link-exact-active route-active author-type-link-active' : ''}"><span>月榜</span></a>
+                </div>
+            </div>
+            <div class="hot-list">
+                <div th:href="'/user/' + ${item.user.userId}"
+                     class="author-item-link"
+                     th:each="item, itemStat : ${vo.result.items} ">
+                    <div class="author-item-wrap">
+                        <div class="author-item-left">
+                            <div class="author-number"
+                                 th:class="'author-number ' + ${item.rank < 4 ? 'author-number-'+ item.rank : ''}"
+                                 th:text="${item.rank}">1
+                            </div>
+                            <div class="author-detail">
+                                <img th:src="${item.user.avatar}" alt="avatar" class="author-author-img">
+                                <div class="author-info">
+                                    <a th:href="'/user/' + ${item.user.userId}" target="_blank">
+                                        <div class="username author-username"><span class="name"
+                                                                                    style="max-width: 128px;"
+                                                                                    th:text="${item.user.name}">技术派</span>
+                                        </div>
+                                        <div class="author-text"
+                                             th:text="${!#strings.isEmpty(item.user.profile) ? item.user.profile: '这个人很懒，没有留下介绍~'} ">
+                                            简单的介绍
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="author-right">
+                            <div class="author-hot">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg" class="hot-icon">
+                                    <path d="M4.88933 0.614951C4.92947 0.617922 4.96831 0.630544 5.00253 0.651744C6.67348 1.68687 7.55141 3.13982 7.63632 5.01059C7.947 5.01059 8.2245 4.66096 8.46882 3.9617L8.49487 3.88544C8.53862 3.75449 8.68025 3.68379 8.8112 3.72754C8.83398 3.73515 8.85554 3.746 8.87522 3.75976C9.96316 4.52027 10.5048 5.50328 10.5 6.70879C10.4999 6.7386 10.4982 6.76773 10.495 6.79618C10.4985 6.86391 10.5 6.93229 10.5 7.00102C10.5 9.4863 8.48528 11.501 6 11.501C3.51472 11.501 1.5 9.4863 1.5 7.00102C1.5 6.90353 1.5031 6.80676 1.50921 6.71081C1.5062 6.71014 1.5031 6.70947 1.5 6.70879C1.50864 6.60946 1.52139 6.51092 1.53824 6.41316C1.54515 6.35873 1.55321 6.3047 1.56222 6.251L1.57017 6.2508C1.7622 5.38228 2.28426 4.57698 3.13635 3.83492C4.00892 3.07502 4.50079 2.11621 4.61198 0.958475L4.62156 0.845816C4.63175 0.708122 4.75163 0.604761 4.88933 0.614951Z"
+                                          fill="#F64242"></path>
+                                </svg>
+                                <span class="hot-number" th:text="${item.score}"> 7438</span> <span
+                                    class="hot-text">活跃度</span></div>
+                            <button type="button"
+                                    class="author-item-button byte-btn byte-btn--primary byte-btn--normal byte-btn--ghost">
+                                <a th:href="'/user/' + ${item.user.userId}">去关注</a></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="components/layout/footer :: footer"></div>
+</div>
+<!-- 底部信息 -->
+</body>
+
+<script th:inline="javascript">
+</script>
+</html>

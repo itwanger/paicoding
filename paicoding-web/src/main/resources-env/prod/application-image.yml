@@ -1,0 +1,17 @@
+image:
+  # 服务器保存图片的绝对地址
+  abs-tmp-path: /home/ubuntu/storage/
+  # 图片前缀
+  web-img-path: forum/img/
+  # 临时存储目录
+  tmp-upload-path: /tmp/forum/
+  # 图片访问域名
+  cdn-host:
+  oss:
+    type: local
+    prefix:
+    endpoint:
+    ak:
+    sk:
+    bucket:
+    host:

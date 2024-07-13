@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.user.repository.mapper.UserAiMapper">
+
+    <sql id="limit">
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </sql>
+
+    <sql id="zsxqWhitesByParams">
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <if test="searchParams.userCode != null and searchParams.userCode != ''">
+            and u.user_name like concat('%', #{searchParams.userCode}, '%')
+        </if>
+        <if test="searchParams.name != null and searchParams.name != ''">
+            and ui.user_name like concat('%', #{searchParams.name}, '%')
+        </if>
+        <if test="searchParams.starNumber != null and searchParams.starNumber != ''">
+            and a.star_number like concat('%', #{searchParams.starNumber}, '%')
+        </if>
+        <if test="searchParams.status != null and searchParams.status != -1">
+            and a.state = #{searchParams.status}
+        </if>
+    </sql>
+
+    <select id="listZsxqUsersByParams"
+            resultType="com.github.paicoding.forum.api.model.vo.user.dto.ZsxqUserInfoDTO">
+        select a.id, a.user_id, a.star_number, a.invite_code,
+            a.invite_num, a.state, u.user_name as user_code,
+            a.strategy, u.login_type,
+            ui.user_name as name, ui.photo as avatar
+        from user_ai a
+        left join user u on u.id = a.user_id
+        left join user_info ui on a.user_id = ui.user_id
+        <include refid="zsxqWhitesByParams"/>
+        order by a.update_time desc
+        <include refid="limit"/>
+    </select>
+    <select id="countZsxqUsersByParams" resultType="java.lang.Long">
+        select count(*) from user_ai a
+        left join user u on u.id = a.user_id
+        left join user_info ui on a.user_id = ui.user_id
+        <include refid="zsxqWhitesByParams"/>
+    </select>
+
+</mapper>

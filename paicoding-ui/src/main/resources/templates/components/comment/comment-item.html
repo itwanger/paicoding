@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <!-- 一级评论及其回复 -->
+  <div th:fragment="comment_item(comment)" class="comment-list-wrap">
+    <div class="comment-item-wrap">
+      <div class="comment-item-top">
+        <a th:href="${'/user/' + comment.userId}" target="_blank">
+          <img th:src="${comment.userPhoto}" class="comment-item-img" />
+        </a>
+        <div class="common-item-content">
+          <div class="common-item-content-head">
+            <span>
+              <a
+                th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
+                th:href="${'/user/' + comment.userId}"
+                target="_blank"
+                class="comment-name"
+              >
+                作者
+              </a>
+            </span>
+            <span
+              th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(comment.commentTime)}"
+            >
+              时间
+            </span>
+          </div>
+          <div
+            class="common-item-content-value"
+            th:text="${comment.commentContent}"
+          >
+            内容
+          </div>
+          <div>
+            <div
+              th:replace="components/comment/comment-action :: comment_action(${comment})"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 二级评论 -->
+    <div
+      th:if="${!#lists.isEmpty(comment.childComments)}"
+      th:each="reply : ${comment.childComments}"
+      class="comment-item-wrap-second"
+    >
+      <div class="comment-item-top">
+        <a th:href="${'/user/' + reply.userId}" target="_blank">
+          <img th:src="${reply.userPhoto}" class="comment-item-img" />
+        </a>
+        <div class="common-item-content">
+          <div class="common-item-content-head">
+            <span>
+              <a
+                th:text="${reply.userName} + ${reply.userId == article.author ? '（作者）': ''}"
+                th:href="${'/user/' + reply.userId}"
+                target="_blank"
+                class="comment-name"
+              ></a>
+            </span>
+            <span
+              th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(reply.commentTime)}"
+            >
+              回复时间
+            </span>
+          </div>
+          <div
+            class="common-item-content-value"
+            th:text="${reply.commentContent}"
+          >
+            回复内容
+          </div>
+          <small
+            th:if="${!#strings.isEmpty(reply.parentContent)}"
+            style="
+              display: flex;
+              background: #f2f3f5;
+              border: 1px solid #e4e6eb;
+              box-sizing: border-box;
+              border-radius: 4px;
+              padding: 0 12px;
+              line-height: 36px;
+              height: 36px;
+              font-size: 14px;
+              color: #8a919f;
+              margin-top: 8px;
+            "
+          >
+            <span th:text="${reply.parentContent}">回复的引用</span>
+          </small>
+          <div>
+            <div
+              th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</html>

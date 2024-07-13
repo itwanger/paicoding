@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="head(title, links, scripts)">
+    <title
+      th:replace="${title}"
+      th:text="${global.siteInfo == null ? '' : global.siteInfo.websiteName}"
+    >
+      技术派
+    </title>
+    <meta name="baidu-site-verification" content="codeva-mbGuu7l4Q1" />
+    <meta
+      name="keywords"
+      content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis,沉默王二"
+      th:if="${global.ogp == null}"
+    />
+    <meta name="description"
+          th:if="${global.ogp == null}"
+          content="技术派，一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。"
+    />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <meta name="robots" content="all">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta th:each="tag: ${global.ogp}" th:attr="content=${tag.val}" th:property="${tag.key}"/>
+
+    <script type="application/ld+json" th:utext="${global.jsonLd}"></script>
+
+    <link rel="icon" href="/img/icon.png" th:href="${global.siteInfo.oss + '/img/icon.png'}"/>
+    <link href="/css/three/index.css" th:href="@{{oss}/css/three/index.css(oss=${global.siteInfo.oss})}" rel="stylesheet" />
+    <link href="/css/three/highlightjs.github.min.css" th:href="${global.siteInfo.oss + '/css/three/highlightjs.github.min.css'}" rel="stylesheet" />
+    <link href="/css/three/nprogress.css" th:href="${global.siteInfo.oss + '/css/three/nprogress.css'}" rel="stylesheet" />
+    <link href="/css/global.css" th:href="${global.siteInfo.oss + '/css/global.css'}" rel="stylesheet" />
+    <link href="/css/common.css" th:href="${global.siteInfo.oss + '/css/common.css'}" rel="stylesheet" />
+    <link href="/katex/katex.css" th:href="${global.siteInfo.oss + '/katex/katex.css'}" rel="stylesheet" >
+    <script>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?2745ad927051c4bc7b7ee34b781df793";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+
+    <script src="/js/jquery.min.js" th:src="${global.siteInfo.oss + '/js/jquery.min.js'}"></script>
+    <script src="/js/popper.min.js" th:src="${global.siteInfo.oss + '/js/popper.min.js'}"></script>
+    <script src="/js/bootstrap.min.js" th:src="${global.siteInfo.oss + '/js/bootstrap.min.js'}"></script>
+    <script src="/js/toastr.min.js" th:src="${global.siteInfo.oss + '/js/toastr.min.js'}"></script>
+    <script src="/js/jquery.scrollUp.min.js" th:src="${global.siteInfo.oss + '/js/jquery.scrollUp.min.js'}"></script>
+    <script src="/js/md5.min.js" th:src="${global.siteInfo.oss + '/js/md5.min.js'}"></script>
+    <script src="/js/marked.min.js" th:src="${global.siteInfo.oss + '/js/marked.min.js'}"></script>
+    <script src="/js/select2.full.min.js" th:src="${global.siteInfo.oss + '/js/select2.full.min.js'}"></script>
+    <script src="/js/biz/forum.js" th:src="${global.siteInfo.oss + '/js/biz/forum.js'}"></script>
+    <script src="/js/biz/loadMore.js" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}"></script>
+    <script src="/js/biz/toolaction.js" th:src="${global.siteInfo.oss + '/js/biz/toolaction.js'}"></script>
+    <script src="/js/biz/login.js" th:src="${global.siteInfo.oss + '/js/biz/login.js'}"></script>
+    <script src="/js/biz/select2.zh_CN.js" th:src="${global.siteInfo.oss + '/js/biz/select2.zh_CN.js'}"></script>
+    <script src="/js/jsonld.min.js" th:src="${global.siteInfo.oss + '/js/jsonld.min.js'}"></script>
+    <script src="/js/clipboard.min.js" th:src="${global.siteInfo.oss + '/js/clipboard.min.js'}"></script>
+    <script src="/js/highlight.min.js" th:src="${global.siteInfo.oss + '/js/highlight.min.js'}"></script>
+    <script src="/js/nprogress.js" th:src="${global.siteInfo.oss + '/js/nprogress.js'}"></script>
+    <script defer src="/katex/katex.js" th:src="${global.siteInfo.oss + '/katex/katex.js'}"></script>
+    <script defer src="/katex/contrib/auto-render.js" th:src="${global.siteInfo.oss + '/katex/contrib/auto-render.js'}"></script>
+    <script src="/js/mathjax-config.js" th:src="${global.siteInfo.oss + '/js/mathjax-config.js'}" defer></script>
+
+    <th:block th:replace="${links}" />
+    <th:block th:replace="${scripts}" />
+  </head>
+</html>

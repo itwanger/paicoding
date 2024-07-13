@@ -1,0 +1,8 @@
+rabbitmq:
+  host: 127.0.0.1
+  port: 5672
+  username: guest
+  passport: guest
+  virtualhost: /
+  switchFlag: false
+  pool_size: 5

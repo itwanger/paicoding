@@ -1,0 +1,68 @@
+<div class="book-summary collapse" id="collapseMenu">
+  <div class="book-summary-inner">
+    <div
+      class="book-directory-comp beautify-scrollbar-warp book-directory"
+    >
+      <div class="section-list">
+        <div th:each="menu, itemStat : ${vo.articleList}">
+          <a
+            th:href="'/column/' + ${vo.column} + '/' + ${itemStat.index + 1}"
+            th:class="${vo.section eq itemStat.index + 1} ? 'active section' : ' section'">
+            <div class="left">
+              <div class="index" th:text="${itemStat.index + 1}">1</div>
+            </div>
+            <div class="center">
+              <div class="main-line">
+                <div class="title">
+                  <span class="title-text" th:text="${menu.title}">
+                    开篇: 第一篇文章
+                  </span>
+                </div>
+              </div>
+              <div class="sub-line">
+                <span
+                  th:text="'更新时间: ' + ${T(com.github.paicoding.forum.core.util.DateUtil).time2date(menu.createTime)}"
+                >
+                  更新时间: 2022.02.02
+                </span>
+              </div>
+            </div>
+            <div class="right" th:switch="${menu.readType}">
+              <div class="label label-free" th:case="0" th:text="'免费'">Free</div>
+              <div class="label label-free" th:case="1" th:text="'登录'" th:if="${ !global.isLogin }">Login</div>
+              <div class="label" th:case="2" th:text="'限免'">Login</div>
+              <div class="label label-star" th:case="3" th:text="'星球'">Star</div>
+              <div class="label" th:case="*" th:text="'限免'">other</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="book-summary__footer">
+      <div class="qr-icon" id="qrIconTag">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          class=""
+        >
+          <path
+            fill="#BABABA"
+            fill-rule="evenodd"
+            d="M11 0h9v9h-9V0zM0 0h9v9H0V0zm0 11h9v9H0v-9zm14-5h3V3h-3v3zM3 6h3V3H3v3zm0 11v-3h3v3H3zm8-6h3v3h-3v-3zm3 3h3v3h-3v-3zm3-3h3v3h-3v-3zm-6 6h3v3h-3v-3zm6 0h3v3h-3v-3z"
+          ></path>
+        </svg>
+      </div>
+      <div class="qr-tips" id="qrTipsTag">
+        <span class="ion-close"></span>
+        <div class="title">
+          <span>关注公众号</span>
+        </div>
+        <div class="qr-img">
+          <img src="//cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg" th:src="${global.siteInfo.contactMeWxQrCode}"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
