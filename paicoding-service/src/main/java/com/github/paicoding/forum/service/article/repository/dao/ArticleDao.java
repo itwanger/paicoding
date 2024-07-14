@@ -239,6 +239,10 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
         Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
 
+        // 查询结果排序：先是官方的，然后是置顶的，最后是按照创建时间倒序
+        query.orderByDesc(ArticleDO::getOfficalStat)
+                .orderByDesc(ArticleDO::getToppingStat, ArticleDO::getCreateTime);
+
         return baseMapper.selectPage(page, query);
     }
 
