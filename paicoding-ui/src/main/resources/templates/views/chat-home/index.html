@@ -54,6 +54,7 @@
                     <select class="styled-dropdown" id="chat-type">
                         <option value="XUN_FEI_AI" selected>讯飞星火</option>
                         <option value="CHAT_GPT_3_5">OpenAI</option>
+                        <option value="ZHI_PU_AI">智谱AI</option>
                         <option value="PAI_AI">技术派</option>
                     </select>
                 </div>
@@ -212,12 +213,17 @@
         if("JSON" === answerType) {
             // 需要对 body 的 JSON 字符串进行解析
             const res = JSON.parse(content);
-            console.log("CHAT_GPT_3_5 res:", res);
+            console.log(" res:", res);
             if (res.length === 1) {
                 content = res[0].message.content;
-                console.log("CHAT_GPT_3_5 content escapeHtml before:", content);
+                console.log(" content escapeHtml before:", content);
                 content = prettyCode(content);
-                console.log("CHAT_GPT_3_5 content escapeHtml after:", content);
+                console.log(" content escapeHtml after:", content);
+            } else {
+                // 直接返回的结果
+                console.log(" content escapeHtml before:", res);
+                content = prettyCode(res);
+                console.log(" content escapeHtml after:", content);
             }
         } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
             const lastDiv = $(`#${chatId}`)

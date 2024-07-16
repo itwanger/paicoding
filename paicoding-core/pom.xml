@@ -151,7 +151,7 @@
         <dependency>
             <groupId>com.github.plexpt</groupId>
             <artifactId>chatgpt</artifactId>
-            <version>4.0.5</version>
+            <version>4.4.0</version>
         </dependency>
 
         <dependency>
@@ -164,6 +164,18 @@
             <groupId>com.alibaba</groupId>
             <artifactId>transmittable-thread-local</artifactId>
             <version>2.14.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>4.8.83</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.bigmodel.openapi</groupId>
+            <artifactId>oapi-java-sdk</artifactId>
+            <version>release-V4-2.1.0</version>
         </dependency>
     </dependencies>
 </project>
