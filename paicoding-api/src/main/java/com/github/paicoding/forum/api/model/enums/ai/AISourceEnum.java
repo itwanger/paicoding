@@ -29,6 +29,15 @@ public enum AISourceEnum {
             return false;
         }
     },
+    /**
+     * 智谱 AI
+     */
+    ZHI_PU_AI(4, "智谱") {
+        @Override
+        public boolean asyncSupport() {
+            return false;
+        }
+    },
     ;
 
     private String name;

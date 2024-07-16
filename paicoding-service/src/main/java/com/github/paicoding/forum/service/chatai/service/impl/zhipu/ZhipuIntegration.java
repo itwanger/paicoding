@@ -1,0 +1,167 @@
+package com.github.paicoding.forum.service.chatai.service.impl.zhipu;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
+import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.core.util.JsonUtil;
+import com.zhipu.oapi.ClientV4;
+import com.zhipu.oapi.Constants;
+import com.zhipu.oapi.service.v4.deserialize.MessageDeserializeFactory;
+import com.zhipu.oapi.service.v4.model.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+@Slf4j
+@Setter
+@Component
+public class ZhipuIntegration {
+    @Autowired
+    private ZhipuConfig config;
+
+    @Getter
+    private ClientV4 client;
+
+    @PostConstruct
+    public void init() {
+        client = new ClientV4.Builder(config.apiSecretKey)
+                .networkConfig(300, 100, 100, 100, TimeUnit.SECONDS)
+                .connectionPool(new okhttp3.ConnectionPool(8, 1, TimeUnit.SECONDS))
+                .build();
+    }
+
+    public void streamReturn(Long user, ChatItemVo chat) {
+        List<ChatMessage> messages = new ArrayList<>();
+        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), chat.getQuestion());
+        messages.add(chatMessage);
+        String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
+        // 函数调用参数构建部分
+        List<ChatTool> chatToolList = new ArrayList<>();
+        ChatTool chatTool = new ChatTool();
+
+        chatTool.setType("code_interpreter");
+//        ObjectNode objectNode =  mapper.createObjectNode();
+//        objectNode.put("code", "北京天气");
+//        chatTool.set(chatFunction);
+        chatToolList.add(chatTool);
+
+
+        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                .model("glm-4-alltools")
+                .stream(Boolean.TRUE)
+                .invokeMethod(Constants.invokeMethod)
+                .messages(messages)
+                .tools(chatToolList)
+                .toolChoice("auto")
+                .requestId(requestId)
+                .build();
+
+        ModelApiResponse sseModelApiResp = client.invokeModelApi(chatCompletionRequest);
+
+        ObjectMapper mapper = MessageDeserializeFactory.defaultObjectMapper();
+
+        if (sseModelApiResp.isSuccess()) {
+            AtomicBoolean isFirst = new AtomicBoolean(true);
+            List<Choice> choices = new ArrayList<>();
+            AtomicReference<ChatMessageAccumulator> lastAccumulator = new AtomicReference<>();
+
+            sseModelApiResp.getFlowable().map(
+                    chunk -> {
+                        return new ChatMessageAccumulator(chunk.getChoices().get(0).getDelta(), null, chunk.getChoices().get(0), chunk.getUsage(), chunk.getCreated(), chunk.getId());
+                    }
+            ).doOnNext(accumulator -> {
+                        {
+                            if (isFirst.getAndSet(false)) {
+                                log.info("Response: ");
+                            }
+                            if (accumulator.getDelta() != null && accumulator.getDelta().getTool_calls() != null) {
+                                String jsonString = mapper.writeValueAsString(accumulator.getDelta().getTool_calls());
+                                log.info("tool_calls: {}", jsonString);
+                            }
+                            if (accumulator.getDelta() != null && accumulator.getDelta().getContent() != null) {
+                                String content = accumulator.getDelta().getContent();
+                                chat.appendAnswer(content);
+                                log.info(content);
+                            }
+                            choices.add(accumulator.getChoice());
+                            lastAccumulator.set(accumulator);
+
+                        }
+                    })
+                    .doOnComplete(() -> System.out.println("Stream completed."))
+                    .doOnError(throwable -> System.err.println("Error: " + throwable)) // Handle errors
+                    .blockingSubscribe();// Use blockingSubscribe instead of blockingGet()
+
+            ChatMessageAccumulator chatMessageAccumulator = lastAccumulator.get();
+            ModelData data = new ModelData();
+            data.setChoices(choices);
+            if (chatMessageAccumulator != null) {
+                data.setUsage(chatMessageAccumulator.getUsage());
+                data.setId(chatMessageAccumulator.getId());
+                data.setCreated(chatMessageAccumulator.getCreated());
+            }
+            data.setRequestId(chatCompletionRequest.getRequestId());
+            sseModelApiResp.setFlowable(null);// 打印前置空
+            sseModelApiResp.setData(data);
+        }
+        try {
+            log.info("model output: {}", mapper.writeValueAsString(sseModelApiResp));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        client.getConfig().getHttpClient().dispatcher().executorService().shutdown();
+
+        client.getConfig().getHttpClient().connectionPool().evictAll();
+        // List all active threads
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            log.info("Thread: " + t.getName() + " State: " + t.getState());
+        }
+    }
+
+    @Component
+    @ConfigurationProperties(prefix = "zhipu")
+    @Data
+    public static class ZhipuConfig {
+        public String requestIdTemplate;
+        public String apiSecretKey;
+    }
+
+    public boolean directReturn(Long user, ChatItemVo chat) {
+        List<ChatMessage> messages = new ArrayList<>();
+        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), chat.getQuestion());
+        messages.add(chatMessage);
+        String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
+
+        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                .model(Constants.ModelChatGLM4)
+                .stream(Boolean.FALSE)
+                .invokeMethod(Constants.invokeMethod)
+                .messages(messages)
+                .requestId(requestId)
+                .build();
+
+        ModelApiResponse invokeModelApiResp = client.invokeModelApi(chatCompletionRequest);
+        if (invokeModelApiResp.isSuccess()) {
+            invokeModelApiResp.getData().getChoices().forEach(choice -> {
+                chat.initAnswer(JsonUtil.toStr(choice.getMessage().getContent()), ChatAnswerTypeEnum.JSON);
+                log.info("智谱 AI 试用! 传参:{}, 返回:{}", chat, invokeModelApiResp);
+            });
+        }
+
+
+        return true;
+    }
+}
