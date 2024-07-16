@@ -246,6 +246,26 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return baseMapper.selectPage(page, query);
     }
 
+    /**
+     * 根据分类id查询文章
+     * @param currentPage
+     * @param pageSize
+     * @param tagId
+     * @return
+     */
+    public IPage<ArticleDO> listArticlesByTagIdPagination(int currentPage, int pageSize, Long tagId) {
+        Page<ArticleDO> page = new Page<>(currentPage, pageSize);
+        if (tagId == null || tagId <= 0) {
+            // tag不存在时，说明查所有
+            LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+            query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                    .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
+            return baseMapper.selectPage(page, query);
+        }else{
+            return articleMapper.selectArticlesByTag(page, tagId);
+        }
+    }
+
     public Long countArticleByCategoryId(Long categoryId) {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
