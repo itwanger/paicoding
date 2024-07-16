@@ -69,10 +69,20 @@ public interface ArticleReadService {
      * 使用mybatis-plus分页插件进行查询
      * @param currentPage
      * @param pageSize
-     * @param categoryId
+     * @param category
      * @return
      */
     IPage<ArticleDTO> queryArticlesByCategoryPagination(int currentPage, int pageSize, String category);
+
+    /**
+     * 使用mybatis-plus分页插件进行查询
+     * 查询某个标签下的文章
+     * @param currentPage
+     * @param pageSize
+     * @param tagId
+     * @return
+     */
+    IPage<ArticleDTO> queryArticlesByTagPagination(int currentPage, int pageSize, Long tagId);
 
     /**
      * 获取 Top 文章

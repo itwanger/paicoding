@@ -95,7 +95,6 @@ public class ArticleRestController {
     /**
      * 文章详情页
      * - 参数解析知识点
-     * - fixme * [1.Get请求参数解析姿势汇总 | 一灰灰Learning](https://hhui.top/spring-web/01.request/01.190824-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8Bget%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%A7%BF%E5%8A%BF%E6%B1%87%E6%80%BB/)
      *
      * @param articleId
      * @return
@@ -234,6 +233,17 @@ public class ArticleRestController {
                                                              @RequestParam(name = "currentPage", required = false, defaultValue = "1") int currentPage,
                                                              @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
         IPage<ArticleDTO> articles = articleService.queryArticlesByCategoryPagination(currentPage, pageSize, category);
+        return ResultVo.ok(articles);
+    }
+
+    /**
+     * 获取指定分类下的文章信息
+     */
+    @GetMapping("/articles/tag")
+    public ResultVo<IPage<ArticleDTO>> getArticlesByTag(@RequestParam(name = "tagId", required = false) Long tagId,
+                                                             @RequestParam(name = "currentPage", required = false, defaultValue = "1") int currentPage,
+                                                             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
+        IPage<ArticleDTO> articles = articleService.queryArticlesByTagPagination(currentPage, pageSize, tagId);
         return ResultVo.ok(articles);
     }
 

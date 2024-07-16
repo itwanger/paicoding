@@ -81,4 +81,12 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
     Long countArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams);
 
     IPage<ArticleDO> listStarArticlesByUserId(Page<ArticleDO> page, Long userId);
+
+    /**
+     * 查询某个标签下的文章
+     * @param page
+     * @param tagId
+     * @return
+     */
+    IPage<ArticleDO> selectArticlesByTag(Page<ArticleDO> page, Long tagId);
 }

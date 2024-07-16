@@ -127,5 +127,14 @@
                 as u on a.id = u.document_id and a.deleted = 0 and a.status = 1
             order by u.update_time desc
     </select>
+    <select id="selectArticlesByTag"
+            resultType="com.github.paicoding.forum.service.article.repository.entity.ArticleDO">
+        select article.* from article
+        left join article_tag t on article.id = t.article_id
+        where t.tag_id = #{tagId}
+          and article.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+          and article.deleted =${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        order by article.offical_stat desc, article.topping_stat desc, article.create_time desc
+    </select>
 
 </mapper>

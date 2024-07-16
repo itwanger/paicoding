@@ -187,6 +187,20 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     }
 
     /**
+     * 分页根据tag查询文章列表
+     * @param currentPage
+     * @param pageSize
+     * @param tagId
+     * @return
+     */
+    @Override
+    public IPage<ArticleDTO> queryArticlesByTagPagination(int currentPage, int pageSize, Long tagId) {
+        IPage<ArticleDO> records = articleDao.listArticlesByTagIdPagination(currentPage, pageSize, tagId);
+
+        return records.convert(this::fillArticleRelatedInfo);
+    }
+
+    /**
      * 返回分类列表
      *
      * @param active 选中的分类
