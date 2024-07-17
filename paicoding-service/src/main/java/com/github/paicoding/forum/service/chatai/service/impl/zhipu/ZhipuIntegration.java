@@ -3,12 +3,15 @@ package com.github.paicoding.forum.service.chatai.service.impl.zhipu;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.zhipu.oapi.ClientV4;
 import com.zhipu.oapi.Constants;
 import com.zhipu.oapi.service.v4.deserialize.MessageDeserializeFactory;
 import com.zhipu.oapi.service.v4.model.*;
+import io.reactivex.Flowable;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 @Slf4j
 @Setter
@@ -32,57 +36,50 @@ public class ZhipuIntegration {
     @Autowired
     private ZhipuConfig config;
 
-    @Getter
-    private ClientV4 client;
-
-    @PostConstruct
-    public void init() {
-        client = new ClientV4.Builder(config.apiSecretKey)
-                .networkConfig(300, 100, 100, 100, TimeUnit.SECONDS)
-                .connectionPool(new okhttp3.ConnectionPool(8, 1, TimeUnit.SECONDS))
-                .build();
-    }
-
-    public void streamReturn(Long user, ChatItemVo chat) {
+    public void streamReturn(Long user, ChatRecordsVo chatRecord, BiConsumer<AiChatStatEnum, ChatRecordsVo> callback) {
         List<ChatMessage> messages = new ArrayList<>();
-        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), chat.getQuestion());
+
+        ChatItemVo item = chatRecord.getRecords().get(0);
+        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), item.getQuestion());
         messages.add(chatMessage);
+
         String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
         // 函数调用参数构建部分
         List<ChatTool> chatToolList = new ArrayList<>();
         ChatTool chatTool = new ChatTool();
 
         chatTool.setType("code_interpreter");
-//        ObjectNode objectNode =  mapper.createObjectNode();
-//        objectNode.put("code", "北京天气");
-//        chatTool.set(chatFunction);
         chatToolList.add(chatTool);
 
-
+        // 请求参数封装
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .model("glm-4-alltools")
+                .model(config.getModel())
                 .stream(Boolean.TRUE)
                 .invokeMethod(Constants.invokeMethod)
                 .messages(messages)
                 .tools(chatToolList)
+                .userId("paicoding-" + String.valueOf(user))
                 .toolChoice("auto")
                 .requestId(requestId)
                 .build();
+        ClientV4 client = new ClientV4.Builder(config.apiSecretKey)
+                .networkConfig(300, 100, 100, 100, TimeUnit.SECONDS)
+                .connectionPool(new okhttp3.ConnectionPool(8, 1, TimeUnit.SECONDS))
+                .build();
 
+        // 调用模型接口
         ModelApiResponse sseModelApiResp = client.invokeModelApi(chatCompletionRequest);
 
+        // 序列化输出
         ObjectMapper mapper = MessageDeserializeFactory.defaultObjectMapper();
 
+        // 处理返回结果
         if (sseModelApiResp.isSuccess()) {
             AtomicBoolean isFirst = new AtomicBoolean(true);
             List<Choice> choices = new ArrayList<>();
             AtomicReference<ChatMessageAccumulator> lastAccumulator = new AtomicReference<>();
 
-            sseModelApiResp.getFlowable().map(
-                    chunk -> {
-                        return new ChatMessageAccumulator(chunk.getChoices().get(0).getDelta(), null, chunk.getChoices().get(0), chunk.getUsage(), chunk.getCreated(), chunk.getId());
-                    }
-            ).doOnNext(accumulator -> {
+            mapStreamToAccumulator(sseModelApiResp.getFlowable()).doOnNext(accumulator -> {
                         {
                             if (isFirst.getAndSet(false)) {
                                 log.info("Response: ");
@@ -93,16 +90,23 @@ public class ZhipuIntegration {
                             }
                             if (accumulator.getDelta() != null && accumulator.getDelta().getContent() != null) {
                                 String content = accumulator.getDelta().getContent();
-                                chat.appendAnswer(content);
+                                item.appendAnswer(content);
                                 log.info(content);
                             }
                             choices.add(accumulator.getChoice());
                             lastAccumulator.set(accumulator);
-
+                            callback.accept(AiChatStatEnum.MID, chatRecord);
                         }
                     })
-                    .doOnComplete(() -> System.out.println("Stream completed."))
-                    .doOnError(throwable -> System.err.println("Error: " + throwable)) // Handle errors
+                    .doOnComplete(() -> {
+                        System.out.println("Stream completed.");
+                        item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                        callback.accept(AiChatStatEnum.END, chatRecord);
+                    })
+                    .doOnError(throwable -> {
+                        System.err.println("Error: " + throwable);
+                        callback.accept(AiChatStatEnum.ERROR, chatRecord);
+                    }) // Handle errors
                     .blockingSubscribe();// Use blockingSubscribe instead of blockingGet()
 
             ChatMessageAccumulator chatMessageAccumulator = lastAccumulator.get();
@@ -137,13 +141,14 @@ public class ZhipuIntegration {
     public static class ZhipuConfig {
         public String requestIdTemplate;
         public String apiSecretKey;
+        public String model;
     }
 
     public boolean directReturn(Long user, ChatItemVo chat) {
         List<ChatMessage> messages = new ArrayList<>();
         ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), chat.getQuestion());
         messages.add(chatMessage);
-        String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
+        String requestId = String.format(config.requestIdTemplate, user + System.currentTimeMillis());
 
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
                 .model(Constants.ModelChatGLM4)
@@ -152,7 +157,10 @@ public class ZhipuIntegration {
                 .messages(messages)
                 .requestId(requestId)
                 .build();
-
+        ClientV4 client = new ClientV4.Builder(config.apiSecretKey)
+                .networkConfig(300, 100, 100, 100, TimeUnit.SECONDS)
+                .connectionPool(new okhttp3.ConnectionPool(8, 1, TimeUnit.SECONDS))
+                .build();
         ModelApiResponse invokeModelApiResp = client.invokeModelApi(chatCompletionRequest);
         if (invokeModelApiResp.isSuccess()) {
             invokeModelApiResp.getData().getChoices().forEach(choice -> {
@@ -163,5 +171,11 @@ public class ZhipuIntegration {
 
 
         return true;
+    }
+
+    public static Flowable<ChatMessageAccumulator> mapStreamToAccumulator(Flowable<ModelData> flowable) {
+        return flowable.map(chunk -> {
+            return new ChatMessageAccumulator(chunk.getChoices().get(0).getDelta(), null, chunk.getChoices().get(0), chunk.getUsage(), chunk.getCreated(), chunk.getId());
+        });
     }
 }
