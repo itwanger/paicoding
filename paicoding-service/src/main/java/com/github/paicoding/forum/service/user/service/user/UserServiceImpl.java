@@ -132,6 +132,7 @@ public class UserServiceImpl implements UserService {
         return UserConverter.toDTO(user, userAiDO);
     }
 
+    @Override
     public SimpleUserInfoDTO querySimpleUserInfo(Long userId) {
         UserInfoDO user = userDao.getByUserId(userId);
         if (user == null) {
@@ -149,6 +150,7 @@ public class UserServiceImpl implements UserService {
         return UserConverter.toDTO(user);
     }
 
+    @Override
     public List<SimpleUserInfoDTO> batchQuerySimpleUserInfo(Collection<Long> userIds) {
         List<UserInfoDO> users = userDao.getByUserIds(userIds);
         if (CollectionUtils.isEmpty(users)) {
@@ -157,6 +159,7 @@ public class UserServiceImpl implements UserService {
         return users.stream().map(UserConverter::toSimpleInfo).collect(Collectors.toList());
     }
 
+    @Override
     public List<BaseUserInfoDTO> batchQueryBasicUserInfo(Collection<Long> userIds) {
         List<UserInfoDO> users = userDao.getByUserIds(userIds);
         if (CollectionUtils.isEmpty(users)) {

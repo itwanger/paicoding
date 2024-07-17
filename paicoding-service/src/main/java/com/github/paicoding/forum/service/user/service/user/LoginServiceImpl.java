@@ -37,7 +37,6 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private UserAiDao userAiDao;
 
-
     @Autowired
     private UserSessionHelper userSessionHelper;
     @Autowired
@@ -100,6 +99,7 @@ public class LoginServiceImpl implements LoginService {
      * @param password 密码
      * @return
      */
+    @Override
     public String loginByUserPwd(String username, String password) {
         UserDO user = userDao.getUserByUserName(username);
         if (user == null) {
