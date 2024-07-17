@@ -20,6 +20,9 @@ public class ZhipuAiServiceImpl extends AbsChatService {
 
     @Override
     public AiChatStatEnum doAnswer(Long user, ChatItemVo chat) {
+        if (zhipuIntegration.directReturn(user, chat)) {
+            return AiChatStatEnum.END;
+        }
         return AiChatStatEnum.ERROR;
     }
 
