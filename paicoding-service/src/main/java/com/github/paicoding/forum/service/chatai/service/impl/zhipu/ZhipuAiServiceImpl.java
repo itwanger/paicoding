@@ -1,11 +1,20 @@
 package com.github.paicoding.forum.service.chatai.service.impl.zhipu;
 
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
+import com.github.paicoding.forum.api.model.enums.WsConnectStateEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
+import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiAiServiceImpl;
+import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +37,7 @@ public class ZhipuAiServiceImpl extends AbsChatService {
 
     @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
-        ChatItemVo item = chatRes.getRecords().get(0);
-
-        zhipuIntegration.streamReturn(user, item);
+        zhipuIntegration.streamReturn(user, chatRes, consumer);
         return AiChatStatEnum.IGNORE;
     }
 
