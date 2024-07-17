@@ -91,11 +91,11 @@ public class ZhipuIntegration {
                             if (accumulator.getDelta() != null && accumulator.getDelta().getContent() != null) {
                                 String content = accumulator.getDelta().getContent();
                                 item.appendAnswer(content);
-                                log.info(content);
+                                callback.accept(AiChatStatEnum.MID, chatRecord);
+                                log.info("回复内容: {}", content);
                             }
                             choices.add(accumulator.getChoice());
                             lastAccumulator.set(accumulator);
-                            callback.accept(AiChatStatEnum.MID, chatRecord);
                         }
                     })
                     .doOnComplete(() -> {

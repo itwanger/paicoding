@@ -127,6 +127,14 @@
     margin-left: 20px;
 }
 
+.chat-main a {
+    color: var(--pai-brand-1-normal);
+}
+
+.chat-main a:hover {
+    color: var(--pai-brand-2-hover);
+}
+
 .server-msg .markdown-body pre {
     padding: 0;
 }
