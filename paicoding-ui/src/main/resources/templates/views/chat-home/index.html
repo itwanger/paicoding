@@ -198,11 +198,7 @@
             .replace(/'/g, "&#039;");
     }
 
-    function prettyCode(content) {
-        return content.replace(/```(\w*)\s*([\s\S]*?)```/gs, function(match, p1, p2) {
-            return '<pre><code class="' + p1 + '">' + escapeHtml(p2) + '</code></pre>';
-        });
-    }
+
 
     // 添加服务器端消息
     function appendServerMessage(answer) {
@@ -220,26 +216,28 @@
             if (res.length === 1) {
                 content = res[0].message.content;
                 console.log(" content escapeHtml before:", content);
-                content = converter.makeHtml(content);
+                content = prettyCode(content);
                 console.log(" content escapeHtml after:", content);
             } else {
                 // 直接返回的结果
                 console.log(" content escapeHtml before:", res);
-                content = converter.makeHtml(res);
+                content = prettyCode(res);
                 console.log(" content escapeHtml after:", content);
             }
         } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
             const lastDiv = $(`#${chatId}`)
             console.log("流式结果返回: ", content, lastDiv);
+            // content = converter.makeHtml(content);
+            content = prettyCode(content.replaceAll('$…$', ''));
+            console.log("流式结果转 HTML: ", content)
+
             if (lastDiv.length > 0) {
                 // 对于流式返回的结果，找上一次的返回，进行结果的追加，手动将分隔符给干掉
-                // content = prettyCode(content.replaceAll('$…$', ''));
-                lastDiv.html(converter.makeHtml(content));
+                lastDiv.html(content);
                 appendLastChat = true;
             } else{
                 // 上一次没有输出过，则格式化文本，重新输出
                 // content = prettyCode(content.replaceAll('$…$', ''));
-                content = converter.makeHtml(content);
             }
         }
 

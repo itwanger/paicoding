@@ -578,3 +578,15 @@ function getCookie(name){<!-- -->
   }
   return "";
 }
+
+// 放在 thymeleaf 页面中正则表达式会报错，直接移动到 js 文件中就好了。
+function prettyCode(content) {
+  // 处理 Markdown 图片标签
+  const result = content.replace(/\[([^\]]+)\]\(([^)]+)\)/gs, function(match, p1, p2) {
+    console.log('Match:', match, 'Text:', p1, 'URL:', p2); // 调试输出
+    return '<a target="_blank" href="' + p2 + '">' + p1 + '</a>';
+  });
+  return result.replace(/```(\w*)\s*([\s\S]*?)```/gs, function(match, p1, p2) {
+    return '<pre><code class="' + p1 + '">' + escapeHtml(p2) + '</code></pre>';
+  });
+}
