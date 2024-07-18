@@ -35,7 +35,7 @@ public enum AISourceEnum {
     ZHI_PU_AI(4, "智谱") {
         @Override
         public boolean asyncSupport() {
-            return false;
+            return true;
         }
     },
     ;
