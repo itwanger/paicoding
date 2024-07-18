@@ -43,14 +43,14 @@ public class ZsxqWhiteListController {
                                   @RequestParam(name = "status") Integer status) {
         UserAIStatEnum operate = UserAIStatEnum.fromCode(status);
         zsxqWhiteListService.operate(id, operate);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "reset")
     public ResVo<String> reset(@RequestParam(name = "authorId") Integer authorId) {
         zsxqWhiteListService.reset(authorId);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     // 批量审核通过
@@ -59,12 +59,12 @@ public class ZsxqWhiteListController {
     public ResVo<String> batchOperate(@RequestBody ZsxqUserBatchOperateReq req) {
         UserAIStatEnum operate = UserAIStatEnum.fromCode(req.getStatus());
         zsxqWhiteListService.batchOperate(req.getIds(), operate);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ZsxqUserPostReq req) {
         zsxqWhiteListService.update(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 }

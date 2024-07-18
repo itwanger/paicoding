@@ -54,14 +54,14 @@ public class ArticleSettingRestController {
         } else {
             this.articleWriteService.saveArticle(req, null);
         }
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "update")
     public ResVo<String> update(@RequestBody ArticlePostReq req) {
         articleSettingService.updateArticle(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
@@ -72,7 +72,7 @@ public class ArticleSettingRestController {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, operateType + "非法");
         }
         articleSettingService.operateArticle(articleId, operate);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
 
@@ -80,7 +80,7 @@ public class ArticleSettingRestController {
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "articleId") Long articleId) {
         articleSettingService.deleteArticle(articleId);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     // 根据文章id获取文章详情
