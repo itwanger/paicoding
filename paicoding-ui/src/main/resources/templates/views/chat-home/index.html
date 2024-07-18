@@ -86,6 +86,8 @@
     let stompClient = null;
     // 用户名
     const chatTitle = $(".window-header-main-title");
+    // markdown 转换器
+    var converter = null;
 
     // 从 global.user.photo 中取出用户头像 thymeleaf 传入的值
     const isLogin = [[${global.isLogin}]], user = [[${global.user}]];
@@ -97,6 +99,7 @@
         } else {
             console.log("请先登录");
         }
+        converter = new showdown.Converter();
     });
 
     // 建立会话, 首先判断一下用户是否已经登录
@@ -195,11 +198,7 @@
             .replace(/'/g, "&#039;");
     }
 
-    function prettyCode(content) {
-        return content.replace(/```(\w*)\s*([\s\S]*?)```/gs, function(match, p1, p2) {
-            return '<pre><code class="' + p1 + '">' + escapeHtml(p2) + '</code></pre>';
-        });
-    }
+
 
     // 添加服务器端消息
     function appendServerMessage(answer) {
@@ -228,14 +227,17 @@
         } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
             const lastDiv = $(`#${chatId}`)
             console.log("流式结果返回: ", content, lastDiv);
+            // content = converter.makeHtml(content);
+            content = prettyCode(content.replaceAll('$…$', ''));
+            console.log("流式结果转 HTML: ", content)
+
             if (lastDiv.length > 0) {
                 // 对于流式返回的结果，找上一次的返回，进行结果的追加，手动将分隔符给干掉
-                content = prettyCode(content.replaceAll('$…$', ''));
                 lastDiv.html(content);
                 appendLastChat = true;
             } else{
                 // 上一次没有输出过，则格式化文本，重新输出
-                content = prettyCode(content.replaceAll('$…$', ''));
+                // content = prettyCode(content.replaceAll('$…$', ''));
             }
         }
 
