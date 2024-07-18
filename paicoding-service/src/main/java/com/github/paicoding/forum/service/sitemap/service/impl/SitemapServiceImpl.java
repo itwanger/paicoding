@@ -243,6 +243,7 @@ public class SitemapServiceImpl implements SitemapService {
      * @param path 访问路径，为空时表示查站点信息
      * @return
      */
+    @Override
     public SiteCntVo querySiteVisitInfo(LocalDate date, String path) {
         String globalKey = SitemapConstants.SITE_VISIT_KEY;
         String day = null, todayKey = globalKey;
