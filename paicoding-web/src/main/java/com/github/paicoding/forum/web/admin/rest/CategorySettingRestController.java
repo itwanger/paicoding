@@ -34,7 +34,7 @@ public class CategorySettingRestController {
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody CategoryReq req) {
         categorySettingService.saveCategory(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
 
@@ -42,7 +42,7 @@ public class CategorySettingRestController {
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "categoryId") Integer categoryId) {
         categorySettingService.deleteCategory(categoryId);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
 
@@ -54,7 +54,7 @@ public class CategorySettingRestController {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
         categorySettingService.operateCategory(categoryId, pushStatus);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
 

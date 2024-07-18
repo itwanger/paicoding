@@ -31,14 +31,14 @@ public class GlobalConfigRestController {
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody GlobalConfigReq req) {
         globalConfigService.save(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "id") Long id) {
         globalConfigService.delete(id);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @PostMapping(path = "list")

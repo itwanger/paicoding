@@ -33,14 +33,14 @@ public class ConfigSettingrRestController {
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody ConfigReq configReq) {
         configSettingService.saveConfig(configReq);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "configId") Integer configId) {
         configSettingService.deleteConfig(configId);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
@@ -51,7 +51,7 @@ public class ConfigSettingrRestController {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
         configSettingService.operateConfig(configId, pushStatus);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     /**
