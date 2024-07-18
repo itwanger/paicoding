@@ -36,6 +36,7 @@ public class AuthorWhiteListServiceImpl implements AuthorWhiteListService {
      *
      * @return
      */
+    @Override
     public List<BaseUserInfoDTO> queryAllArticleWhiteListAuthors() {
         Set<Long> users = RedisClient.sGetAll(ARTICLE_WHITE_LIST, Long.class);
         if (CollectionUtils.isEmpty(users)) {
@@ -45,10 +46,12 @@ public class AuthorWhiteListServiceImpl implements AuthorWhiteListService {
         return userInfos;
     }
 
+    @Override
     public void addAuthor2ArticleWhitList(Long userId) {
         RedisClient.sPut(ARTICLE_WHITE_LIST, userId);
     }
 
+    @Override
     public void removeAuthorFromArticleWhiteList(Long userId) {
         RedisClient.sDel(ARTICLE_WHITE_LIST, userId);
     }
