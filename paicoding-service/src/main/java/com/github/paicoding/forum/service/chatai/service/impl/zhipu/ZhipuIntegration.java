@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.chatai.service.impl.zhipu;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -85,6 +87,26 @@ public class ZhipuIntegration {
                                 log.info("Response: ");
                             }
                             if (accumulator.getDelta() != null && accumulator.getDelta().getTool_calls() != null) {
+                                accumulator.getDelta().getTool_calls().forEach(toolCall -> {
+                                    log.info("tool_call: {}", toolCall);
+                                    JsonNode codeInterpreter = toolCall.get("code_interpreter");
+                                    if (codeInterpreter != null) {
+                                        // 检查并处理 outputs 字段
+                                        JsonNode outputs = codeInterpreter.get("outputs");
+                                        if (outputs != null) {
+                                            outputs.forEach(output -> {
+                                                log.info("output: {}", output);
+                                                if (output.has("type") && output.get("type").asText().equals("file")) {
+                                                    log.info("output file: {}", output.get("file"));
+                                                    // 组装成 Markdown 返回
+                                                    String content = "![file](" + output.get("file").asText() + ")";
+                                                    item.appendAnswer(content);
+                                                    callback.accept(AiChatStatEnum.MID, chatRecord);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
                                 String jsonString = mapper.writeValueAsString(accumulator.getDelta().getTool_calls());
                                 log.info("tool_calls: {}", jsonString);
                             }
