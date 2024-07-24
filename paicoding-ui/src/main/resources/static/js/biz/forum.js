@@ -597,7 +597,7 @@ function prettyCode(content) {
     console.log('加粗匹配:', match, 'Text:', p1); // 调试输出
     return '<strong>' + escapeHtml(p1) + '</strong>';
   });
-  
+
   return content.replace(/```(\w*)\s*([\s\S]*?)```/gs, function(match, p1, p2) {
     return '<pre><code class="' + p1 + '">' + escapeHtml(p2) + '</code></pre>';
   });
