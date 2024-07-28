@@ -32,9 +32,14 @@ build/
 ### VS Code ###
 .vscode/
 
-## ignore logs
+### ignore logs
 logs/
 pid.log
 *.jar
 *.jar.bak
 *.jar.tmp
+*.log
+
+### .DS_Store
+
+**/.DS_Store
