@@ -21,24 +21,10 @@ public class GlobalViewConfig {
 
     private String websiteName;
 
-    private String websiteLogoUrl;
-
-    private String websiteFaviconIconUrl;
 
     private String contactMeWxQrCode;
 
     private String contactMeStarQrCode;
-
-    private String zsxqUrl;
-
-    private String zsxqPosterUrl;
-
-    private String contactMeTitle;
-
-    /**
-     * 微信公众号登录url
-     */
-    private String wxLoginUrl;
 
     private String host;
 

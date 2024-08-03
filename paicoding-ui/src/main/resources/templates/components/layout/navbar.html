@@ -105,16 +105,6 @@
               </svg>
             </a>
           </li>
-          <li class="nav-item vip" th:if="${global.user != null && global.user.starStatus != null}">
-            <div th:switch="${global.user.starStatus.code}">
-              <span th:case="2" th:text="星球VIP会员"></span>
-              <span th:case="1" th:text="待审核"></span>
-              <a href="#" data-target="#registerModal" data-toggle="modal" th:case="-1">
-                <span th:text="绑定星球编号"></span>
-              </a>
-            </div>
-            <img src="/img/vip.gif" alt="VIP" th:src="${global.siteInfo.oss + '/img/vip.gif'}"/>
-          </li>
 
           <!-- 头像框 -->
           <div class="nav-right-user">
@@ -214,9 +204,6 @@
                     </div>
                   </div>
                 </div>
-                <a class="clickable" data-toggle="modal" data-target="#registerModal" data-dismiss="modal">
-                  绑定星球，畅享VIP服务
-                </a>
               </div>
             </div>
             <div class="tabpane-container">
@@ -269,72 +256,6 @@
             </button>
           </div>
 
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 绑定星球用户 -->
-  <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h6 class="modal-title">绑定二哥编程星球，畅享 VIP 尊享服务！</h6>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="auth-body">
-            <div class="register-main">
-              <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
-              <div class="panel">
-                <h1 class="title">
-                  <a target="_blank"
-                     class="underline"
-                     href="https://paicoding.com/article/detail/358">戳我了解如何获取星球编号，新窗口打开</a>
-                </h1>
-                <form id="register-form">
-                  <div class="form-group">
-                    <input type="text"
-                           placeholder="星球编号，戳上面的链接有详细教程"
-                           class="form-control form-control-sm"
-                           required
-                           id="starNumber"
-                           autocomplete="off">
-                  </div>
-                  <div class="form-group">
-                    <input type="text"
-                           placeholder="用户名密码登录时用"
-                           class="form-control form-control-sm"
-                           id="registerUser" required>
-                  </div>
-                  <div class="form-group">
-                    <input type="password" placeholder="密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
-                  </div>
-                  <div class="form-group">
-                    <input type="text" placeholder="微信搜沉默王二回复邀请码获取，也可不填" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
-                  </div>
-                  <!-- 绑定过会直接登录 -->
-                  <button type="submit"
-                          class="btn btn-primary btn-block btn-sm"
-                          th:text="${global.isLogin} ? '绑定' : '绑定后登录'">绑定/绑定后登录</button>
-                </form>
-              </div>
-            </div>
-            <div class="tabpane-container">
-              <h2 class="title">添加二哥微信 itwanger 审核更快</h2>
-              <div class="first">
-                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
-              </div>
-
-              <div class="explain">
-                <bold>记得备注</bold>
-                <code>星球编号</code>
-                <div>我会根据星球编号进行审核</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
