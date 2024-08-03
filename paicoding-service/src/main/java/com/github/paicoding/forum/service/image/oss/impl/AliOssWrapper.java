@@ -67,6 +67,7 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
             String fileName = stopWatchUtil.record("md5计算", () -> Md5Util.encode(bytes));
             ByteArrayInputStream input = new ByteArrayInputStream(bytes);
             fileName = properties.getOss().getPrefix() + fileName + "." + getFileType(input, fileType);
+
             // 创建PutObjectRequest对象。
             PutObjectRequest putObjectRequest = new PutObjectRequest(properties.getOss().getBucket(), fileName, input);
             // 设置该属性可以返回response。如果不设置，则返回的response为空。

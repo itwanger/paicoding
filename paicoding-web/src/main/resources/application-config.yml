@@ -2,18 +2,15 @@ view:
   site:
     needLoginArticleReadCount: 30 # 需要登录才能阅读的文章阅读次数
     zsxqArticleReadCount: 20 # 知识星球用户才能阅读的文章阅读次数统计间隔，单位：分钟
-    websiteName: 技术派
-    websiteLogoUrl: https://paicoding.com/img/icon.png
-    websiteFaviconIconUrl: https://paicoding.com/img/icon.png
-    zsxqUrl: https://paicoding.com/article/detail/314
-    zsxqPosterUrl: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/javabetter.jpg
-    contactMeTitle: 联系我 - 沉默王二的狗腿子
+    websiteName: 技术博客园
     contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png
-    contactMeStarQrCode: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/qiye-weixin.png
     pageSize: 20
     cdnImgStyle:
-    websiteRecord: 备案被小人偷袭了
-    wxLoginUrl: http://weixin.qq.com/r/WxwpMefE-rqBraNS90lJ
-    host: http://127.0.0.1:${server.port}
-    welcomeInfo: 欢迎来到技术派，戳<a href="/article/detail/15">技术派全方位视角解读</a>了解我们
-    oss:
+    websiteRecord: 听风吟
+    host: https://paicoding.com
+    welcomeInfo: 欢迎来到技术博客园，戳 <a href="/article/detail/155">技术派社区上线！</a> 了解我们
+    contactMeStarQrCode: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/qiye-weixin.png
+    oss: https://cdn.tobebetterjavaer.com/paicoding/static
+
+knife4j:
+  production: true # 开启屏蔽文档资源

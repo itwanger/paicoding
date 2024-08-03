@@ -1,17 +1,17 @@
 image:
   # 服务器保存图片的绝对地址
-  abs-tmp-path: /home/admin/storage/
+  abs-tmp-path: /blogs/images/
   # 图片前缀
   web-img-path: forum/img/
   # 临时存储目录
   tmp-upload-path: /tmp/forum/
   # 图片访问域名
-  cdn-host: https://imgs.hhui.top/
+  cdn-host:
   oss:
-    type: local
-    endpoint:
-    prefix: paicoding/
-    ak:
-    sk:
-    bucket:
-    host:
+    type: ali
+    endpoint: oss-cn-shanghai.aliyuncs.com
+    prefix: techonologyblogs/
+    ak: LTAI5tKpRjPgxzndfySPzktM
+    sk: B9zMuRtujAWDGJq8kZWcEcmKFjiBF5
+    bucket: technology-blogs
+    host: https://technology-blogs.oss-cn-shanghai.aliyuncs.com/

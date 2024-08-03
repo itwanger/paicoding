@@ -60,6 +60,9 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         SpringApplication.run(QuickForumApplication.class, args);
     }
 
+    // LTAI5tKpRjPgxzndfySPzktM
+    // B9zMuRtujAWDGJq8kZWcEcmKFjiBF5
+
     /**
      * 兼容本地启动时8080端口被占用的场景; 只有dev启动方式才做这个逻辑
      *
