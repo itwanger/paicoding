@@ -60,6 +60,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         SpringApplication.run(QuickForumApplication.class, args);
     }
 
+
     // LTAI5tKpRjPgxzndfySPzktM
     // B9zMuRtujAWDGJq8kZWcEcmKFjiBF5
 
