@@ -11,7 +11,7 @@ image:
     type: ali
     endpoint: oss-cn-shanghai.aliyuncs.com
     prefix: techonologyblogs/
-    ak: LTAI5tKpRjPgxzndfySPzktM
-    sk: B9zMuRtujAWDGJq8kZWcEcmKFjiBF5
+    ak:
+    sk:
     bucket: technology-blogs
     host: https://technology-blogs.oss-cn-shanghai.aliyuncs.com/
