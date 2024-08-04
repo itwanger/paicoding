@@ -44,6 +44,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     private Integer webPort;
 
 
+
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
 
