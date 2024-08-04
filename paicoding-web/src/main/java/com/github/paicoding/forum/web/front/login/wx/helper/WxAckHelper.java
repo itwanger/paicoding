@@ -77,7 +77,7 @@ public class WxAckHelper {
         else if (CodeGenerateUtil.isVerifyCode(content)) {
             sessionService.autoRegisterWxUserInfo(fromUser);
             if (qrLoginHelper.login(content)) {
-                textRes = "登录成功，开始愉快的玩耍技术派吧！";
+                textRes = "登录成功，开始愉快的玩耍吧！";
             } else {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }

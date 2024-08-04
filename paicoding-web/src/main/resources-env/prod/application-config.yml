@@ -1,7 +1,7 @@
 view:
   site:
     websiteName: 技术博客园
-    contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png
+    contactMeWxQrCode: https://technology-blogs.oss-cn-shanghai.aliyuncs.com/blogs/wxImages/wxLoginImage.jpg
     pageSize: 20
     cdnImgStyle:
     websiteRecord: 听风吟
