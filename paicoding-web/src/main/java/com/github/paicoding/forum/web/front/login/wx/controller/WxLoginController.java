@@ -45,6 +45,8 @@ public class WxLoginController extends BaseViewController {
     @ResponseBody
     public String resendCode(String deviceId) throws IOException {
         return qrLoginHelper.resend();
+
+
     }
 
     /**
