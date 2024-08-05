@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class GlobalViewConfig {
 
-    private String cdnImgStyle;
-
     private String websiteRecord;
 
     private Integer pageSize;

@@ -3,7 +3,6 @@ view:
     websiteName: 技术博客园
     contactMeWxQrCode: https://technology-blogs.oss-cn-shanghai.aliyuncs.com/blogs/wxImages/wxLoginImage.jpg
     pageSize: 20
-    cdnImgStyle:
     websiteRecord: 听风吟
     host: https://paicoding.com
     welcomeInfo: 欢迎来到技术博客园，戳 <a href="/article/detail/155">技术派社区上线！</a> 了解我们

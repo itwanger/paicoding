@@ -1,5 +1,5 @@
 log:
-  path: /home/admin/workspace/paicoding/logs # 请使用实际的地址进行替换
+  path: logs # 请使用实际的地址进行替换
 env:
   name: prod
 

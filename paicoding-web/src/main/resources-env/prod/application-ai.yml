@@ -1,7 +1,7 @@
 net:
   proxy:
     # 代理相关信息
-    - ip: 127.0.0.1
+    - ip: 124.223.98.38
       port: 1080
       type: SOCKS
 
