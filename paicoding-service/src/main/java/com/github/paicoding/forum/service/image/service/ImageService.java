@@ -1,5 +1,7 @@
 package com.github.paicoding.forum.service.image.service;
 
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -9,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 public interface ImageService {
     /**
      * 图片转存
+     *
      * @param content
      * @return
      */
@@ -30,4 +33,12 @@ public interface ImageService {
      * @return
      */
     String saveImg(HttpServletRequest request);
+
+    /**
+     * 文件保存
+     *
+     * @param request
+     * @return
+     */
+    String saveFile(MultipartHttpServletRequest request);
 }

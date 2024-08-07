@@ -97,4 +97,9 @@
     <changeSet id="00000000000022" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_231113.sql"/>
     </changeSet>
+
+    <!-- 添加简历表  -->
+    <changeSet id="00000000000024" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_240807.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -152,6 +152,15 @@
                   >
                     个人主页
                   </a>
+                  <a
+                          th:if="${global.user.starStatus != null && global.user.starStatus.code == 2}"
+                          class="dropdown-item"
+                          href="#"
+                          data-toggle="modal"
+                          data-target="#resumeModal"
+                  >
+                    简历修改
+                  </a>
                   <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                 </div>
               </div>
@@ -339,6 +348,68 @@
       </div>
     </div>
   </div>
+
+  <div
+          th:if="${global.isLogin}"
+          class="modal fade"
+          id="resumeModal"
+          data-backdrop="static"
+          data-keyboard="false"
+          tabindex="-1"
+          role="dialog"
+          aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">我的简历</h6>
+          <br/>
+          <h6 class="modal-title" id="resumeList" style="color:blue">
+            <a href=""> - 简历名 (待修改) </a>
+          </h6>
+          <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-body">
+            <div class="login-main">
+              <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
+              <div class="panel">
+                <h1 class="title">上传简历，提供修改建议</h1>
+                <!-- 登录表单、用户名和密码 -->
+                <form id="resume-form">
+                  <div class="form-group">
+                    <input type="text" required autocomplete="off" class="form-control form-control-sm" id="email" placeholder="输入接收回信的邮箱">
+                  </div>
+                  <div class="form-group">
+                    <textarea required class="form-control form-control-sm" rows="5" id="mark" placeholder="这里输入你想说的信息"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block btn-sm">确认提交</button>
+                </form>
+              </div>
+            </div>
+            <div class="tabpane-container">
+              <h2 class="title">选择简历附件上传</h2>
+
+              <div class="first">
+                <input type="file"
+                       id="resumeUpload"
+                       class="click-input"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <script
           src="/js/mock.js"
@@ -601,6 +672,92 @@
         }
       });
     }
+
+    // 上传简历
+    let upload = $("#resumeUpload");
+    let resumeUrl = '';
+    let resumeName = '';
+    upload.on("change", function () {
+        let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+        console.log({objUrl})
+        if (objUrl) {
+            let image = upload[0].files[0]
+            let file = new FormData()
+            file.append("file", image)
+            $.ajax({
+                url: "/oss/upload",
+                type: "post",
+                data: file,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    console.log("response data", data);
+                    if (data.status.code > 0) {
+                        // 图片上传失败
+                        toastr.error(data.status.msg, "简历上传失败!");
+                        return;
+                    }
+
+                    resumeName = data.result.ossName;
+                    resumeUrl = data.result.ossPath;
+                    toastr.info("简历上传成功!")
+                },
+            })
+        }
+    })
+
+    $("#resumeModal").on('show.bs.modal', function () {
+        console.log("登录弹窗已展示!");
+        get("/user/api/resumeList", {}, function(data) {
+            console.log('简历列表', data);
+            if (!data || data.length == 0) {
+              $('#resumeList').html('');
+              console.log('更新显示');
+            } else {
+              const item = data[0]
+              let type = '';
+              if (item.type == 0) type = '待修改';
+              else if(item.type == 1) type = '修改中';
+              else type = '已改完';
+
+             $('#resumeList').html(`<a href="" style="color:#007bff"> >>> ${item['resumeName']} ( ${type} ) </a>`);
+            }
+        })
+    })
+
+    // 保存提交
+    $("#resume-form").on("submit", function(event) {
+        event.preventDefault();
+        let email = $('#email').val().trim();
+        let mark = $('#mark').val().trim();
+        if (!email) {
+            toastr.error("请输入接收回信邮箱!");
+            $('#email').focus();
+            return;
+        }
+
+        if (!mark) {
+            toastr.error("请输入信息");
+            $('#mark').focus();
+            return;
+        }
+
+        if (!resumeUrl) {
+            toastr.error("请先上传pdf/doc/docx格式的简历!");
+            return;
+        }
+
+        const params = {"replayEmail": email, "mark": mark, "resumeUrl": resumeUrl, "resumeName": resumeName}
+        post("/user/api/saveResume", params, function (data) {
+            console.log("response data:", data);
+            toastr.success("上传成功");
+            // 关闭弹窗
+            $('#resumeModal').modal('hide');
+        });
+    })
+
+
   </script>
 </div>
 </html>
