@@ -94,7 +94,7 @@ public class SidebarServiceImpl implements SidebarService {
                 .setTitle("关于技术派")
                 // TODO 知识星球的
                 .setImg("https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-zsxq.jpg")
-                .setUrl("https://paicoding.com/article/detail/169")
+                .setUrl("https://paicoding.com/article/detail/2422000009961473")
                 .setItems(items)
                 .setStyle(SidebarStyleEnum.NOTICE.getStyle());
     }
