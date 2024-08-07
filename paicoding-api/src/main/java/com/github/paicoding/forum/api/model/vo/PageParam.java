@@ -53,4 +53,14 @@ public class PageParam {
         return String.format("limit %s,%s", pageParam.offset, pageParam.limit);
     }
 
+    /**
+     * 自动初始化
+     */
+    public void autoInit() {
+        this.pageNum = DEFAULT_PAGE_NUM;
+        this.pageSize = DEFAULT_PAGE_SIZE;
+
+        this.offset = (this.pageNum - 1) * pageSize;
+        this.limit = this.pageSize;
+    }
 }

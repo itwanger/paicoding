@@ -44,8 +44,12 @@ public enum StatusEnum {
     // 系统异常
     UNEXPECT_ERROR(100_500_001, "非预期异常:%s"),
 
+
     // 图片相关异常类型
     UPLOAD_PIC_FAILED(100_500_002, "图片上传失败！"),
+
+    // 自定义文案描述的异常信息
+    SELF_DEFINE_ERROR(100_500_003, "%s"),
 
     // --------------------------------
 
@@ -77,7 +81,10 @@ public enum StatusEnum {
     USER_STAR_NOT_EXISTS(400_404_002, "星球编号不存在:%s"),
     // 星球编号重复
     USER_STAR_REPEAT(400_404_002, "星球编号重复:%s"),
-    USER_PWD_ERROR(400_500_002, "用户名or密码错误");
+    USER_PWD_ERROR(400_500_002, "用户名or密码错误"),
+
+    USER_RESUME_NOT_EXISTS(400_500_010, "简历不存在"),
+    ;
 
     private int code;
 

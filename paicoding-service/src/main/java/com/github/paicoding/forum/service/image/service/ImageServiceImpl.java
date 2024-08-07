@@ -88,6 +88,26 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    @Override
+    public String saveFile(MultipartHttpServletRequest request) {
+        MultipartFile file = request.getFile("file");
+        if (file == null) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "缺少需要上传的文件");
+        }
+        // 目前只支持 jpg, png, webp 等静态图片格式
+        String fileType = validateFile(file.getContentType());
+        if (fileType == null) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "暂只支持pdf/doc/docx格式文件");
+        }
+
+        try {
+            return imageUploader.upload(file.getInputStream(), fileType);
+        } catch (IOException e) {
+            log.error("Parse img from httpRequest to BufferedImage error! e:", e);
+            throw ExceptionUtil.of(StatusEnum.UPLOAD_PIC_FAILED);
+        }
+    }
+
     /**
      * 外网图片转存
      *
@@ -137,7 +157,7 @@ public class ImageServiceImpl implements ImageService {
 
         // 超过1张图片时，做并发的图片转存，提升性能
         Map<MdImgLoader.MdImg, String> imgReplaceMap = Maps.newHashMapWithExpectedSize(imgList.size());
-        try(AsyncUtil.CompletableFutureBridge bridge = AsyncUtil.concurrentExecutor("MdImgReplace")) {
+        try (AsyncUtil.CompletableFutureBridge bridge = AsyncUtil.concurrentExecutor("MdImgReplace")) {
             for (MdImgLoader.MdImg img : imgList) {
                 bridge.async(() -> {
                     imgReplaceMap.put(img, saveImg(img.getUrl()));
@@ -178,6 +198,20 @@ public class ImageServiceImpl implements ImageService {
                 return type.getExt();
             }
         }
+        return null;
+    }
+
+    private String validateFile(String mime) {
+        if ("application/msword".equals(mime)) {
+            return "doc";
+        }
+        if ("application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(mime)) {
+            return "docx";
+        }
+        if ("application/pdf".equals(mime)) {
+            return "pdf";
+        }
+
         return null;
     }
 }

@@ -75,7 +75,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         } else if (ex instanceof AsyncRequestTimeoutException) {
             return Status.newStatus(StatusEnum.UNEXPECT_ERROR, "超时未登录");
         } else if (ex instanceof HttpMediaTypeNotAcceptableException) {
-            return Status.newStatus(StatusEnum.RECORDS_NOT_EXISTS, ExceptionUtils.getStackTrace(ex));
+            return Status.newStatus(StatusEnum.SELF_DEFINE_ERROR, ExceptionUtils.getStackTrace(ex));
         } else if (ex instanceof HttpRequestMethodNotSupportedException || ex instanceof MethodArgumentTypeMismatchException || ex instanceof IOException) {
             // 请求方法不匹配
             return Status.newStatus(StatusEnum.ILLEGAL_ARGUMENTS, ExceptionUtils.getStackTrace(ex));

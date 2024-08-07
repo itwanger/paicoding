@@ -1,8 +1,11 @@
 package com.github.paicoding.forum.web.front.user.rest;
 
+import cn.hutool.core.lang.Validator;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.FollowTypeEnum;
 import com.github.paicoding.forum.api.model.enums.HomeSelectEnum;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.NextPageHtmlVo;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
@@ -11,17 +14,27 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
+import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
+import com.github.paicoding.forum.api.model.vo.user.UserResumeSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.user.service.UserResumeService;
 import com.github.paicoding.forum.service.user.service.relation.UserRelationServiceImpl;
 import com.github.paicoding.forum.service.user.service.user.UserServiceImpl;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -44,6 +57,9 @@ public class UserRestController {
 
     @Resource
     private ArticleReadService articleReadService;
+
+    @Resource
+    private UserResumeService userResumeService;
 
 
     /**
@@ -126,5 +142,44 @@ public class UserRestController {
         }
         String html = templateEngineHelper.renderToVo("views/user/follows/index", "followList", followList);
         return ResVo.ok(new NextPageHtmlVo(html, followList.getHasMore()));
+    }
+
+
+    /**
+     * 用户上传简历
+     *
+     * @param req
+     * @return
+     */
+    @Permission(role = UserRole.LOGIN)
+    @PostMapping("saveResume")
+    public ResVo<Boolean> saveResume(@RequestBody UserResumeSaveReq req) {
+        // 星球用户、管理员用户可上传
+        UserAIStatEnum user = ReqInfoContext.getReqInfo().getUser().getStarStatus();
+        if (user != UserAIStatEnum.FORMAL) {
+            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR);
+        }
+
+        if (!Validator.isEmail(req.getReplayEmail())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "非法的邮箱地址!");
+        }
+        return ResVo.ok(userResumeService.saveResume(req));
+    }
+
+    /**
+     * 查询自己最近上传的一个简历
+     *
+     * @return
+     */
+    @Permission(role = UserRole.LOGIN)
+    @GetMapping("resumeList")
+    public ResVo<List<UserResumeDTO>> resumeList() {
+        UserResumeReq req = new UserResumeReq();
+        req.autoInit();
+        req.setPageSize(1);
+        req.setSort(1);
+        req.setUserId(ReqInfoContext.getReqInfo().getUserId());
+        List<UserResumeDTO> list = userResumeService.listResume(req);
+        return ResVo.ok(list);
     }
 }
