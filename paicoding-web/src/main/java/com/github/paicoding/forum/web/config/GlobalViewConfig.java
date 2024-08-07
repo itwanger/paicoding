@@ -29,8 +29,19 @@ public class GlobalViewConfig {
 
     private String contactMeStarQrCode;
 
+    /**
+     * 知识星球的跳转地址
+     */
     private String zsxqUrl;
 
+    /**
+     * 知识星球首页的一个展示图片地址
+     */
+    private String zsxqImgUrl;
+
+    /**
+     * 知识星球二维码的地址，派聪明 AI助手用
+     */
     private String zsxqPosterUrl;
 
     private String contactMeTitle;
