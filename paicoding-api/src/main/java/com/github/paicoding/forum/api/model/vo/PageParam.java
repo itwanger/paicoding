@@ -23,11 +23,17 @@ public class PageParam {
 
     @ApiModelProperty("请求页大小，默认为 10")
     private long pageSize;
-    private long offset;
-    private long limit;
 
     public static PageParam newPageInstance() {
         return newPageInstance(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE);
+    }
+
+    public long getOffset() {
+        return (pageNum - 1) * pageSize;
+    }
+
+    public long getLimit() {
+        return pageSize;
     }
 
     public static PageParam newPageInstance(Integer pageNum, Integer pageSize) {
@@ -42,25 +48,22 @@ public class PageParam {
         final PageParam pageParam = new PageParam();
         pageParam.pageNum = pageNum;
         pageParam.pageSize = pageSize;
-
-        pageParam.offset = (pageNum - 1) * pageSize;
-        pageParam.limit = pageSize;
-
         return pageParam;
     }
 
     public static String getLimitSql(PageParam pageParam) {
-        return String.format("limit %s,%s", pageParam.offset, pageParam.limit);
+        return String.format("limit %s,%s", pageParam.getOffset(), pageParam.getLimit());
     }
 
     /**
      * 自动初始化
      */
     public void autoInit() {
-        this.pageNum = DEFAULT_PAGE_NUM;
-        this.pageSize = DEFAULT_PAGE_SIZE;
-
-        this.offset = (this.pageNum - 1) * pageSize;
-        this.limit = this.pageSize;
+        if (this.pageSize == 0) {
+            this.pageSize = DEFAULT_PAGE_SIZE;
+        }
+        if (this.pageNum == 0) {
+            this.pageNum = DEFAULT_PAGE_NUM;
+        }
     }
 }

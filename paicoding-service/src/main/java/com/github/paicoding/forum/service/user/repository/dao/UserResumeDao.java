@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
@@ -39,12 +40,17 @@ public class UserResumeDao extends ServiceImpl<UserResumeMapper, ResumeDO> {
         // 设置用户过滤规则
         if (req.getUserId() != null) {
             query.eq(ResumeDO::getUserId, req.getUserId());
+        } else if (CollectionUtils.isNotEmpty(req.getUsers())) {
+            query.in(ResumeDO::getUserId, req.getUsers());
         }
 
         // 设置类型检索
         if (req.getType() != null) {
             query.eq(ResumeDO::getType, req.getType());
         }
+
+        // 过滤已删除的记录
+        query.eq(ResumeDO::getDeleted, YesOrNoEnum.NO.getCode());
 
         // 设置排序规则
         if (req.getSort() == null || req.getSort() == 0) {
@@ -57,5 +63,20 @@ public class UserResumeDao extends ServiceImpl<UserResumeMapper, ResumeDO> {
         return baseMapper.selectList(query);
     }
 
+    public long count(UserResumeReq req) {
+        LambdaQueryWrapper<ResumeDO> query = Wrappers.lambdaQuery();
+        // 设置用户过滤规则
+        if (req.getUserId() != null) {
+            query.eq(ResumeDO::getUserId, req.getUserId());
+        } else if (CollectionUtils.isNotEmpty(req.getUsers())) {
+            query.in(ResumeDO::getUserId, req.getUsers());
+        }
 
+        // 设置类型检索
+        if (req.getType() != null) {
+            query.eq(ResumeDO::getType, req.getType());
+        }
+        query.eq(ResumeDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return baseMapper.selectCount(query);
+    }
 }

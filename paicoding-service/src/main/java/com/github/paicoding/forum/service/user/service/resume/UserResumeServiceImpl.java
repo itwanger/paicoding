@@ -1,28 +1,36 @@
 package com.github.paicoding.forum.service.user.service.resume;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.enums.resume.ResumeTypeEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReplayReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.ResumeDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeInfoDTO;
+import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.user.converter.UserResumeConverter;
-import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserResumeDao;
 import com.github.paicoding.forum.service.user.repository.entity.ResumeDO;
-import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.UserResumeService;
+import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 用户简历服务
@@ -35,7 +43,7 @@ public class UserResumeServiceImpl implements UserResumeService {
     @Autowired
     private UserResumeDao userResumeDao;
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
     @Override
     public Boolean saveResume(UserResumeSaveReq req) {
@@ -112,6 +120,12 @@ public class UserResumeServiceImpl implements UserResumeService {
             return true;
         }
 
+        if (!UserRole.adminUser(ReqInfoContext.getReqInfo().getUser().getRole())
+                && Objects.equals(ReqInfoContext.getReqInfo().getUserId(), resume.getUserId())) {
+            // 非超管用户, 自己下载自己的简历，不更新状态
+            return true;
+        }
+
         resume.setType(ResumeTypeEnum.PROCESSING.getType());
         resume.setUpdateTime(new Date(System.currentTimeMillis()));
         boolean ans = userResumeDao.updateById(resume);
@@ -121,6 +135,23 @@ public class UserResumeServiceImpl implements UserResumeService {
         return ans;
     }
 
+    @Override
+    public Boolean deleteResume(Long resumeId) {
+        ResumeDO resume = userResumeDao.getById(resumeId);
+        if (resume == null) {
+            throw ExceptionUtil.of(StatusEnum.USER_RESUME_NOT_EXISTS);
+        }
+        BaseUserInfoDTO loginUser = ReqInfoContext.getReqInfo().getUser();
+        if (Objects.equals(loginUser.getUserId(), resume.getUserId())
+                || UserRole.ADMIN.name().equalsIgnoreCase(loginUser.getRole())) {
+            // 管理员 || 拥有者，可以删除简历
+            resume.setDeleted(YesOrNoEnum.YES.getCode());
+            resume.setUpdateTime(new Date(System.currentTimeMillis()));
+            return userResumeDao.updateById(resume);
+        } else {
+            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR);
+        }
+    }
 
     /**
      * 回复
@@ -129,8 +160,9 @@ public class UserResumeServiceImpl implements UserResumeService {
      * @return
      */
     @Override
-    public UserResumeDTO replayResume(UserResumeReplayReq req) {
+    public Boolean replayResume(UserResumeReplayReq req) {
         ResumeDO resume = userResumeDao.getById(req.getResumeId());
+        int oldType = resume.getType();
         resume.setReplay(req.getReplay());
         resume.setReplayUrl(req.getReplayUrl());
         resume.setType(ResumeTypeEnum.DONE.getType());
@@ -138,26 +170,66 @@ public class UserResumeServiceImpl implements UserResumeService {
         userResumeDao.updateById(resume);
 
         // todo 发送邮件，通知用户
-        return UserResumeConverter.toResume(resume);
+        if (Objects.equals(oldType, ResumeTypeEnum.DONE.getType())) {
+            // 只有从未完成，变成已完成，表示需要发首次的回复邮件给用户
+        } else {
+            // 表示更新了回复信息，重新再发一个邮件
+        }
+        return true;
     }
 
     /**
-     * 查询列表
+     * 查询用户最近的一个简历
      *
-     * @param req
+     * @param userId
      * @return
      */
     @Override
-    public List<UserResumeDTO> listResume(UserResumeReq req) {
+    public ResumeDTO getLatestResume(Long userId) {
+        UserResumeReq req = new UserResumeReq();
+        req.setUserId(userId);
+        req.setPageSize(1);
+        req.setPageNum(1);
+        req.setSort(1);
+        List<ResumeDO> list = userResumeDao.listResumes(req);
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        return UserResumeConverter.toResume(list.get(0));
+    }
+
+    @Override
+    public List<UserResumeInfoDTO> listResumes(UserResumeReq req) {
         if (req.getUserId() == null && StringUtils.isNotBlank(req.getUname())) {
-            UserDO user = userDao.getUserByUserName(req.getUname());
-            if (user != null) {
-                req.setUserId(user.getId());
-            } else {
+            List<SimpleUserInfoDTO> users = userService.searchUser(req.getUname());
+            if (CollectionUtils.isEmpty(users)) {
                 return Collections.emptyList();
+            } else {
+                req.setUsers(users.stream().map(SimpleUserInfoDTO::getUserId).collect(Collectors.toList()));
             }
         }
+
         List<ResumeDO> list = userResumeDao.listResumes(req);
-        return UserResumeConverter.batchToResume(list);
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+
+        Set<Long> uids = list.stream().map(ResumeDO::getUserId).collect(Collectors.toSet());
+        List<SimpleUserInfoDTO> users = userService.batchQuerySimpleUserInfo(uids);
+        Map<Long, SimpleUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(SimpleUserInfoDTO::getUserId, s -> s));
+
+        List<UserResumeInfoDTO> result = new ArrayList<>(list.size());
+        list.forEach(resume -> {
+            UserResumeInfoDTO info = new UserResumeInfoDTO();
+            info.setResume(UserResumeConverter.toResume(resume));
+            info.setUser(userMap.get(resume.getUserId()));
+            result.add(info);
+        });
+        return result;
+    }
+
+    @Override
+    public long count(UserResumeReq req) {
+        return userResumeDao.count(req);
     }
 }

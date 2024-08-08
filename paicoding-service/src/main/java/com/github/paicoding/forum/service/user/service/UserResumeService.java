@@ -3,7 +3,8 @@ package com.github.paicoding.forum.service.user.service;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReplayReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeSaveReq;
-import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.ResumeDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeInfoDTO;
 
 import java.util.List;
 
@@ -31,6 +32,13 @@ public interface UserResumeService {
      */
     Boolean downloadResume(Long resumeId);
 
+    /**
+     * 删除简历
+     * @param resumeId
+     * @return
+     */
+    Boolean deleteResume(Long resumeId);
+
 
     /**
      * 管理员回复简历
@@ -38,13 +46,23 @@ public interface UserResumeService {
      * @param req
      * @return
      */
-    UserResumeDTO replayResume(UserResumeReplayReq req);
+    Boolean replayResume(UserResumeReplayReq req);
 
 
     /**
-     * 简历列表查询
+     * 查询用户的最近上传的简历
      *
      * @return
      */
-    List<UserResumeDTO> listResume(UserResumeReq req);
+    ResumeDTO getLatestResume(Long userId);
+
+    /**
+     * 查询简历列表
+     *
+     * @param req
+     * @return
+     */
+    List<UserResumeInfoDTO> listResumes(UserResumeReq req);
+
+    long count(UserResumeReq req);
 }

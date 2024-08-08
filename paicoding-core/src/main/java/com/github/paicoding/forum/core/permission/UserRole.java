@@ -17,4 +17,14 @@ public enum UserRole {
      * 所有用户
      */
     ALL;
+
+    /**
+     * 判断用户是否为超管
+     *
+     * @param role
+     * @return
+     */
+    public static boolean adminUser(String role) {
+        return ADMIN.name().equalsIgnoreCase(role);
+    }
 }
