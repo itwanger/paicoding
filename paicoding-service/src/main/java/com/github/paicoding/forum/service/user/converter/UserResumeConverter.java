@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.service.user.converter;
 
 import com.beust.jcommander.internal.Lists;
-import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.ResumeDTO;
 import com.github.paicoding.forum.service.user.repository.entity.ResumeDO;
 import org.springframework.util.CollectionUtils;
 
@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
  */
 public class UserResumeConverter {
 
-    public static UserResumeDTO toResume(ResumeDO resume) {
-        UserResumeDTO dto = new UserResumeDTO();
+    public static ResumeDTO toResume(ResumeDO resume) {
+        ResumeDTO dto = new ResumeDTO();
         dto.setResumeId(resume.getId());
         dto.setResumeUrl(resume.getResumeUrl());
         dto.setMark(resume.getMark());
@@ -29,7 +29,7 @@ public class UserResumeConverter {
         return dto;
     }
 
-    public static List<UserResumeDTO> batchToResume(List<ResumeDO> list) {
+    public static List<ResumeDTO> batchToResume(List<ResumeDO> list) {
         if (CollectionUtils.isEmpty(list)) {
             return Lists.newArrayList();
         }

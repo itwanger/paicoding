@@ -14,10 +14,9 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserRelationReq;
-import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO;
-import com.github.paicoding.forum.api.model.vo.user.dto.UserResumeDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.ResumeDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -172,14 +170,9 @@ public class UserRestController {
      * @return
      */
     @Permission(role = UserRole.LOGIN)
-    @GetMapping("resumeList")
-    public ResVo<List<UserResumeDTO>> resumeList() {
-        UserResumeReq req = new UserResumeReq();
-        req.autoInit();
-        req.setPageSize(1);
-        req.setSort(1);
-        req.setUserId(ReqInfoContext.getReqInfo().getUserId());
-        List<UserResumeDTO> list = userResumeService.listResume(req);
+    @GetMapping("resume")
+    public ResVo<ResumeDTO> resumeList() {
+        ResumeDTO list = userResumeService.getLatestResume(ReqInfoContext.getReqInfo().getUserId());
         return ResVo.ok(list);
     }
 }

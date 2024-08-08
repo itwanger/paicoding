@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,7 +11,8 @@ import lombok.Data;
  * @date 2024/8/7
  */
 @Data
-public class UserResumeDTO {
+@ApiModel("简历实体")
+public class ResumeDTO {
     @ApiModelProperty("简历ID")
     private Long resumeId;
     @ApiModelProperty("用户上传的描述")

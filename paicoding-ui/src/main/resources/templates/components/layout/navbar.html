@@ -400,7 +400,6 @@
               <div class="first">
                 <input type="file"
                        id="resumeUpload"
-                       class="click-input"
                 />
               </div>
             </div>
@@ -709,13 +708,11 @@
 
     $("#resumeModal").on('show.bs.modal', function () {
         console.log("登录弹窗已展示!");
-        get("/user/api/resumeList", {}, function(data) {
-            console.log('简历列表', data);
-            if (!data || data.length == 0) {
+        get("/user/api/resume", {}, function(item) {
+            console.log('简历列表', item);
+            if (!item) {
               $('#resumeList').html('');
-              console.log('更新显示');
             } else {
-              const item = data[0]
               let type = '';
               if (item.type == 0) type = '待修改';
               else if(item.type == 1) type = '修改中';
