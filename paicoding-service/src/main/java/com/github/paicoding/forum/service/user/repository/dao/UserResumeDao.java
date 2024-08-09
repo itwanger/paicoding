@@ -1,16 +1,19 @@
 package com.github.paicoding.forum.service.user.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.enums.resume.ResumeEmailStateEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
 import com.github.paicoding.forum.service.user.repository.entity.ResumeDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserResumeMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,5 +81,20 @@ public class UserResumeDao extends ServiceImpl<UserResumeMapper, ResumeDO> {
         }
         query.eq(ResumeDO::getDeleted, YesOrNoEnum.NO.getCode());
         return baseMapper.selectCount(query);
+    }
+
+    /**
+     * 更新邮箱回复状态
+     *
+     * @param resumeId 主键
+     * @param state    回复状态
+     * @return true 更新成功 false 更新失败
+     */
+    public boolean updateEmailState(Long resumeId, ResumeEmailStateEnum state) {
+        LambdaUpdateWrapper<ResumeDO> update = Wrappers.lambdaUpdate();
+        update.set(ResumeDO::getEmailState, state.getState())
+                .set(ResumeDO::getUpdateTime, new Date(System.currentTimeMillis()))
+                .eq(ResumeDO::getId, resumeId);
+        return this.update(update);
     }
 }
