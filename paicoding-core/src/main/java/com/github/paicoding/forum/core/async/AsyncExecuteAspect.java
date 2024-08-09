@@ -45,14 +45,12 @@ public class AsyncExecuteAspect implements ApplicationContextAware {
         }
 
         try {
-            // 携带超时时间的执行调用
-            return AsyncUtil.callWithTimeLimit(asyncExecute.timeOut(), asyncExecute.unit(), () -> {
-                try {
-                    return joinPoint.proceed();
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            if (asyncExecute.backRun()) {
+                return AsyncUtil.submit(() -> timeRun(joinPoint, asyncExecute));
+            } else {
+                // 携带超时时间的执行调用
+                return timeRun(joinPoint, asyncExecute);
+            }
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             if (StringUtils.isNotBlank(asyncExecute.timeOutRsp())) {
                 return defaultRespWhenTimeOut(joinPoint, asyncExecute);
@@ -62,6 +60,16 @@ public class AsyncExecuteAspect implements ApplicationContextAware {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    private Object timeRun(ProceedingJoinPoint joinPoint, AsyncExecute asyncExecute) throws ExecutionException, InterruptedException, TimeoutException {
+        return AsyncUtil.callWithTimeLimit(asyncExecute.timeOut(), asyncExecute.unit(), () -> {
+            try {
+                return joinPoint.proceed();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private Object defaultRespWhenTimeOut(ProceedingJoinPoint joinPoint, AsyncExecute asyncExecute) {

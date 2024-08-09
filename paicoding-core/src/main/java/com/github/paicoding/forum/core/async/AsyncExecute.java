@@ -1,10 +1,6 @@
 package com.github.paicoding.forum.core.async;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,6 +19,14 @@ public @interface AsyncExecute {
      * @return
      */
     boolean value() default true;
+
+    /**
+     * true 表示后台执行
+     * false 同步执行
+     *
+     * @return
+     */
+    boolean backRun() default false;
 
     /**
      * 超时时间，默认3s

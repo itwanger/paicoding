@@ -3,16 +3,25 @@ package com.github.paicoding.forum.service.user.service.resume;
 import com.github.paicoding.forum.api.model.enums.resume.ResumeEmailStateEnum;
 import com.github.paicoding.forum.api.model.enums.resume.ResumeTypeEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
+import com.github.paicoding.forum.core.async.AsyncExecute;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.user.repository.dao.UserResumeDao;
 import com.github.paicoding.forum.service.user.repository.entity.ResumeDO;
+import com.sun.org.apache.xpath.internal.functions.FuncTrue;
+import io.lettuce.core.internal.Futures;
 import nonapi.io.github.classgraph.utils.ReflectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 简历通知辅助类
@@ -31,8 +40,8 @@ public class ResumeNotifyHelper {
      * @param resume
      * @return
      */
-    @Async
-    public Boolean notifyToUser(ResumeDO resume) {
+    @AsyncExecute(backRun = true, timeOut = 30)
+    public Future<Boolean> notifyToUser(ResumeDO resume) {
         boolean ans;
         ResumeEmailStateEnum stateEnum;
         if (Objects.equals(resume.getType(), ResumeTypeEnum.PROCESSING.getType())) {
@@ -50,9 +59,9 @@ public class ResumeNotifyHelper {
         }
 
         if (ans) {
-            return userResumeDao.updateEmailState(resume.getId(), stateEnum);
+            ans = userResumeDao.updateEmailState(resume.getId(), stateEnum);
         }
-        return false;
+        return new AsyncResult<>(ans);
     }
 
     private boolean notifyResumeReceiveMsg(ResumeDO resume) {
