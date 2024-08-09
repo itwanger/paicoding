@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.service;
 
+import com.github.paicoding.forum.api.model.enums.resume.ResumeEmailStateEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReplayReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeReq;
 import com.github.paicoding.forum.api.model.vo.user.UserResumeSaveReq;
@@ -34,6 +35,7 @@ public interface UserResumeService {
 
     /**
      * 删除简历
+     *
      * @param resumeId
      * @return
      */
@@ -47,7 +49,6 @@ public interface UserResumeService {
      * @return
      */
     Boolean replayResume(UserResumeReplayReq req);
-
 
     /**
      * 查询用户的最近上传的简历

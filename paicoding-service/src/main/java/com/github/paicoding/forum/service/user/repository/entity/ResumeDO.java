@@ -57,4 +57,10 @@ public class ResumeDO extends BaseDO {
      * 0 有效 1 已删除
      */
     private Integer deleted;
+
+    /**
+     * 邮件响应状态
+     * -1 未回复 0- 上传已回复 1 - 处理中已回复   2 - 已完成已回复
+     */
+    private Integer emailState;
 }

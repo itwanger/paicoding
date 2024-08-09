@@ -18,6 +18,7 @@ import com.github.paicoding.forum.service.user.repository.dao.UserResumeDao;
 import com.github.paicoding.forum.service.user.repository.entity.ResumeDO;
 import com.github.paicoding.forum.service.user.service.UserResumeService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,12 +39,15 @@ import java.util.stream.Collectors;
  * @author YiHui
  * @date 2024/8/7
  */
+@Slf4j
 @Service
 public class UserResumeServiceImpl implements UserResumeService {
     @Autowired
     private UserResumeDao userResumeDao;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ResumeNotifyHelper resumeNotifyHelper;
 
     @Override
     public Boolean saveResume(UserResumeSaveReq req) {
@@ -58,7 +62,12 @@ public class UserResumeServiceImpl implements UserResumeService {
         resume.setResumeUrl(req.getResumeUrl());
         resume.setReplayEmail(req.getReplayEmail());
         resume.setUpdateTime(new Date(System.currentTimeMillis()));
-        return userResumeDao.saveOrUpdate(resume);
+        resume.setEmailState(-1);
+        boolean ans = userResumeDao.saveOrUpdate(resume);
+        if (ans && req.getResumeId() == null) {
+            resumeNotifyHelper.notifyToUser(resume);
+        }
+        return ans;
     }
 
     /**
@@ -68,7 +77,7 @@ public class UserResumeServiceImpl implements UserResumeService {
      *
      * @param req
      */
-    private boolean preCheckForUpdateUserResume(UserResumeSaveReq req) {
+    private void preCheckForUpdateUserResume(UserResumeSaveReq req) {
         // 1. 更新简历
         // 简历存在，表示执行更新操作
         if (req.getResumeId() != null) {
@@ -85,7 +94,7 @@ public class UserResumeServiceImpl implements UserResumeService {
             if (!Objects.equals(resume.getType(), ResumeTypeEnum.UNPROCESS.getType())) {
                 throw ExceptionUtil.of(StatusEnum.SELF_DEFINE_ERROR, "仅未处理的简历才支持修改哦~");
             }
-            return true;
+            return;
         }
 
 
@@ -93,14 +102,13 @@ public class UserResumeServiceImpl implements UserResumeService {
         // 查询用户的简历，判断是否存在 未处理 - 处理中 的简历，若存在，则只支持修改，不支持重新上传
         List<ResumeDO> list = userResumeDao.queryUserResumes(req.getUserId());
         if (CollectionUtils.isEmpty(list)) {
-            return true;
+            return;
         }
         for (ResumeDO resume : list) {
             if (!Objects.equals(resume.getType(), ResumeTypeEnum.DONE.getType())) {
                 throw ExceptionUtil.of(StatusEnum.SELF_DEFINE_ERROR, "您已经有简历再处理中了，暂不支持重新上传哦~");
             }
         }
-        return true;
     }
 
 
@@ -130,7 +138,7 @@ public class UserResumeServiceImpl implements UserResumeService {
         resume.setUpdateTime(new Date(System.currentTimeMillis()));
         boolean ans = userResumeDao.updateById(resume);
         if (ans) {
-            // todo 发送邮件，通知用户邮件开始处理了
+            resumeNotifyHelper.notifyToUser(resume);
         }
         return ans;
     }
@@ -162,19 +170,17 @@ public class UserResumeServiceImpl implements UserResumeService {
     @Override
     public Boolean replayResume(UserResumeReplayReq req) {
         ResumeDO resume = userResumeDao.getById(req.getResumeId());
-        int oldType = resume.getType();
         resume.setReplay(req.getReplay());
         resume.setReplayUrl(req.getReplayUrl());
         resume.setType(ResumeTypeEnum.DONE.getType());
         resume.setUpdateTime(new Date(System.currentTimeMillis()));
         userResumeDao.updateById(resume);
 
-        // todo 发送邮件，通知用户
-        if (Objects.equals(oldType, ResumeTypeEnum.DONE.getType())) {
-            // 只有从未完成，变成已完成，表示需要发首次的回复邮件给用户
-        } else {
-            // 表示更新了回复信息，重新再发一个邮件
-        }
+        // 邮件回复用户
+        long now = System.currentTimeMillis();
+        resumeNotifyHelper.notifyToUser(resume);
+        long end = System.currentTimeMillis();
+        log.info("邮件通知耗时: {}", end - now);
         return true;
     }
 
