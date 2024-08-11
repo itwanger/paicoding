@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.SocketUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
@@ -25,6 +26,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
+import java.awt.*;
+import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -87,5 +91,39 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
             config.setHost("http://127.0.0.1:" + webPort);
         }
         log.info("启动成功，点击进入首页: {}", config.getHost());
+        autoViewPaiInBrowse(config.getHost());
+    }
+
+    private void autoViewPaiInBrowse(String url) {
+        if (EnvUtil.getEnv() == EnvUtil.EnvEnum.DEV) {
+            try {
+                String osName = System.getProperty("os.name", "");// 获取操作系统的名字
+
+                if (osName.startsWith("Windows")) {// windows
+                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
+                } else if (osName.startsWith("Mac OS")) {// Mac
+                    Class fileMgr = Class.forName("com.apple.eio.FileManager");
+                    Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
+                    openURL.invoke(null, url);
+                } else {// Unix or Linux
+                    String[] browsers = {"firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape"};
+                    String browser = null;
+                    for (int count = 0; count < browsers.length && browser == null; count++) { // 执行代码，在brower有值后跳出，
+                        // 这里是如果进程创建成功了，==0是表示正常结束。
+                        if (Runtime.getRuntime().exec(new String[]{"which", browsers[count]}).waitFor() == 0) {
+                            browser = browsers[count];
+                        }
+                    }
+
+                    if (browser == null) {
+                        throw new RuntimeException("未找到任何可用的浏览器");
+                    } else {// 这个值在上面已经成功的得到了一个进程。
+                        Runtime.getRuntime().exec(new String[]{browser, url});
+                    }
+                }
+            } catch (Exception e) {
+                log.error("自动打开浏览器异常", e);
+            }
+        }
     }
 }
