@@ -363,9 +363,8 @@
       <div class="modal-content">
         <div class="modal-header">
           <h6 class="modal-title">我的简历</h6>
-          <br/>
-          <h6 class="modal-title" id="resumeList" style="color:blue">
-            <a href=""> - 简历名 (待修改) </a>
+          <h6 class="modal-title" id="resumeInfo" style="color:blue; display: none">
+            <a href="/admin/#/resume/index" target="_blank" style="color: red"> &nbsp;&nbsp; >>> 查看历史提交 </a>
           </h6>
           <button
                   type="button"
@@ -377,7 +376,14 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="auth-body">
+          <div class="auth-body" id="resumeList" style="display: none">
+            <div class="panel">
+              <h6 class="modal-title" style="color:blue">
+                <a href=""> - 简历名 (待修改) </a>
+              </h6>
+            </div>
+          </div>
+          <div class="auth-body" id="resumeBody">
             <div class="login-main">
               <!-- 分为上下两部分，下面是其他登录比如说 GitHub、验证码 -->
               <div class="panel">
@@ -677,81 +683,93 @@
     let resumeUrl = '';
     let resumeName = '';
     upload.on("change", function () {
-        let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
-        console.log({objUrl})
-        if (objUrl) {
-            let image = upload[0].files[0]
-            let file = new FormData()
-            file.append("file", image)
-            $.ajax({
-                url: "/oss/upload",
-                type: "post",
-                data: file,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    console.log("response data", data);
-                    if (data.status.code > 0) {
-                        // 图片上传失败
-                        toastr.error(data.status.msg, "简历上传失败!");
-                        return;
-                    }
+      let objUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+      console.log({objUrl})
+      if (objUrl) {
+        let image = upload[0].files[0]
+        let file = new FormData()
+        file.append("file", image)
+        $.ajax({
+          url: "/oss/upload",
+          type: "post",
+          data: file,
+          cache: false,
+          contentType: false,
+          processData: false,
+          success: function (data) {
+            console.log("response data", data);
+            if (data.status.code > 0) {
+              // 图片上传失败
+              toastr.error(data.status.msg, "简历上传失败!");
+              return;
+            }
 
-                    resumeName = data.result.ossName;
-                    resumeUrl = data.result.ossPath;
-                    toastr.info("简历上传成功!")
-                },
-            })
-        }
+            resumeName = data.result.ossName;
+            resumeUrl = data.result.ossPath;
+            toastr.info("简历上传成功!")
+          },
+        })
+      }
     })
 
     $("#resumeModal").on('show.bs.modal', function () {
-        console.log("登录弹窗已展示!");
-        get("/user/api/resume", {}, function(item) {
-            console.log('简历列表', item);
-            if (!item) {
-              $('#resumeList').html('');
-            } else {
-              let type = '';
-              if (item.type == 0) type = '待修改';
-              else if(item.type == 1) type = '修改中';
-              else type = '已改完';
-
-             $('#resumeList').html(`<a href="" style="color:#007bff"> >>> ${item['resumeName']} ( ${type} ) </a>`);
-            }
-        })
+      get("/user/api/resume", {}, function(item) {
+        console.log('简历列表', item);
+        if (!item) {
+          $('#resumeList').hide();
+          $('#resumeBody').show();
+        } else if(item.type == 2) {
+          $('#resumeList').hide();
+          $('#resumeInfo').show();
+          $('#resumeBody').show();
+        } else {
+          let type = '';
+          if (item.type == 0) type = '待修改';
+          else if(item.type == 1) type = '修改中';
+          else type = '已改完';
+          let content = `<div class="panel">
+              <h1 class="title">最近上传简历：</h1>
+              <h6 class="modal-title" style="color:blue">
+                <a href="/admin/#/resume/index" target="_blank" style="color:#007bff"> ${item['resumeName']} ( ${type} ) </a>
+              </h6>
+            </div>`;
+          $('#resumeList').html(content);
+          $('#resumeList').show();
+          $('#resumeInfo').show();
+          $('#resumeBody').hide();
+        }
+      })
     })
 
     // 保存提交
     $("#resume-form").on("submit", function(event) {
-        event.preventDefault();
-        let email = $('#email').val().trim();
-        let mark = $('#mark').val().trim();
-        if (!email) {
-            toastr.error("请输入接收回信邮箱!");
-            $('#email').focus();
-            return;
-        }
+      event.preventDefault();
+      let email = $('#email').val().trim();
+      let mark = $('#mark').val().trim();
+      if (!email) {
+        toastr.error("请输入接收回信邮箱!");
+        $('#email').focus();
+        return;
+      }
 
-        if (!mark) {
-            toastr.error("请输入信息");
-            $('#mark').focus();
-            return;
-        }
+      if (!mark) {
+        toastr.error("请输入信息");
+        $('#mark').focus();
+        return;
+      }
 
-        if (!resumeUrl) {
-            toastr.error("请先上传pdf/doc/docx格式的简历!");
-            return;
-        }
+      if (!resumeUrl) {
+        toastr.error("请先上传pdf/doc/docx格式的简历!");
+        return;
+      }
 
-        const params = {"replayEmail": email, "mark": mark, "resumeUrl": resumeUrl, "resumeName": resumeName}
-        post("/user/api/saveResume", params, function (data) {
-            console.log("response data:", data);
-            toastr.success("上传成功");
-            // 关闭弹窗
-            $('#resumeModal').modal('hide');
-        });
+      const params = {"replayEmail": email, "mark": mark, "resumeUrl": resumeUrl, "resumeName": resumeName}
+      post("/user/api/saveResume", params, function (data) {
+        console.log("response data:", data);
+        toastr.success("上传成功");
+        // 关闭弹窗
+        $('#resumeModal').modal('hide');
+      });
     })
 
 
