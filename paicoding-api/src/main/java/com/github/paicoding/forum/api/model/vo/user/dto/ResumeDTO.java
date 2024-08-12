@@ -33,4 +33,6 @@ public class ResumeDTO {
     private Long createTime;
     @ApiModelProperty("最后更新时间")
     private Long updateTime;
+    @ApiModelProperty("邮件状态")
+    private Integer emailState;
 }

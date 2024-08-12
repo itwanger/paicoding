@@ -24,6 +24,7 @@ public class UserResumeConverter {
         dto.setReplay(resume.getReplay());
         dto.setReplayUrl(resume.getReplayUrl());
         dto.setType(resume.getType());
+        dto.setEmailState(resume.getEmailState());
         dto.setCreateTime(resume.getCreateTime().getTime());
         dto.setUpdateTime(resume.getUpdateTime().getTime());
         return dto;
