@@ -38,6 +38,15 @@ public enum AISourceEnum {
             return true;
         }
     },
+    /**
+     * 智谱 AI
+     */
+    ALI_AI(5, "阿里") {
+        @Override
+        public boolean asyncSupport() {
+            return true;
+        }
+    },
     ;
 
     private String name;
