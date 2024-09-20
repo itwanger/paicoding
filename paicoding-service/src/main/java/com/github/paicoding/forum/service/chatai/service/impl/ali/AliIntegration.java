@@ -107,8 +107,6 @@ public class AliIntegration {
     @ConfigurationProperties(prefix = "ali")
     @Data
     public static class AliConfig {
-        public String requestIdTemplate;
-        public String apiSecretKey;
         public String model;
     }
 
