@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatServiceFactory;
+import com.github.paicoding.forum.service.chatai.service.impl.ali.AliIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.zhipu.ZhipuIntegration;
@@ -86,6 +87,8 @@ public class ChatFacade {
             } else if (!except.contains(AISourceEnum.XUN_FEI_AI) && StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class)
                     .getApiKey())) {
                 source = AISourceEnum.XUN_FEI_AI;
+            } else if (!except.contains(AISourceEnum.ALI_AI)) {
+                source = AISourceEnum.ALI_AI;
             } else {
                 source = AISourceEnum.PAI_AI;
             }
