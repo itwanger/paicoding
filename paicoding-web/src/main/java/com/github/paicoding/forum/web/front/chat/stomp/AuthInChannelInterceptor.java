@@ -63,6 +63,7 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
                 && accessor != null && accessor.getUser() != null) {
             // 订阅成功，返回用户历史聊天记录； 从请求头中，获取具体选择的大数据模型
             ReqInfoContext.addReqInfo((ReqInfoContext.ReqInfo) accessor.getUser());
+
             String aiType = (String) ((Map) message.getHeaders().get("simpSessionAttributes")).get(WsAnswerHelper.AI_SOURCE_PARAM);
             AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
             SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName(), source);
