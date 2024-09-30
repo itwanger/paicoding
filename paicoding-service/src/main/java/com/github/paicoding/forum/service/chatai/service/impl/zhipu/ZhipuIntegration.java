@@ -63,14 +63,16 @@ public class ZhipuIntegration {
         String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
         // 函数调用参数构建部分
         List<ChatTool> chatToolList = new ArrayList<>();
-//        ChatTool chatTool = new ChatTool();
+        ChatTool chatTool = new ChatTool();
 
-//        chatTool.setType("retrieval");
+        chatTool.setType("web_search");
 //        Retrieval retrieval = new Retrieval();
 //        retrieval.setKnowledge_id("1826571496106102784");
-//        chatTool.setRetrieval(retrieval);
+        WebSearch webSearch = new WebSearch();
+        webSearch.setEnable(Boolean.TRUE);
+        chatTool.setWeb_search(webSearch);
 //        chatTool.setType("code_interpreter");
-//        chatToolList.add(chatTool);
+        chatToolList.add(chatTool);
 
         // 请求参数封装
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
