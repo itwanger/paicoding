@@ -53,9 +53,9 @@
                 <div class="chat-type">
                     <select class="styled-dropdown" id="chat-type">
                         <option value="CHAT_GPT_3_5">OpenAI</option>
-                        <option value="ALI_AI" selected>通义千问</option>
+                        <option value="ALI_AI">通义千问</option>
                         <option value="XUN_FEI_AI">讯飞星火</option>
-                        <option value="ZHI_PU_AI">GLM-4-Flash</option>
+                        <option value="ZHI_PU_AI" selected>GLM-4-Plus</option>
                         <option value="PAI_AI">技术派</option>
                     </select>
                 </div>
@@ -84,6 +84,7 @@
     const inputField = $("#input-field");
     const sendBtn = $("#send-btn"), sendBtnText = $(".button_icon-button-text__k3vob");
     const chatContent = $("#chat-content");
+    const promptField = $("#promptField");
     let stompClient = null;
     // 用户名
     const chatTitle = $(".window-header-main-title");
@@ -122,6 +123,7 @@
         let host = window.location.host;
         let aiType = $('#chat-type').val();
         console.log("AITYPE = ", aiType);
+
         let socket = new WebSocket(`${protocol}//${host}/gpt/${session}/${aiType}`);
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
@@ -364,12 +366,14 @@
     }
 
     function doSend() {
-        const qa = inputField.val();
+        let qa = inputField.val();
+        // const prompt = promptField.val() | "";
         if (qa.length > 512) {
             toastr.info("提问长度请不要超过512字符哦~");
             return;
         }
         // 表示将消息转发到那个目标，类似与http请求中的path路径
+        // qa = prompt == "" ? qa : prompt + "prompt-" + qa;
         stompClient.send("/app/chat/" + session, {'s-uid': session}, qa);
         // 清空 textarea
         inputField.val("");

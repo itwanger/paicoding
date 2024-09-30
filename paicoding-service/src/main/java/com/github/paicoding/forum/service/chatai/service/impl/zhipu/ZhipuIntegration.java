@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -42,16 +43,34 @@ public class ZhipuIntegration {
         List<ChatMessage> messages = new ArrayList<>();
 
         ChatItemVo item = chatRecord.getRecords().get(0);
-        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), item.getQuestion());
+
+        String question = item.getQuestion();
+//        int index = item.getQuestion().indexOf("prompt-");
+//        if (index != -1) {
+//            String promptStr = item.getQuestion().substring(index + 7);
+//
+//            if (StringUtils.isNotBlank(promptStr)) {
+//                ChatMessage prompt = new ChatMessage(ChatMessageRole.SYSTEM.value(), promptStr);
+//                messages.add(prompt);
+//            }
+//
+//            question = item.getQuestion().substring(0, index);
+//        }
+
+        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), question);
         messages.add(chatMessage);
 
         String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
         // 函数调用参数构建部分
         List<ChatTool> chatToolList = new ArrayList<>();
-        ChatTool chatTool = new ChatTool();
+//        ChatTool chatTool = new ChatTool();
 
-        chatTool.setType("code_interpreter");
-        chatToolList.add(chatTool);
+//        chatTool.setType("retrieval");
+//        Retrieval retrieval = new Retrieval();
+//        retrieval.setKnowledge_id("1826571496106102784");
+//        chatTool.setRetrieval(retrieval);
+//        chatTool.setType("code_interpreter");
+//        chatToolList.add(chatTool);
 
         // 请求参数封装
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
@@ -121,12 +140,12 @@ public class ZhipuIntegration {
                         }
                     })
                     .doOnComplete(() -> {
-                        System.out.println("Stream completed.");
+                        log.info("Stream completed.");
                         item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
                         callback.accept(AiChatStatEnum.END, chatRecord);
                     })
                     .doOnError(throwable -> {
-                        System.err.println("Error: " + throwable);
+                        log.error("Error: {}", throwable);
                         callback.accept(AiChatStatEnum.ERROR, chatRecord);
                     }) // Handle errors
                     .blockingSubscribe();// Use blockingSubscribe instead of blockingGet()
@@ -146,6 +165,7 @@ public class ZhipuIntegration {
         try {
             log.info("model output: {}", mapper.writeValueAsString(sseModelApiResp));
         } catch (JsonProcessingException e) {
+            log.error("An exception occurred: {}", e.getMessage());
             throw new RuntimeException(e);
         }
         client.getConfig().getHttpClient().dispatcher().executorService().shutdown();
