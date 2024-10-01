@@ -17,12 +17,13 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 自定义的配置工厂类，专门用于 ConfDot 属性配置文件的配置加载，支持从自定义的配置源获取
@@ -138,14 +139,14 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     /**
      * 注册db的动态配置变更
      */
-    @Scheduled(fixedRate = 300000) // 5 minutes expressed in milliseconds
     private void registerConfRefreshTask() {
-        try {
-            log.debug("5分钟，自动更新db配置信息!");
-            reloadConfig();
-        } catch (Exception e) {
-            log.warn("自动更新db配置信息异常!", e);
-        }
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+            try {
+                reloadConfig();
+            } catch (Exception e) {
+                log.warn("自动更新db配置信息异常!", e);
+            }
+        }, 5, 5, TimeUnit.MINUTES);
     }
 
     /**
