@@ -7,6 +7,7 @@ public final class OptionsBuilder {
     private String strongDelimiter = "**";
     private HeadingStyle headingStyle = HeadingStyle.SETEXT;
     private String bulletListMaker = "*";
+    // 代码块风格默认是缩进
     private CodeBlockStyle codeBlockStyle = CodeBlockStyle.INDENTED;
     private LinkStyle linkStyle = LinkStyle.INLINED;
     private LinkReferenceStyle linkReferenceStyle = LinkReferenceStyle.DEFAULT;

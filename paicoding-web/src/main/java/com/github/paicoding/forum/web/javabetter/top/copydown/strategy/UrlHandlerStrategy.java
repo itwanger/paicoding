@@ -62,7 +62,6 @@ public interface UrlHandlerStrategy {
         }
 
         builder.append("---\n\n");
-        log.info("markdown\n{}", result.getMarkdown());
         builder.append(result.getMarkdown());
 
         if (StringUtils.isNotBlank(result.getSourceLink())) {

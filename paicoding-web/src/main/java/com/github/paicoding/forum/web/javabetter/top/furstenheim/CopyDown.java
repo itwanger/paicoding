@@ -172,6 +172,7 @@ public class CopyDown {
                 }
             }));
             addRule("blockquote", new Rule("blockquote", (content, element) -> {
+                log.info("blockquote {}", content);
                 content = content.replaceAll("^\n+|\n+$", "");
                 content = content.replaceAll("(?m)^", "> ");
                 return "\n\n" + content + "\n\n";
@@ -191,8 +192,11 @@ public class CopyDown {
             }));
             addRule("table", new Rule(new String[] { "th", "td", "tr", "thead", "tbody"}, (content, element) -> {
                 // 净身
+                log.info("table {}", content);
+
                 content = content.replaceAll("^\n+", "") // remove leading new lines
                         .replaceAll("\n+$", "\n"); // indent
+
                 String separator = "|";
                 String delimiter = "---";
                 StrBuilder builder = StrBuilder.create(content);
@@ -224,7 +228,6 @@ public class CopyDown {
                         }
                     }
                 }
-
 
                 return builder.toString();
             }));
@@ -262,15 +265,36 @@ public class CopyDown {
                 }
                 return prefix + content + (element.nextSibling() != null && !Pattern.compile("\n$").matcher(content).find() ? "\n": "");
             }));
+            addRule("figureToMarkdown", new Rule((element) -> {
+                // 判断是否是 figure 元素，且 class 为 highlight
+                boolean isFigureElement = element.nodeName().equals("figure");
+                boolean hasHighlightClass = element.attr("class").contains("highlight");
+                return isFigureElement && hasHighlightClass;
+            }, (content, element) -> {
+                log.info("转换 figure 元素 {}", content);
+
+                // 转成元素
+                Element figure = (Element)element;
+                Element codeElement = figure.selectFirst(".code");
+                if (codeElement == null) {
+                    return ""; // 如果没有 <pre> 标签，返回空字符串
+                }
+
+                String codeContent = codeElement.wholeText().trim();  // 提取 <pre> 中的代码文本
+                String language = figure.attr("class").substring("highlight ".length());  // 获取语言信息
+
+                // Markdown 格式的代码块
+                String fence = "```";
+                return fence + language + "\n" + codeContent + "\n" + fence + "\n";
+            }));
             addRule("indentedCodeBlock", new Rule((element) -> {
                 // 缩进的
                 return options.codeBlockStyle == CodeBlockStyle.INDENTED
-                       && element.parentNode().nodeName().equals("pre")
-                       && element.childNodeSize() > 0
-                       && element.childNode(0).nodeName().equals("code");
+                        && element.parentNode().nodeName().equals("pre")
+                        && element.childNodeSize() > 0
+                        && element.childNode(0).nodeName().equals("code");
             }, (content, element) -> {
                 log.info("缩进的代码块");
-                // TODO check textContent
                 return "\n\n    " + ((Element)element.childNode(0)).wholeText().replaceAll("\n", "\n    ");
             }));
             // 行内代码
@@ -453,7 +477,15 @@ public class CopyDown {
             }));
             addRule("default", new Rule((element -> true), (content, element) ->
             {
-                log.info("默认 {} {}", element.nodeName(),content);
+                log.info("默认 {} {}", element.nodeName(), content);
+
+                // 如果是 line class，然后父级是 pre，且父级的父级是 td.gutter，那么就直接跳过
+                if (element.attr("class").equals("line")
+                        && element.parentNode().nodeName().equals("pre")
+                        && element.parentNode().parentNode().attr("class").equals("gutter")) {
+                    log.info("line parent pre parent gutter 跳过");
+                    return "";
+                }
 
                 boolean isCodeBlock = element.nodeName().equals("pre");
                 // 博客园的代码
@@ -492,11 +524,6 @@ public class CopyDown {
                             "\n" + fence + "\n"+ content
                                     + fence + "\n"
                     );
-                }
-
-                if (element.attr("class").equals("line")) {
-                    log.info("line");
-                    return  content + "\n";
                 }
 
                 if (CopyNode.isBlock(element)) {
