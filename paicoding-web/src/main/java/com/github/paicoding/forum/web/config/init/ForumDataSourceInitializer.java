@@ -14,11 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
 import java.net.URI;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -130,6 +126,12 @@ public class ForumDataSourceInitializer {
                 return true;
             }
             set.close();
+            // 查询数据库的表是否存在
+            ResultSet tables = statement.executeQuery("SELECT table_name FROM information_schema.TABLES where table_name = 'user_info' and table_schema = '" + database + "';");
+            if (!tables.next()) {
+                log.info("数据库存在，但表不存在，需要初始化");
+                return true;
+            }
             log.info("数据库已存在，无需初始化");
             return false;
         } catch (SQLException e2) {
