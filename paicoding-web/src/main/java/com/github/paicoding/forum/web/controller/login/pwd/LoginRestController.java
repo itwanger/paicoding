@@ -83,28 +83,12 @@ public class LoginRestController {
         }
     }
 
-    @Permission(role = UserRole.LOGIN)
-    @RequestMapping("logout")
-    public ResVo<Boolean> logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // 释放会话
-        request.getSession().invalidate();
-        Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
-        // 移除cookie
-        response.addCookie(SessionUtil.delCookie(LoginService.SESSION_KEY));
-        // 重定向到当前页面
-        String referer = request.getHeader("Referer");
-        if (StringUtils.isBlank(referer)) {
-            referer = "/";
-        }
-        response.sendRedirect(referer);
-        return ResVo.ok(true);
-    }
 
     @Permission(role = UserRole.LOGIN)
-    @RequestMapping("new/logout")
-    public ResVo<Boolean> fakeLogOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/logout")
+    public ResVo<Boolean> logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 释放会话
-        request.getSession().invalidate();
+//        request.getSession().invalidate();
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
         // 移除cookie
         response.addCookie(SessionUtil.delCookie(LoginService.SESSION_KEY));

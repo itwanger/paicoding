@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.api.model.vo;
 
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,10 +12,8 @@ import java.io.Serializable;
 @Data
 public class ResVo<T> implements Serializable {
     private static final long serialVersionUID = -510306209659393854L;
-    @ApiModelProperty(value = "返回结果说明", required = true)
     protected Status status;
 
-    @ApiModelProperty(value = "返回的实体结果", required = true)
     protected T result;
 
 

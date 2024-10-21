@@ -163,6 +163,10 @@
             <version>${druid-spring-boot-starter.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>com.alibaba</groupId>-->

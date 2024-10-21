@@ -1,6 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,13 +12,13 @@ public class SimpleColumnDTO implements Serializable {
 
     private static final long serialVersionUID = 3646376715620165839L;
 
-    @ApiModelProperty("专栏id")
+    @Schema(description = "专栏id")
     private Long columnId;
 
-    @ApiModelProperty("专栏名")
+    @Schema(description = "专栏名")
     private String column;
 
     // 封面
-    @ApiModelProperty("封面")
+    @Schema(description = "封面")
     private String cover;
 }

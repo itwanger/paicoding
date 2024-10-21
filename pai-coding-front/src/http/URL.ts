@@ -12,7 +12,7 @@ export const INDEX_URL = "/index"
 // 用户名密码登录
 export const LOGIN_USER_NAME_URL = "/new/login/username"
 // 退出登录
-export const LOGOUT_URL = "/new/logout"
+export const LOGOUT_URL = "/logout"
 
 // 随机用户登录，需要模拟微信公众号平台给后端发请求的地址
 export const MOCK_LOGIN_URL = "/wx/callback"

@@ -56,7 +56,7 @@ public class UserSessionHelper {
         verifier = JWT.require(algorithm).withIssuer(jwtProperties.getIssuer()).build();
     }
 
-    public String genSession(Long userId) {
+    public String genToken(Long userId) {
         // 1.生成jwt格式的会话，内部持有有效期，用户信息
         String session = JsonUtil.toStr(MapUtils.create("s", SelfTraceIdGenerator.generate(), "u", userId));
         String token = JWT.create().withIssuer(jwtProperties.getIssuer()).withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpire()))

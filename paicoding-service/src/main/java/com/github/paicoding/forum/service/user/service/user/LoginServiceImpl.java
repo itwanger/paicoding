@@ -90,7 +90,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     public String loginByWx(Long userId) {
-        return userSessionHelper.genSession(userId);
+        return userSessionHelper.genToken(userId);
     }
 
     /**
@@ -116,7 +116,7 @@ public class LoginServiceImpl implements LoginService {
 
         // 登录成功，返回对应的session
         ReqInfoContext.getReqInfo().setUserId(userId);
-        return userSessionHelper.genSession(userId);
+        return userSessionHelper.genToken(userId);
     }
 
 
@@ -158,7 +158,7 @@ public class LoginServiceImpl implements LoginService {
             userId = registerService.registerByUserNameAndPassword(loginReq);
         }
         ReqInfoContext.getReqInfo().setUserId(userId);
-        return userSessionHelper.genSession(userId);
+        return userSessionHelper.genToken(userId);
     }
 
 
