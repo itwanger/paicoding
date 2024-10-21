@@ -43,6 +43,8 @@
         <sensitive.version>0.8.0</sensitive.version>
         <jwt.version>4.4.0</jwt.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+        <knife4j.version>4.5.0</knife4j.version>
+        <springdoc.version>1.8.0</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -91,6 +93,18 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>24.1.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
 
             <dependency>

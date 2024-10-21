@@ -23,15 +23,4 @@ public class BaseViewController {
         return PageParam.newPageInstance(page, size);
     }
 
-//
-//  推荐使用它替代 GlobalViewInterceptor 中的全局属性设置
-//    /**
-//     * 全局属性配置
-//     *
-//     * @param model
-//     */
-//    @ModelAttribute
-//    public void globalAttr(Model model) {
-//        model.addAttribute("global", globalInitService.globalAttr());
-//    }
 }

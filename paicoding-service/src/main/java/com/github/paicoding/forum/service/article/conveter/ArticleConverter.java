@@ -103,7 +103,6 @@ public class ArticleConverter {
         dto.setCategoryId(category.getId());
         dto.setRank(category.getRank());
         dto.setStatus(category.getStatus());
-        dto.setSelected(false);
         return dto;
     }
 

@@ -217,10 +217,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         AtomicReference<CategoryDTO> selectedArticle = new AtomicReference<>();
         allList.forEach(category -> {
             if (category.getCategory().equalsIgnoreCase(active)) {
-                category.setSelected(true);
                 selectedArticle.set(category);
-            } else {
-                category.setSelected(false);
             }
         });
 
@@ -228,7 +225,6 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         allList.add(0, new CategoryDTO(0L, CategoryDTO.DEFAULT_TOTAL_CATEGORY));
         if (selectedArticle.get() == null) {
             selectedArticle.set(allList.get(0));
-            allList.get(0).setSelected(true);
         }
 
         return selectedArticle.get();

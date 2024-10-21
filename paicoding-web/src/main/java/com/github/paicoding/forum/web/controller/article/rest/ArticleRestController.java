@@ -5,13 +5,16 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
-import com.github.paicoding.forum.api.model.vo.*;
+import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.ContentPostReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleOtherDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
+import com.github.paicoding.forum.api.model.vo.article.response.CategoryArticlesResponseDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
@@ -36,6 +39,7 @@ import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.controller.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.controller.article.vo.ArticleEditVo;
+import com.github.paicoding.forum.web.controller.home.helper.IndexRecommendHelper;
 import com.github.paicoding.forum.web.global.vo.ResultVo;
 import com.rabbitmq.client.BuiltinExchangeType;
 import jakarta.servlet.http.HttpServletResponse;
@@ -87,6 +91,9 @@ public class ArticleRestController {
 
     @Autowired
     private ColumnService columnService;
+
+    @Autowired
+    IndexRecommendHelper indexRecommendHelper;
 
     /**
      * 文章详情页
@@ -197,7 +204,7 @@ public class ArticleRestController {
             // 过滤掉文章数为0的分类
             list.removeIf(c -> articleCnt.getOrDefault(c.getCategoryId(), 0L) <= 0L);
         }
-        list.forEach(c -> c.setSelected(c.getCategoryId().equals(categoryId)));
+//        list.forEach(c -> c.setSelected(c.getCategoryId().equals(categoryId)));
         return ResVo.ok(list);
     }
 
@@ -205,11 +212,25 @@ public class ArticleRestController {
      * 获取指定分类下的文章信息
      */
     @GetMapping("/articles/category")
-    public ResultVo<IPage<ArticleDTO>> getArticlesByCategory(@RequestParam(name = "category", required = false) String category,
-                                                             @RequestParam(name = "currentPage", required = false, defaultValue = "1") int currentPage,
-                                                             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
+    public ResultVo<CategoryArticlesResponseDTO> getArticlesByCategory(@RequestParam(name = "category", required = false) String category,
+                                                                       @RequestParam(name = "currentPage", required = false, defaultValue = "1") int currentPage,
+                                                                       @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
+
+        // 搜索对应的文章
         IPage<ArticleDTO> articles = articleService.queryArticlesByCategoryPagination(currentPage, pageSize, category);
-        return ResultVo.ok(articles);
+
+        List<CategoryDTO> categories = categoryService.loadAllCategories();
+        // 查询所有分类的对应的文章数
+        Map<Long, Long> articleCnt = articleService.queryArticleCountsByCategory();
+        // 过滤掉文章数为0的分类
+        categories.removeIf(c -> articleCnt.getOrDefault(c.getCategoryId(), 0L) <= 0L);
+
+        CategoryDTO selectedCategory = categories.stream().filter(c -> c.getCategory().equals(category)).findFirst().orElse(null);
+        selectedCategory = selectedCategory == null ? CategoryDTO.DEFAULT_CATEGORY : selectedCategory;
+        List<ArticleDTO> topArticles = indexRecommendHelper.topArticleList(selectedCategory);
+
+        CategoryArticlesResponseDTO responseDTO = new CategoryArticlesResponseDTO(articles, categories, topArticles);
+        return ResultVo.ok(responseDTO);
     }
 
     /**
@@ -304,9 +325,9 @@ public class ArticleRestController {
             }
 
             List<CategoryDTO> categoryList = categoryService.loadAllCategories();
-            categoryList.forEach(s -> {
-                s.setSelected(s.getCategoryId().equals(article.getCategory().getCategoryId()));
-            });
+//            categoryList.forEach(s -> {
+//                s.setSelected(s.getCategoryId().equals(article.getCategory().getCategoryId()));
+//            });
             vo.setCategories(categoryList);
             vo.setTags(article.getTags());
         } else {

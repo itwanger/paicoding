@@ -3,7 +3,6 @@ package com.github.paicoding.forum.web.front.test.rest
 import com.github.paicoding.forum.api.model.context.ReqInfoContext
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO
 import com.github.paicoding.forum.core.util.EmailUtil
-import com.github.paicoding.forum.web.global.ForumExceptionHandler
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor
 import com.sayweee.spock.mockfree.annotation.MockStatic
 import org.springframework.test.web.servlet.MockMvc
@@ -27,9 +26,7 @@ class TestControllerTest extends Specification {
             ReqInfoContext.clear()
         }
         MockMvc mockMvc = MockMvcBuilders
-                .standaloneSetup(new TestController())
                 .addInterceptors(new GlobalViewInterceptor())
-                .setHandlerExceptionResolvers(new ForumExceptionHandler())
                 .build()
         when: "execute email"
         def result = mockMvc.perform(MockMvcRequestBuilders
