@@ -1,0 +1,61 @@
+.foot {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: #fff;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.body-404 footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 70px;
+}
+
+.foot-link {
+  list-style: none;
+  padding: 25px 0;
+  width: 80%;
+  margin: 0 auto;
+  text-align: left;
+  font-size: 0;
+}
+
+.foot li {
+  font-size: 14px;
+  padding: 0 10px;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1em;
+}
+
+.foot li:last-child {
+  border-left: none;
+  float: right;
+  padding-right: 0;
+}
+
+.foot .visit_cnt {
+  color: #e96900;
+}
+
+/* 宽屏布局 */
+.stats-container {
+  display: flex;
+  justify-content: space-between; /* 使两个 .stats-row 分布在容器两端 */
+}
+
+/* 媒体查询，针对小屏幕设备 */
+@media screen and (max-width: 768px) {
+  .stats-row {
+    white-space: nowrap; /* 防止内容换行 */
+    text-align: center; /* 使内容居中 */
+  }
+  .stats-container {
+    display: block; /* 使 .stats-row 堆叠显示 */
+  }
+}

@@ -1,0 +1,17 @@
+
+
+@media (max-width: 768px) {
+    /*当屏幕宽度低于768px时隐藏显示*/
+    .hidden-when-screen-small{
+        display: none;
+    }
+}
+
+
+@media (min-width: 768px) {
+    /*当屏幕宽度低于768px时才显示*/
+    .display-when-screen-small{
+        display: none;
+    }
+}
+

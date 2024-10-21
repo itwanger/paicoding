@@ -1,0 +1,216 @@
+.custom-home {
+    overflow: auto;
+    padding-top: 20px;
+    height: calc(100vh - 60px);
+}
+
+.custom-home-wrap {
+    width: 100%;
+    display: flex;
+    margin: 0 auto 20px;
+    min-height: calc(100% - 90px);
+}
+
+.hot-list-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 80%;
+    margin-left: 5%;
+    background-color: #fff;
+    padding: 1.66rem 1rem;
+    border-radius: 4px;
+}
+
+.author-type-select {
+    padding: 0.25rem;
+    box-sizing: border-box;
+    background-color: #f2f3f5;
+    border-radius: 4px;
+}
+
+.author-type-select, .hot-list-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.author-type-link {
+    font-size: 1.16rem;
+    line-height: 1.83rem;
+    display: inline-block;
+    padding: 2px 1rem;
+    color: #8a919f;
+    border-radius: 4px;
+    font-weight: 400;
+}
+
+.author-type-link-active {
+    background-color: #fff;
+    color: #252933;
+}
+
+.hot-list-header {
+    padding: 0 1rem 1.33rem;
+    font-size: 1.5rem;
+    line-height: 2.16rem;
+    justify-content: space-between
+}
+
+.author-item-link {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.author-item-wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.33rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.author-item-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 300px;
+}
+
+.author-hot, .author-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center
+}
+
+.author-hot {
+    border-right: 1px solid #e4e6eb;
+    min-height: 3.33rem;
+    padding-right: 2.5rem;
+    margin-right: 2.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.author-right {
+    justify-content: flex-end;
+    width: 21rem;
+    flex-shrink: 0;
+}
+
+.author-number {
+    min-width: 2.66rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 2rem;
+    color: #515767;
+    margin-right: 2rem;
+    flex-shrink: 0;
+}
+
+.author-number-1 {
+    background: linear-gradient(180deg, #f64242 30%, rgba(246, 66, 66, .4) 80%)
+}
+
+.author-number-2 {
+    background: linear-gradient(180deg, #ff7426 30%, rgba(255, 116, 38, .4) 80%)
+}
+
+.author-number-3 {
+    background: linear-gradient(180deg, #ffac0c 30%, rgba(255, 172, 12, .4) 80%)
+}
+
+.author-number-1, .author-number-2, .author-number-3 {
+    -webkit-background-clip: text;
+    color: transparent;
+    font-family: Archivo;
+    font-size: 1.66rem
+}
+
+.author-detail {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 285px;
+    max-width: 400px;
+}
+
+.author-author-img {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 24px;
+    margin-right: 1.66rem;
+}
+
+.username {
+    font-size: 1em;
+    font-weight: 600;
+    color: #252933;
+    display: flex;
+    align-items: center;
+}
+
+.username .name {
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.author-desc {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 0.66rem;
+    flex-wrap: wrap;
+}
+
+.author-text {
+    color: #8a919f;
+    font-size: 0.9rem;
+}
+
+.author-hot {
+    border-right: 1px solid #e4e6eb;
+    min-height: 3.33rem;
+    padding-right: 2.5rem;
+    margin-right: 2.5rem;
+}
+
+.author-hot, .author-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center
+}
+
+.hot-number {
+    color: #252933;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.hot-text {
+    font-size: 1.125rem;
+    color: #8a919f;
+    line-height: 1.83rem;
+}
+
+.author-item-wrap .author-right .author-item-button {
+    width: 6.3rem;
+    box-sizing: border-box;
+    height: 2.83rem;
+    line-height: 2.5rem;
+    background-color: rgba(30, 128, 255, 0.05);
+    border-color: rgba(30, 128, 255, 0.3);
+    border-radius: 4px;
+    color: #1e80ff;
+    padding: 0;
+}

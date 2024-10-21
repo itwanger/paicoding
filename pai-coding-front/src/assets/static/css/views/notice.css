@@ -1,0 +1,129 @@
+.notice-wrap {
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  background-color: #f4f5f5;
+}
+.notice-nav {
+  position: sticky;
+  top: 0;
+  margin-bottom: 10px;
+  background-color: var(--pai-bg-white-fff);
+  border-top: 1px solid #f1f1f1;
+}
+.notice-nav-inner {
+  width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+@media (max-width: 768px) {
+  .notice-nav-inner {
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+  }
+}
+
+.notice-nav-item {
+  padding: 14px 0;
+  margin-right: 36px;
+  line-height: 16px;
+}
+.notice-nav-item--active {
+  padding: 14px 0;
+  margin-right: 36px;
+  color: var(--pai-brand-2-hover);
+}
+.unread-count {
+  display: inline-block;
+  color: var(--pai-color-fff-normal);
+  transform: scale(0.8);
+  font-size: 12px;
+  padding: 2px 8px;
+  background: var(--pai-brand-6-mq);
+  border-radius: 100px;
+  text-align: center;
+}
+.notice-content {
+  width: 1000px;
+  margin: 0 auto;
+  min-height: calc(100% - 133px);
+}
+
+@media (max-width: 768px) {
+  .notice-content{
+    width: 100%;
+    margin: 0 auto;
+    min-height: calc(100% - 133px);
+  }
+}
+
+.notification {
+  margin-bottom: 12px;
+  display: flex;
+  padding: 20px;
+  background-color: var(--pai-bg-white-fff);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  align-items: center;
+}
+.notification-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 24px;
+}
+.notification-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.notification-content {
+  display: flex;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.notification-comment {
+  font-size: 14px;
+  width: 100%;
+  min-height: 40px;
+  background-color: #fafbfc;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #f1f1f2;
+  margin-bottom: 8px;
+}
+.notification a {
+  color: var(--pai-brand-1-normal);
+}
+.notification a:hover {
+  color: var(--pai-brand-2-hover);
+}
+.notification-bottom {
+  display: flex;
+  justify-content: space-between;
+}
+.notification-time {
+  font-size: 12px;
+  color: #ccc;
+}
+.notification-action {
+  display: flex;
+}
+
+.notification a.notification-action-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  margin-right: 8px;
+  cursor: pointer;
+  color: var(--pai-color-999-gray);
+}
+
+.action-text {
+  font-size: 12px;
+}

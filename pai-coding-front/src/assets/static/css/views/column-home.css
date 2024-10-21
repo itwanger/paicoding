@@ -1,0 +1,257 @@
+.custom-home {
+    overflow: auto;
+    padding-top: 20px;
+    height: calc(100vh - var(--header-height));
+}
+
+.custom-home-wrap {
+    width: 100%;
+    display: flex;
+    margin: 0 auto 20px;
+    min-height: calc(100% - 90px);
+}
+
+.custom-home-body {
+    flex: 1;
+    margin-right: 20px;
+    border-radius: 8px;
+}
+
+/* 详情列表 */
+.item {
+    display: flex;
+    padding: 25px;
+    box-sizing: border-box;
+    position: relative;
+    border-bottom: var(--pai-hr-color-1) 1px solid;
+}
+
+.poster {
+    width: 110px;
+    height: 156px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.poster img {
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+}
+
+.info {
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-size: 16px;
+    padding-left: 22px;
+}
+
+.info .messages {
+    font-size: 14px;
+}
+
+.author .name {
+    color: var(--pai-color-3-gray);
+    font-size: 14px;
+}
+
+.title {
+    font-size: 20px;
+    line-height: 28px;
+}
+
+.info .desc {
+    margin-top: 10px;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    color: var(--pai-color-3-gray);
+}
+
+.user {
+    display: inline-flex;
+    align-items: center;
+}
+
+.user img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background-position: 50%;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.other {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    color: #8a919f;
+}
+
+.author {
+    margin-top: 6px;
+}
+
+/*限时免费*/
+
+.new-tag-wrap {
+    padding: 0 6px;
+    height: 20px;
+    line-height: 20px;
+    color: var(--pai-color-fff-normal);
+    font-size: 12px;
+    border-radius: 2px;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: default;
+    margin-right: 3px;
+    transform: translateY(-3px);
+    background-color: var(--pai-brand-5-bak);
+}
+
+.info .tag {
+    display: inline-block;
+    vertical-align: middle;
+    cursor: default;
+    margin-right: 5px;
+    transform: translateY(-2px);
+}
+
+/*level*/
+
+.com-2-level {
+    display: inline-block;
+    vertical-align: middle;
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background-color: var(--pai-brand-5-bak);
+    font-size: 12px;
+    text-align: center;
+    line-height: 26px;
+    color: #fff;
+    font-style: oblique;
+    font-weight: 700;
+}
+
+.uc-hero-level, .uc-hero-name {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.com-2-level.skin-2 {
+    width: auto;
+    height: 16px;
+    border: none;
+    border-radius: 9px;
+    padding: 0 8px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.com-2-level .text {
+    position: relative;
+    top: 1px;
+    display: block;
+    -webkit-transform: scale(.8);
+    transform: scale(.8);
+}
+
+.com-2-level.skin-2 .text {
+    top: 0;
+    -webkit-transform: none;
+    transform: none;
+}
+
+/*作者简介*/
+.self-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 4px;
+    font-size: 14px;
+    color: var(--pai-color-3-gray);
+}
+
+/*限时免费*/
+
+.sale-tooltip {
+    position: relative;
+    flex: 0 0 auto;
+    align-items: center;
+    background: linear-gradient(90deg,rgba(246,66,66,.25),rgba(246,66,66,0));
+    border-radius: 100px;
+    padding: 0 48px 0 8px;
+    color: var(--pai-brand-6-mq);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sale-tooltip .count-down-text:before {
+    width: 6px;
+    content: "·";
+    margin: 0 2px;
+}
+
+.read-count:before {
+    width: 6px;
+    content: "·";
+    margin: 0 4px;
+}
+
+@media screen and (max-width: 768px) {
+    .custom-home {
+        padding-top: 0;
+    }
+
+    .custom-home-right,
+    .self-description,
+    .article-count,
+    .sale-tooltip,
+    .read-count:before {
+        display: none;
+    }
+
+    .custom-home-wrap {
+        width: 100%;
+        margin: 0;
+        display: block;
+    }
+
+    .custom-home-body {
+        margin-right: 0;
+    }
+
+    .other {
+        /*最多显示一行，超出部分省略号*/
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 0;
+    }
+
+    .item {
+        padding: 15px;
+    }
+
+    .poster {
+        width: 90px;
+        height: 140px;
+    }
+
+    .title {
+        font-size: 16px;
+        line-height: 22px;
+    }
+}
