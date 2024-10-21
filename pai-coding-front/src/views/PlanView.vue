@@ -58,15 +58,28 @@ import Footer from '@/components/layout/Footer.vue'
 import '@/assets/md-preview.css'
 import SideImage from '@/components/layout/SideImage.vue'
 import { MdPreview } from 'md-editor-v3'
-import { provide, ref } from 'vue'
+import {onMounted, provide, ref} from 'vue'
 import LoginDialog from '@/components/dialog/LoginDialog.vue'
+import type {CommonResponse} from "@/http/ResponseTypes/CommonResponseType";
+import {GLOBAL_INFO_URL} from "@/http/URL";
+import {doGet} from "@/http/BackendRequests";
+import {messageTip} from "@/util/utils";
+import {useGlobalStore} from "@/stores/global";
 
-
+const globalStore = useGlobalStore()
 // 登录框
 const changeClicked = () => {
   loginDialogClicked.value = !loginDialogClicked.value
   console.log("clicked: ", loginDialogClicked.value)
 }
+
+// 获取登录信息
+onMounted(async () => {
+  await doGet<CommonResponse>(GLOBAL_INFO_URL, {})
+      .then((res) => {
+        globalStore.setGlobal(res.data.global)
+      })
+})
 
 provide('loginDialogClicked', changeClicked)
 const loginDialogClicked = ref(false)
