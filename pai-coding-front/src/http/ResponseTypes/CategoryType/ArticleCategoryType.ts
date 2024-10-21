@@ -3,5 +3,4 @@ export interface ArticleCategoryType {
   category: string
   rank: number
   status: number
-  selected: boolean
 }

@@ -56,6 +56,8 @@ public enum StatusEnum {
     // 教程文章已存在
     COLUMN_ARTICLE_EXISTS(200_500_004, "专栏教程已存在:%s"),
     ARTICLE_RELATION_TUTORIAL(200_500_006, "文章已被添加为教程:%s"),
+    // 分类不存在
+    CATEGORY_NOT_EXISTS(200_404_101, "分类不存在:%s"),
 
     // --------------------------------
 

@@ -98,20 +98,6 @@ let global = reactive<GlobalResponse>({...defaultGlobalResponse})
 let vo = reactive<IndexVoResponse>({...defaultIndexVoResponse})
 let articles = reactive<BasicPageType<ArticleType>>({...defaultBasicPage})
 onMounted(() => {
-  doGet<CommonResponse>(INDEX_URL, {
-    category: route.query['category']
-  })
-    .then((response) => {
-      console.log(response)
-      if(response.data){
-        globalStore.setGlobal(response.data.global)
-        // @ts-ignore
-        Object.assign(vo, response.data.result)
-        // vo = response.data.result
-        console.log(vo)
-        contentLoading.value = false
-      }
-    })
   // 获取文章列表
   doGet<CommonResponse>(CATEGORY_ARTICLE_LIST_URL, {
     category: route.query['category']
@@ -119,13 +105,17 @@ onMounted(() => {
     .then((response) => {
       console.log(response)
       if(response.data){
+        globalStore.setGlobal(response.data.global)
+        Object.assign(vo.topArticles, response.data.result.topArticles)
+        Object.assign(vo.categories, response.data.result.categories)
         // @ts-ignore
-        Object.assign(articles, response.data.result)
-        totalPage.value = Number(response.data.result.pages)
-        currentPage.value = Number(response.data.result.current)
+        Object.assign(articles, response.data.result.articles)
+        totalPage.value = Number(response.data.result.articles.pages)
+        currentPage.value = Number(response.data.result.articles.current)
         console.log(articles)
+        // 取消骨架屏显示
         articlesLoading.value = false
-
+        contentLoading.value = false
       }
     })
 })

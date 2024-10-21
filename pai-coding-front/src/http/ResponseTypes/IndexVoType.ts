@@ -24,10 +24,5 @@ export interface IndexVoResponse {
 
 export const defaultIndexVoResponse = {
   categories: [],
-  currentCategory: '',
-  categoryId: '',
   topArticles: [],
-  user: null,
-  sideBarItems: [],
-  homeCarouselList: [],
 }
