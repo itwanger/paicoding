@@ -1,6 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -19,41 +19,41 @@ public class ZsxqUserInfoDTO implements Serializable {
 
     private Long id;
 
-    @ApiModelProperty("用户ID")
+    @Schema(description = "用户ID")
     private Long userId;
 
     // 这个是 userinfo 表中的 username
-    @ApiModelProperty("用户名")
+    @Schema(description = "用户名")
     private String name;
 
-    @ApiModelProperty("用户头像")
+    @Schema(description = "用户头像")
     private String avatar;
 
     // 这个是 user 表中的 username
-    @ApiModelProperty("用户编号")
+    @Schema(description = "用户编号")
     private String userCode;
 
     // 星球编号
-    @ApiModelProperty("星球编号")
+    @Schema(description = "星球编号")
     private String starNumber;
 
     // 邀请码
-    @ApiModelProperty("邀请码")
+    @Schema(description = "邀请码")
     private String inviteCode;
 
     // 邀请人数
-    @ApiModelProperty("邀请人数")
+    @Schema(description = "邀请人数")
     private Integer inviteNum;
 
     // 状态
-    @ApiModelProperty("状态")
+    @Schema(description = "状态")
     private Integer state;
 
     // login_type
-    @ApiModelProperty("登录类型")
+    @Schema(description = "登录类型")
     private Integer loginType;
 
     // strategy
-    @ApiModelProperty("AI策略")
+    @Schema(description = "AI策略")
     private Integer strategy;
 }
