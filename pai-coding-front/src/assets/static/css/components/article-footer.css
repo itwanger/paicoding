@@ -1,0 +1,440 @@
+/*文章底部的点赞*/
+.article-heart {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+  border-top: 1px solid var(--pai-hr-color-1);
+  padding-top: 30px;
+}
+
+.article-heart .praise-box.active {
+  color: var(--pai-brand-3-click);
+  border: 1px solid var(--pai-brand-3-click);
+}
+
+.article-heart .praise-box {
+  font-size: 27px;
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  border-radius: 30px;
+  cursor: pointer;
+  border: 1px solid var(--pai-color-3-gray);
+  color: var(--pai-color-3-gray);
+  margin-bottom: 7.5px;
+}
+
+.article-heart .approval-tips-line {
+  position: relative;
+  margin-bottom: 15px;
+  color: var(--pai-color-999-gray);
+  font-size: 14px;
+}
+
+.article-heart .approval-tips-line:before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -2rem;
+  height: 2px;
+  width: 25%;
+  background: linear-gradient(
+    270deg,
+    var(--pai-brand-1-normal),
+    var(--pai-color-fff-normal)
+  );
+}
+
+.article-heart .approval-tips-line:after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: -3rem;
+  height: 2px;
+  width: 25%;
+  background: linear-gradient(
+    90deg,
+    var(--pai-brand-1-normal),
+    var(--pai-color-fff-normal)
+  );
+}
+
+.article-heart .approval-img {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  margin-right: 7.5px;
+  border-radius: 50%;
+  cursor: pointer;
+  text-align: center;
+}
+
+.praise-photos {
+  text-align: center;
+}
+
+.article-heart .approval-img:last-child {
+  margin-right: 0;
+}
+
+.article-heart .approval-img img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* 评论列表 */
+.common-item-content {
+  margin-left: 10px;
+  flex: 1;
+  padding-top: 8px;
+}
+
+.common-item-content-head {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--pai-color-999-gray);
+}
+
+.common-item-content-value {
+  font-size: 14px;
+  line-height: 24px;
+  color: #333;
+  margin: 10px 0 0;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.comment-write-wrap {
+  display: flex;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+.comment-write-img {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+  border-radius: 50%;
+}
+
+.common-write-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 1;
+}
+
+.comment-write-textarea {
+  width: 100%;
+  border: 1px solid var(--pai-color-999-gray);
+  border-radius: 2px;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+}
+
+.comment-write-btn {
+  border-radius: 2px;
+}
+
+.c-btn-disabled,
+.c-btn-disabled:hover {
+  background-color: var(--pai-color-5-gray);
+  border-color: var(--pai-color-5-gray);
+  color: var(--pai-color-999-gray);
+  cursor: pointer;
+}
+
+.comment-item-wrap,
+.comment-item-wrap-second {
+  /* display: flex; */
+  margin-bottom: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pai-hr-color-1);
+}
+
+.comment-item-top {
+  display: flex;
+}
+
+.comment-item-wrap-second {
+  margin-left: 30px;
+  background-color: #f7f8fa;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.comment-item-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 1px solid var(--pai-color-5-gray);
+}
+
+/* 评论 */
+.hf-con {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.hf-pl {
+  border: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 92px;
+  text-align: center;
+  border-radius: 2px;
+  font-size: 14px;
+  line-height: 36px;
+  background: var(--pai-brand-1-normal);
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.hf-pl--disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.hf-input {
+  padding: 8px 12px;
+  border-radius: 2px;
+}
+
+.reply-comment-text-none {
+  display: none;
+}
+
+.ui-message {
+  box-shadow: inset 0 0 0 1px #a9d5de, 0 0 0 0 transparent;
+  background: #f8f8f9;
+  border-radius: 0.28571429rem;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.4285em;
+  margin: 1em 0;
+  min-height: 1em;
+  padding: 1em 1.5em;
+  position: relative;
+  transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease,
+    box-shadow 0.1s ease;
+  color: #276f86;
+  font-size: 0.8em;
+}
+
+/*全部评论*/
+.all-comment,
+.hot-comment {
+  padding: 20px;
+}
+
+.all-comment-title,
+.hot-comment-title {
+  font-size: 18px;
+  border-bottom: 1px solid var(--pai-hr-color-1);
+  padding-bottom: 10px;
+}
+
+.all-comment-title em {
+  font-weight: 500;
+  color: var(--pai-brand-1-normal);
+}
+
+/* 评论的点赞回复 */
+.action-box {
+  margin-top: 8px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.action-box .item,
+.action-box {
+  display: flex;
+  align-items: center;
+}
+
+.action-box .item {
+  margin-right: 16px;
+  line-height: 22px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--pai-color-999-gray);
+}
+
+.action-box .item svg {
+  fill: #8a919f;
+  margin-right: 4px;
+}
+
+.action-box .item:hover {
+  color: var(--pai-brand-2-hover);
+}
+
+.action-box .item:hover svg {
+  fill: var(--pai-brand-2-hover);
+}
+
+.action-box .item.active {
+  color: var(--pai-brand-2-hover);
+}
+
+.action-box .item.active svg {
+  fill: var(--pai-brand-2-hover);
+}
+
+/*文章评论*/
+.correlation-article {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.correlation-article-title {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.panel-btn {
+  position: relative;
+  margin-bottom: 1.667rem;
+  width: 3rem;
+  height: 3rem;
+  background-color: #fff;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  text-align: center;
+  font-size: 1.67rem;
+}
+
+.panel-btn .sprite-icon {
+  color: var(--pai-color-3-gray);
+  height: 100%;
+}
+
+.panel-btn:hover .sprite-icon {
+  color: var(--pai-color-4-gray);
+}
+
+.panel-btn:not(.share-btn).active .sprite-icon.icon-collect {
+  color: var(--pai-brand-3-click);
+}
+
+.panel-btn:not(.share-btn).active .sprite-icon {
+  color: var(--pai-brand-3-click);
+}
+
+.panel-btn:not(.share-btn).active.with-badge:after {
+  background-color: var(--pai-brand-6-mq);
+}
+
+.panel-btn.with-badge:after {
+  content: attr(badge);
+  position: absolute;
+  top: 0;
+  left: 75%;
+  height: 17px;
+  line-height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #c2c8d1;
+  color: #fff;
+}
+
+.panel-btn.share-btn:after {
+  display: block;
+  content: " ";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 50%;
+}
+
+.panel-btn.share-btn:hover .share-popup {
+  display: flex;
+}
+
+.panel-btn.share-btn .share-popup {
+  display: none;
+  position: absolute;
+  top: 0;
+  flex-direction: column;
+  left: calc(100% + 14px);
+  z-index: 30;
+  background: #fff;
+  border-radius: 4px;
+  padding: 9px 0;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  box-shadow: 0 8px 24px rgba(81, 87, 103, 0.16);
+}
+
+.panel-btn.share-btn .share-popup:after {
+  position: absolute;
+  width: 0;
+  height: 0;
+  content: " ";
+  right: 100%;
+  top: 14px;
+  border: 12px solid transparent;
+  border-right-color: #fff;
+}
+
+.panel-btn.share-btn .share-popup .share-item {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 15px;
+}
+
+.panel-btn.share-btn .share-popup .share-item:hover {
+  background-color: #f2f3f5;
+}
+
+.panel-btn.share-btn .share-popup .share-item:hover.wechat .wechat-qrcode {
+  display: flex;
+}
+
+.panel-btn.share-btn .share-popup .share-item:hover .share-icon {
+  color: #515767;
+}
+
+.panel-btn.share-btn .share-popup .share-item .share-item-title {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #515767;
+}
+
+.panel-btn.share-btn .share-popup .share-item .share-icon {
+  color: #8a919f;
+  width: 20px;
+  height: 20px;
+  font-size: 1.67rem;
+}
+
+.sprite-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  vertical-align: middle;
+  transition: all 0.15s linear;
+}

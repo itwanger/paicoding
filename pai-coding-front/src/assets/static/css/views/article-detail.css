@@ -1,0 +1,303 @@
+
+.detail-content-title {
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 26px;
+  line-height: 31px;
+  vertical-align: bottom;
+  margin-bottom: 12px;
+}
+
+.detail-content-title-other-wrap {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  color: var(--pai-color-999-gray);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--pai-hr-color-1);
+}
+
+.detail-content-title-other-img {
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+}
+.detail-content-title-other-name {
+  color: #62749f;
+  margin-left: 8px;
+  margin-right: 16px;
+}
+.detail-content-title-other-time {
+  margin-right: 16px;
+}
+
+.detail-content-title-other-look {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 28px;
+  padding: 0 11px;
+  height: 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #3973ff;
+  border: 1px solid #3973ff;
+  cursor: pointer;
+}
+
+.com-opt-link,
+.com-opt-text {
+  display: inline-block;
+  vertical-align: middle;
+  color: var(--pai-color-999-gray);
+}
+
+[class*="com-i-"],
+[class^="com-i-"] {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+  background-size: 100% auto;
+}
+
+.com-opt-link:hover .com-i-edit,
+.com-opt-link:hover .com-i-delete {
+  fill: var(--pai-brand-2-hover);
+}
+
+.com-opt-link .com-i-edit,
+.com-opt-link .com-i-delete {
+  fill: var(--pai-color-999-gray);
+}
+
+.detail-content-title-edit [class*="com-i-"],
+.detail-content-title-edit [class^="com-i-"] {
+  position: relative;
+}
+
+.detail-content-title-edit {
+  position: absolute;
+  right: 0;
+  top: 0;
+  line-height: 20px;
+}
+
+/*文章目录*/
+.com-nav-bar {
+  max-height: none;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.com-nav-bar-menu {
+  border-left: 2px solid #e5e5e5;
+  padding-left: 15px;
+}
+
+.toc {
+  height: 100%;
+  word-wrap: break-word;
+}
+
+.com-nav-bar-title {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.com-nav-bar-menu .h2 a,
+.com-nav-bar-menu .h3 a {
+  position: relative;
+  display: block;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.com-nav-bar-menu .h3 a {
+  padding-left: 17px;
+  color: var(--pai-color-4-gray);
+}
+
+.com-nav-bar-menu .h3 a:hover {
+  padding-left: 17px;
+  color: var(--pai-brand-2-hover);
+}
+
+.com-nav-bar-menu .h3.active > a,
+.com-nav-bar-menu .h3.active > a:hover {
+  color: var(--pai-brand-2-hover);
+}
+
+.com-nav-bar-menu .h3.active > a:before {
+  content: "";
+  position: absolute;
+  left: -17px;
+  top: 0;
+  width: 2px;
+  height: 24px;
+  background-color: var(--pai-brand-2-hover);
+}
+
+.com-nav-bar-menu .h3 > a:before {
+  left: -34px;
+}
+
+.arCatalog {
+  position: relative;
+  margin: 20px 0 0 0;
+}
+
+.arCatalog .arCatalog-line {
+  position: absolute;
+  left: 7px;
+  top: -5px;
+  width: 0;
+  border: 1px solid #eaeaea;
+  border-top: 0;
+  border-bottom: 0;
+  background-color: #eaeaea;
+}
+
+.arCatalog .arCatalog-body {
+  margin-left: -2px;
+  padding-left: 27px;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.arCatalog .arCatalog-body dl {
+  margin: 0;
+  transition: 0.3s all;
+}
+
+.arCatalog-body .arCatalog-tack1 .arCatalog-index {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  color: #bbb;
+}
+
+.arCatalog-body dd.on a {
+  color: var(--pai-brand-1-normal);
+}
+
+.arCatalog-body .arCatalog-tack1 a {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
+.arCatalog-body .arCatalog-tack1 .arCatalog-dot {
+  position: absolute;
+  left: -21px;
+  top: 11px;
+  width: 8px;
+  height: 8px;
+  background-color: #eaeaea;
+  border: 1px solid #fff;
+  border-radius: 2em;
+}
+
+.arCatalog-body dd.on .arCatalog-dot {
+  position: absolute;
+  left: -23px;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  background-color: #fd7013;
+  box-shadow: 0px 0px 2px 2px rgb(253 112 19 / 50%);
+  border-radius: 2em;
+  border-width: 0;
+}
+
+.arCatalog .arCatalog-body dd {
+  position: relative;
+  margin: 0;
+  font-size: 15px;
+  line-height: 28px;
+}
+
+.arCatalog-body .arCatalog-tack2 {
+  padding-left: 17px;
+}
+
+.arCatalog-body .arCatalog-tack2 .arCatalog-index {
+  position: absolute;
+  left: 27px;
+  top: 0;
+  color: #bbb;
+}
+
+.arCatalog-body .arCatalog-tack2 a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--pai-color-3-gray);
+  max-width: 240px;
+}
+
+.arCatalog .arCatalog-line:before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -5px;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid #d2d2d2;
+  border-radius: 10px;
+}
+
+.arCatalog .arCatalog-line:after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: -5px;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid #d2d2d2;
+  border-radius: 10px;
+}
+.toc-container {
+  /* position: sticky;
+  z-index: 10;
+  top: 30px; */
+  position: fixed;
+  z-index: 10;
+  width: 230px;
+  top: 90px;
+  right: 0;
+}
+
+.widget {
+  margin-bottom: 30px;
+}
+
+.comment-list-wrap {
+  padding: 20px;
+}
+
+/* home 适配 */
+@media screen and (max-width: 768px) {
+  .layout-side,
+  .article-suspended-panel {
+    display: none !important;
+  }
+  .layout-main {
+    padding: 0 !important;
+  }
+  .article-suspended-panel-md {
+    visibility: visible;
+  }
+  .foot {
+    margin-bottom: 72px;
+  }
+}
+

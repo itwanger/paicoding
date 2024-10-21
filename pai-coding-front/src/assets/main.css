@@ -1,0 +1,119 @@
+@import './base.css';
+@import './dynmaic.css';
+.center-content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.bold-span{
+    font-weight: bold;
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+.cursor-pointer{
+    cursor: pointer;
+}
+
+.color-text-link-orange{
+    color: #ED722E;
+}
+
+.margin-0{
+    margin: 0;
+}
+
+.link-color{
+    color: #ED722E;
+
+}
+
+.white-font-color{
+    color: var(--vt-c-text-dark-1);
+}
+/*以下是一些markdown样式的调整*/
+#id-preview > ul > li {
+    position: relative;
+    padding-left: 20px; /* 为黑点留出空间 */
+}
+#id-preview > ul >  li::before {
+    /*content: '•'; !* 插入黑点 *!*/
+    font-size: x-large;
+    position: absolute;
+    left: 0; /* 确保黑点与 li 元素左边对齐 */
+    top: 50%; /* 垂直居中 */
+    transform: translateY(-50%); /* 垂直居中调整 */
+    color: black; /* 黑点的颜色 */
+}
+
+.hover-highlight:hover {
+    color: var(--active-element-color);
+}
+
+.hover-background:hover{
+    background: var(--active-background-color);
+}
+
+/*用于那种高亮的标签表示正在被选中，也可以用于其他需要醒目显示的地方*/
+.active-color{
+    color: var(--active-element-color);
+}
+
+.md-editor-footer-item{
+    display: flex;
+}
+
+.disabled .el-upload--picture-card{
+    display: none
+}
+
+.disabled .el-upload--picture-card .is-drag{
+    display: none
+}
+
+/*减去header和footer的高度*/
+.body-content {
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+label {
+    margin-bottom: 0;
+}
+/*#app {*/
+/*  max-width: 1280px;*/
+/*  margin: 0 auto;*/
+/*  padding: 2rem;*/
+/*  font-weight: normal;*/
+/*}*/
+
+/*a,*/
+/*.green {*/
+/*  text-decoration: none;*/
+/*  color: hsla(160, 100%, 37%, 1);*/
+/*  transition: 0.4s;*/
+/*  padding: 3px;*/
+/*}*/
+
+/*@media (hover: hover) {*/
+/*  a:hover {*/
+/*    background-color: hsla(160, 100%, 37%, 0.2);*/
+/*  }*/
+/*}*/
+
+/*@media (min-width: 1024px) {*/
+/*  body {*/
+/*    display: flex;*/
+/*    place-items: center;*/
+/*  }*/
+
+/*  #app {*/
+/*    display: grid;*/
+/*    grid-template-columns: 1fr 1fr;*/
+/*    padding: 0 2rem;*/
+/*  }*/
+/*}*/
+
