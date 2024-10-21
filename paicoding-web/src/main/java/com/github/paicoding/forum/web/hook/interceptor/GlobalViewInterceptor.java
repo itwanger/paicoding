@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.web.hook.interceptor;
 
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 注入全局的配置信息：
@@ -77,25 +75,5 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
             }
         }
         return true;
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        if (!ObjectUtils.isEmpty(modelAndView)) {
-            if (response.getStatus() != HttpStatus.OK.value()) {
-                try {
-                    ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
-                    // fixme 对于异常重定向到 /error 时，会导致登录信息丢失，待解决
-                    globalInitService.initLoginUser(reqInfo);
-                    ReqInfoContext.addReqInfo(reqInfo);
-                    modelAndView.getModel().put("global", globalInitService.globalAttr());
-                } finally {
-                    ReqInfoContext.clear();
-                }
-            } else {
-                modelAndView.getModel().put("global", globalInitService.globalAttr());
-            }
-        }
-
     }
 }
