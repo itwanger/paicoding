@@ -55,9 +55,9 @@
 
               <div class="home-right">
                 <!-- 侧边公告 -->
-                <div v-if="vo.sideBarItems">
-                  <SideBar :sidebar-items="vo.sideBarItems"></SideBar>
-                </div>
+<!--                <div v-if="vo.sideBarItems">-->
+<!--                  <SideBar :sidebar-items="vo.sideBarItems"></SideBar>-->
+<!--                </div>-->
               </div>
             </div>
           </div>
