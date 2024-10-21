@@ -20,10 +20,10 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.github.paicoding.forum</groupId>
-            <artifactId>paicoding-ui</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.paicoding.forum</groupId>-->
+<!--            <artifactId>paicoding-ui</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.github.paicoding.forum</groupId>

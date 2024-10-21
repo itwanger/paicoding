@@ -16,7 +16,7 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
-import com.github.paicoding.forum.web.front.search.vo.SearchArticleVo;
+import com.github.paicoding.forum.web.controller.search.vo.SearchArticleVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

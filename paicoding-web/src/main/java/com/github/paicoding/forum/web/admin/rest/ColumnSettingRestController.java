@@ -14,7 +14,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.image.service.ImageService;
-import com.github.paicoding.forum.web.front.search.vo.SearchColumnVo;
+import com.github.paicoding.forum.web.controller.search.vo.SearchColumnVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;

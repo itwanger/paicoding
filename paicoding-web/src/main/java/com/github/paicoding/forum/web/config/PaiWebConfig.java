@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.web.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -8,19 +7,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.spring6.dialect.SpringStandardDialect;
-import org.thymeleaf.standard.serializer.IStandardJavaScriptSerializer;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 注册xml解析器
@@ -31,45 +21,43 @@ import java.util.Objects;
 @Slf4j
 @Configuration
 public class PaiWebConfig implements WebMvcConfigurer {
-    @Resource
-    private TemplateEngine templateEngine;
 
-    @PostConstruct
-    private void init() {
-        log.info("PaiWebConfig init...");
-        // 通过templateEngine获取SpringStandardDialect
-        SpringStandardDialect springStandardDialect = CollectionUtils.findValueOfType(templateEngine.getDialects(), SpringStandardDialect.class);
-        IStandardJavaScriptSerializer standardJavaScriptSerializer = springStandardDialect.getJavaScriptSerializer();
-        // 反射获取 IStandardJavaScriptSerializer
-        Field delegateField = ReflectionUtils.findField(standardJavaScriptSerializer.getClass(), "delegate");
-        if (delegateField == null) {
-            log.warn("WebConfig init, failed set jackson module, delegateField is null");
-            return;
-        }
-        ReflectionUtils.makeAccessible(delegateField);
-        Object delegate = ReflectionUtils.getField(delegateField, standardJavaScriptSerializer);
-        if (delegate == null) {
-            log.warn("WebConfig init, failed set jackson module, delegateField is null");
-            return;
-        }
-        // 如果代理类是JacksonStandardJavaScriptSerializer,则获取mapper,设置model
-        if (Objects.equals("JacksonStandardJavaScriptSerializer", delegate.getClass().getSimpleName())) {
-            Field mapperField = ReflectionUtils.findField(delegate.getClass(), "mapper");
-            if (mapperField == null) {
-                log.warn("WebConfig init, failed set jackson module, mapperField is null");
-                return;
-            }
-            ReflectionUtils.makeAccessible(mapperField);
-            ObjectMapper objectMapper = (ObjectMapper) ReflectionUtils.getField(mapperField, delegate);
-            if (objectMapper == null) {
-                log.warn("WebConfig init, filed set jackson module, mapper is null");
-                return;
-            }
-            // 设置序列化Module,修改long型序列化为字符串
-            objectMapper.registerModule(JsonUtil.bigIntToStrsimpleModule());
-            log.info("WebConfig init 设置jackson序列化long为字符串成功!!!");
-        }
-    }
+//    @PostConstruct
+//    private void init() {
+//        log.info("PaiWebConfig init...");
+//        // 通过templateEngine获取SpringStandardDialect
+//        SpringStandardDialect springStandardDialect = CollectionUtils.findValueOfType(templateEngine.getDialects(), SpringStandardDialect.class);
+//        IStandardJavaScriptSerializer standardJavaScriptSerializer = springStandardDialect.getJavaScriptSerializer();
+//        // 反射获取 IStandardJavaScriptSerializer
+//        Field delegateField = ReflectionUtils.findField(standardJavaScriptSerializer.getClass(), "delegate");
+//        if (delegateField == null) {
+//            log.warn("WebConfig init, failed set jackson module, delegateField is null");
+//            return;
+//        }
+//        ReflectionUtils.makeAccessible(delegateField);
+//        Object delegate = ReflectionUtils.getField(delegateField, standardJavaScriptSerializer);
+//        if (delegate == null) {
+//            log.warn("WebConfig init, failed set jackson module, delegateField is null");
+//            return;
+//        }
+//        // 如果代理类是JacksonStandardJavaScriptSerializer,则获取mapper,设置model
+//        if (Objects.equals("JacksonStandardJavaScriptSerializer", delegate.getClass().getSimpleName())) {
+//            Field mapperField = ReflectionUtils.findField(delegate.getClass(), "mapper");
+//            if (mapperField == null) {
+//                log.warn("WebConfig init, failed set jackson module, mapperField is null");
+//                return;
+//            }
+//            ReflectionUtils.makeAccessible(mapperField);
+//            ObjectMapper objectMapper = (ObjectMapper) ReflectionUtils.getField(mapperField, delegate);
+//            if (objectMapper == null) {
+//                log.warn("WebConfig init, filed set jackson module, mapper is null");
+//                return;
+//            }
+//            // 设置序列化Module,修改long型序列化为字符串
+//            objectMapper.registerModule(JsonUtil.bigIntToStrsimpleModule());
+//            log.info("WebConfig init 设置jackson序列化long为字符串成功!!!");
+//        }
+//    }
 
     /**
      * 配置序列化方式
