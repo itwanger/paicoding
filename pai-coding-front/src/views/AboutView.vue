@@ -236,7 +236,12 @@ import Footer from '@/components/layout/Footer.vue'
 import { CaretRight, InfoFilled } from '@element-plus/icons-vue'
 import SideImage from '@/components/layout/SideImage.vue'
 import LoginDialog from '@/components/dialog/LoginDialog.vue'
-import { provide, ref } from 'vue'
+import {onMounted, provide, ref} from 'vue'
+
+import {useGlobalStore} from "@/stores/global";
+import {doGet} from "@/http/BackendRequests";
+import type {CommonResponse} from "@/http/ResponseTypes/CommonResponseType";
+import {GLOBAL_INFO_URL} from "@/http/URL";
 
 // 登录框
 const changeClicked = () => {
@@ -246,4 +251,13 @@ const changeClicked = () => {
 
 provide('loginDialogClicked', changeClicked)
 const loginDialogClicked = ref(false)
+
+const globalStore = useGlobalStore()
+// 获取登录信息
+onMounted(async () => {
+  await doGet<CommonResponse>(GLOBAL_INFO_URL, {})
+      .then((res) => {
+        globalStore.setGlobal(res.data.global)
+      })
+})
 </script>
