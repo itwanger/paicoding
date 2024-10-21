@@ -67,7 +67,6 @@ export const defaultArticleDetailResponse: ArticleDetailResponse = {
       category: '',
       rank: 0,
       status: 0,
-      selected: false,
     },
     tags: [],
     praised: false,

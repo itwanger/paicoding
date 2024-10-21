@@ -249,7 +249,7 @@ onMounted(() => {
           text.value = response.data.result.article.content
           articleInfoForm.abstract = response.data.result.article.summary
           articleInfoForm.tags = response.data.result.tags.map(tagItem => String(tagItem.tagId))
-          articleInfoForm.category = String(response.data.result.categories.filter(categoryItem => categoryItem.selected)[0].categoryId)
+          articleInfoForm.category = String(response.data.result.categories.filter(categoryItem => categoryItem.categoryId === response.data.result.article.category.categoryId)[0].categoryId)
           articleId.value = Number(response.data.result.article.articleId)
           upload.value?.clearFiles()
           if(response.data.result.article.cover){

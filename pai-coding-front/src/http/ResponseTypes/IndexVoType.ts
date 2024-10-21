@@ -14,12 +14,7 @@ interface CarouselItem {
 // 定义主接口类型
 export interface IndexVoResponse {
   categories: ArticleCategoryType[];
-  currentCategory: string;
-  categoryId: string;
   topArticles: ArticleType[];
-  user: any | null;
-  sideBarItems: SideBarItem[];
-  homeCarouselList: CarouselItem[];
 }
 
 export const defaultIndexVoResponse = {
