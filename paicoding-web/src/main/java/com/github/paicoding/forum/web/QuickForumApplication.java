@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -44,9 +45,14 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
 
+    @Resource
+    private AsyncHandlerInterceptor onlineUserStatisticInterceptor;
+
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(globalViewInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(onlineUserStatisticInterceptor).addPathPatterns("/**");
     }
 //    @Override
 //    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
@@ -92,6 +98,6 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         if (webPort != null) {
             config.setHost("http://127.0.0.1:" + webPort);
         }
-        log.info("启动成功，点击进入首页: {}", config.getHost());
+//        log.info("启动成功，点击进入首页: {}", config.getHost());
     }
 }

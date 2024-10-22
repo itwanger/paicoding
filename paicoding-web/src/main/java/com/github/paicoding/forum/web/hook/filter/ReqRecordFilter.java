@@ -117,7 +117,7 @@ public class ReqRecordFilter implements Filter {
 
             stopWatch.start("请求基本信息");
             // 手动写入一个session，借助 OnlineUserCountListener 实现在线人数实时统计
-            request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
+//            request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
 
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
             reqInfo.setHost(request.getHeader("host"));
