@@ -9,7 +9,7 @@ import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.sitemap.service.SitemapService;
-import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
+import com.github.paicoding.forum.service.statistics.service.statistic.UserStatisticService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;

@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -24,13 +25,14 @@ import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
 /**
  * 注入全局的配置信息：
- * - thymleaf 站点信息，基本信息，在这里注入
+ * 站点信息，基本信息，在这里注入
  *
  * @author XuYifei
  * @date 2024-07-12
  */
 @Slf4j
 @Component
+@Order(-1)
 public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
 
     @Autowired

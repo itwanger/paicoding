@@ -1,6 +1,6 @@
-package com.github.paicoding.forum.service.statistics.service.impl;
+package com.github.paicoding.forum.service.statistics.service.statistic.impl;
 
-import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
+import com.github.paicoding.forum.service.statistics.service.statistic.UserStatisticService;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,8 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author XuYifei
  * @date 2024-07-12
  */
-@Service
-public class UserStatisticServiceImpl implements UserStatisticService {
+public class UserStatisticServiceAtomicIntegerImpl implements UserStatisticService {
 
     /**
      * 对于单机的场景，可以直接使用本地局部变量来实现计数
@@ -26,9 +25,6 @@ public class UserStatisticServiceImpl implements UserStatisticService {
      * @param add 正数，表示添加在线人数；负数，表示减少在线人数
      * @return
      */
-    public int incrOnlineUserCnt(int add) {
-        return onlineUserCnt.addAndGet(add);
-    }
 
     /**
      * 查询在线用户人数
@@ -39,4 +35,13 @@ public class UserStatisticServiceImpl implements UserStatisticService {
         return onlineUserCnt.get();
     }
 
+    @Override
+    public boolean isOnline(String sessionStr) {
+        return false;
+    }
+
+    @Override
+    public void updateSessionExpireTime(String sessionStr) {
+
+    }
 }
