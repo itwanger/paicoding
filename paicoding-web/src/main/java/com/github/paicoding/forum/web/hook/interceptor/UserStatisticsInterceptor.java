@@ -1,5 +1,9 @@
 package com.github.paicoding.forum.web.hook.interceptor;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.core.async.AsyncUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.sitemap.service.impl.SitemapServiceImpl;
 import com.github.paicoding.forum.service.statistics.service.statistic.UserStatisticService;
 import com.github.paicoding.forum.service.statistics.service.statistic.UserStatisticServiceProperties;
 import jakarta.servlet.http.Cookie;
@@ -25,7 +29,7 @@ import java.util.UUID;
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(UserStatisticServiceProperties.class)
-public class OnlineUserInterceptor {
+public class UserStatisticsInterceptor {
 
     @Autowired
     private UserStatisticService userStatisticService;
@@ -51,6 +55,9 @@ public class OnlineUserInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            // 更新uv/pv计数
+            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath()));
+
             // 检查请求中是否包含 SESSION_ID Cookie
             String sessionId = getSessionIdFromCookies(request);
 
@@ -105,6 +112,10 @@ public class OnlineUserInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+            // 更新uv/pv计数
+            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath()));
+
             HttpSession session = request.getSession(true);
             session.setMaxInactiveInterval(30);
 

@@ -28,6 +28,7 @@ public class OnlineUserCountListener implements HttpSessionListener {
      * @param se
      */
     public void sessionCreated(HttpSessionEvent se) {
+
         HttpSessionListener.super.sessionCreated(se);
         SpringUtil.getBean(UserStatisticService.class).incrOnlineUserCnt(1);
     }

@@ -9,6 +9,8 @@ server:
     min-response-size: 2KB
 
 spring:
+  profiles:
+    active: dev
   #  profiles:
   #    active: dal,web,config,image
   # 替换上面作废的spring.profiels.actice配置参数
@@ -72,7 +74,7 @@ knife4j:
     version: 1.0.0
     concat:
       - 小灰飞
-      - http://xuyifei.site
+      - https://xuyifei.site
 #      - https://github.com/itwanger/paicoding
     license: Apache License 2.0
 #    license-url: https://github.com/itwanger/paicoding/blob/main/License
@@ -92,3 +94,7 @@ knife4j:
 logging:
   level:
     com.github.paicoding.forum.service.rank.service.impl.*: debug # 指定具体包下的日志输出级别
+
+online:
+  statistics:
+    type: atomic_integer
