@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.statistics.service.statistic.impl;
 
 import com.github.paicoding.forum.service.statistics.service.statistic.UserStatisticService;
-import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,6 +24,9 @@ public class UserStatisticServiceAtomicIntegerImpl implements UserStatisticServi
      * @param add 正数，表示添加在线人数；负数，表示减少在线人数
      * @return
      */
+    public void incrOnlineUserCnt(int add) {
+        onlineUserCnt.addAndGet(add);
+    }
 
     /**
      * 查询在线用户人数
