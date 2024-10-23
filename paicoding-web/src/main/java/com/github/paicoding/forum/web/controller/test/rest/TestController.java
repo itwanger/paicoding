@@ -22,6 +22,7 @@ import com.github.paicoding.forum.service.config.service.GlobalConfigService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.controller.test.vo.EmailReqVo;
+import com.github.paicoding.forum.web.global.vo.ResultVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -327,6 +328,11 @@ public class TestController {
     @PostMapping(path = "loadmore")
     public void testLoadMore(@RequestBody String loadmore) {
         log.info("loadmore: {}", loadmore);
+    }
+
+    @GetMapping("info")
+    public ResultVo<String> getGlobalInfo() {
+        return ResultVo.ok("ok");
     }
 
 }

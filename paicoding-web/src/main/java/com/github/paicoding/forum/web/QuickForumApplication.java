@@ -52,7 +52,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(globalViewInterceptor).addPathPatterns("/**");
-        registry.addInterceptor(onlineUserStatisticInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(onlineUserStatisticInterceptor).addPathPatterns("/**").excludePathPatterns("/test/**");
     }
 //    @Override
 //    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
