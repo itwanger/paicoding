@@ -192,7 +192,10 @@ public class ReqRecordFilter implements Filter {
         REQ_LOG.info("{}", msg);
 
         // 保存请求计数
-        statisticsSettingService.saveRequestCount(req.getClientIp());
+        AsyncUtil.concurrentExecutor("保存请求计数信息")
+                        .async(() -> statisticsSettingService.saveRequestCount(req.getClientIp()), "saveRequestCount")
+                        .allExecuted();
+//        statisticsSettingService.saveRequestCount(req.getClientIp());
     }
 
 
