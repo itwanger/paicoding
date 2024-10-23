@@ -134,9 +134,12 @@ const onPageSizeChange = (newPageSize: number) => {
     .then((response) => {
       console.log(response)
       if(response.data){
-        Object.assign(articles, response.data.result)
-        totalPage.value = Number(response.data.result.pages)
-        currentPage.value = Number(response.data.result.current)
+        globalStore.setGlobal(response.data.global)
+        Object.assign(vo.topArticles, response.data.result.topArticles)
+        Object.assign(vo.categories, response.data.result.categories)
+        Object.assign(articles, response.data.result.articles)
+        totalPage.value = Number(response.data.result.articles.pages)
+        currentPage.value = Number(response.data.result.articles.current)
         console.log(articles)
       }
     })
@@ -151,9 +154,12 @@ const onCurrentPageChange = (newCurrentPage: number) => {
     .then((response) => {
       console.log(response)
       if(response.data){
-        Object.assign(articles, response.data.result)
-        totalPage.value = Number(response.data.result.pages)
-        currentPage.value = Number(response.data.result.current)
+        globalStore.setGlobal(response.data.global)
+        Object.assign(vo.topArticles, response.data.result.topArticles)
+        Object.assign(vo.categories, response.data.result.categories)
+        Object.assign(articles, response.data.result.articles)
+        totalPage.value = Number(response.data.result.articles.pages)
+        currentPage.value = Number(response.data.result.articles.current)
         console.log(articles)
       }
     })
