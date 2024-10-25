@@ -208,6 +208,7 @@ public class ReqRecordFilter implements Filter {
                 || request.getRequestURI().endsWith("js")
                 || request.getRequestURI().endsWith("png")
                 || request.getRequestURI().endsWith("ico")
+                || request.getRequestURI().endsWith("gif")
                 || request.getRequestURI().endsWith("svg")
                 || request.getRequestURI().endsWith("min.js.map")
                 || request.getRequestURI().endsWith("min.css.map");

@@ -115,8 +115,8 @@ public class GlobalInitService {
 
     public void initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
         BaseUserInfoDTO user = userService.getAndUpdateUserIpInfoBySessionId(session, null);
-        reqInfo.setSession(session);
         if (user != null) {
+            reqInfo.setSession(session);
             reqInfo.setUserId(user.getUserId());
             reqInfo.setUser(user);
             reqInfo.setMsgNum(notifyService.queryUserNotifyMsgCount(user.getUserId()));
