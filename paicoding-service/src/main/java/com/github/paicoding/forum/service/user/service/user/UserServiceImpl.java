@@ -111,7 +111,9 @@ public class UserServiceImpl implements UserService {
         // 查询用户信息，并更新最后一次使用的ip
         UserInfoDO user = userDao.getByUserId(userId);
         if (user == null) {
-            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
+            // 常见于：session中记录的用户被删除了，直接移除缓存中的session，走重新登录流程
+            userSessionHelper.removeSession(session);
+            return null;
         }
 
         IpInfo ip = user.getIp();
@@ -154,7 +156,7 @@ public class UserServiceImpl implements UserService {
     public List<SimpleUserInfoDTO> batchQuerySimpleUserInfo(Collection<Long> userIds) {
         List<UserInfoDO> users = userDao.getByUserIds(userIds);
         if (CollectionUtils.isEmpty(users)) {
-            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userIds);
+            return Collections.emptyList();
         }
         return users.stream().map(UserConverter::toSimpleInfo).collect(Collectors.toList());
     }

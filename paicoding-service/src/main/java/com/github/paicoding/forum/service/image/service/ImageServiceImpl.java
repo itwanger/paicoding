@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -136,7 +137,7 @@ public class ImageServiceImpl implements ImageService {
         }
 
         // 超过1张图片时，做并发的图片转存，提升性能
-        Map<MdImgLoader.MdImg, String> imgReplaceMap = Maps.newHashMapWithExpectedSize(imgList.size());
+        Map<MdImgLoader.MdImg, String> imgReplaceMap =  new ConcurrentHashMap<>();
         try(AsyncUtil.CompletableFutureBridge bridge = AsyncUtil.concurrentExecutor("MdImgReplace")) {
             for (MdImgLoader.MdImg img : imgList) {
                 bridge.async(() -> {
