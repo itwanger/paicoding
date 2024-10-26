@@ -169,7 +169,7 @@ public class RedisClient {
 
     public static <T> T hGet(String key, String field, Class<T> clz) {
         return template.execute((RedisCallback<T>) con -> {
-            byte[] records = con.hGet(keyBytes(key), valBytes(field));
+            byte[] records = con.hashCommands().hGet(keyBytes(key), valBytes(field));
             if (records == null) {
                 return null;
             }
