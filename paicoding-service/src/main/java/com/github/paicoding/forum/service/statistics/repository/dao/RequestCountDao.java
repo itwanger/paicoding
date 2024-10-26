@@ -37,6 +37,17 @@ public class RequestCountDao extends ServiceImpl<RequestCountMapper, RequestCoun
     }
 
     /**
+     * 获得某一天的所有请求数据
+     * @param date
+     * @return
+     */
+    public List<RequestCountDO> getOneDayAllRequestCounts(Date date){
+        return lambdaQuery()
+                .eq(RequestCountDO::getDate, date)
+                .list();
+    }
+
+    /**
      * 获取 PV UV 数据列表
      * @param day
      * @return
