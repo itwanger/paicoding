@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
 import java.util.UUID;
@@ -54,6 +55,9 @@ public class UserStatisticsInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
+                return true;
+            }
             // 更新uv/pv计数
             SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath());
 
@@ -111,7 +115,9 @@ public class UserStatisticsInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
+            if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
+                return true;
+            }
             // 更新uv/pv计数
             SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath());
 
