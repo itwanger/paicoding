@@ -67,6 +67,18 @@ public class ColumnRestController {
     }
 
     /**
+     * 文章与专栏的对应关系
+     * @param articleId
+     * @return
+     */
+    @GetMapping("article/{articleId}")
+    public ResultVo<ColumnArticleDO> article(@PathVariable("articleId") Long articleId) {
+        // 针对专栏文章，给出一个映射关系
+        ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
+        return ResultVo.ok(columnArticle);
+    }
+
+    /**
      * 专栏的文章阅读界面
      *
      * @param columnId 专栏id

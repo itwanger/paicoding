@@ -86,6 +86,15 @@ public class RedisClient {
     }
 
     /**
+     * 判断key是否存在
+     * @param key
+     * @return
+     */
+    public static Boolean exists(String key){
+        return template.execute((RedisCallback<Boolean>) con -> con.commands().exists(keyBytes(key)));
+    }
+
+    /**
      * 查询缓存
      *
      * @param key
