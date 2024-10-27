@@ -19,14 +19,12 @@ import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
-import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.common.CommonConstants;
 import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
@@ -102,21 +100,21 @@ public class ArticleRestController {
      * @param articleId
      * @return
      */
-    @GetMapping("/data/detail/{articleId}")
-    public ResultVo<ArticleDetailVo> detail(@PathVariable(name = "articleId") Long articleId) throws IOException {
-        ArticleDetailVo vo = new ArticleDetailVo();
-        // 文章相关信息
-        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        // 返回给前端页面时，转换为html格式
-        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
-        vo.setArticle(articleDTO);
-
-        // 作者信息
-        BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
-        articleDTO.setAuthorName(user.getUserName());
-        articleDTO.setAuthorAvatar(user.getPhoto());
-        return ResultVo.ok(vo);
-    }
+//    @GetMapping("/data/detail/{articleId}")
+//    public ResultVo<ArticleDetailVo> detail(@PathVariable(name = "articleId") Long articleId) throws IOException {
+//        ArticleDetailVo vo = new ArticleDetailVo();
+//        // 文章相关信息
+//        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+//        // 返回给前端页面时，转换为html格式
+//        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
+//        vo.setArticle(articleDTO);
+//
+//        // 作者信息
+//        BaseUserInfoDTO user = userService.queryBasicUserInfo(articleDTO.getAuthor());
+//        articleDTO.setAuthorName(user.getUserName());
+//        articleDTO.setAuthorAvatar(user.getPhoto());
+//        return ResultVo.ok(vo);
+//    }
 
     /**
      * 文章详情页
@@ -124,7 +122,7 @@ public class ArticleRestController {
      * @param articleId
      * @return
      */
-    @GetMapping("/new/data/detail/{articleId}")
+    @GetMapping("/data/detail/{articleId}")
     public ResultVo<ArticleDetailVo> detailOriginalMarkdown(@PathVariable(name = "articleId") Long articleId) throws IOException {
         // 针对专栏文章，做一个重定向
         ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);

@@ -12,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.statistics.service.CountService;
+import com.github.paicoding.forum.service.user.cahce.UserInfoCacheManager;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
@@ -70,6 +71,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserAiService userAiService;
+
+    @Autowired
+    private UserInfoCacheManager userInfoCacheManager;
 
     @Override
     public UserDO getWxUser(String wxuuid) {
@@ -170,22 +174,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId) {
-        BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
-        UserStatisticInfoDTO userHomeDTO = countService.queryUserStatisticInfo(userId);
-        userHomeDTO = UserConverter.toUserHomeDTO(userHomeDTO, userInfoDTO);
 
-        // 用户资料完整度
-        int cnt = 0;
-        if (StringUtils.isNotBlank(userHomeDTO.getCompany())) {
-            ++cnt;
+        UserStatisticInfoDTO userHomeDTO = userInfoCacheManager.getUserInfo(userId);
+        if(userHomeDTO == null){
+            userHomeDTO = countService.queryUserStatisticInfo(userId);
+            BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
+            userHomeDTO = UserConverter.toUserHomeDTO(userHomeDTO, userInfoDTO);
+            // 用户资料完整度
+            int cnt = 0;
+            if (StringUtils.isNotBlank(userHomeDTO.getCompany())) {
+                ++cnt;
+            }
+            if (StringUtils.isNotBlank(userHomeDTO.getPosition())) {
+                ++cnt;
+            }
+            if (StringUtils.isNotBlank(userHomeDTO.getProfile())) {
+                ++cnt;
+            }
+            userHomeDTO.setInfoPercent(cnt * 100 / 3);
+
+            // 加入天数
+            int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime()
+                    .getTime()) / (1000 * 3600 * 24));
+            userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
+
+            // 创作历程
+            List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
+            userHomeDTO.setYearArticleList(yearArticleDTOS);
+
+            userInfoCacheManager.setUserInfo(userId, userHomeDTO);
         }
-        if (StringUtils.isNotBlank(userHomeDTO.getPosition())) {
-            ++cnt;
-        }
-        if (StringUtils.isNotBlank(userHomeDTO.getProfile())) {
-            ++cnt;
-        }
-        userHomeDTO.setInfoPercent(cnt * 100 / 3);
 
         // 是否关注
         Long followUserId = ReqInfoContext.getReqInfo().getUserId();
@@ -196,14 +214,6 @@ public class UserServiceImpl implements UserService {
             userHomeDTO.setFollowed(Boolean.FALSE);
         }
 
-        // 加入天数
-        int joinDayCount = (int) ((System.currentTimeMillis() - userHomeDTO.getCreateTime()
-                .getTime()) / (1000 * 3600 * 24));
-        userHomeDTO.setJoinDayCount(Math.max(1, joinDayCount));
-
-        // 创作历程
-        List<YearArticleDTO> yearArticleDTOS = articleDao.listYearArticleByUserId(userId);
-        userHomeDTO.setYearArticleList(yearArticleDTOS);
         return userHomeDTO;
     }
 
