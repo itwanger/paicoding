@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class Html2md {
     public static void main(String[] args) throws IOException {
-        String url = "https://coolcao.com/2018/07/24/Salted-Password-Hashing/";
+        String url = "https://mp.weixin.qq.com/s/ipQLDlCc6a2BeYeEkwOwMg";
 
         // itwanger/Documents/GitHub/toBeBetterJavaer/docs/nice-article/
         HtmlSourceOption option = HtmlSourceOption.builder()
