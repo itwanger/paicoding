@@ -1,7 +1,11 @@
 // ============= 后端请求的地址 =============
 // 后端接口地址
 
+// export const BASE_URL = "https://www.xuyifei.site/api"
+// export const WS_URL = "ws://www.xuyifei.site/api"
+export const EXCEL_PROCESS_BASE_URL = "https://www.xuyifei.site:5000"
 
+//
 export const BASE_URL = "http://localhost:8081"
 export const WS_URL = "ws://localhost:8081"
 
@@ -18,7 +22,10 @@ export const LOGOUT_URL = "/logout"
 export const MOCK_LOGIN_URL = "/wx/callback"
 
 // 获取指定文章的详情
-export const ARTICLE_DETAIL_URL = "article/api/new/data/detail"
+export const ARTICLE_DETAIL_URL = "article/api/data/detail"
+
+// 获取文章对应的专栏信息
+export const ARTICLE_COLUMN_RELATION_URL = "column/api/article"
 
 // 文章点赞、收藏
 export const ARTICLE_LIKE_COLLECT_URL = "article/api/favor"
