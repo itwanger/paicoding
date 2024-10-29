@@ -77,4 +77,16 @@ public class BaseUserInfoDTO extends BaseDTO {
      * 星球状态
      */
     private UserAIStatEnum starStatus;
+
+    /**
+     * 用户的邮箱
+     */
+    @ApiModelProperty(value = "用户邮箱", example = "paicoding@126.com")
+    private String email;
+
+    /**
+     * 收款码信息
+     */
+    @ApiModelProperty(value = "用户的收款码", example = "{\"wx\":\"wxp://f2f0YUXuGn6X2dI6FS2GrMjuG0Lw2plZqwjO4keoZaRr320\"}")
+    private String payCode;
 }

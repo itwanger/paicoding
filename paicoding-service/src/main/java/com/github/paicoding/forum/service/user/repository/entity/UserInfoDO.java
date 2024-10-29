@@ -73,6 +73,16 @@ public class UserInfoDO extends BaseDO {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private IpInfo ip;
 
+    /**
+     * 用户的邮箱
+     */
+    private String email;
+
+    /**
+     * 收款码信息
+     */
+    private String payCode;
+
     public IpInfo getIp() {
         if (ip == null) {
             ip = new IpInfo();

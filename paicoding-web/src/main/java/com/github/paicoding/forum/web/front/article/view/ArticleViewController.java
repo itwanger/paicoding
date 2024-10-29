@@ -20,6 +20,7 @@ import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.web.front.article.extra.ArticleReadViewServiceExtend;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.article.vo.ArticleEditVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
@@ -72,6 +73,9 @@ public class ArticleViewController extends BaseViewController {
 
     @Autowired
     private ColumnService columnService;
+
+    @Autowired
+    private ArticleReadViewServiceExtend articleReadViewServiceExtend;
 
     /**
      * 文章编辑页
@@ -129,6 +133,9 @@ public class ArticleViewController extends BaseViewController {
         ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
         // 返回给前端页面时，转换为html格式
         articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
+        // 根据文章类型，来自动处理文章类容
+        String content = articleReadViewServiceExtend.formatArticleReadType(articleDTO);
+        articleDTO.setContent(content);
         vo.setArticle(articleDTO);
 
         // 评论信息

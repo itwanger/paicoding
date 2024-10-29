@@ -40,4 +40,14 @@ public class UserInfoSaveReq {
      * 个人简介
      */
     private String profile;
+
+    /**
+     * 用户的邮件地址
+     */
+    private String email;
+
+    /**
+     * 收款码
+     */
+    private String payCode;
 }
