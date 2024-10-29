@@ -15,3 +15,14 @@ export enum ArticleTypeEnum{
   // 专栏文章
   COLUMN = 'COLUMN',
 }
+
+export enum ArticleTypeNumberEnum {
+    // 空文章
+    EMPTY = 0,
+    // 博文
+    BLOG = 1,
+    // 问答
+    ANSWER = 2,
+    // 专栏文章
+    COLUMN = 3,
+}
