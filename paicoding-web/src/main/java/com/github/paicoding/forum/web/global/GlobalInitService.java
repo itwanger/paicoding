@@ -107,6 +107,8 @@ public class GlobalInitService {
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         if (request.getCookies() == null) {
+            Optional.ofNullable(request.getHeader("Authorization"))
+                    .ifPresent(cookie -> initLoginUser(request.getHeader("Authorization"), reqInfo));
             return;
         }
 //        Optional.ofNullable(request.getHeader("Authorization"))
