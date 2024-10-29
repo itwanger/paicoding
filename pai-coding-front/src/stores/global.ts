@@ -1,7 +1,5 @@
 // src/stores/global.ts
 import { defineStore } from 'pinia';
-import axios from 'axios';
-import { doGet } from '@/http/BackendRequests';
 import { GLOBAL_STORE } from '@/constants/StoreConstants'
 import { defaultGlobalResponse, type GlobalResponse } from '@/http/ResponseTypes/CommonResponseType'
 

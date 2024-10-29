@@ -149,9 +149,7 @@ import {doGet} from "@/http/BackendRequests";
 import type {CommonResponse} from "@/http/ResponseTypes/CommonResponseType";
 import {ARTICLE_COLUMN_RELATION_URL} from "@/http/URL";
 import {messageTip} from "@/util/utils";
-import {useArticleInfoStore} from "@/stores/articleInfo";
 
-const articleInfoStore = useArticleInfoStore()
 const router = useRouter()
 
 const props = defineProps<{
@@ -163,7 +161,6 @@ const clickArticle = () =>{
   if(props.article.articleType === ArticleTypeNumberEnum.COLUMN){
     doGet<CommonResponse>(`${ARTICLE_COLUMN_RELATION_URL}/${props.article.articleId}`).then(res=>{
       router.push(`/column/${res.data.result.columnId}/${res.data.result.section}`)
-      articleInfoStore.setArticleId(res.data.result.articleId)
     }).catch(err=>{
       messageTip("获取专栏信息失败", "error")
       console.log(err)
