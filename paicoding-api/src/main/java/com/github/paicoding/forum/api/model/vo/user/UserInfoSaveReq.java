@@ -2,6 +2,8 @@ package com.github.paicoding.forum.api.model.vo.user;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 用户信息入参
  *
@@ -48,6 +50,8 @@ public class UserInfoSaveReq {
 
     /**
      * 收款码
+     * key: qq|wx|ali --> 收款渠道
+     * value: 收款二维码内容
      */
-    private String payCode;
+    private Map<String, String> payCode;
 }
