@@ -31,10 +31,14 @@ public class ArticleReadViewServiceExtend {
         if (readType != null && readType != ArticleReadTypeEnum.NORMAL) {
             BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
             if (readType == ArticleReadTypeEnum.STAR_READ) {
-                return mark(article, () -> user != null && user.getStarStatus() == UserAIStatEnum.FORMAL, globalViewConfig::getZsxqArticleReadCount);
+                return mark(article, () -> user != null && (user.getUserId().equals(article.getAuthor())
+                                        || user.getStarStatus() == UserAIStatEnum.FORMAL),
+                        globalViewConfig::getZsxqArticleReadCount);
             } else if (readType == ArticleReadTypeEnum.PAY_READ) {
                 // 付费阅读
-                return mark(article, () -> user != null && articlePayService.hasPayed(article.getArticleId(), user.getUserId()), globalViewConfig::getNeedPayArticleReadCount);
+                return mark(article, () -> user != null && (user.getUserId().equals(article.getAuthor())
+                                        || articlePayService.hasPayed(article.getArticleId(), user.getUserId())),
+                        globalViewConfig::getNeedPayArticleReadCount);
             } else if (readType == ArticleReadTypeEnum.LOGIN) {
                 // 登录阅读
                 return mark(article, () -> user != null, globalViewConfig::getNeedLoginArticleReadCount);
