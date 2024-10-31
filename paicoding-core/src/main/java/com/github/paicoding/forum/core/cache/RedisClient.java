@@ -24,9 +24,9 @@ import java.util.stream.IntStream;
 public class RedisClient {
     private static final Charset CODE = StandardCharsets.UTF_8;
     private static final String KEY_PREFIX = "pai_";
-    private static RedisTemplate<String, String> template;
+    private static RedisTemplate<String, Object> template;
 
-    public static void register(RedisTemplate<String, String> template) {
+    public static void register(RedisTemplate<String, Object> template) {
         RedisClient.template = template;
     }
 
@@ -36,6 +36,14 @@ public class RedisClient {
                 throw new IllegalArgumentException("redis argument can not be null!");
             }
         }
+    }
+
+    public static <T> void setObject(String key, T object){
+        template.opsForValue().set(key, object);
+    }
+
+    public static Object getObject(String key){
+        return template.opsForValue().get(key);
     }
 
     /**

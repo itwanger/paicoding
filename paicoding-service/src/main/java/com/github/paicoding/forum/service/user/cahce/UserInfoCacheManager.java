@@ -26,15 +26,20 @@ public class UserInfoCacheManager {
      * @return
      */
     public UserStatisticInfoDTO getUserInfo(long userId) {
-        String userInfo = RedisClient.getStr(USER_INFO_PREFIX + userId);
-        if (userInfo == null) {
-            return null;
+        Object value = RedisClient.getObject(USER_INFO_PREFIX + userId);
+        if(value != null){
+            return OBJECT_MAPPER.convertValue(value, UserStatisticInfoDTO.class);
         }
-        try {
-            return OBJECT_MAPPER.readValue(userInfo, UserStatisticInfoDTO.class);
-        } catch (Exception e) {
-            return null;
-        }
+        return null;
+//        String userInfo = RedisClient.getStr(USER_INFO_PREFIX + userId);
+//        if (userInfo == null) {
+//            return null;
+//        }
+//        try {
+//            return OBJECT_MAPPER.readValue(userInfo, UserStatisticInfoDTO.class);
+//        } catch (Exception e) {
+//            return null;
+//        }
     }
 
     /**
@@ -43,11 +48,12 @@ public class UserInfoCacheManager {
      * @param userStatisticInfoDTO
      */
     public void setUserInfo(long userId, UserStatisticInfoDTO userStatisticInfoDTO) {
-        try {
-            RedisClient.setStr(USER_INFO_PREFIX + userId, OBJECT_MAPPER.writeValueAsString(userStatisticInfoDTO));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        RedisClient.setObject(USER_INFO_PREFIX + userId, userStatisticInfoDTO);
+//        try {
+//            RedisClient.setStr(USER_INFO_PREFIX + userId, OBJECT_MAPPER.writeValueAsString(userStatisticInfoDTO));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
 
