@@ -69,42 +69,39 @@ public class ArticleCacheManager {
     }
 
     public void setColumnArticle(long articleId, ColumnArticleDO columnArticleDO){
-        try {
-            RedisClient.setStr(ARTICLE_COLUMN_RELATION_PREFIX + articleId, OBJECT_MAPPER.writeValueAsString(columnArticleDO));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        RedisClient.setObject(ARTICLE_COLUMN_RELATION_PREFIX + articleId, columnArticleDO);
     }
 
     public ColumnArticleDO getColumnArticle(long articleId) {
-        String str = RedisClient.getStr(ARTICLE_COLUMN_RELATION_PREFIX + articleId);
-        if(str != null && !"null".equals(str)){
-            try {
-                return OBJECT_MAPPER.readValue(str, ColumnArticleDO.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }else{
-            return null;
+        Object value = RedisClient.getObject(ARTICLE_COLUMN_RELATION_PREFIX + articleId);
+        if(value != null){
+            return OBJECT_MAPPER.convertValue(value, ColumnArticleDO.class);
         }
+        return null;
     }
 
 
     public ArticleDTO getArticleInfo(long articleId) {
-        String str = RedisClient.getStr(ARTICLE_INFO_PREFIX + articleId);
-        try {
-            return str == null ? null : OBJECT_MAPPER.readValue(str, ArticleDTO.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+//        String str = RedisClient.getStr(ARTICLE_INFO_PREFIX + articleId);
+//        try {
+//            return str == null ? null : OBJECT_MAPPER.readValue(str, ArticleDTO.class);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+        Object value = RedisClient.getObject(ARTICLE_INFO_PREFIX + articleId);
+        if(value != null){
+            return OBJECT_MAPPER.convertValue(value, ArticleDTO.class);
         }
+        return null;
     }
 
     public void setArticleInfo(long articleId, ArticleDTO articleDTO){
-        try {
-            RedisClient.setStr(ARTICLE_INFO_PREFIX + articleId, OBJECT_MAPPER.writeValueAsString(articleDTO));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        RedisClient.setObject(ARTICLE_INFO_PREFIX + articleId, articleDTO);
+//        try {
+//            RedisClient.setStr(ARTICLE_INFO_PREFIX + articleId, OBJECT_MAPPER.writeValueAsString(articleDTO));
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     /**
