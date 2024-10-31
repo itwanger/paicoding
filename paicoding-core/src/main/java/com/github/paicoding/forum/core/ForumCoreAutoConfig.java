@@ -27,7 +27,7 @@ public class ForumCoreAutoConfig {
     @Autowired
     private ProxyProperties proxyProperties;
 
-    public ForumCoreAutoConfig(RedisTemplate<String, String> redisTemplate) {
+    public ForumCoreAutoConfig(RedisTemplate<String, Object> redisTemplate) {
         RedisClient.register(redisTemplate);
     }
 
