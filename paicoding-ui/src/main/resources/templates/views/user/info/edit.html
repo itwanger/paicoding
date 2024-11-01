@@ -168,7 +168,7 @@
             }
         } else {
             if (email && !isEmail(email)) {
-                toastr("请输入合法的邮箱地址~");
+                toastr.info("请输入合法的邮箱地址~");
                 return;
             }
 
@@ -182,14 +182,20 @@
                 email: email
             }
             let payCodes = {}
-            for(let key in payInfo) {
-                payCodes[key] = payInfo[key]['qrMsg']
+            let hasPayInfo = false;
+            for(let key in qrMap) {
+                payCodes[key] = qrMap[key]['qrMsg']
+                hasPayInfo = true;
             }
             params['payCode'] = payCodes;
+            if (hasPayInfo && !email) {
+                toastr.error("请配置接收用户打赏信息的邮箱地址")
+                return;
+            }
         }
 
         // 收款码信息
-        console.log(payInfo);
+        console.log(qrMap);
 
         post("/user/api/saveUserInfo", params, function (data) {
             console.log("返回结果:", data);
