@@ -115,22 +115,22 @@
               <label class="form-label">阅读类型:</label>
               <div class="form-selectgroup">
                 <label class="r-form-selectgroup-item form-selectgroup-item--active"
-                       th:class="'form-selectgroup-item ' + ${vo.article == null || (vo.article != null && vo.article.readType == 0) ? 'form-selectgroup-item--active': ''}">
+                       th:class="'r-form-selectgroup-item ' + ${vo.article == null || (vo.article != null && vo.article.readType == 0) ? 'form-selectgroup-item--active': ''}">
                   <input type="radio" name="readType" value="0" th:checked="${vo.article == null || (vo.article != null && vo.article.readType == 0)}" class="form-selectgroup-input"/>
                   <span class="form-selectgroup-label">全部可读</span>
                 </label>
                 <label class="r-form-selectgroup-item"
-                       th:class="'form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 1 ? 'form-selectgroup-item--active': ''}">
+                       th:class="'r-form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 1 ? 'form-selectgroup-item--active': ''}">
                   <input type="radio" name="readType" value="1" th:checked="${vo.article!= null && vo.article.readType == 1}"  class="form-selectgroup-input"/>
                   <span class="form-selectgroup-label">登录阅读</span>
                 </label>
                 <label class="r-form-selectgroup-item"
-                       th:class="'form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 4 ? 'form-selectgroup-item--active': ''}">
+                       th:class="'r-form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 4 ? 'form-selectgroup-item--active': ''}">
                   <input type="radio" name="readType" value="4" th:checked="${vo.article != null && vo.article.readType == 4}"  class="form-selectgroup-input"/>
                   <span class="form-selectgroup-label">付费阅读</span>
                 </label>
                 <label class="r-form-selectgroup-item"
-                       th:class="'form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 3 ? 'form-selectgroup-item--active': ''}">
+                       th:class="'r-form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 3 ? 'form-selectgroup-item--active': ''}">
                   <input type="radio" name="readType" value="3" th:checked="${vo.article != null && vo.article.readType == 3}" class="form-selectgroup-input"/>
                   <span class="form-selectgroup-label">星球专享</span>
                 </label>
