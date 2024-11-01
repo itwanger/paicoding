@@ -168,6 +168,13 @@ public class ArticleViewController extends BaseViewController {
         other.setReadType(articleDTO.getReadType());
         vo.setOther(other);
 
+        // 打赏用户列表
+        if (Objects.equals(articleDTO.getReadType(), ArticleReadTypeEnum.PAY_READ.getType())) {
+            vo.setPayUsers(articlePayService.queryPayUsers(articleId));
+        } else {
+            vo.setPayUsers(Collections.emptyList());
+        }
+
         // 详情页的侧边推荐信息
         List<SideBarDTO> sideBars = sidebarService.queryArticleDetailSidebarList(articleDTO.getAuthor(), articleDTO.getArticleId());
         vo.setSideBarItems(sideBars);

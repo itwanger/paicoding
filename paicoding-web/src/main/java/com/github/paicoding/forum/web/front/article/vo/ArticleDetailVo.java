@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleOtherDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import lombok.Data;
 
@@ -42,4 +43,9 @@ public class ArticleDetailVo {
      */
     private List<SideBarDTO> sideBarItems;
 
+
+    /**
+     * 打赏用户列表
+     */
+    private List<SimpleUserInfoDTO> payUsers;
 }

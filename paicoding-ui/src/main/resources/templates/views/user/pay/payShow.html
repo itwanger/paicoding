@@ -123,7 +123,14 @@
         let qrMap = [[${payInfo}]]
 
         let currentChoose = null
-        tabChoose('wx')
+        console.log("输出结果--->")
+        if (qrMap['wx']) {
+            tabChoose('wx')
+        } else if (qrMap['ali']) {
+            tabChoose('ali')
+        } else if(qrMap['qq']) {
+            tabChoose('qq')
+        }
 
         function tabChoose(tab) {
             if (currentChoose == tab) {
