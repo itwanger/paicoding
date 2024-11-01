@@ -2,8 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <!-- 收款码 -->
 <div class="card" th:fragment="user_pay(payInfo)" style="width: 100%">
-    <div class="card-body achievement-wrap">
-        <div class="achievement-title" th:text="${'扫我吧~'}">标题</div>
+    <div class="achievement-wrap">
         <div class="universal_pay_view">
             <div class="box">
                 <style type="text/css">
@@ -110,6 +109,9 @@
                 </div>
                 <div class="subtitle">
                     点击按钮切换收款二维码
+                </div>
+                <div class="subtitle" style="color: black">
+                    备注：<input type="text" value="送人玫瑰，留有余香~" id="mark">
                 </div>
             </div>
         </div>

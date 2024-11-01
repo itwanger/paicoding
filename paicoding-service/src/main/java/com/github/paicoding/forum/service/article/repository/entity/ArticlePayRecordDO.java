@@ -46,7 +46,17 @@ public class ArticlePayRecordDO extends BaseDO {
     private Date notifyTime;
 
     /**
+     * 通知确认次数
+     */
+    private Integer notifyCnt;
+
+    /**
      * 备注信息
      */
     private String notes;
+
+    /**
+     * 用于验证合法性的code
+     */
+    private String verifyCode;
 }

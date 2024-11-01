@@ -26,6 +26,7 @@ public class PayConverter {
         info.setPayUserId(record.getPayUserId());
         info.setPayStatus(record.getPayStatus());
         info.setReceiveUserId(record.getReceiveUserId());
+        info.setArticleId(record.getArticleId());
         return info;
     }
 

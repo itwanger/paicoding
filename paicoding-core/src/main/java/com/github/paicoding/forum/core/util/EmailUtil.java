@@ -49,7 +49,7 @@ public class EmailUtil {
             javaMailSender.send(mimeMailMessage);
             return true;
         } catch (Exception e) {
-            log.warn("sendEmail error {}@{}, {}", title, to, e);
+            log.warn("sendEmail error {}@{}", title, to, e);
             return false;
         }
     }

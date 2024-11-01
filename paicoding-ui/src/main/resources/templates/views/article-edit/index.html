@@ -111,27 +111,31 @@
               </select>
             </div>
 
-          <div class="edit-sort-wrap form-group category required">
+            <div class="edit-sort-wrap form-group category required">
               <label class="form-label">阅读类型:</label>
               <div class="form-selectgroup">
-                  <label class="form-selectgroup-item form-selectgroup-item--active">
-                      <input type="radio" name="readType" value="0" checked class="form-selectgroup-input"/>
-                      <span class="form-selectgroup-label">全部可读</span>
-                  </label>
-                  <label class="form-selectgroup-item ">
-                      <input type="radio" name="readType" value="1"  class="form-selectgroup-input"/>
-                      <span class="form-selectgroup-label">登录阅读</span>
-                  </label>
-                  <label class="form-selectgroup-item ">
-                      <input type="radio" name="readType" value="2"  class="form-selectgroup-input"/>
-                      <span class="form-selectgroup-label">付费阅读</span>
-                  </label>
-                  <label class="form-selectgroup-item">
-                      <input type="radio" name="readType" value="3" class="form-selectgroup-input"/>
-                      <span class="form-selectgroup-label">星球专享</span>
-                  </label>
+                <label class="r-form-selectgroup-item form-selectgroup-item--active"
+                       th:class="'form-selectgroup-item ' + ${vo.article == null || (vo.article != null && vo.article.readType == 0) ? 'form-selectgroup-item--active': ''}">
+                  <input type="radio" name="readType" value="0" th:checked="${vo.article == null || (vo.article != null && vo.article.readType == 0)}" class="form-selectgroup-input"/>
+                  <span class="form-selectgroup-label">全部可读</span>
+                </label>
+                <label class="r-form-selectgroup-item"
+                       th:class="'form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 1 ? 'form-selectgroup-item--active': ''}">
+                  <input type="radio" name="readType" value="1" th:checked="${vo.article!= null && vo.article.readType == 1}"  class="form-selectgroup-input"/>
+                  <span class="form-selectgroup-label">登录阅读</span>
+                </label>
+                <label class="r-form-selectgroup-item"
+                       th:class="'form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 4 ? 'form-selectgroup-item--active': ''}">
+                  <input type="radio" name="readType" value="4" th:checked="${vo.article != null && vo.article.readType == 4}"  class="form-selectgroup-input"/>
+                  <span class="form-selectgroup-label">付费阅读</span>
+                </label>
+                <label class="r-form-selectgroup-item"
+                       th:class="'form-selectgroup-item ' + ${vo.article != null && vo.article.readType == 3 ? 'form-selectgroup-item--active': ''}">
+                  <input type="radio" name="readType" value="3" th:checked="${vo.article != null && vo.article.readType == 3}" class="form-selectgroup-input"/>
+                  <span class="form-selectgroup-label">星球专享</span>
+                </label>
               </div>
-          </div>
+            </div>
             <div class="form-group" th:if="${#strings.isEmpty(global.user.payCode)}">
               <div style="font-size: 0.9em;color: red;text-align: center;">配置收款码之后才可以选择付费阅读哦~<a style="color: blue" th:href="'/user/home?userId=' + ${global.user.userId}" target="_blank">去配置</a></div>
             </div>
@@ -250,7 +254,7 @@
       let pic = $("#pic"),tagSelect = $('#tag-select'),
               upload = $("#upload"), clickCover = $(".click-cover"),
               titleInput = $('#titleInput'), categoryLabel = $('.form-selectgroup-item'),
-              editBtn = $('.edit-save'),close_icon = $(".close_icon");
+              editBtn = $('.edit-save'),close_icon = $(".close_icon"), readTypeLabel = $('.r-form-selectgroup-item');
       let userPayCode = [[${global.user.payCode}]]
 
       // 一些变量
@@ -732,7 +736,7 @@
         }
 
         const readType = getChooseReadType();
-        if (readType == 2 && !userPayCode) {
+        if (readType == 4 && !userPayCode) {
           // 付费阅读
           toastr.error("请再个人页配置收款码之后，再设置文章为付费阅读吧!")
           return;
@@ -789,6 +793,14 @@
           categoryLabel.eq(index).on('click', function () {
             categoryLabel.removeClass('form-selectgroup-item--active')
               .eq(index).addClass('form-selectgroup-item--active')
+          })
+        })(index)
+      })
+      readTypeLabel.each(function (index) {
+        (function (index) {
+          readTypeLabel.eq(index).on('click', function () {
+            readTypeLabel.removeClass('form-selectgroup-item--active')
+                    .eq(index).addClass('form-selectgroup-item--active')
           })
         })(index)
       })
