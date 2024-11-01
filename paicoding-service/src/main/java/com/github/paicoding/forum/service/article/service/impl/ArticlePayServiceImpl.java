@@ -101,7 +101,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         record.setNotifyTime(null);
         record.setNotifyCnt(1);
         record.setNotes(notes == null ? "" : notes);
-        record.setVerifyCode(RandomStringUtils.random(16));
+        record.setVerifyCode(RandomStringUtils.randomAlphanumeric(16));
         record.setId(IdUtil.genId());
         articlePayDao.save(record);
         return record;
@@ -201,7 +201,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
             // 更新通知时间 + 次数 + 验证码
             record.setNotifyTime(new Date());
             record.setNotifyCnt(record.getNotifyCnt() + 1);
-            record.setVerifyCode(RandomStringUtils.random(16));
+            record.setVerifyCode(RandomStringUtils.randomAlphanumeric(16));
 
             PayConfirmDTO confirm = buildPayConfirmInfo(record.getId(), record);
             Context context = new Context();
