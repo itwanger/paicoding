@@ -2,7 +2,10 @@ package com.github.paicoding.forum.service.article.service;
 
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.PayConfirmDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
+
+import java.util.List;
 
 /**
  * @author YiHui
@@ -48,4 +51,13 @@ public interface ArticlePayService {
     boolean updatePayStatus(Long payId, String verifyCode, Integer payStatus);
 
     PayConfirmDTO buildPayConfirmInfo(Long payId, ArticlePayRecordDO record);
+
+
+    /**
+     * 查询文章的打赏用户
+     *
+     * @param articleId 文章id
+     * @return
+     */
+    List<SimpleUserInfoDTO> queryPayUsers(Long articleId);
 }

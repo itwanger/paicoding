@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.PayConfirmDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -24,10 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -219,6 +223,21 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         } catch (Exception e) {
             log.error("发送邮件确认通知失败: {}", record, e);
         }
+    }
+
+
+    /**
+     * 查询文章的打上用户列表
+     * @param articleId
+     * @return
+     */
+    public List<SimpleUserInfoDTO> queryPayUsers(Long articleId) {
+        List<Long> users = articlePayDao.querySucceedPayUsersByArticleId(articleId);
+        if (CollectionUtils.isEmpty(users)) {
+            return Collections.emptyList();
+        }
+
+        return userService.batchQuerySimpleUserInfo(users);
     }
 
 

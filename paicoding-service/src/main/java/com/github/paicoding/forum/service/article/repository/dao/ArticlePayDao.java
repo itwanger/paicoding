@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.article.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticlePayRecordMapper;
@@ -10,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 文章支付记录
@@ -40,6 +42,22 @@ public class ArticlePayDao extends ServiceImpl<ArticlePayRecordMapper, ArticlePa
         }
         return list.get(0);
     }
+
+
+    /**
+     * 查询文章成功支付的用户id
+     *
+     * @param articleId 文章id
+     * @return
+     */
+    public List<Long> querySucceedPayUsersByArticleId(Long articleId) {
+        List<ArticlePayRecordDO> records = lambdaQuery().select(ArticlePayRecordDO::getPayUserId)
+                .eq(ArticlePayRecordDO::getArticleId, articleId)
+                .eq(ArticlePayRecordDO::getPayStatus, PayStatusEnum.SUCCEED.getStatus())
+                .list();
+        return records.stream().map(ArticlePayRecordDO::getPayUserId).collect(Collectors.toList());
+    }
+
 
     /**
      * 加写锁
