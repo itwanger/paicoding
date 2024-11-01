@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Milligram CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+</head>
+<body id="body">
+
+<!-- 正文内容 -->
+<div class="container">
+    <a th:href="${vo.articleUrl}" target="_blank" class=""><h2 th:text="${vo.title}">文章标题</h2></a>
+    <div class="row">
+        <label class="label-inline">打赏用户：</label>
+        <div th:text="${vo.payUser}">一灰灰</div>
+    </div>
+    <div class="row">
+        <label class="label-inline">打赏时间：</label>
+        <div th:text="${vo.payTime}">2024-10-31 8:18:00</div>
+    </div>
+    <div class="row">
+        <label class="label-inline">备注：</label>
+        <div th:text="${vo.mark}">备注文案</div>
+    </div>
+    <div class="row">
+        <a class="button label-inline" th:href="${vo.callback + '&succeed=true'}" target="_blank"> 确认收款</a>
+        <a class="button button-outline float-right" th:href="${vo.callback + '&succeed=false'}" target="_blank" style="margin-left: 1em" onclick=""> 未收款</a>
+    </div>
+</div>
+</body>
+</html>

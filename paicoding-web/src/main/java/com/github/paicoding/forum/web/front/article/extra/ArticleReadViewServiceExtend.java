@@ -27,7 +27,7 @@ public class ArticleReadViewServiceExtend {
     private ArticlePayService articlePayService;
 
     public String formatArticleReadType(ArticleDTO article) {
-        ArticleReadTypeEnum readType = ArticleReadTypeEnum.typeOf(article.getArticleType());
+        ArticleReadTypeEnum readType = ArticleReadTypeEnum.typeOf(article.getReadType());
         if (readType != null && readType != ArticleReadTypeEnum.NORMAL) {
             BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
             if (readType == ArticleReadTypeEnum.STAR_READ) {
