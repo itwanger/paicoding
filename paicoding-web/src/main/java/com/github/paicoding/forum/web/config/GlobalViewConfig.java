@@ -74,6 +74,9 @@ public class GlobalViewConfig {
     // 需要登录文章可阅读数
     private String needLoginArticleReadCount;
 
+    // 需要支付的可阅读数
+    private String needPayArticleReadCount;
+
     public String getOss() {
         if (oss == null) {
             this.oss = "";

@@ -97,6 +97,12 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         if (StringUtils.isEmpty(user.getUserName())) {
             user.setUserName(null);
         }
+        if (StringUtils.isEmpty(user.getEmail())) {
+            user.setEmail(null);
+        }
+        if (StringUtils.isBlank(user.getPayCode())) {
+            user.setPayCode(null);
+        }
         user.setId(record.getId());
         updateById(user);
     }

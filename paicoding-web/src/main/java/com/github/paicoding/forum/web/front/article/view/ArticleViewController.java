@@ -1,18 +1,24 @@
 package com.github.paicoding.forum.web.front.article.view;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleOtherDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.PayConfirmDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
+import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
@@ -20,6 +26,7 @@ import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.web.front.article.extra.ArticleReadViewServiceExtend;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.article.vo.ArticleEditVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
@@ -72,6 +79,9 @@ public class ArticleViewController extends BaseViewController {
 
     @Autowired
     private ColumnService columnService;
+
+    @Autowired
+    private ArticleReadViewServiceExtend articleReadViewServiceExtend;
 
     /**
      * 文章编辑页
@@ -129,6 +139,9 @@ public class ArticleViewController extends BaseViewController {
         ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
         // 返回给前端页面时，转换为html格式
         articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
+        // 根据文章类型，来自动处理文章类容
+        String content = articleReadViewServiceExtend.formatArticleReadType(articleDTO);
+        articleDTO.setContent(content);
         vo.setArticle(articleDTO);
 
         // 评论信息
@@ -139,15 +152,28 @@ public class ArticleViewController extends BaseViewController {
         TopCommentDTO hotComment = commentService.queryHotComment(articleId);
         vo.setHotComment(hotComment);
 
-        // 其他信息封装
-        ArticleOtherDTO other = new ArticleOtherDTO();
+
         // 作者信息
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());
         articleDTO.setAuthorName(user.getUserName());
         articleDTO.setAuthorAvatar(user.getPhoto());
+        if (articleDTO.getReadType().equals(ArticleReadTypeEnum.PAY_READ.getType())) {
+            // 付费阅读的文章，构建收款码信息
+            user.setPayQrCodes(PayConverter.formatPayCodeInfo(user.getPayCode()));
+        }
         vo.setAuthor(user);
 
+        // 其他信息封装
+        ArticleOtherDTO other = new ArticleOtherDTO();
+        other.setReadType(articleDTO.getReadType());
         vo.setOther(other);
+
+        // 打赏用户列表
+        if (Objects.equals(articleDTO.getReadType(), ArticleReadTypeEnum.PAY_READ.getType())) {
+            vo.setPayUsers(articlePayService.queryPayUsers(articleId));
+        } else {
+            vo.setPayUsers(Collections.emptyList());
+        }
 
         // 详情页的侧边推荐信息
         List<SideBarDTO> sideBars = sidebarService.queryArticleDetailSidebarList(articleDTO.getAuthor(), articleDTO.getArticleId());
@@ -159,4 +185,17 @@ public class ArticleViewController extends BaseViewController {
     }
 
 
+    @Autowired
+    ArticlePayService articlePayService;
+
+    @Permission(role = UserRole.LOGIN)
+    @GetMapping(path = "payConfirm")
+    public String payConfirm(@RequestParam("payId") Long payId, Model model) {
+        PayConfirmDTO confirmDTO = articlePayService.buildPayConfirmInfo(payId, null);
+        if (!ReqInfoContext.getReqInfo().getUserId().equals(confirmDTO.getReceiveUserId())) {
+            return "redirect:/error/403";
+        }
+        model.addAttribute("vo", confirmDTO);
+        return "PayConfirm";
+    }
 }

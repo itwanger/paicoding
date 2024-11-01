@@ -2,6 +2,7 @@ package com.github.paicoding.forum.api.model.vo.article.dto;
 
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -53,4 +54,7 @@ public class ColumnArticlesDTO {
 
     // 翻页
     private ArticleOtherDTO other;
+
+    // 赞赏用户列表
+    private List<SimpleUserInfoDTO> payUsers;
 }

@@ -13,6 +13,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
 import com.github.paicoding.forum.service.user.service.UserService;
@@ -78,6 +79,8 @@ public class UserViewController extends BaseViewController {
 
         List<TagSelectDTO> homeSelectTags = homeSelectTags(vo.getHomeSelectType(), Objects.equals(userId, ReqInfoContext.getReqInfo().getUserId()));
         vo.setHomeSelectTags(homeSelectTags);
+
+        vo.setPayQrCodes(PayConverter.formatPayCodeInfo(userInfo.getPayCode()));
 
         userHomeSelectList(vo, userId);
         model.addAttribute("vo", vo);

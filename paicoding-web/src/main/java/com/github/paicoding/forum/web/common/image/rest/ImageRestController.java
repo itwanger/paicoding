@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.common.image.rest;
 
+import com.github.hui.quick.plugin.qrcode.wrapper.QrCodeDeWrapper;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
@@ -12,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -47,6 +51,24 @@ public class ImageRestController {
             return ResVo.fail(StatusEnum.UPLOAD_PIC_FAILED);
         }
         return ResVo.ok(imageVo);
+    }
+
+    /**
+     * 二维码识别
+     *
+     * @param request
+     * @return 识别的内容
+     */
+    @RequestMapping(path = "qrscan")
+    public ResVo<String> qrscan(HttpServletRequest request) throws Exception {
+        MultipartFile file = null;
+        if (request instanceof MultipartHttpServletRequest) {
+            file = ((MultipartHttpServletRequest) request).getFile("image");
+        }
+        if (file != null) {
+            return ResVo.ok(QrCodeDeWrapper.decode(ImageIO.read(file.getInputStream())));
+        }
+        return ResVo.ok("nill");
     }
 
     /**
