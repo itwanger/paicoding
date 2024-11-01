@@ -183,10 +183,10 @@ public class ArticleViewController extends BaseViewController {
 
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "payConfirm")
-    public String payConfirm(Long payId, Model model) {
+    public String payConfirm(@RequestParam("payId") Long payId, Model model) {
         PayConfirmDTO confirmDTO = articlePayService.buildPayConfirmInfo(payId, null);
         if (!ReqInfoContext.getReqInfo().getUserId().equals(confirmDTO.getReceiveUserId())) {
-            return "redirect:403";
+            return "redirect:/error/403";
         }
         model.addAttribute("vo", confirmDTO);
         return "PayConfirm";
