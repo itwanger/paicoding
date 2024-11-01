@@ -23,7 +23,10 @@ import java.util.Map;
 public class AliOssUploaderTest {
     public static void main(String[] args) throws Exception {
         AliOssWrapper aliOss = initOss();
+        autoUploadCss(aliOss);
+    }
 
+    private static void autoUploadImgs(AliOssWrapper aliOss) throws IOException {
         Map<String, List<String>> map = CommonConstants.HOMEPAGE_TOP_PIC_MAP;
         Map<String, String> res = new HashMap<>();
         for (List<String> sub : map.values()) {
@@ -41,6 +44,13 @@ public class AliOssUploaderTest {
             System.out.println(entry.getKey() + "  ===  " + entry.getValue());
         }
         System.out.println("\n\n--------------");
+    }
+
+    private static void autoUploadCss(AliOssWrapper aliOss) throws IOException {
+//        String css = "static/js/jsQR.js";
+        String css = "static/css/views/article-edit.css";
+        uploadFile(css, css, aliOss);
+        System.out.println("ans");
     }
 
     /**
@@ -67,7 +77,7 @@ public class AliOssUploaderTest {
         oss.setEndpoint(endpoint);
         oss.setBucket(bucketName);
         oss.setHost(host);
-        oss.setPrefix("paicoding/");
+        oss.setPrefix("paicodingui916/");
         properties.setOss(oss);
 
         aliOss.setProperties(properties);
@@ -93,5 +103,29 @@ public class AliOssUploaderTest {
         String ans = aliOss.upload(outputStream.toByteArray(), "jpg");
         System.out.println(str + " === " + ans);
         return ans;
+    }
+
+    private static String uploadFile(String file, String saveFile, AliOssWrapper aliOss) throws IOException {
+        InputStream stream = FileReadUtil.getStreamByFileName(file);
+        byte[] bytes = inputStreamToBytes(stream);
+        String ans = aliOss.uploadWithFileName(bytes, saveFile);
+        System.out.println("返回结果 -> " + ans);
+        return ans;
+    }
+
+    /**
+     * *inputstream转byte数组
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
+    public static byte[] inputStreamToBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int n = 0;
+        while (-1 != (n = inputStream.read(buffer))) {
+            output.write(buffer, 0, n);
+        }
+        return output.toByteArray();
     }
 }
