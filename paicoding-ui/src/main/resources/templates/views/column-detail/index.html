@@ -35,7 +35,7 @@
 
           <!--  正文 -->
           <div class="article-content-inter-wrap">
-            <div th:replace="components/article/article-detail :: article_info(${vo.article}, null, ${vo.other})"></div>
+            <div th:replace="components/article/article-detail :: article_info(${vo.article}, null, ${vo.other}, ${vo.payUsers})"></div>
             <!--  评论  -->
             <div id="commentDiv">
               <div th:replace="components/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"

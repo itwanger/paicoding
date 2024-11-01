@@ -5,10 +5,12 @@ import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagSelectDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.FollowUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserPayCodeDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author YiHui
@@ -33,4 +35,9 @@ public class UserHomeVo {
      * 文章列表
      */
     private PageListVo<ArticleDTO> homeSelectList;
+
+    /**
+     * 收款二维码
+     */
+    private Map<String, UserPayCodeDTO> payQrCodes;
 }

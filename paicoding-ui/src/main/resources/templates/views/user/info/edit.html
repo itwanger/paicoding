@@ -57,6 +57,16 @@
                         />
                     </div>
                     <div class="input-group">
+                        <span class="form-label">邮箱</span>
+                        <input
+                                id="email"
+                                type="email"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.email: ''}"
+                                placeholder="请输入可以接收信息的合法邮箱地址"
+                        />
+                    </div>
+                    <div class="input-group">
                         <span class="form-label">个人简介</span>
                         <input
                                 id="profile"
@@ -102,9 +112,9 @@
                              class="person-img"
                              id="pic"/>
                         <input type="file"
-                                accept="image/*"
-                                id="upload"
-                                class="click-input"
+                               accept="image/*"
+                               id="upload"
+                               class="click-input"
                         />
                     </div>
 
@@ -113,6 +123,9 @@
                         支持 jpg、png、jpeg 格式大小 2M 以内的图片
                     </div>
                 </div>
+            </div>
+            <div class="">
+                <div th:replace="views/user/pay/pay :: user_pay(${vo.payQrCodes})"></div>
             </div>
             <div class="modal-footer pr-4">
                 <button id="publish" type="button" class="btn btn-primary">
@@ -132,13 +145,20 @@
 
     let uid = [[${vo.userHome.userId}]]
     let imgPhoto = [[${vo.userHome.photo}]]
+    let payInfo = [[${vo.payQrCodes}]]
 
+    function isEmail(str) {
+        var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+        return  reg.test(str);
+    }
     function doPostUserInfo(justUploadImg) {
         const userId = uid
         const userName = $("#userName").val()
         const company = $("#company").val()
         const position = $("#position").val()
         const profile = $("#profile").val()
+        // 邮箱
+        const email = $('#email').val()
         let params;
         if (justUploadImg) {
             // 只更新图片
@@ -147,6 +167,11 @@
                 userId: userId,
             }
         } else {
+            if (email && !isEmail(email)) {
+                toastr("请输入合法的邮箱地址~");
+                return;
+            }
+
             params = {
                 userId: userId,
                 userName: userName,
@@ -154,8 +179,17 @@
                 company: company,
                 position: position,
                 profile: profile,
+                email: email
             }
+            let payCodes = {}
+            for(let key in payInfo) {
+                payCodes[key] = payInfo[key]['qrMsg']
+            }
+            params['payCode'] = payCodes;
         }
+
+        // 收款码信息
+        console.log(payInfo);
 
         post("/user/api/saveUserInfo", params, function (data) {
             console.log("返回结果:", data);
@@ -167,8 +201,8 @@
 
     // 封面上传相关
     personImgWrap.on("mouseover", ".person-img-inter-wrap", function () {
-            $(".click-cover").css("visibility", "visible")
-        })
+        $(".click-cover").css("visibility", "visible")
+    })
         .on("mouseleave", ".person-img-inter-wrap", function () {
             $(".click-cover").css("visibility", "hidden")
         })

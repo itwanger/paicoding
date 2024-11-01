@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
@@ -83,6 +84,17 @@ public class ArticleDTO implements Serializable {
      * 0 未发布 1 已发布
      */
     private Integer status;
+
+    /**
+     * 阅读类型
+     * @see ArticleReadTypeEnum#getType()
+     */
+    private Integer readType;
+
+    /**
+     * ture 表示可以阅读 false 表示无法阅读全文
+     */
+    private Boolean canRead;
 
     /**
      * 是否官方

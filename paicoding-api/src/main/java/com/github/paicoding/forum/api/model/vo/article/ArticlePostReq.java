@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.article;
 
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ArticleTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
@@ -91,6 +92,13 @@ public class ArticlePostReq implements Serializable {
      * 专栏序号
      */
     private Long columnId;
+
+    /**
+     * 文章阅读类型
+     *
+     * @see ArticleReadTypeEnum#getType()
+     */
+    private Integer readType;
 
     public PushStatusEnum pushStatus() {
         if ("post".equalsIgnoreCase(actionType)) {
