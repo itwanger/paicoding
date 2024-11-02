@@ -2,27 +2,43 @@ package com.github.paicoding.forum.web.controller.test.rest;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
+import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
+import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.event.MessageQueueEvent;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
+import com.github.paicoding.forum.core.common.CommonConstants;
 import com.github.paicoding.forum.core.dal.DsAno;
 import com.github.paicoding.forum.core.dal.DsSelectExecutor;
 import com.github.paicoding.forum.core.dal.MasterSlaveDsEnum;
+import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.config.service.GlobalConfigService;
+import com.github.paicoding.forum.service.notify.service.RabbitmqService;
+import com.github.paicoding.forum.service.rank.service.listener.UserActivityListener;
+import com.github.paicoding.forum.service.statistics.listener.UserStatisticEventListener;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
+import com.github.paicoding.forum.service.test.service.TestNotifyMsgListener;
+import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
+import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.controller.test.vo.EmailReqVo;
 import com.github.paicoding.forum.web.global.vo.ResultVo;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +48,13 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -50,6 +68,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequestMapping(path = "test")
 public class TestController {
+
+    @Autowired
+    private ArticleReadService articleReadService;
+
+    @Autowired
+    private UserFootService userFootService;
+
+    @Autowired
+    private RabbitmqService rabbitmqService;
+
     private AtomicInteger cnt = new AtomicInteger(1);
 
     /**
@@ -335,4 +363,99 @@ public class TestController {
         return ResultVo.ok("ok");
     }
 
+
+
+
+    @Autowired
+    private UserActivityListener userActivityListener;
+
+    @Autowired
+    private TestNotifyMsgListener msgListener;
+
+    @Autowired
+    private UserStatisticEventListener userStatisticEventListener;
+
+    /**
+     * 收藏、点赞等相关操作
+     *
+     * @param articleId
+     * @param type      取值来自于 OperateTypeEnum#code
+     * @return
+     */
+    @Permission(role = UserRole.LOGIN)
+    @GetMapping(path = "favorByMessage")
+    @MdcDot(bizCode = "#articleId")
+    public ResVo<Boolean> favorByMessage(@RequestParam(name = "articleId") Long articleId,
+                                @RequestParam(name = "type") Integer type) throws IOException, TimeoutException {
+        if (log.isDebugEnabled()) {
+            log.debug("开始点赞: {}", type);
+        }
+        OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
+        if (operate == OperateTypeEnum.EMPTY) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
+        }
+
+        // 要求文章必须存在
+        ArticleDO article = articleReadService.queryBasicArticle(articleId);
+        if (article == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
+        }
+
+        UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(),
+                ReqInfoContext.getReqInfo().getUserId(),
+                operate);
+        // 点赞、收藏消息
+        NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
+
+        // 点赞消息走 RabbitMQ，其它走 Java 内置消息机制
+        if ((notifyType.equals(NotifyTypeEnum.PRAISE) || notifyType.equals(NotifyTypeEnum.CANCEL_PRAISE)) && rabbitmqService.enabled()) {
+            rabbitmqService.publishDirectMsg(new MessageQueueEvent<>(notifyType, foot), CommonConstants.MESSAGE_QUEUE_KEY_NOTIFY);
+        } else {
+            Optional.ofNullable(notifyType).ifPresent(notify -> SpringUtil.publishEvent(new NotifyMsgEvent<>(this, notify, foot)));
+        }
+
+        if (log.isDebugEnabled()) {
+            log.info("点赞结束: {}", type);
+        }
+        return ResVo.ok(true);
+    }
+
+
+    @Permission(role = UserRole.LOGIN)
+    @GetMapping(path = "favorOriginal")
+    @MdcDot(bizCode = "#articleId")
+    public ResVo<Boolean> favorOriginal(@RequestParam(name = "articleId") Long articleId,
+                                @RequestParam(name = "type") Integer type) throws IOException, TimeoutException {
+        if (log.isDebugEnabled()) {
+            log.debug("开始点赞: {}", type);
+        }
+        OperateTypeEnum operate = OperateTypeEnum.fromCode(type);
+        if (operate == OperateTypeEnum.EMPTY) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, type + "非法");
+        }
+
+        // 要求文章必须存在
+        ArticleDO article = articleReadService.queryBasicArticle(articleId);
+        if (article == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
+        }
+
+        UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getUserId(),
+                ReqInfoContext.getReqInfo().getUserId(),
+                operate);
+        // 点赞、收藏消息
+        NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operate);
+
+        if(notifyType != null){
+            NotifyMsgEvent<UserFootDO> userFootDONotifyMsgEvent = new NotifyMsgEvent<>(this, notifyType, foot);
+            msgListener.onApplicationEvent(userFootDONotifyMsgEvent);
+            userActivityListener.notifyMsgListener(userFootDONotifyMsgEvent);
+            userStatisticEventListener.notifyMsgListener(userFootDONotifyMsgEvent);
+        }
+
+        if (log.isDebugEnabled()) {
+            log.info("点赞结束: {}", type);
+        }
+        return ResVo.ok(true);
+    }
 }
