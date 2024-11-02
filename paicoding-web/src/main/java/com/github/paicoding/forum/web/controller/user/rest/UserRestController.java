@@ -15,6 +15,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.user.cahce.UserInfoCacheManager;
 import com.github.paicoding.forum.service.user.service.relation.UserRelationServiceImpl;
 import com.github.paicoding.forum.service.user.service.user.UserServiceImpl;
 import com.github.paicoding.forum.web.controller.user.vo.UserHomeInfoVo;
@@ -44,6 +45,9 @@ public class UserRestController {
 
     @Resource
     private ArticleReadService articleReadService;
+
+    @Resource
+    private UserInfoCacheManager userInfoCacheManager;
 
     private static final List<String> homeSelectTags = Arrays.asList("article", "read", "follow", "collection");
     private static final List<String> followSelectTags = Arrays.asList("follow", "fans");
@@ -78,6 +82,7 @@ public class UserRestController {
             // 不能修改其他用户的信息
             return ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "无权修改");
         }
+        userInfoCacheManager.delUserInfo(req.getUserId());
         userService.saveUserInfo(req);
         return ResVo.ok(true);
     }
