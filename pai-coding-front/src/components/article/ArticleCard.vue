@@ -159,7 +159,7 @@ const props = defineProps<{
 const clickArticle = () =>{
   console.log(props.article.articleType)
   if(props.article.articleType === ArticleTypeNumberEnum.COLUMN){
-    doGet<CommonResponse>(`${ARTICLE_COLUMN_RELATION_URL}/${props.article.articleId}`).then(res=>{
+    doGet<CommonResponse>(`${ARTICLE_COLUMN_RELATION_URL}/${props.article.articleId}`, {}).then(res=>{
       router.push(`/column/${res.data.result.columnId}/${res.data.result.section}`)
     }).catch(err=>{
       messageTip("获取专栏信息失败", "error")

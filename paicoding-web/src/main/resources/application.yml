@@ -27,12 +27,12 @@ spring:
   liquibase:
     change-log: classpath:liquibase/master.xml
     enabled: true # 当实际使用的数据库不支持liquibase，如 mariadb 时，将这个参数设置为false
+    clear-checksums: true # 每次启动时清除数据库中的checksums，用于开发环境
   servlet:
     multipart:
       enabled: true
       max-file-size: 5MB
       max-request-size: 10MB
-
 
 servlet:
   tomcat:
@@ -74,10 +74,8 @@ knife4j:
     version: 1.0.0
     concat:
       - 小灰飞
-      - https://xuyifei.site
-#      - https://github.com/itwanger/paicoding
+      - https://www.xuyifei.site
     license: Apache License 2.0
-#    license-url: https://github.com/itwanger/paicoding/blob/main/License
     email: 857998989@qq.com
     group:
       admin:
