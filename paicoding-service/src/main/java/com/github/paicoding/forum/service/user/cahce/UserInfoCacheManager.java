@@ -56,5 +56,13 @@ public class UserInfoCacheManager {
 //        }
     }
 
+    /**
+     * 删除用户信息缓存
+     * @param userId
+     */
+    public void delUserInfo(long userId) {
+        RedisClient.delObject(USER_INFO_PREFIX + userId);
+    }
+
 
 }
