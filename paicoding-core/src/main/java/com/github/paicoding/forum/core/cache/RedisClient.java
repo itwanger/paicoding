@@ -46,6 +46,10 @@ public class RedisClient {
         return template.opsForValue().get(key);
     }
 
+    public static void delObject(String key){
+        template.delete(key);
+    }
+
     /**
      * 技术派的缓存值序列化处理
      *
@@ -134,7 +138,7 @@ public class RedisClient {
      * @param key
      */
     public static void del(String key) {
-        template.execute((RedisCallback<Long>) con -> con.del(keyBytes(key)));
+        template.execute((RedisCallback<Long>) con -> con.commands().del(keyBytes(key)));
     }
 
     /**

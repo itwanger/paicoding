@@ -19,6 +19,12 @@ public class CommonConstants {
     public static String EXCHANGE_NAME_DIRECT = "direct.exchange";
     public static String QUERE_KEY_PRAISE = "praise";
     public static String QUERE_NAME_PRAISE = "quere.praise";
+    public static final String MESSAGE_QUEUE_EXCHANGE_NAME_DIRECT = "direct.exchange";
+    public static final String MESSAGE_QUEUE_EXCHANGE_NAME_FANOUT = "fanout.exchange";
+    public static final String MESSAGE_QUEUE_EXCHANGE_NAME_TOPIC = "topic.exchange";
+    public static final String MESSAGE_QUEUE_KEY_NOTIFY = "notify";
+    public static final String MESSAGE_QUEUE_KEY_TEST = "test";
+    public static final String MESSAGE_QUEUE_NAME_NOTIFY_EVENT = "queue.notify";
 
     /**
      * 分类类型

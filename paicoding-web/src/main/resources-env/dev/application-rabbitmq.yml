@@ -1,8 +1,11 @@
+spring:
+  rabbitmq:
+    host: 127.0.0.1 # 你的虚拟机IP
+    port: 5672 # 端口
+    virtual-host: /pai-coding # 虚拟主机
+    username: xyf # 用户名
+    password: 123 # 密码
+    
+
 rabbitmq:
-  host: 127.0.0.1
-  port: 5672
-  username: guest
-  passport: guest
-  virtualhost: /
-  switchFlag: false
-  pool_size: 5
+  switchFlag: true
