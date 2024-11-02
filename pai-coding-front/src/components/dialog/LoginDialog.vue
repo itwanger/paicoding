@@ -87,11 +87,11 @@
               </p>
             </div>
           </div>
-          <div class="mock-login flex flex-grow" v-if="global.env !== 'prod'">
-            <!-- 非生产环境，使用模拟登陆  -->
-            <el-button @click="mockLogin2">随机新用户</el-button>
-            <el-button @click="mockLogin2">一键登录</el-button>
-          </div>
+<!--          <div class="mock-login flex flex-grow" v-if="global.env !== 'prod'">-->
+<!--            &lt;!&ndash; 非生产环境，使用模拟登陆  &ndash;&gt;-->
+<!--            <el-button @click="mockLogin2">随机新用户</el-button>-->
+<!--            <el-button @click="mockLogin2">一键登录</el-button>-->
+<!--          </div>-->
         </div>
       </el-footer>
     </el-container>
@@ -226,6 +226,7 @@ function buildConnect() {
 
   if(!deviceId) {
     deviceId = getCookie(COOKIE_DEVICE_ID);
+    console.log("获取设备id: ", deviceId)
   }
   const subscribeUrl = BASE_URL + "/subscribe?deviceId=" + deviceId;
   const source = new EventSource(subscribeUrl);
@@ -281,7 +282,6 @@ function buildConnect() {
 }
 
 function fetchCode() {
-  console.log(111)
   if (deviceId) {
     if (++fetchCodeCnt > 5) {
       // 为了避免不停的向后端发起请求，做一个最大的重试计数限制
