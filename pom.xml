@@ -45,6 +45,7 @@
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <knife4j.version>4.5.0</knife4j.version>
         <springdoc.version>1.8.0</springdoc.version>
+        <spring.boot.starter.amqp.version>3.2.5</spring.boot.starter.amqp.version>
     </properties>
 
     <dependencyManagement>
@@ -183,6 +184,13 @@
                 <groupId>org.openpnp</groupId>
                 <artifactId>opencv</artifactId>
                 <version>${opencv.version}</version>
+            </dependency>
+
+            <!--AMQP依赖，包含RabbitMQ-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-amqp</artifactId>
+                <version>${spring.boot.starter.amqp.version}</version>
             </dependency>
 
         </dependencies>
