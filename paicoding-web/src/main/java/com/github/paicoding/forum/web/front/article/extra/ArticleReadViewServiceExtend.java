@@ -31,13 +31,14 @@ public class ArticleReadViewServiceExtend {
         if (readType != null && readType != ArticleReadTypeEnum.NORMAL) {
             BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
             if (readType == ArticleReadTypeEnum.STAR_READ) {
+                // 星球用户阅读
                 return mark(article, () -> user != null && (user.getUserId().equals(article.getAuthor())
-                                        || user.getStarStatus() == UserAIStatEnum.FORMAL),
+                                || user.getStarStatus() == UserAIStatEnum.FORMAL),
                         globalViewConfig::getZsxqArticleReadCount);
             } else if (readType == ArticleReadTypeEnum.PAY_READ) {
                 // 付费阅读
                 return mark(article, () -> user != null && (user.getUserId().equals(article.getAuthor())
-                                        || articlePayService.hasPayed(article.getArticleId(), user.getUserId())),
+                                || articlePayService.hasPayed(article.getArticleId(), user.getUserId())),
                         globalViewConfig::getNeedPayArticleReadCount);
             } else if (readType == ArticleReadTypeEnum.LOGIN) {
                 // 登录阅读
@@ -57,7 +58,8 @@ public class ArticleReadViewServiceExtend {
         } else {
             // 不能阅读
             article.setCanRead(false);
-            return article.getContent().substring(0, (int) (article.getContent().length() * Float.parseFloat(percent.get()) / 100));
+            return article.getContent()
+                    .substring(0, (int) (article.getContent().length() * Float.parseFloat(percent.get()) / 100));
         }
     }
 }
