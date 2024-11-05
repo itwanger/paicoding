@@ -137,11 +137,10 @@ public class ArticleViewController extends BaseViewController {
         ArticleDetailVo vo = new ArticleDetailVo();
         // 文章相关信息
         ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        // 返回给前端页面时，转换为html格式
-        articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         // 根据文章类型，来自动处理文章类容
         String content = articleReadViewServiceExtend.formatArticleReadType(articleDTO);
-        articleDTO.setContent(content);
+        // 返回给前端页面时，转换为html格式
+        articleDTO.setContent(MarkdownConverter.markdownToHtml(content));
         vo.setArticle(articleDTO);
 
         // 评论信息
