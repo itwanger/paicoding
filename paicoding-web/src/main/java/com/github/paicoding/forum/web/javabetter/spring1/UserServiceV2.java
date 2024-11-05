@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 @Service
-public class UserService {
+public class UserServiceV2 {
 
     @Resource
     private UserDao userDao;
