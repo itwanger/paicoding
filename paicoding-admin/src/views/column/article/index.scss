@@ -1,0 +1,44 @@
+// 增加封面图的样式
+.cover {
+	width: 70px;
+	// height = width * 156 / 110
+	height: 100px;
+	background-size: cover;
+	background-position: center;
+	padding-right: 4px;
+}
+.cell-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 控制显示的行数 */
+  -webkit-box-orient: vertical;
+}
+
+.sort {
+  height: 100%;
+}
+
+.cell-text-article {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* 控制显示的行数 */
+  -webkit-box-orient: vertical;
+}
+
+.cover-select {
+	// 放在下拉框中的封面图
+	width: 50px !important;
+	height: 70px !important;
+	background-size: cover;
+	background-position: center;
+	margin-right: 4px;
+}
+
+.ant-table-tbody .ant-table-measure-row {
+
+	td {
+		padding: 0 !important;
+	}
+}

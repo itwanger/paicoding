@@ -1,0 +1,50 @@
+.menu {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	.logo-box {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 55px;
+		.logo-img {
+			width: 100px;
+			margin: 0;
+		}
+		.logo-img-md {
+			width: 30px;
+		}
+		.logo-text {
+			margin: 0 0 0 10px;
+			font-size: 24px;
+			font-weight: bold;
+			color: #dadada;
+			white-space: nowrap;
+		}
+	}
+	.ant-menu-root {
+		flex: 1;
+		overflow-x: hidden;
+		overflow-y: auto;
+	}
+
+	/* 去除菜单 Loading 遮罩层 */
+	.ant-spin-nested-loading,
+	.ant-spin-container {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		.ant-spin {
+			max-height: 100% !important;
+		}
+		.ant-spin-container::after {
+			background: transparent !important;
+		}
+		.ant-spin-blur {
+			overflow: auto !important;
+			clear: none !important;
+			opacity: 1 !important;
+		}
+	}
+}

@@ -1,0 +1,52 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  /* 去除菜单 Loading 遮罩层 */
+}
+.menu .logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 55px;
+}
+.menu .logo-box .logo-img {
+  width: 100px;
+  margin: 0;
+}
+.menu .logo-box .logo-img-md {
+  width: 30px;
+}
+.menu .logo-box .logo-text {
+  margin: 0 0 0 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #dadada;
+  white-space: nowrap;
+}
+.menu .ant-menu-root {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.menu .ant-spin-nested-loading,
+.menu .ant-spin-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.menu .ant-spin-nested-loading .ant-spin,
+.menu .ant-spin-container .ant-spin {
+  max-height: 100% !important;
+}
+.menu .ant-spin-nested-loading .ant-spin-container::after,
+.menu .ant-spin-container .ant-spin-container::after {
+  background: transparent !important;
+}
+.menu .ant-spin-nested-loading .ant-spin-blur,
+.menu .ant-spin-container .ant-spin-blur {
+  overflow: auto !important;
+  clear: none !important;
+  opacity: 1 !important;
+}

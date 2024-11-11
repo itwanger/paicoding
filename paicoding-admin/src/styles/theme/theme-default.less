@@ -1,0 +1,107 @@
+
+
+/* 自定义 antd 默认样式 */
+@light-bg-color: #ffffff;
+@light-main-bg-color: #f0f2f5;
+@light-border-color: #e4e7ed;
+@light-border-header-color: #f6f6f6;
+@light-text-color: rgba(0, 0, 0, 0.85);
+@light-shadow-color: 0 0 12px #0000000d;
+@light-scrollbar-bg-color: #dddee0;
+
+/* 需要自定义覆盖的样式 */
+body {
+	background-color: @light-bg-color !important;
+	#driver-highlighted-element-stage {
+		background-color: #fff !important;
+	}
+}
+
+/* login container（先固定样式） */
+.login-container {
+	background-color: #eeeeee !important;
+	.login-box {
+		background-color: hsl(0deg 0% 100% / 80%) !important;
+		.login-form {
+			background-color: #000 !important;
+			box-shadow: 2px 3px 7px rgb(0 0 0 / 20%) !important;
+			.login-logo {
+				.logo-text {
+					color: #475768 !important;
+				}
+			}
+			.login-btn {
+				.ant-btn-default {
+					color: #606266 !important;
+				}
+			}
+		}
+	}
+}
+
+/* container */
+.container {
+	/* sider */
+	.ant-layout-sider {
+		border-right: 1px solid @light-border-color !important;
+		.ant-menu {
+			&::-webkit-scrollbar {
+				background-color: #001529 !important;
+			}
+			&::-webkit-scrollbar-thumb {
+				background-color: #41444b !important;
+			}
+		}
+		.logo-box {
+			border-bottom: 1px solid #010b14 !important;
+		}
+	}
+
+	/* layout */
+	.ant-layout {
+		background-color: @light-main-bg-color !important;
+		.tabs,
+		.footer,
+		.card {
+			background-color: @light-bg-color !important;
+			border-color: @light-border-color !important;
+		}
+		.ant-layout-header {
+			height: 55px;
+			padding: 0 40px 0 20px;
+			background-color: @light-bg-color !important;
+			border-color: @light-border-header-color !important;
+			.icon-style,
+			.username {
+				color: @light-text-color !important;
+			}
+		}
+		.footer {
+			a {
+				color: @light-text-color !important;
+			}
+		}
+		.card {
+			box-shadow: @light-shadow-color !important;
+			.text {
+				color: #585858 !important;
+			}
+		}
+		.ant-layout-content {
+			&::-webkit-scrollbar {
+				background-color: @light-main-bg-color !important;
+			}
+			&::-webkit-scrollbar-thumb {
+				background-color: @light-scrollbar-bg-color !important;
+			}
+			.card {
+				&::-webkit-scrollbar {
+					background-color: @light-bg-color !important;
+				}
+				&::-webkit-scrollbar-thumb {
+					background-color: @light-scrollbar-bg-color !important;
+				}
+			}
+		}
+	}
+}

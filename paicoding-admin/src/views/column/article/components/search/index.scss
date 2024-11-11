@@ -1,0 +1,26 @@
+.column-article-search {
+  margin-bottom: 16px;
+
+  &__wrap {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 48px;
+  }
+
+  &__search {
+    flex: 1;
+    display: flex;
+
+    &-wrap {
+      display: flex;
+    }
+  }
+
+  &__search-item {
+    margin-right: 48px;
+  }
+
+  &-label {
+    margin-right: 12px;
+  }
+}
