@@ -9,6 +9,7 @@
         <module>paicoding-service</module>
         <module>paicoding-core</module>
         <module>paicoding-api</module>
+        <module>ps-common</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
