@@ -1,0 +1,15 @@
+.cell-text {
+  /* stylelint-disable-next-line value-no-vendor-prefix */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 在文本溢出时显示省略号 */
+  white-space: normal; /* 确保文本可以换行 */
+  line-height: 1.2em; /* 调整行高，根据需要修改 */
+  max-height: 2.4em; /* 最大高度为行高的两倍 */
+}
+
+.sort {
+  height: 100%;
+}

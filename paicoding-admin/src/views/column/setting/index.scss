@@ -1,0 +1,16 @@
+.cell-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: box;
+  -webkit-line-clamp: 2; /* 控制显示的行数 */
+  -webkit-box-orient: vertical;
+}
+// 增加封面图的样式
+.cover {
+  width: 70px;
+  // height = width * 156 / 110
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+  padding-right: 4px;
+}

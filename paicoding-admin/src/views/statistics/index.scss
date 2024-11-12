@@ -1,0 +1,210 @@
+@font-face {
+  font-family: 'iconfont';  /* Project id 4057336 */
+  src: url('//at.alicdn.com/t/c/font_4057336_1x0j6564ndk.woff2?t=1685012234915') format('woff2'),
+       url('//at.alicdn.com/t/c/font_4057336_1x0j6564ndk.woff?t=1685012234915') format('woff'),
+       url('//at.alicdn.com/t/c/font_4057336_1x0j6564ndk.ttf?t=1685012234915') format('truetype');
+}
+
+.iconfont {
+  font-family: 'iconfont' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.statistics {
+	.content {
+		background-color: #fff!important;
+	}
+	.content-wrap {
+		overflow-x: hidden;
+
+		.top-content {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 10px;
+			flex: 1 1 0%;
+
+			.item-left {
+				box-sizing: border-box;
+				width: 22%;
+				color: rgb(255, 255, 255);
+				padding: 40px 0px 100px 30px;
+				overflow: hidden;
+				background: url(@/assets/images/book-bg.png) 0% 0% / 100% 100%;
+				border-radius: 20px;
+
+				.left-title {
+					font-family: "PingFang SC";
+					font-size: 20px;
+					font-weight: 500;
+				}
+
+				.img-box {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 60px;
+					height: 60px;
+					box-shadow: rgba(0, 0, 0, 0.14) 0px 10px 20px;
+					margin: 20px 0px 10px;
+					background: rgb(255, 255, 255);
+					border-radius: 20px;
+
+					img {
+						width: 50px;
+						height: 55px;
+					}
+				}
+
+				.left-number {
+					font-family: DIN;
+					font-size: 42px;
+					font-weight: 500;
+					overflow: hidden;
+				}
+			}
+
+			.item-center {
+				display: flex;
+				flex-wrap: wrap;
+				align-content: space-between;
+				justify-content: space-between;
+				min-width: 250px;
+				flex: 1 1 0%;
+				padding: 0px 50px;
+
+				.traffic-box {
+					box-sizing: border-box;
+					display: flex;
+					flex-direction: column;
+					width: 47%;
+					height: 48%;
+					padding: 15px;
+					border-radius: 15px;
+					.traffic-img {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 50px;
+						height: 50px;
+						margin-bottom: 10px;
+						background-color: #ffffff;
+						border-radius: 19px;
+					}
+				}
+				img {
+					width: 33px;
+					height: 33px;
+				}
+
+				.item-value {
+					margin-bottom: 4px;
+					font-family: DIN;
+					font-size: 28px;
+					font-weight: bold;
+					color: #1a1a37;
+				}
+				.traffic-name {
+					overflow: hidden;
+					font-family: DIN;
+					font-size: 15px;
+					font-weight: 400;
+					color: #1a1a37;
+					white-space: nowrap;
+				}
+				.gitee-traffic {
+					background: url("@/assets/images/1-bg.png");
+					background-color: #e8faea;
+					background-size: 100% 100%;
+				}
+				.gitHub-traffic {
+					background: url("@/assets/images/2-bg.png");
+					background-color: #e7e1fb;
+					background-size: 100% 100%;
+				}
+				.today-traffic {
+					background: url("@/assets/images/3-bg.png");
+					background-color: #f4e4d4;
+					background-size: 100% 100%;
+				}
+				.yesterday-traffic {
+					background: url("@/assets/images/4-bg.png");
+					background-color: #d5e2f1;
+					background-size: 100% 100%;
+				}
+			}
+
+			.item-right {
+				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
+				width: 40%;
+				height: 330px;
+				border-width: 1px;
+				border-style: solid;
+				border-color: rgb(229, 231, 235);
+				border-image: initial;
+				border-radius: 16px;
+			}
+		}
+	}
+
+	&-pv__wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		border: 1px solid #ccc;
+		background-color: #fff;
+		padding: 10px;
+		border-radius: 8px
+	}
+
+	&-pv {
+		width: 100%;
+		// height 随着屏幕大小变化
+		height: calc(100vh - 510px);
+		display: flex;
+		justify-content: center;
+	}
+
+	&-pie {
+		width: 100%;
+		height: 100%;
+		padding: 20px;
+	}
+
+	&-all__wrap {
+		display: flex;
+		margin-bottom: 20px;
+	}
+
+	&-all__item {
+		flex: 1;
+		height: 200px;
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 20px;
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+
+	&-all__item-box {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	&-all__item-title {
+		font-size: 24px;
+		font-weight: 500;
+	}
+	&-all__item-value {
+		font-size: 20px;
+		color: #fff;
+	}
+}

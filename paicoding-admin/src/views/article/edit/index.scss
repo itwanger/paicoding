@@ -1,0 +1,34 @@
+.bytemd {
+  height: calc(100vh - 220px);
+}
+
+/* CustomRadioGroup.css */
+.custom-radio-group .ant-radio-button-wrapper {
+  margin-right: 8px; /* 右侧空隙 */
+  width: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-radio-group {
+  display: flex;
+  flex-wrap: wrap; /* 允许换行 */
+  gap: 10px; /* 行间距 */
+}
+
+/* CustomRadioGroup.css */
+.custom-radio-group .ant-radio-button-wrapper:first-child {
+  border-top-left-radius: 0; /* 左上圆角 */
+  border-bottom-left-radius: 0; /* 左下圆角 */
+}
+
+.custom-radio-group .ant-radio-button-wrapper:last-child {
+  border-top-right-radius: 0; /* 右上圆角 */
+  border-bottom-right-radius: 0; /* 右下圆角 */
+}
+
+.bytemd-preview {
+  /* 解决外部容器出现滚动条的 bug */
+  position: relative;
+}

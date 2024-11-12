@@ -1,0 +1,16 @@
+.content-wrap {
+  height: 100%;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.content-inter-wrap {
+  flex: 1;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 6px;
+  box-sizing: border-box;
+}

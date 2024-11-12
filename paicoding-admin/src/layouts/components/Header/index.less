@@ -1,0 +1,56 @@
+.ant-layout-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid #f6f6f6;
+	.header-lf {
+		display: flex;
+		align-items: center;
+		.collapsed {
+			margin-right: 20px;
+			font-size: 18px;
+			cursor: pointer;
+			transition: color 0.3s;
+		}
+	}
+	.header-ri {
+		display: flex;
+		align-items: center;
+		.icon-style {
+			margin-right: 22px;
+			font-size: 19px;
+			line-height: 19px;
+			cursor: pointer;
+		}
+		.username {
+			margin: 0 20px 0 0;
+			font-size: 15px;
+		}
+		.ant-avatar {
+			cursor: pointer;
+		}
+	}
+}
+.theme-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 25px 0;
+	span {
+		font-size: 14px;
+	}
+	.ant-switch {
+		width: 46px;
+	}
+}
+.divider {
+	margin: 0 0 22px !important;
+	font-size: 15px !important;
+	.anticon {
+		margin-right: 10px;
+	}
+}
+.ant-divider-with-text::before,
+.ant-divider-with-text::after {
+	border-top: 1px solid #dcdfe6 !important;
+}
