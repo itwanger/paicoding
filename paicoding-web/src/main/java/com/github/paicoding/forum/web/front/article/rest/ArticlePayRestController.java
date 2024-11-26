@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
+import jodd.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +51,10 @@ public class ArticlePayRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @RequestMapping(path = "paying")
-    public ResVo<Boolean> payed(@RequestParam(value = "payId") Long payId, @RequestParam("succeed") Boolean succeed) {
+    public ResVo<Boolean> payed(@RequestParam(value = "payId") Long payId, @RequestParam("succeed") Boolean succeed,
+                                @RequestParam(value = "notes", required = false) String notes) {
         if (BooleanUtils.isTrue(succeed)) {
-            return ResVo.ok(articlePayService.updatePaying(payId, ReqInfoContext.getReqInfo().getUserId()));
+            return ResVo.ok(articlePayService.updatePaying(payId, ReqInfoContext.getReqInfo().getUserId(), notes));
         }
         return ResVo.ok(true);
     }

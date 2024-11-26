@@ -36,9 +36,10 @@ public interface ArticlePayService {
      *
      * @param payId         支付id
      * @param currentUserId 当前登录用户
+     * @param notes 备注
      * @return true 表示更新成功
      */
-    boolean updatePaying(Long payId, Long currentUserId);
+    boolean updatePaying(Long payId, Long currentUserId, String notes);
 
     /**
      * 支付状态更新
@@ -50,6 +51,13 @@ public interface ArticlePayService {
      */
     boolean updatePayStatus(Long payId, String verifyCode, Integer payStatus);
 
+    /**
+     * 构建通知作者用户已付款的邮件信息
+     *
+     * @param payId  支付id
+     * @param record 支付记录
+     * @return
+     */
     PayConfirmDTO buildPayConfirmInfo(Long payId, ArticlePayRecordDO record);
 
 
