@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
+import ch.qos.logback.core.util.StringCollectionUtil;
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
@@ -21,6 +22,7 @@ import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -113,7 +115,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updatePaying(Long payId, Long currentUserId) {
+    public boolean updatePaying(Long payId, Long currentUserId, String notes) {
         ArticlePayRecordDO record = articlePayDao.selectForUpdate(payId);
         if (!record.getPayUserId().equals(currentUserId)) {
             // 用户不一致，不支持更新
@@ -124,7 +126,18 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         if (PayStatusEnum.NOT_PAY.getStatus().equals(record.getPayStatus())) {
             record.setPayStatus(PayStatusEnum.PAYING.getStatus());
             record.setUpdateTime(new Date());
+            if (StringUtils.isNotBlank(notes)) {
+                // 更新备注信息
+                record.setNotes(notes);
+            }
 
+            // 事务提交之后，发送一个给用户确认的邮件
+            TransactionUtil.registryAfterCommitOrImmediatelyRun(() -> sendPayConfirmEmail(record));
+            return articlePayDao.updateById(record);
+        } else if (StringUtils.isNotBlank(notes) && Objects.equals(notes, record.getNotes())) {
+            // 备注信息不同时，更新并发送邮件通知
+            record.setUpdateTime(new Date());
+            record.setNotes(notes);
             // 事务提交之后，发送一个给用户确认的邮件
             TransactionUtil.registryAfterCommitOrImmediatelyRun(() -> sendPayConfirmEmail(record));
             return articlePayDao.updateById(record);
@@ -195,7 +208,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
      * @param record
      */
     public void sendPayConfirmEmail(ArticlePayRecordDO record) {
-        if (record.getNotifyTime() != null && System.currentTimeMillis() - record.getNotifyTime().getTime() < 600_000) {
+        if (record.getNotifyTime() != null && System.currentTimeMillis() - record.getNotifyTime().getTime() < 180_000) {
             // 两次通知时间，小于10分钟，则直接幂等
             log.info("上次邮件确认时间是: {} 忽略本次通知! {}", record.getNotifyTime(), JsonUtil.toStr(record));
             return;
