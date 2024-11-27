@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.conveter;
 
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ArticleTypeEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
@@ -42,6 +43,7 @@ public class ArticleConverter {
         article.setSummary(req.getSummary());
         article.setStatus(req.pushStatus().getCode());
         article.setDeleted(req.deleted() ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
+        article.setReadType(req.getReadType() == null ? ArticleReadTypeEnum.NORMAL.getType() : req.getReadType());
         return article;
     }
 
@@ -65,6 +67,7 @@ public class ArticleConverter {
         articleDTO.setOfficalStat(articleDO.getOfficalStat());
         articleDTO.setToppingStat(articleDO.getToppingStat());
         articleDTO.setCreamStat(articleDO.getCreamStat());
+        articleDTO.setReadType(articleDO.getReadType());
 
         // 设置类目id
         articleDTO.setCategory(new CategoryDTO(articleDO.getCategoryId(), null));

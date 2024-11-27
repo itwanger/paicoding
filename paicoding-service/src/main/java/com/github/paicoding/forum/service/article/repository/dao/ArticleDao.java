@@ -31,7 +31,11 @@ import com.google.common.collect.Maps;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +81,12 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return dto;
     }
 
+    /**
+     * 判断展示审核中的字样，还是展示原文
+     *
+     * @param article 文章实体
+     * @return false 表示需要展示审核中的字样 | true 表示展示原文
+     */
     private boolean showReviewContent(ArticleDO article) {
         if (article.getStatus() != PushStatusEnum.REVIEW.getCode()) {
             return true;
@@ -171,7 +181,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
 
         Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
         query.last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ArticleDO::getToppingStat,  ArticleDO::getCreateTime);
+                .orderByDesc(ArticleDO::getToppingStat, ArticleDO::getCreateTime);
         return baseMapper.selectList(query);
     }
 
@@ -341,15 +351,14 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 .eq(Objects.nonNull(searchArticleParams.getArticleId()), ArticleDO::getId, searchArticleParams.getArticleId())
                 .eq(Objects.nonNull(searchArticleParams.getUserId()), ArticleDO::getUserId, searchArticleParams.getUserId())
                 .eq(Objects.nonNull(searchArticleParams.getStatus()) && searchArticleParams.getStatus() != -1, ArticleDO::getStatus, searchArticleParams.getStatus())
-                .eq(Objects.nonNull(searchArticleParams.getOfficalStat())&& searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
-                .eq(Objects.nonNull(searchArticleParams.getToppingStat())&& searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
+                .eq(Objects.nonNull(searchArticleParams.getOfficalStat()) && searchArticleParams.getOfficalStat() != -1, ArticleDO::getOfficalStat, searchArticleParams.getOfficalStat())
+                .eq(Objects.nonNull(searchArticleParams.getToppingStat()) && searchArticleParams.getToppingStat() != -1, ArticleDO::getToppingStat, searchArticleParams.getToppingStat())
                 .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
     }
 
 
     /**
      * 文章列表（用于后台）
-     *
      */
     public List<ArticleAdminDTO> listArticlesByParams(SearchArticleParams params) {
         return articleMapper.listArticlesByParams(params,
@@ -358,7 +367,6 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
 
     /**
      * 文章总数（用于后台）
-     *
      */
     public Long countArticleByParams(SearchArticleParams searchArticleParams) {
         return articleMapper.countArticlesByParams(searchArticleParams);

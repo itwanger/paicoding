@@ -10,11 +10,14 @@ import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
 /**
  * 用户转换
@@ -46,6 +49,10 @@ public class UserConverter {
         userInfoDO.setPosition(req.getPosition());
         userInfoDO.setCompany(req.getCompany());
         userInfoDO.setProfile(req.getProfile());
+        userInfoDO.setEmail(req.getEmail());
+        if (!CollectionUtils.isEmpty(req.getPayCode())) {
+            userInfoDO.setPayCode(JsonUtil.toStr(req.getPayCode()));
+        }
         return userInfoDO;
     }
 

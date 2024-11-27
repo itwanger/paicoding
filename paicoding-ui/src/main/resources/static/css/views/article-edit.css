@@ -80,10 +80,6 @@
   background-color: #fafbfc !important;
 }
 
-.editormd .CodeMirror {
-  height: calc(100vh - 100px);
-}
-
 .editor-preview-active {
   background-color: #fff !important;
 }
@@ -170,6 +166,16 @@ blockquote {
   color: var(--pai-color-4-gray);
   cursor: pointer;
 }
+.r-form-selectgroup-item {
+  width: 100px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  margin-right: 10px;
+  background-color: var(--pai-bg-light-2);
+  color: var(--pai-color-4-gray);
+  cursor: pointer;
+}
 
 .form-check {
   display: flex;
@@ -204,7 +210,7 @@ blockquote {
   color: var(--pai-brand-1-normal);
 }
 
-.form-selectgroup-item:hover,
+.r-form-selectgroup-item:hover,
 .form-check:hover {
   background-color: var(--pai-brand-7-light);
 }

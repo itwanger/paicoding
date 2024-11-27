@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *,
+        *:after,
+        *:before {
+            box-sizing: inherit;
+        }
+        div {
+            display: block;
+            unicode-bidi: isolate;
+        }
+
+        html {
+            box-sizing: border-box;
+            font-size: 62.5%;
+        }
+
+        body {
+            color: #606c76;
+            font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+            font-size: 1.6em;
+            font-weight: 300;
+            letter-spacing: .01em;
+            line-height: 1.6;
+        }
+        h2 {
+            font-weight: 300;
+            letter-spacing: -.1rem;
+            margin-bottom: 2.0rem;
+            margin-top: 0;
+            font-size: 3.6rem;
+            line-height: 1.25;
+        }
+        a {
+            color: #ff8721;
+            text-decoration: none;
+        }
+
+        a:focus, a:hover {
+            color: #606c76;
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 112.0rem;
+            padding: 0 2.0rem;
+            position: relative;
+            width: 100%;
+        }
+
+        .row {
+            display: flex;
+            padding: 0;
+            flex-direction: row;
+            margin-left: -1.0rem;
+            width: calc(100% + 2.0rem);
+        }
+        .row .column {
+            margin-bottom: inherit;
+            padding: 0 1.0rem;
+        }
+
+        .label-inline {
+            display: inline-block;
+            font-weight: normal;
+            margin-left: .5rem;
+        }
+
+        label, legend {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+
+        .button,
+        button,
+        input[type='button'],
+        input[type='reset'],
+        input[type='submit'] {
+            background-color: #ff8721;
+            border: 0.1rem solid #ff8721;
+            border-radius: .4rem;
+            color: #fff;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            height: 3.8rem;
+            letter-spacing: .1rem;
+            line-height: 3.8rem;
+            padding: 0 3.0rem;
+            text-align: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .button:focus, .button:hover,
+        button:focus,
+        button:hover,
+        input[type='button']:focus,
+        input[type='button']:hover,
+        input[type='reset']:focus,
+        input[type='reset']:hover,
+        input[type='submit']:focus,
+        input[type='submit']:hover {
+            background-color: #606c76;
+            border-color: #606c76;
+            color: #fff;
+            outline: 0;
+        }
+
+        .button[disabled],
+        button[disabled],
+        input[type='button'][disabled],
+        input[type='reset'][disabled],
+        input[type='submit'][disabled] {
+            cursor: default;
+            opacity: .5;
+        }
+
+        .button[disabled]:focus, .button[disabled]:hover,
+        button[disabled]:focus,
+        button[disabled]:hover,
+        input[type='button'][disabled]:focus,
+        input[type='button'][disabled]:hover,
+        input[type='reset'][disabled]:focus,
+        input[type='reset'][disabled]:hover,
+        input[type='submit'][disabled]:focus,
+        input[type='submit'][disabled]:hover {
+            background-color: #ff8721;
+            border-color: #ff8721;
+        }
+
+        .button.button-outline,
+        button.button-outline,
+        input[type='button'].button-outline,
+        input[type='reset'].button-outline,
+        input[type='submit'].button-outline {
+            background-color: transparent;
+            color: #ff8721;
+        }
+
+        .button.button-outline:focus, .button.button-outline:hover,
+        button.button-outline:focus,
+        button.button-outline:hover,
+        input[type='button'].button-outline:focus,
+        input[type='button'].button-outline:hover,
+        input[type='reset'].button-outline:focus,
+        input[type='reset'].button-outline:hover,
+        input[type='submit'].button-outline:focus,
+        input[type='submit'].button-outline:hover {
+            background-color: transparent;
+            border-color: #606c76;
+            color: #606c76;
+        }
+
+        .button.button-outline[disabled]:focus, .button.button-outline[disabled]:hover,
+        button.button-outline[disabled]:focus,
+        button.button-outline[disabled]:hover,
+        input[type='button'].button-outline[disabled]:focus,
+        input[type='button'].button-outline[disabled]:hover,
+        input[type='reset'].button-outline[disabled]:focus,
+        input[type='reset'].button-outline[disabled]:hover,
+        input[type='submit'].button-outline[disabled]:focus,
+        input[type='submit'].button-outline[disabled]:hover {
+            border-color: inherit;
+            color: #ff8721;
+        }
+    </style>
+</head>
+<body id="body">
+
+<!-- 正文内容 -->
+<div class="container">
+    <a th:href="${vo.articleUrl}" target="_blank" class=""><h2 th:text="${vo.title}">文章标题</h2></a>
+    <div class="row">
+        <label class="label-inline">打赏用户：</label>
+        <div th:text="${vo.payUser}">一灰灰</div>
+    </div>
+    <div class="row">
+        <label class="label-inline">打赏时间：</label>
+        <div th:text="${vo.payTime}">2024-10-31 8:18:00</div>
+    </div>
+    <div class="row">
+        <label class="label-inline">备注：</label>
+        <div th:text="${vo.mark}">备注文案</div>
+    </div>
+    <div class="row">
+        <a class="button label-inline" th:href="${vo.callback + '&succeed=true'}" target="_blank"> 确认收款</a>
+        <a class="button button-outline float-right" th:href="${vo.callback + '&succeed=false'}" target="_blank" style="margin-left: 1em" onclick=""> 未收款</a>
+    </div>
+</div>
+</body>
+</html>

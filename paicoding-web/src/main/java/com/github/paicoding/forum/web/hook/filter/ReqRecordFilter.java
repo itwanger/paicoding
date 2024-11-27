@@ -76,8 +76,11 @@ public class ReqRecordFilter implements Filter {
             stopWatch.stop();
             stopWatch.start("业务执行");
             filterChain.doFilter(request, servletResponse);
-            stopWatch.stop();
         } finally {
+            if (stopWatch.isRunning()) {
+                // 避免doFitler执行异常，导致上面的 stopWatch无法结束，这里先首当结束一下上次的计数
+                stopWatch.stop();
+            }
             stopWatch.start("输出请求日志");
             buildRequestLog(ReqInfoContext.getReqInfo(), request, System.currentTimeMillis() - start);
             // 一个链路请求完毕，清空MDC相关的变量(如GlobalTraceId，用户信息)
@@ -205,6 +208,7 @@ public class ReqRecordFilter implements Filter {
                 || request.getRequestURI().endsWith("js")
                 || request.getRequestURI().endsWith("png")
                 || request.getRequestURI().endsWith("ico")
+                || request.getRequestURI().endsWith("gif")
                 || request.getRequestURI().endsWith("svg")
                 || request.getRequestURI().endsWith("min.js.map")
                 || request.getRequestURI().endsWith("min.css.map");

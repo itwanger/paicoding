@@ -26,6 +26,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
      * @param add 正数，表示添加在线人数；负数，表示减少在线人数
      * @return
      */
+    @Override
     public int incrOnlineUserCnt(int add) {
         return onlineUserCnt.addAndGet(add);
     }
@@ -35,6 +36,7 @@ public class UserStatisticServiceImpl implements UserStatisticService {
      *
      * @return
      */
+    @Override
     public int getOnlineUserCnt() {
         return onlineUserCnt.get();
     }

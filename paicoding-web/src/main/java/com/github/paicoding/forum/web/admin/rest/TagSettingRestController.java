@@ -33,14 +33,14 @@ public class TagSettingRestController {
     @PostMapping(path = "save")
     public ResVo<String> save(@RequestBody TagReq req) {
         tagSettingService.saveTag(req);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "delete")
     public ResVo<String> delete(@RequestParam(name = "tagId") Integer tagId) {
         tagSettingService.deleteTag(tagId);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @Permission(role = UserRole.ADMIN)
@@ -51,7 +51,7 @@ public class TagSettingRestController {
             return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS);
         }
         tagSettingService.operateTag(tagId, pushStatus);
-        return ResVo.ok("ok");
+        return ResVo.ok();
     }
 
     @PostMapping(path = "list")

@@ -82,4 +82,16 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
             SpringUtil.getBean(NotifyChatService.class).chatWrapper(accessor);
         }
     }
+
+    @Override
+    public boolean preReceive(MessageChannel channel) {
+        log.info("preReceive!");
+        return ChannelInterceptor.super.preReceive(channel);
+    }
+
+    @Override
+    public Message<?> postReceive(Message<?> message, MessageChannel channel) {
+        log.info("postReceive");
+        return ChannelInterceptor.super.postReceive(message, channel);
+    }
 }

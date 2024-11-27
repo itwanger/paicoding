@@ -97,4 +97,9 @@
     <changeSet id="00000000000022" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_231113.sql"/>
     </changeSet>
+
+    <!-- 新增文章支付记录  -->
+    <changeSet id="000020241030_0" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_241029.sql"/>
+    </changeSet>
 </databaseChangeLog>

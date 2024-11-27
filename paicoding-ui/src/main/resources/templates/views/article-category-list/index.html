@@ -39,7 +39,7 @@
     <!-- 底部信息 -->
     <div th:replace="components/layout/footer :: footer"></div>
 </div>
-<script src="/js/biz/loadMore.js" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}"></script>
+<script src="/js/biz/loadMore.js" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}" ></script>
 <script th:inline="javascript">
     const archiveId = [[${ vo.archiveId }]]
     const params = {

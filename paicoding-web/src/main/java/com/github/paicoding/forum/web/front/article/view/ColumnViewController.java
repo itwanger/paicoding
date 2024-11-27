@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.web.front.article.view;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
@@ -12,6 +13,7 @@ import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
+import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
@@ -26,7 +28,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 专栏入口
@@ -47,6 +52,11 @@ public class ColumnViewController {
 
     @Autowired
     private SidebarService sidebarService;
+
+    @Resource
+    private GlobalViewConfig globalViewConfig;
+    @Autowired
+    private ArticlePayService articlePayService;
 
     /**
      * 专栏主页，展示专栏列表
@@ -134,6 +144,13 @@ public class ColumnViewController {
 
         // 放入 model 中
         vo.setOther(other);
+
+        // 打赏用户列表
+        if (Objects.equals(articleDTO.getReadType(), ArticleReadTypeEnum.PAY_READ.getType())) {
+            vo.setPayUsers(articlePayService.queryPayUsers(articleId));
+        } else {
+            vo.setPayUsers(Collections.emptyList());
+        }
         model.addAttribute("vo", vo);
 
         SpringUtil.getBean(SeoInjectService.class).initColumnSeo(vo, column);
@@ -189,16 +206,16 @@ public class ColumnViewController {
                 return content;
             }
 
-            // 返回星球相关信息
-            return MarkdownConverter.markdownToHtml(SpringUtil.getBean(GlobalViewConfig.class).getStarInfo());
+            // 如果没有绑定星球，则返回 10% 的内容
+            // 10% 从全局的配置参数中获取
+            int count = Integer.parseInt(globalViewConfig.getZsxqArticleReadCount());
+            return content.substring(0, content.length() * count / 100);
         }
 
         if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
-            if (content.length() > 500) {
-                content = content.substring(0, 500);
-            } else if (content.length() > 256) {
-                content = content.substring(0, 256);
-            }
+            // 如果是登录阅读，但是用户没有登录，则返回 20% 的内容
+            int count = Integer.parseInt(globalViewConfig.getNeedLoginArticleReadCount());
+            return content.substring(0, content.length() * count / 100);
         }
 
         return content;

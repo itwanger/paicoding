@@ -3931,7 +3931,7 @@
   height: 24px;
 }
 .editormd-preview-container .katex, .editormd-html-preview .katex {
-  font-size: 1.4em;
+  font-size: 1.2em;
 }
 .editormd-preview-container .sequence-diagram, .editormd-preview-container .flowchart, .editormd-html-preview .sequence-diagram, .editormd-html-preview .flowchart {
   margin: 0 auto;

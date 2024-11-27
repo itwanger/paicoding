@@ -139,6 +139,7 @@ public class CountServiceImpl implements CountService {
      *
      * @param userId
      */
+    @Override
     public void refreshUserStatisticInfo(Long userId) {
         // 用户的文章点赞数，收藏数，阅读计数
         ArticleFootCountDTO count = userFootDao.countArticleByUserId(userId);

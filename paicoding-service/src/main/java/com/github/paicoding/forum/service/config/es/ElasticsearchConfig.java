@@ -11,6 +11,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,8 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Data
 @Configuration
+// 下面这个表示只有 elasticsearch.open = true 时，采进行es的配置初始化；当不使用es时，则不会实例 RestHighLevelClient
+@ConditionalOnProperty(prefix = "elasticsearch", name = "open")
 @ConfigurationProperties(prefix = "elasticsearch")
 public class ElasticsearchConfig {
 

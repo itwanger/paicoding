@@ -92,6 +92,7 @@ public class UserRelationServiceImpl implements UserRelationService {
      * @param fansUserId 粉丝用户id
      * @return 返回fansUserId已经关注过的用户id列表
      */
+    @Override
     public Set<Long> getFollowedUserId(List<Long> userIds, Long fansUserId) {
         if (CollectionUtils.isEmpty(userIds)) {
             return Collections.emptySet();
