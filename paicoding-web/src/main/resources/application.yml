@@ -44,7 +44,7 @@ paicoding:
   sensitive: # 敏感词校验相关配置
     enable: true
     deny: # 自定义的敏感词，英文逗号分割
-    allow: # 自定义的非敏感词，英文逗号分割
+    allow: 国,制作,码,亚洲,中国,公司,简历,性,国研,鬼,国庆,用户,扑克 # 自定义的非敏感词，英文逗号分割
   jwt:
     issuer: pai_coding # 签发者
     secret: hello_world # 签名密钥
