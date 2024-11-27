@@ -32,7 +32,8 @@ public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // 开启一个简单的基于内存的消息代理，前缀是/user的将消息会转发给消息代理 broker
         // 然后再由消息代理，将消息广播给当前连接的客户端
-        config.enableSimpleBroker("/chat");
+        // /chat broker用于派聪明聊天； /msg broker用于服务端给用户推送消息
+        config.enableSimpleBroker("/chat", "/msg");
 
         // 表示配置一个或多个前缀，通过这些前缀过滤出需要被注解方法处理的消息。
         // 例如，前缀为 /app 的 destination 可以通过@MessageMapping注解的方法处理，
@@ -51,7 +52,7 @@ public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
         // 注册一个 /gpt/{id} 的 WebSocket endPoint; 其中 {id} 用于让用户连接终端时都可以有自己的路径
         // 作为 Principal 的标识，以便实现向指定用户发送信息
         // sockjs 可以解决浏览器对 WebSocket 的兼容性问题，
-        registry.addEndpoint("/gpt/{id}/{aiType}")
+        registry.addEndpoint("/gpt/{id}/{aiType}", "/notify")
                 .setHandshakeHandler(new AuthHandshakeHandler())
                 .addInterceptors(new AuthHandshakeInterceptor())
                 // 注意下面这个，不要使用 setAllowedOrigins("*")，使用之后有啥问题可以实操验证一下🐕
@@ -64,10 +65,16 @@ public class WsChatConfig implements WebSocketMessageBrokerConfigurer {
     /**
      * 配置接收消息的拦截器
      *
+     * 设置输出消息通道的线程数，默认线程为1，可以自己自定义线程数，最大线程数，线程存活时间
+     *
      * @param registration
      */
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.taskExecutor()
+                .corePoolSize(4)
+                .maxPoolSize(10)
+                .keepAliveSeconds(60);
         registration.interceptors(channelInInterceptor());
     }
 
