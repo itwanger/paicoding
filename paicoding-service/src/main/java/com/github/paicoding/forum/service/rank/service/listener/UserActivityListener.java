@@ -58,11 +58,11 @@ public class UserActivityListener {
                 break;
             case FOLLOW:
                 UserRelationDO relation = (UserRelationDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setFollow(true).setArticleId(relation.getUserId()));
+                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setFollow(true).setFollowedUserId(relation.getUserId()));
                 break;
             case CANCEL_FOLLOW:
                 relation = (UserRelationDO) msgEvent.getContent();
-                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setFollow(false).setArticleId(relation.getUserId()));
+                userActivityRankService.addActivityScore(ReqInfoContext.getReqInfo().getUserId(), new ActivityScoreBo().setFollow(false).setFollowedUserId(relation.getUserId()));
                 break;
             default:
         }
