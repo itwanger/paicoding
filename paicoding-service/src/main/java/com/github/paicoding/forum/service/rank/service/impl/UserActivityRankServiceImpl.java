@@ -56,8 +56,8 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
     /**
      * 添加活跃分
      *
-     * @param userId
-     * @param activityScore
+     * @param userId        用于更新活跃积分的用户
+     * @param activityScore 触发活跃积分的时间类型
      */
     @Override
     public void addActivityScore(Long userId, ActivityScoreBo activityScore) {
@@ -89,6 +89,7 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
                 score += 10;
             }
         } else if (activityScore.getFollowedUserId() != null) {
+            // 关注添加积分
             field = activityScore.getFollowedUserId() + "_follow";
             score = BooleanUtils.isTrue(activityScore.getFollow()) ? 2 : -2;
         } else {
