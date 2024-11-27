@@ -5,14 +5,19 @@ import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 
 import java.util.Map;
 
 /**
+ * 消息通知服务类
+ *
  * @author YiHui
  * @date 2022/9/3
  */
 public interface NotifyService {
+    public static String NOTIFY_TOPIC = "msg";
+
 
     /**
      * 查询用户未读消息数量
@@ -34,6 +39,7 @@ public interface NotifyService {
 
     /**
      * 查询未读消息数
+     *
      * @param userId
      * @return
      */
@@ -46,4 +52,23 @@ public interface NotifyService {
      * @param notifyTypeEnum
      */
     void saveArticleNotify(UserFootDO foot, NotifyTypeEnum notifyTypeEnum);
+
+
+    // -------------------------------------------- 下面是与用户的websocket长连接维护相关实现 -------------------------
+
+    /**
+     * ws: 给用户发送消息通知
+     *
+     * @param userId 用户id
+     * @param msg    通知内容
+     */
+    void notifyToUser(Long userId, String msg);
+
+
+    /**
+     * ws: 维护与用户的长连接通道
+     *
+     * @param accessor
+     */
+    void notifyChannelMaintain(StompHeaderAccessor accessor);
 }
