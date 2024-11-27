@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.NotifyStatEnum;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
@@ -145,6 +146,13 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
                 .setType(event.getNotifyType().getType())
                 .setState(NotifyStatEnum.UNREAD.getStat())
                 .setMsg("");
+        if (Objects.equals(foot.getDocumentType(), DocumentTypeEnum.COMMENT.getCode())) {
+            // 点赞评论时，详情内容中显示评论信息
+            CommentDO comment = commentReadService.queryComment(foot.getDocumentId());
+            ArticleDO article = articleReadService.queryBasicArticle(comment.getArticleId());
+            msg.setMsg(String.format("赞了您在文章 <a href=\"/article/detail/%d\">%s</a> 下的评论 <span style=\"color:darkslategray;font-style: italic;font-size: 0.9em\">%s</span>", article.getId(), article.getTitle(), comment.getContent()));
+        }
+
         NotifyMsgDO record = notifyMsgDao.getByUserIdRelatedIdAndType(msg);
         if (record == null) {
             // 若之前已经有对应的通知，则不重复记录；因为一个用户对一篇文章，可以重复的点赞、取消点赞，但是最终我们只通知一次

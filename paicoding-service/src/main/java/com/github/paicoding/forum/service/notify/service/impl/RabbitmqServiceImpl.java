@@ -54,7 +54,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             channel.close();
             RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
         } catch (InterruptedException | IOException | TimeoutException e) {
-            e.printStackTrace();
+            log.error("rabbitMq消息发送异常: exchange: {}, msg: {}", exchange, message, e);
         }
 
     }

@@ -23,12 +23,18 @@
           >
             <span class="name" th:text="${msg.operateUserName}">一灰灰</span>
           </a>
+          <span th:if="${msg.msg == null || msg.msg == ''}">
           赞了你的文章
           <a th:href="'/article/detail/' + ${msg.relatedId}">
             <span th:text="${msg.relatedInfo}" class="title-article">
               万字总结：分布式系统的38个知识点
             </span>
           </a>
+          </span>
+          <span th:if="${msg.msg != null && msg.msg != ''}">
+            <!--  支持html格式的文本直接渲染    -->
+            <span th:utext="${msg.msg}"></span>
+          </span>
         </div>
       </div>
       <div class="notification-bottom">
