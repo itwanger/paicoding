@@ -19,7 +19,7 @@ const praiseComment = function (e,login) {
 
     const commentId = e.dataset.commentId;
     const action = e.dataset.praised == 'true' ? false : true
-    let priaseCount = e.dataset.praiseCount;
+    let priaseCount = parseInt(e.dataset.praiseCount);
 
     // 2 点赞， 4 取消点赞
     const type = action ? 2 : 4;
@@ -30,7 +30,7 @@ const praiseComment = function (e,login) {
             toastr.error(data.message);
         }
 
-        let priaseCount = e.dataset.praiseCount;
+        let priaseCount = parseInt(e.dataset.praiseCount);
         if(type == 2) {
             e.classList.add('active');
             priaseCount += 1;
