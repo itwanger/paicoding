@@ -52,8 +52,10 @@
                 <!-- 加一个下拉框，选项是 OpenAI 讯飞星火 技术派 -->
                 <div class="chat-type">
                     <select class="styled-dropdown" id="chat-type">
-                        <option value="XUN_FEI_AI" selected>讯飞星火</option>
                         <option value="CHAT_GPT_3_5">OpenAI</option>
+                        <option value="ALI_AI">通义千问</option>
+                        <option value="XUN_FEI_AI">讯飞星火</option>
+                        <option value="ZHI_PU_AI" selected>GLM-4-Plus</option>
                         <option value="PAI_AI">技术派</option>
                     </select>
                 </div>
@@ -82,9 +84,12 @@
     const inputField = $("#input-field");
     const sendBtn = $("#send-btn"), sendBtnText = $(".button_icon-button-text__k3vob");
     const chatContent = $("#chat-content");
+    const promptField = $("#promptField");
     let stompClient = null;
     // 用户名
     const chatTitle = $(".window-header-main-title");
+    // markdown 转换器
+    var converter = null;
 
     // 从 global.user.photo 中取出用户头像 thymeleaf 传入的值
     const isLogin = [[${global.isLogin}]], user = [[${global.user}]];
@@ -96,6 +101,7 @@
         } else {
             console.log("请先登录");
         }
+        converter = new showdown.Converter();
     });
 
     // 建立会话, 首先判断一下用户是否已经登录
@@ -117,6 +123,7 @@
         let host = window.location.host;
         let aiType = $('#chat-type').val();
         console.log("AITYPE = ", aiType);
+
         let socket = new WebSocket(`${protocol}//${host}/gpt/${session}/${aiType}`);
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
@@ -182,6 +189,7 @@
         // 提醒用户重新连接
         inputField.attr("disabled", "disabled").val("连接中断，点击右侧按钮重连");
         sendBtn.removeAttr("disabled");
+
         sendBtnText.text("重连");
     }
 
@@ -194,11 +202,7 @@
             .replace(/'/g, "&#039;");
     }
 
-    function prettyCode(content) {
-        return content.replace(/```(\w*)\s*([\s\S]*?)```/gs, function(match, p1, p2) {
-            return '<pre><code class="' + p1 + '">' + escapeHtml(p2) + '</code></pre>';
-        });
-    }
+
 
     // 添加服务器端消息
     function appendServerMessage(answer) {
@@ -212,24 +216,32 @@
         if("JSON" === answerType) {
             // 需要对 body 的 JSON 字符串进行解析
             const res = JSON.parse(content);
-            console.log("CHAT_GPT_3_5 res:", res);
+            console.log(" res:", res);
             if (res.length === 1) {
                 content = res[0].message.content;
-                console.log("CHAT_GPT_3_5 content escapeHtml before:", content);
+                console.log(" content escapeHtml before:", content);
                 content = prettyCode(content);
-                console.log("CHAT_GPT_3_5 content escapeHtml after:", content);
+                console.log(" content escapeHtml after:", content);
+            } else {
+                // 直接返回的结果
+                console.log(" content escapeHtml before:", res);
+                content = prettyCode(res);
+                console.log(" content escapeHtml after:", content);
             }
         } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
             const lastDiv = $(`#${chatId}`)
             console.log("流式结果返回: ", content, lastDiv);
+            // content = converter.makeHtml(content);
+            content = prettyCode(content.replaceAll('$…$', ''));
+            console.log("流式结果转 HTML: ", content)
+
             if (lastDiv.length > 0) {
                 // 对于流式返回的结果，找上一次的返回，进行结果的追加，手动将分隔符给干掉
-                content = prettyCode(content.replaceAll('$…$', ''));
                 lastDiv.html(content);
                 appendLastChat = true;
             } else{
                 // 上一次没有输出过，则格式化文本，重新输出
-                content = prettyCode(content.replaceAll('$…$', ''));
+                // content = prettyCode(content.replaceAll('$…$', ''));
             }
         }
 
@@ -270,6 +282,9 @@
         scrollToBottom();
 
         copy();
+
+        // katex 渲染
+        katexRender(chatContent[0]);
     }
 
 
@@ -351,12 +366,14 @@
     }
 
     function doSend() {
-        const qa = inputField.val();
+        let qa = inputField.val();
+        // const prompt = promptField.val() | "";
         if (qa.length > 512) {
             toastr.info("提问长度请不要超过512字符哦~");
             return;
         }
         // 表示将消息转发到那个目标，类似与http请求中的path路径
+        // qa = prompt == "" ? qa : prompt + "prompt-" + qa;
         stompClient.send("/app/chat/" + session, {'s-uid': session}, qa);
         // 清空 textarea
         inputField.val("");

@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.article.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
 import lombok.Data;
@@ -89,4 +90,10 @@ public class ArticleDO extends BaseDO {
     private Integer creamStat;
 
     private Integer deleted;
+
+    /**
+     * 阅读类型
+     * @see ArticleReadTypeEnum#getType()
+     */
+    private Integer readType;
 }

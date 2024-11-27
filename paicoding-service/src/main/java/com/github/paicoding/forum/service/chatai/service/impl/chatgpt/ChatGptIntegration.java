@@ -159,6 +159,7 @@ public class ChatGptIntegration {
     }
 
     public boolean directReturn(Long routingKey, ChatItemVo chat) {
+
         AISourceEnum selectModel = config.getMain();
         GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
         ChatGPT gpt = getGpt(routingKey, config.getMain());

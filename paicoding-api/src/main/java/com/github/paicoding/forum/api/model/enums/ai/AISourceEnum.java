@@ -29,6 +29,24 @@ public enum AISourceEnum {
             return false;
         }
     },
+    /**
+     * 智谱 AI
+     */
+    ZHI_PU_AI(4, "智谱") {
+        @Override
+        public boolean asyncSupport() {
+            return true;
+        }
+    },
+    /**
+     * 智谱 AI
+     */
+    ALI_AI(5, "阿里") {
+        @Override
+        public boolean asyncSupport() {
+            return true;
+        }
+    },
     ;
 
     private String name;

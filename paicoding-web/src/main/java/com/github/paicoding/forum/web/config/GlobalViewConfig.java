@@ -29,8 +29,19 @@ public class GlobalViewConfig {
 
     private String contactMeStarQrCode;
 
+    /**
+     * 知识星球的跳转地址
+     */
     private String zsxqUrl;
 
+    /**
+     * 知识星球首页的一个展示图片地址
+     */
+    private String zsxqImgUrl;
+
+    /**
+     * 知识星球二维码的地址，派聪明 AI助手用
+     */
     private String zsxqPosterUrl;
 
     private String contactMeTitle;
@@ -56,6 +67,15 @@ public class GlobalViewConfig {
      * oss的地址
      */
     private String oss;
+
+    // 知识星球文章可阅读数
+    private String zsxqArticleReadCount;
+
+    // 需要登录文章可阅读数
+    private String needLoginArticleReadCount;
+
+    // 需要支付的可阅读数
+    private String needPayArticleReadCount;
 
     public String getOss() {
         if (oss == null) {

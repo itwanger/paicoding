@@ -127,6 +127,14 @@
     margin-left: 20px;
 }
 
+.chat-main a {
+    color: var(--pai-brand-1-normal);
+}
+
+.chat-main a:hover {
+    color: var(--pai-brand-2-hover);
+}
+
 .server-msg .markdown-body pre {
     padding: 0;
 }
@@ -236,6 +244,10 @@
     word-break: break-word;
     border: var(--pai-border-color-1);
     position: relative;
+}
+
+.home_chat-message-item__hDEOq img {
+    width: 100%;
 }
 
 .home_chat-message-actions__nrHd1, .home_chat-message-actions__loading {

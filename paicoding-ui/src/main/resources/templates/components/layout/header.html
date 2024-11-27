@@ -35,6 +35,7 @@
     <link href="/css/three/nprogress.css" th:href="${global.siteInfo.oss + '/css/three/nprogress.css'}" rel="stylesheet" />
     <link href="/css/global.css" th:href="${global.siteInfo.oss + '/css/global.css'}" rel="stylesheet" />
     <link href="/css/common.css" th:href="${global.siteInfo.oss + '/css/common.css'}" rel="stylesheet" />
+    <link href="/katex/katex.css" th:href="${global.siteInfo.oss + '/katex/katex.css'}" rel="stylesheet" >
     <script>
       var _hmt = _hmt || [];
       (function() {
@@ -62,6 +63,10 @@
     <script src="/js/clipboard.min.js" th:src="${global.siteInfo.oss + '/js/clipboard.min.js'}"></script>
     <script src="/js/highlight.min.js" th:src="${global.siteInfo.oss + '/js/highlight.min.js'}"></script>
     <script src="/js/nprogress.js" th:src="${global.siteInfo.oss + '/js/nprogress.js'}"></script>
+    <script defer src="/katex/katex.js" th:src="${global.siteInfo.oss + '/katex/katex.js'}"></script>
+    <script defer src="/katex/contrib/auto-render.js" th:src="${global.siteInfo.oss + '/katex/contrib/auto-render.js'}"></script>
+    <script src="/js/mathjax-config.js" th:src="${global.siteInfo.oss + '/js/mathjax-config.js'}" defer></script>
+    <script src="/js/showdown.min.js" th:src="${global.siteInfo.oss + '/js/showdown.min.js'}" defer></script>
 
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />

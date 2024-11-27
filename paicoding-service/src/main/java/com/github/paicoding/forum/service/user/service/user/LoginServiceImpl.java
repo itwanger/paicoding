@@ -19,6 +19,7 @@ import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,6 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private UserAiDao userAiDao;
 
-
     @Autowired
     private UserSessionHelper userSessionHelper;
     @Autowired
@@ -54,6 +54,9 @@ public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private UserAiService userAiService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -100,11 +103,14 @@ public class LoginServiceImpl implements LoginService {
      * @param password 密码
      * @return
      */
+    @Override
     public String loginByUserPwd(String username, String password) {
         UserDO user = userDao.getUserByUserName(username);
         if (user == null) {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + username);
         }
+
+        // passwordEncoder.matches(password, user.getPassword());
 
         if (!userPwdEncoder.match(password, user.getPassword())) {
             throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);

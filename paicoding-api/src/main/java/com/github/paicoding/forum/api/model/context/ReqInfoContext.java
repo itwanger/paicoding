@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.context;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.security.Principal;
  * @date 2022/7/6
  */
 public class ReqInfoContext {
-    private static ThreadLocal<ReqInfo> contexts = new InheritableThreadLocal<>();
+    private static TransmittableThreadLocal<ReqInfo> contexts = new TransmittableThreadLocal<>();
 
     public static void addReqInfo(ReqInfo reqInfo) {
         contexts.set(reqInfo);

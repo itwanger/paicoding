@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 收款码 -->
+<div class="card" th:fragment="user_pay(payInfo)" style="width: 100%">
+    <div class="card-body achievement-wrap">
+        <div class="achievement-title" th:text="${'我的收款码~'}">标题</div>
+        <div class="universal_pay_view">
+            <div class="box">
+                <style type="text/css">
+                    .universal_pay_view {
+                        align-items: center;
+                        display: flex;
+                        justify-content: center;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                    }
+
+                    .universal_pay_view .box {
+                        max-width: 100%;
+                        padding: .625rem;
+                        width: 18.75rem;
+                    }
+
+                    .universal_pay_view .box .title {
+                        font-size: 1.875rem;
+                        margin-bottom: .3125rem;
+                        text-align: center;
+                    }
+
+                    .universal_pay_view .box .qrcode {
+                        margin-bottom: .625rem;
+                        width: 300px;
+                    }
+
+                    .universal_pay_view .box img {
+                        width: 300px;
+                    }
+
+                    .universal_pay_view .box .btn {
+                        display: flex;
+                        justify-content: space-around;
+                    }
+
+                    .universal_pay_view .box .btn div {
+                        cursor: pointer;
+                        height: 3.75rem;
+                        opacity: .4;
+                        width: 3.75rem;
+                    }
+
+                    .universal_pay_view .box .btn div.activa {
+                        opacity: 1;
+                    }
+
+                    .universal_pay_view .box .subtitle {
+                        font-size: .875rem;
+                        margin-top: 1.25rem;
+                        opacity: .4;
+                        text-align: center;
+                    }
+
+                    .upload_area {
+                        display: flex;
+                        justify-content: center;
+                    }
+                </style>
+                <div class="qrcode">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjoAAAI6CAAAAAALI70cAAAJj0lEQVR42u3ZQXLkOAwEwP7/pz3njZiIIVQF2msljuqWRAHJC+vzpdSj+miBQkeho9BR6CiFjkJHoaPQUegohY5CR6Gj0FHoKIWOQkeho9BR6p90PpWaP/lv/zt9yumvp++Yv/f03vk75h26Mkt00EEHHXTQQQcddNBBBx100EEHHXTQQQedcWPmQz/9NWlbZ+gJ6GRznV5rb5Dj70UHHXTQQQcddNBBBx100EEHHXTQQQcddNA5XGpn1PPGfMqVBAJ3793r7oMno4MOOuiggw466KCDDjrooIMOOuiggw466Hw7nU7okBy9fxe2dkCDDjrooIMOOuiggw466KCDDjrooIMOOuig81vodIaeDKQTXSTfe3ct6KCDDjrooIMOOuiggw466KCDDjrooIMOOnt0knF1ooZ2JNEew+mTO5vwxnZEBx100EEHHXTQQQcddNBBBx100EEHHXTQOaXTOSB37Sdca4cd6KCDjmvouIaOcaGDDjrooIOOa+i4hg466LQrWmAlJJjTTt6RRCGdsV6ZKjrooIMOOuiggw466KCDDjrooIMOOuig83o6nQPtBFZn/HuDmz9v3o023vrc0EEHHXTQQQcddNBBBx100EEHHXTQQQed19PpvDiJGtpvu7uWvagm2T6dLYoOOuiggw466KCDDjrooIMOOuiggw466KBzo5VtCHuxQgdCOyhphxjooIMOOuiggw466KCDDjrooIMOOuiggw46CZ1kXPMD9w6YPVh7tDvBS2eLPtgg6KCDDjrooIMOOuiggw466KCDDjrooIPO6+kkx+Lt4/O9ACSJFTorbXeo3VN00EEHHXTQQQcddNBBBx100EEHHXTQQQed0yBiPpok2GhDTX5txy1JhzqRRNI/dNBBBx100EEHHXTQQQcddNBBBx100EEHnfmBduczk2ggiUw6b5t/WzvOaG+kB/9DBx100EEHHXTQQQcddNBBBx100EEHHXReT6cdPyQH+J07PuNKVtVGeQMbOuiggw466KCDDjrooIMOOuiggw466KCDTkKnfa1NsX64XoY1j0LaQcliT9FBBx100EEHHXTQQQcddNBBBx100EEHHXTGbesccrd5Jv/rtHdOYk6nHZSggw466KCDDjrooIMOOuiggw466KCDDjronNLpvLjzcR2ASTTQ3lI33pF0DR100EEHHXTQQQcddNBBBx100EEHHXTQQSeh0zmOjw6+y1FDEnG0v3Iv2NibKjrooIMOOuiggw466KCDDjrooIMOOuigg077kLsNcP6U+RclMUUSmXQ25mdcD2aJDjrooIMOOuiggw466KCDDjrooIMOOui8nk5ykN4ODvYG1z62v9uNJFrpFDrooIMOOuiggw466KCDDjrooIMOOuigg848Vpgf6rdH3SGWbJ9kVckWLUGYzxIddNBBBx100EEHHXTQQQcddNBBBx100EGnMtaEXXK83xlDG/l8O3b+14lW0EEHHXTQQQcddNBBBx100EEHHXTQQQcddJLj6Xa1EXXuna90bwUJhPmTHwQR6KCDDjrooIMOOuiggw466KCDDjrooIPOq+h0XnzarLtxRjtM6HxH8o6780AHHXTQQQcddNBBBx100EEHHXTQQQcddNA5viU4Zk+GnvzaaeXeMKMRXpgHOuiggw466KCDDjrooIMOOuiggw466KCDTru97Y87/bUz6r2xdlY172RnHuiggw466KCDDjrooIMOOuiggw466KCDDjrJo+e1h6NDovMdnSCis+E634EOOuiggw466KCDDjrooIMOOuiggw466KBz90i90/z5aD6V+lqrztCTaw82JjrooIMOOuiggw466KCDDjrooIMOOuigg86YTnKgPX/HPGq4Gz90OvQgGhj37wcEEeiggw466KCDDjrooIMOOuiggw466KCDzq+g0zmO7zQ1OjRfiy72etAh0QaDDjrooIMOOuiggw466KCDDjrooIMOOuig0w4Tbowr+d8NJslavgvl8a/ooIMOOuiggw466KCDDjrooIMOOuigg87r6bSb2mlg9JmV8beDiL2o5kawgQ466KCDDjrooIMOOuiggw466KCDDjrooHPaoiQaSBr9XZFJEjDsjX/e3QQvOuiggw466KCDDjrooIMOOuiggw466KCDTnJE3zne77yt0/wbsUcbakL2werRQQcddNBBBx100EEHHXTQQQcddNBBB53X0+kckCdH7/MP6Ry4t1d6Y6t0wo4H70AHHXTQQQcddNBBBx100EEHHXTQQQcddF5Ppx1EtJffPui/Mf69t7U7/qMyLHTQQQcddNBBBx100EEHHXTQQQcddNBB539CZ96ETsCQRAOd8KSzVe6+4/IGQQcddNBBBx100EEHHXTQQQcddNBBBx100KksuvO8hGICsPNFbQjteAQddNBBBx100EEHHXTQQQcddNBBBx100EHnBp1kXJ1j+z1id/EmYUKy5ugOdNBBBx100EEHHXTQQQcddNBBBx100EEHnQtH+Z1WJmPd+/JOKHJjzfNtiw466KCDDjrooIMOOuiggw466KCDDjrooNOOGvba2+bUHmZ7pTeCjQeBFDrooIMOOuiggw466KCDDjrooIMOOuig83o6p4jmC0wOvh98XOXAfc49uaPT+2QKixkWOuiggw466KCDDjrooIMOOuiggw466KDza+kkx+ztYe7FFJ1ApR0S7MVBnS2FDjrooIMOOuiggw466KCDDjrooIMOOuigsxcIdP6XPPnGWNtxQbt/c5TooIMOOuiggw466KCDDjrooIMOOuiggw46e8f27SDitNGd8GTvWifs6HxH1DV00EEHHXTQQQcddNBBBx100EEHHXTQQQed4HC9s9Q22TnjDvzvv2NxA6ODDjrooIMOOuiggw466KCDDjrooIMOOuiMD9L3DvDnTUiO92885atSe2tBBx100EEHHXTQQQcddNBBBx100EEHHXTQ+Zl02m/rDORG2JFATTZhKc5ABx100EEHHXTQQQcddNBBBx100EEHHXTQWaPTgZBQTJqV4Ei6ceOL0EEHHXTQQQcddNBBBx100EEHHXTQQQcddDp05kuYH/Tv4dj7tmQzJHHBjTv+cS866KCDDjrooIMOOuiggw466KCDDjrooINOpZLj+L2Y4gbFTiBw472nvUcHHXTQQQcddNBBBx100EEHHXTQQQcddND5UupRoaPQUegodBQ6SqGj0FHoKHQUOkqho9BR6Ch0FDpKoaPQUegodJT6T/0B3yML/nfBjpkAAAAASUVORK5CYII="
+                         alt="qrcode" id="qrcode">
+                    <input type="file"
+                           accept="image/*"
+                           id="qrUpload"
+                           style="display: none;"
+                    />
+                    <div id="upArea" class="upload_area">
+                        <button class="btn btn-success" type="button" onclick="chooseImg()">点击上传收款码</button>
+                    </div>
+                </div>
+                <div class="btn">
+                    <div class="qq" id="qq" onclick="tabChoose('qq')">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                             width="60" height="60">
+                            <defs>
+                                <style type="text/css"></style>
+                            </defs>
+                            <path d="M0 511.964575A511.992524 511.992524 0 1 0 511.964575 0 511.964575 511.964575 0 0 0 0 511.964575z m0 0"
+                                  fill="#3392D1" p-id="19575"></path>
+                            <path d="M300.53254 449.694836c-3.04641 8.077179 1.425385 13.191794 0 43.935381-0.391282 8.384615-36.053843 45.69615-50.307688 84.572814s-15.958717 78.843327 5.589743 94.690249 41.923074-52.711278 44.494356-42.733586q1.816667 6.875384 4.304102 13.527178a192.622549 192.622549 0 0 0 35.46692 58.692303c3.437692 3.91282-20.877691 11.179486-35.46692 35.942049s4.192307 69.871789 76.663327 69.871789c93.544352 0 114.449991-32.895638 116.350504-32.727946a139.743579 139.743579 0 0 0 14.812819 0c9.027435 0 5.282307 0.726667 13.694871 0 4.527692-0.391282 50.000252 39.351792 112.94076 32.727946 107.211274-11.179486 90.833326-47.205381 82.392814-69.871789-8.775897-23.672562-39.854869-34.768202-38.457433-36.333331 25.68487-28.395895 29.765382-45.807945 38.457433-71.884097 3.577436-10.732307 28.479741 58.97179 47.512817 42.733587 7.993333-6.763589 23.952049-34.935895 7.993333-94.690249s-46.842048-73.365379-46.171279-84.572814c1.397436-23.309229 0.586923-39.687176-0.586923-43.935381-5.589743-20.542306-17.63564-16.014614-17.635639-20.542306 0-118.251016-88.932813-214.115111-198.631523-214.115111S315.820488 310.901514 315.820488 429.15253c0 9.390768-8.384615 2.459487-15.176153 20.542306z m0 0"
+                                  fill="#FFFFFF" p-id="19576"></path>
+                        </svg>
+                    </div>
+                    <div class="weixin" id="wx" onclick="tabChoose('wx')">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="16387"
+                             width="60" height="60">
+                            <defs>
+                                <style type="text/css"></style>
+                            </defs>
+                            <path d="M417.485 663.603c-57.344 34.56-65.792-19.456-65.792-19.456l-71.834-181.504c-27.597-86.272 23.962-38.963 23.962-38.963s44.237 36.25 77.773 58.368c33.536 22.118 71.833 6.502 71.833 6.502L922.88 253.798C836.3 137.062 693.197 60.723 531.2 60.723c-264.397 0-478.669 203.162-478.669 453.786 0 144.128 70.963 272.435 181.504 355.635l-19.968 124.109s-9.728 36.147 23.962 19.405c22.937-11.52 81.408-52.532 116.275-77.517 54.733 20.582 114.38 32.102 176.947 32.102 264.295 0 478.72-203.161 478.72-453.734 0-72.602-18.125-141.21-50.125-201.984-149.606 97.433-497.51 323.993-542.361 351.078"
+                                  fill="#25A838" p-id="16388"></path>
+                        </svg>
+                    </div>
+                    <div class="alipay" id="ali" onclick="tabChoose('ali')">
+                        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17095"
+                             width="60" height="60">
+                            <defs>
+                                <style type="text/css"></style>
+                            </defs>
+                            <path d="M191.933 692.705c0-69.499 50.97-106.567 88.034-111.206 111.201-18.535 264.11 74.132 264.11 74.132-69.504 88.039-166.81 134.37-240.942 134.37-64.866-4.624-111.202-41.698-111.202-97.296z m787.697 37.07c-13.906-4.64-328.98-101.94-319.713-111.212 46.336-55.599 78.771-185.34 78.771-185.34v-27.8H553.349v-69.495h227.047v-41.702H553.349v-101.94h-92.672v97.306H256.804v41.703h203.873v69.499h-162.17v27.801h333.608c0 13.901-23.163 106.568-46.336 148.27-4.628-9.267-152.903-60.237-236.308-64.865-88.034 4.634-157.538 32.435-189.973 97.306-46.336 120.468 27.802 240.942 194.606 240.942 27.802 0 162.171-13.901 264.11-152.91 27.802 13.902 185.334 92.673 282.645 143.642-92.672 111.202-231.68 180.71-389.217 180.71A508.211 508.211 0 0 1 1.96 512.006a508.211 508.211 0 0 1 509.68-509.68 508.211 508.211 0 0 1 509.686 509.68c4.634 83.4-13.895 152.899-41.697 217.77z"
+                                  fill="#1296db" p-id="17096"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="subtitle">
+                    点击按钮切换收款二维码
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/jsQR.js" th:src="${global.siteInfo.oss + '/js/jsQR.js'}"></script>
+    <script th:inline="javascript">
+        let wx = $("#wx"), qq = $("#qq"), ali = $("#ali");
+        let qrCode = $("#qrcode"), qrUpload = $('#qrUpload'), upArea = $('#upArea');
+
+        let qrMap = [[${payInfo}]]
+
+        let currentChoose = null
+        tabChoose('qq')
+
+        function tabChoose(tab) {
+            if (currentChoose == tab) {
+                // 重复点击，直接返回
+                return;
+            }
+
+            let qrImg = qrMap[tab];
+            if (qrImg && qrImg['qrCode']) {
+                // 显示图片
+                qrImg = qrImg['qrCode'];
+                if (!(qrImg.startsWith("http") || qrImg.startsWith("blob"))) {
+                    qrImg = 'data:image/png;base64,' + qrImg;
+                }
+            }
+
+            console.log('二维码内容:', qrImg, qrMap);
+            if (qrImg) {
+                qrCode.attr('src', qrImg);
+                // 显示二维码
+                qrCode.css("visibility", "visible")
+                upArea.css("visibility", "hidden")
+            } else {
+                console.log('隐藏二维码内容--->')
+                // 隐藏二维码区域
+                qrCode.css("visibility", "hidden")
+                upArea.css("visibility", "visible")
+            }
+
+            if (currentChoose) {
+                updateChooseStyle(currentChoose, false);
+            }
+            currentChoose = tab;
+            updateChooseStyle(currentChoose, true);
+        }
+
+        function updateChooseStyle(tab, show) {
+            let ele;
+            if (tab == 'qq') {
+                ele = qq;
+            } else if (tab == 'wx') {
+                ele = wx;
+            } else if (tab == 'ali') {
+                ele = ali;
+            }
+
+            if (show) {
+                ele.addClass('activa')
+            } else {
+                ele.removeClass('activa')
+            }
+        }
+
+        function chooseImg() {
+            console.log("开始选择图片");
+            qrUpload.click();
+        }
+
+        qrUpload.on("change", function () {
+            // let blobUrl = getObjectURL(this.files[0]) //获取图片的路径，该路径不是图片在本地的路径
+            const blobUrl = URL.createObjectURL(this.files[0]);
+            qrcodeReader(blobUrl)
+                .then(e => {
+                    const qqRegex = /qianbao/;
+                    const weixinRegex = /wxp|tenpay/;
+                    const alipayRegex = /alipay|ALIPAY/;
+                    const url = e.data;
+                    console.log('返回结果是:', url);
+
+
+                    let legalQr = false;
+                    if (currentChoose == 'qq') {
+                        if (qqRegex.test(url)) {
+                            legalQr = true
+                        } else {
+                            toastr.error("ERROR: 可能不是一个QQ收款码!")
+                        }
+                    } else if (currentChoose == 'wx') {
+                        if (weixinRegex.test(url)) {
+                            legalQr = true;
+                        } else {
+                            toastr.error("ERROR: 可能不是一个微信收款码!")
+                        }
+                    } else if (currentChoose == 'ali') {
+                        if (alipayRegex.test(url)) {
+                            legalQr = true;
+                        } else {
+                            toastr.error("ERROR: 可能不是一个支付宝收款码!")
+                        }
+                    }
+
+                    if (legalQr) {
+                        qrMap[currentChoose] = {
+                            "qrCode": blobUrl,
+                            "qrMsg": url,
+                        };
+                        let tmp = currentChoose;
+                        currentChoose = null;
+                        tabChoose(tmp)
+                    }
+                })
+                .catch((e) => {
+                    console.log("出现了一些异常", e);
+                    toastr.error("ERROR: 可能不是一个有效二维码，或由于二维码内容过于复杂!")
+                });
+        })
+
+        function qrcodeReader(url) {
+            return new Promise((resolve, reject) => {
+                let image = new Image();
+                image.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    context.drawImage(image, 0, 0);
+                    try {
+                        const imageData = context.getImageData(
+                            0,
+                            0,
+                            image.width,
+                            image.height
+                        );
+                        const qrCode = jsQR(
+                            imageData.data,
+                            imageData.width,
+                            imageData.height
+                        );
+                        resolve(qrCode);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                image.src = url;
+            });
+        }
+
+        console.log("二维码信息: ", qrMap);
+    </script>
+</div>
+</html>

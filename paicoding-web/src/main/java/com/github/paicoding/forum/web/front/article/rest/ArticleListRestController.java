@@ -10,7 +10,11 @@ import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.global.BaseViewController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 文章列表
@@ -24,6 +28,24 @@ public class ArticleListRestController extends BaseViewController {
     private ArticleReadService articleService;
     @Autowired
     private TemplateEngineHelper templateEngineHelper;
+
+    /**
+     * 分类下的文章列表
+     *
+     * @param categoryId 类目id
+     * @param page 请求页
+     * @param size 分页数
+     * @return 文章列表
+     */
+    @GetMapping(path = "data/category/{category}")
+    public ResVo<PageListVo<ArticleDTO>> categoryDataList(@PathVariable("category") Long categoryId,
+                                                          @RequestParam(name = "page") Long page,
+                                                          @RequestParam(name = "size", required = false) Long size) {
+        PageParam pageParam = buildPageParam(page, size);
+        PageListVo<ArticleDTO> list = articleService.queryArticlesByCategory(categoryId, pageParam);
+        return ResVo.ok(list);
+    }
+
 
     /**
      * 分类下的文章列表

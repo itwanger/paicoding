@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户主页信息
@@ -65,4 +66,9 @@ public class UserStatisticInfoDTO extends BaseUserInfoDTO {
      * 创造历程
      */
     private List<YearArticleDTO> yearArticleList;
+
+    /**
+     * 作者的收款码信息
+     */
+    private Map<String, UserPayCodeDTO> payQrCodes;
 }

@@ -2,6 +2,7 @@ package com.github.paicoding.forum.core.util;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import com.github.paicoding.forum.core.async.AsyncUtil;
 
 /**
  * @author YiHui
