@@ -16,7 +16,7 @@ import java.util.Map;
  * @date 2022/9/3
  */
 public interface NotifyService {
-    public static String NOTIFY_TOPIC = "msg";
+    public static String NOTIFY_TOPIC = "/msg";
 
 
     /**

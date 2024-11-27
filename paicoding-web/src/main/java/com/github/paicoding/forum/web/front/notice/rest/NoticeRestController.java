@@ -9,8 +9,10 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.dto.NotifyMsgDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.ws.WebSocketResponseUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.front.notice.vo.NoticeResVo;
@@ -114,6 +116,19 @@ public class NoticeRestController {
     @RequestMapping(path = "notifyToSelf")
     public ResVo<Boolean> notifyToSelf(String content) {
         notifyService.notifyToUser(ReqInfoContext.getReqInfo().getUserId(), content);
+        return ResVo.ok(true);
+    }
+
+    /**
+     * 发送广播消息
+     *
+     * @param content
+     * @return
+     */
+    @RequestMapping(path = "notifyToAll")
+    public ResVo<Boolean> notifyToAll(String content) {
+        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
+        WebSocketResponseUtil.broadcastMsg(NotifyService.NOTIFY_TOPIC, String.format("【%s】发送了一条广播消息: %s", user.getUserName(), content));
         return ResVo.ok(true);
     }
 }
