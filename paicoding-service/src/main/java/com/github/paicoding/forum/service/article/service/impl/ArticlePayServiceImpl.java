@@ -1,6 +1,6 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import ch.qos.logback.core.util.StringCollectionUtil;
+import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
@@ -19,6 +19,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.notify.help.MsgNotifyHelper;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -133,7 +134,11 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
             // 事务提交之后，发送一个给用户确认的邮件
             TransactionUtil.registryAfterCommitOrImmediatelyRun(() -> sendPayConfirmEmail(record));
-            return articlePayDao.updateById(record);
+            boolean ans = articlePayDao.updateById(record);
+            if (ans) {
+                // 发布一个用户支付的通知
+                MsgNotifyHelper.publish(NotifyTypeEnum.PAYING, record);
+            }
         } else if (StringUtils.isNotBlank(notes) && Objects.equals(notes, record.getNotes())) {
             // 备注信息不同时，更新并发送邮件通知
             record.setUpdateTime(new Date());
@@ -175,7 +180,11 @@ public class ArticlePayServiceImpl implements ArticlePayService {
             // 更新原来的支付状态为最新的结果
             dbRecord.setPayStatus(payStatus);
             dbRecord.setUpdateTime(new Date());
-            return articlePayDao.updateById(dbRecord);
+            boolean ans = articlePayDao.updateById(dbRecord);
+            if (ans) {
+                MsgNotifyHelper.publish(NotifyTypeEnum.PAY, dbRecord);
+            }
+            return ans;
         }
     }
 
@@ -228,7 +237,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
             // 作者
             BaseUserInfoDTO author = userService.queryBasicUserInfo(record.getReceiveUserId());
-            EmailUtil.sendMail(String.format("【%s】收到【%s】的打赏，请确认", confirm.getTitle(), confirm.getPayTime()), author.getEmail(), confirmHtmlContent);
+            EmailUtil.sendMail(String.format("【%s】收到【%s】的打赏，请确认", confirm.getTitle(), confirm.getPayUser()), author.getEmail(), confirmHtmlContent);
 
             // 邮件发送成功，更新邮件通知时间
             record.setUpdateTime(new Date());
@@ -241,6 +250,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
     /**
      * 查询文章的打上用户列表
+     *
      * @param articleId
      * @return
      */

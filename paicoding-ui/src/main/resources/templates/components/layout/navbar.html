@@ -340,6 +340,8 @@
     </div>
   </div>
 
+  <script src="/js/sockjs.min.js" th:src="${global.siteInfo.oss + '/js/sockjs.min.js'}"></script>
+  <script src="/js/stomp.min.js" th:src="${global.siteInfo.oss + '/js/stomp.min.js'}"></script>
   <script
           src="/js/mock.js"
           th:if="${!#strings.equals(global.env, 'prod')}"
@@ -601,6 +603,72 @@
         }
       });
     }
+
+    // --------------- 下面进入全局消息通知的入口 --------------
+    function now() {
+      return new Date().getTime()
+    }
+    // 用于全局消息通知的长连接
+    let userWsSocket = null;
+    let userWsClient = null;
+    let userWsAckTime = 0;
+    function autoBuildNotifyWsConnect() {
+      const logined = [[${global.isLogin}]]
+      if (!logined) {
+        // 未登录
+        return;
+      }
+
+      const session = getCookie("f-session");
+      if (session) {
+        console.log("登录成功，准备建立连接!!!");
+        let protocol = window.location.protocol.replace("http", "ws");
+        let host = window.location.host;
+        userWsSocket = new WebSocket(`${protocol}//${host}/notify`);
+        userWsClient = Stomp.over(userWsSocket);
+        userWsClient.connect({"uname": $("#uname").val()}, function (frame) {
+          console.log('Connected: ' + frame);
+          userWsAckTime = now();
+          userWsClient.subscribe(`/user/msg`, function (message) {
+            // 订阅用户的私人broker，用于接收系统私发消息； 后台通过向 /user/xxx/topic/notify 发送消息，来传递给某个私人用户
+            console.log("系统消息: ", message);
+            userWsAckTime = now();
+            if (message.body != 'pong') {
+              let html = `<div>${message.body}</div><div><a href="/notice/" target="_blank" style="color:blue"> 查看详情 </a></div>`
+              toastr.success(html);
+            }
+          });
+
+          userWsClient.subscribe(`/msg`, function (message) {
+            // 订阅全局的消息
+            console.log("系统消息: ", message);
+            userWsAckTime = now();
+            if (message.body != 'pong') {
+              toastr.success(message.body);
+            }
+          });
+
+        }, {id: session});
+      }
+    }
+
+
+    function notifyWsCheck() {
+      // 长连接的校验
+      let nowTime = now();
+      if (nowTime - userWsAckTime > 90_000) {
+        console.log('未接收到返回消息，重新建立长连接!');
+        autoBuildNotifyWsConnect();
+      } else {
+        userWsClient.send(`/app/msg/health`, {}, "ping");
+      }
+    }
+    if ([[${global.isLogin}]]) {
+      // 30s一次的ping/pong，用于长连接的保活
+      notifyWsCheck();
+      setInterval(notifyWsCheck, 30_000)
+    }
+
   </script>
 </div>
 </html>
