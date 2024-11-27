@@ -638,6 +638,16 @@
               toastr.success(html);
             }
           });
+
+          userWsClient.subscribe(`/msg`, function (message) {
+            // 订阅全局的消息
+            console.log("系统消息: ", message);
+            userWsAckTime = now();
+            if (message.body != 'pong') {
+              toastr.success(message.body);
+            }
+          });
+
         }, {id: session});
       }
     }
