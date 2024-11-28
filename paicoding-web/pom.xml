@@ -15,7 +15,7 @@
         <jmh.version>1.35</jmh.version>
         <webp-imageio.version>0.2.1</webp-imageio.version>
         <spock.version>2.1-groovy-3.0</spock.version>
-        <groovy.version>3.0.12</groovy.version>
+        <groovy.version>3.0.23</groovy.version>
         <spock.mockfree.version>1.0.3</spock.mockfree.version>
     </properties>
 
