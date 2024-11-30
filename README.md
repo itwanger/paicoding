@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://paicoding.com/">
-    <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派" width="400">
+    <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派，让技术也能很好玩" width="400">
   </a>
 </p>
 一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
@@ -32,7 +32,18 @@
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding)
 - 项目演示地址：[https://paicoding.com](https://paicoding.com)
 
-![](https://cdn.tobebetterjavaer.com/images/20230602/d7d341c557e7470d9fb41245e5bb4209.png)
+![技术派首页](https://cdn.tobebetterjavaer.com/images/20230602/d7d341c557e7470d9fb41245e5bb4209.png)
+
+#### Vue 版前后端分离版本
+
+这个版本是将原本技术派经过二次开发，将前端使用vue3重写，并且将后端技术栈升级到Spring Boot3之后的版本，同时对项目进行了一些优化，使得项目更加适合二次开发。
+
+- 项目仓库（GitHub）：[https://github.com/itwanger/paicoding/tree/springboot3%26vue3](https://github.com/itwanger/paicoding/tree/springboot3%26vue3)
+- 项目仓库（码云）：[https://gitee.com/itwanger/paicoding/tree/springboot3%26vue3](https://gitee.com/itwanger/paicoding/tree/springboot3%26vue3)
+- 项目演示地址：[https://www.xuyifei.site/](https://www.xuyifei.site/)
+
+![编程汇vue3+Spring Boot3](https://cdn.tobebetterjavaer.com/paicoding/README-1799f2f840fc4687a1cda4486782a07a.png)
+
 
 #### 后台社区系统
 
@@ -40,23 +51,23 @@
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding-admin](https://gitee.com/itwanger/paicoding-admin)
 - 项目演示地址：[https://paicoding.com/admin-view](https://paicoding.com/admin/)
 
-![](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
+![技术派后台管理系统](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
 
 #### 代码展示
 
-![](https://cdn.tobebetterjavaer.com/images/20231205/b8f76cb8e09f4ebca84b3ddd3b61c13e.png)
+![技术派源码结构](https://cdn.tobebetterjavaer.com/images/20231205/b8f76cb8e09f4ebca84b3ddd3b61c13e.png)
 
 
 ### 架构图
 
 #### 系统架构图
 
-![](https://cdn.tobebetterjavaer.com/paicoding/3da165adfcad0f03d40e13e941ed4afb.png)
+![技术派系统架构图](https://cdn.tobebetterjavaer.com/paicoding/3da165adfcad0f03d40e13e941ed4afb.png)
 
 
 #### 业务架构图
 
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-business.jpg)
+![技术派业务架构图](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-business.jpg)
 
 ### 组织结构
 
@@ -99,7 +110,7 @@ mvn clean install -DskipTests=true -Pprod
   - xxx/application-image.yml: 定义上传图片的相关配置信息
   - xxx/application-web.yml: 定义web相关的配置信息
 
-#### [前端工程结构说明](docs/前端工程结构说明.md)
+[前端工程结构说明](docs/前端工程结构说明.md)
 
 ### 技术选型
 
@@ -137,6 +148,7 @@ mvn clean install -DskipTests=true -Pprod
 |        讯飞星火         | 讯飞星火大模型              | [https://www.xfyun.cn/doc/spark/Web.html](https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E)                   |
 
 ## 三、技术派教程
+
 技术派教程共 120+ 篇，从中整理出 20 篇，供大家免费学习。
 - [（🌟 新人必看）技术派系统架构&功能模块一览](https://paicoding.com/article/detail/15)
 - [（🌟 新人必看）小白如何学习技术派](https://paicoding.com/article/detail/366)
@@ -229,15 +241,15 @@ mvn clean install -DskipTests=true -Pprod
 
 ## 八、公众号
 
-GitHub 上标星 10000+ 的开源知识库《 [二哥的 Java 进阶之路](https://github.com/itwanger/toBeBetterJavaer) 》第一版 PDF 终于来了！包括Java基础语法、数组&字符串、OOP、集合框架、Java IO、异常处理、Java 新特性、网络编程、NIO、并发编程、JVM等等，共计 32 万余字，可以说是通俗易懂、风趣幽默……详情戳：[太赞了，GitHub 上标星 8700+ 的 Java 教程](https://javabetter.cn/overview/)
+GitHub 上标星 13000+ 的开源知识库《 [二哥的 Java 进阶之路](https://github.com/itwanger/toBeBetterJavaer) 》第一版 PDF 终于来了！包括Java基础语法、数组&字符串、OOP、集合框架、Java IO、异常处理、Java 新特性、网络编程、NIO、并发编程、JVM等等，共计 32 万余字，可以说是通俗易懂、风趣幽默……详情戳：[太赞了，GitHub 上标星 13000+ 的 Java 教程](https://javabetter.cn/overview/)
 
 微信搜 **沉默王二** 或扫描下方二维码关注二哥的原创公众号，回复 **222** 即可免费领取。
 
-![](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/gongzhonghao.png)
+![沉默王二公众号](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/gongzhonghao.png)
 
 ## 九、许可证
 
 [Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
 
-Copyright (c) 2022-2023 技术派（楼仔、沉默王二、一灰、小超）
+Copyright (c) 2022-2024 技术派（楼仔、沉默王二、一灰、小超、小灰飞）
 

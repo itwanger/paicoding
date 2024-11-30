@@ -25,7 +25,7 @@ public interface UrlHandlerStrategy {
 
     default void md2file(HtmlSourceResult result) {
         // 将标题转换为拼音
-        String filename = Pinyin4jUtil.getFirstSpellPinYin(result.getTitle(), false);
+        String filename = Pinyin4jUtil.getFirstSpellPinYin(result.getTitle(), true);
         log.info("filename{}", filename);
 
         StrBuilder builder = StrBuilder.create();
