@@ -16,7 +16,7 @@ public class HtmlSourceResult {
     // 封面图路径
     private String cover;
     // 标题
-    private String title;
+    private String title = "unknown";
     // 作者名
     private String author;
     // 原文链接

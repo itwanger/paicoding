@@ -42,7 +42,7 @@ public class Pinyin4jUtil {
     public static String makeStringByStringSet(Set<String> stringSet) {
         StringBuilder str = new StringBuilder();
         int i = 0;
-        if (stringSet.size() > 0) {
+        if (stringSet != null && !stringSet.isEmpty()) {
             for (String s : stringSet) {
                 if (i == stringSet.size() - 1) {
                     str.append(s);
