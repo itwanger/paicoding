@@ -12,6 +12,7 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(name = "rabbitmq.switchFlag", havingValue = "true", matchIfMissing = true)
 public class RabbitmqConsumer {
 
     @Autowired
@@ -40,7 +42,7 @@ public class RabbitmqConsumer {
                 exchange = @Exchange(name = CommonConstants.MESSAGE_QUEUE_EXCHANGE_NAME_DIRECT, type = ExchangeTypes.DIRECT),
                 key = {CommonConstants.MESSAGE_QUEUE_KEY_NOTIFY}
             ),
-            concurrency = "1-5"
+            concurrency = "10"
     )
     @SuppressWarnings("unchecked")
     public <T> void listenNotifyEventQueue(MessageQueueEvent<T> msgEvent) {
