@@ -41,7 +41,7 @@
                         },
                       ]"
                 >
-                  <el-input v-model="dynamicValidateForm.password" placeholder="请输入密码"/>
+                  <el-input v-model="dynamicValidateForm.password" type="password" placeholder="请输入密码"/>
                 </el-form-item>
                 <el-form-item class="center-content">
                   <el-button type="primary" @click="submitForm(formRef)">提交</el-button>
