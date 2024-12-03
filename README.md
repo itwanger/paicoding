@@ -11,7 +11,7 @@
  
 1. **前后端分离网址**：[http://www.xuyifei.site](http://www.xuyifei.site)
 2. **技术派管理端源码**：[paicoding-admin](https://github.com/itwanger/paicoding-admin)
-3. **Vue3前端重构的前端源码**：[Vue3前端](https://github.com/XuYi-fei/Coder-s-Corner)
+3. **Vue3前端重构的前端源码**：现已合并到管理端项目中，但仍然是前后端分离模式。
 
 ## 二、项目介绍
 
@@ -53,10 +53,10 @@
 
 ```
 paicoding
+├── paicoding-front -- Vue3实现的前端模块
 ├── paicoding-api -- 定义一些通用的枚举、实体类，定义 DO\DTO\VO 等
 ├── paicoding-core -- 核心工具/组件相关模块，如工具包 util， 通用的组件都放在这个模块（以包路径对模块功能进行拆分，如搜索、缓存、推荐等）
 ├── paicoding-service -- 服务模块，业务相关的主要逻辑，DB 的操作都在这里
-├── paicoding-ui -- 保留的使用Thymleaf 的 HTML 前端资源（包括 JavaScript、CSS、Thymeleaf 等）
 ├── paicoding-web -- Web模块、HTTP入口、项目启动入口，包括权限身份校验、全局异常处理等
 ```
 
@@ -157,7 +157,7 @@ mvn clean install -DskipTests=true -Pprod
 
 |      工具       | 版本       | 下载                                                                                                                     |
 |:-------------:|:---------|------------------------------------------------------------------------------------------------------------------------|
-|      jdk      | 17+      | [https://www.oracle.com/java/technologies/downloads/#java8](https://www.oracle.com/java/technologies/downloads/#java8) |
+|      jdk      | 17+      | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
 |     maven     | 3.5+     | [https://maven.apache.org/](https://maven.apache.org/)                                                                 |
 |     mysql     | 8.0+     | [https://www.mysql.com/downloads/](https://www.mysql.com/downloads/)                                                   |
 |     redis     | 6.0+     | [https://redis.io/download/](https://redis.io/download/)                                                               |
@@ -182,7 +182,7 @@ mvn clean install -DskipTests=true -Pprod
 
 ## 五、友情链接
 
-- [tech-pai-front](https://github.com/itwanger/toBeBetterJavaer) ：一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。学Java，就认准二哥的Java进阶之路😄
-- [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀 paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
+- [小灰飞的碎碎念](https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg) ：个人的Java后端面试八股等分享公众号，包含数据库、JUC、JVM等（仍在更新中），文章融入了自己的理解和原创图，感兴趣的uu关注一下哦~😄
+- [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
 
 
