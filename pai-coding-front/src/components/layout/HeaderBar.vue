@@ -48,7 +48,7 @@
       </div>
       <div class="nav-right">
         <button
-          v-if="!route.path.includes('/article/edit') && route.path !== '/article/edit/'"
+          v-if="!route.path.includes('/article/edit') && route.path !== '/article/edit/' && global.isLogin"
           type="button"
           class="btn btn-primary nav-article"
           @click="writeArticle"
@@ -56,7 +56,7 @@
           写文章
         </button>
         <button
-          v-else
+          v-else-if="route.path.includes('/article/edit') || route.path === '/article/edit/'"
           type="button"
           class="btn btn-primary nav-article"
           @click="router.push('/')"
@@ -216,6 +216,7 @@ const logout = () => {
         messageTip("退出登录成功", MESSAGE_TYPE.SUCCESS)
         sleep(1)
         console.log(response.data)
+        // router.replace('/')
         refreshPage()
       }})
     .catch((error) => {
