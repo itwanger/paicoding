@@ -557,7 +557,9 @@
                                 <div data-v-5e7b6906="" class="wrap-qrcode qr_code">
                                     <div data-v-5e7b6906="" class="" id="notify">
                                         <img
-                                                data-v-5e7b6906="" class="pay_icon" src="https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png"></div> <!----></div>
+                                                data-v-5e7b6906="" class="pay_icon"
+                                                src="https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png">
+                                    </div> <!----></div>
                             </div>
 
                         </div>
@@ -567,7 +569,8 @@
                                 <div data-v-5e484e7a="">
                                     <h4>5篇付费阅读券</h4>
                                     实付：
-                                    <span class="now-price c-red" data-v-5e484e7a="" data-price="298.00">96.00</span><span
+                                    <span class="now-price c-red" data-v-5e484e7a=""
+                                          data-price="298.00">96.00</span><span
                                         class="c-red" data-v-5e484e7a="">元
     </span> <span data-v-5e484e7a="" class="c-red"> 已优惠2.00元！</span>
 
@@ -577,12 +580,15 @@
                                 </div>
                             </div>
 
-                            <div data-v-5e484e7a="" class="other-pay"><!---->
+                            <div data-v-5e484e7a="" class="other-pay">
                                 <div data-v-5e484e7a="" data-report-click="{&quot;spm&quot;:&quot;3001.6389&quot;}"
-                                     class="item"><i data-v-5e484e7a="" class="other-pay-icon"></i>
+                                     class="item"
+                                     onclick="goPay()">
+                                    <i data-v-5e484e7a="" class="other-pay-icon"></i>
                                     去支付
                                 </div>
-                            </div> <!----></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -590,6 +596,18 @@
         </div>
     </div>
     <div th:replace="components/layout/footer :: footer"></div>
+    <script>
+        function goPay() {
+            // 点击去支付
+            let id = parseInt(new Date().getTime() / 1000);
+            let amount = parseInt(Math.random() * 10, 10);
+            get("/test/h5pay?outTradeNo=" + id + '&amount=' + amount, {}, function (data) {
+                // 打开支付中间页
+                console.log("支付中间页:", data);
+                window.open(data.prePayId, "_blank");
+            });
+        }
+    </script>
 </div>
 </body>
 </html>

@@ -1,0 +1,19 @@
+wx:
+  pay:
+    # true 表示开启微信支付
+    enable: false
+    #应用id（小程序id）
+    appId: 123
+    #商户号
+    merchantId: 123
+    #商户API私钥
+    privateKey: cert/apiclient_key.pem
+    #商户证书序列号
+    # openssl x509 -in apiclient_cert.pem -noout -serial
+    merchantSerialNumber: 123
+    #商户APIv3密钥
+    apiV3Key: test
+    #支付通知地址
+    payNotifyUrl: https://paicoding.com/wx/payNotify
+    #退款通知地址
+    refundNotifyUrl: https://paicoding.com/wx/refundNotify
