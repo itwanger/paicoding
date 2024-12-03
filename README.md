@@ -19,8 +19,8 @@
 
 #### 前台社区系统
 
-- 项目仓库（GitHub）：[https://github.com/itwanger/paicoding](https://github.com/itwanger/paicoding)
-- 项目仓库（码云）：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding)
+- 项目仓库（GitHub）：[https://github.com/XuYi-fei/Coder-s-platform](https://github.com/XuYi-fei/Coder-s-platform)
+- 项目仓库（码云）：[https://gitee.com/XuYi-fei/Coder-s-platform](https://gitee.com/XuYi-fei/Coder-s-platform)
 - 前后端分离版本项目演示地址：[http://www.xuyifei.site](http://www.xuyifei.site)
 
 ![](https://cdn.tobebetterjavaer.com/images/20230602/d7d341c557e7470d9fb41245e5bb4209.png)
@@ -33,21 +33,6 @@
 
 ![](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
 
-#### 代码展示
-
-![](https://cdn.tobebetterjavaer.com/images/20231205/b8f76cb8e09f4ebca84b3ddd3b61c13e.png)
-
-
-### 架构图
-
-#### 系统架构图
-
-![](https://cdn.tobebetterjavaer.com/paicoding/3da165adfcad0f03d40e13e941ed4afb.png)
-
-
-#### 业务架构图
-
-![](https://cdn.tobebetterjavaer.com/paicoding/main/paicoding-business.jpg)
 
 ### 组织结构
 
