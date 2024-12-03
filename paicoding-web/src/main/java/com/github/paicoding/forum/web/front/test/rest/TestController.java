@@ -19,6 +19,9 @@ import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.config.service.GlobalConfigService;
+import com.github.paicoding.forum.service.pay.ThirdPayService;
+import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
+import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -29,7 +32,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -329,4 +338,19 @@ public class TestController {
         log.info("loadmore: {}", loadmore);
     }
 
+    @GetMapping(path = "h5pay")
+    public ResVo<PrePayInfoResBo> testH5Pay(String outTradeNo, int amount) throws Exception {
+        ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
+        req.setOutTradeNo("TEST-" + outTradeNo);
+        req.setDescription("测试h5支付");
+        req.setTotal(amount <= 0 ? 1 : amount);
+        ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
+        if (thirdPayService != null) {
+            PrePayInfoResBo res = thirdPayService.h5ApiOrder(req);
+            log.info("返回结果: {}", res);
+            return ResVo.ok(res);
+        } else {
+            return ResVo.ok(null);
+        }
+    }
 }

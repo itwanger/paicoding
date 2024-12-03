@@ -19,8 +19,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -247,5 +252,36 @@ public class HttpRequestHelper {
         }
 
         return null;
+    }
+
+
+    /**
+     * readData
+     *
+     * @param request request
+     * @return result
+     */
+    // CHECKSTYLE:OFF:InnerAssignment
+    public static String readReqData(HttpServletRequest request) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+            return stringBuilder.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    log.error("请求参数解析异常! {}", request.getRequestURI(), e);
+                }
+            }
+        }
     }
 }
