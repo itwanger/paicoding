@@ -138,16 +138,12 @@ mvn clean install -DskipTests=true -Pprod
 |       IDEA       | java开发工具     | [https://www.jetbrains.com](https://www.jetbrains.com)                                                       |
 |     Webstorm     | web开发工具      | [https://www.jetbrains.com/webstorm](https://www.jetbrains.com/webstorm)                                     |
 |      Chrome      | 浏览器          | [https://www.google.com/intl/zh-CN/chrome](https://www.google.com/intl/zh-CN/chrome)                         |
-|   ScreenToGif    | gif录屏        | [https://www.screentogif.com](https://www.screentogif.com)                                                   |
-|     SniPaste     | 截图           | [https://www.snipaste.com](https://www.snipaste.com)                                                         |
 |     PicPick      | 图片处理工具       | [https://picpick.app](https://picpick.app)                                                                   |
 |     MarkText     | markdown编辑器  | [https://github.com/marktext/marktext](https://github.com/marktext/marktext)                                 |
 |       curl       | http终端请求     | [https://curl.se](https://curl.se)                                                                           |
 |     Postman      | API接口调试      | [https://www.postman.com](https://www.postman.com)                                                           |
 |     draw.io      | 流程图、架构图绘制    | [https://www.diagrams.net/](https://www.diagrams.net/)                                                       |
 |      Axure       | 原型图设计工具      | [https://www.axure.com](https://www.axure.com)                                                     |
-|     navicat      | 数据库连接工具      | [https://www.navicat.com](https://www.navicat.com)                                                           |
-|     DBeaver      | 免费开源的数据库连接工具 | [https://dbeaver.io](https://dbeaver.io)                                                                     |
 |      iTerm2      | mac终端        | [https://iterm2.com](https://iterm2.com)                                                                     |
 | windows terminal | win终端        | [https://learn.microsoft.com/en-us/windows/terminal/install](https://learn.microsoft.com/en-us/windows/terminal/install) |
 |   SwitchHosts    | host管理       | [https://github.com/oldj/SwitchHosts/releases](https://github.com/oldj/SwitchHosts/releases)                 |
@@ -155,19 +151,19 @@ mvn clean install -DskipTests=true -Pprod
 
 ### 开发环境
 
-|      工具       | 版本       | 下载                                                                                                                     |
-|:-------------:|:---------|------------------------------------------------------------------------------------------------------------------------|
-|      jdk      | 17+      | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
-|     maven     | 3.5+     | [https://maven.apache.org/](https://maven.apache.org/)                                                                 |
-|     mysql     | 8.0+     | [https://www.mysql.com/downloads/](https://www.mysql.com/downloads/)                                                   |
-|     redis     | 6.0+     | [https://redis.io/download/](https://redis.io/download/)                                                               |
-| elasticsearch | 8.0.0+   | [https://www.elastic.co/cn/downloads/elasticsearch](https://www.elastic.co/cn/downloads/elasticsearch)                 |
-|     nginx     | 1.10+    | [https://nginx.org/en/download.html](https://nginx.org/en/download.html)                                               |
-|   rabbitmq    | 3.10.14+ | [https://www.rabbitmq.com/news.html](https://www.rabbitmq.com/news.html)                                               |
-|    ali-oss    | 3.15.1   | [https://help.aliyun.com/document_detail/31946.html](https://help.aliyun.com/document_detail/31946.html)               |
-|      git      | 2.34.1   | [http://github.com/](http://github.com/)                                                                               |
-|    docker     | 4.10.0+  | [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)                                                   |
-| let's encrypt | https证书  | [https://letsencrypt.org/](https://letsencrypt.org/)                                                                   |
+|      工具       | 版本      | 下载                                                                                                                     |
+|:-------------:|:--------|------------------------------------------------------------------------------------------------------------------------|
+|      jdk      | 17+     | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
+|     maven     | 3.5+    | [https://maven.apache.org/](https://maven.apache.org/)                                                                 |
+|     mysql     | 8.0+    | [https://www.mysql.com/downloads/](https://www.mysql.com/downloads/)                                                   |
+|     redis     | 6.0+    | [https://redis.io/download/](https://redis.io/download/)                                                               |
+| elasticsearch | 8.0.0+  | [https://www.elastic.co/cn/downloads/elasticsearch](https://www.elastic.co/cn/downloads/elasticsearch)                 |
+|     nginx     | 1.10+   | [https://nginx.org/en/download.html](https://nginx.org/en/download.html)                                               |
+|   rabbitmq    | 3.12+   | [https://www.rabbitmq.com/news.html](https://www.rabbitmq.com/news.html)                                               |
+|    ali-oss    | 3.15.1  | [https://help.aliyun.com/document_detail/31946.html](https://help.aliyun.com/document_detail/31946.html)               |
+|      git      | 2.34.1  | [http://github.com/](http://github.com/)                                                                               |
+|    docker     | 4.10.0+ | [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)                                                   |
+| let's encrypt | https证书 | [https://letsencrypt.org/](https://letsencrypt.org/)                                                                   |
 
 ### 搭建步骤
 
@@ -182,7 +178,8 @@ mvn clean install -DskipTests=true -Pprod
 
 ## 五、友情链接
 
-- [小灰飞的碎碎念](https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg) ：个人的Java后端面试八股等分享公众号，包含数据库、JUC、JVM等（仍在更新中），文章融入了自己的理解和原创图，感兴趣的uu关注一下哦~😄
+- 小灰飞的碎碎念：个人的Java后端面试八股等分享公众号，包含数据库、JUC、JVM等（仍在更新中），文章融入了自己的理解和原创图，感兴趣的uu关注一下哦~😄\
+![](https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg)
 - [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
 
 
