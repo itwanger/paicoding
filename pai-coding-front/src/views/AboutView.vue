@@ -67,6 +67,9 @@
 <!--                  荣誉-->
                   <h2 class="text-blue-400"> 所获荣誉 </h2>
                   <p class="m-1">
+                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon>南京大学硕士学业一等奖学金</span>
+                  </p>
+                  <p class="m-1">
                     <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon>华中科技大学2023届<b>优秀毕业生</b></span>
                   </p>
                   <p class="m-1">
@@ -129,25 +132,25 @@
                           <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过验证码和前端保持半长链接映射关系，当用户扫码关注公众号并输入验证后，发起回调，识别用户信息并找到对应半长链接，实现系统自动登录</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>将用户评论、点赞、收藏、系统消息发送到RabbitMQ、实现消息的异步解耦，提升系统效率和服务稳定性</span>
-                        </p>
-                        <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过Redis实现计数统计和用户活跃度排行，并通过先写MySQL再删Redis的方案来保证高并发场景下的缓存一致性</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>将⽤⼾相关动态消息的处理机制进⾏异步优化，在⾼负载情况下的最⼤响应时间降低33%，提升系统效率和稳定性</span>
                         </p>
                         <p class="m-1 ml-4">
                           <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>采用HandlerExceptionResolver的全局异常处理策略，提高了代码的健壮性和可维护性，优化了用户体验</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>基于ThreadLocal在登录校验拦截器中封装线程隔离的全局上下文，以便在线程内部存储用户信息，减少用户信息的数据库查询次数</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>基于ThreadLocal在封装线程隔离的全局上下⽂，减少⽤⼾信息的数据库查询次数</span>
                         </p>
                         <p class="m-1 ml-4">
                           <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过AOP + TraceID 记录接口访问日志，实现任务的追踪、监控和诊断</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>借助Redis的zset数据结构实现轻量级的作者白名单，提升优秀作者发布文章的用户体验</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过缓存+会话session实现计数统计与在线⼈数实时展⽰，使系统的平均响应速度提升了20%</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>采用自旋锁策略优化缓存结构，针对热key的并发访问进行同步，防止其失效时的缓存击穿</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>针对热点⽂章进⾏动态缓存，将访问⾼频⽂章的响应时⻓从1000ms提升⾄700ms，QPS提升25%</span>
+                        </p>
+                        <p class="m-1 ml-4">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过分析系统的响应报告，进⾏简单的JVM参数调整，提升了系统的响应性能</span>
                         </p>
                         <p class="m-1">
                           <span><el-icon size="13"><CaretRight /></el-icon><b>项目链接：</b><a href="http://www.xuyifei.site"><u>就是本项目</u></a></span>
