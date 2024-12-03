@@ -43,3 +43,7 @@ pid.log
 ### .DS_Store
 
 **/.DS_Store
+
+
+# 支付证书相关移除
+paicoding-web/src/main/resources/cert

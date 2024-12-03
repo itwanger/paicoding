@@ -98,6 +98,12 @@
             <artifactId>spring-messaging</artifactId>
         </dependency>
 
+        <!-- 微信支付 -->
+        <dependency>
+            <groupId>com.github.wechatpay-apiv3</groupId>
+            <artifactId>wechatpay-java</artifactId>
+            <version>0.2.14</version>
+        </dependency>
     </dependencies>
 
 </project>
