@@ -36,11 +36,11 @@
 
 #### Vue 版前后端分离版本
 
-这个版本是将原本技术派经过二次开发，将前端使用vue3重写，并且将后端技术栈升级到Spring Boot3之后的版本，同时对项目进行了一些优化，使得项目更加适合二次开发。
+这个版本对技术派进行了二次开发，将用户端的前端 UI 使用 Vue3 重写，并且将后端升级到 Spring Boot 3 版本，喜欢 Vue3 或者 Spring Boot 3 版本的球友可以看看这个分支。
 
 - 项目仓库（GitHub）：[https://github.com/itwanger/paicoding/tree/springboot3%26vue3](https://github.com/itwanger/paicoding/tree/springboot3%26vue3)
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding/tree/springboot3%26vue3](https://gitee.com/itwanger/paicoding/tree/springboot3%26vue3)
-- 项目演示地址：[https://www.xuyifei.site/](https://www.xuyifei.site/)
+  - 项目演示地址（球友小灰飞）：[https://www.xuyifei.site/](https://www.xuyifei.site/)
 
 ![编程汇vue3+Spring Boot3](https://cdn.tobebetterjavaer.com/paicoding/README-1799f2f840fc4687a1cda4486782a07a.png)
 
