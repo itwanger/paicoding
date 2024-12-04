@@ -172,14 +172,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
-            <h5 class="modal-title" id="payInfoModel">打赏解锁阅读全文</h5>
+            <h5 class="modal-title" id="payInfoModel">支付解锁阅读全文</h5>
           </a>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <div th:replace="views/user/pay/payShow :: user_pay(${author.payQrCodes})"></div>
+          <div th:replace="views/user/pay/payShow :: user_pay(${author.payQrCodes}, ${article})"></div>
         </div>
         <div class="modal-footer">
           <a href="#" data-target="#payInfoModal" data-toggle="modal" type="button" class="btn btn-primary"
@@ -407,12 +407,7 @@
     let payId;
     function showPayModal() {
       $('#payModel').modal('show');
-      let notes = getNotesInfo()
-      // 调用后端接口，用于创建一个打赏记录
-      get("/article/api/pay/toPay", {"articleId": id, "notes": notes}, (res) => {
-        console.log("打赏关联记录:", res);
-        payId = res.payId;
-      })
+        autoShowPay();
     }
 
     function hasPaying() {

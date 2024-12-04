@@ -100,6 +100,16 @@ public class ArticlePostReq implements Serializable {
      */
     private Integer readType;
 
+    /**
+     * 当 ArticleReadTypeEnum 为 付费阅读时，这里记录具体的收款方式
+     */
+    private String payWay;
+
+    /**
+     * 付费解锁价格
+     */
+    private Integer payAmount;
+
     public PushStatusEnum pushStatus() {
         if ("post".equalsIgnoreCase(actionType)) {
             return PushStatusEnum.ONLINE;

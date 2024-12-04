@@ -2,14 +2,17 @@ package com.github.paicoding.forum.service.pay.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.net.HttpRequestHelper;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.RandUtil;
 import com.github.paicoding.forum.service.pay.ThirdPayService;
 import com.github.paicoding.forum.service.pay.config.WxPayConfig;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
+import com.github.paicoding.forum.service.pay.service.wx.H5WxPayService;
+import com.github.paicoding.forum.service.pay.service.wx.JsapiWxPayService;
+import com.github.paicoding.forum.service.pay.service.wx.NativeWxPayService;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.core.exception.ValidationException;
@@ -17,16 +20,6 @@ import com.wechat.pay.java.core.notification.NotificationConfig;
 import com.wechat.pay.java.core.notification.NotificationParser;
 import com.wechat.pay.java.core.notification.RequestParam;
 import com.wechat.pay.java.core.util.PemUtil;
-import com.wechat.pay.java.service.payments.h5.H5Service;
-import com.wechat.pay.java.service.payments.h5.model.H5Info;
-import com.wechat.pay.java.service.payments.h5.model.SceneInfo;
-import com.wechat.pay.java.service.payments.jsapi.JsapiService;
-import com.wechat.pay.java.service.payments.jsapi.model.Amount;
-import com.wechat.pay.java.service.payments.jsapi.model.CloseOrderRequest;
-import com.wechat.pay.java.service.payments.jsapi.model.Payer;
-import com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest;
-import com.wechat.pay.java.service.payments.jsapi.model.PrepayResponse;
-import com.wechat.pay.java.service.payments.jsapi.model.QueryOrderByOutTradeNoRequest;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.RefundService;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
@@ -53,67 +46,20 @@ public class WxPayServiceImpl implements ThirdPayService {
     @Autowired
     private WxPayConfig wxPayConfig;
 
-    /**
-     * jsApi微信支付 -- 适用于小程序、公众号等方式的支付场景: 需要拿到用户的openId
-     */
     @Override
-    public PrePayInfoResBo jsApiOrder(ThirdPayOrderReqBo payReq) throws Exception {
-        log.info("微信支付 >>>>>>>>>>>>>>>>> 请求：{}", JSONObject.toJSON(payReq));
-        PrepayRequest request = new PrepayRequest();
-        Amount amount = new Amount();
-        amount.setTotal(payReq.getTotal());
-        Payer payer = new Payer();
-
-        payer.setOpenid(payReq.getOpenId());
-        request.setAmount(amount);
-        request.setPayer(payer);
-        request.setAppid(wxPayConfig.getAppId());
-        request.setMchid(wxPayConfig.getMerchantId());
-        request.setDescription(payReq.getDescription());
-
-        request.setNotifyUrl(wxPayConfig.getPayNotifyUrl());
-        request.setOutTradeNo(payReq.getOutTradeNo());
-
-        PrepayResponse response = getJsapiService().prepay(request);
-        log.info("微信支付 >>>>>>>>>>>> 返回: {}", response.getPrepayId());
-        return genToPayPrePayInfo(response.getPrepayId(), payReq.getOutTradeNo(), ThirdPayWayEnum.WX_JSAPI);
+    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay) {
+        log.info("微信支付 >>>>>>>>>>>>>>>>> 请求：{}, 支付方式：{}", JsonUtil.toStr(payReq), payWay);
+        String prePayRes = null;
+        if (payWay == ThirdPayWayEnum.WX_H5) {
+            prePayRes = H5WxPayService.h5ApiOrder(payReq, wxPayConfig);
+        } else if (payWay == ThirdPayWayEnum.WX_JSAPI) {
+            prePayRes = JsapiWxPayService.jsApiOrder(payReq, wxPayConfig);
+        } else if (payWay == ThirdPayWayEnum.WX_NATIVE) {
+            prePayRes = NativeWxPayService.nativeApiOrder(payReq, wxPayConfig);
+        }
+        return genToPayPrePayInfo(prePayRes, payReq.getOutTradeNo(), payWay);
     }
 
-    /**
-     * h5支付，生成微信支付收银台中间页，适用于拿不到微信给与的用户 OpenId 场景
-     *
-     * @return
-     */
-    public PrePayInfoResBo h5ApiOrder(ThirdPayOrderReqBo payReq) {
-        log.info("微信支付 >>>>>>>>>>>>>>>>> 请求：{}", JSONObject.toJSON(payReq));
-        com.wechat.pay.java.service.payments.h5.model.PrepayRequest request = new com.wechat.pay.java.service.payments.h5.model.PrepayRequest();
-        com.wechat.pay.java.service.payments.h5.model.Amount amount = new com.wechat.pay.java.service.payments.h5.model.Amount();
-        amount.setTotal(payReq.getTotal());
-        amount.setCurrency("CNY");
-
-        request.setAmount(amount);
-
-        request.setAppid(wxPayConfig.getAppId());
-        request.setMchid(wxPayConfig.getMerchantId());
-        request.setDescription(payReq.getDescription());
-
-        request.setNotifyUrl(wxPayConfig.getPayNotifyUrl());
-        request.setOutTradeNo(payReq.getOutTradeNo());
-
-        SceneInfo sceneInfo = new SceneInfo();
-        sceneInfo.setPayerClientIp(ReqInfoContext.getReqInfo().getClientIp());
-        H5Info h5Info = new H5Info();
-        h5Info.setAppName("技术派");
-        h5Info.setAppUrl("https://paicoding.com");
-        h5Info.setType("PC");
-        sceneInfo.setH5Info(h5Info);
-        request.setSceneInfo(sceneInfo);
-
-        log.info("微信支付 >>>>>>>>>>>> 请求: {}", JSON.toJSONString(request));
-        com.wechat.pay.java.service.payments.h5.model.PrepayResponse response = getH5Service().prepay(request);
-        log.info("微信支付 >>>>>>>>>>>> 返回: {}", response.getH5Url());
-        return genToPayPrePayInfo(response.getH5Url(), payReq.getOutTradeNo(), ThirdPayWayEnum.WX_H5);
-    }
 
     /**
      * 唤起支付
@@ -126,7 +72,8 @@ public class WxPayServiceImpl implements ThirdPayService {
     @Override
     public PrePayInfoResBo genToPayPrePayInfo(String prePayId, String outTradeNo, ThirdPayWayEnum payWay) {
         try {
-            String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
+            long now = System.currentTimeMillis();
+            String timeStamp = String.valueOf(now / 1000);
             //随机字符串,要求小于32位
             String nonceStr = RandUtil.random(30);
             String packageStr = "prepay_id=" + prePayId;
@@ -154,6 +101,16 @@ public class WxPayServiceImpl implements ThirdPayService {
             prePay.setTimeStamp(timeStamp);
             prePay.setPaySign(signStrBase64);
             prePay.setPrePayId(prePayId);
+            if (payWay == ThirdPayWayEnum.WX_H5) {
+                // 官方说明有效期五分钟，我们这里设置一下有效期为四分之后，避免正好卡在失效的时间点
+                prePay.setExpireTime(now + 250_000);
+            } else if (payWay == ThirdPayWayEnum.WX_NATIVE) {
+                // 官方说明有效期为两小时，我们设置为1.8小时之后失效
+                prePay.setExpireTime(now + 18 * 360_000L);
+            } else if (payWay == ThirdPayWayEnum.WX_JSAPI) {
+                // 官方说明有效期为两小时，我们设置为1.8小时之后失效
+                prePay.setExpireTime(now + 18 * 360_000L);
+            }
             return prePay;
         } catch (Exception e) {
             log.error("唤醒支付签名异常: {} - {}", prePayId, outTradeNo, e);
@@ -171,7 +128,7 @@ public class WxPayServiceImpl implements ThirdPayService {
      */
     @Transactional
     @Override
-    public ResponseEntity<?> callback(HttpServletRequest request, Function<Transaction, Boolean> payCallback) throws IOException {
+    public ResponseEntity<?> payCallback(HttpServletRequest request, Function<Transaction, Boolean> payCallback) throws IOException {
         RequestParam requestParam = new RequestParam.Builder()
                 .serialNumber(request.getHeader("Wechatpay-Serial"))
                 .nonce(request.getHeader("Wechatpay-Nonce"))
@@ -213,52 +170,34 @@ public class WxPayServiceImpl implements ThirdPayService {
      * 关闭微信支付
      */
     @Override
-    public void closePay(String outTradeNo) {
-        CloseOrderRequest closeRequest = new CloseOrderRequest();
-        closeRequest.setMchid(wxPayConfig.getMerchantId());
-        closeRequest.setOutTradeNo(outTradeNo);
-        getJsapiService().closeOrder(closeRequest);
+    public void closePayOrder(String outTradeNo, ThirdPayWayEnum payWay) {
+        switch (payWay) {
+            case WX_H5:
+                H5WxPayService.closeOrder(outTradeNo, wxPayConfig);
+                break;
+            case WX_JSAPI:
+                JsapiWxPayService.closeOrder(outTradeNo, wxPayConfig);
+                break;
+            case WX_NATIVE:
+                NativeWxPayService.closeOrder(outTradeNo, wxPayConfig);
+                break;
+        }
     }
 
     @Override
-    public Transaction queryWxPayOrderOutTradeNo(String transNo) {
-        QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
-        request.setMchid(wxPayConfig.getMerchantId());
-        request.setOutTradeNo(transNo);
-        Transaction transaction = getJsapiService().queryOrderByOutTradeNo(request);
-        // TODO 处理你的业务逻辑
-        return transaction;
+    public Transaction queryPayOrderOutTradeNo(String outTradeNo, ThirdPayWayEnum payWay) {
+        switch (payWay) {
+            case WX_H5:
+                return H5WxPayService.queryOrder(outTradeNo, wxPayConfig);
+            case WX_JSAPI:
+                return JsapiWxPayService.queryOrder(outTradeNo, wxPayConfig);
+            case WX_NATIVE:
+                return NativeWxPayService.queryOrder(outTradeNo, wxPayConfig);
+            default:
+                return null;
+        }
     }
 
-
-    /**
-     * 创建小程序支付服务
-     *
-     * @return
-     */
-    protected JsapiService getJsapiService() {
-        Config config =
-                new RSAAutoCertificateConfig.Builder()
-                        .merchantId(wxPayConfig.getMerchantId())
-                        .privateKey(wxPayConfig.getPrivateKeyContent())
-                        .merchantSerialNumber(wxPayConfig.getMerchantSerialNumber())
-                        .apiV3Key(wxPayConfig.getApiV3Key())
-                        .build();
-        config.createSigner().getAlgorithm();
-        return new JsapiService.Builder().config(config).build();
-    }
-
-    protected H5Service getH5Service() {
-        Config config =
-                new RSAAutoCertificateConfig.Builder()
-                        .merchantId(wxPayConfig.getMerchantId())
-                        .privateKey(wxPayConfig.getPrivateKeyContent())
-                        .merchantSerialNumber(wxPayConfig.getMerchantSerialNumber())
-                        .apiV3Key(wxPayConfig.getApiV3Key())
-                        .build();
-        config.createSigner().getAlgorithm();
-        return new H5Service.Builder().config(config).build();
-    }
 
     /**
      * 退款服务

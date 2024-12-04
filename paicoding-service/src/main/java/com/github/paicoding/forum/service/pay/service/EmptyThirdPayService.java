@@ -1,11 +1,15 @@
-package com.github.paicoding.forum.service.pay;
+
+package com.github.paicoding.forum.service.pay.service;
 
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
+import com.github.paicoding.forum.service.pay.ThirdPayService;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -17,7 +21,9 @@ import java.util.function.Function;
  * @author YiHui
  * @date 2024/12/3
  */
-public interface ThirdPayService {
+@Service
+@ConditionalOnMissingBean(ThirdPayService.class)
+public class EmptyThirdPayService {
 
     /**
      * 下单
@@ -25,23 +31,28 @@ public interface ThirdPayService {
      * @param payReq
      * @param payWay
      * @return
-     * @throws Exception
      */
-    PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay);
+    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay) {
+        return null;
+    }
 
     /**
      * 查询订单，根据商户订单号
      *
      * @return
      */
-    Transaction queryPayOrderOutTradeNo(String transNo, ThirdPayWayEnum payWay);
+    public Transaction queryPayOrderOutTradeNo(String transNo, ThirdPayWayEnum payWay) {
+        return null;
+    }
 
     /**
      * 关闭订单
      *
      * @return
      */
-    void closePayOrder(String outTradeNo, ThirdPayWayEnum payWay);
+    public void closePayOrder(String outTradeNo, ThirdPayWayEnum payWay) {
+
+    }
 
     /**
      * 构建前端唤醒支付的相关信息
@@ -52,7 +63,9 @@ public interface ThirdPayService {
      * @return
      * @throws Exception
      */
-    PrePayInfoResBo genToPayPrePayInfo(String prePayId, String outTradeNo, ThirdPayWayEnum payWay);
+    public PrePayInfoResBo genToPayPrePayInfo(String prePayId, String outTradeNo, ThirdPayWayEnum payWay) {
+        return null;
+    }
 
     /**
      * 支付回调
@@ -62,7 +75,9 @@ public interface ThirdPayService {
      * @return
      * @throws IOException
      */
-    ResponseEntity payCallback(HttpServletRequest request, Function<Transaction, Boolean> payCallback) throws IOException;
+    public ResponseEntity payCallback(HttpServletRequest request, Function<Transaction, Boolean> payCallback) throws IOException {
+        return null;
+    }
 
 
     /**
@@ -73,5 +88,7 @@ public interface ThirdPayService {
      * @return
      * @throws IOException
      */
-    ResponseEntity refundCallback(HttpServletRequest request, Function<RefundNotification, Boolean> refundCallback) throws IOException;
+    public ResponseEntity refundCallback(HttpServletRequest request, Function<RefundNotification, Boolean> refundCallback) throws IOException {
+        return null;
+    }
 }
