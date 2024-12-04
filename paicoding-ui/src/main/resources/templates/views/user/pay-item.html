@@ -179,7 +179,6 @@
         background: #f8f8f8;
         border-radius: 8px;
         padding: 16px;
-        font-size: 0;
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
@@ -319,7 +318,7 @@
 
     .price-info .other-pay[data-v-5e484e7a] {
         position: absolute;
-        bottom: 20px;
+        bottom: 50px;
         width: 100%
     }
 
@@ -556,10 +555,12 @@
                             <div data-v-5e7b6906="" data-v-794d7a3a="" class="qrcode-box">
                                 <div data-v-5e7b6906="" class="wrap-qrcode qr_code">
                                     <div data-v-5e7b6906="" class="" id="notify">
-                                        <img
-                                                data-v-5e7b6906="" class="pay_icon"
-                                                src="https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png">
-                                    </div> <!----></div>
+                                        <img id="qrImg"
+                                             data-v-5e7b6906="" class="pay_icon"
+                                             src="">
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.8em;padding-left: 1em;">打开微信，扫一扫支付</div>
                             </div>
 
                         </div>
@@ -585,8 +586,21 @@
                                      class="item"
                                      onclick="goPay()">
                                     <i data-v-5e484e7a="" class="other-pay-icon"></i>
-                                    去支付
+                                    H5支付
                                 </div>
+
+                                <div data-v-5e484e7a="" data-report-click="{&quot;spm&quot;:&quot;3001.6389&quot;}"
+                                     class="item"
+                                     onclick="nativePay()">
+                                    <i data-v-5e484e7a="" class="other-pay-icon"></i>
+                                    native支付
+                                </div>
+                            </div>
+                            <div style="position: absolute; bottom: 2px;font-size: 0.8em;color: gray;">
+                                <ul>
+                                    <li>tip: h5支付，请用手机浏览器登录打开本网页，然后点击 h5支付 按钮，会自动唤起微信进行支付</li>
+                                    <li>tip: native支付，点击按钮之后，左边二维码会刷新，请用手机微信扫一扫实现付款</li>
+                                    <ul>
                             </div>
                         </div>
                     </div>
@@ -605,6 +619,28 @@
                 // 打开支付中间页
                 console.log("支付中间页:", data);
                 window.open(data.prePayId, "_blank");
+            });
+        }
+
+        function nativePay() {
+            // 点击去支付
+            let id = parseInt(new Date().getTime() / 1000);
+            let amount = parseInt(Math.random() * 10, 10);
+            get("/test/nativePay?outTradeNo=" + id + '&amount=' + amount, {}, function (data) {
+                // 打开支付中间页
+                console.log("支付中间页:", data);
+                data = data.result;
+                qrImg = ''
+                if (data && data['prePayId']) {
+                    // 显示图片
+                    let qrImg = data['prePayId']
+                    if (!(qrImg.startsWith("http") || qrImg.startsWith("blob"))) {
+                        qrImg = 'data:image/png;base64,' + qrImg;
+                    }
+                }
+                console.log('更新支付二维码图片: ', qrImg);
+                $('#qrImg').attr('src', qrImg);
+                toastr.info("支付二维码已展示再左边，请打开手机微信扫一扫试试吧")
             });
         }
     </script>

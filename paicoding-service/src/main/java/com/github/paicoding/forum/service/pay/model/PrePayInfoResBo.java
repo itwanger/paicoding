@@ -44,4 +44,9 @@ public class PrePayInfoResBo {
      * h5: 返回的是微信收银台中间页 url
      */
     private String prePayId;
+
+    /**
+     * 失效的时间戳
+     */
+    private Long expireTime;
 }
