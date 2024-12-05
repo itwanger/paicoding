@@ -2,6 +2,7 @@ package com.github.paicoding.forum.api.model.vo.article.dto;
 
 import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import lombok.Data;
@@ -87,6 +88,7 @@ public class ArticleDTO implements Serializable {
 
     /**
      * 阅读类型
+     *
      * @see ArticleReadTypeEnum#getType()
      */
     private Integer readType;
@@ -155,4 +157,16 @@ public class ArticleDTO implements Serializable {
      * 点赞用户信息
      */
     private List<SimpleUserInfoDTO> praisedUsers;
+
+    /**
+     * 支付金额，单位（元）, 为了防止精度问题，返回String格式
+     */
+    private String payAmount;
+
+    /**
+     * 付款方式
+     *
+     * @see ThirdPayWayEnum#wxPay()
+     */
+    private String payWay;
 }

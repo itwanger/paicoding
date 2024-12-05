@@ -102,4 +102,9 @@
     <changeSet id="000020241030_0" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_241029.sql"/>
     </changeSet>
+
+    <!-- 新增微信支付对接   -->
+    <changeSet id="000020241204_0" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_241204.sql"/>
+    </changeSet>
 </databaseChangeLog>

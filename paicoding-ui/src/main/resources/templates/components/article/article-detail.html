@@ -139,7 +139,8 @@
   <div th:if="${other.readType == 4 && article.canRead != null && article.canRead == false}">
     <div class="needlock" style="text-align: center">
       <a class="btn-readmore no-login underline" data-target="#payInfoModal" data-toggle="modal">
-        <button type="button" class="c-btn" onclick="showPayModal()">打赏之后立即解锁阅读全文🔐</button>
+        <button type="button" class="c-btn" onclick="showPayModal()" th:if="${T(java.util.Objects).equals(article.payWay, 'email')}">打赏之后立即解锁阅读全文🔐</button>
+        <button type="button" class="c-btn" onclick="showPayModal()" th:if="${!T(java.util.Objects).equals(article.payWay, 'email') && article.payAmount != null}">支付<span style="font-size: 1.4em;color: #ffeb3b;padding:0 0.2em" th:text="'￥' + ${article.payAmount}">元</span>立即解锁阅读全文🔐</button>
       </a>
     </div>
   </div>
@@ -172,14 +173,14 @@
       <div class="modal-content">
         <div class="modal-header">
           <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
-            <h5 class="modal-title" id="payInfoModel">打赏解锁阅读全文</h5>
+            <h5 class="modal-title" id="payInfoModel">支付解锁阅读全文</h5>
           </a>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <div th:replace="views/user/pay/payShow :: user_pay(${author.payQrCodes})"></div>
+          <div th:replace="views/user/pay/payShow :: user_pay(${author.payQrCodes}, ${article})"></div>
         </div>
         <div class="modal-footer">
           <a href="#" data-target="#payInfoModal" data-toggle="modal" type="button" class="btn btn-primary"
@@ -407,12 +408,7 @@
     let payId;
     function showPayModal() {
       $('#payModel').modal('show');
-      let notes = getNotesInfo()
-      // 调用后端接口，用于创建一个打赏记录
-      get("/article/api/pay/toPay", {"articleId": id, "notes": notes}, (res) => {
-        console.log("打赏关联记录:", res);
-        payId = res.payId;
-      })
+        autoShowPay();
     }
 
     function hasPaying() {

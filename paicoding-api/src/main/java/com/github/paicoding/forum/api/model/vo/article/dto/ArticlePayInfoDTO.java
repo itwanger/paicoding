@@ -43,4 +43,23 @@ public class ArticlePayInfoDTO implements Serializable {
      */
     private Map<String, String> payQrCodeMap;
 
+    /**
+     * 支付方式
+     */
+    private String payWay;
+
+    /**
+     * 支付金额
+     */
+    private String payAmount;
+
+    /**
+     * 支付信息
+     */
+    private String prePayId;
+
+    /**
+     * 失效时间
+     */
+    private Long prePayExpireTime;
 }

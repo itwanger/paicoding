@@ -96,4 +96,14 @@ public class ArticleDO extends BaseDO {
      * @see ArticleReadTypeEnum#getType()
      */
     private Integer readType;
+
+    /**
+     * 支付解锁金额
+     */
+    private Integer payAmount;
+
+    /**
+     * 支付方式
+     */
+    private String payWay;
 }

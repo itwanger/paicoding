@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web.front.article.vo;
 
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleOtherDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
@@ -35,6 +36,10 @@ public class ArticleDetailVo {
      * 作者相关信息
      */
     private UserStatisticInfoDTO author;
+
+
+    private ArticlePayInfoDTO payInfo;
+
     // 其他的信息，比如说翻页，比如说阅读类型
     private ArticleOtherDTO other;
 

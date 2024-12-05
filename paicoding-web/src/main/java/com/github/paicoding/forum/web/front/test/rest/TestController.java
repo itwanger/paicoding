@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.test.rest;
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
@@ -17,6 +18,7 @@ import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.config.service.GlobalConfigService;
 import com.github.paicoding.forum.service.pay.ThirdPayService;
@@ -338,6 +340,7 @@ public class TestController {
         log.info("loadmore: {}", loadmore);
     }
 
+    @Permission(role = UserRole.ALL)
     @GetMapping(path = "h5pay")
     public ResVo<PrePayInfoResBo> testH5Pay(String outTradeNo, int amount) throws Exception {
         ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
@@ -346,8 +349,26 @@ public class TestController {
         req.setTotal(amount <= 0 ? 1 : amount);
         ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
         if (thirdPayService != null) {
-            PrePayInfoResBo res = thirdPayService.h5ApiOrder(req);
+            PrePayInfoResBo res = thirdPayService.createPayOrder(req, ThirdPayWayEnum.WX_H5);
             log.info("返回结果: {}", res);
+            return ResVo.ok(res);
+        } else {
+            return ResVo.ok(null);
+        }
+    }
+
+    @Permission(role = UserRole.ALL)
+    @GetMapping(path = "nativePay")
+    public ResVo<PrePayInfoResBo> testNativePay(String outTradeNo, int amount) throws Exception {
+        ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
+        req.setOutTradeNo("TEST-N-" + outTradeNo);
+        req.setDescription("测试native支付");
+        req.setTotal(amount <= 0 ? 1 : amount);
+        ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
+        if (thirdPayService != null) {
+            PrePayInfoResBo res = thirdPayService.createPayOrder(req, ThirdPayWayEnum.WX_NATIVE);
+            log.info("返回结果: {}", res);
+            res.setPrePayId(PayConverter.genQrCode(res.getPrePayId()));
             return ResVo.ok(res);
         } else {
             return ResVo.ok(null);
