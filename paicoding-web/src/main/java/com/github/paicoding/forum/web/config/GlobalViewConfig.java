@@ -13,6 +13,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class GlobalViewConfig {
 
+    /**
+     * true 表示开启了微信支付
+     * false 标识未配置微信支付
+     */
+    private Boolean wxPayEnable;
+
     private String cdnImgStyle;
 
     private String websiteRecord;

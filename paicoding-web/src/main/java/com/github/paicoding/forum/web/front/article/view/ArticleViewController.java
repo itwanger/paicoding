@@ -83,6 +83,9 @@ public class ArticleViewController extends BaseViewController {
     @Autowired
     private ArticleReadViewServiceExtend articleReadViewServiceExtend;
 
+    @Autowired
+    private ArticlePayService articlePayService;
+
     /**
      * 文章编辑页
      *
@@ -183,9 +186,6 @@ public class ArticleViewController extends BaseViewController {
         return "views/article-detail/index";
     }
 
-
-    @Autowired
-    ArticlePayService articlePayService;
 
     @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "payConfirm")

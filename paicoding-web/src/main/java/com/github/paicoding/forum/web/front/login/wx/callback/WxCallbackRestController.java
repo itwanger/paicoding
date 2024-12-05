@@ -1,9 +1,13 @@
 package com.github.paicoding.forum.web.front.login.wx.callback;
 
+import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.id.IdUtil;
+import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.pay.ThirdPayService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
@@ -40,6 +44,8 @@ public class WxCallbackRestController {
     private WxLoginHelper qrLoginHelper;
     @Autowired
     private WxAckHelper wxHelper;
+    @Autowired
+    private ArticlePayService articlePayService;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -105,18 +111,35 @@ public class WxCallbackRestController {
      */
     @PostMapping(path = "payNotify")
     public ResponseEntity<?> wxPayCallback(HttpServletRequest request) throws IOException {
-        return SpringUtil.getBeanOrNull(ThirdPayService.class).callback(request, new Function<Transaction, Boolean>() {
+        return SpringUtil.getBeanOrNull(ThirdPayService.class).payCallback(request, new Function<Transaction, Boolean>() {
             @Override
             public Boolean apply(Transaction transaction) {
                 log.info("微信支付回调执行业务逻辑 {}", transaction);
-                return false;
+                String outTradeNo = transaction.getOutTradeNo();
+                Long payId = IdUtil.getPayIdFromPayCode(outTradeNo);
+                PayStatusEnum payStatus;
+                switch (transaction.getTradeState()) {
+                    case SUCCESS:
+                        payStatus = PayStatusEnum.SUCCEED;
+                        break;
+                    case NOTPAY:
+                        payStatus = PayStatusEnum.NOT_PAY;
+                        break;
+                    case USERPAYING:
+                        payStatus = PayStatusEnum.PAYING;
+                        break;
+                    default:
+                        payStatus = PayStatusEnum.FAIL;
+                }
+                Long payTime = transaction.getSuccessTime() != null ? DateUtil.wxDayToTimestamp(transaction.getSuccessTime()) : null;
+                return articlePayService.updatePayStatus(payId, outTradeNo, payStatus, payTime, transaction.getTransactionId());
             }
         });
     }
 
 
     /**
-     * 退款回调
+     * todo: 退款回调
      *
      * @return
      */

@@ -2,14 +2,17 @@ package com.github.paicoding.forum.web.front.article.rest;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
-import jodd.util.StringUtil;
+import com.github.paicoding.forum.service.pay.ThirdPayService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,8 +39,13 @@ public class ArticlePayRestController {
      */
     @Permission(role = UserRole.LOGIN)
     @RequestMapping(path = "toPay")
-    public ResVo<ArticlePayInfoDTO> toPay(Long articleId, String notes) {
-        ArticlePayInfoDTO info = articlePayService.toPay(articleId, ReqInfoContext.getReqInfo().getUserId(), notes);
+    public ResVo<ArticlePayInfoDTO> toPay(
+            @RequestParam(value = "articleId") Long articleId,
+            @RequestParam(value = "notes", required = false) String notes,
+            @RequestParam(value = "payWay", required = false) String payWay) {
+        ThirdPayWayEnum pay = StringUtils.isBlank(payWay) ? SpringUtil.getBean(ThirdPayService.class).getDefaultPayWay() : ThirdPayWayEnum.ofPay(payWay);
+        if (pay == null) pay = SpringUtil.getBean(ThirdPayService.class).getDefaultPayWay();
+        ArticlePayInfoDTO info = articlePayService.toPay(articleId, ReqInfoContext.getReqInfo().getUserId(), notes, pay);
         return ResVo.ok(info);
     }
 
@@ -71,6 +79,12 @@ public class ArticlePayRestController {
     public ResVo<Boolean> callback(@RequestParam("verifyCode") String verifyCode,
                                    @RequestParam("payId") Long payId,
                                    @RequestParam("succeed") Boolean succeed) {
-        return ResVo.ok(articlePayService.updatePayStatus(payId, verifyCode, BooleanUtils.isTrue(succeed) ? PayStatusEnum.SUCCEED.getStatus() : PayStatusEnum.FAIL.getStatus()));
+        PayStatusEnum payStatus = BooleanUtils.isTrue(succeed) ? PayStatusEnum.SUCCEED : PayStatusEnum.FAIL;
+        Boolean ans = articlePayService.updatePayStatus(payId,
+                verifyCode,
+                payStatus,
+                System.currentTimeMillis(),
+                "");
+        return ResVo.ok(ans);
     }
 }
