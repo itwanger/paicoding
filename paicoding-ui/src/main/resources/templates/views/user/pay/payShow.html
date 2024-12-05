@@ -121,7 +121,7 @@
         let wx = $("#wx"), qq = $("#qq"), ali = $("#ali");
         let qrCode = $("#qrcode"), tips = $("#tips");
 
-        let qrMap = [[${payInfo}]]
+        let qrMap = {}
         let article = [[${article}]]
         console.log('文章内容:', article)
 
@@ -145,6 +145,7 @@
         }
 
         function emailPay() {
+            qrMap =  [[${payInfo}]]
             // 个人收款码支付方式
             let notesDiv = $('#mark')
             let notes;
