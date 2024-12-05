@@ -26,6 +26,7 @@ import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,11 +41,17 @@ import java.util.function.Function;
 
 
 @Slf4j
+@Primary
 @Service
 @ConditionalOnBean(WxPayConfig.class)
 public class WxPayServiceImpl implements ThirdPayService {
     @Autowired
     private WxPayConfig wxPayConfig;
+
+    @Override
+    public ThirdPayWayEnum getDefaultPayWay() {
+        return ThirdPayWayEnum.WX_NATIVE;
+    }
 
     @Override
     public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay) {
