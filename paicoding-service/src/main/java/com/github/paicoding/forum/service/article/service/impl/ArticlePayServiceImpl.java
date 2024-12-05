@@ -63,6 +63,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
     @Value("${view.site.host:https://paicoding.com}")
     private String host;
 
+    @Autowired
     private ThirdPayService thirdPayService;
 
 
