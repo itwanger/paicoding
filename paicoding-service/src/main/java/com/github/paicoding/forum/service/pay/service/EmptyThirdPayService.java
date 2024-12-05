@@ -7,9 +7,8 @@ import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -21,9 +20,12 @@ import java.util.function.Function;
  * @author YiHui
  * @date 2024/12/3
  */
-@Service
-@ConditionalOnMissingBean(ThirdPayService.class)
-public class EmptyThirdPayService {
+@Slf4j
+public class EmptyThirdPayService implements ThirdPayService {
+
+    public EmptyThirdPayService() {
+        log.info("无有效的三方支付服务，初始化一个空的!!!");
+    }
 
     /**
      * 下单
@@ -33,7 +35,7 @@ public class EmptyThirdPayService {
      * @return
      */
     public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay) {
-        return null;
+        return new PrePayInfoResBo();
     }
 
     /**
@@ -42,7 +44,7 @@ public class EmptyThirdPayService {
      * @return
      */
     public Transaction queryPayOrderOutTradeNo(String transNo, ThirdPayWayEnum payWay) {
-        return null;
+        return new Transaction();
     }
 
     /**
@@ -64,7 +66,7 @@ public class EmptyThirdPayService {
      * @throws Exception
      */
     public PrePayInfoResBo genToPayPrePayInfo(String prePayId, String outTradeNo, ThirdPayWayEnum payWay) {
-        return null;
+        return new PrePayInfoResBo();
     }
 
     /**

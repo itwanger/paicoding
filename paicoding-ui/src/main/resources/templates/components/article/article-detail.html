@@ -139,7 +139,8 @@
   <div th:if="${other.readType == 4 && article.canRead != null && article.canRead == false}">
     <div class="needlock" style="text-align: center">
       <a class="btn-readmore no-login underline" data-target="#payInfoModal" data-toggle="modal">
-        <button type="button" class="c-btn" onclick="showPayModal()">打赏之后立即解锁阅读全文🔐</button>
+        <button type="button" class="c-btn" onclick="showPayModal()" th:if="${T(java.util.Objects).equals(article.payWay, 'email')}">打赏之后立即解锁阅读全文🔐</button>
+        <button type="button" class="c-btn" onclick="showPayModal()" th:if="${!T(java.util.Objects).equals(article.payWay, 'email') && article.payAmount != null}">支付<span style="font-size: 1.4em;color: #ffeb3b;padding:0 0.2em" th:text="'￥' + ${article.payAmount}">元</span>立即解锁阅读全文🔐</button>
       </a>
     </div>
   </div>

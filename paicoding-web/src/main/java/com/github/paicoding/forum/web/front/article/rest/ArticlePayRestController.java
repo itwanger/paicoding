@@ -7,7 +7,9 @@ import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
+import com.github.paicoding.forum.service.pay.ThirdPayService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +43,8 @@ public class ArticlePayRestController {
             @RequestParam(value = "articleId") Long articleId,
             @RequestParam(value = "notes", required = false) String notes,
             @RequestParam(value = "payWay", required = false) String payWay) {
-        ThirdPayWayEnum pay = StringUtils.isBlank(payWay) ? ThirdPayWayEnum.WX_NATIVE : ThirdPayWayEnum.ofPay(payWay);
+        ThirdPayWayEnum pay = StringUtils.isBlank(payWay) ? SpringUtil.getBean(ThirdPayService.class).getDefaultPayWay() : ThirdPayWayEnum.ofPay(payWay);
+        if (pay == null) pay = SpringUtil.getBean(ThirdPayService.class).getDefaultPayWay();
         ArticlePayInfoDTO info = articlePayService.toPay(articleId, ReqInfoContext.getReqInfo().getUserId(), notes, pay);
         return ResVo.ok(info);
     }

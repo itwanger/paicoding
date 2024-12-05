@@ -12,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.article.TagReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
+import com.github.paicoding.forum.core.util.PriceUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.CategoryDO;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
@@ -76,7 +77,7 @@ public class ArticleConverter {
         articleDTO.setToppingStat(articleDO.getToppingStat());
         articleDTO.setCreamStat(articleDO.getCreamStat());
         articleDTO.setReadType(articleDO.getReadType());
-        articleDTO.setPayAmount(articleDO.getPayAmount());
+        articleDTO.setPayAmount(PriceUtil.toYuanPrice(articleDO.getPayAmount()));
         articleDTO.setPayWay(articleDO.getPayWay());
 
         // 设置类目id

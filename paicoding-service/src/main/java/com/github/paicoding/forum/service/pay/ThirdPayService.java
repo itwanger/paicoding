@@ -18,6 +18,9 @@ import java.util.function.Function;
  * @date 2024/12/3
  */
 public interface ThirdPayService {
+    default ThirdPayWayEnum getDefaultPayWay() {
+        return ThirdPayWayEnum.EMAIL;
+    }
 
     /**
      * 下单

@@ -71,7 +71,6 @@
                     <div id="cntDown" style="text-align: center" th:if="${article.payWay != null && article.payWay != 'email'}">
                         <!--   支付倒计时      -->
                         <p id="countdown" style="{font-size: 20px;color: #333;text-align: center;margin: 20px;}">
-                            支付倒计时
                         </p>
                     </div>
                 </div>
@@ -110,7 +109,7 @@
                     </div>
                 </div>
                 <div class="subtitle" id="tips">
-                    点击按钮切换收款二维码
+                    点击按钮切换个人收款二维码
                 </div>
                 <div class="subtitle" style="color: black">
                     备注：<input type="text" value="送人玫瑰，留有余香~" id="mark">
@@ -129,7 +128,10 @@
         let currentChoose = null
         function autoShowPay() {
             if (article.payWay) {
+                qrMap = {};
                 console.log('走微信支付逻辑')
+                // fixme 这里应该自动根据浏览器的agent，判断是微信浏览器、手机浏览器 还是 pc浏览器展示
+                // fixme 对于手机浏览器访问的场景，推荐使用 微信h5 支付； 对于pc浏览器 + 微信浏览器则走微信的native支付方式
                 if (article.payWay === 'wx_native') {
                     // 走微信支付的场景
                     wxPay()
@@ -143,7 +145,7 @@
         }
 
         function emailPay() {
-            // 微信native支付
+            // 个人收款码支付方式
             let notesDiv = $('#mark')
             let notes;
             if (notesDiv) {
@@ -199,23 +201,15 @@
         }
 
         function timDown(endTime) {
-// 定时更新倒计时
-            endTime = 1733318917000;
-            var countdownInterval = setInterval(function () {
-// 获取当前时间
+            // 支付倒计时
+            let countdownInterval = setInterval(function () {
                 var now = Date.now();
-// 计算剩余时间
                 var remainingTime = endTime - now;
-// 将剩余时间转换成分钟和秒钟
                 var minutes = Math.floor(remainingTime / (1000 * 60));
                 var seconds = Math.floor((remainingTime / 1000) % 60);
-// 更新倒计时文本内容
                 $("#countdown").text('支付倒计时：' + minutes + " 分钟 " + seconds + " 秒");
-// 判断倒计时是否结束
                 if (remainingTime <= 0) {
-// 清除倒计时定时器
                     clearInterval(countdownInterval);
-// 显示倒计时结束提示
                     $("#countdown").text("倒计时结束");
                 }
             }, 1000);

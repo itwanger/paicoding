@@ -12,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.StrUtil;
 import com.github.paicoding.forum.core.util.TransactionUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
@@ -62,8 +63,9 @@ public class ArticlePayServiceImpl implements ArticlePayService {
     @Value("${view.site.host:https://paicoding.com}")
     private String host;
 
-    @Autowired
     private ThirdPayService thirdPayService;
+
+
 
     @Override
     public boolean hasPayed(Long article, Long currentUerId) {
@@ -86,15 +88,29 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         if (dbRecord == null) {
             // 不存在时，创建一个
             dbRecord = createPayRecord(articleId, currentUserId, notes, payWay);
+        } else if (Objects.equals(dbRecord.getPayStatus(), PayStatusEnum.SUCCEED.getStatus())) {
+            // 已经支付成功了
+            return PayConverter.toPay(dbRecord);
         } else if (payWay.wxPay() && !dbRecord.getPayStatus().equals(PayStatusEnum.PAYING.getStatus())) {
             // 在线支付场景，如果没有 prePayInfo 或者已经失效了，则需要重新生成
             if (dbRecord.getPrePayId() == null
                     || dbRecord.getPrePayExpireTime() == null
                     || System.currentTimeMillis() >= dbRecord.getPrePayExpireTime().getTime()) {
-                dbRecord.setVerifyCode(IdUtil.genPayCode(payWay, dbRecord.getId()));
+                String newCode = IdUtil.genPayCode(payWay, dbRecord.getId());
+                if (Objects.equals(newCode, dbRecord.getVerifyCode())) {
+                    // 做一个重复判断
+                    newCode = IdUtil.genPayCode(payWay, dbRecord.getId());
+                }
+                dbRecord.setVerifyCode(newCode);
+                // 支付金额, 需要重新从文章库中获取一下，防止文章更新了价格，但是这里没有同步刷新的问题
+                ArticleDO article = articleReadService.queryBasicArticle(articleId);
+                dbRecord.setPayAmount(article.getPayAmount());
+                dbRecord.setNotes(String.format("支付解锁阅读《%s》-- %s", article.getTitle(), notes == null ? "" : notes));
+
                 ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
                 req.setTotal(dbRecord.getPayAmount());
                 req.setOutTradeNo(dbRecord.getVerifyCode());
+                req.setDescription(StrUtil.pickWxSupportTxt(dbRecord.getNotes()));
                 PrePayInfoResBo res = thirdPayService.createPayOrder(req, payWay);
                 if (res != null) {
                     dbRecord.setPrePayId(res.getPrePayId());
@@ -136,7 +152,8 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         record.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
         record.setNotifyTime(null);
         record.setNotifyCnt(1);
-        record.setNotes(notes == null ? "" : notes);
+        String mark = String.format("支付解锁阅读《%s》-- %s", articleDO.getTitle(), notes == null ? "" : notes);
+        record.setNotes(mark);
         record.setId(IdUtil.genId());
         record.setVerifyCode(IdUtil.genPayCode(payWay, record.getId()));
         record.setPayWay(payWay.getPay());
@@ -144,7 +161,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         if (payWay.wxPay()) {
             ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
             req.setTotal(articleDO.getPayAmount());
-            req.setDescription(String.format("支付解锁阅读《%s》", articleDO.getTitle()));
+            req.setDescription(StrUtil.pickWxSupportTxt(mark));
             req.setOutTradeNo(record.getVerifyCode());
             PrePayInfoResBo res = thirdPayService.createPayOrder(req, payWay);
             if (res != null) {

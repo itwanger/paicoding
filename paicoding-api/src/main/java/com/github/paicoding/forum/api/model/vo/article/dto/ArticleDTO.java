@@ -159,9 +159,9 @@ public class ArticleDTO implements Serializable {
     private List<SimpleUserInfoDTO> praisedUsers;
 
     /**
-     * 支付金额，单位分
+     * 支付金额，单位（元）, 为了防止精度问题，返回String格式
      */
-    private Integer payAmount;
+    private String payAmount;
 
     /**
      * 付款方式

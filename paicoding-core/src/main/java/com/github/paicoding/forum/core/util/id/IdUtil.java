@@ -22,7 +22,7 @@ public class IdUtil {
      */
     public static SnowflakeProducer DEFAULT_ID_PRODUCER = new SnowflakeProducer(new PaiSnowflakeIdGenerator());
 
-    private static AtomicLong incr = new AtomicLong((int) Math.random() * 500);
+    private static AtomicLong INCR = new AtomicLong((int) (Math.random() * 500));
     private static long lastTime = 0;
 
 
@@ -55,9 +55,9 @@ public class IdUtil {
         long now = System.currentTimeMillis();
         if (DateUtil.skipDay(lastTime, now)) {
             lastTime = now;
-            incr.set((int) Math.random() * 500);
+            INCR.set((int) (Math.random() * 500));
         }
-        return payWay.getPrefix() + String.format("%06d", incr.addAndGet(1)) + "-" + id;
+        return payWay.getPrefix() + String.format("%06d", INCR.addAndGet(1)) + "-" + id;
     }
 
     /**
