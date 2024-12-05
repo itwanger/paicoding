@@ -26,6 +26,7 @@ public class ArticleReadViewServiceExtend {
     @Autowired
     private ArticlePayService articlePayService;
 
+
     public String formatArticleReadType(ArticleDTO article) {
         ArticleReadTypeEnum readType = ArticleReadTypeEnum.typeOf(article.getReadType());
         if (readType != null && readType != ArticleReadTypeEnum.NORMAL) {
