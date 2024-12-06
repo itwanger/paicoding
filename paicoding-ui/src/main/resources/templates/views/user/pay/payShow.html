@@ -73,6 +73,8 @@
                         <p id="countdown" style="{font-size: 20px;color: #333;text-align: center;margin: 20px;}">
                         </p>
                     </div>
+                    <div id="wxPayInfo" style="display:none">
+                    </div>
                 </div>
                 <div class="btn">
                     <div class="qq" id="qq" onclick="tabChoose('qq')" th:if="${payInfo['qq']}">
@@ -186,7 +188,7 @@
                 "payWay": "wx_native"
             }, (res) => {
                 console.log("微信支付信息:", res);
-                tips.text(`微信支付￥${res.payAmount}, 立即解锁阅读`)
+                tips.text(`打开微信扫一扫, 立即解锁全文阅读`)
                 payId = res.payId;
                 qrMap = {
                     'wx': {
@@ -198,6 +200,14 @@
                 ali.attr("style", "display:none")
                 tabChoose('wx')
                 timDown(parseFloat(res.prePayExpireTime))
+                $('#wxPayInfo').attr("style", "display:block")
+                let payHtml = `<div>支付单号：${res.payId}</div> <div>应付金额：￥<span style="color: red; font-size: 1.2em">${res.payAmount}</span> </div>`;
+                if (res.payStatus == 2) {
+                    payHtml = `${payHtml}<div>支付状态：已支付</div>`
+                } else if(res.payStatus == 1) {
+                    payHtml = `${payHtml}<div>支付状态：支付中</div>`
+                }
+                $('#wxPayInfo').html(payHtml)
             })
         }
 
@@ -206,12 +216,16 @@
             let countdownInterval = setInterval(function () {
                 var now = Date.now();
                 var remainingTime = endTime - now;
+                var hour = Math.floor(remainingTime / (1000 * 60 * 60))
+                if (hour > 0) {
+                    remainingTime = remainingTime - hour * 3600_000
+                }
                 var minutes = Math.floor(remainingTime / (1000 * 60));
                 var seconds = Math.floor((remainingTime / 1000) % 60);
-                $("#countdown").text('支付倒计时：' + minutes + " 分钟 " + seconds + " 秒");
+                $("#countdown").text('剩余倒计时：' + hour + ' 小时 ' + minutes + " 分钟 " + seconds + " 秒");
                 if (remainingTime <= 0) {
                     clearInterval(countdownInterval);
-                    $("#countdown").text("倒计时结束");
+                    $("#countdown").text("支付二维码已实现，请刷新页面!");
                 }
             }, 1000);
         }

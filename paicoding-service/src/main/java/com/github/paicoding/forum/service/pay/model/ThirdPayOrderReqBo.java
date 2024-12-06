@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.pay.model;
 
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import lombok.Data;
 
 /**
@@ -26,6 +27,11 @@ public class ThirdPayOrderReqBo {
      * 订单总金额，单位为分
      */
     int total;
+
+    /**
+     * 支付方式
+     */
+    ThirdPayWayEnum payWay;
 
     public ThirdPayOrderReqBo() {
     }

@@ -629,11 +629,10 @@
             get("/test/nativePay?outTradeNo=" + id + '&amount=' + amount, {}, function (data) {
                 // 打开支付中间页
                 console.log("支付中间页:", data);
-                data = data.result;
                 qrImg = ''
                 if (data && data['prePayId']) {
                     // 显示图片
-                    let qrImg = data['prePayId']
+                    qrImg = data['prePayId']
                     if (!(qrImg.startsWith("http") || qrImg.startsWith("blob"))) {
                         qrImg = 'data:image/png;base64,' + qrImg;
                     }

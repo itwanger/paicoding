@@ -54,8 +54,9 @@ public class WxPayServiceImpl implements ThirdPayService {
     }
 
     @Override
-    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay) {
-        log.info("微信支付 >>>>>>>>>>>>>>>>> 请求：{}, 支付方式：{}", JsonUtil.toStr(payReq), payWay);
+    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq) {
+        log.info("微信支付 >>>>>>>>>>>>>>>>> 请求：{}", JsonUtil.toStr(payReq));
+        ThirdPayWayEnum payWay = payReq.getPayWay();
         String prePayRes = null;
         if (payWay == ThirdPayWayEnum.WX_H5) {
             prePayRes = H5WxPayService.h5ApiOrder(payReq, wxPayConfig);
@@ -78,8 +79,22 @@ public class WxPayServiceImpl implements ThirdPayService {
      */
     @Override
     public PrePayInfoResBo genToPayPrePayInfo(String prePayId, String outTradeNo, ThirdPayWayEnum payWay) {
-        try {
-            long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        PrePayInfoResBo prePay = new PrePayInfoResBo();
+        prePay.setOutTradeNo(outTradeNo);
+        prePay.setAppId(wxPayConfig.getAppId());
+        prePay.setPrePayId(prePayId);
+        if (payWay == ThirdPayWayEnum.WX_H5) {
+            // 官方说明有效期五分钟，我们这里设置一下有效期为四分之后，避免正好卡在失效的时间点
+            prePay.setExpireTime(now + 250_000);
+            return prePay;
+        } else if (payWay == ThirdPayWayEnum.WX_NATIVE) {
+            // 官方说明有效期为两小时，我们设置为1.8小时之后失效
+            prePay.setExpireTime(now + 18 * 360_000L);
+            return prePay;
+        } else if (payWay == ThirdPayWayEnum.WX_JSAPI) {
+            // 官方说明有效期为两小时，我们设置为1.8小时之后失效
+            prePay.setExpireTime(now + 18 * 360_000L);
             String timeStamp = String.valueOf(now / 1000);
             //随机字符串,要求小于32位
             String nonceStr = RandUtil.random(30);
@@ -92,37 +107,26 @@ public class WxPayServiceImpl implements ThirdPayService {
                     packageStr + "\n";
 
             byte[] message = signStr.getBytes(StandardCharsets.UTF_8);
+            try {
 
-            Signature sign = Signature.getInstance("SHA256withRSA");
-            sign.initSign(PemUtil.loadPrivateKeyFromString(wxPayConfig.getPrivateKeyContent()));
-            sign.update(message);
-            String signStrBase64 = Base64.getEncoder().encodeToString(sign.sign());
+                Signature sign = Signature.getInstance("SHA256withRSA");
+                sign.initSign(PemUtil.loadPrivateKeyFromString(wxPayConfig.getPrivateKeyContent()));
+                sign.update(message);
+                String signStrBase64 = Base64.getEncoder().encodeToString(sign.sign());
 
-            // 拼装返回结果
-            PrePayInfoResBo prePay = new PrePayInfoResBo();
-            prePay.setOutTradeNo(outTradeNo);
-            prePay.setAppId(wxPayConfig.getAppId());
-            prePay.setNonceStr(nonceStr);
-            prePay.setPrePackage(packageStr);
-            prePay.setSignType("RSA");
-            prePay.setTimeStamp(timeStamp);
-            prePay.setPaySign(signStrBase64);
-            prePay.setPrePayId(prePayId);
-            if (payWay == ThirdPayWayEnum.WX_H5) {
-                // 官方说明有效期五分钟，我们这里设置一下有效期为四分之后，避免正好卡在失效的时间点
-                prePay.setExpireTime(now + 250_000);
-            } else if (payWay == ThirdPayWayEnum.WX_NATIVE) {
-                // 官方说明有效期为两小时，我们设置为1.8小时之后失效
-                prePay.setExpireTime(now + 18 * 360_000L);
-            } else if (payWay == ThirdPayWayEnum.WX_JSAPI) {
-                // 官方说明有效期为两小时，我们设置为1.8小时之后失效
-                prePay.setExpireTime(now + 18 * 360_000L);
+                // 拼装返回结果
+                prePay.setNonceStr(nonceStr);
+                prePay.setPrePackage(packageStr);
+                prePay.setSignType("RSA");
+                prePay.setTimeStamp(timeStamp);
+                prePay.setPaySign(signStrBase64);
+                return prePay;
+            } catch (Exception e) {
+                log.error("唤醒支付签名异常: {} - {}", prePayId, outTradeNo, e);
+                return null;
             }
-            return prePay;
-        } catch (Exception e) {
-            log.error("唤醒支付签名异常: {} - {}", prePayId, outTradeNo, e);
-            return null;
         }
+        return null;
     }
 
 

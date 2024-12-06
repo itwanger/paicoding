@@ -29,19 +29,19 @@ public class JsapiWxPayService {
      */
     public static String jsApiOrder(ThirdPayOrderReqBo payReq, WxPayConfig wxPayConfig) {
         PrepayRequest request = new PrepayRequest();
-        Amount amount = new Amount();
-        amount.setTotal(payReq.getTotal());
-        Payer payer = new Payer();
-
-        payer.setOpenid(payReq.getOpenId());
-        request.setAmount(amount);
-        request.setPayer(payer);
         request.setAppid(wxPayConfig.getAppId());
         request.setMchid(wxPayConfig.getMerchantId());
         request.setDescription(payReq.getDescription());
-
         request.setNotifyUrl(wxPayConfig.getPayNotifyUrl());
         request.setOutTradeNo(payReq.getOutTradeNo());
+
+        Amount amount = new Amount();
+        amount.setTotal(payReq.getTotal());
+        request.setAmount(amount);
+
+        Payer payer = new Payer();
+        payer.setOpenid(payReq.getOpenId());
+        request.setPayer(payer);
 
         log.info("微信JsApi下单, 请求参数: {}", JsonUtil.toStr(request));
         com.wechat.pay.java.service.payments.jsapi.model.PrepayResponse response = getJsapiService(wxPayConfig).prepay(request);

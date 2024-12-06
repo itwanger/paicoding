@@ -340,16 +340,17 @@ public class TestController {
         log.info("loadmore: {}", loadmore);
     }
 
-    @Permission(role = UserRole.ALL)
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "h5pay")
     public ResVo<PrePayInfoResBo> testH5Pay(String outTradeNo, int amount) throws Exception {
         ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
-        req.setOutTradeNo("TEST-" + outTradeNo);
-        req.setDescription("测试h5支付");
+        req.setOutTradeNo("TEST-H5-" + outTradeNo + "-" + ReqInfoContext.getReqInfo().getUserId());
+        req.setDescription(ReqInfoContext.getReqInfo().getUser().getUserName() + "-测试h5支付");
         req.setTotal(amount <= 0 ? 1 : amount);
+        req.setPayWay(ThirdPayWayEnum.WX_H5);
         ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
         if (thirdPayService != null) {
-            PrePayInfoResBo res = thirdPayService.createPayOrder(req, ThirdPayWayEnum.WX_H5);
+            PrePayInfoResBo res = thirdPayService.createPayOrder(req);
             log.info("返回结果: {}", res);
             return ResVo.ok(res);
         } else {
@@ -357,16 +358,17 @@ public class TestController {
         }
     }
 
-    @Permission(role = UserRole.ALL)
+    @Permission(role = UserRole.LOGIN)
     @GetMapping(path = "nativePay")
     public ResVo<PrePayInfoResBo> testNativePay(String outTradeNo, int amount) throws Exception {
         ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
-        req.setOutTradeNo("TEST-N-" + outTradeNo);
-        req.setDescription("测试native支付");
+        req.setOutTradeNo("TEST-N-" + outTradeNo + "-" + ReqInfoContext.getReqInfo().getUserId());
+        req.setDescription(ReqInfoContext.getReqInfo().getUser().getUserName() + "-测试native支付");
         req.setTotal(amount <= 0 ? 1 : amount);
+        req.setPayWay(ThirdPayWayEnum.WX_NATIVE);
         ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
         if (thirdPayService != null) {
-            PrePayInfoResBo res = thirdPayService.createPayOrder(req, ThirdPayWayEnum.WX_NATIVE);
+            PrePayInfoResBo res = thirdPayService.createPayOrder(req);
             log.info("返回结果: {}", res);
             res.setPrePayId(PayConverter.genQrCode(res.getPrePayId()));
             return ResVo.ok(res);

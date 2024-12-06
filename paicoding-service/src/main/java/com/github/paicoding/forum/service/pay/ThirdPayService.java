@@ -26,18 +26,17 @@ public interface ThirdPayService {
      * 下单
      *
      * @param payReq
-     * @param payWay
      * @return
      * @throws Exception
      */
-    PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay);
+    PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq);
 
     /**
      * 查询订单，根据商户订单号
      *
      * @return
      */
-    Transaction queryPayOrderOutTradeNo(String transNo, ThirdPayWayEnum payWay);
+    Transaction queryPayOrderOutTradeNo(String outTradeNo, ThirdPayWayEnum payWay);
 
     /**
      * 关闭订单
