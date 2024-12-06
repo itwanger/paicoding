@@ -43,8 +43,8 @@ public class ArticlePayRestController {
             @RequestParam(value = "articleId") Long articleId,
             @RequestParam(value = "notes", required = false) String notes,
             @RequestParam(value = "payWay", required = false) String payWay) {
-        ThirdPayWayEnum pay = StringUtils.isBlank(payWay) ? SpringUtil.getBean(ThirdPayService.class).getDefaultPayWay() : ThirdPayWayEnum.ofPay(payWay);
-        if (pay == null) pay = SpringUtil.getBean(ThirdPayService.class).getDefaultPayWay();
+        ThirdPayWayEnum pay = StringUtils.isBlank(payWay) ? SpringUtil.getBean(ThirdPayService.class).getPayWay() : ThirdPayWayEnum.ofPay(payWay);
+        if (pay == null) pay = SpringUtil.getBean(ThirdPayService.class).getPayWay();
         ArticlePayInfoDTO info = articlePayService.toPay(articleId, ReqInfoContext.getReqInfo().getUserId(), notes, pay);
         return ResVo.ok(info);
     }

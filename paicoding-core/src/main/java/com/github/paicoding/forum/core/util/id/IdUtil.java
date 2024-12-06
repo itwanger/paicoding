@@ -68,7 +68,7 @@ public class IdUtil {
      */
     public static Long getPayIdFromPayCode(String code) {
         String[] str = StringUtils.split(code, "-");
-        return Long.valueOf(str[1]);
+        return Long.valueOf(str[str.length - 1]);
     }
 
     public static void main(String[] args) {
