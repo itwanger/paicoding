@@ -32,18 +32,16 @@ public class NativeWxPayService {
      */
     public static String nativeApiOrder(ThirdPayOrderReqBo payReq, WxPayConfig wxPayConfig) {
         PrepayRequest request = new PrepayRequest();
-        Amount amount = new Amount();
-        amount.setTotal(payReq.getTotal());
-        amount.setCurrency("CNY");
-
-        request.setAmount(amount);
-
         request.setAppid(wxPayConfig.getAppId());
         request.setMchid(wxPayConfig.getMerchantId());
         request.setDescription(payReq.getDescription());
-
         request.setNotifyUrl(wxPayConfig.getPayNotifyUrl());
         request.setOutTradeNo(payReq.getOutTradeNo());
+
+        Amount amount = new Amount();
+        amount.setTotal(payReq.getTotal());
+        amount.setCurrency("CNY");
+        request.setAmount(amount);
 
         SceneInfo sceneInfo = new SceneInfo();
         sceneInfo.setPayerClientIp(ReqInfoContext.getReqInfo().getClientIp());

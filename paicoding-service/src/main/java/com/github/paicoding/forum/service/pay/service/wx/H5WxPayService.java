@@ -35,18 +35,16 @@ public class H5WxPayService {
     public static String h5ApiOrder(ThirdPayOrderReqBo payReq, WxPayConfig wxPayConfig) {
         log.info("微信支付 >>>>>>>>>>>>>>>>> 原始请求：{}", JSONObject.toJSON(payReq));
         PrepayRequest request = new PrepayRequest();
-        Amount amount = new Amount();
-        amount.setTotal(payReq.getTotal());
-        amount.setCurrency("CNY");
-
-        request.setAmount(amount);
-
         request.setAppid(wxPayConfig.getAppId());
         request.setMchid(wxPayConfig.getMerchantId());
         request.setDescription(payReq.getDescription());
-
         request.setNotifyUrl(wxPayConfig.getPayNotifyUrl());
         request.setOutTradeNo(payReq.getOutTradeNo());
+
+        Amount amount = new Amount();
+        amount.setTotal(payReq.getTotal());
+        amount.setCurrency("CNY");
+        request.setAmount(amount);
 
         SceneInfo sceneInfo = new SceneInfo();
         sceneInfo.setPayerClientIp(ReqInfoContext.getReqInfo().getClientIp());

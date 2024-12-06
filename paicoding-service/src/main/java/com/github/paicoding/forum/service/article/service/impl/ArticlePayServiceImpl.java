@@ -112,7 +112,8 @@ public class ArticlePayServiceImpl implements ArticlePayService {
                 req.setTotal(dbRecord.getPayAmount());
                 req.setOutTradeNo(dbRecord.getVerifyCode());
                 req.setDescription(StrUtil.pickWxSupportTxt(dbRecord.getNotes()));
-                PrePayInfoResBo res = thirdPayService.createPayOrder(req, payWay);
+                req.setPayWay(payWay);
+                PrePayInfoResBo res = thirdPayService.createPayOrder(req);
                 if (res != null) {
                     dbRecord.setPrePayId(res.getPrePayId());
                     dbRecord.setPrePayExpireTime(new Date(res.getExpireTime()));
@@ -164,7 +165,8 @@ public class ArticlePayServiceImpl implements ArticlePayService {
             req.setTotal(articleDO.getPayAmount());
             req.setDescription(StrUtil.pickWxSupportTxt(mark));
             req.setOutTradeNo(record.getVerifyCode());
-            PrePayInfoResBo res = thirdPayService.createPayOrder(req, payWay);
+            req.setPayWay(payWay);
+            PrePayInfoResBo res = thirdPayService.createPayOrder(req);
             if (res != null) {
                 record.setPrePayId(res.getPrePayId());
                 record.setPrePayExpireTime(new Date(res.getExpireTime()));

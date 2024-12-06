@@ -31,11 +31,13 @@ public class EmptyThirdPayService implements ThirdPayService {
      * 下单
      *
      * @param payReq
-     * @param payWay
      * @return
      */
-    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq, ThirdPayWayEnum payWay) {
-        return new PrePayInfoResBo();
+    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq) {
+        return new PrePayInfoResBo()
+                .setExpireTime(System.currentTimeMillis() + 5 * 60000)
+                .setPrePayId("test")
+                ;
     }
 
     /**
@@ -43,7 +45,7 @@ public class EmptyThirdPayService implements ThirdPayService {
      *
      * @return
      */
-    public Transaction queryPayOrderOutTradeNo(String transNo, ThirdPayWayEnum payWay) {
+    public Transaction queryPayOrderOutTradeNo(String outTradeNo, ThirdPayWayEnum payWay) {
         return new Transaction();
     }
 

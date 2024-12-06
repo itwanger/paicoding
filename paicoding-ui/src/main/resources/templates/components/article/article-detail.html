@@ -220,12 +220,14 @@
                  th:each="item: ${payUsers}">
                 <img th:src="${item.avatar}" style="width: 120px;padding: 10px">
               </a>
+              <span th:if="${payUsers == null || payUsers.size() == 0}"> 暂无打赏用户哦，快来做第一个慧眼识珠的人吧~ </span>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <a href="#" data-target="#payInfoModal" data-toggle="modal" type="button" class="btn btn-primary"
-             data-dismiss="modal" onclick="redirctPayModal()">
+             data-dismiss="modal" onclick="redirctPayModal()" id="goPayBtn"
+             th:text="${(other.readType == 4 && article.canRead != null && article.canRead == false) ? '去打赏' : '已打赏'}">
             去打赏
           </a>
         </div>
@@ -408,7 +410,7 @@
     let payId;
     function showPayModal() {
       $('#payModel').modal('show');
-        autoShowPay();
+      autoShowPay();
     }
 
     function hasPaying() {
