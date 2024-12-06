@@ -14,14 +14,18 @@ import com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest;
 import com.wechat.pay.java.service.payments.jsapi.model.QueryOrderByOutTradeNoRequest;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.stereotype.Service;
 
 /**
  * @author YiHui
  * @date 2024/12/4
  */
 @Slf4j
+@Service
+@ConditionalOnBean(WxPayConfig.class)
 public class JsapiWxPayService {
-    private static volatile JsapiService jsapiService;
+    private JsapiService jsapiService;
 
 
     /**

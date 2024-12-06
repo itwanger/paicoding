@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service;
 
 import com.github.paicoding.forum.service.pay.ThirdPayService;
-import com.github.paicoding.forum.service.pay.service.EmptyThirdPayService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

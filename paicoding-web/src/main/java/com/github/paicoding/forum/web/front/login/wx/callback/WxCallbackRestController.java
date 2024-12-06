@@ -10,6 +10,7 @@ import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.pay.ThirdPayService;
+import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
@@ -112,9 +113,9 @@ public class WxCallbackRestController {
      */
     @PostMapping(path = "payNotify")
     public ResponseEntity<?> wxPayCallback(HttpServletRequest request) throws IOException {
-        return SpringUtil.getBeanOrNull(ThirdPayService.class).payCallback(request, new Function<Transaction, Boolean>() {
+        return SpringUtil.getBeanOrNull(ThirdPayService.class).payCallback(request, new Function<PayCallbackBo, Boolean>() {
             @Override
-            public Boolean apply(Transaction transaction) {
+            public Boolean apply(PayCallbackBo transaction) {
                 log.info("微信支付回调执行业务逻辑 {}", transaction);
                 String outTradeNo = transaction.getOutTradeNo();
                 PayStatusEnum payStatus;
@@ -134,8 +135,7 @@ public class WxCallbackRestController {
 
                 if (outTradeNo.startsWith("TEST-")) {
                     // TestController 中关于测试支付的回调逻辑时，我们只通过消息进行通知用户即可
-                    String[] cells = StringUtils.split(outTradeNo, "-");
-                    long payUser = Long.parseLong(cells[cells.length - 1].trim());
+                    long payUser = IdUtil.getPayIdFromPayCode(outTradeNo);
                     SpringUtil.getBean(NotifyService.class).notifyToUser(payUser, "您的一笔微信测试支付状态已更新为：" + payStatus.getMsg());
                     return true;
                 }
