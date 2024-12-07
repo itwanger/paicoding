@@ -63,9 +63,26 @@ mybatis-plus:
     map-underscore-to-camel-case: true
   type-aliases-package: classpath:mapper/*.xml
 
+# springdoc-openapi 配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.github.paicoding.forum.web
+
 # knife4j
 knife4j:
-  enable: true
+  basic:
+    # basic是否开启，默认为false
+    enable: true
+    username: root
+    password: 123456
   setting:
     language: zh-CN
   openapi:
@@ -73,10 +90,9 @@ knife4j:
     description: 一个基于 Spring Boot3、MyBatis-Plus、MySQL、Redis、ElasticSearch、RabbitMQ、Vue.js 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
     version: 1.0.0
     concat:
-      - 小灰飞
-      - https://www.xuyifei.site
+      - HX
     license: Apache License 2.0
-    email: 857998989@qq.com
+    email: 1499624008@qq.com
     group:
       admin:
         group-name: 后台接口分组
