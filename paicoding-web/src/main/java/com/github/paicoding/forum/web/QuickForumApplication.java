@@ -98,6 +98,6 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         if (webPort != null) {
             config.setHost("http://127.0.0.1:" + webPort);
         }
-//        log.info("启动成功，点击进入首页: {}", config.getHost());
+        log.info("启动成功，点击进入首页: {}", config.getHost());
     }
 }
