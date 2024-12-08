@@ -1,17 +1,15 @@
 
 package com.github.paicoding.forum.service.pay.service.wx;
 
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.pay.config.WxPayConfig;
+import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.service.payments.jsapi.JsapiService;
-import com.wechat.pay.java.service.payments.jsapi.model.Amount;
-import com.wechat.pay.java.service.payments.jsapi.model.CloseOrderRequest;
-import com.wechat.pay.java.service.payments.jsapi.model.Payer;
-import com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest;
-import com.wechat.pay.java.service.payments.jsapi.model.QueryOrderByOutTradeNoRequest;
+import com.wechat.pay.java.service.payments.jsapi.model.*;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -24,14 +22,32 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @ConditionalOnBean(WxPayConfig.class)
-public class JsapiWxPayService {
+public class JsapiWxPayService extends AbsWxPayIntegration {
     private JsapiService jsapiService;
+
+    private final WxPayConfig wxPayConfig;
+
+    public JsapiWxPayService(WxPayConfig wxPayConfig) {
+        this.wxPayConfig = wxPayConfig;
+        Config config = new RSAAutoCertificateConfig.Builder()
+                .merchantId(wxPayConfig.getMerchantId())
+                .privateKey(wxPayConfig.getPrivateKeyContent())
+                .merchantSerialNumber(wxPayConfig.getMerchantSerialNumber())
+                .apiV3Key(wxPayConfig.getApiV3Key())
+                .build();
+        jsapiService = new JsapiService.Builder().config(config).build();
+    }
+
+    @Override
+    public boolean support(ThirdPayWayEnum payWay) {
+        return ThirdPayWayEnum.WX_JSAPI == payWay;
+    }
 
 
     /**
      * jsApi微信支付 -- 适用于小程序、公众号等方式的支付场景: 需要拿到用户的openId
      */
-    public static String jsApiOrder(ThirdPayOrderReqBo payReq, WxPayConfig wxPayConfig) {
+    public String createPayOrder(ThirdPayOrderReqBo payReq) {
         PrepayRequest request = new PrepayRequest();
         request.setAppid(wxPayConfig.getAppId());
         request.setMchid(wxPayConfig.getMerchantId());
@@ -48,40 +64,24 @@ public class JsapiWxPayService {
         request.setPayer(payer);
 
         log.info("微信JsApi下单, 请求参数: {}", JsonUtil.toStr(request));
-        com.wechat.pay.java.service.payments.jsapi.model.PrepayResponse response = getJsapiService(wxPayConfig).prepay(request);
+        com.wechat.pay.java.service.payments.jsapi.model.PrepayResponse response = jsapiService.prepay(request);
         log.info("微信支付 >>>>>>>>>>>> 返回: {}", response.getPrepayId());
         return response.getPrepayId();
     }
 
-    public static void closeOrder(String outTradeNo, WxPayConfig wxPayConfig) {
+    public void closeOrder(String outTradeNo) {
         CloseOrderRequest closeRequest = new CloseOrderRequest();
         closeRequest.setMchid(wxPayConfig.getMerchantId());
         closeRequest.setOutTradeNo(outTradeNo);
-        getJsapiService(wxPayConfig).closeOrder(closeRequest);
+        jsapiService.closeOrder(closeRequest);
     }
 
 
-    public static Transaction queryOrder(String outTradeNo, WxPayConfig wxPayConfig) {
+    public PayCallbackBo queryOrder(String outTradeNo) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
         request.setMchid(wxPayConfig.getMerchantId());
         request.setOutTradeNo(outTradeNo);
-        return getJsapiService(wxPayConfig).queryOrderByOutTradeNo(request);
-    }
-
-    private static JsapiService getJsapiService(WxPayConfig wxPayConfig) {
-        if (jsapiService == null) {
-            synchronized (JsapiWxPayService.class) {
-                if (jsapiService == null) {
-                    Config config = new RSAAutoCertificateConfig.Builder()
-                            .merchantId(wxPayConfig.getMerchantId())
-                            .privateKey(wxPayConfig.getPrivateKeyContent())
-                            .merchantSerialNumber(wxPayConfig.getMerchantSerialNumber())
-                            .apiV3Key(wxPayConfig.getApiV3Key())
-                            .build();
-                    jsapiService = new JsapiService.Builder().config(config).build();
-                }
-            }
-        }
-        return jsapiService;
+        Transaction transaction = jsapiService.queryOrderByOutTradeNo(request);
+        return toBo(transaction);
     }
 }

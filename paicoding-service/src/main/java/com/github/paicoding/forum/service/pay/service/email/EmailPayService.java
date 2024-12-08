@@ -1,11 +1,11 @@
-package com.github.paicoding.forum.service.pay.service;
+package com.github.paicoding.forum.service.pay.service.email;
 
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
-import com.github.paicoding.forum.service.pay.ThirdPayService;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
+import com.github.paicoding.forum.service.pay.service.ThirdPayIntegrationApi;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.Booleans;
 import org.springframework.http.HttpStatus;
@@ -17,31 +17,43 @@ import java.io.IOException;
 import java.util.function.Function;
 
 /**
+ * 个人收款码，基于微信的支付方式
+ *
  * @author YiHui
  * @date 2024/12/6
  */
 @Slf4j
 @Service
-public class EmailPayServiceImpl implements ThirdPayService {
+public class EmailPayService implements ThirdPayIntegrationApi {
     @Override
-    public ThirdPayWayEnum getPayWay() {
-        return ThirdPayWayEnum.EMAIL;
+    public boolean support(ThirdPayWayEnum payWay) {
+        return payWay == ThirdPayWayEnum.EMAIL;
     }
 
     @Override
-    public PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq) {
+    public PrePayInfoResBo createOrder(ThirdPayOrderReqBo payReq) {
         PrePayInfoResBo resBo = new PrePayInfoResBo();
-        resBo.setPayWay(getPayWay());
+        resBo.setPayWay(ThirdPayWayEnum.EMAIL);
         resBo.setOutTradeNo(payReq.getOutTradeNo());
         return resBo;
     }
 
     @Override
-    public ResponseEntity payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) throws IOException {
+    public void closeOrder(String outTradeNo) {
+    }
+
+    @Override
+    public PayCallbackBo queryOrder(String outTradeNo) {
+        return new PayCallbackBo().setOutTradeNo(outTradeNo);
+    }
+
+    @Override
+    public ResponseEntity<?> payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) throws IOException {
         String outTradeNo = request.getParameter("verifyCode");
         Long payId = Long.parseLong(request.getParameter("payId"));
         PayStatusEnum payStatus = Booleans.isTrue(request.getParameter("succeed")) ? PayStatusEnum.SUCCEED : PayStatusEnum.FAIL;
-        PayCallbackBo bo = new PayCallbackBo().setPayId(payId).setOutTradeNo(outTradeNo).setPayStatus(payStatus).setSuccessTime(System.currentTimeMillis());
+        PayCallbackBo bo = new PayCallbackBo().setPayId(payId).setOutTradeNo(outTradeNo).setPayStatus(payStatus)
+                .setSuccessTime(System.currentTimeMillis());
         try {
             // TODO 处理你的业务逻辑
             boolean ans = payCallback.apply(bo);
@@ -59,8 +71,9 @@ public class EmailPayServiceImpl implements ThirdPayService {
     }
 
     @Override
-    public <T> ResponseEntity refundCallback(HttpServletRequest request, Function<T, Boolean> refundCallback) throws IOException {
-        // fixme 个人收款码不支持退款
-        return null;
+    public <T> ResponseEntity<?> refundCallback(HttpServletRequest request, Function<T, Boolean> refundCallback) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+
 }
