@@ -17,10 +17,6 @@ import java.util.function.Function;
  * @date 2024/12/3
  */
 public interface ThirdPayService {
-    default ThirdPayWayEnum getPayWay() {
-        return ThirdPayWayEnum.EMAIL;
-    }
-
     /**
      * 下单
      *
@@ -38,7 +34,7 @@ public interface ThirdPayService {
      * @return
      * @throws IOException
      */
-    ResponseEntity payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) throws IOException;
+    ResponseEntity<?> payCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<PayCallbackBo, Boolean> payCallback) throws IOException;
 
 
     /**
@@ -49,5 +45,5 @@ public interface ThirdPayService {
      * @return
      * @throws IOException
      */
-    <T> ResponseEntity refundCallback(HttpServletRequest request, Function<T, Boolean> refundCallback) throws IOException;
+    <T> ResponseEntity<?> refundCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<T, Boolean> refundCallback) throws IOException;
 }

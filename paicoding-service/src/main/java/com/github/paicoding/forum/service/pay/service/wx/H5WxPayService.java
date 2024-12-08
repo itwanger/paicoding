@@ -2,19 +2,15 @@ package com.github.paicoding.forum.service.pay.service.wx;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.pay.config.WxPayConfig;
+import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.service.payments.h5.H5Service;
-import com.wechat.pay.java.service.payments.h5.model.Amount;
-import com.wechat.pay.java.service.payments.h5.model.CloseOrderRequest;
-import com.wechat.pay.java.service.payments.h5.model.H5Info;
-import com.wechat.pay.java.service.payments.h5.model.PrepayRequest;
-import com.wechat.pay.java.service.payments.h5.model.PrepayResponse;
-import com.wechat.pay.java.service.payments.h5.model.QueryOrderByOutTradeNoRequest;
-import com.wechat.pay.java.service.payments.h5.model.SceneInfo;
+import com.wechat.pay.java.service.payments.h5.model.*;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -27,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @ConditionalOnBean(WxPayConfig.class)
-public class H5WxPayService implements WxPayIntegrationApi {
+public class H5WxPayService extends AbsWxPayIntegration {
     private final WxPayConfig wxPayConfig;
     private H5Service h5Service;
 
@@ -42,12 +38,17 @@ public class H5WxPayService implements WxPayIntegrationApi {
         h5Service = new H5Service.Builder().config(config).build();
     }
 
+    @Override
+    public boolean support(ThirdPayWayEnum payWay) {
+        return ThirdPayWayEnum.WX_H5 == payWay;
+    }
+
     /**
      * h5支付，生成微信支付收银台中间页，适用于拿不到微信给与的用户 OpenId 场景
      *
      * @return
      */
-    public String createOrder(ThirdPayOrderReqBo payReq) {
+    public String createPayOrder(ThirdPayOrderReqBo payReq) {
         log.info("微信支付 >>>>>>>>>>>>>>>>> 原始请求：{}", JSONObject.toJSON(payReq));
         PrepayRequest request = new PrepayRequest();
         request.setAppid(wxPayConfig.getAppId());
@@ -85,11 +86,12 @@ public class H5WxPayService implements WxPayIntegrationApi {
     }
 
     @Override
-    public Transaction queryOrder(String outTradeNo) {
+    public PayCallbackBo queryOrder(String outTradeNo) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
         request.setMchid(wxPayConfig.getMerchantId());
         request.setOutTradeNo(outTradeNo);
-        return h5Service.queryOrderByOutTradeNo(request);
+        Transaction transaction = h5Service.queryOrderByOutTradeNo(request);
+        return toBo(transaction);
     }
 
 }
