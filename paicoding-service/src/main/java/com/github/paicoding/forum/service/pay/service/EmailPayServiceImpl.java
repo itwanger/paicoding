@@ -42,11 +42,13 @@ public class EmailPayServiceImpl implements PayService {
     }
 
     @Override
-    public PayInfoDTO toPay(ArticlePayRecordDO record) {
+    public PayInfoDTO toPay(ArticlePayRecordDO record, boolean needRefresh) {
         PayInfoDTO payInfo = new PayInfoDTO();
         BaseUserInfoDTO receiveUserInfo = userService.queryBasicUserInfo(record.getReceiveUserId());
         payInfo.setPayQrCodeMap(PayConverter.formatPayCode(receiveUserInfo.getPayCode()));
-        payInfo.setPrePayExpireTime(System.currentTimeMillis() + ThirdPayWayEnum.EMAIL.getExpireTimePeriod());
+        if (needRefresh) {
+            payInfo.setPrePayExpireTime(System.currentTimeMillis() + ThirdPayWayEnum.EMAIL.getExpireTimePeriod());
+        }
         payInfo.setPrePayId(record.getPrePayId());
         return payInfo;
     }

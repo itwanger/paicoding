@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.pay.dto.PayInfoDTO;
 import com.github.paicoding.forum.core.util.PriceUtil;
 import com.github.paicoding.forum.core.util.StrUtil;
+import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
 import com.github.paicoding.forum.service.pay.PayService;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
@@ -32,7 +33,17 @@ public class OnlinePayServiceImpl implements PayService {
     }
 
     @Override
-    public PayInfoDTO toPay(ArticlePayRecordDO record) {
+    public PayInfoDTO toPay(ArticlePayRecordDO record, boolean needRefresh) {
+        if (!needRefresh) {
+            // 不需要刷新时，直接根据数据库中缓存的进行返回
+            PayInfoDTO payInfo = new PayInfoDTO();
+            payInfo.setPrePayId(PayConverter.genQrCode(record.getPrePayId()));
+            payInfo.setPayWay(record.getPayWay());
+            payInfo.setPrePayExpireTime(record.getPrePayExpireTime().getTime());
+            payInfo.setPayAmount(PriceUtil.toYuanPrice(record.getPayAmount()));
+            return payInfo;
+        }
+
         ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
         req.setTotal(record.getPayAmount());
         req.setOutTradeNo(record.getVerifyCode());
@@ -49,7 +60,7 @@ public class OnlinePayServiceImpl implements PayService {
                 record.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
             }
 
-            payInfo.setPrePayId(payInfo.getPrePayId());
+            payInfo.setPrePayId(PayConverter.genQrCode(res.getPrePayId()));
             payInfo.setPayWay(record.getPayWay());
             payInfo.setPrePayExpireTime(res.getExpireTime());
             payInfo.setPayAmount(PriceUtil.toYuanPrice(record.getPayAmount()));
@@ -77,7 +88,9 @@ public class OnlinePayServiceImpl implements PayService {
             dbRecord.setThirdTransCode(bo.getThirdTransactionId());
             return true;
         }
-        return false;
+
+        // 依然返回true，将支付状态设置为true
+        return true;
     }
 
 }

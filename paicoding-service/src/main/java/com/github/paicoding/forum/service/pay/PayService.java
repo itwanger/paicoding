@@ -14,7 +14,7 @@ public interface PayService {
 
     boolean support(ThirdPayWayEnum payWay);
 
-    PayInfoDTO toPay(ArticlePayRecordDO record);
+    PayInfoDTO toPay(ArticlePayRecordDO record, boolean needRefresh);
 
     /**
      * 前端告知后端，将支付状态更新为支付中时，支付服务的处理逻辑

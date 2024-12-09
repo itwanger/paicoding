@@ -109,17 +109,17 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
         // 收款用户信息
         ArticlePayInfoDTO dto = PayConverter.toPay(dbRecord);
+        // 存在数据变更时，需要调用支付服务，重新获取支付相关信息
+        PayInfoDTO payInfo = payServiceFactory.getPayService(payWay).toPay(dbRecord, recordChanged);
         if (recordChanged) {
-            // 存在数据变更时，需要调用支付服务，重新获取支付相关信息
-            PayInfoDTO payInfo = payServiceFactory.getPayService(payWay).toPay(dbRecord);
-            dbRecord.setPrePayId(payInfo.getPrePayId());
-            dbRecord.setPrePayExpireTime(new Date(payInfo.getPrePayExpireTime()));
+            // 如果数据有变更，执行落库操作
             articlePayDao.updateById(dbRecord);
-
-            // 补齐支付信息
-            dto.setPayQrCodeMap(payInfo.getPayQrCodeMap());
         }
 
+        // 补齐支付信息
+        dto.setPrePayId(payInfo.getPrePayId());
+        dto.setPrePayExpireTime(payInfo.getPrePayExpireTime());
+        dto.setPayQrCodeMap(payInfo.getPayQrCodeMap());
         return dto;
     }
 
