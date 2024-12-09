@@ -6,8 +6,8 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
-import com.github.paicoding.forum.service.pay.ThirdPayService;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
+import com.github.paicoding.forum.service.pay.service.ThirdPayFacade;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
@@ -16,7 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -105,7 +109,7 @@ public class WxCallbackRestController {
      */
     @PostMapping(path = "payNotify")
     public ResponseEntity<?> wxPayCallback(HttpServletRequest request) throws IOException {
-        return SpringUtil.getBeanOrNull(ThirdPayService.class)
+        return SpringUtil.getBeanOrNull(ThirdPayFacade.class)
                 .payCallback(request, ThirdPayWayEnum.WX_NATIVE, new Function<PayCallbackBo, Boolean>() {
                     @Override
                     public Boolean apply(PayCallbackBo transaction) {
@@ -127,7 +131,7 @@ public class WxCallbackRestController {
      */
     @PostMapping(path = "refundNotify")
     public ResponseEntity<?> wxRefundCallback(HttpServletRequest request) throws IOException {
-        return SpringUtil.getBeanOrNull(ThirdPayService.class)
+        return SpringUtil.getBeanOrNull(ThirdPayFacade.class)
                 .refundCallback(request, ThirdPayWayEnum.WX_NATIVE, new Function<RefundNotification, Boolean>() {
                     @Override
                     public Boolean apply(RefundNotification refundNotification) {

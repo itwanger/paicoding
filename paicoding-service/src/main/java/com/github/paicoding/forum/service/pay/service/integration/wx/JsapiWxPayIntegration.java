@@ -1,5 +1,5 @@
 
-package com.github.paicoding.forum.service.pay.service.wx;
+package com.github.paicoding.forum.service.pay.service.integration.wx;
 
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -22,12 +22,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @ConditionalOnBean(WxPayConfig.class)
-public class JsapiWxPayService extends AbsWxPayIntegration {
+public class JsapiWxPayIntegration extends AbsWxPayIntegration {
     private JsapiService jsapiService;
 
     private final WxPayConfig wxPayConfig;
 
-    public JsapiWxPayService(WxPayConfig wxPayConfig) {
+    public JsapiWxPayIntegration(WxPayConfig wxPayConfig) {
         this.wxPayConfig = wxPayConfig;
         Config config = new RSAAutoCertificateConfig.Builder()
                 .merchantId(wxPayConfig.getMerchantId())

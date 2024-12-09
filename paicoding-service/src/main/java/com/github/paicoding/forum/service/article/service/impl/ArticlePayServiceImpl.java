@@ -7,13 +7,11 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.PayConfirmDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.api.model.vo.pay.dto.PayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.util.DateUtil;
-import com.github.paicoding.forum.core.util.EmailUtil;
-import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.StrUtil;
-import com.github.paicoding.forum.core.util.TransactionUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticlePayDao;
@@ -22,20 +20,15 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRe
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.notify.help.MsgNotifyHelper;
-import com.github.paicoding.forum.service.pay.ThirdPayService;
-import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
-import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
+import com.github.paicoding.forum.service.pay.PayServiceFactory;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.util.Collections;
 import java.util.Date;
@@ -57,15 +50,11 @@ public class ArticlePayServiceImpl implements ArticlePayService {
     @Autowired
     private ArticlePayDao articlePayDao;
 
-    @Autowired
-    private SpringTemplateEngine springTemplateEngine;
-
     @Value("${view.site.host:https://paicoding.com}")
     private String host;
 
     @Autowired
-    private ThirdPayService thirdPayService;
-
+    private PayServiceFactory payServiceFactory;
 
 
     @Override
@@ -84,67 +73,71 @@ public class ArticlePayServiceImpl implements ArticlePayService {
      * @param articleId     文章
      * @param currentUserId 当前用户
      */
-    public ArticlePayInfoDTO toPay(Long articleId, Long currentUserId, String notes, ThirdPayWayEnum payWay) {
+    @Transactional(rollbackFor = Exception.class)
+    public ArticlePayInfoDTO toPay(Long articleId, Long currentUserId, String notes) {
         ArticlePayRecordDO dbRecord = articlePayDao.queryRecordByArticleId(articleId, currentUserId);
+        boolean recordChanged = false;
         if (dbRecord == null) {
             // 不存在时，创建一个
-            dbRecord = createPayRecord(articleId, currentUserId, notes, payWay);
-        } else if (Objects.equals(dbRecord.getPayStatus(), PayStatusEnum.SUCCEED.getStatus())) {
-            // 已经支付成功了
-            return PayConverter.toPay(dbRecord);
-        } else if (payWay.wxPay() && !dbRecord.getPayStatus().equals(PayStatusEnum.PAYING.getStatus())) {
-            // 在线支付场景，如果没有 prePayInfo 或者已经失效了，则需要重新生成
-            if (dbRecord.getPrePayId() == null
-                    || dbRecord.getPrePayExpireTime() == null
-                    || System.currentTimeMillis() >= dbRecord.getPrePayExpireTime().getTime()) {
-                String newCode = IdUtil.genPayCode(payWay, dbRecord.getId());
-                if (Objects.equals(newCode, dbRecord.getVerifyCode())) {
-                    // 做一个重复判断
-                    newCode = IdUtil.genPayCode(payWay, dbRecord.getId());
-                }
-                dbRecord.setVerifyCode(newCode);
-                // 支付金额, 需要重新从文章库中获取一下，防止文章更新了价格，但是这里没有同步刷新的问题
-                ArticleDO article = articleReadService.queryBasicArticle(articleId);
-                dbRecord.setPayAmount(article.getPayAmount());
-                dbRecord.setNotes(String.format("支付解锁阅读《%s》-- %s", article.getTitle(), notes == null ? "" : notes));
+            dbRecord = createPayRecord(articleId, currentUserId, notes);
+            recordChanged = true;
+        }
 
-                ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
-                req.setTotal(dbRecord.getPayAmount());
-                req.setOutTradeNo(dbRecord.getVerifyCode());
-                req.setDescription(StrUtil.pickWxSupportTxt(dbRecord.getNotes()));
-                req.setPayWay(payWay);
-                PrePayInfoResBo res = thirdPayService.createPayOrder(req);
-                if (res != null) {
-                    dbRecord.setPrePayId(res.getPrePayId());
-                    dbRecord.setPrePayExpireTime(new Date(res.getExpireTime()));
-                    if (PayStatusEnum.FAIL.getStatus().equals(dbRecord.getPayStatus())) {
-                        // 支付失败，重新支付时，重置支付状态
-                        dbRecord.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
-                    }
-                }
-                articlePayDao.updateById(dbRecord);
-            }
-        } else if (PayStatusEnum.FAIL.getStatus().equals(dbRecord.getPayStatus())) {
-            // 个人收款码支付场景：对于原是支付失败的场景，再次支付时，重置相关信息
+        // 加事务写锁，防止并发修改支付记录，出现的支付状态不一致的问题
+        dbRecord = articlePayDao.selectForUpdate(dbRecord.getId());
+        ThirdPayWayEnum payWay = ThirdPayWayEnum.ofPay(dbRecord.getPayWay());
+
+        // 已经支付成功 或者 已经是支付中，则直接返回
+        if (Objects.equals(dbRecord.getPayStatus(), PayStatusEnum.SUCCEED.getStatus())
+                || Objects.equals(dbRecord.getPayStatus(), PayStatusEnum.PAYING.getStatus())) {
+            recordChanged = false;
+        } else if (Objects.equals(dbRecord.getPayStatus(), PayStatusEnum.FAIL.getStatus())) {
+            // 支付失败，需要重置支付相关信息
+            dbRecord.setVerifyCode(IdUtil.genPayCode(payWay, dbRecord.getId()));
             dbRecord.setNotifyTime(null);
             dbRecord.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
-            articlePayDao.updateById(dbRecord);
+            recordChanged = true;
+        } else if (dbRecord.getPrePayExpireTime() == null
+                || System.currentTimeMillis() >= dbRecord.getPrePayExpireTime().getTime()) {
+            // 未支付、但是唤起支付的verifyCode已经过期的场景
+            dbRecord.setVerifyCode(IdUtil.genPayCode(payWay, dbRecord.getId()));
+            recordChanged = true;
+        } else {
+            // 可以直接使用数据库中缓存的用于唤起支付的信息
+            recordChanged = false;
         }
 
         // 收款用户信息
         ArticlePayInfoDTO dto = PayConverter.toPay(dbRecord);
-        if (!payWay.wxPay()) {
-            BaseUserInfoDTO receiveUserInfo = userService.queryBasicUserInfo(dbRecord.getReceiveUserId());
-            dto.setPayQrCodeMap(PayConverter.formatPayCode(receiveUserInfo.getPayCode()));
+        if (recordChanged) {
+            // 存在数据变更时，需要调用支付服务，重新获取支付相关信息
+            PayInfoDTO payInfo = payServiceFactory.getPayService(payWay).toPay(dbRecord);
+            dbRecord.setPrePayId(payInfo.getPrePayId());
+            dbRecord.setPrePayExpireTime(new Date(payInfo.getPrePayExpireTime()));
+            articlePayDao.updateById(dbRecord);
+
+            // 补齐支付信息
+            dto.setPayQrCodeMap(payInfo.getPayQrCodeMap());
         }
+
         return dto;
     }
 
-    private ArticlePayRecordDO createPayRecord(Long articleId, Long currentUserId, String notes, ThirdPayWayEnum payWay) {
-        // fixme 这里需要做分布式防止重复写入
+    private ArticlePayRecordDO createPayRecord(Long articleId, Long currentUserId, String notes) {
         ArticleDO articleDO = articleReadService.queryBasicArticle(articleId);
         if (articleDO == null) {
             throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, articleId);
+        }
+
+        ThirdPayWayEnum payWay = ThirdPayWayEnum.ofPay(articleDO.getPayWay());
+        if (payWay == null) {
+            // 文章不需要付费阅读
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "文章不需要付费阅读!");
+        }
+
+        if (payWay.wxPay() && Objects.equals(SpringUtil.getConfig("view.site.wxPayEnable"), "false")) {
+            // 微信支付未开启时，只能走个人收款码方式
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "微信支付未开启，请联系作者换用个人收款码支付方式吧!");
         }
 
         ArticlePayRecordDO record = new ArticlePayRecordDO();
@@ -153,29 +146,30 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         record.setPayUserId(currentUserId);
         record.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
         record.setNotifyTime(null);
-        record.setNotifyCnt(1);
+        record.setNotifyCnt(0);
         String mark = String.format("支付解锁阅读《%s》-- %s", articleDO.getTitle(), notes == null ? "" : notes);
         record.setNotes(mark);
         record.setId(IdUtil.genId());
         record.setVerifyCode(IdUtil.genPayCode(payWay, record.getId()));
         record.setPayWay(payWay.getPay());
         record.setPayAmount(articleDO.getPayAmount());
-        if (payWay.wxPay()) {
-            ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
-            req.setTotal(articleDO.getPayAmount());
-            req.setDescription(StrUtil.pickWxSupportTxt(mark));
-            req.setOutTradeNo(record.getVerifyCode());
-            req.setPayWay(payWay);
-            PrePayInfoResBo res = thirdPayService.createPayOrder(req);
-            if (res != null) {
-                record.setPrePayId(res.getPrePayId());
-                record.setPrePayExpireTime(new Date(res.getExpireTime()));
-            }
-        }
         articlePayDao.save(record);
         return record;
     }
 
+
+    /**
+     * 前端回调，告知后端已经支付成功了
+     * - 首先做权限管控，不能修改别人的支付记录
+     * - 已经知道是支付成功/支付失败（即回调的结果已经过来了），直接返回不做任何处理
+     * - 未支付 -> 将支付状态设置为支付中 ; 有数据变更 -> 执行业务变更  ==> 调用支付服务，执行支付中的逻辑
+     * - 发送消息变更事件
+     *
+     * @param payId         支付id
+     * @param currentUserId 当前登录用户
+     * @param notes         备注
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updatePaying(Long payId, Long currentUserId, String notes) {
@@ -185,7 +179,14 @@ public class ArticlePayServiceImpl implements ArticlePayService {
             throw ExceptionUtil.of(StatusEnum.FORBID_ERROR);
         }
 
+        if (Objects.equals(record.getPayStatus(), PayStatusEnum.SUCCEED.getStatus()) ||
+                Objects.equals(record.getPayStatus(), PayStatusEnum.FAIL.getStatus())) {
+            // 用户不一致，不支持更新
+            return true;
+        }
+
         // 更新为支付中
+        ThirdPayWayEnum payWay = ThirdPayWayEnum.ofPay(record.getPayWay());
         if (PayStatusEnum.NOT_PAY.getStatus().equals(record.getPayStatus())) {
             record.setPayStatus(PayStatusEnum.PAYING.getStatus());
             record.setUpdateTime(new Date());
@@ -193,27 +194,44 @@ public class ArticlePayServiceImpl implements ArticlePayService {
                 // 更新备注信息
                 record.setNotes(notes);
             }
-
-            // 事务提交之后，发送一个给用户确认的邮件
-            TransactionUtil.registryAfterCommitOrImmediatelyRun(() -> sendPayConfirmEmail(record));
-            boolean ans = articlePayDao.updateById(record);
-            if (ans) {
-                // 发布一个用户支付的通知
-                MsgNotifyHelper.publish(NotifyTypeEnum.PAYING, record);
-            }
         } else if (StringUtils.isNotBlank(notes) && Objects.equals(notes, record.getNotes())) {
             // 备注信息不同时，更新并发送邮件通知
             record.setUpdateTime(new Date());
             record.setNotes(notes);
-            // 事务提交之后，发送一个给用户确认的邮件
-            TransactionUtil.registryAfterCommitOrImmediatelyRun(() -> sendPayConfirmEmail(record));
-            return articlePayDao.updateById(record);
-        } else {
-            // 直接发送通知邮箱
-            sendPayConfirmEmail(record);
         }
 
+        // 调用具体的支付服务，执行支付中的逻辑；然后回写变更逻辑到db
+        boolean dbChanged = payServiceFactory.getPayService(payWay).paying(record);
+        if (!dbChanged) {
+            return true;
+        }
+        // 保存数据变更
+        boolean ans = articlePayDao.updateById(record);
+        if (!ans) {
+            return false;
+        }
+
+        // 发布支付状态变更消息
+        this.publishPayStatusChangeNotify(record);
         return true;
+    }
+
+
+    /**
+     * 根据支付状态发布对应的通知消息
+     *
+     * @param record
+     */
+    private void publishPayStatusChangeNotify(ArticlePayRecordDO record) {
+        // 支付状态变更的消息回调
+        if (Objects.equals(record.getPayStatus(), PayStatusEnum.PAYING.getStatus())) {
+            // 更新支付状态为支付中
+            MsgNotifyHelper.publish(NotifyTypeEnum.PAYING, record);
+        } else if (Objects.equals(record.getPayStatus(), PayStatusEnum.SUCCEED.getStatus())
+                || Objects.equals(record.getPayStatus(), PayStatusEnum.FAIL.getStatus())) {
+            // 支付成功or失败
+            MsgNotifyHelper.publish(NotifyTypeEnum.PAY, record);
+        }
     }
 
     /**
@@ -231,26 +249,23 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         if (dbRecord == null || !Objects.equals(dbRecord.getVerifyCode(), verifyCode)) {
             throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "支付记录:" + payId);
         }
-        if (Objects.equals(payStatus.getStatus(), dbRecord.getPayStatus())) {
-            // 幂等
+
+        if (Objects.equals(payStatus.getStatus(), dbRecord.getPayStatus())
+                || PayStatusEnum.SUCCEED.getStatus().equals(dbRecord.getPayStatus())) {
+            // 幂等 or 已支付成功到了终态，不再进行后续的更新
             return true;
         }
 
-        if (PayStatusEnum.SUCCEED.getStatus().equals(dbRecord.getPayStatus())) {
-            // 已经是支付成功，则不更新
-            return true;
-        } else {
-            // 更新原来的支付状态为最新的结果
-            dbRecord.setPayStatus(payStatus.getStatus());
-            dbRecord.setPayCallbackTime(new Date(payTime));
-            dbRecord.setUpdateTime(new Date());
-            dbRecord.setThirdTransCode(transactionId);
-            boolean ans = articlePayDao.updateById(dbRecord);
-            if (ans) {
-                MsgNotifyHelper.publish(NotifyTypeEnum.PAY, dbRecord);
-            }
-            return ans;
+        // 更新原来的支付状态为最新的结果
+        dbRecord.setPayStatus(payStatus.getStatus());
+        dbRecord.setPayCallbackTime(new Date(payTime));
+        dbRecord.setUpdateTime(new Date());
+        dbRecord.setThirdTransCode(transactionId);
+        boolean ans = articlePayDao.updateById(dbRecord);
+        if (ans) {
+            publishPayStatusChangeNotify(dbRecord);
         }
+        return ans;
     }
 
     public PayConfirmDTO buildPayConfirmInfo(Long payId, ArticlePayRecordDO record) {
@@ -273,48 +288,6 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         confirm.setReceiveUserId(record.getReceiveUserId());
         confirm.setCallback(host + "/article/api/pay/callback?payId=" + record.getId() + "&verifyCode=" + record.getVerifyCode());
         return confirm;
-    }
-
-
-    /**
-     * 发送支付确认邮件
-     *
-     * @param record
-     */
-    public void sendPayConfirmEmail(ArticlePayRecordDO record) {
-        ThirdPayWayEnum payWay = ThirdPayWayEnum.ofPay(record.getPayWay());
-        if (payWay != ThirdPayWayEnum.EMAIL) {
-            return;
-        }
-
-        if (record.getNotifyTime() != null && System.currentTimeMillis() - record.getNotifyTime().getTime() < 180_000) {
-            // 两次通知时间，小于10分钟，则直接幂等
-            log.info("上次邮件确认时间是: {} 忽略本次通知! {}", record.getNotifyTime(), JsonUtil.toStr(record));
-            return;
-        }
-
-        try {
-            // 更新通知时间 + 次数 + 验证码
-            record.setNotifyTime(new Date());
-            record.setNotifyCnt(record.getNotifyCnt() + 1);
-            record.setVerifyCode(RandomStringUtils.randomAlphanumeric(16));
-
-            PayConfirmDTO confirm = buildPayConfirmInfo(record.getId(), record);
-            Context context = new Context();
-            context.setVariable("vo", confirm);
-            String confirmHtmlContent = springTemplateEngine.process("PayConfirm", context);
-            log.info("输出邮件内容: \n {} \n", confirmHtmlContent);
-
-            // 作者
-            BaseUserInfoDTO author = userService.queryBasicUserInfo(record.getReceiveUserId());
-            EmailUtil.sendMail(String.format("【%s】收到【%s】的打赏，请确认", confirm.getTitle(), confirm.getPayUser()), author.getEmail(), confirmHtmlContent);
-
-            // 邮件发送成功，更新邮件通知时间
-            record.setUpdateTime(new Date());
-            articlePayDao.updateById(record);
-        } catch (Exception e) {
-            log.error("发送邮件确认通知失败: {}", record, e);
-        }
     }
 
 

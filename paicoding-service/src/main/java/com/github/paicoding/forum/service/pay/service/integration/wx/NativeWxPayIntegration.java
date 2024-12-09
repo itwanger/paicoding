@@ -1,6 +1,5 @@
-package com.github.paicoding.forum.service.pay.service.wx;
+package com.github.paicoding.forum.service.pay.service.integration.wx;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -9,9 +8,9 @@ import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
-import com.wechat.pay.java.service.payments.h5.H5Service;
-import com.wechat.pay.java.service.payments.h5.model.*;
 import com.wechat.pay.java.service.payments.model.Transaction;
+import com.wechat.pay.java.service.payments.nativepay.NativePayService;
+import com.wechat.pay.java.service.payments.nativepay.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
@@ -23,11 +22,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @ConditionalOnBean(WxPayConfig.class)
-public class H5WxPayService extends AbsWxPayIntegration {
+public class NativeWxPayIntegration extends AbsWxPayIntegration {
+    private NativePayService nativePayService;
     private final WxPayConfig wxPayConfig;
-    private H5Service h5Service;
 
-    public H5WxPayService(WxPayConfig wxPayConfig) {
+    public NativeWxPayIntegration(WxPayConfig wxPayConfig) {
         this.wxPayConfig = wxPayConfig;
         Config config = new RSAAutoCertificateConfig.Builder()
                 .merchantId(wxPayConfig.getMerchantId())
@@ -35,21 +34,20 @@ public class H5WxPayService extends AbsWxPayIntegration {
                 .merchantSerialNumber(wxPayConfig.getMerchantSerialNumber())
                 .apiV3Key(wxPayConfig.getApiV3Key())
                 .build();
-        h5Service = new H5Service.Builder().config(config).build();
+        nativePayService = new NativePayService.Builder().config(config).build();
     }
 
     @Override
     public boolean support(ThirdPayWayEnum payWay) {
-        return ThirdPayWayEnum.WX_H5 == payWay;
+        return ThirdPayWayEnum.WX_NATIVE == payWay;
     }
 
     /**
-     * h5支付，生成微信支付收银台中间页，适用于拿不到微信给与的用户 OpenId 场景
+     * native 支付，生成扫描支付二维码唤起微信支付页面
      *
-     * @return
+     * @return 形如 wx://xxx 的支付二维码
      */
     public String createPayOrder(ThirdPayOrderReqBo payReq) {
-        log.info("微信支付 >>>>>>>>>>>>>>>>> 原始请求：{}", JSONObject.toJSON(payReq));
         PrepayRequest request = new PrepayRequest();
         request.setAppid(wxPayConfig.getAppId());
         request.setMchid(wxPayConfig.getMerchantId());
@@ -64,34 +62,26 @@ public class H5WxPayService extends AbsWxPayIntegration {
 
         SceneInfo sceneInfo = new SceneInfo();
         sceneInfo.setPayerClientIp(ReqInfoContext.getReqInfo().getClientIp());
-        H5Info h5Info = new H5Info();
-        h5Info.setAppName("技术派");
-        h5Info.setAppUrl("https://paicoding.com");
-        h5Info.setType("PC");
-        sceneInfo.setH5Info(h5Info);
         request.setSceneInfo(sceneInfo);
 
-        log.info("微信h5下单, 微信请求参数: {}", JsonUtil.toStr(request));
-        PrepayResponse response = h5Service.prepay(request);
-        log.info("微信支付 >>>>>>>>>>>> 返回: {}", response.getH5Url());
-        return response.getH5Url();
+        log.info("微信native下单, 微信请求参数: {}", JsonUtil.toStr(request));
+        PrepayResponse response = nativePayService.prepay(request);
+        log.info("微信支付 >>>>>>>>>>>> 返回: {}", response.getCodeUrl());
+        return response.getCodeUrl();
     }
 
-    @Override
     public void closeOrder(String outTradeNo) {
         CloseOrderRequest closeRequest = new CloseOrderRequest();
         closeRequest.setMchid(wxPayConfig.getMerchantId());
         closeRequest.setOutTradeNo(outTradeNo);
-        h5Service.closeOrder(closeRequest);
+        nativePayService.closeOrder(closeRequest);
     }
 
-    @Override
     public PayCallbackBo queryOrder(String outTradeNo) {
         QueryOrderByOutTradeNoRequest request = new QueryOrderByOutTradeNoRequest();
         request.setMchid(wxPayConfig.getMerchantId());
         request.setOutTradeNo(outTradeNo);
-        Transaction transaction = h5Service.queryOrderByOutTradeNo(request);
+        Transaction transaction = nativePayService.queryOrderByOutTradeNo(request);
         return toBo(transaction);
     }
-
 }

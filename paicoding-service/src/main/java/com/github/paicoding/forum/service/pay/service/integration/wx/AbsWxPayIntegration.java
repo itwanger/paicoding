@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.pay.service.wx;
+package com.github.paicoding.forum.service.pay.service.integration.wx;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -13,7 +13,7 @@ import com.github.paicoding.forum.service.pay.config.WxPayConfig;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
-import com.github.paicoding.forum.service.pay.service.ThirdPayIntegrationApi;
+import com.github.paicoding.forum.service.pay.service.integration.ThirdPayIntegrationApi;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.core.exception.ValidationException;
 import com.wechat.pay.java.core.notification.NotificationConfig;
