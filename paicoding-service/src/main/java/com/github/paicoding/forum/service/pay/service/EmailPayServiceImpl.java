@@ -7,13 +7,13 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.pay.PayService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -67,10 +67,7 @@ public class EmailPayServiceImpl implements PayService {
         }
 
         try {
-            // 更新通知时间 + 次数 + 验证码
-            record.setNotifyTime(new Date());
-            record.setNotifyCnt(record.getNotifyCnt() + 1);
-            record.setVerifyCode(RandomStringUtils.randomAlphanumeric(16));
+            record.setVerifyCode(IdUtil.genPayCode(ThirdPayWayEnum.ofPay(record.getPayWay()), record.getId()));
 
             PayConfirmDTO confirm = SpringUtil.getBean(ArticlePayService.class).buildPayConfirmInfo(record.getId(), record);
             Context context = new Context();
@@ -78,16 +75,17 @@ public class EmailPayServiceImpl implements PayService {
             String confirmHtmlContent = springTemplateEngine.process("PayConfirm", context);
             log.info("输出邮件内容: \n {} \n", confirmHtmlContent);
 
-            // 作者
+            // 给作者发送邮件通知
             BaseUserInfoDTO author = userService.queryBasicUserInfo(record.getReceiveUserId());
             EmailUtil.sendMail(String.format("【%s】收到【%s】的打赏，请确认", confirm.getTitle(), confirm.getPayUser()), author.getEmail(), confirmHtmlContent);
 
-            // 邮件发送成功，更新邮件通知时间
+            // 邮件发送成功，更新通知时间 + 次数 + 验证码
+            record.setNotifyTime(new Date());
+            record.setNotifyCnt(record.getNotifyCnt() + 1);
             record.setUpdateTime(new Date());
-            return true;
         } catch (Exception e) {
             log.error("发送邮件确认通知失败: {}", record, e);
-            return false;
         }
+        return true;
     }
 }
