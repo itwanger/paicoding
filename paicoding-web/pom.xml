@@ -243,6 +243,14 @@
             <version>3.16.4</version>
         </dependency>
 
+        <!-- API 文档 knife4j -->
+        <!-- https://mvnrepository.com/artifact/com.github.xiaoymin/knife4j-openapi3-jakarta-spring-boot-starter -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
