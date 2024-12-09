@@ -11,6 +11,7 @@ import com.github.paicoding.forum.api.model.vo.pay.dto.PayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.util.DateUtil;
+import com.github.paicoding.forum.core.util.PriceUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
@@ -268,6 +269,14 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         return ans;
     }
 
+    /**
+     * 给作者提供的一个支付确认中间页
+     *
+     * @param payId  支付id
+     * @param record 支付记录
+     * @return
+     */
+    @Override
     public PayConfirmDTO buildPayConfirmInfo(Long payId, ArticlePayRecordDO record) {
         if (record == null) {
             record = articlePayDao.getById(payId);
@@ -282,10 +291,12 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         confirm.setTitle(article.getTitle());
         confirm.setArticleUrl(String.format("%s/article/detail/%s", host, article.getId()));
         confirm.setNotifyCnt(record.getNotifyCnt());
-        confirm.setPayTime(DateUtil.format(DateUtil.DB_FORMAT, record.getNotifyTime().getTime()));
+        confirm.setPayTime(record.getNotifyTime() == null ? "-" : DateUtil.format(DateUtil.DB_FORMAT, record.getNotifyTime().getTime()));
         confirm.setPayUser(pay.getUserName());
         confirm.setMark(record.getNotes());
         confirm.setReceiveUserId(record.getReceiveUserId());
+        confirm.setPayWay(record.getPayWay());
+        confirm.setPayAmount(Objects.equals(record.getPayWay(), ThirdPayWayEnum.EMAIL.getPay()) ? "" : PriceUtil.toYuanPrice(record.getPayAmount()));
         confirm.setCallback(host + "/article/api/pay/callback?payId=" + record.getId() + "&verifyCode=" + record.getVerifyCode());
         return confirm;
     }

@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.pay.service;
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.pay.dto.PayInfoDTO;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.PriceUtil;
 import com.github.paicoding.forum.core.util.StrUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
@@ -11,6 +12,7 @@ import com.github.paicoding.forum.service.pay.PayService;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ import java.util.Date;
  * @author YiHui
  * @date 2024/12/9
  */
+@Slf4j
 @Service
 public class OnlinePayServiceImpl implements PayService {
     @Autowired
@@ -77,16 +80,19 @@ public class OnlinePayServiceImpl implements PayService {
     @Override
     public boolean paying(ArticlePayRecordDO dbRecord) {
         // 主动查询一下支付状态
-        PayCallbackBo bo = thirdPayFacade.getPayService(ThirdPayWayEnum.ofPay(dbRecord.getPayWay()))
-                .queryOrder(dbRecord.getVerifyCode());
-        if (bo.getPayStatus() == PayStatusEnum.SUCCEED || bo.getPayStatus() == PayStatusEnum.FAIL) {
-            // 实际结果是支付成功/支付失败时，刷新下record对应的内容
-            // 更新原来的支付状态为最新的结果
-            dbRecord.setPayStatus(bo.getPayStatus().getStatus());
-            dbRecord.setPayCallbackTime(new Date(bo.getSuccessTime()));
-            dbRecord.setUpdateTime(new Date());
-            dbRecord.setThirdTransCode(bo.getThirdTransactionId());
-            return true;
+        try {
+            PayCallbackBo bo = thirdPayFacade.getPayService(ThirdPayWayEnum.ofPay(dbRecord.getPayWay()))
+                    .queryOrder(dbRecord.getVerifyCode());
+            if (bo.getPayStatus() == PayStatusEnum.SUCCEED || bo.getPayStatus() == PayStatusEnum.FAIL) {
+                // 实际结果是支付成功/支付失败时，刷新下record对应的内容
+                // 更新原来的支付状态为最新的结果
+                dbRecord.setPayStatus(bo.getPayStatus().getStatus());
+                dbRecord.setPayCallbackTime(new Date(bo.getSuccessTime()));
+                dbRecord.setUpdateTime(new Date());
+                dbRecord.setThirdTransCode(bo.getThirdTransactionId());
+            }
+        } catch (Exception e) {
+            log.error("查询三方支付状态出现异常: {}", JsonUtil.toStr(dbRecord), e);
         }
 
         // 依然返回true，将支付状态设置为true
