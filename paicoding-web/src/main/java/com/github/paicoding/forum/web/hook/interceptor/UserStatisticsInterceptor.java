@@ -55,6 +55,7 @@ public class UserStatisticsInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
             if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
                 return true;
             }
@@ -115,6 +116,10 @@ public class UserStatisticsInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            String requestURI = request.getRequestURI();
+            if ("/doc.html".equals(requestURI) || requestURI.startsWith("/webjars/") || "/swagger-ui.html".equals(requestURI)) {
+                return true;
+            }
             if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
                 return true;
             }

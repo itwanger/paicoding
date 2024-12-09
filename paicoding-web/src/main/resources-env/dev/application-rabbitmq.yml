@@ -2,9 +2,9 @@ spring:
   rabbitmq:
     host: 127.0.0.1 # 你的虚拟机IP
     port: 5672 # 端口
-    virtual-host: /pai-coding # 虚拟主机
-    username: xyf # 用户名
-    password: 123 # 密码
+    virtual-host: /pai_coding # 虚拟主机
+    username: hx # 用户名
+    password: 123456 # 密码
     
 
 rabbitmq:

@@ -161,10 +161,5 @@ mvn clean install -DskipTests=true -Pprod
 > [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 > [服务器启动教程](docs/服务器启动教程.md)
 
-## 五、友情链接
-
-- 小灰飞的碎碎念：个人的Java后端面试八股等分享公众号，包含数据库、JUC、JVM等（仍在更新中），文章融入了自己的理解和原创图，感兴趣的uu关注一下哦~😄\
-![](https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg)
-- [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
 
 
