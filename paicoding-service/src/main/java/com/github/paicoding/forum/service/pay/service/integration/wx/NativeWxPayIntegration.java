@@ -10,7 +10,12 @@ import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
-import com.wechat.pay.java.service.payments.nativepay.model.*;
+import com.wechat.pay.java.service.payments.nativepay.model.Amount;
+import com.wechat.pay.java.service.payments.nativepay.model.CloseOrderRequest;
+import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
+import com.wechat.pay.java.service.payments.nativepay.model.PrepayResponse;
+import com.wechat.pay.java.service.payments.nativepay.model.QueryOrderByOutTradeNoRequest;
+import com.wechat.pay.java.service.payments.nativepay.model.SceneInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
@@ -24,7 +29,6 @@ import org.springframework.stereotype.Service;
 @ConditionalOnBean(WxPayConfig.class)
 public class NativeWxPayIntegration extends AbsWxPayIntegration {
     private NativePayService nativePayService;
-    private final WxPayConfig wxPayConfig;
 
     public NativeWxPayIntegration(WxPayConfig wxPayConfig) {
         this.wxPayConfig = wxPayConfig;

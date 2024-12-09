@@ -25,8 +25,6 @@ import org.springframework.stereotype.Service;
 public class JsapiWxPayIntegration extends AbsWxPayIntegration {
     private JsapiService jsapiService;
 
-    private final WxPayConfig wxPayConfig;
-
     public JsapiWxPayIntegration(WxPayConfig wxPayConfig) {
         this.wxPayConfig = wxPayConfig;
         Config config = new RSAAutoCertificateConfig.Builder()

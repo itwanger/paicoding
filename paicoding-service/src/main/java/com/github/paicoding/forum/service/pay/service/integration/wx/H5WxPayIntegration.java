@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 @Service
 @ConditionalOnBean(WxPayConfig.class)
 public class H5WxPayIntegration extends AbsWxPayIntegration {
-    private final WxPayConfig wxPayConfig;
     private H5Service h5Service;
 
     public H5WxPayIntegration(WxPayConfig wxPayConfig) {
