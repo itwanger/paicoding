@@ -33,6 +33,16 @@ public class PayConfirmDTO implements Serializable {
     private String payTime;
 
     /**
+     * 支付金额
+     */
+    private String payAmount;
+
+    /**
+     * 支付方式
+     */
+    private String payWay;
+
+    /**
      * 通知次数
      */
     private Integer notifyCnt;

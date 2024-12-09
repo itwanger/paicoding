@@ -189,6 +189,19 @@
         <div th:text="${vo.payTime}">2024-10-31 8:18:00</div>
     </div>
     <div class="row">
+        <label class="label-inline">支付方式：</label>
+        <div th:if="${vo.payWay == 'email' || vo.payWay == '' || vo.payWay == null}">个人收款码</div>
+        <div th:else>微信支付</div>
+    </div>
+    <div class="row" th:if="${vo.payWay != 'email' && vo.payWay != null && vo.payWay != ''}">
+        <label class="label-inline">支付金额：</label>
+        <div th:text="${'￥' + vo.payAmount}">个人收款码</div>
+    </div>
+    <div class="row">
+        <label class="label-inline">打赏时间：</label>
+        <div th:text="${vo.payTime}">2024-10-31 8:18:00</div>
+    </div>
+    <div class="row">
         <label class="label-inline">备注：</label>
         <div th:text="${vo.mark}">备注文案</div>
     </div>

@@ -21,9 +21,9 @@ import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.config.service.GlobalConfigService;
-import com.github.paicoding.forum.service.pay.ThirdPayService;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
+import com.github.paicoding.forum.service.pay.service.ThirdPayFacade;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -348,9 +348,9 @@ public class TestController {
         req.setDescription(ReqInfoContext.getReqInfo().getUser().getUserName() + "-测试h5支付");
         req.setTotal(amount <= 0 ? 1 : amount);
         req.setPayWay(ThirdPayWayEnum.WX_H5);
-        ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
-        if (thirdPayService != null) {
-            PrePayInfoResBo res = thirdPayService.createPayOrder(req);
+        ThirdPayFacade payFacade = SpringUtil.getBeanOrNull(ThirdPayFacade.class);
+        if (payFacade != null) {
+            PrePayInfoResBo res = payFacade.createPayOrder(req);
             log.info("返回结果: {}", res);
             return ResVo.ok(res);
         } else {
@@ -366,7 +366,7 @@ public class TestController {
         req.setDescription(ReqInfoContext.getReqInfo().getUser().getUserName() + "-测试native支付");
         req.setTotal(amount <= 0 ? 1 : amount);
         req.setPayWay(ThirdPayWayEnum.WX_NATIVE);
-        ThirdPayService thirdPayService = SpringUtil.getBeanOrNull(ThirdPayService.class);
+        ThirdPayFacade thirdPayService = SpringUtil.getBeanOrNull(ThirdPayFacade.class);
         if (thirdPayService != null) {
             PrePayInfoResBo res = thirdPayService.createPayOrder(req);
             log.info("返回结果: {}", res);
