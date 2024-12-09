@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.pay;
+package com.github.paicoding.forum.service.pay.service.integration;
 
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
@@ -11,30 +11,47 @@ import java.io.IOException;
 import java.util.function.Function;
 
 /**
- * 三方支付服务
+ * 对接三方支付的API定义
  *
  * @author YiHui
- * @date 2024/12/3
+ * @date 2024/12/6
  */
-public interface ThirdPayService {
+public interface ThirdPayIntegrationApi {
+
+    boolean support(ThirdPayWayEnum payWay);
+
     /**
      * 下单
      *
      * @param payReq
      * @return
-     * @throws Exception
      */
-    PrePayInfoResBo createPayOrder(ThirdPayOrderReqBo payReq);
+    PrePayInfoResBo createOrder(ThirdPayOrderReqBo payReq);
 
     /**
-     * 支付回调
+     * 关单
      *
-     * @param request     携带回传的请求参数
-     * @param payCallback 支付结果回调执行业务逻辑
+     * @param outTradeNo
+     */
+    void closeOrder(String outTradeNo);
+
+    /**
+     * 查询订单
+     *
+     * @param outTradeNo
+     * @return
+     */
+    PayCallbackBo queryOrder(String outTradeNo);
+
+
+    /**
+     * 支付结果回调
+     *
+     * @param request
      * @return
      * @throws IOException
      */
-    ResponseEntity<?> payCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<PayCallbackBo, Boolean> payCallback) throws IOException;
+    ResponseEntity<?> payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) throws IOException;
 
 
     /**
@@ -45,5 +62,5 @@ public interface ThirdPayService {
      * @return
      * @throws IOException
      */
-    <T> ResponseEntity<?> refundCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<T, Boolean> refundCallback) throws IOException;
+    <T> ResponseEntity<?> refundCallback(HttpServletRequest request,  Function<T, Boolean> refundCallback) throws IOException;
 }

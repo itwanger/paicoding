@@ -1,11 +1,11 @@
-package com.github.paicoding.forum.service.pay.service.email;
+package com.github.paicoding.forum.service.pay.service.integration.email;
 
 import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
-import com.github.paicoding.forum.service.pay.service.ThirdPayIntegrationApi;
+import com.github.paicoding.forum.service.pay.service.integration.ThirdPayIntegrationApi;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.Booleans;
 import org.springframework.http.HttpStatus;
@@ -24,7 +24,7 @@ import java.util.function.Function;
  */
 @Slf4j
 @Service
-public class EmailPayService implements ThirdPayIntegrationApi {
+public class EmailPayIntegration implements ThirdPayIntegrationApi {
     @Override
     public boolean support(ThirdPayWayEnum payWay) {
         return payWay == ThirdPayWayEnum.EMAIL;
