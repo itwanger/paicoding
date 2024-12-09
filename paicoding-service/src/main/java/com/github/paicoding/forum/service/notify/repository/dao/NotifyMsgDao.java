@@ -35,6 +35,7 @@ public class NotifyMsgDao extends ServiceImpl<NotifyMsgMapper, NotifyMsgDO> {
                 .eq(NotifyMsgDO::getOperateUserId, msg.getOperateUserId())
                 .eq(NotifyMsgDO::getType, msg.getType())
                 .eq(NotifyMsgDO::getRelatedId, msg.getRelatedId())
+                .orderByDesc(NotifyMsgDO::getId)
                 .page(new Page<>(0, 1))
                 .getRecords();
         if (CollectionUtils.isEmpty(list)) {
