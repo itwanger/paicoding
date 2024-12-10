@@ -12,11 +12,17 @@ import com.github.paicoding.forum.service.pay.PayService;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
+import com.wechat.pay.java.core.exception.ValidationException;
+import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.function.Function;
 
 /**
  * 在线支付流程
@@ -28,7 +34,7 @@ import java.util.Date;
 @Service
 public class OnlinePayServiceImpl implements PayService {
     @Autowired
-    private ThirdPayFacade thirdPayFacade;
+    private ThirdPayHandler thirdPayFacade;
 
     @Override
     public boolean support(ThirdPayWayEnum payWay) {
@@ -47,6 +53,7 @@ public class OnlinePayServiceImpl implements PayService {
             return payInfo;
         }
 
+        // 需要像微信重新创建支付订单，并且将结果反写到支付记录中
         ThirdPayOrderReqBo req = new ThirdPayOrderReqBo();
         req.setTotal(record.getPayAmount());
         req.setOutTradeNo(record.getVerifyCode());
@@ -56,12 +63,9 @@ public class OnlinePayServiceImpl implements PayService {
 
         PayInfoDTO payInfo = new PayInfoDTO();
         if (res != null) {
+            // 回写微信支付信息到支付记录中，用于下次唤起支付使用
             record.setPrePayId(res.getPrePayId());
             record.setPrePayExpireTime(new Date(res.getExpireTime()));
-            if (PayStatusEnum.FAIL.getStatus().equals(record.getPayStatus())) {
-                // 支付失败，重新支付时，重置支付状态
-                record.setPayStatus(PayStatusEnum.NOT_PAY.getStatus());
-            }
 
             payInfo.setPrePayId(PayConverter.genQrCode(res.getPrePayId()));
             payInfo.setPayWay(record.getPayWay());
@@ -81,8 +85,7 @@ public class OnlinePayServiceImpl implements PayService {
     public boolean paying(ArticlePayRecordDO dbRecord) {
         // 主动查询一下支付状态
         try {
-            PayCallbackBo bo = thirdPayFacade.getPayService(ThirdPayWayEnum.ofPay(dbRecord.getPayWay()))
-                    .queryOrder(dbRecord.getVerifyCode());
+            PayCallbackBo bo = thirdPayFacade.queryOrder(dbRecord.getVerifyCode(), ThirdPayWayEnum.ofPay(dbRecord.getPayWay()));
             if (bo.getPayStatus() == PayStatusEnum.SUCCEED || bo.getPayStatus() == PayStatusEnum.FAIL) {
                 // 实际结果是支付成功/支付失败时，刷新下record对应的内容
                 // 更新原来的支付状态为最新的结果
@@ -99,4 +102,27 @@ public class OnlinePayServiceImpl implements PayService {
         return true;
     }
 
+    @Override
+    public ResponseEntity<?> payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) {
+        try {
+            PayCallbackBo bo = thirdPayFacade.payCallback(request, ThirdPayWayEnum.WX_NATIVE);
+            boolean ans = payCallback.apply(bo);
+            if (ans) {
+                // 处理成功，返回 200 OK 状态码
+                return ResponseEntity.status(HttpStatus.OK).build();
+            } else {
+                // 处理异常，返回 500 服务器内部异常 状态码
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (ValidationException e) {
+            log.error("微信支付回调v3java失败=" + e.getMessage(), e);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+    }
+
+    @Override
+    public ResponseEntity<?> refundCallback(HttpServletRequest request, Function<RefundNotification, Boolean> payCallback) {
+        return thirdPayFacade.refundCallback(request, ThirdPayWayEnum.WX_NATIVE, payCallback);
+    }
 }

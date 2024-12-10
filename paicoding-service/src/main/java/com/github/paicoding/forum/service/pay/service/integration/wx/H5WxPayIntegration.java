@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.pay.config.WxPayConfig;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
+import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
@@ -48,7 +49,6 @@ public class H5WxPayIntegration extends AbsWxPayIntegration {
      * @return
      */
     public String createPayOrder(ThirdPayOrderReqBo payReq) {
-        log.info("微信支付 >>>>>>>>>>>>>>>>> 原始请求：{}", JSONObject.toJSON(payReq));
         PrepayRequest request = new PrepayRequest();
         request.setAppid(wxPayConfig.getAppId());
         request.setMchid(wxPayConfig.getMerchantId());

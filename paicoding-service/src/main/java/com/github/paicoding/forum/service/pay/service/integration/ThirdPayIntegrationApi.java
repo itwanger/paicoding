@@ -28,12 +28,6 @@ public interface ThirdPayIntegrationApi {
      */
     PrePayInfoResBo createOrder(ThirdPayOrderReqBo payReq);
 
-    /**
-     * 关单
-     *
-     * @param outTradeNo
-     */
-    void closeOrder(String outTradeNo);
 
     /**
      * 查询订单
@@ -45,14 +39,19 @@ public interface ThirdPayIntegrationApi {
 
 
     /**
-     * 支付结果回调
+     * 支付回调
      *
      * @param request
      * @return
-     * @throws IOException
      */
-    ResponseEntity<?> payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) throws IOException;
+    PayCallbackBo payCallback(HttpServletRequest request);
 
+    /**
+     * 关单
+     *
+     * @param outTradeNo
+     */
+    void closeOrder(String outTradeNo);
 
     /**
      * 退款回调
@@ -62,5 +61,7 @@ public interface ThirdPayIntegrationApi {
      * @return
      * @throws IOException
      */
-    <T> ResponseEntity<?> refundCallback(HttpServletRequest request,  Function<T, Boolean> refundCallback) throws IOException;
+    default <T> ResponseEntity<?> refundCallback(HttpServletRequest request, Function<T, Boolean> refundCallback) {
+        return ResponseEntity.ok(true);
+    }
 }

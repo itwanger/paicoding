@@ -11,9 +11,9 @@ import com.github.paicoding.forum.service.pay.service.integration.email.EmailPay
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,11 +24,11 @@ import java.util.function.Function;
  * @date 2024/12/6
  */
 @Service
-public class ThirdPayFacade {
+public class ThirdPayHandler {
     @Autowired
     private List<ThirdPayIntegrationApi> payServiceList;
 
-    public ThirdPayIntegrationApi getPayService(ThirdPayWayEnum payWay) {
+    private ThirdPayIntegrationApi getPayService(ThirdPayWayEnum payWay) {
         return payServiceList.stream().filter(s -> s.support(payWay)).findFirst()
                 .orElse(SpringUtil.getBean(EmailPayIntegration.class));
     }
@@ -37,11 +37,17 @@ public class ThirdPayFacade {
         return getPayService(payReq.getPayWay()).createOrder(payReq);
     }
 
-    public ResponseEntity<?> payCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<PayCallbackBo, Boolean> payCallback) throws IOException {
-        return getPayService(payWay).payCallback(request, payCallback);
+    public PayCallbackBo queryOrder(String outTradeNo, ThirdPayWayEnum payWay) {
+        return getPayService(payWay).queryOrder(outTradeNo);
     }
 
-    public <T> ResponseEntity<?> refundCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<T, Boolean> refundCallback) throws IOException {
+    @Transactional
+    public PayCallbackBo payCallback(HttpServletRequest request, ThirdPayWayEnum payWay) {
+        return getPayService(payWay).payCallback(request);
+    }
+
+    @Transactional
+    public <T> ResponseEntity<?> refundCallback(HttpServletRequest request, ThirdPayWayEnum payWay, Function<T, Boolean> refundCallback) {
         return getPayService(payWay).refundCallback(request, refundCallback);
     }
 }
