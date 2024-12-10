@@ -4,10 +4,9 @@ import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
+import com.github.paicoding.forum.service.pay.PayServiceFactory;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
-import com.github.paicoding.forum.service.pay.service.ThirdPayFacade;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
@@ -44,6 +43,8 @@ public class WxCallbackRestController {
     private WxAckHelper wxHelper;
     @Autowired
     private ArticlePayService articlePayService;
+    @Autowired
+    private PayServiceFactory payServiceFactory;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -109,18 +110,17 @@ public class WxCallbackRestController {
      */
     @PostMapping(path = "payNotify")
     public ResponseEntity<?> wxPayCallback(HttpServletRequest request) throws IOException {
-        return SpringUtil.getBeanOrNull(ThirdPayFacade.class)
-                .payCallback(request, ThirdPayWayEnum.WX_NATIVE, new Function<PayCallbackBo, Boolean>() {
-                    @Override
-                    public Boolean apply(PayCallbackBo transaction) {
-                        log.info("微信支付回调执行业务逻辑 {}", transaction);
-                        return articlePayService.updatePayStatus(transaction.getPayId(),
-                                transaction.getOutTradeNo(),
-                                transaction.getPayStatus(),
-                                transaction.getSuccessTime(),
-                                transaction.getThirdTransactionId());
-                    }
-                });
+        return payServiceFactory.getPayService(ThirdPayWayEnum.WX_NATIVE).payCallback(request, new Function<PayCallbackBo, Boolean>() {
+            @Override
+            public Boolean apply(PayCallbackBo transaction) {
+                log.info("微信支付回调执行业务逻辑 {}", transaction);
+                return articlePayService.updatePayStatus(transaction.getPayId(),
+                        transaction.getOutTradeNo(),
+                        transaction.getPayStatus(),
+                        transaction.getSuccessTime(),
+                        transaction.getThirdTransactionId());
+            }
+        });
     }
 
 
@@ -131,8 +131,8 @@ public class WxCallbackRestController {
      */
     @PostMapping(path = "refundNotify")
     public ResponseEntity<?> wxRefundCallback(HttpServletRequest request) throws IOException {
-        return SpringUtil.getBeanOrNull(ThirdPayFacade.class)
-                .refundCallback(request, ThirdPayWayEnum.WX_NATIVE, new Function<RefundNotification, Boolean>() {
+        return payServiceFactory.getPayService(ThirdPayWayEnum.WX_NATIVE)
+                .refundCallback(request, new Function<RefundNotification, Boolean>() {
                     @Override
                     public Boolean apply(RefundNotification refundNotification) {
                         log.info("微信退款回调执行业务逻辑{}", refundNotification);

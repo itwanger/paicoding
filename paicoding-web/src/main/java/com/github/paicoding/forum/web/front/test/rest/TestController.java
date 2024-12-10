@@ -23,7 +23,7 @@ import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.config.service.GlobalConfigService;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
-import com.github.paicoding.forum.service.pay.service.ThirdPayFacade;
+import com.github.paicoding.forum.service.pay.service.ThirdPayHandler;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -348,7 +348,7 @@ public class TestController {
         req.setDescription(ReqInfoContext.getReqInfo().getUser().getUserName() + "-测试h5支付");
         req.setTotal(amount <= 0 ? 1 : amount);
         req.setPayWay(ThirdPayWayEnum.WX_H5);
-        ThirdPayFacade payFacade = SpringUtil.getBeanOrNull(ThirdPayFacade.class);
+        ThirdPayHandler payFacade = SpringUtil.getBeanOrNull(ThirdPayHandler.class);
         if (payFacade != null) {
             PrePayInfoResBo res = payFacade.createPayOrder(req);
             log.info("返回结果: {}", res);
@@ -366,7 +366,7 @@ public class TestController {
         req.setDescription(ReqInfoContext.getReqInfo().getUser().getUserName() + "-测试native支付");
         req.setTotal(amount <= 0 ? 1 : amount);
         req.setPayWay(ThirdPayWayEnum.WX_NATIVE);
-        ThirdPayFacade thirdPayService = SpringUtil.getBeanOrNull(ThirdPayFacade.class);
+        ThirdPayHandler thirdPayService = SpringUtil.getBeanOrNull(ThirdPayHandler.class);
         if (thirdPayService != null) {
             PrePayInfoResBo res = thirdPayService.createPayOrder(req);
             log.info("返回结果: {}", res);
