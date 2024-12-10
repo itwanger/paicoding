@@ -221,8 +221,14 @@
                     remainingTime = remainingTime - hour * 3600_000
                 }
                 var minutes = Math.floor(remainingTime / (1000 * 60));
+                if (minutes < 10) {
+                    minutes = `0${minutes}`
+                }
                 var seconds = Math.floor((remainingTime / 1000) % 60);
-                $("#countdown").text('剩余倒计时：' + hour + ' 小时 ' + minutes + " 分钟 " + seconds + " 秒");
+                if (seconds < 10) {
+                    seconds = `0${seconds}`
+                }
+                $("#countdown").text('支付剩余倒计时：' + hour + ' 小时 ' + minutes + " 分钟 " + seconds + " 秒");
                 if (remainingTime <= 0) {
                     clearInterval(countdownInterval);
                     $("#countdown").text("支付二维码已实现，请刷新页面!");

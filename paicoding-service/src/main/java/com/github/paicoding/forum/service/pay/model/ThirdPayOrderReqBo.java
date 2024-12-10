@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.pay.model;
 
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 向三方支付平台下单的请求业务参数
@@ -10,6 +11,7 @@ import lombok.Data;
  * @date 2024/12/3
  */
 @Data
+@Accessors(chain = true)
 public class ThirdPayOrderReqBo {
     /**
      * 订单号（业务）
