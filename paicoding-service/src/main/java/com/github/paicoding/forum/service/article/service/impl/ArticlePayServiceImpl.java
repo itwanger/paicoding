@@ -182,7 +182,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
         if (Objects.equals(record.getPayStatus(), PayStatusEnum.SUCCEED.getStatus()) ||
                 Objects.equals(record.getPayStatus(), PayStatusEnum.FAIL.getStatus())) {
-            // 用户不一致，不支持更新
+            // 支付状态幂等
             return true;
         }
 

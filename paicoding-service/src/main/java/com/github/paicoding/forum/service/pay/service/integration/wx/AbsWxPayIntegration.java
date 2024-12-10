@@ -7,7 +7,6 @@ import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.core.net.HttpRequestHelper;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.RandUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.pay.config.WxPayConfig;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
@@ -19,7 +18,6 @@ import com.wechat.pay.java.core.exception.ValidationException;
 import com.wechat.pay.java.core.notification.NotificationConfig;
 import com.wechat.pay.java.core.notification.NotificationParser;
 import com.wechat.pay.java.core.notification.RequestParam;
-import com.wechat.pay.java.core.util.PemUtil;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.Signature;
-import java.util.Base64;
 import java.util.function.Function;
 
 /**
@@ -42,7 +36,25 @@ import java.util.function.Function;
 public abstract class AbsWxPayIntegration implements ThirdPayIntegrationApi {
     public WxPayConfig wxPayConfig;
 
-    abstract public String createPayOrder(ThirdPayOrderReqBo payReq);
+    public abstract String createPayOrder(ThirdPayOrderReqBo payReq);
+
+    /**
+     * 补齐支付信息
+     *
+     * @param payReq   支付请求参数
+     * @param prePayId 微信返回的支付唤起code
+     */
+    protected PrePayInfoResBo buildPayInfo(ThirdPayOrderReqBo payReq, String prePayId) {
+        // 结果封装返回
+        ThirdPayWayEnum payWay = payReq.getPayWay();
+        PrePayInfoResBo prePay = new PrePayInfoResBo();
+        prePay.setPayWay(payWay);
+        prePay.setOutTradeNo(payReq.getOutTradeNo());
+        prePay.setAppId(wxPayConfig.getAppId());
+        prePay.setPrePayId(prePayId);
+        prePay.setExpireTime(System.currentTimeMillis() + payWay.getExpireTimePeriod());
+        return prePay;
+    }
 
     /**
      * 唤起支付
@@ -52,56 +64,9 @@ public abstract class AbsWxPayIntegration implements ThirdPayIntegrationApi {
      */
     public PrePayInfoResBo createOrder(ThirdPayOrderReqBo payReq) {
         log.info("微信支付 >>>>>>>>>>>>>>>>> 请求：{}", JsonUtil.toStr(payReq));
-        ThirdPayWayEnum payWay = payReq.getPayWay();
+        // 微信下单
         String prePayId = createPayOrder(payReq);
-
-        long now = System.currentTimeMillis();
-        PrePayInfoResBo prePay = new PrePayInfoResBo();
-        prePay.setOutTradeNo(payReq.getOutTradeNo());
-        prePay.setAppId(wxPayConfig.getAppId());
-        prePay.setPrePayId(prePayId);
-        if (payWay == ThirdPayWayEnum.WX_H5) {
-            // 官方说明有效期五分钟，我们这里设置一下有效期为四分之后，避免正好卡在失效的时间点
-            prePay.setExpireTime(now + payWay.getExpireTimePeriod());
-            return prePay;
-        } else if (payWay == ThirdPayWayEnum.WX_NATIVE) {
-            // 官方说明有效期为两小时，我们设置为1.8小时之后失效
-            prePay.setExpireTime(now + payWay.getExpireTimePeriod());
-            return prePay;
-        } else if (payWay == ThirdPayWayEnum.WX_JSAPI) {
-            // 官方说明有效期为两小时，我们设置为1.8小时之后失效
-            prePay.setExpireTime(now + payWay.getExpireTimePeriod());
-            String timeStamp = String.valueOf(now / 1000);
-            //随机字符串,要求小于32位
-            String nonceStr = RandUtil.random(30);
-            String packageStr = "prepay_id=" + prePayId;
-
-            // 不能去除'.append("\n")'，否则失败
-            String signStr = wxPayConfig.getAppId() + "\n" +
-                    timeStamp + "\n" +
-                    nonceStr + "\n" +
-                    packageStr + "\n";
-
-            byte[] message = signStr.getBytes(StandardCharsets.UTF_8);
-            try {
-                Signature sign = Signature.getInstance("SHA256withRSA");
-                sign.initSign(PemUtil.loadPrivateKeyFromString(wxPayConfig.getPrivateKeyContent()));
-                sign.update(message);
-                String signStrBase64 = Base64.getEncoder().encodeToString(sign.sign());
-
-                // 拼装返回结果
-                prePay.setNonceStr(nonceStr);
-                prePay.setPrePackage(packageStr);
-                prePay.setSignType("RSA");
-                prePay.setTimeStamp(timeStamp);
-                prePay.setPaySign(signStrBase64);
-                return prePay;
-            } catch (Exception e) {
-                log.error("唤醒支付签名异常: {} - {}", prePayId, payReq.getOutTradeNo(), e);
-                return null;
-            }
-        }
-        return null;
+        return buildPayInfo(payReq, prePayId);
     }
 
     protected PayCallbackBo toBo(Transaction transaction) {
@@ -126,16 +91,8 @@ public abstract class AbsWxPayIntegration implements ThirdPayIntegrationApi {
                 .setSuccessTime(payTime);
     }
 
-    /**
-     * 微信回调
-     *
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    @Transactional
     @Override
-    public ResponseEntity<?> payCallback(HttpServletRequest request, Function<PayCallbackBo, Boolean> payCallback) throws IOException {
+    public PayCallbackBo payCallback(HttpServletRequest request) {
         RequestParam requestParam = new RequestParam.Builder()
                 .serialNumber(request.getHeader("Wechatpay-Serial"))
                 .nonce(request.getHeader("Wechatpay-Nonce"))
@@ -153,25 +110,11 @@ public abstract class AbsWxPayIntegration implements ThirdPayIntegrationApi {
                 .build();
 
         NotificationParser parser = new NotificationParser(config);
-        try {
-            // 验签、解密并转换成 Transaction（返回参数对象）
-            Transaction transaction = parser.parse(requestParam, Transaction.class);
-            log.info("微信支付回调 成功，解析: {}", JSON.toJSONString(transaction));
-            // TODO 处理你的业务逻辑
-            boolean ans = payCallback.apply(toBo(transaction));
-            if (ans) {
-                // 处理成功，返回 200 OK 状态码
-                return ResponseEntity.status(HttpStatus.OK).build();
-            } else {
-                // 处理异常，返回 500 服务器内部异常 状态码
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } catch (ValidationException e) {
-            log.error("微信支付回调v3java失败=" + e.getMessage(), e);
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        // 验签、解密并转换成 Transaction（返回参数对象）
+        Transaction transaction = parser.parse(requestParam, Transaction.class);
+        log.info("微信支付回调 成功，解析: {}", JSON.toJSONString(transaction));
+        return toBo(transaction);
     }
-
 
     /**
      * 微信退款回调
@@ -181,7 +124,7 @@ public abstract class AbsWxPayIntegration implements ThirdPayIntegrationApi {
      * @return
      */
     @Transactional
-    public <T> ResponseEntity refundCallback(HttpServletRequest request, Function<T, Boolean> refundCallback) throws IOException {
+    public <T> ResponseEntity refundCallback(HttpServletRequest request, Function<T, Boolean> refundCallback) {
         RequestParam requestParam = new RequestParam.Builder()
                 .serialNumber(request.getHeader("Wechatpay-Serial"))
                 .nonce(request.getHeader("Wechatpay-Nonce"))
