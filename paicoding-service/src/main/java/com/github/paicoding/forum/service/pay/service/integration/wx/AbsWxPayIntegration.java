@@ -87,7 +87,11 @@ public abstract class AbsWxPayIntegration implements ThirdPayIntegrationApi {
         }
         Long payId = IdUtil.getPayIdFromPayCode(outTradeNo);
         Long payTime = transaction.getSuccessTime() != null ? DateUtil.wxDayToTimestamp(transaction.getSuccessTime()) : null;
-        return new PayCallbackBo().setPayStatus(payStatus).setOutTradeNo(outTradeNo).setPayId(payId)
+        return new PayCallbackBo()
+                .setPayStatus(payStatus)
+                .setOutTradeNo(outTradeNo)
+                .setPayId(payId)
+                .setThirdTransactionId(transaction.getTransactionId())
                 .setSuccessTime(payTime);
     }
 

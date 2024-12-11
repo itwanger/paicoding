@@ -4,7 +4,9 @@ import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
+import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.pay.PayServiceFactory;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.user.service.LoginService;
@@ -114,6 +116,13 @@ public class WxCallbackRestController {
             @Override
             public Boolean apply(PayCallbackBo transaction) {
                 log.info("微信支付回调执行业务逻辑 {}", transaction);
+                if (transaction.getOutTradeNo().startsWith("TEST-")) {
+                    // TestController 中关于测试支付的回调逻辑时，我们只通过消息进行通知用户即可
+                    long payUser = transaction.getPayId();
+                    SpringUtil.getBean(NotifyService.class).notifyToUser(payUser, "您的一笔微信测试支付状态已更新为：" + transaction.getPayStatus().getMsg());
+                    return true;
+                }
+
                 return articlePayService.updatePayStatus(transaction.getPayId(),
                         transaction.getOutTradeNo(),
                         transaction.getPayStatus(),
