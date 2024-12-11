@@ -12,7 +12,6 @@ import com.github.paicoding.forum.service.pay.PayService;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
-import com.wechat.pay.java.core.exception.ValidationException;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,8 +113,8 @@ public class OnlinePayServiceImpl implements PayService {
                 // 处理异常，返回 500 服务器内部异常 状态码
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
-        } catch (ValidationException e) {
-            log.error("微信支付回调v3java失败=" + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("微信支付回调v3java失败={}", e.getMessage(), e);
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
