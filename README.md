@@ -40,7 +40,7 @@
 
 - 项目仓库（GitHub）：[https://github.com/itwanger/paicoding/tree/springboot3%26vue3](https://github.com/itwanger/paicoding/tree/springboot3%26vue3)
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding/tree/springboot3%26vue3](https://gitee.com/itwanger/paicoding/tree/springboot3%26vue3)
-  - 项目演示地址（球友小灰飞）：[https://www.xuyifei.site/](https://www.xuyifei.site/)
+- 项目演示地址（球友小灰飞）：[https://www.xuyifei.site/](https://www.xuyifei.site/)
 
 ![编程汇vue3+Spring Boot3](https://cdn.tobebetterjavaer.com/paicoding/README-1799f2f840fc4687a1cda4486782a07a.png)
 
