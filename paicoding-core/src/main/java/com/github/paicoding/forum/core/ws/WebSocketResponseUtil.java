@@ -13,7 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
  * @date 2024/11/27
  */
 public class WebSocketResponseUtil {
-    private static SimpMessagingTemplate simpMessagingTemplate;
+    private static volatile SimpMessagingTemplate simpMessagingTemplate;
 
     /**
      * 初始化
