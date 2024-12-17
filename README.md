@@ -53,6 +53,8 @@
 
 ![技术派后台管理系统](https://cdn.tobebetterjavaer.com/images/20230602/83139e13a4784c0fbf0adedd8e287c5b.png)
 
+admin 端部署写在了 paicoding-admin 项目的 README.md 中，请注意查看⚠️。
+
 #### 代码展示
 
 ![技术派源码结构](https://cdn.tobebetterjavaer.com/images/20231205/b8f76cb8e09f4ebca84b3ddd3b61c13e.png)
