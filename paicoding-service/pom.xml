@@ -104,6 +104,12 @@
             <artifactId>wechatpay-java</artifactId>
             <version>0.2.14</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.idev.excel</groupId>
+            <artifactId>fastexcel</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
