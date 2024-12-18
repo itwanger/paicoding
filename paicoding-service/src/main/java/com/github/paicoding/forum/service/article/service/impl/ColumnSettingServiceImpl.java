@@ -18,9 +18,11 @@ import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMa
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleGroupDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleGroupDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnArticleParams;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
@@ -52,6 +54,9 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     private ColumnArticleDao columnArticleDao;
 
     @Autowired
+    private ColumnArticleGroupDao columnArticleGroupDao;
+
+    @Autowired
     private ColumnDao columnDao;
 
     @Autowired
@@ -68,6 +73,17 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         } else {
             columnInfoDO.setId(req.getColumnId());
             columnDao.updateById(columnInfoDO);
+        }
+    }
+
+    @Override
+    public void saveColumnArticleGroup(ColumnArticleGroupReq req) {
+        ColumnArticleGroupDO groupDO = columnStructMapper.toDO(req);
+        if (NumUtil.nullOrZero(req.getId())) {
+            columnArticleGroupDao.save(groupDO);
+        } else {
+            groupDO.setId(req.getId());
+            columnArticleGroupDao.updateById(groupDO);
         }
     }
 

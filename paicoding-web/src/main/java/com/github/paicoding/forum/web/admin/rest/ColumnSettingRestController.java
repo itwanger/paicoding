@@ -53,6 +53,12 @@ public class ColumnSettingRestController {
     }
 
     @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "saveColumnGroup")
+    public ResVo<Boolean> saveColumnArticleGroup(@RequestBody ColumnArticleGroupReq req) {
+        
+    }
+
+    @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "saveColumnArticle")
     public ResVo<String> saveColumnArticle(@RequestBody ColumnArticleReq req) {
 
