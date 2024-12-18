@@ -43,7 +43,11 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      * @return
      */
     public static <T> T getBean(Class<T> bean) {
-        return context.getBean(bean);
+        if (context != null) {
+            return context.getBean(bean);
+        } else {
+            throw new IllegalStateException("Spring ApplicationContext is not active or has been closed.");
+        }
     }
 
     public static <T> T getBeanOrNull(Class<T> bean) {

@@ -1,10 +1,14 @@
 package com.github.paicoding.forum.service.statistics.service.impl;
 
+import cn.idev.excel.FastExcel;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsCountDTO;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
+import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayExcelDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
+import com.github.paicoding.forum.service.statistics.converter.StatisticsConverter;
+import com.github.paicoding.forum.service.statistics.converter.StatisticsStructMapper;
 import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
 import com.github.paicoding.forum.service.statistics.service.RequestCountService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
@@ -16,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -80,6 +87,22 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
     @Override
     public List<StatisticsDayDTO> getPvUvDayList(Integer day) {
         return requestCountService.getPvUvDayList(day);
+    }
+
+    @Override
+    public void download2Excel(Integer day, HttpServletResponse response) {
+        List<StatisticsDayDTO> pvDayList = requestCountService.getPvUvDayList(day);
+        // StatisticsDayDTO 转 StatisticsDayExcelDTO
+        List<StatisticsDayExcelDTO> excelDTOList = StatisticsConverter.convertToExcelDTOList(pvDayList);
+
+        // 使用 FastExcel 导出 Excel
+        try {
+            FastExcel.write(response.getOutputStream(), StatisticsDayExcelDTO.class)
+                    .sheet(day + "天统计")
+                    .doWrite(excelDTOList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

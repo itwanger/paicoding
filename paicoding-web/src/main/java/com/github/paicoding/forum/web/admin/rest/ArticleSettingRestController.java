@@ -103,7 +103,7 @@ public class ArticleSettingRestController {
         return ResVo.ok(articleDTOPageVo);
     }
 
-    @ApiOperation("文章搜索")
+    @ApiOperation("文章搜索，按照文章标题关键字")
     @GetMapping(path = "query")
     public ResVo<SearchArticleVo> queryArticleList(@RequestParam(name = "key", required = false) String key) {
         List<SimpleArticleDTO> list = articleReadService.querySimpleArticleBySearchKey(key);

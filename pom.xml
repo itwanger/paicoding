@@ -29,7 +29,7 @@
         <mybaits-plus.version>3.5.2</mybaits-plus.version>
         <aliyun-sdk-oss.version>3.17.2</aliyun-sdk-oss.version>
         <qrcode-plugin.version>3.0.0</qrcode-plugin.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.16.1</commons-io.version>
         <hutool-all.version>5.8.15</hutool-all.version>
         <itextpdf.version>5.5.13.3</itextpdf.version>
         <kryo.version>5.4.0</kryo.version>
@@ -41,6 +41,7 @@
         <opencv.version>4.6.0-0</opencv.version>
         <sensitive.version>0.8.0</sensitive.version>
         <jwt.version>4.4.0</jwt.version>
+        <fastexcel.version>1.0.0</fastexcel.version>
     </properties>
 
     <dependencyManagement>
@@ -157,6 +158,12 @@
                 <groupId>org.openpnp</groupId>
                 <artifactId>opencv</artifactId>
                 <version>${opencv.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.idev.excel</groupId>
+                <artifactId>fastexcel</artifactId>
+                <version>${fastexcel.version}</version>
             </dependency>
 
         </dependencies>
