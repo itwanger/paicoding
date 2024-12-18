@@ -32,6 +32,13 @@ public interface ColumnSettingService {
     void saveColumn(ColumnReq columnReq);
 
     /**
+     * 保存专栏文章分组
+     * @param req
+     * @return
+     */
+    void saveColumnArticleGroup(ColumnArticleGroupReq req);
+
+    /**
      * 保存专栏文章
      *
      * @param req
