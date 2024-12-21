@@ -1,10 +1,10 @@
-package com.github.paicoding.forum.api.model.vo.statistics.dto;
+package com.github.paicoding.forum.service.statistics.repository.entity;
 
 import cn.idev.excel.annotation.ExcelProperty;
 import lombok.Data;
 
 @Data
-public class StatisticsDayExcelDTO {
+public class StatisticsDayExcelDO {
 
     /**
      * 日期

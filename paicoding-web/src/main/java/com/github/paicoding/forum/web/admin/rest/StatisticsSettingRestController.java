@@ -53,11 +53,11 @@ public class StatisticsSettingRestController {
     @GetMapping("pvUvDayDownload2Excel")
     public void pvUvDayDownload2Excel(@RequestParam(name = "day", required = false) Integer day,
                                       HttpServletResponse response) throws IOException {
-        response.reset();
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("技术派", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+        response.reset();
 
         // 获取数据
         day = (day == null || day == 0) ? DEFAULT_DAY : day;

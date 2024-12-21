@@ -1,10 +1,14 @@
 package com.github.paicoding.forum.web.front.test.rest;
 
+import cn.idev.excel.ExcelWriter;
+import cn.idev.excel.FastExcel;
+import cn.idev.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSONObject;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.exception.ForumAdviceException;
+import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -24,6 +28,10 @@ import com.github.paicoding.forum.service.config.service.GlobalConfigService;
 import com.github.paicoding.forum.service.pay.model.PrePayInfoResBo;
 import com.github.paicoding.forum.service.pay.model.ThirdPayOrderReqBo;
 import com.github.paicoding.forum.service.pay.service.ThirdPayHandler;
+import com.github.paicoding.forum.service.statistics.converter.StatisticsConverter;
+import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
+import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountExcelDO;
+import com.github.paicoding.forum.service.statistics.service.RequestCountService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
@@ -43,10 +51,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -376,4 +391,119 @@ public class TestController {
             return ResVo.ok(null);
         }
     }
+
+    @Autowired
+    private RequestCountService requestCountService;
+
+    // 准备使用 FastExcel 批量导出 500万条数据
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "exportBatch")
+    public void exportBatch(HttpServletResponse response) throws IOException {
+        OutputStream outputStream = response.getOutputStream();
+
+        // 查出总数量
+        long total = requestCountService.count();
+
+        // 每页大小
+        int pageSize = 100000; // 每页 1 万条数据
+
+        // 每个 Sheet 容纳数据条数
+        int sheetSize = 1000000; // 每个 Sheet 100 万条数据
+        int sheetCount = (int) (total / sheetSize + (total % sheetSize == 0 ? 0 : 1));
+
+        // 文件名
+        String fileName = URLEncoder.encode("批量导出测试.xlsx", "UTF-8").replaceAll("\\+", "%20");
+
+        // 设置响应头
+        response.reset();
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
+
+        // 开始导出
+        try (ExcelWriter excelWriter = FastExcel.write(outputStream, RequestCountExcelDO.class).build()) {
+            for (int sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+                // 命名 Sheet
+                WriteSheet sheet = FastExcel.writerSheet(sheetIndex, "sheet" + (sheetIndex + 1)).build();
+
+                // 查询数据
+                for (int pageIndex = 0; pageIndex < sheetSize / pageSize; pageIndex++) {
+                    // 第一页是从 0-9999，第二页是从 10000-19999
+                    int offset = sheetIndex * sheetSize + pageIndex * pageSize + 1;
+                    // TODO 自定义线程池+ CountDownLatch 进行优化
+                    List<RequestCountDO> data = requestCountService.listRequestCount(PageParam.newPageInstance(offset, pageSize));
+                    List<RequestCountExcelDO> list = StatisticsConverter.convertToRequestCountExcelDOList(data);
+                    excelWriter.write(list, sheet);
+                    log.info("导出第 {} 页数据，目前是第{} 条数据", pageIndex, offset);
+                }
+
+            }
+        }
+    }
+
+    // 准备使用 FastExcel 批量导出 500万条数据
+    // 自定义线程池，以及 CountDownLatch 进行优化
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "exportBatchPoolCountDownLatch")
+    public void exportBatchPoolCountDownLatch(HttpServletResponse response) throws IOException {
+        OutputStream outputStream = response.getOutputStream();
+
+        // 查出总数量
+        long total = requestCountService.count();
+
+        // 每页大小
+        int pageSize = 100000; // 每页 1 万条数据
+
+        // 每个 Sheet 容纳数据条数
+        int sheetSize = 1000000; // 每个 Sheet 100 万条数据
+        int sheetCount = (int) (total / sheetSize + (total % sheetSize == 0 ? 0 : 1));
+
+        // 文件名
+        String fileName = URLEncoder.encode("批量导出测试.xlsx", "UTF-8").replaceAll("\\+", "%20");
+
+        // 设置响应头
+        response.reset();
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
+
+        // 开始导出
+        int threadPoolSize = Runtime.getRuntime().availableProcessors(); // 根据 CPU 核心数动态分配线程
+        ExecutorService threadPool = Executors.newFixedThreadPool(threadPoolSize);
+        CountDownLatch latch = new CountDownLatch(sheetCount * (sheetSize / pageSize));
+
+        try (ExcelWriter excelWriter = FastExcel.write(outputStream, RequestCountExcelDO.class).build()) {
+            for (int sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+                WriteSheet sheet = FastExcel.writerSheet(sheetIndex, "sheet" + (sheetIndex + 1)).build();
+                for (int pageIndex = 0; pageIndex < sheetSize / pageSize; pageIndex++) {
+                    int finalSheetIndex = sheetIndex;
+                    int finalPageIndex = pageIndex;
+                    threadPool.submit(() -> {
+                        try {
+                            // 计算分页偏移量
+                            int offset = finalSheetIndex * sheetSize + finalPageIndex * pageSize + 1;
+                            List<RequestCountDO> data = requestCountService.listRequestCount(PageParam.newPageInstance(offset, pageSize));
+                            List<RequestCountExcelDO> list = StatisticsConverter.convertToRequestCountExcelDOList(data);
+
+                            synchronized (excelWriter) {
+                                excelWriter.write(list, sheet); // 写入操作需要同步，避免线程冲突
+                            }
+                            log.info("导出第 {} 页数据，目前是第 {} 条数据", finalPageIndex, offset);
+                        } catch (Exception e) {
+                            log.error("导出第 {} 页数据时出错", finalPageIndex, e);
+                        } finally {
+                            latch.countDown(); // 减少计数器
+                        }
+                    });
+                }
+            }
+            latch.await(); // 等待所有线程完成
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("线程中断: ", e);
+        } finally {
+            threadPool.shutdown(); // 关闭线程池
+        }
+    }
+
 }
