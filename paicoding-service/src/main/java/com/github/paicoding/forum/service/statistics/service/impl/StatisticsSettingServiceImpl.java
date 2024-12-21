@@ -3,13 +3,12 @@ package com.github.paicoding.forum.service.statistics.service.impl;
 import cn.idev.excel.FastExcel;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsCountDTO;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
-import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayExcelDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.statistics.converter.StatisticsConverter;
-import com.github.paicoding.forum.service.statistics.converter.StatisticsStructMapper;
 import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
+import com.github.paicoding.forum.service.statistics.repository.entity.StatisticsDayExcelDO;
 import com.github.paicoding.forum.service.statistics.service.RequestCountService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
@@ -93,11 +92,12 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
     public void download2Excel(Integer day, HttpServletResponse response) {
         List<StatisticsDayDTO> pvDayList = requestCountService.getPvUvDayList(day);
         // StatisticsDayDTO 转 StatisticsDayExcelDTO
-        List<StatisticsDayExcelDTO> excelDTOList = StatisticsConverter.convertToExcelDTOList(pvDayList);
+        List<StatisticsDayExcelDO> excelDTOList = StatisticsConverter.convertToExcelDOList(pvDayList);
 
         // 使用 FastExcel 导出 Excel
+        // TODO 这里可以用一个大文件，比如说 10万条数据测试一下，看看 FastExcel 的性能
         try {
-            FastExcel.write(response.getOutputStream(), StatisticsDayExcelDTO.class)
+            FastExcel.write(response.getOutputStream(), StatisticsDayExcelDO.class)
                     .sheet(day + "天统计")
                     .doWrite(excelDTOList);
         } catch (IOException e) {
