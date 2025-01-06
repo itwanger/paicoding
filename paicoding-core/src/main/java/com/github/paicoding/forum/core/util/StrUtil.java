@@ -32,8 +32,52 @@ public class StrUtil {
         return str.toString();
     }
 
+    private static final char MID_LINE = '-';
+    private static final char DOT = '.';
+
+    /**
+     * Spring的配置命名规则有要求, 若不满足时，可能出现启动异常
+     * <p>
+     * Reason: Canonical names should be kebab-case (’-’ separated), lowercase alpha-numeric characters, and must start with a letter。
+     *
+     * @return
+     */
+    public static String formatSpringConfigKey(String key) {
+        if (null == key || key.isEmpty()) {
+            return null;
+        }
+
+        int len = key.length();
+        StringBuilder res = new StringBuilder(len + 2);
+        char pre = 0;
+        for (int i = 0; i < len; i++) {
+            char ch = key.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                // 当前为大写字母时，若前面一个是中划线/点号，则直接转为小写；否则插入一个中划线
+                if (pre != MID_LINE && pre != DOT) {
+                    res.append(MID_LINE);
+                }
+                res.append(Character.toLowerCase(ch));
+            } else {
+                res.append(ch);
+            }
+            pre = ch;
+        }
+        return res.toString();
+    }
+
+
     public static void main(String[] args) {
         String text = "这是一个有趣的表😄过滤- 123 143 d 哒哒";
         System.out.println(pickWxSupportTxt(text));
+
+        text = "view.site.Host";
+        System.out.println(formatSpringConfigKey(text));
+
+        text = "view.site.webHost";
+        System.out.println(formatSpringConfigKey(text));
+
+        text = "view.site.web-Host";
+        System.out.println(formatSpringConfigKey(text));
     }
 }
