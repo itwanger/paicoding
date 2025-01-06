@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.core.autoconf.property;
 
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.StrUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -10,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
@@ -57,19 +59,26 @@ public class SpringValueRegistry {
             this.beanRef = new WeakReference<>(bean);
             this.beanName = beanName;
             this.field = field;
-            this.key = key;
             this.placeholder = placeholder;
             this.targetType = field.getType();
+            this.formatKey(key);
         }
 
         public SpringValue(String key, String placeholder, Object bean, String beanName, Method method) {
             this.beanRef = new WeakReference<>(bean);
             this.beanName = beanName;
             this.methodParameter = new MethodParameter(method, 0);
-            this.key = key;
             this.placeholder = placeholder;
             Class<?>[] paramTps = method.getParameterTypes();
             this.targetType = paramTps[0];
+            this.formatKey(key);
+        }
+
+        private void formatKey(String key) {
+            this.key = StrUtil.formatSpringConfigKey(key);
+            if (!Objects.equals(key, this.key)) {
+                log.info("配置key格式化输出: {} -> {}", key, this.key);
+            }
         }
 
         /**
