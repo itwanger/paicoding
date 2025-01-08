@@ -151,6 +151,13 @@ public class SpringValueRegistry {
      * @param key
      */
     public static void updateValue(String key) {
+        // 项目启动时，有一个配置，没有再配置文件中初始化，而是直接再应用代码中写上了默认值，此时若直接走下面的更新流程，会导致配置绑定异常，项目启动失败
+        // 因此我们再执行更新时，先判断下配置上下文中是否有这个配置
+        // fixme: 那么问题来了，如果是删除了一个动态配置，那应该怎么将应用中的配置刷新为默认值呢？
+        if (!SpringUtil.hasConfig(key)) {
+            return;
+        }
+
         Set<SpringValue> set = registry.getOrDefault(key, new HashSet<>());
         set.forEach(s -> {
             try {

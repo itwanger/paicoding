@@ -70,6 +70,10 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
         }
     }
 
+    public static boolean hasConfig(String key) {
+        return environment.containsProperty(key);
+    }
+
     /**
      * 获取配置
      *
