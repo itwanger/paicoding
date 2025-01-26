@@ -29,6 +29,9 @@ import java.util.Map;
 @Service
 public class CountServiceImpl implements CountService {
     private final UserFootDao userFootDao;
+    public CountServiceImpl(UserFootDao userFootDao) {
+        this.userFootDao = userFootDao;
+    }
 
     @Resource
     private UserRelationDao userRelationDao;
@@ -41,10 +44,6 @@ public class CountServiceImpl implements CountService {
 
     @Resource
     private UserDao userDao;
-
-    public CountServiceImpl(UserFootDao userFootDao) {
-        this.userFootDao = userFootDao;
-    }
 
     @Override
     public ArticleFootCountDTO queryArticleCountInfoByArticleId(Long articleId) {
