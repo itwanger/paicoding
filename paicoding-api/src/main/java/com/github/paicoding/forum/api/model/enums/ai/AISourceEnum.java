@@ -47,6 +47,12 @@ public enum AISourceEnum {
             return true;
         }
     },
+    DEEP_SEEK(6, "DeepSeek") {
+        @Override
+        public boolean asyncSupport() {
+            return true;
+        }
+    }
     ;
 
     private String name;
