@@ -41,18 +41,12 @@ public enum AISourceEnum {
     /**
      * 智谱 AI
      */
-    ALI_AI(5, "阿里") {
-        @Override
-        public boolean asyncSupport() {
-            return true;
-        }
-    },
-    DEEP_SEEK(6, "DeepSeek") {
-        @Override
-        public boolean asyncSupport() {
-            return true;
-        }
-    }
+    ALI_AI(5, "阿里"),
+
+    /**
+     * 深度求索 AI
+     */
+    DEEP_SEEK(6, "DeepSeek")
     ;
 
     private String name;

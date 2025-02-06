@@ -37,21 +37,27 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
      */
     @Override
     public AiChatStatEnum doAnswer(Long user, ChatItemVo chat) {
-        return null;
+        if (deepSeekIntegration.directReturn(chat)) {
+            return AiChatStatEnum.END;
+        }
+        return AiChatStatEnum.ERROR;
     }
 
     /**
      * 异步流式的返回结果
      *
-     * @param user
+     * @param user 用户ID，用于标识提问的用户
      * @param response 保存提问 & 返回的结果，最终会返回给前端用户
      * @param consumer 具体将 response 写回前端的实现策略
-     * @return
+     * @return 返回聊天的状态枚举
      */
     @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+        // 获取问答中的最新的记录，用于问答
         ChatItemVo item = response.getRecords().get(0);
+        // 创建一个抽象流监听器来处理流式返回的结果
         AbstractStreamListener listener = new AbstractStreamListener() {
+            // 当连接打开时的处理
             @Override
             public void onOpen(EventSource eventSource, Response response) {
                 super.onOpen(eventSource, response);
@@ -60,12 +66,14 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
                 }
             }
 
+            // 当连接关闭时的处理
             @Override
             public void onClosed(EventSource eventSource) {
                 super.onClosed(eventSource);
                 if (log.isDebugEnabled()) {
                     log.debug("已经关闭了连接: {}", eventSource);
                 }
+                // 检查是否正常结束对话
                 if (item.getAnswerType() != ChatAnswerTypeEnum.STREAM_END) {
                     // 主动结束这一次的对话
                     if (StringUtils.isBlank(lastMessage)) {
@@ -80,6 +88,7 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
                 }
             }
 
+            // 当接收到消息时的处理
             @Override
             public void onMsg(String message) {
                 // 成功返回结果的场景, 过滤掉开头的空行
@@ -92,6 +101,7 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
                 }
             }
 
+            // 当遇到错误时的处理
             @Override
             public void onError(Throwable throwable, String res) {
                 // 返回异常的场景
@@ -106,11 +116,14 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
 
         // 注册回答结束的回调钩子
         listener.setOnComplate((s) -> {
-            log.info("这一轮对话聊天已结束，完整的返回结果是：{}", s);
+            if (log.isDebugEnabled()) {
+                log.debug("这一轮对话聊天已结束，完整的返回结果是：{}", s);
+            }
             item.appendAnswer("\n")
                     .setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, response);
         });
+        // 调用深度寻求流式返回的方法
         deepSeekIntegration.streamReturn(item, listener);
         return AiChatStatEnum.IGNORE;
     }

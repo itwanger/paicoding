@@ -33,11 +33,23 @@ public class DeepSeekIntegration {
     @Autowired
     private DeepSeekConf deepSeekConf;
 
-    private DeepSeekChat chat;
+    private OkHttpClient okHttpClient;
 
     @PostConstruct
     public void init() {
-        this.chat = new DeepSeekChat();
+        this.okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)   // 建立连接的超时时间
+                .readTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)  // 建立连接后读取数据的超时时间
+                .writeTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)
+                .build();
+    }
+
+    /**
+     * 一次性返回的交互方式
+     * todo 待实现； 目前技术派主推流式交互，暂无下面的应用场景，留待有缘人补全
+     */
+    public boolean directReturn(ChatItemVo item) {
+        return false;
     }
 
     /**
@@ -45,24 +57,58 @@ public class DeepSeekIntegration {
      * <p>
      * 流式的操作交互方式
      *
-     * @param item
-     * @param listener
+     * @param item     聊天项目，包含了用户的问题或消息
+     * @param listener 事件源监听器，用于处理流式返回的数据
      */
     public void streamReturn(ChatItemVo item, EventSourceListener listener) {
+        // 创建一个新的聊天消息对象，设置角色为用户，并填充用户的问题
         ChatMsg msg = new ChatMsg();
         msg.setRole("user");
         msg.setContent(item.getQuestion());
-        this.chat.streamChat(Arrays.asList(msg), listener);
+        // 执行流式聊天，传入包含用户消息的消息列表和监听器
+        this.executeStreamChat(Arrays.asList(msg), listener);
     }
+
 
 
     /**
-     * 一次性返回的交互方式
-     * todo 待实现； 目前技术派主推流式交互，暂无下面的应用场景，留待有缘人补全
+     * 使用流式聊天接口发送聊天请求
+     * 该方法将聊天请求转换为流式请求，并使用EventSource监听器处理响应
+     *
+     * @param req 聊天请求对象，包含聊天所需的参数
+     * @param listener EventSource监听器，用于处理服务器发送的事件
      */
-    public void directReturn() {
+    private void executeStreamChat(ChatReq req, EventSourceListener listener) {
+        // 设置请求为流式请求
+        req.setStream(true);
+
+        try {
+            // 创建EventSource工厂，用于生成EventSource对象
+            EventSource.Factory factory = EventSources.createFactory(okHttpClient);
+
+            // 将聊天请求对象转换为JSON字符串
+            String body = JsonUtil.toStr(req);
+            // 构建请求对象，指定URL、认证头、内容类型头以及请求体
+            Request request = new Request.Builder()
+                    .url(deepSeekConf.getApiHost() + "/chat/completions")
+                    .addHeader("Authorization", "Bearer " + deepSeekConf.getApiKey())
+                    .addHeader("Content-Type", "application/json")
+                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), body))
+                    .build();
+            // 使用工厂创建新的EventSource，并传入请求和监听器
+            factory.newEventSource(request, listener);
+        } catch (Exception e) {
+            // 记录请求失败的日志
+            log.error("deepseek联调请求失败: {}", req, e);
+        }
     }
 
+    private void executeStreamChat(List<ChatMsg> list, EventSourceListener listener) {
+        ChatReq req = new ChatReq();
+        req.setModel("deepseek-chat");
+        req.setMessages(list);
+        this.executeStreamChat(req, listener);
+    }
 
     @Data
     @Component
@@ -71,45 +117,6 @@ public class DeepSeekIntegration {
         private String apiKey;
         private String apiHost;
         private Long timeout;
-    }
-
-    public class DeepSeekChat {
-        private OkHttpClient okHttpClient;
-
-
-        private DeepSeekChat() {
-            this.okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)   // 建立连接的超时时间
-                    .readTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)  // 建立连接后读取数据的超时时间
-                    .writeTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)
-                    .build();
-        }
-
-        public void streamChat(ChatReq req, EventSourceListener listener) {
-            req.setStream(true);
-
-            try {
-                EventSource.Factory factory = EventSources.createFactory(okHttpClient);
-
-                String body = JsonUtil.toStr(req);
-                Request request = new Request.Builder()
-                        .url(deepSeekConf.getApiHost() + "/chat/completions")
-                        .addHeader("Authorization", "Bearer " + deepSeekConf.getApiKey())
-                        .addHeader("Content-Type", "application/json")
-                        .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), body))
-                        .build();
-                factory.newEventSource(request, listener);
-            } catch (Exception e) {
-                log.error("deepseek联调请求失败: {}", req, e);
-            }
-        }
-
-        public void streamChat(List<ChatMsg> list, EventSourceListener listener) {
-            ChatReq req = new ChatReq();
-            req.setModel("deepseek-chat");
-            req.setMessages(list);
-            this.streamChat(req, listener);
-        }
     }
 
 
