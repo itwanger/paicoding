@@ -82,11 +82,13 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
 
             @Override
             public void onMsg(String message) {
-                // 成功返回结果的场景
-                item.appendAnswer(message);
-                consumer.accept(AiChatStatEnum.MID, response);
-                if (log.isDebugEnabled()) {
-                    log.debug("DeepSeek返回内容: {}", lastMessage);
+                // 成功返回结果的场景, 过滤掉开头的空行
+                if (StringUtils.isNotBlank(lastMessage)) {
+                    item.appendAnswer(message);
+                    consumer.accept(AiChatStatEnum.MID, response);
+                    if (log.isDebugEnabled()) {
+                        log.debug("DeepSeek返回内容: {}", lastMessage);
+                    }
                 }
             }
 
