@@ -21,6 +21,17 @@ public final class ChatConstants {
     }
 
     /**
+     * 对话列表缓存
+     *
+     * @param ai
+     * @param user
+     * @return
+     */
+    public static String getAiChatListKey(AISourceEnum ai, Long user) {
+        return "chat.list." + ai.name().toLowerCase() + "." + user;
+    }
+
+    /**
      * 聊天历史记录
      *
      * @param ai
@@ -28,6 +39,17 @@ public final class ChatConstants {
      * @return
      */
     public static String getAiHistoryRecordsKey(AISourceEnum ai, Long user) {
+        return "chat.history." + ai.name().toLowerCase() + "." + user;
+    }
+
+    /**
+     * 聊天历史记录
+     *
+     * @param ai
+     * @param user
+     * @return
+     */
+    public static String getAiHistoryRecordsKey(AISourceEnum ai, String user) {
         return "chat.history." + ai.name().toLowerCase() + "." + user;
     }
 

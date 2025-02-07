@@ -81,6 +81,11 @@ public class ReqInfoContext {
 
         private String deviceId;
 
+        /**
+         * 当前聊天的会话id
+         */
+        private String chatId;
+
         @Override
         public String getName() {
             return session;

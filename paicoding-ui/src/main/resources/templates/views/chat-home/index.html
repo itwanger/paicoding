@@ -375,7 +375,9 @@
         }
         // 表示将消息转发到那个目标，类似与http请求中的path路径
         // qa = prompt == "" ? qa : prompt + "prompt-" + qa;
-        stompClient.send("/app/chat/" + session, {'s-uid': session}, qa);
+
+        const chatId = "1111-222-333-333";
+        stompClient.send("/app/chat/" + session + "/" + chatId, {'s-uid': session}, qa);
         // 清空 textarea
         inputField.val("");
 
