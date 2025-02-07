@@ -49,4 +49,20 @@ public class ChatRestController {
             answerHelper.sendMsgToUser(source, session, msg);
         });
     }
+
+    @MessageMapping({"/chat/{session}/{chatId}"})
+    public void chat(String msg,
+                     @DestinationVariable("session") String session,
+                     @DestinationVariable("chatId") String chatId,
+                     @Header("simpSessionAttributes") Map<String, Object> attrs,
+                     SimpMessageHeaderAccessor accessor) {
+        String aiType = (String) attrs.get(WsAnswerHelper.AI_SOURCE_PARAM);
+        WebSocketResponseUtil.execute(accessor, () -> {
+            // 设置会话id
+            ReqInfoContext.getReqInfo().setChatId(chatId);
+            log.info("{} 用户开始了对话: {} - {}", ReqInfoContext.getReqInfo().getUser(), aiType, msg);
+            AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
+            answerHelper.sendMsgToUser(source, session, msg);
+        });
+    }
 }
