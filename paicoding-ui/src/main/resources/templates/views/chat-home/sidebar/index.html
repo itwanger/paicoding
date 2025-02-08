@@ -3,7 +3,20 @@
         <a href="https://paicoding.com/article/detail/358" class="underline">戳我了解如何使用派聪明</a>
     </div>
     <div class="home_sidebar-sub-title__IS2Or">
-        <input type="text" id="promptField" placeholder="请输入提示词，回车确认" style="width: 100%; height: 30px; padding: 5px;">
+        <input type="text" id="promptField" placeholder="请输入提示词，回车确认" style="width: 100%; height: 30px; padding: 5px;margin-bottom: 1em">
+        <span style="margin-top:1em;">
+            <svg class="icon"
+                 style="margin-right:0.3em;width: 1em;height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;"
+                 viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 p-id="3609"><path
+                    d="M512 993.882353C245.850353 993.882353 30.117647 778.149647 30.117647 512S245.850353 30.117647 512 30.117647s481.882353 215.732706 481.882353 481.882353-215.732706 481.882353-481.882353 481.882353z m0-60.235294c232.869647 0 421.647059-188.777412 421.647059-421.647059S744.869647 90.352941 512 90.352941 90.352941 279.130353 90.352941 512s188.777412 421.647059 421.647059 421.647059z"
+                    fill="#000000" p-id="3610"></path><path
+                    d="M459.956706 763.572706c-5.12-34.665412-1.204706-105.893647 0-120.530824l5.300706-165.49647c0.963765-15.36-7.981176-11.444706-14.125177-8.553412-29.816471 14.215529-64.602353 40.357647-64.602353 40.357647s21.172706-57.283765 41.592471-81.227294c15.088941-21.052235 47.465412-49.182118 71.258353-51.410824 28.039529 0.602353 42.405647 4.848941 40.05647 74.842353 0 0-4.698353 215.100235-0.662588 252.596706 4.096 11.956706 43.339294-15.209412 48.850824-19.516235 5.541647-4.306824 56.32-50.176 56.32-50.176S602.352941 759.868235 522.300235 787.787294c-28.521412 9.938824-58.066824 5.150118-62.373647-24.214588z"
+                    fill="#000000" opacity=".99" p-id="3611"></path><path
+                    d="M503.717647 285.364706m-52.495059 0a52.495059 52.495059 0 1 0 104.990118 0 52.495059 52.495059 0 1 0-104.990118 0Z"
+                    fill="#000000" p-id="3612"></path><path d="M0 0h1024v1024H0z" fill="#FFF4F4" fill-opacity="0"
+                                                            p-id="3613"></path></svg>提示词：对AI进行角色定位，一个简单的示例如： <div
+                style="font-weight: bold;color: blue">你现在扮演李白，你豪情万丈，狂放不羁；接下来请用李白的口吻和用户对话。</div></span>
     </div>
     <div class="home_sidebar-logo__FFdBS no-dark">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="43" height="44"
@@ -404,29 +417,35 @@
     $('#newChatBtn').click(() => newChat());
 
     function newChat() {
-        // 生成一个新的对话的场景
-        const chatId = uuid(64, 16);
-        const li = addChatSession({
-            'title': '新对话',
-            'chatId': chatId
-        })
-        historyList.prepend(li);
-        chatSessionChoosed(li);
-        return chatId;
+        if ([[${global.isLogin}]]) {
+            // 生成一个新的对话的场景
+            const chatId = uuid(64, 16);
+            const li = addChatSession({
+                'title': '新对话',
+                'chatId': chatId
+            })
+            historyList.prepend(li);
+            chatSessionChoosed(li);
+            return chatId;
+        } else {
+            toastr.warning("请登录之后再体验吧~");
+        }
     }
 
 
     // 获取用户的对话记录，并在左侧边栏进行展示
     function listChatSessions() {
-        let aiType = $('#chat-type').val();
-        $.get('/chat/api/listSession?aiType=' + aiType, function (data) {
-            console.log("获取到的对话记录>>>:", data);
-            if (!data || !data.status || data.status.code !== 0) {
-                toastr.error(data.message);
-            } else {
-                updateChatSessions(data.result)
-            }
-        });
+        if ([[${global.isLogin}]]) {
+            let aiType = $('#chat-type').val();
+            $.get('/chat/api/listSession?aiType=' + aiType, function (data) {
+                console.log("获取到的对话记录>>>:", data);
+                if (!data || !data.status || data.status.code !== 0) {
+                    toastr.error(data.message);
+                } else {
+                    updateChatSessions(data.result)
+                }
+            });
+        }
     }
 
     /**

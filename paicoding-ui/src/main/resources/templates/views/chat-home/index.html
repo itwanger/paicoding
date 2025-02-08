@@ -413,7 +413,7 @@
     });
 
     promptField.keydown(function (e) {
-        if (e.key === 'Enter') {
+        if (isLogin && e.key === 'Enter') {
             // 输入提示词并回车的场景
             let prompt = document.getElementById("promptField").value;
             prompt = prompt.trim();
