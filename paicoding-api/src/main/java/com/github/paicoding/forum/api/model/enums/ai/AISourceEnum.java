@@ -46,8 +46,13 @@ public enum AISourceEnum {
     /**
      * 深度求索 AI
      */
-    DEEP_SEEK(6, "DeepSeek")
+    DEEP_SEEK(6, "DeepSeek"),
+    /**
+     * 豆包 AI
+     */
+    DOU_BAO_AI(7, "豆包")
     ;
+
 
     private String name;
     private Integer code;
