@@ -14,9 +14,12 @@ import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -36,6 +39,9 @@ public abstract class AbsChatService implements ChatService {
     private SensitiveService sensitiveService;
     @Autowired
     private ChatHistoryService chatHistoryService;
+
+    @Value("${ai.maxNum.historyContextCnt:10}")
+    protected Integer chatHistoryContextNum;
 
 
     /**
@@ -134,15 +140,49 @@ public abstract class AbsChatService implements ChatService {
 
         ChatItemVo item = new ChatItemVo().initQuestion(question);
         if (!res.hasQaCnt()) {
-            // 次数已经使用完毕
+            // 次数已经使用完毕，不需要再与AI进行交互了；直接返回
             item.initAnswer(ChatConstants.TOKEN_OVER);
+            res.setRecords(Arrays.asList(item));
+            return res;
         }
 
-        // 用于多轮对话，我们这里只取最近的十条作为上下文传参
-        List<ChatItemVo> history = chatHistoryService.listHistory(source(), user, ReqInfoContext.getReqInfo().getChatId(), 10);
+        // 构建多轮对话的聊天上下文
+        List<ChatItemVo> history = buildChatContext(user);
         history.add(0, item);
         res.setRecords(history);
         return res;
+    }
+
+    /**
+     * 构建聊天上下文
+     * 该方法旨在为用户构建一个聊天上下文，基于用户的聊天历史记录
+     * 特别注意，对于多轮对话，我们仅取最近的十条记录作为上下文，如果聊天中存在提示词，则提示词之前的聊天全部丢掉
+     *
+     * @param user 用户ID，用于识别和获取特定用户的聊天历史
+     * @return 返回一个包含聊天上下文的ChatItemVo对象列表
+     */
+    private List<ChatItemVo> buildChatContext(Long user) {
+        // 用于多轮对话，我们这里只取最近的十条作为上下文传参
+        List<ChatItemVo> history = chatHistoryService.listHistory(source(), user, ReqInfoContext.getReqInfo().getChatId(), chatHistoryContextNum);
+        if (CollectionUtils.isEmpty(history) || history.size() == 1) {
+            return history;
+        }
+
+        // 过滤掉提示词之前的消息
+        Iterator<ChatItemVo> iterator = history.iterator();
+        boolean toRemove = false;
+        while (iterator.hasNext()) {
+            ChatItemVo tmp = iterator.next();
+            if (!toRemove) {
+                if (tmp.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+                    // 找到提示词，之后的全部删除
+                    toRemove = true;
+                }
+            } else {
+                iterator.remove();
+            }
+        }
+        return history;
     }
 
     protected AiChatStatEnum answer(Long user, ChatRecordsVo res) {

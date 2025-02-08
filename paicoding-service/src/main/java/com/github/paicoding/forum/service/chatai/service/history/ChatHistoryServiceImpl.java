@@ -81,7 +81,7 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
             // 如果当前会话不存在，则创建新会话记录
             session = new ChatSessionItemVo();
             session.setChatId(chatId);
-            session.setTitle(item.getQuestion());
+            session.setTitle(!item.getQuestion().startsWith(ChatConstants.PROMPT_TAG) ? item.getQuestion() : item.getQuestion().substring(ChatConstants.PROMPT_TAG.length()));
             session.setCreatTime(System.currentTimeMillis());
             session.setUpdateTime(session.getCreatTime());
             session.setQasCnt(1);

@@ -1,8 +1,13 @@
 package com.github.paicoding.forum.service.chatai.constants;
 
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
+import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author YiHui
@@ -54,6 +59,23 @@ public final class ChatConstants {
     }
 
     /**
+     * 聊天历史构建问答上下问
+     *
+     * @param chatList  聊天记录，包含历史聊天内容，最新的提问在前面
+     * @param function 实体转换方式
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> toMsgList(List<ChatItemVo> chatList, Function<ChatItemVo, List<T>> function) {
+        int qaCnt = chatList.size();
+        List<T> ans = new ArrayList<>(qaCnt << 1);
+        for (int i = qaCnt - 1; i >= 0; i--) {
+            ans.addAll(function.apply(chatList.get(i)));
+        }
+        return ans;
+    }
+
+    /**
      * 每个用户的最大使用次数
      */
     public static final int MAX_CHATGPT_QAS_CNT = 10;
@@ -88,4 +110,9 @@ public final class ChatConstants {
 
 
     public static final String SENSITIVE_QUESTION = "提问中包含敏感词:%s，请微信联系二哥「itwanger」加入白名单!";
+
+    /**
+     * 提示词标识
+     */
+    public static final String PROMPT_TAG = "prompt-";
 }
