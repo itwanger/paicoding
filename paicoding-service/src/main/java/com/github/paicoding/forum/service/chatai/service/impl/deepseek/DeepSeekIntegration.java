@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.chatai.service.impl.deepseek;
 import cn.hutool.http.ContentType;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -77,14 +78,8 @@ public class DeepSeekIntegration {
      * @param listener 事件源监听器，用于处理聊天机器人的响应事件
      */
     public void streamReturn(List<ChatItemVo> list, EventSourceListener listener) {
-        // 创建一个足够大的列表来存储转换后的聊天消息
-        List<ChatMsg> msgList = new ArrayList<>(list.size() * 2);
-        // 遍历历史聊天记录，list列表中，最新的对话再前面；因此传递给DeepSeek时，需要从后往前构建传参，以构建对话上下文
-        for (int i = list.size() - 1; i >= 0; i--) {
-            ChatItemVo item = list.get(i);
-            // 将每个聊天项转换为消息列表，并添加到消息列表中
-            msgList.addAll(toMsg(item));
-        }
+        // 构建多轮聊天的会话上下文
+        List<ChatMsg> msgList = ChatConstants.toMsgList(list, this::toMsg);
         // 执行流式聊天，将构建好的对话上下文传递给聊天机器人，并监听响应事件
         this.executeStreamChat(msgList, listener);
     }
@@ -184,9 +179,15 @@ public class DeepSeekIntegration {
 
     private List<ChatMsg> toMsg(ChatItemVo item) {
         List<ChatMsg> list = new ArrayList<>(2);
-        list.add(new ChatMsg("user", item.getQuestion()));
-        if (StringUtils.isNotBlank(item.getAnswer())) {
-            list.add(new ChatMsg("assistant", item.getAnswer()));
+        if (item.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+            // 提示词
+            list.add(new ChatMsg("system", item.getQuestion().substring(ChatConstants.PROMPT_TAG.length())));
+        } else {
+            // 用户问答
+            list.add(new ChatMsg("user", item.getQuestion()));
+            if (StringUtils.isNotBlank(item.getAnswer())) {
+                list.add(new ChatMsg("assistant", item.getAnswer()));
+            }
         }
         return list;
     }

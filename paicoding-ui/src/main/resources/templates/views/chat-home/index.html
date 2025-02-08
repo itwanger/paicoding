@@ -320,6 +320,11 @@
 
     // 添加用户端消息
     function addClientMsg(messageContent, showLoading) {
+        if (messageContent.startsWith('prompt-')) {
+            // 移除提示词标识
+            messageContent = messageContent.substring(7);
+        }
+
         const avatarUrl = user.photo;
         let loadingDiv = `
         <div class="home_chat-message-actions__loading">
@@ -403,6 +408,41 @@
             } else {
                 // 发送消息
                 doSend();
+            }
+        }
+    });
+
+    promptField.keydown(function (e) {
+        if (e.key === 'Enter') {
+            // 输入提示词并回车的场景
+            let prompt = document.getElementById("promptField").value;
+            prompt = prompt.trim();
+            if (!prompt) {
+                // 空的提示词，不做任何处理
+                return;
+            }
+
+            let qa = 'prompt-' + prompt;
+            if (qa.length > 512) {
+                toastr.info("提问长度请不要超过512字符哦~");
+                return;
+            }
+            if (lastChatId == null) {
+                // 创建新的会话
+                lastChatId = newChat();
+                toastr.info("对话已创建，请重新确认提示词吧~");
+            } else {
+                stompClient.send("/app/chat/" + session + "/" + lastChatId, {'s-uid': session}, qa);
+                // 清空 textarea
+                inputField.val("");
+
+                addClientMsg(prompt.replace(/\n/g, "<br/>"), true);
+
+                // 将 button 设为禁用，防止用户连续点击
+                sendBtn.attr("disabled", true);
+
+                // 清空输入内容
+                promptField.val("");
             }
         }
     });

@@ -3,7 +3,7 @@
         <a href="https://paicoding.com/article/detail/358" class="underline">戳我了解如何使用派聪明</a>
     </div>
     <div class="home_sidebar-sub-title__IS2Or">
-        <input type="text" id="promptField" placeholder="请输入提示词" style="width: 100%; height: 30px; padding: 5px;">
+        <input type="text" id="promptField" placeholder="请输入提示词，回车确认" style="width: 100%; height: 30px; padding: 5px;">
     </div>
     <div class="home_sidebar-logo__FFdBS no-dark">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="43" height="44"
@@ -62,6 +62,15 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+    }
+
+    /* 新增样式 */
+    .history-list li .chat-title {
+        white-space: nowrap;  /* 防止文本换行 */
+        overflow: hidden;     /* 隐藏溢出的文本 */
+        text-overflow: ellipsis; /* 显示省略号 */
+        flex: 1;              /* 占满剩余空间 */
     }
 
     .history-list li:hover {
@@ -403,6 +412,7 @@
         })
         historyList.prepend(li);
         chatSessionChoosed(li);
+        return chatId;
     }
 
 
@@ -451,7 +461,13 @@
      */
     function addChatSession(chat) {
         const li = document.createElement('li');
-        li.textContent = chat.title;
+
+        // 新增一个div元素来包裹对话名
+        const chatTitle = document.createElement('div');
+        chatTitle.className = 'chat-title';
+        chatTitle.textContent = chat.title;
+        li.appendChild(chatTitle);
+
         li.dataset.id = chat.chatId;
         li.dataset.title = chat.title;
 
@@ -521,7 +537,7 @@
             input.type = 'text';
             input.value = li.dataset.title;
             input.style.width = '100%';
-            li.textContent = '';
+            li.innerHTML = '';
             li.appendChild(input);
             input.focus();
 
@@ -529,7 +545,12 @@
             const confirmRename = () => {
                 const newTitle = input.value.trim();
                 if (newTitle && newTitle != li.dataset.title) {
-                    li.textContent = newTitle;
+                    // 新增一个div元素来包裹对话名
+                    const chatTitle = document.createElement('div');
+                    chatTitle.className = 'chat-title';
+                    chatTitle.textContent = newTitle;
+                    li.appendChild(chatTitle);
+
                     li.dataset.title = newTitle;
                     let aiType = $('#chat-type').val();
                     $.get(`/chat/api/updateSession?aiType=${aiType}&chatId=${chatId}&title=${newTitle}`, function (data) {
@@ -537,7 +558,10 @@
                     });
                 } else {
                     // 使用原来的标题
-                    li.textContent = li.dataset.title;
+                    const chatTitle = document.createElement('div');
+                    chatTitle.className = 'chat-title';
+                    chatTitle.textContent = li.dataset.title;
+                    li.appendChild(chatTitle);
                 }
 
                 // 移除输入框
@@ -546,7 +570,6 @@
                 const menuButton = document.createElement('div');
                 menuButton.className = 'menu-button';
                 menuButton.innerHTML = "<div style=\"font-size: 16px; width: 16px; height: 16px;\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" fill-rule=\"evenodd\" d=\"M3 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0m7 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0m7 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0\" clip-rule=\"evenodd\"></path></svg></div>"
-                // menuButton.textContent = '···';
                 li.appendChild(menuButton);
                 // 绑定菜单按钮事件
                 menuButton.addEventListener('click', (e) => {
