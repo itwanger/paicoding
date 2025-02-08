@@ -44,3 +44,6 @@ deepseek:
   apiHost: https://api.deepseek.com
   apiKey: # 使用自己的密钥进行替换
   timeout: 900 # 超时时间，单位秒
+
+doubao:
+  api-key: # 使用自己的密钥进行替换
