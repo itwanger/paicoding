@@ -31,7 +31,7 @@ public class DoubaoAiServiceImpl extends AbsChatService {
     @Autowired
     public DoubaoAiServiceImpl(DoubaoIntegration doubaoIntegration) {
         this.doubaoIntegration = doubaoIntegration;
-        log.info("豆包初始化 APIKEY:"+doubaoIntegration.getApiKey());
+        log.debug("豆包初始化 APIKEY:"+doubaoIntegration.getApiKey());
         this.service = ArkService.builder()
                 .baseUrl("https://ark.cn-beijing.volces.com/api/v3")
                 .apiKey(this.doubaoIntegration.getApiKey())
