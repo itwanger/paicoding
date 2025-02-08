@@ -39,4 +39,9 @@ public interface ChatHistoryService {
      * @param item   对话内容
      */
     void saveRecord(AISourceEnum source, Long userId, String chatId, ChatItemVo item);
+
+
+    Boolean updateChatSessionName(AISourceEnum source, String chatId, String title, Long userId);
+
+    Boolean removeChatSession(AISourceEnum source, String chatId, Long userId);
 }
