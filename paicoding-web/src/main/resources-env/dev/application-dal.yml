@@ -2,7 +2,7 @@ spring:
   datasource: #单数据源
     url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password: 123456
+    password:
   dynamic: # 动态数据源
     #    primary: master # 这个表示默认的数据源
     datasource:
@@ -10,7 +10,7 @@ spring:
         # 数据库名，从配置 database.name 中获取
         url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
-        password: 123456
+        password:
         #        type: com.alibaba.druid.pool.DruidDataSource
         #DruidDataSource自有属性
         filters: stat
