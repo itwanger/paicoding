@@ -525,7 +525,17 @@
     let lastChatId = null;
 
     function loadChat(chatId) {
+        if (chatId == null) {
+            // ws建立成功之后的回调，进入这里，从选中的会话中获取chatId
+            var li = document.querySelector(".history-list li.active")
+            if (li) {
+                chatId = li.dataset.id;
+            }
+            console.log("loadChat---> ws连接成功，自动选择当前会话:", chatId, li);
+        }
+
         if (chatId === lastChatId) {
+            console.log('两次传入的chatId相同，自动幂等!', chatId);
             return;
         }
         lastChatId = chatId;
