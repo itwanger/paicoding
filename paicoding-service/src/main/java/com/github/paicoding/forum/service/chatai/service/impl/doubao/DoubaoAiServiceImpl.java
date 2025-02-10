@@ -88,8 +88,7 @@ public class DoubaoAiServiceImpl extends AbsChatService {
         }
         ChatItemVo item = chatRes.getRecords().get(0);
         List<ChatMessage> messages = ChatConstants.toMsgList(chatRes.getRecords(), this::toMsg);
-        messages.add(ChatMessage.builder().role(ChatMessageRole.SYSTEM).content("你是豆包，是由字节跳动开发的 AI 人工智能助手").build());
-        messages.add(ChatMessage.builder().role(ChatMessageRole.USER).content(item.getQuestion()).build());
+
 
         ChatCompletionRequest request = ChatCompletionRequest.builder()
                 .model("ep-20250208191823-mpjm8")
