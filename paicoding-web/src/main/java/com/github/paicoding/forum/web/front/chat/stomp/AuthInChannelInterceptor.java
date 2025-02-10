@@ -1,10 +1,8 @@
 package com.github.paicoding.forum.web.front.chat.stomp;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
-import com.github.paicoding.forum.web.front.chat.helper.WsAnswerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.messaging.Message;
@@ -15,7 +13,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 
 import java.security.Principal;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -89,9 +86,10 @@ public class AuthInChannelInterceptor implements ChannelInterceptor {
             if (Objects.equals(accessor.getCommand(), StompCommand.SUBSCRIBE)) {
                 // 订阅成功，返回用户历史聊天记录； 从请求头中，获取具体选择的大数据模型
                 ReqInfoContext.addReqInfo((ReqInfoContext.ReqInfo) accessor.getUser());
-                String aiType = (String) (accessor.getSessionAttributes().get(WsAnswerHelper.AI_SOURCE_PARAM));
-                AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
-                SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName(), source);
+//                因为派聪明现在支持多轮对话，因此历史消息再用户切换对话之后再进行返回
+//                String aiType = (String) (accessor.getSessionAttributes().get(WsAnswerHelper.AI_SOURCE_PARAM));
+//                AISourceEnum source = aiType == null ? null : AISourceEnum.valueOf(aiType);
+//                SpringUtil.getBean(WsAnswerHelper.class).sendMsgHistoryToUser(accessor.getUser().getName(), source);
                 ReqInfoContext.clear();
                 return;
             }

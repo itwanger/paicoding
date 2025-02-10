@@ -45,6 +45,11 @@ public class AiConfig {
          * 根据邀请的人数，增加的聊天次数策略，默认增加 20%
          */
         private Float inviteNum;
+
+        /**
+         * 多轮对话上下文的条数，默认最多给10条
+         */
+        private Integer historyContextCnt;
     }
 
     /**

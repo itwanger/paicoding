@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.net.ProxyCenter;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -19,6 +20,7 @@ import com.plexpt.chatgpt.entity.chat.Message;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.sse.EventSourceListener;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -193,8 +196,39 @@ public class ChatGptIntegration {
         ChatGPTStream chatGPTStream = simpleStreamGPT(routingKey, selectModel);
 
         ChatCompletion chatCompletion = ChatCompletion.builder().model(parse2GptMode(selectModel).getName())
-                .messages(Arrays.asList(Message.of(chat.getQuestion()))).maxTokens(conf.getMaxToken()).build();
+                .messages(toMsg(chat)).maxTokens(conf.getMaxToken()).build();
         chatGPTStream.streamChatCompletion(chatCompletion, listener);
+        return true;
+    }
+
+    /**
+     * 多轮对话，传递历史聊天上下文
+     * <p>
+     * 该方法负责将给定的聊天记录列表转换为消息列表，并使用选定的模型进行流式聊天完成处理
+     *
+     * @param routingKey 路由键，用于选择不同的代理
+     * @param chatList   聊天记录列表，包含多个ChatItemVo对象，最新的问答在前面
+     * @param listener   事件源监听器，用于处理流式处理过程中的事件
+     * @return 总是返回true，表示方法执行过程中的一个固定行为
+     */
+    public boolean streamReturn(Long routingKey, List<ChatItemVo> chatList, EventSourceListener listener) {
+        // 选择要使用的模型
+        AISourceEnum selectModel = config.getMain();
+        // 获取配置，如果未找到对应模型的配置，则使用主配置
+        GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
+        // 创建一个流式聊天GPT实例
+        ChatGPTStream chatGPTStream = simpleStreamGPT(routingKey, selectModel);
+
+        // 构建多轮聊天的上下文
+        List<Message> msgList = ChatConstants.toMsgList(chatList, this::toMsg);
+        // 构建聊天完成对象，包括选定的模型、消息列表和最大令牌数配置
+        ChatCompletion chatCompletion = ChatCompletion.builder().model(parse2GptMode(selectModel).getName())
+                .messages(msgList).maxTokens(conf.getMaxToken()).build();
+
+        // 使用流式处理聊天完成，并通过监听器处理事件
+        chatGPTStream.streamChatCompletion(chatCompletion, listener);
+
+        // 固定返回值，表示方法执行完毕
         return true;
     }
 
@@ -223,5 +257,21 @@ public class ChatGptIntegration {
             log.info("chatgpt执行异常！ key:{}", record.getQas(), e);
             return false;
         }
+    }
+
+    private List<Message> toMsg(ChatItemVo item) {
+        List<Message> list = new ArrayList<>(2);
+        if (item.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+            // 提示词，构建完之后直接返回
+            list.add(Message.ofSystem(item.getQuestion().substring(ChatConstants.PROMPT_TAG.length())));
+            return list;
+        }
+
+        // 用户问答消息
+        list.add(Message.of(item.getQuestion()));
+        if (StringUtils.isNotBlank(item.getAnswer())) {
+            list.add(Message.ofAssistant(item.getAnswer()));
+        }
+        return list;
     }
 }

@@ -36,4 +36,8 @@ public class UserAiHistoryDO extends BaseDO {
      */
     private Integer aiType;
 
+    /**
+     * 会话id
+     */
+    private String chatId;
 }

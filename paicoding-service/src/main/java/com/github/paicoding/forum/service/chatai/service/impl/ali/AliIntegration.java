@@ -1,48 +1,36 @@
 package com.github.paicoding.forum.service.chatai.service.impl.ali;
 
-import com.alibaba.dashscope.common.ResultCallback;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
-import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
-import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
-import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
-import com.github.paicoding.forum.core.util.JsonUtil;
-import com.zhipu.oapi.ClientV4;
-import com.zhipu.oapi.Constants;
-import com.zhipu.oapi.service.v4.deserialize.MessageDeserializeFactory;
-import com.zhipu.oapi.service.v4.model.*;
-
-import java.util.concurrent.Semaphore;
-
+import cn.idev.excel.util.StringUtils;
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.common.Message;
+import com.alibaba.dashscope.common.ResultCallback;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
+import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
+import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
+import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
+import com.zhipu.oapi.service.v4.model.ChatMessageAccumulator;
+import com.zhipu.oapi.service.v4.model.ModelData;
 import io.reactivex.Flowable;
 import lombok.Data;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.Semaphore;
 import java.util.function.BiConsumer;
 
 @Slf4j
@@ -57,13 +45,11 @@ public class AliIntegration {
             ChatItemVo item = chatRecord.getRecords().get(0);
 
             Generation gen = new Generation();
-            Message userMsg = Message.builder().role(Role.USER.getValue()).content(item.getQuestion()).build();
-
-            // 这里可以把历史信息也传进去，需要从数据库中获取，最好是从缓存中获取会比较好，还要考虑不能太多。
-
+            // 支持上下文的多轮聊天
+            List<Message> userMsgList = ChatConstants.toMsgList(chatRecord.getRecords(), this::toMsg);
             GenerationParam param = GenerationParam.builder()
                     .model(config.getModel())
-                    .messages(Arrays.asList(userMsg))
+                    .messages(userMsgList)
                     .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                     .incrementalOutput(true)
                     .build();
@@ -142,5 +128,21 @@ public class AliIntegration {
         return flowable.map(chunk -> {
             return new ChatMessageAccumulator(chunk.getChoices().get(0).getDelta(), null, chunk.getChoices().get(0), chunk.getUsage(), chunk.getCreated(), chunk.getId());
         });
+    }
+
+    private List<Message> toMsg(ChatItemVo item) {
+        List<Message> list = new ArrayList<>(2);
+        if (item.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+            // 提示词消息
+            list.add(Message.builder().role(Role.SYSTEM.getValue()).content(item.getQuestion().substring(ChatConstants.PROMPT_TAG.length())).build());
+            return list;
+        }
+
+        // 用户问答
+        list.add(Message.builder().role(Role.USER.getValue()).content(item.getQuestion()).build());
+        if (StringUtils.isNotBlank(item.getAnswer())) {
+            list.add(Message.builder().role(Role.ASSISTANT.getValue()).content(item.getAnswer()).build());
+        }
+        return list;
     }
 }
