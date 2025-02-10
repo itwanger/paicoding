@@ -1,9 +1,11 @@
 package com.github.paicoding.forum.test.ai;
 
+import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionChunk;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
+import io.reactivex.subscribers.TestSubscriber;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 
@@ -20,7 +22,7 @@ public class DoubaoTest {
     static ArkService service = ArkService.builder().dispatcher(dispatcher).connectionPool(connectionPool).baseUrl("https://ark.cn-beijing.volces.com/api/v3").apiKey(apiKey).build();
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("\n----- standard request -----");
         final List<ChatMessage> messages = new ArrayList<>();
         final ChatMessage systemMessage = ChatMessage.builder().role(ChatMessageRole.SYSTEM).content("你是豆包，是由字节跳动开发的 AI 人工智能助手").build();
@@ -52,17 +54,50 @@ public class DoubaoTest {
                 .messages(streamMessages)
                 .build();
 
-        service.streamChatCompletion(streamChatCompletionRequest)
-                .doOnError(Throwable::printStackTrace)
-                .blockingForEach(
-                        choice -> {
-                            if (choice.getChoices().size() > 0) {
-                                System.out.print(choice.getChoices().get(0).getMessage().getContent());
-                            }
-                        }
-                );
+        TestSubscriber<ChatCompletionChunk> testSubscriber =  new TestSubscriber<ChatCompletionChunk>() {
+            @Override
+            public void onNext(ChatCompletionChunk choice) {
+                // 必须调用 super.onNext，以保持 TestSubscriber 的内部状态
+                super.onNext(choice);
+                if (!choice.getChoices().isEmpty()) {
+                    System.out.print(choice.getChoices().get(0).getMessage().getContent());
+                }
+            }
+        };
 
-        // shutdown service after all requests is finished
+        // 使用testSubscriber 订阅 以使用断言等方法
+        service.streamChatCompletion(streamChatCompletionRequest)
+                .doOnSubscribe(d -> System.out.println("Subscription started"))
+                .doFinally(() -> System.out.println("Stream completed or errored"))
+                .subscribe(testSubscriber);
+
+
+
+        testSubscriber.assertSubscribed();
+
+        testSubscriber.awaitTerminalEvent(); // 等待流结束
+
+        // 打印并检查结果
+        StringBuilder  contentBuilder = new StringBuilder();
+        testSubscriber.values().forEach(choice -> {
+            if (!choice.getChoices().isEmpty()) {
+                // 此处转型参考 package com.volcengine.ark.runtime.model.completion.chat
+                // 的 ChatCompletionChunk 类 的 stringContent 方法
+                String content = (String) choice.getChoices().get(0).getMessage().getContent();
+                contentBuilder.append(content);
+            }
+        });
+        System.out.println("\nStream test finished.");
+
+
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertComplete();
+        // 检查contentBuilder的内容是不是空的
+        if(contentBuilder.length() == 0){
+            System.err.println("No content received!");
+        }
+
         service.shutdownExecutor();
+
     }
 }
