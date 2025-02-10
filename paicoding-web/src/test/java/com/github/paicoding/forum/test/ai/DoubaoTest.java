@@ -14,16 +14,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class DoubaoTest {
-    private static final String SALT = "random_salt_value";
-    static String encryptedApiKey = "NDc1MjAwMzYtNmJlMy00ZjY2LWFjYTAtZWFiYjVkYjY4ZWFkcmFuZG9tX3NhbHRfdmFsdWU=";
+    static String apiKey = "测试用api";
     static ConnectionPool connectionPool = new ConnectionPool(5, 1, TimeUnit.SECONDS);
     static Dispatcher dispatcher = new Dispatcher();
-    static ArkService service = ArkService.builder().dispatcher(dispatcher).connectionPool(connectionPool).baseUrl("https://ark.cn-beijing.volces.com/api/v3").apiKey(decryptApiKey(encryptedApiKey)).build();
+    static ArkService service = ArkService.builder().dispatcher(dispatcher).connectionPool(connectionPool).baseUrl("https://ark.cn-beijing.volces.com/api/v3").apiKey(apiKey).build();
 
-    public static String decryptApiKey(String encryptedApiKey) {
-        String decrypted = new String(Base64.getDecoder().decode(encryptedApiKey));
-        return decrypted.substring(0, decrypted.length() - SALT.length());
-    }
 
     public static void main(String[] args) {
         System.out.println("\n----- standard request -----");
@@ -37,6 +32,11 @@ public class DoubaoTest {
                 .model("ep-20250208191823-mpjm8")
                 .messages(messages)
                 .build();
+
+        if(apiKey.equals("测试用api")) {
+            System.out.println("请填写 apiKey");
+            return;
+        }
 
         service.createChatCompletion(chatCompletionRequest).getChoices().forEach(choice -> System.out.println(choice.getMessage().getContent()));
 
