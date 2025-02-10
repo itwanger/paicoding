@@ -7,10 +7,12 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
+import com.volcengine.ApiException;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,22 +98,35 @@ public class DoubaoAiServiceImpl extends AbsChatService {
                 .messages(messages)
                 .build();
         // 异步返回
-        service.streamChatCompletion(request)
+        Disposable disposable = service.streamChatCompletion(request)
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
-                .doOnError(throwable -> {
-                    item.appendAnswer("Error: " + throwable.getMessage()).setAnswerType(ChatAnswerTypeEnum.STREAM_END);
-                    consumer.accept(AiChatStatEnum.ERROR, chatRes);
+                .observeOn(Schedulers.computation())  // 如果不耗时 可以更换成Schedulers.single() 减少切换上下文的开销
+                .doFinally(() -> {
+                    // 流结束的逻辑
+                    if(item.getAnswerType() != ChatAnswerTypeEnum.STREAM_END) {
+                        // 检查下是不是已经结束了。
+                        item.appendAnswer("\n").setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                        consumer.accept(AiChatStatEnum.END, chatRes);
+                    }
                 })
                 .subscribe(choice -> {
                     if (!choice.getChoices().isEmpty()) {
                         item.appendAnswer((String) choice.getChoices().get(0).getMessage().getContent());
                         consumer.accept(AiChatStatEnum.MID, chatRes);
                     }
-                });
-        // 结束
-        item.appendAnswer("\n").setAnswerType(ChatAnswerTypeEnum.STREAM_END);
-        consumer.accept(AiChatStatEnum.END, chatRes);
+                }, throwable -> {
+                            String errorMessage = "Error: " + throwable.getMessage();
+                            if (throwable instanceof ApiException) {
+                                ApiException apiException = (ApiException) throwable;
+                                errorMessage = String.format("Error: %s, Code: %s, Param: %s",
+                                        apiException.getMessage(), apiException.getCode(), apiException.getCause());
+                            }
+                            item.appendAnswer(errorMessage).setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                            consumer.accept(AiChatStatEnum.ERROR, chatRes);
+                        }
+                );
+
+
         return AiChatStatEnum.IGNORE;
     }
 
