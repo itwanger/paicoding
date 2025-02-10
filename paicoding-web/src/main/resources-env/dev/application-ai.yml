@@ -62,7 +62,8 @@ deepseek:
 
 doubao:
   api-key: # 使用自己的密钥进行替换
-  apiHost: https://ark.cn-beijing.volces.com/api/v3
+  api-host: https://ark.cn-beijing.volces.com/api/v3
+  end-point: # 使用自己创建的接入点进行替换
 
 
 logging:
