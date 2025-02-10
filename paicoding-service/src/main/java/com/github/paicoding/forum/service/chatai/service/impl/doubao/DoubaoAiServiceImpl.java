@@ -11,6 +11,7 @@ import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessage;
 import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
+import io.reactivex.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -94,13 +95,15 @@ public class DoubaoAiServiceImpl extends AbsChatService {
                 .model("ep-20250208191823-mpjm8")
                 .messages(messages)
                 .build();
-
+        // 异步返回
         service.streamChatCompletion(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
                 .doOnError(throwable -> {
                     item.appendAnswer("Error: " + throwable.getMessage()).setAnswerType(ChatAnswerTypeEnum.STREAM_END);
                     consumer.accept(AiChatStatEnum.ERROR, chatRes);
                 })
-                .blockingForEach(choice -> {
+                .subscribe(choice -> {
                     if (!choice.getChoices().isEmpty()) {
                         item.appendAnswer((String) choice.getChoices().get(0).getMessage().getContent());
                         consumer.accept(AiChatStatEnum.MID, chatRes);
