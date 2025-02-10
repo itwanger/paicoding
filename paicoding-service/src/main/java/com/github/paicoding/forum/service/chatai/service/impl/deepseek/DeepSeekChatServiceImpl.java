@@ -124,7 +124,7 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
             consumer.accept(AiChatStatEnum.END, response);
         });
         // 调用深度寻求流式返回的方法
-        deepSeekIntegration.streamReturn(item, listener);
+        deepSeekIntegration.streamReturn(response.getRecords(), listener);
         return AiChatStatEnum.IGNORE;
     }
 

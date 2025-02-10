@@ -37,6 +37,7 @@ public class UserAiServiceImpl implements UserAiService {
         userAiHistoryDO.setUserId(user);
         userAiHistoryDO.setQuestion(item.getQuestion());
         userAiHistoryDO.setAnswer(item.getAnswer());
+        userAiHistoryDO.setChatId(ReqInfoContext.getReqInfo().getChatId());
         userAiHistoryDao.save(userAiHistoryDO);
     }
 
