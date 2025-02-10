@@ -525,6 +525,12 @@
     let lastChatId = null;
 
     function loadChat(chatId) {
+        if (!wsConnected) {
+            // ws未建立，直接返回
+            console.log("loadChat---> ws未连接，无法同步历史会话内容!");
+            return;
+        }
+
         if (chatId == null) {
             // ws建立成功之后的回调，进入这里，从选中的会话中获取chatId
             var li = document.querySelector(".history-list li.active")
@@ -535,7 +541,7 @@
         }
 
         if (chatId === lastChatId) {
-            console.log('两次传入的chatId相同，自动幂等!', chatId);
+            console.log('loadChat---> 两次传入的chatId相同，自动幂等!', chatId);
             return;
         }
         lastChatId = chatId;
@@ -544,7 +550,7 @@
         // 清空之前的聊天记录
         $("#chat-content").html('')
         $.get('/chat/api/syncHistory?aiType=' + aiType + '&chatId=' + chatId, function (data) {
-            console.log("同步聊天历史: ", data);
+            console.log("loadChat---> 同步聊天历史: ", data);
         });
     }
 
