@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DoubaoTest {
     static String apiKey = "测试用api";
+    static String endPoint = "测试用接入点";
     static ConnectionPool connectionPool = new ConnectionPool(5, 1, TimeUnit.SECONDS);
     static Dispatcher dispatcher = new Dispatcher();
     static ArkService service = ArkService.builder().dispatcher(dispatcher).connectionPool(connectionPool).baseUrl("https://ark.cn-beijing.volces.com/api/v3").apiKey(apiKey).build();
@@ -31,15 +32,19 @@ public class DoubaoTest {
         messages.add(userMessage);
 
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .model("ep-20250208191823-mpjm8")
+                .model(endPoint)
                 .messages(messages)
                 .build();
 
-        if(apiKey.equals("测试用api")) {
+        if(apiKey.equals("测试用api") ) {
             System.out.println("请填写 apiKey");
             return;
         }
+        if(endPoint.equals("测试用接入点") ) {
+            System.out.println("请填写 endPoint");
+            return;
 
+        }
         service.createChatCompletion(chatCompletionRequest).getChoices().forEach(choice -> System.out.println(choice.getMessage().getContent()));
 
         System.out.println("\n----- streaming request -----");
