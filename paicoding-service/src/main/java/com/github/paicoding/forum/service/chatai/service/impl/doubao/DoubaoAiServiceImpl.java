@@ -84,7 +84,9 @@ public class DoubaoAiServiceImpl extends AbsChatService {
                         consumer.accept(AiChatStatEnum.MID, chatRes);
                     }
                 });
-
+        // 结束
+        item.appendAnswer("\n").setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+        consumer.accept(AiChatStatEnum.END, chatRes);
         return AiChatStatEnum.IGNORE;
     }
 
