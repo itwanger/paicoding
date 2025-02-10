@@ -16,5 +16,6 @@ public class DoubaoIntegration {
         System.out.println("DoubaoIntegration initialized with API Key: " + apiKey);
     }
     private String apiKey;
+    private String apiHost;
 
 }
