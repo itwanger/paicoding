@@ -91,6 +91,7 @@
     const chatTitle = $(".window-header-main-title");
     // markdown 转换器
     var converter = null;
+    let wsConnected = false;
 
     // 从 global.user.photo 中取出用户头像 thymeleaf 传入的值
     const isLogin = [[${global.isLogin}]], user = [[${global.user}]];
@@ -132,6 +133,7 @@
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('ws连接成功: ' + frame);
+            wsConnected = true;
             inputField.removeAttr("disabled");
             // 改变 inputField 的 placeholder
             inputField.val("");
@@ -192,6 +194,7 @@
             stompClient.disconnect();
         }
         console.log("ws中断");
+        wsConnected = false;
         stompClient = null;
         // 提醒用户重新连接
         inputField.attr("disabled", "disabled").val("连接中断，点击右侧按钮重连");
