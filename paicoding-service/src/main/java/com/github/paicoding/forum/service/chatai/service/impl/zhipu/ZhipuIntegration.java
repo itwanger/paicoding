@@ -8,25 +8,30 @@ import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.zhipu.oapi.ClientV4;
 import com.zhipu.oapi.Constants;
 import com.zhipu.oapi.service.v4.deserialize.MessageDeserializeFactory;
-import com.zhipu.oapi.service.v4.model.*;
+import com.zhipu.oapi.service.v4.model.ChatCompletionRequest;
+import com.zhipu.oapi.service.v4.model.ChatMessage;
+import com.zhipu.oapi.service.v4.model.ChatMessageAccumulator;
+import com.zhipu.oapi.service.v4.model.ChatMessageRole;
+import com.zhipu.oapi.service.v4.model.ChatTool;
+import com.zhipu.oapi.service.v4.model.Choice;
+import com.zhipu.oapi.service.v4.model.ModelApiResponse;
+import com.zhipu.oapi.service.v4.model.ModelData;
+import com.zhipu.oapi.service.v4.model.WebSearch;
 import io.reactivex.Flowable;
 import lombok.Data;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,26 +45,9 @@ public class ZhipuIntegration {
     private ZhipuConfig config;
 
     public void streamReturn(Long user, ChatRecordsVo chatRecord, BiConsumer<AiChatStatEnum, ChatRecordsVo> callback) {
-        List<ChatMessage> messages = new ArrayList<>();
+        List<ChatMessage> messages = ChatConstants.toMsgList(chatRecord.getRecords(), this::toMsg);
 
         ChatItemVo item = chatRecord.getRecords().get(0);
-
-        String question = item.getQuestion();
-//        int index = item.getQuestion().indexOf("prompt-");
-//        if (index != -1) {
-//            String promptStr = item.getQuestion().substring(index + 7);
-//
-//            if (StringUtils.isNotBlank(promptStr)) {
-//                ChatMessage prompt = new ChatMessage(ChatMessageRole.SYSTEM.value(), promptStr);
-//                messages.add(prompt);
-//            }
-//
-//            question = item.getQuestion().substring(0, index);
-//        }
-
-        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), question);
-        messages.add(chatMessage);
-
         String requestId = String.format(config.requestIdTemplate, System.currentTimeMillis());
         // 函数调用参数构建部分
         List<ChatTool> chatToolList = new ArrayList<>();
@@ -221,5 +209,21 @@ public class ZhipuIntegration {
         return flowable.map(chunk -> {
             return new ChatMessageAccumulator(chunk.getChoices().get(0).getDelta(), null, chunk.getChoices().get(0), chunk.getUsage(), chunk.getCreated(), chunk.getId());
         });
+    }
+
+    private List<ChatMessage> toMsg(ChatItemVo item) {
+        List<ChatMessage> list = new ArrayList<>(2);
+        if (item.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+            // 提示词消息
+            list.add(new ChatMessage(ChatMessageRole.SYSTEM.value(), item.getQuestion().substring(ChatConstants.PROMPT_TAG.length())));
+            return list;
+        }
+
+        // 用户问答
+        list.add(new ChatMessage(ChatMessageRole.USER.value(), item.getQuestion()));
+        if (StringUtils.isNotBlank(item.getAnswer())) {
+            list.add(new ChatMessage(ChatMessageRole.ASSISTANT.value(), item.getAnswer()));
+        }
+        return list;
     }
 }

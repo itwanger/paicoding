@@ -14,6 +14,7 @@ ai:
     invited: 0.1 # 被邀请
     inviteNum: 0.2 # 邀请人数执行策略
     starNumber: 4000 # 目前为 4000
+    historyContextCnt: 10 # 多轮对话上下文的条数，默认最多给10条
   source: # 支持的AI模型
     - CHAT_GPT_3_5
     - CHAT_GPT_4
