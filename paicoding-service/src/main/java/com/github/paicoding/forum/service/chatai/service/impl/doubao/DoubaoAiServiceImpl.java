@@ -34,14 +34,30 @@ public class DoubaoAiServiceImpl extends AbsChatService {
     public DoubaoAiServiceImpl(DoubaoIntegration doubaoIntegration) {
         this.doubaoIntegration = doubaoIntegration;
         log.debug("豆包初始化 APIKEY:"+doubaoIntegration.getApiKey());
+        String baseUrl = "https://ark.cn-beijing.volces.com/api/v3";
+        if (!StringUtils.hasText(doubaoIntegration.getApiKey())) {
+            log.info("豆包API KEY 未配置，停止初始化DoubaoAiServiceImpl");
+            this.service = null;
+            return;
+        }
+        if(StringUtils.hasText(doubaoIntegration.getApiHost()) ){
+            baseUrl = this.doubaoIntegration.getApiHost();
+        }else {
+            log.warn("豆包API HOST 未配置，使用默认值");
+        }
         this.service = ArkService.builder()
-                .baseUrl("https://ark.cn-beijing.volces.com/api/v3")
+                .baseUrl(baseUrl)
                 .apiKey(this.doubaoIntegration.getApiKey())
                 .build();
     }
 
     @Override
     public AiChatStatEnum doAnswer(Long user, ChatItemVo chat) {
+        if (service == null) {
+            log.warn("豆包ai服务未初始化成功 目前apikey:{}，目前apiHost:{}",doubaoIntegration.getApiKey(),doubaoIntegration.getApiHost());
+            chat.initAnswer("Service not initialized");
+            return AiChatStatEnum.ERROR;
+        }
         List<ChatMessage> messages = new ArrayList<>();
         messages.add(ChatMessage.builder().role(ChatMessageRole.SYSTEM).content("你是豆包，是由字节跳动开发的 AI 人工智能助手").build());
         messages.add(ChatMessage.builder().role(ChatMessageRole.USER).content(chat.getQuestion()).build());
@@ -63,6 +79,13 @@ public class DoubaoAiServiceImpl extends AbsChatService {
 
     @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
+        if (service == null) {
+            log.warn("豆包ai服务未初始化成功 目前apikey:{}，目前apiHost:{}",doubaoIntegration.getApiKey(),doubaoIntegration.getApiHost());
+            ChatItemVo item = chatRes.getRecords().get(0);
+            item.appendAnswer("Service not initialized").setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+            consumer.accept(AiChatStatEnum.ERROR, chatRes);
+            return AiChatStatEnum.ERROR;
+        }
         ChatItemVo item = chatRes.getRecords().get(0);
         List<ChatMessage> messages = ChatConstants.toMsgList(chatRes.getRecords(), this::toMsg);
         messages.add(ChatMessage.builder().role(ChatMessageRole.SYSTEM).content("你是豆包，是由字节跳动开发的 AI 人工智能助手").build());
