@@ -9,6 +9,7 @@ import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.util.MdImgLoader;
 import com.github.paicoding.forum.service.image.oss.ImageUploader;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -25,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,26 +47,11 @@ public class ImageServiceImpl implements ImageService {
     /**
      * 外网图片转存缓存
      */
-    private LoadingCache<String, String> imgReplaceCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
-        @Override
-        public String load(String img) {
-            try {
-                InputStream stream = FileReadUtil.getStreamByFileName(img);
-                URI uri = URI.create(img);
-                String path = uri.getPath();
-                int index = path.lastIndexOf(".");
-                String fileType = null;
-                if (index > 0) {
-                    // 从url中获取文件类型
-                    fileType = path.substring(index + 1);
-                }
-                return imageUploader.upload(stream, fileType);
-            } catch (Exception e) {
-                log.error("外网图片转存异常! img:{}", img, e);
-                return "";
-            }
-        }
-    });
+    private Cache<String, String> imgReplaceCache = CacheBuilder
+            .newBuilder()
+            .maximumSize(300)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build();
 
     @Override
     public String saveImg(HttpServletRequest request) {
@@ -82,8 +70,15 @@ public class ImageServiceImpl implements ImageService {
         }
 
         try {
-            return imageUploader.upload(file.getInputStream(), fileType);
-        } catch (IOException e) {
+            // 先获取图像摘要，根据摘要确定缓存中是否已经包含图像。
+            String digest = calculateSHA256(file.getInputStream());
+            String ans = imgReplaceCache.getIfPresent(digest);
+            if (StringUtils.isBlank(ans)) {
+                ans = imageUploader.upload(file.getInputStream(), fileType);
+                imgReplaceCache.put(digest, ans);
+            }
+            return ans;
+        } catch (IOException | NoSuchAlgorithmException e) {
             log.error("Parse img from httpRequest to BufferedImage error! e:", e);
             throw ExceptionUtil.of(StatusEnum.UPLOAD_PIC_FAILED);
         }
@@ -103,7 +98,21 @@ public class ImageServiceImpl implements ImageService {
         }
 
         try {
-            String ans = imgReplaceCache.get(img);
+            InputStream stream = FileReadUtil.getStreamByFileName(img);
+            URI uri = URI.create(img);
+            String path = uri.getPath();
+            int index = path.lastIndexOf(".");
+            String fileType = null;
+            if (index > 0) {
+                // 从url中获取文件类型
+                fileType = path.substring(index + 1);
+            }
+            String digest = calculateSHA256(stream);
+            String ans = imgReplaceCache.getIfPresent(digest);
+            if (StringUtils.isBlank(ans)) {
+                ans = imageUploader.upload(stream, fileType);
+                imgReplaceCache.put(digest, ans);
+            }
             if (StringUtils.isBlank(ans)) {
                 return buildUploadFailImgUrl(img);
             }
@@ -181,4 +190,30 @@ public class ImageServiceImpl implements ImageService {
         }
         return null;
     }
+
+    /**
+     *  图片摘要生成
+     *
+     * @param inputStream
+     * @return
+     */
+    private String calculateSHA256(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+
+        // 读取 InputStream 并更新到 MessageDigest
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            md.update(buffer, 0, bytesRead);
+        }
+
+        // 获取摘要并将其转换为十六进制字符串
+        byte[] digest = md.digest();
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : digest) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
+
 }
