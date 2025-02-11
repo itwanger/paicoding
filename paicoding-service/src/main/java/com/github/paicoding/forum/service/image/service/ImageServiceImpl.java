@@ -20,8 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -195,6 +194,8 @@ public class ImageServiceImpl implements ImageService {
      * @return
      */
     private String calculateSHA256(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
+
+        inputStream = toByteArrayInputStream(inputStream);
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] buffer = new byte[1024];
         int bytesRead;
@@ -210,7 +211,35 @@ public class ImageServiceImpl implements ImageService {
         for (byte b : digest) {
             hexString.append(String.format("%02x", b));
         }
+        inputStream.reset();
         return hexString.toString();
     }
+
+    /**
+     * 转换为字节数组输入流，可以重复消费流中数据
+     *
+     * @param inputStream
+     * @return
+     * @throws IOException
+     */
+    public ByteArrayInputStream toByteArrayInputStream(InputStream inputStream) throws IOException {
+        if (inputStream instanceof ByteArrayInputStream) {
+            return (ByteArrayInputStream) inputStream;
+        }
+
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            BufferedInputStream br = new BufferedInputStream(inputStream);
+            byte[] b = new byte[1024];
+            for (int c; (c = br.read(b)) != -1; ) {
+                bos.write(b, 0, c);
+            }
+            // 主动告知回收
+            b = null;
+            br.close();
+            inputStream.close();
+            return new ByteArrayInputStream(bos.toByteArray());
+        }
+    }
+
 
 }
