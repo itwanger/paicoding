@@ -14,3 +14,4 @@ CREATE TABLE `short_link`
     PRIMARY KEY (`id`),
     KEY `idx_key` (`short_url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短链接记录表';
+DROP TABLE IF EXISTS `short_link`;
