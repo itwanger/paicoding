@@ -665,3 +665,11 @@ select.styled-dropdown option {
         font-size: 15px;
     }
 }
+
+.chat-main .markdown-body ol li {
+    list-style-type: decimal;
+}
+
+.chat-main .markdown-body h3 {
+    font-size: 1.17em;
+}

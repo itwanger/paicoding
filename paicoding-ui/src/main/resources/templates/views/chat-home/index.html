@@ -56,9 +56,9 @@
                         <option value="CHAT_GPT_3_5">OpenAI</option>
                         <option value="ALI_AI">通义千问</option>
                         <option value="XUN_FEI_AI">讯飞星火</option>
-                        <option value="ZHI_PU_AI" selected>GLM-4-Plus</option>
-                        <option value="PAI_AI">技术派</option>
+                        <option value="ZHI_PU_AI">智谱</option>
                         <option value="DOU_BAO_AI">豆包</option>
+                        <option value="PAI_AI" selected>技术派</option>
                     </select>
                 </div>
             </div>
@@ -90,12 +90,11 @@
     let stompClient = null;
     // 用户名
     const chatTitle = $(".window-header-main-title");
-    // markdown 转换器
-    var converter = null;
     let wsConnected = false;
 
     // 从 global.user.photo 中取出用户头像 thymeleaf 传入的值
     const isLogin = [[${global.isLogin}]], user = [[${global.user}]];
+
 
     // 页面加载完成后，执行 initWs
     $(function () {
@@ -104,7 +103,6 @@
         } else {
             console.log("请先登录");
         }
-        converter = new showdown.Converter();
     });
 
     // 建立会话, 首先判断一下用户是否已经登录
@@ -231,19 +229,21 @@
             if (res.length === 1) {
                 content = res[0].message.content;
                 console.log(" content escapeHtml before:", content);
-                content = prettyCode(content);
+                // content = prettyCode(content);
+                content = converter.makeHtml(content);
                 console.log(" content escapeHtml after:", content);
             } else {
                 // 直接返回的结果
                 console.log(" content escapeHtml before:", res);
-                content = prettyCode(res);
+                // content = prettyCode(res);
+                content = converter.makeHtml(content);
                 console.log(" content escapeHtml after:", content);
             }
         } else if ('STREAM' === answerType || 'STREAM_END' === answerType) {
             const lastDiv = $(`#${chatId}`)
             console.log("流式结果返回: ", content, lastDiv);
-            // content = converter.makeHtml(content);
-            content = prettyCode(content.replaceAll('$…$', ''));
+            content = converter.makeHtml(content);
+            // content = prettyCode(content.replaceAll('$…$', ''));
             console.log("流式结果转 HTML: ", content)
 
             if (lastDiv.length > 0) {

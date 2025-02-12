@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.async.AsyncUtil;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
             consumer.accept(AiChatStatEnum.FIRST, response);
 
             AsyncUtil.sleep(1200);
-            item.appendAnswer("\n" + qa(item.getQuestion()));
+            item.appendAnswer("\n" + ChatConstants.SWITCH_TO_OTHER_MODEL);
             item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, response);
         });
