@@ -26,8 +26,8 @@ public class ShortLinkDO extends BaseDO {
     private String thirdPartyUserId;
     private String userAgent;
     private String loginMethod;
-    private boolean deleted;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private int deleted;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 
 }
