@@ -47,19 +47,5 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
     @Select("select * from short_link where username = #{username}")
     List<ShortLinkDO> getByUsername(@Param("username") String username);
 
-    /**
-     * 根据第三方用户id查询
-     * @param thirdPartyUserId
-     * @return
-     */
-    @Select("select * from short_link where third_party_user_id = #{third_party_user_id}")
-    List<ShortLinkDO> getByThirdPartyUserId(@Param("third_party_user_id") String thirdPartyUserId);
 
-    /**
-     * 根据userAgent查询
-     * @param userAgent
-     * @return
-     */
-    @Select("select * from short_link where user_agent = #{user_agent}")
-    List<ShortLinkDO> getByUserAgent(@Param("user_agent") String userAgent);
 }
