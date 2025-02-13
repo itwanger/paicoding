@@ -1,7 +1,9 @@
 package com.github.paicoding.forum.api.model.vo.shortlink;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 短链接记录数据库对象
@@ -10,6 +12,8 @@ import lombok.Data;
  * @date 2025-02-13
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName("short_link_record")
 public class ShortLinkRecordDO {
 
