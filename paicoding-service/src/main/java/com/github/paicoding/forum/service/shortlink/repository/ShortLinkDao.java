@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.service.shortlink.repository;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.mapper.UserInfoMapper;
@@ -15,6 +14,7 @@ public class ShortLinkDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
 
     /**
      * 新增短链接信息
+     *
      * @param shortLinkDO
      * @return
      */
@@ -24,6 +24,7 @@ public class ShortLinkDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
 
     /**
      * 根据短链接查询
+     *
      * @param shortUrl
      * @return
      */
@@ -33,6 +34,7 @@ public class ShortLinkDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
 
     /**
      * 根据原始链接查询
+     *
      * @param originalUrl
      * @return
      */
@@ -42,13 +44,13 @@ public class ShortLinkDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
 
     /**
      * 根据用户名查询
+     *
      * @param username
      * @return
      */
     public List<ShortLinkDO> getByUsername(String username) {
         return shortLinkMapper.getByUsername(username);
     }
-
 
 
 }

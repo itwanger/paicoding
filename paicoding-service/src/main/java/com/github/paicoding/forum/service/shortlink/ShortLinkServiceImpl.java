@@ -1,7 +1,10 @@
 package com.github.paicoding.forum.service.shortlink;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.vo.shortlink.*;
+import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDO;
+import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
+import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkRecordDO;
+import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkMapper;
 import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkRecordMapper;
@@ -15,7 +18,7 @@ import java.util.Date;
 
 @Slf4j
 @Service
-public class ShortLinkServiceImpl  implements ShortLinkService{
+public class ShortLinkServiceImpl implements ShortLinkService {
 
 
     // Redis中短链接的前缀
@@ -50,9 +53,9 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
         ShortLinkDO shortLinkDO = createShortLinkDO(shortLinkDTO, shortCode);
 
         // 保存原始链接--短链接映射到DB与Cache
-        int  shortLinkId = shortLinkMapper.GetIdAfterInsert(shortLinkDO);
+        int shortLinkId = shortLinkMapper.GetIdAfterInsert(shortLinkDO);
         log.debug("Short link created with ID: {}", shortLinkId);
-        RedisClient.hSet(REDIS_SHORT_LINK_PREFIX + shortCode, shortLinkDO.getOriginalUrl(),  String.class);
+        RedisClient.hSet(REDIS_SHORT_LINK_PREFIX + shortCode, shortLinkDO.getOriginalUrl(), String.class);
 
         // 保存记录到DB
         ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO(shortLinkDO.getShortCode(), shortLinkDTO);
@@ -80,7 +83,7 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
             throw new RuntimeException("Short link not found");
         }
         String paramUserId = ((null == ReqInfoContext.getReqInfo().getUserId()) ? "0" : ReqInfoContext.getReqInfo().getUserId().toString());
-        ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO( shortCode,new ShortLinkDTO(originalUrl, paramUserId,shortCode));
+        ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO(shortCode, new ShortLinkDTO(originalUrl, paramUserId, shortCode));
         shortLinkRecordMapper.insert(shortLinkRecordDO);
 
         log.debug("Original link found for short code: {}", shortCode);
@@ -115,7 +118,7 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
         long generateTime = 0;
         while (null != shortLinkMapper.getByShortCode(shortCode) && generateTime < 3) {
             shortCode = ShortCodeGenerator.generateShortCode(path + System.currentTimeMillis());
-            generateTime ++;
+            generateTime++;
         }
         return shortCode;
     }
@@ -125,7 +128,7 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
      * 创建ShortLinkDO对象
      *
      * @param shortLinkDTO 短链接数据
-     * @param shortCode 生成的短码
+     * @param shortCode    生成的短码
      * @return 创建的ShortLinkDO对象
      */
     private ShortLinkDO createShortLinkDO(ShortLinkDTO shortLinkDTO, String shortCode) {
@@ -144,7 +147,7 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
     /**
      * 创建ShortLinkRecordDO对象
      *
-     * @param shortcode 短链接代码
+     * @param shortcode    短链接代码
      * @param shortLinkDTO 短链接数据
      * @return 创建的ShortLinkRecordDO对象
      */
@@ -159,12 +162,6 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
         shortLinkRecordDO.setAccessSource(SourceDetector.detectSource());
         return shortLinkRecordDO;
     }
-
-
-
-
-
-
 
 
     /**

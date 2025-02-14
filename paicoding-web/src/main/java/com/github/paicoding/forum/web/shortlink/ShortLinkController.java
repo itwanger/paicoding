@@ -21,19 +21,21 @@ public class ShortLinkController {
 
     /**
      * 创建短链接
+     *
      * @param shortLinkReq 包含原始长链接
      * @return 创建的短链接信息
      */
     @PostMapping("/url")
     public ShortLinkVO createShortLink(@RequestBody ShortLinkReq shortLinkReq) throws NoSuchAlgorithmException {
 
-        String userId =(null == ReqInfoContext.getReqInfo().getUser())? "":ReqInfoContext.getReqInfo().getUser().getUserId().toString();
-        ShortLinkDTO shortLinkDTO = new ShortLinkDTO(shortLinkReq.getOriginalUrl(), userId,"");
+        String userId = (null == ReqInfoContext.getReqInfo().getUser()) ? "" : ReqInfoContext.getReqInfo().getUser().getUserId().toString();
+        ShortLinkDTO shortLinkDTO = new ShortLinkDTO(shortLinkReq.getOriginalUrl(), userId, "");
         return shortLinkService.createShortLink(shortLinkDTO);
     }
 
     /**
      * 根据短链接获取原始长链接
+     *
      * @param shortCode 短链接
      */
     @GetMapping("/{shortCode}")
