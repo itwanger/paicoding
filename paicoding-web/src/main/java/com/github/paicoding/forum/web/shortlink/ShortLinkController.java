@@ -5,12 +5,9 @@ import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkReq;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
 import com.github.paicoding.forum.service.shortlink.ShortLinkService;
-import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
