@@ -2,7 +2,6 @@ package com.github.paicoding.forum.service.shortlink;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +51,7 @@ public class SourceDetector {
                 return "Chrome";
             } else if (userAgent.contains("Safari") && !userAgent.contains("Chrome") && !userAgent.contains("Edg")) { // 排除 Chrome 和 Edge
                 return "Safari";
-            }else if (userAgent.contains("Firefox")) {
+            } else if (userAgent.contains("Firefox")) {
                 return "Firefox";
             } else if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {
                 return "IE"; // Internet Explorer
@@ -71,7 +70,7 @@ public class SourceDetector {
             // 2.4 桌面设备 (常见桌面设备 User-Agent 特征)
             Pattern desktopPattern = Pattern.compile(DESKTOP_PATTERN, Pattern.CASE_INSENSITIVE);
             Matcher desktopMatcher = desktopPattern.matcher(userAgent);
-            if(desktopMatcher.find()){
+            if (desktopMatcher.find()) {
                 return "Desktop";
             }
 

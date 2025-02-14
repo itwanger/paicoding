@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * 短链接服务mapper接口
+ *
  * @author betasecond
  * @date 2022-07-18
  */
@@ -17,6 +18,7 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
 
     /**
      * 新建短链接
+     *
      * @param shortLinkDO
      * @return
      */
@@ -25,6 +27,7 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
 
     /**
      * 根据短链接查询
+     *
      * @param shortUrl
      * @return
      */
@@ -33,6 +36,7 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
 
     /**
      * 根据原始链接查询
+     *
      * @param originalUrl
      * @return
      */
@@ -41,6 +45,7 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
 
     /**
      * 根据用户名查询
+     *
      * @param username
      * @return
      */
