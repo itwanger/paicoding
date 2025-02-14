@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 短链接请求对象
+ * 短链接返回对象
  *
  * @author betasecond
  * @date 2025-02-13
@@ -13,7 +13,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShortLinkReq {
+public class ShortLinkVO {
+    /**
+     * 短链接URL
+     */
+    private String shortUrl;
+
     /**
      * 原始URL
      */
