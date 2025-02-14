@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -128,11 +129,13 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
      * @return 创建的ShortLinkDO对象
      */
     private ShortLinkDO createShortLinkDO(ShortLinkDTO shortLinkDTO, String shortCode) {
+        long currentTimeMillis = System.currentTimeMillis();
+        Date currentDate = new Date(currentTimeMillis);
         ShortLinkDO shortLinkDO = new ShortLinkDO();
         shortLinkDO.setOriginalUrl(shortLinkDTO.getOriginalUrl());
         shortLinkDO.setShortCode(shortCode);
-        shortLinkDO.setCreateTime(System.currentTimeMillis());
-        shortLinkDO.setUpdateTime(System.currentTimeMillis());
+        shortLinkDO.setCreateTime(currentDate);
+        shortLinkDO.setUpdateTime(currentDate);
         shortLinkDO.setDeleted(0);
         return shortLinkDO;
     }
@@ -151,7 +154,7 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
         shortLinkRecordDO.setUserId(shortLinkDTO.getUserId());
         shortLinkRecordDO.setAccessTime(System.currentTimeMillis());
         // fixme: 目前没有很好的办法获得用户的登陆方式 因为用户都不一定登录了
-        shortLinkRecordDO.setLoginMethod("unknown");
+        shortLinkRecordDO.setLoginMethod("Unknown");
         shortLinkRecordDO.setIpAddress(ReqInfoContext.getReqInfo().getClientIp());
         shortLinkRecordDO.setAccessSource(SourceDetector.detectSource());
         return shortLinkRecordDO;

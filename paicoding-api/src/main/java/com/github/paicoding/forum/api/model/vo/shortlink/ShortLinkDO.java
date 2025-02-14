@@ -2,6 +2,7 @@ package com.github.paicoding.forum.api.model.vo.shortlink;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.github.paicoding.forum.api.model.entity.BaseDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("short_link")
-public class ShortLinkDO {
+public class ShortLinkDO extends BaseDO {
 
 
     private static final long serialVersionUID = 1L;
@@ -42,13 +43,5 @@ public class ShortLinkDO {
      */
     private Integer deleted;
 
-    /**
-     * 创建时间
-     */
-    private Long createTime;
 
-    /**
-     * 更新时间
-     */
-    private Long updateTime;
 }

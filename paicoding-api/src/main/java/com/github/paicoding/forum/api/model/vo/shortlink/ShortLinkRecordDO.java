@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.api.model.vo.shortlink;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.github.paicoding.forum.api.model.entity.BaseDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("short_link_record")
-public class ShortLinkRecordDO {
+public class ShortLinkRecordDO extends BaseDO {
 
     private static final long serialVersionUID = 1L;
 
