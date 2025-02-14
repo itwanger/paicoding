@@ -22,7 +22,7 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
      * @param shortLinkDO
      * @return
      */
-    @Insert("insert into short_link(original_url, short_url, username, third_party_user_id, user_agent, login_method, deleted, create_time, update_time) values(#{original_url}, #{short_url}, #{username}, #{third_party_user_id}, #{user_agent}, #{login_method}, #{deleted}, #{create_time}, #{update_time})")
+    @Insert("insert into short_link(original_url, short_code, deleted, create_time, update_time) values(#{original_url}, #{short_code}, #{username}, #{third_party_user_id}, #{user_agent}, #{login_method}, #{deleted}, #{create_time}, #{update_time})")
     int insert(ShortLinkDO shortLinkDO);
 
     /**
@@ -31,8 +31,8 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
      * @param shortUrl
      * @return
      */
-    @Select("select * from short_link where short_url = #{short_url} limit 1")
-    ShortLinkDO getByShortUrl(@Param("short_url") String shortUrl);
+    @Select("select * from short_link where short_code = #{short_code} limit 1")
+    ShortLinkDO getByShortUrl(@Param("short_code") String shortUrl);
 
     /**
      * 根据原始链接查询
@@ -43,14 +43,7 @@ interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
     @Select("select * from short_link where original_url = #{original_url} limit 1")
     ShortLinkDO getByOriginalUrl(@Param("original_url") String originalUrl);
 
-    /**
-     * 根据用户名查询
-     *
-     * @param username
-     * @return
-     */
-    @Select("select * from short_link where username = #{username}")
-    List<ShortLinkDO> getByUsername(@Param("username") String username);
+
 
 
 }

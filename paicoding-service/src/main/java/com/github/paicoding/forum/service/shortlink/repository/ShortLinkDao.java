@@ -42,15 +42,7 @@ public class ShortLinkDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         return shortLinkMapper.getByOriginalUrl(originalUrl);
     }
 
-    /**
-     * 根据用户名查询
-     *
-     * @param username
-     * @return
-     */
-    public List<ShortLinkDO> getByUsername(String username) {
-        return shortLinkMapper.getByUsername(username);
-    }
+
 
 
 }
