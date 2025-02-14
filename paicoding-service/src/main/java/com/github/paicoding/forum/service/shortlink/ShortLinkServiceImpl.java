@@ -54,7 +54,7 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
         RedisClient.hSet(REDIS_SHORT_LINK_PREFIX + shortCode, shortLinkDO.getOriginalUrl(),  String.class);
 
         // 保存记录到DB
-        ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO(shortLinkId, shortLinkDTO);
+        ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO(shortLinkDO.getShortCode(), shortLinkDTO);
         shortLinkRecordMapper.insert(shortLinkRecordDO);
 
         log.debug("Short link record saved for short code: {}", shortCode);
@@ -78,6 +78,9 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
             log.error("Short link not found for short code: {}", shortCode);
             throw new RuntimeException("Short link not found");
         }
+        String paramUserId = ((null == ReqInfoContext.getReqInfo().getUserId()) ? "0" : ReqInfoContext.getReqInfo().getUserId().toString());
+        ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO( shortCode,new ShortLinkDTO(originalUrl, paramUserId,shortCode));
+        shortLinkRecordMapper.insert(shortLinkRecordDO);
 
         log.debug("Original link found for short code: {}", shortCode);
         return new ShortLinkVO(originalUrl, originalUrl);
@@ -138,19 +141,27 @@ public class ShortLinkServiceImpl  implements ShortLinkService{
     /**
      * 创建ShortLinkRecordDO对象
      *
-     * @param shortLinkId 短链接ID
+     * @param shortcode 短链接代码
      * @param shortLinkDTO 短链接数据
      * @return 创建的ShortLinkRecordDO对象
      */
-    private ShortLinkRecordDO createShortLinkRecordDO(int shortLinkId, ShortLinkDTO shortLinkDTO) {
+    private ShortLinkRecordDO createShortLinkRecordDO(String shortcode, ShortLinkDTO shortLinkDTO) {
         ShortLinkRecordDO shortLinkRecordDO = new ShortLinkRecordDO();
-        shortLinkRecordDO.setShortLinkId((long) shortLinkId);
+        shortLinkRecordDO.setShortCode(shortcode);
         shortLinkRecordDO.setUserId(shortLinkDTO.getUserId());
         shortLinkRecordDO.setAccessTime(System.currentTimeMillis());
+        // fixme: 目前没有很好的办法获得用户的登陆方式 因为用户都不一定登录了
+        shortLinkRecordDO.setLoginMethod("unknown");
         shortLinkRecordDO.setIpAddress(ReqInfoContext.getReqInfo().getClientIp());
-        shortLinkRecordDO.setAccessSource("Unknown");
+        shortLinkRecordDO.setAccessSource(SourceDetector.detectSource());
         return shortLinkRecordDO;
     }
+
+
+
+
+
+
 
 
     /**
