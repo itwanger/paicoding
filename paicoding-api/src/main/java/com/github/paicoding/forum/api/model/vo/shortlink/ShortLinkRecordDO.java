@@ -20,9 +20,9 @@ public class ShortLinkRecordDO {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 短链接ID
+     * 短链接代码
      */
-    private Long shortLinkId;
+    private String shortCode;
 
     /**
      * 用户ID
