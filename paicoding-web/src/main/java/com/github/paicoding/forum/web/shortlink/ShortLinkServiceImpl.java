@@ -66,13 +66,15 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     public ShortLinkVO createShortLink(ShortLinkDTO shortLinkDTO) throws NoSuchAlgorithmException {
         log.debug("Creating short link for URL: {}", shortLinkDTO.getOriginalUrl());
 
-        String path = shortLinkDTO.getOriginalUrl().replaceAll("^(https?://|http://[^/]+)(/.*)?$", "$2");
 
         // 验证域名是否在白名单中
         if (!isUrlInWhitelist(shortLinkDTO.getOriginalUrl())){
             log.warn("域名不在白名单中: {}", shortLinkDTO.getOriginalUrl());
             throw new RuntimeException("不允许为该域名创建短链接");
         }
+
+        String path = shortLinkDTO.getOriginalUrl().replaceAll("^(https?://|http://[^/]+)(/.*)?$", "$2");
+
         String shortCode = generateUniqueShortCode(path);
 
         ShortLinkDO shortLinkDO = createShortLinkDO(shortLinkDTO, shortCode);
@@ -213,10 +215,21 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         try {
             URI uri = new URI(url);
-            String host = uri.getHost();
+            String hostWithPort = uri.getHost() + (uri.getPort() != -1 ? ":" + uri.getPort() : "");
+
             return domainWhitelist.stream()
+                    // 处理白名单域名,提取域名部分
                     .map(String::trim)
-                    .anyMatch(domain -> host != null && host.endsWith(domain));
+                    .map(domain -> {
+                        try {
+                            URI domainUri = new URI(domain);
+                            return domainUri.getHost();
+                        } catch (URISyntaxException e) {
+                            return domain;
+                        }
+                    })
+                    // 检查域名是否在白名单中
+                    .anyMatch(domain -> hostWithPort.endsWith(domain) || uri.getHost().endsWith(domain));
         } catch (URISyntaxException e) {
             log.error("无效的URL格式: {}", url, e);
             return false;
