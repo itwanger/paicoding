@@ -4,7 +4,6 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkReq;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
-import com.github.paicoding.forum.service.shortlink.ShortLinkService;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
