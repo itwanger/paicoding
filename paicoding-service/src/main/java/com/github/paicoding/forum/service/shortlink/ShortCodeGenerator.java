@@ -1,22 +1,29 @@
 package com.github.paicoding.forum.service.shortlink;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class ShortCodeGenerator {
 
     private static final String BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int BASE62_LENGTH = BASE62.length();
     private static final int HASH_LENGTH = 5;
-    private static final Set<String> existingShortCodes = new HashSet<>();
 
+    private static final Cache<String, Boolean> existingShortCodes = CacheBuilder.newBuilder()
+            .maximumSize(10000)
+            .expireAfterWrite(24, TimeUnit.HOURS)
+            .build();
     public static String generateShortCode(String longUrl) throws NoSuchAlgorithmException {
         String shortCode = generateHash(longUrl, HASH_LENGTH);
         int extensionLength = 0;
 
-        while (existingShortCodes.contains(shortCode)) {
+        while (existingShortCodes.getIfPresent(shortCode) != null) {
             extensionLength++;
             if (extensionLength > 3) {
                 extensionLength = 1;
@@ -24,7 +31,7 @@ public class ShortCodeGenerator {
             shortCode = generateHash(longUrl + extensionLength, HASH_LENGTH + extensionLength);
         }
 
-        existingShortCodes.add(shortCode);
+        existingShortCodes.put(shortCode, Boolean.TRUE);
         return shortCode;
     }
 
