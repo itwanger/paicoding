@@ -112,4 +112,10 @@
     <changeSet id="000020250206_0" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_250207.sql"/>
     </changeSet>
+
+    <!-- 新增短链接数据库  -->
+    <changeSet id="000020250213_0" author="betasecond">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_250213.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
