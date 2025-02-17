@@ -15,3 +15,7 @@ spring:
 
 chatgpt:
   key:
+
+
+short-link:
+  whitelist: http://localhost:8080,https://paicoding.com/ # 允许创建短链接的域名

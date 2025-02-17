@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.shortlink;
+package com.github.paicoding.forum.web.shortlink;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDO;
@@ -6,15 +6,24 @@ import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkRecordDO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import com.github.paicoding.forum.service.shortlink.ShortCodeGenerator;
+import com.github.paicoding.forum.service.shortlink.SourceDetector;
 import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkMapper;
 import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkRecordMapper;
+
+
+import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,10 +39,20 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     @Resource
     private ShortLinkRecordMapper shortLinkRecordMapper;
 
+    @Resource
+    private GlobalViewConfig globalViewConfig;
+
     public ShortLinkServiceImpl(ShortLinkMapper shortLinkMapper, ShortLinkRecordMapper shortLinkRecordMapper) {
         this.shortLinkMapper = shortLinkMapper;
         this.shortLinkRecordMapper = shortLinkRecordMapper;
     }
+
+
+
+    // 域名白名单
+    @Value("#{'${short-link.whitelist:}'.split(',')}")
+    private List<String> domainWhitelist;
+
 
 
     /**
@@ -48,6 +67,12 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         log.debug("Creating short link for URL: {}", shortLinkDTO.getOriginalUrl());
 
         String path = shortLinkDTO.getOriginalUrl().replaceAll("^(https?://|http://[^/]+)(/.*)?$", "$2");
+
+        // 验证域名是否在白名单中
+        if (!isUrlInWhitelist(shortLinkDTO.getOriginalUrl())){
+            log.warn("域名不在白名单中: {}", shortLinkDTO.getOriginalUrl());
+            throw new RuntimeException("不允许为该域名创建短链接");
+        }
         String shortCode = generateUniqueShortCode(path);
 
         ShortLinkDO shortLinkDO = createShortLinkDO(shortLinkDTO, shortCode);
@@ -83,10 +108,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
             throw new RuntimeException("Short link not found");
         }
         String paramUserId = ((null == ReqInfoContext.getReqInfo().getUserId()) ? "0" : ReqInfoContext.getReqInfo().getUserId().toString());
-        ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO(shortCode, new ShortLinkDTO(originalUrl, paramUserId, shortCode));
-        shortLinkRecordMapper.insert(shortLinkRecordDO);
-
-        log.debug("Original link found for short code: {}", shortCode);
+        log.info("Short link retrieved - shortCode: {}, originalUrl: {}, userId: {}", shortCode, originalUrl, paramUserId);
         return new ShortLinkVO(originalUrl, originalUrl);
     }
 
@@ -98,8 +120,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     private ShortLinkVO createShortLinkVO(ShortLinkDO shortLinkDO) {
         ShortLinkVO shortLinkVO = new ShortLinkVO();
-        String host = shortLinkDO.getOriginalUrl().replaceAll("^(https?://|http://)([^/]+).*$", "$1$2");
-        shortLinkVO.setShortUrl(host + "/sol/" + shortLinkDO.getShortCode());
+        shortLinkVO.setShortUrl(globalViewConfig.getHost() + "/sol/" + shortLinkDO.getShortCode());
         shortLinkVO.setOriginalUrl(shortLinkDO.getOriginalUrl());
         return shortLinkVO;
     }
@@ -113,13 +134,12 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      * @throws NoSuchAlgorithmException 如果生成短码时发生错误
      */
     private String generateUniqueShortCode(String path) throws NoSuchAlgorithmException {
-        // 用时间戳保证唯一性
-        String shortCode = ShortCodeGenerator.generateShortCode(path + System.currentTimeMillis());
         long generateTime = 0;
-        while (null != shortLinkMapper.getByShortCode(shortCode) && generateTime < 3) {
-            shortCode = ShortCodeGenerator.generateShortCode(path + System.currentTimeMillis());
+        String shortCode;
+        do {
+            shortCode = ShortCodeGenerator.generateShortCode(path);
             generateTime++;
-        }
+        } while (null != shortLinkMapper.getByShortCode(shortCode) && generateTime < 3);
         return shortCode;
     }
 
@@ -179,5 +199,27 @@ public class ShortLinkServiceImpl implements ShortLinkService {
             }
         }
         return originalUrl;
+    }
+
+    /**
+     * 检查URL是否在白名单中
+     * @param url 待检查的URL
+     * @return 是否在白名单中
+     */
+    private boolean isUrlInWhitelist(String url) {
+        if (domainWhitelist == null || domainWhitelist.isEmpty()) {
+            return true; // 如果白名单为空，则允许所有域名
+        }
+
+        try {
+            URI uri = new URI(url);
+            String host = uri.getHost();
+            return domainWhitelist.stream()
+                    .map(String::trim)
+                    .anyMatch(domain -> host != null && host.endsWith(domain));
+        } catch (URISyntaxException e) {
+            log.error("无效的URL格式: {}", url, e);
+            return false;
+        }
     }
 }

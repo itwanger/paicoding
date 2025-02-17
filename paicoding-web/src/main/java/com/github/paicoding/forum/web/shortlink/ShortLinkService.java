@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.shortlink;
+package com.github.paicoding.forum.web.shortlink;
 
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
@@ -6,6 +6,8 @@ import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
 import java.security.NoSuchAlgorithmException;
 
 public interface ShortLinkService {
+
+
     /**
      * 创建短链接
      *
