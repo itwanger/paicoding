@@ -12,4 +12,4 @@ spring:
     cache: true
 
 short-link:
-  whitelist: http://localhost:8080,https://paicoding.com/ # 允许创建短链接的域名
+  whitelist: http://localhost, http://127.0.0.1,https://paicoding.com/ # 允许创建短链接的域名
