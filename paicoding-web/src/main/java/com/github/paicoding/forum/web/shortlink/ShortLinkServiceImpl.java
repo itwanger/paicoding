@@ -73,6 +73,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
             throw new RuntimeException("不允许为该域名创建短链接");
         }
 
+        // 从原始URL中提取路径部分
+        // ^(https?://|http://[^/]+) - 匹配URL开头的协议和域名部分
         String path = shortLinkDTO.getOriginalUrl().replaceAll("^(https?://|http://[^/]+)(/.*)?$", "$2");
 
         String shortCode = generateUniqueShortCode(path);
@@ -215,21 +217,25 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
         try {
             URI uri = new URI(url);
-            String hostWithPort = uri.getHost() + (uri.getPort() != -1 ? ":" + uri.getPort() : "");
+            String hostRaw = uri.getHost();
+            if (hostRaw == null) {
+                log.error("无效的URL格式，缺少host: {}", url);
+                return false;
+            }
+
+            // 去掉URL中的协议部分
+            String host = hostRaw.replaceAll("^[a-zA-Z]+://", "");
+            String hostWithPort = host + (uri.getPort() != -1 ? ":" + uri.getPort() : "");
 
             return domainWhitelist.stream()
-                    // 处理白名单域名,提取域名部分
+                    // 白名单中无协议名，只有域名
                     .map(String::trim)
-                    .map(domain -> {
-                        try {
-                            URI domainUri = new URI(domain);
-                            return domainUri.getHost();
-                        } catch (URISyntaxException e) {
-                            return domain;
-                        }
-                    })
                     // 检查域名是否在白名单中
-                    .anyMatch(domain -> hostWithPort.endsWith(domain) || uri.getHost().endsWith(domain));
+                    // 精确匹配域名，避免子域名攻击
+                    .anyMatch(domain ->
+                            hostWithPort.equals(domain) || // 带端口
+                                    host.equals(domain)    // 不带端口
+                    );
         } catch (URISyntaxException e) {
             log.error("无效的URL格式: {}", url, e);
             return false;
