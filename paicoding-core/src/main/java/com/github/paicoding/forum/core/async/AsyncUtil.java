@@ -148,7 +148,7 @@ public class AsyncUtil {
             cost = new ConcurrentSkipListMap<>();
             cost.put(task, System.currentTimeMillis());
             this.executorService = TtlExecutors.getTtlExecutorService(executorService);
-            this.markOver = true;
+            this.markOver = false;
         }
 
         /**
