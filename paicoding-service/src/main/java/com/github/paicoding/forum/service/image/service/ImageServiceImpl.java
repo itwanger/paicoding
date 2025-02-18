@@ -149,8 +149,6 @@ public class ImageServiceImpl implements ImageService {
                     imgReplaceMap.put(img, saveImg(img.getUrl()));
                 }, img.getUrl());
             }
-            // 等待所有图片转存完成
-            bridge.allExecuted();
         }
 
         // 图片替换
