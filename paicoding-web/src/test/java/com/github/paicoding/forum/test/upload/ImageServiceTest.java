@@ -25,4 +25,16 @@ public class ImageServiceTest extends BasicTest {
         System.out.println(imageService.saveImg("https://www.baidu.com/img/flexible/logo/pc/peak-result.png"));
     }
 
+    @Test
+    public void testAsyncSaveImage() throws Exception {
+        String content = "这是一段测试的 Markdown 内容，其中包含一张图片。\n" +
+                "![百度logo](https://www.baidu.com/img/flexible/logo/pc/peak-result.png)\n" +
+                "![百度logo](https://www.baidu.com/img/flexible/logo/pc/peak-result.png)\n" +
+                "![百度logo](https://www.baidu.com/img/flexible/logo/pc/peak-result.png)\n" +
+                "图片显示的是百度的 logo。";
+        content = imageService.mdImgReplace(content);
+        System.out.println(content);
+    }
+
+
 }
