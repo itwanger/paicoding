@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.service.shortlink.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDO;
+import com.github.paicoding.forum.service.shortlink.repository.entity.ShortLinkDO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -13,5 +13,5 @@ public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
 
     @Insert("INSERT INTO short_link (original_url, short_code, deleted, create_time, update_time) VALUES (#{originalUrl}, #{shortCode}, #{deleted}, #{createTime}, #{updateTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    int GetIdAfterInsert(ShortLinkDO shortLinkDO);
+    int getIdAfterInsert(ShortLinkDO shortLinkDO);
 }

@@ -1,6 +1,6 @@
-package com.github.paicoding.forum.web.shortlink;
+package com.github.paicoding.forum.service.shortlink.service;
 
-import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
+import com.github.paicoding.forum.api.model.vo.shortlink.dto.ShortLinkDTO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
 
 import java.security.NoSuchAlgorithmException;

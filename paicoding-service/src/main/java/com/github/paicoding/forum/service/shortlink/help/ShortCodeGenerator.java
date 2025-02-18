@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.service.shortlink;
+package com.github.paicoding.forum.service.shortlink.help;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
