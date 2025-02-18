@@ -64,3 +64,62 @@ const collectArticle = function (articleId, action, callback) {
         }
     });
 }
+
+
+// 分享处理函数
+const shareArticle = function() {
+    const articleId = $('#postsTitle').attr('data-id');
+    // 获取当前文章的完整URL
+    const baseUrl = window.location.protocol + "//" + window.location.host;
+    const articleUrl = baseUrl + "/article/detail/" + articleId;
+
+    // 创建短链接
+    $.ajax({
+        url: '/sol/url',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            originalUrl: articleUrl
+        }),
+        success: function(data) {
+            if (!data || !data.shortUrl) {
+                toastr.error('创建短链接失败');
+                return;
+            }
+
+            const shortUrl =  data.shortUrl;
+
+            // 更新弹窗内容
+            $('#shortUrl').val(shortUrl);
+            // 设置二维码图片源
+            $('#shareQrCode').attr('src', '/sol/gen?content=' + encodeURIComponent(shortUrl));
+
+
+            $('#shareModal').modal('show');
+        },
+        error: function() {
+            toastr.error('创建短链接失败');
+        }
+    });
+}
+// 复制短链接
+const copyShortUrl = async function() {
+    const shortUrl = document.getElementById('shortUrl');
+    try {
+        await navigator.clipboard.writeText(shortUrl.value);
+        toastr.success('链接已复制到剪贴板！');
+    } catch (err) {
+        toastr.error('复制失败，请手动复制。');
+    }
+}
+
+// 绑定分享按钮点击事件
+$(document).ready(function() {
+    $("#shareFloatBtn, #shareFloatBtnMd").click(function() {
+        // if (!isLogin) {
+        //     // 未登录时的处理
+        //     return;
+        // }
+        shareArticle();
+    });
+});
