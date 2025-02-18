@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.api.model.vo.shortlink;
+package com.github.paicoding.forum.api.model.vo.shortlink.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

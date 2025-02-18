@@ -82,17 +82,19 @@ const shareArticle = function() {
             originalUrl: articleUrl
         }),
         success: function(data) {
-            if (!data || !data.shortUrl) {
+            if (!data || !data.status || data.status.code !== 0) {
                 toastr.error('创建短链接失败');
                 return;
             }
+
+            data = data.result;
 
             const shortUrl =  data.shortUrl;
 
             // 更新弹窗内容
             $('#shortUrl').val(shortUrl);
             // 设置二维码图片源
-            $('#shareQrCode').attr('src', '/sol/gen?content=' + encodeURIComponent(shortUrl));
+            $('#shareQrCode').attr('src', '/sol/gen?size=300&content=' + encodeURIComponent(shortUrl));
 
 
             $('#shareModal').modal('show');

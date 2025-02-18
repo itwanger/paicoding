@@ -1,4 +1,4 @@
-package com.github.paicoding.forum.api.model.vo.shortlink;
+package com.github.paicoding.forum.service.shortlink.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

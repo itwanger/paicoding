@@ -1,18 +1,16 @@
-package com.github.paicoding.forum.web.shortlink;
+package com.github.paicoding.forum.service.shortlink.service.impl;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDO;
-import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkDTO;
-import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkRecordDO;
+import com.github.paicoding.forum.service.shortlink.repository.entity.ShortLinkDO;
+import com.github.paicoding.forum.api.model.vo.shortlink.dto.ShortLinkDTO;
+import com.github.paicoding.forum.service.shortlink.repository.entity.ShortLinkRecordDO;
 import com.github.paicoding.forum.api.model.vo.shortlink.ShortLinkVO;
 import com.github.paicoding.forum.core.cache.RedisClient;
-import com.github.paicoding.forum.service.shortlink.ShortCodeGenerator;
-import com.github.paicoding.forum.service.shortlink.SourceDetector;
+import com.github.paicoding.forum.service.shortlink.help.ShortCodeGenerator;
+import com.github.paicoding.forum.service.shortlink.help.SourceDetector;
 import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkMapper;
 import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkRecordMapper;
-
-
-import com.github.paicoding.forum.web.config.GlobalViewConfig;
+import com.github.paicoding.forum.service.shortlink.service.ShortLinkService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,8 +37,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     @Resource
     private ShortLinkRecordMapper shortLinkRecordMapper;
 
-    @Resource
-    private GlobalViewConfig globalViewConfig;
+    @Value("${view.site.host:https://paicoding.com}")
+    private String host;
 
     public ShortLinkServiceImpl(ShortLinkMapper shortLinkMapper, ShortLinkRecordMapper shortLinkRecordMapper) {
         this.shortLinkMapper = shortLinkMapper;
@@ -48,11 +46,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     }
 
 
-
     // 域名白名单
     @Value("#{'${short-link.whitelist:}'.split(',')}")
     private List<String> domainWhitelist;
-
 
 
     /**
@@ -64,11 +60,12 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     @Override
     public ShortLinkVO createShortLink(ShortLinkDTO shortLinkDTO) throws NoSuchAlgorithmException {
-        log.debug("Creating short link for URL: {}", shortLinkDTO.getOriginalUrl());
-
+        if (log.isDebugEnabled()) {
+            log.debug("Creating short link for URL: {}", shortLinkDTO.getOriginalUrl());
+        }
 
         // 验证域名是否在白名单中
-        if (!isUrlInWhitelist(shortLinkDTO.getOriginalUrl())){
+        if (!isUrlInWhitelist(shortLinkDTO.getOriginalUrl())) {
             log.warn("域名不在白名单中: {}", shortLinkDTO.getOriginalUrl());
             throw new RuntimeException("不允许为该域名创建短链接");
         }
@@ -82,15 +79,19 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         ShortLinkDO shortLinkDO = createShortLinkDO(shortLinkDTO, shortCode);
 
         // 保存原始链接--短链接映射到DB与Cache
-        int shortLinkId = shortLinkMapper.GetIdAfterInsert(shortLinkDO);
-        log.debug("Short link created with ID: {}", shortLinkId);
+        int shortLinkId = shortLinkMapper.getIdAfterInsert(shortLinkDO);
+        if (log.isDebugEnabled()) {
+            log.debug("Short link created with ID: {}", shortLinkId);
+        }
         RedisClient.hSet(REDIS_SHORT_LINK_PREFIX + shortCode, shortLinkDO.getOriginalUrl(), String.class);
 
         // 保存记录到DB
         ShortLinkRecordDO shortLinkRecordDO = createShortLinkRecordDO(shortLinkDO.getShortCode(), shortLinkDTO);
         shortLinkRecordMapper.insert(shortLinkRecordDO);
 
-        log.debug("Short link record saved for short code: {}", shortCode);
+        if (log.isDebugEnabled()) {
+            log.debug("Short link record saved for short code: {}", shortCode);
+        }
         return createShortLinkVO(shortLinkDO);
     }
 
@@ -103,7 +104,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     @Override
     public ShortLinkVO getOriginalLink(String shortCode) {
-        log.debug("Fetching original link for short code: {}", shortCode);
+        if (log.isDebugEnabled()) {
+            log.debug("Fetching original link for short code: {}", shortCode);
+        }
 
         String originalUrl = getOriginalUrlFromCacheOrDb(shortCode);
 
@@ -124,7 +127,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     private ShortLinkVO createShortLinkVO(ShortLinkDO shortLinkDO) {
         ShortLinkVO shortLinkVO = new ShortLinkVO();
-        shortLinkVO.setShortUrl(globalViewConfig.getHost() + "/sol/" + shortLinkDO.getShortCode());
+        shortLinkVO.setShortUrl(host + "/sol/" + shortLinkDO.getShortCode());
         shortLinkVO.setOriginalUrl(shortLinkDO.getOriginalUrl());
         return shortLinkVO;
     }
@@ -207,6 +210,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
     /**
      * 检查URL是否在白名单中
+     *
      * @param url 待检查的URL
      * @return 是否在白名单中
      */
