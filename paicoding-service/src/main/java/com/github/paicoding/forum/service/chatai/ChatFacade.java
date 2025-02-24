@@ -89,8 +89,8 @@ public class ChatFacade {
                 source = AISourceEnum.XUN_FEI_AI;
             } else if (!except.contains(AISourceEnum.ALI_AI)) {
                 source = AISourceEnum.ALI_AI;
-            } else if(!except.contains(AISourceEnum.PAI_AI)) {
-                source = AISourceEnum.PAI_AI;
+            } else if(!except.contains(AISourceEnum.DEEP_SEEK)) {
+                source = AISourceEnum.DEEP_SEEK;
             } else if(!except.contains(AISourceEnum.DOU_BAO_AI)) {
                 source = AISourceEnum.DOU_BAO_AI;
             } else {

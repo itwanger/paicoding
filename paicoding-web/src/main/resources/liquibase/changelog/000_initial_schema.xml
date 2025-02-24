@@ -118,4 +118,9 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_250213.sql"/>
     </changeSet>
 
+    <!-- 初始化杠精机器人信息  -->
+    <changeSet id="000020250224_0" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_250224.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
