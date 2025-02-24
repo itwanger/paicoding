@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAiStrategyEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
+import com.github.paicoding.forum.service.chatai.bot.AiBots;
 import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiHistoryDao;
@@ -30,6 +31,9 @@ public class UserAiServiceImpl implements UserAiService {
     @Resource
     private AiConfig aiConfig;
 
+    @Resource
+    private AiBots aiBots;
+
     @Override
     public void pushChatItem(AISourceEnum source, Long user, ChatItemVo item) {
         UserAiHistoryDO userAiHistoryDO = new UserAiHistoryDO();
@@ -48,6 +52,11 @@ public class UserAiServiceImpl implements UserAiService {
      * @return
      */
     public int getMaxChatCnt(Long userId) {
+        // 对于系统AI机器人，不进行次数限制
+        if (aiBots.aiBots(userId)) {
+            return Integer.MAX_VALUE;
+        }
+
         UserAiDO ai = userAiDao.getOrInitAiInfo(userId);
         int strategy = ai.getStrategy();
         int cnt = 0;

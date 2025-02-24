@@ -9,6 +9,17 @@ import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
  * @date 2023/6/26
  */
 public interface RegisterService {
+
+    /**
+     * 注册系统用户
+     *
+     * @param loginUser
+     * @param nickUser
+     * @param avatar
+     * @return
+     */
+    Long registerSystemUser(String loginUser, String nickUser, String avatar);
+
     /**
      * 通过用户名/密码进行注册
      *

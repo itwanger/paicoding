@@ -4,6 +4,9 @@ import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatSessionItemVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.chatai.bot.AiBots;
+import com.github.paicoding.forum.service.chatai.bot.HaterBot;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.chatai.service.ChatHistoryService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
@@ -26,10 +29,12 @@ import java.util.Objects;
 public class ChatHistoryServiceImpl implements ChatHistoryService {
     @Autowired
     private UserAiService userAiService;
+    @Autowired
+    private AiBots aiBots;
 
     /**
      * 列出聊天会话
-     *
+     * <p>
      * 根据用户ID和AI源枚举获取聊天会话列表从Redis中通过哈希结构存储的键值对获取所有会话项，
      * 并按更新时间降序排序返回
      *
@@ -54,7 +59,14 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
     @Override
     public List<ChatItemVo> listHistory(AISourceEnum source, Long userId, String chatId, Integer size) {
         size = size == null ? 50 : size;
-        return RedisClient.lRange(getChatIdKey(source, userId, chatId), 0, size, ChatItemVo.class);
+        List<ChatItemVo> list = RedisClient.lRange(getChatIdKey(source, userId, chatId), 0, size, ChatItemVo.class);
+
+        // 对于特殊的交互机器人，自动补齐相关的提示词
+        ChatItemVo prompt = aiBots.autoBuildPrompt(userId);
+        if (prompt != null) {
+            list.add(prompt);
+        }
+        return list;
     }
 
     /**
