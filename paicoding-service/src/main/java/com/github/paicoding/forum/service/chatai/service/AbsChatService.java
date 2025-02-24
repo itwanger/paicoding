@@ -9,6 +9,7 @@ import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
+import com.github.paicoding.forum.service.chatai.bot.AiBots;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.google.common.collect.Sets;
@@ -240,7 +241,8 @@ public abstract class AbsChatService implements ChatService {
         }
 
         List<String> sensitiveWord = sensitiveService.contains(res.getRecords().get(0).getQuestion());
-        if (!CollectionUtils.isEmpty(sensitiveWord)) {
+        if (!CollectionUtils.isEmpty(sensitiveWord) && !SpringUtil.getBean(AiBots.class).aiBots(user)) {
+            // 机器人不进行敏感词校验
             // 包含敏感词的提问，直接返回异常
             res.getRecords().get(0).initAnswer(String.format(ChatConstants.SENSITIVE_QUESTION, sensitiveWord));
             consumer.accept(res);
