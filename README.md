@@ -3,24 +3,14 @@
     <img src="https://cdn.tobebetterjavaer.com/images/README/1681354262213.png" alt="技术派，让技术也能很好玩" width="400">
   </a>
 </p>
-一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
-<br><br>
-<p align="center">
-  <a href="https://paicoding.com/article/detail/15"><img src="https://img.shields.io/badge/技术派-学习圈子-brightgreen.svg?style=for-the-badge"></a>
-  <a href="https://paicoding.com/" target="_blank"><img src="https://img.shields.io/badge/技术派-首页-critical?style=for-the-badge"></a>
-  <a href="https://github.com/itwanger/paicoding-admin" target="_blank"><img src="https://img.shields.io/badge/技术派-管理端-yellow.svg?style=for-the-badge"></a>
-  <a href="https://gitee.com/itwanger/paicoding" target="_blank"><img src="https://img.shields.io/badge/技术派-码云地址-blue.svg?style=for-the-badge"></a>
-</p>
+一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目👍 。
+
 
 
 ## 一、配套服务
  
 1. **技术派网址**：[https://paicoding.com](https://paicoding.com)
-2. **技术派教程**：[https://paicoding.com/column](https://paicoding.com/column) 目前已更新高并发手册、JVM 手册、Java 并发编程手册、二哥的 Java 进阶之路，以及技术派部分免费教程。我们的宗旨是：**学编程，就上技术派**😁
-3. **技术派管理端源码**：[paicoding-admin](https://github.com/itwanger/paicoding-admin)
-4. **技术派专属学习圈子**：[不走弯路，少采坑，附 120 篇技术派全套教程](https://paicoding.com/article/detail/17) 
-5. **派聪明AI助手**：AI 时代，怎能掉队，欢迎体验 [技术派的派聪明 AI 助手](https://paicoding.com/chat)
-6. **码云仓库**：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding) （国内访问速度更快）
+2. **派聪明AI助手**：AI 时代，怎能掉队，欢迎体验 [技术派的派聪明 AI 助手](https://paicoding.com/chat)
 
 ## 二、项目介绍
 
@@ -28,8 +18,6 @@
 
 #### 前台社区系统
 
-- 项目仓库（GitHub）：[https://github.com/itwanger/paicoding](https://github.com/itwanger/paicoding)
-- 项目仓库（码云）：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding)
 - 项目演示地址：[https://paicoding.com](https://paicoding.com)
 
 ![技术派首页](https://cdn.tobebetterjavaer.com/images/20230602/d7d341c557e7470d9fb41245e5bb4209.png)
@@ -149,32 +137,8 @@ mvn clean install -DskipTests=true -Pprod
 |       chatgpt       | chatgpt              | [https://openai.com/blog/chatgpt](https://openai.com/blog/chatgpt)                   |
 |        讯飞星火         | 讯飞星火大模型              | [https://www.xfyun.cn/doc/spark/Web.html](https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E)                   |
 
-## 三、技术派教程
 
-技术派教程共 120+ 篇，从中整理出 20 篇，供大家免费学习。
-- [（🌟 新人必看）技术派系统架构&功能模块一览](https://paicoding.com/article/detail/15)
-- [（🌟 新人必看）小白如何学习技术派](https://paicoding.com/article/detail/366)
-- [（🌟 新人必看）如何将技术派写入简历](https://paicoding.com/article/detail/373)
-- [（🌟 新人必看）技术派架构方案设计](https://paicoding.com/column/6/5)
-- [（🌟 新人必看）技术派技术方案设计](https://paicoding.com/article/detail/208)
-- [（🌟 新人必看）技术派项目管理流程](https://paicoding.com/article/detail/445)
-- [（🌟 新人必看）技术派MVC分层架构](https://paicoding.com/article/detail/446)
-- [（🌟 新人必看）技术派项目工程搭建手册](https://paicoding.com/article/detail/459)
-- [（👍 强烈推荐）技术派微信公众号自动登录](https://paicoding.com/article/detail/448)
-- [（👍 强烈推荐）技术派微信扫码登录实现](https://paicoding.com/article/detail/453)
-- [（👍 强烈推荐）技术派Session/Cookie身份验证识别](https://paicoding.com/article/detail/449)
-- [（👍 强烈推荐）技术派Mysql/Redis缓存一致性](https://paicoding.com/column/6/3)
-- [（👍 强烈推荐）技术派Redis实现用户活跃排行榜](https://paicoding.com/article/detail/454)
-- [（👍 强烈推荐）技术派消息队列RabbitMQ](https://paicoding.com/column/6/2)
-- [（👍 强烈推荐）技术派消息队列RabbitMQ连接池](https://paicoding.com/column/6/1)
-- [（👍 强烈推荐）技术派消息队列Kafka](https://paicoding.com/article/detail/460)
-- [（👍 强烈推荐）技术派Cancal实现MySQL和ES同步](https://paicoding.com/column/6/8)
-- [（👍 强烈推荐）技术派ES实现查询](https://paicoding.com/article/detail/341)
-- [（👍 强烈推荐）技术派定时任务实现](https://paicoding.com/article/detail/457)
-- [（👍 扬帆起航）送给坚持到最后的自己，一起杨帆起航](https://paicoding.com/article/detail/447)
-
-
-## 四、环境搭建
+## 三、环境搭建
 
 ### 开发工具
 
@@ -214,44 +178,5 @@ mvn clean install -DskipTests=true -Pprod
 |    docker     | 4.10.0+   | [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)                                                   |
 | let's encrypt | https证书   | [https://letsencrypt.org/](https://letsencrypt.org/)                                                                   |
 
-### 搭建步骤
 
-#### 本地部署教程
-
-> [本地开发环境手把手教程](docs/本地开发环境配置教程.md)
-
-### 云服务器部署教程
-
-> [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
-> [服务器启动教程](docs/服务器启动教程.md)
-
-## 五、友情链接
-
-- [toBeBetterjavaer](https://github.com/itwanger/toBeBetterJavaer) ：一份通俗易懂、风趣幽默的Java学习指南，内容涵盖Java基础、Java并发编程、Java虚拟机、Java企业级开发、Java面试等核心知识点。学Java，就认准二哥的Java进阶之路😄
-- [paicoding-admin](https://github.com/itwanger/paicoding-admin) ：🚀🚀🚀 paicoding-admin，技术派管理端，基于 React18、React-Router v6、React-Hooks、Redux、TypeScript、Vite3、Ant-Design 5.x、Hook Admin、ECharts 的一套社区管理系统，够惊艳哦。
-
-## 六、鸣谢
-
-技术派收到了 [Jetbrains](https://jb.gg/OpenSourceSupport) 多份 Licenses（详情戳 [这里](https://paicoding.com/article/detail/331) ），并已分配给项目 [活跃开发者](https://github.com/itwanger/paicoding/graphs/contributors) ，非常感谢 Jetbrains 对开源社区的支持。
-
-![JetBrains Logo (Main) logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)
-
-
-## 七、star 趋势图
-
-[![Star History Chart](https://api.star-history.com/svg?repos=itwanger/paicoding&type=Date)](https://star-history.com/#itwanger/paicoding&Date)
-
-## 八、公众号
-
-GitHub 上标星 13000+ 的开源知识库《 [二哥的 Java 进阶之路](https://github.com/itwanger/toBeBetterJavaer) 》第一版 PDF 终于来了！包括Java基础语法、数组&字符串、OOP、集合框架、Java IO、异常处理、Java 新特性、网络编程、NIO、并发编程、JVM等等，共计 32 万余字，可以说是通俗易懂、风趣幽默……详情戳：[太赞了，GitHub 上标星 13000+ 的 Java 教程](https://javabetter.cn/overview/)
-
-微信搜 **沉默王二** 或扫描下方二维码关注二哥的原创公众号，回复 **222** 即可免费领取。
-
-![沉默王二公众号](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/gongzhonghao.png)
-
-## 九、许可证
-
-[Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
-
-Copyright (c) 2022-2024 技术派（楼仔、沉默王二、一灰、小超、小灰飞）
 
