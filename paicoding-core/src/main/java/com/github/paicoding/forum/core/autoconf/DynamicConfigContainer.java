@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.core.autoconf;
 
+import com.github.paicoding.forum.core.autoconf.property.SpringValueRegistry;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.google.common.collect.Maps;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -161,6 +163,15 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
 
 
     /**
+     * bean先加载，此时@Value对应的成员属性直接从默认的配置中读取了；这就导致无法获取db中的真实配置信息，只有这个配置再db中发生变更，才会生效
+     * 因此，我们再自定义的配置加载完毕之后，重刷一下bean中的@Value属性，保证他们都获取的是最新的配置信息
+     */
+    private void autoUpdateSpringValueConfig() {
+        Set<String> keys = SpringValueRegistry.registry.keySet();
+        keys.forEach(SpringValueRegistry::updateValue);
+    }
+
+    /**
      * 应用启动之后，执行的动态配置初始化
      *
      * @param args
@@ -170,5 +181,6 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
     public void run(String... args) throws Exception {
         reloadConfig();
         registerConfRefreshTask();
+        autoUpdateSpringValueConfig();
     }
 }

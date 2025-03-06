@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <!-- 收款码 -->
-<div class="card" th:fragment="user_pay(payInfo)" style="width: 100%">
+<div class="card" th:fragment="user_pay(payInfo, article)" style="width: 100%">
     <div class="achievement-wrap">
         <div class="universal_pay_view">
             <div class="box">
@@ -65,16 +65,19 @@
                     }
                 </style>
                 <div class="qrcode">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjoAAAI6CAAAAAALI70cAAAJj0lEQVR42u3ZQXLkOAwEwP7/pz3njZiIIVQF2msljuqWRAHJC+vzpdSj+miBQkeho9BR6CiFjkJHoaPQUegohY5CR6Gj0FHoKIWOQkeho9BR6p90PpWaP/lv/zt9yumvp++Yv/f03vk75h26Mkt00EEHHXTQQQcddNBBBx100EEHHXTQQQedcWPmQz/9NWlbZ+gJ6GRznV5rb5Dj70UHHXTQQQcddNBBBx100EEHHXTQQQcddNA5XGpn1PPGfMqVBAJ3793r7oMno4MOOuiggw466KCDDjrooIMOOuiggw466Hw7nU7okBy9fxe2dkCDDjrooIMOOuiggw466KCDDjrooIMOOuig81vodIaeDKQTXSTfe3ct6KCDDjrooIMOOuiggw466KCDDjrooIMOOnt0knF1ooZ2JNEew+mTO5vwxnZEBx100EEHHXTQQQcddNBBBx100EEHHXTQOaXTOSB37Sdca4cd6KCDjmvouIaOcaGDDjrooIOOa+i4hg466LQrWmAlJJjTTt6RRCGdsV6ZKjrooIMOOuiggw466KCDDjrooIMOOuig83o6nQPtBFZn/HuDmz9v3o023vrc0EEHHXTQQQcddNBBBx100EEHHXTQQQed19PpvDiJGtpvu7uWvagm2T6dLYoOOuiggw466KCDDjrooIMOOuiggw466KBzo5VtCHuxQgdCOyhphxjooIMOOuiggw466KCDDjrooIMOOuiggw46CZ1kXPMD9w6YPVh7tDvBS2eLPtgg6KCDDjrooIMOOuiggw466KCDDjrooIPO6+kkx+Lt4/O9ACSJFTorbXeo3VN00EEHHXTQQQcddNBBBx100EEHHXTQQQed0yBiPpok2GhDTX5txy1JhzqRRNI/dNBBBx100EEHHXTQQQcddNBBBx100EEHnfmBduczk2ggiUw6b5t/WzvOaG+kB/9DBx100EEHHXTQQQcddNBBBx100EEHHXReT6cdPyQH+J07PuNKVtVGeQMbOuiggw466KCDDjrooIMOOuiggw466KCDTkKnfa1NsX64XoY1j0LaQcliT9FBBx100EEHHXTQQQcddNBBBx100EEHHXTGbesccrd5Jv/rtHdOYk6nHZSggw466KCDDjrooIMOOuiggw466KCDDjronNLpvLjzcR2ASTTQ3lI33pF0DR100EEHHXTQQQcddNBBBx100EEHHXTQQSeh0zmOjw6+y1FDEnG0v3Iv2NibKjrooIMOOuiggw466KCDDjrooIMOOuigg077kLsNcP6U+RclMUUSmXQ25mdcD2aJDjrooIMOOuiggw466KCDDjrooIMOOui8nk5ykN4ODvYG1z62v9uNJFrpFDrooIMOOuiggw466KCDDjrooIMOOuigg848Vpgf6rdH3SGWbJ9kVckWLUGYzxIddNBBBx100EEHHXTQQQcddNBBBx100EGnMtaEXXK83xlDG/l8O3b+14lW0EEHHXTQQQcddNBBBx100EEHHXTQQQcddJLj6Xa1EXXuna90bwUJhPmTHwQR6KCDDjrooIMOOuiggw466KCDDjrooIPOq+h0XnzarLtxRjtM6HxH8o6780AHHXTQQQcddNBBBx100EEHHXTQQQcddNA5viU4Zk+GnvzaaeXeMKMRXpgHOuiggw466KCDDjrooIMOOuiggw466KCDTru97Y87/bUz6r2xdlY172RnHuiggw466KCDDjrooIMOOuiggw466KCDDjrJo+e1h6NDovMdnSCis+E634EOOuiggw466KCDDjrooIMOOuiggw466KBz90i90/z5aD6V+lqrztCTaw82JjrooIMOOuiggw466KCDDjrooIMOOuigg86YTnKgPX/HPGq4Gz90OvQgGhj37wcEEeiggw466KCDDjrooIMOOuiggw466KCDzq+g0zmO7zQ1OjRfiy72etAh0QaDDjrooIMOOuiggw466KCDDjrooIMOOuig0w4Tbowr+d8NJslavgvl8a/ooIMOOuiggw466KCDDjrooIMOOuigg87r6bSb2mlg9JmV8beDiL2o5kawgQ466KCDDjrooIMOOuiggw466KCDDjrooHPaoiQaSBr9XZFJEjDsjX/e3QQvOuiggw466KCDDjrooIMOOuiggw466KCDTnJE3zne77yt0/wbsUcbakL2werRQQcddNBBBx100EEHHXTQQQcddNBBB53X0+kckCdH7/MP6Ry4t1d6Y6t0wo4H70AHHXTQQQcddNBBBx100EEHHXTQQQcddF5Ppx1EtJffPui/Mf69t7U7/qMyLHTQQQcddNBBBx100EEHHXTQQQcddNBB539CZ96ETsCQRAOd8KSzVe6+4/IGQQcddNBBBx100EEHHXTQQQcddNBBBx100KksuvO8hGICsPNFbQjteAQddNBBBx100EEHHXTQQQcddNBBBx100EHnBp1kXJ1j+z1id/EmYUKy5ugOdNBBBx100EEHHXTQQQcddNBBBx100EEHnQtH+Z1WJmPd+/JOKHJjzfNtiw466KCDDjrooIMOOuiggw466KCDDjrooNOOGvba2+bUHmZ7pTeCjQeBFDrooIMOOuiggw466KCDDjrooIMOOuig83o6p4jmC0wOvh98XOXAfc49uaPT+2QKixkWOuiggw466KCDDjrooIMOOuiggw466KDza+kkx+ztYe7FFJ1ApR0S7MVBnS2FDjrooIMOOuiggw466KCDDjrooIMOOuigsxcIdP6XPPnGWNtxQbt/c5TooIMOOuiggw466KCDDjrooIMOOuiggw46e8f27SDitNGd8GTvWifs6HxH1DV00EEHHXTQQQcddNBBBx100EEHHXTQQQed4HC9s9Q22TnjDvzvv2NxA6ODDjrooIMOOuiggw466KCDDjrooIMOOuiMD9L3DvDnTUiO92885atSe2tBBx100EEHHXTQQQcddNBBBx100EEHHXTQ+Zl02m/rDORG2JFATTZhKc5ABx100EEHHXTQQQcddNBBBx100EEHHXTQWaPTgZBQTJqV4Ei6ceOL0EEHHXTQQQcddNBBBx100EEHHXTQQQcddDp05kuYH/Tv4dj7tmQzJHHBjTv+cS866KCDDjrooIMOOuiggw466KCDDjrooINOpZLj+L2Y4gbFTiBw472nvUcHHXTQQQcddNBBBx100EEHHXTQQQcddND5UupRoaPQUegodBQ6SqGj0FHoKHQUOkqho9BR6Ch0FDpKoaPQUegodJT6T/0B3yML/nfBjpkAAAAASUVORK5CYII="
-                         alt="qrcode" id="qrcode">
-                    <input type="file"
-                           accept="image/*"
-                           id="qrUpload"
-                           style="display: none;"
-                    />
+                    <img src=""
+                         alt="qrcode" id="qrcode" style="visibility: hidden">
+
+                    <div id="cntDown" style="text-align: center" th:if="${article.payWay != null && article.payWay != 'email'}">
+                        <!--   支付倒计时      -->
+                        <p id="countdown" style="{font-size: 20px;color: #333;text-align: center;margin: 20px;}">
+                        </p>
+                    </div>
+                    <div id="wxPayInfo" style="display:none">
+                    </div>
                 </div>
                 <div class="btn">
-                    <div class="qq" id="qq" onclick="tabChoose('qq')" th:if="${payInfo['qq']}">
+                    <div class="qq" id="qq" onclick="tabChoose('qq')" th:if="${payInfo['qq'] != null && (article.payWay == null || article.payWay == 'email')}">
                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
                              width="60" height="60">
                             <defs>
@@ -86,7 +89,7 @@
                                   fill="#FFFFFF" p-id="19576"></path>
                         </svg>
                     </div>
-                    <div class="weixin" id="wx" onclick="tabChoose('wx')" th:if="${payInfo['wx']}">
+                    <div class="weixin" id="wx" onclick="tabChoose('wx')" th:if="${payInfo['wx'] != null || (article.payWay != null && article.payWay != 'email')}">
                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="16387"
                              width="60" height="60">
                             <defs>
@@ -96,7 +99,7 @@
                                   fill="#25A838" p-id="16388"></path>
                         </svg>
                     </div>
-                    <div class="alipay" id="ali" onclick="tabChoose('ali')" th:if="${payInfo['ali']}">
+                    <div class="alipay" id="ali" onclick="tabChoose('ali')" th:if="${payInfo['ali'] != null && (article.payWay == null || article.payWay == 'email')}">
                         <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17095"
                              width="60" height="60">
                             <defs>
@@ -107,8 +110,8 @@
                         </svg>
                     </div>
                 </div>
-                <div class="subtitle">
-                    点击按钮切换收款二维码
+                <div class="subtitle" id="tips">
+                    点击按钮切换个人收款二维码
                 </div>
                 <div class="subtitle" style="color: black">
                     备注：<input type="text" value="送人玫瑰，留有余香~" id="mark">
@@ -118,18 +121,119 @@
     </div>
     <script th:inline="javascript">
         let wx = $("#wx"), qq = $("#qq"), ali = $("#ali");
-        let qrCode = $("#qrcode"), qrUpload = $('#qrUpload'), upArea = $('#upArea');
+        let qrCode = $("#qrcode"), tips = $("#tips");
 
-        let qrMap = [[${payInfo}]]
+        let qrMap = {}
+        let article = [[${article}]]
+        console.log('文章内容:', article)
 
         let currentChoose = null
-        console.log("输出结果--->")
-        if (qrMap['wx']) {
-            tabChoose('wx')
-        } else if (qrMap['ali']) {
-            tabChoose('ali')
-        } else if(qrMap['qq']) {
-            tabChoose('qq')
+        function autoShowPay() {
+            if (article.payWay && article.payWay != 'email') {
+                qrMap = {};
+                console.log('走微信支付逻辑')
+                // fixme 这里应该自动根据浏览器的agent，判断是微信浏览器、手机浏览器 还是 pc浏览器展示
+                // fixme 对于手机浏览器访问的场景，推荐使用 微信h5 支付； 对于pc浏览器 + 微信浏览器则走微信的native支付方式
+                if (article.payWay === 'wx_native') {
+                    // 走微信支付的场景
+                    wxPay()
+                } else if (article.payWay === 'wx_h5') {
+                    // fixme h5支付，判断浏览器版本，只有手机非微信支付的场景下，可以使用这种场景
+                }
+            } else {
+                console.log('走收款码逻辑');
+                emailPay()
+            }
+        }
+
+        function emailPay() {
+            qrMap =  [[${payInfo}]]
+            // 个人收款码支付方式
+            let notesDiv = $('#mark')
+            let notes;
+            if (notesDiv) {
+                notes = notesDiv.val()
+            } else {
+                notes = ''
+            }
+            // 调用后端接口，用于创建一个打赏记录
+            get("/article/api/pay/toPay", {"articleId": id, "notes": notes, "payWay": "email"}, (res) => {
+                console.log("打赏关联记录:", res);
+                payId = res.payId;
+            })
+
+            console.log("输出结果--->")
+            if (qrMap['wx']) {
+                tabChoose('wx')
+            } else if (qrMap['ali']) {
+                tabChoose('ali')
+            } else if (qrMap['qq']) {
+                tabChoose('qq')
+            }
+        }
+
+        function wxPay() {
+            // 微信native支付
+            let notesDiv = $('#mark')
+            let notes;
+            if (notesDiv) {
+                notes = notesDiv.val()
+            } else {
+                notes = ''
+            }
+            // 调用后端接口，用于创建一个打赏记录
+            get("/article/api/pay/toPay", {
+                "articleId": article.articleId,
+                "notes": notes,
+                "payWay": "wx_native"
+            }, (res) => {
+                console.log("微信支付信息:", res);
+                tips.text(`打开微信扫一扫, 立即解锁全文阅读`)
+                payId = res.payId;
+                qrMap = {
+                    'wx': {
+                        'qrCode': res['prePayId']
+                    }
+                }
+                wx.css("visibility", "visible")
+                qq.attr("style", "display:none")
+                ali.attr("style", "display:none")
+                tabChoose('wx')
+                timDown(parseFloat(res.prePayExpireTime))
+                $('#wxPayInfo').attr("style", "display:block")
+                let payHtml = `<div>支付单号：${res.payId}</div> <div>应付金额：￥<span style="color: red; font-size: 1.2em">${res.payAmount}</span> </div>`;
+                if (res.payStatus == 2) {
+                    payHtml = `${payHtml}<div>支付状态：已支付</div>`
+                } else if(res.payStatus == 1) {
+                    payHtml = `${payHtml}<div>支付状态：支付中</div>`
+                }
+                $('#wxPayInfo').html(payHtml)
+            })
+        }
+
+        function timDown(endTime) {
+            // 支付倒计时
+            let countdownInterval = setInterval(function () {
+                var now = Date.now();
+                var remainingTime = endTime - now;
+                var hour = Math.floor(remainingTime / (1000 * 60 * 60))
+                if (hour > 0) {
+                    remainingTime = remainingTime - hour * 3600_000
+                }
+                var minutes = Math.floor(remainingTime / (1000 * 60));
+                if (minutes < 10) {
+                    minutes = `0${minutes}`
+                }
+                var seconds = Math.floor((remainingTime / 1000) % 60);
+                if (seconds < 10) {
+                    seconds = `0${seconds}`
+                }
+                $("#countdown").text('支付剩余倒计时：' + hour + ' 小时 ' + minutes + " 分钟 " + seconds + " 秒");
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    $("#countdown").text("支付二维码已实现，请刷新页面!");
+                }
+            }, 1000);
         }
 
         function tabChoose(tab) {
@@ -152,12 +256,10 @@
                 qrCode.attr('src', qrImg);
                 // 显示二维码
                 qrCode.css("visibility", "visible")
-                upArea.css("visibility", "hidden")
             } else {
                 console.log('隐藏二维码内容--->')
                 // 隐藏二维码区域
                 qrCode.css("visibility", "hidden")
-                upArea.css("visibility", "visible")
             }
 
             if (currentChoose) {

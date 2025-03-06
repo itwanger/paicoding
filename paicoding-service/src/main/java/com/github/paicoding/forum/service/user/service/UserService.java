@@ -103,4 +103,13 @@ public interface UserService {
      * 绑定用户信息
      */
     void bindUserInfo(UserPwdLoginReq loginReq);
+
+
+    /**
+     * 根据登录用户名，查询用户信息
+     *
+     * @param uname
+     * @return
+     */
+    BaseUserInfoDTO queryUserByLoginName(String uname);
 }

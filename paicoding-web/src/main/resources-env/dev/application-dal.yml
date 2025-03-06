@@ -1,18 +1,19 @@
 spring:
   datasource: #单数据源
-    url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    # fixme 注意：本地启动时，数据库用户名 + 密码，更新这里的配置
     username: root
     password:
   dynamic: # 动态数据源
-    #    primary: master # 这个表示默认的数据源
+   # primary: master # 这个表示默认的数据源，如果是注释状态，则表明使用上面的单数据源模式
     datasource:
       master:
         # 数据库名，从配置 database.name 中获取
         url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password:
-        #        type: com.alibaba.druid.pool.DruidDataSource
-        #DruidDataSource自有属性
+       # type: com.alibaba.druid.pool.DruidDataSource
+        #DruidDataSource自有属性，下面的配置在IDEA中显示红色不影响项目启动
         filters: stat
         initialSize: 0
         minIdle: 1

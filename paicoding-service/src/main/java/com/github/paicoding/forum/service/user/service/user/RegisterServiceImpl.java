@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
+import com.github.paicoding.forum.core.util.RandUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.TransactionUtil;
 import com.github.paicoding.forum.service.user.converter.UserAiConverter;
@@ -36,6 +37,30 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Autowired
     private UserAiDao userAiDao;
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long registerSystemUser(String loginUser, String nickUser, String avatar) {
+        UserDO dbUser = userDao.getUserByUserName(loginUser);
+        if (dbUser != null) {
+            return dbUser.getId();
+        }
+
+        // 注册系统账号
+        UserDO user = new UserDO();
+        user.setUserName(loginUser);
+        user.setThirdAccountId("system_" + RandUtil.random(16));
+        user.setLoginType(LoginTypeEnum.WECHAT.getType());
+        userDao.saveUser(user);
+
+        UserInfoDO userInfo = new UserInfoDO();
+        userInfo.setUserId(user.getId());
+        userInfo.setUserName(nickUser);
+        userInfo.setPhoto(avatar);
+        userDao.save(userInfo);
+        return user.getId();
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

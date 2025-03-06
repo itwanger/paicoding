@@ -130,7 +130,11 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         // 发布文章创建事件
         SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.CREATE, article));
         // 文章直接上线时，发布上线事件
-        SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, article));
+        if (Objects.equals(article.getStatus(), PushStatusEnum.ONLINE.getCode())) {
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.ONLINE, article));
+        } else if (Objects.equals(article.getStatus(), PushStatusEnum.REVIEW.getCode())) {
+            SpringUtil.publishEvent(new ArticleMsgEvent<>(this, ArticleEventEnum.REVIEW, article));
+        }
         return articleId;
     }
 
@@ -156,7 +160,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         articleDao.updateArticleContent(article.getId(), content, review);
 
         // 标签更新
-        if (tags != null && tags.size() > 0) {
+        if (tags != null && !tags.isEmpty()) {
             articleTagDao.updateTags(article.getId(), tags);
         }
 

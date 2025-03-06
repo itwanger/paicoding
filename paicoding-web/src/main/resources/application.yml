@@ -13,7 +13,7 @@ spring:
   #    active: dal,web,config,image
   # 替换上面作废的spring.profiels.actice配置参数
   config:
-    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml,application-rabbitmq.yml,application-ai.yml
+    import: application-dal.yml,application-web.yml,application-config.yml,application-image.yml,application-email.yml,application-rabbitmq.yml,application-ai.yml,application-pay.yml
 
   main:
     # 引入下面这个配置，主要是为了解决自定义实现的多数据源功能，自主注册的datasource替换默认的
@@ -44,7 +44,7 @@ paicoding:
   sensitive: # 敏感词校验相关配置
     enable: true
     deny: # 自定义的敏感词，英文逗号分割
-    allow: # 自定义的非敏感词，英文逗号分割
+    allow: 国,制作,码,亚洲,中国,公司,简历,性,国研,鬼,国庆,用户,扑克 # 自定义的非敏感词，英文逗号分割
   jwt:
     issuer: pai_coding # 签发者
     secret: hello_world # 签名密钥

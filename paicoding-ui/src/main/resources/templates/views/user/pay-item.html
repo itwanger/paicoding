@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+</div>
+
+<link href="/css/views/user.css" th:href="${global.siteInfo.oss + '/css/views/user.css'}" rel="stylesheet"/>
+
+<body id="body">
+<!-- 导航栏 -->
+<div th:replace="components/layout/navbar :: navbar"></div>
+<style>
+    .tabs-content {
+        padding: 10vh 36px;
+        background-color: #fff;
+        position: relative;
+        z-index: 3
+    }
+
+    .tabs-content .card-box[data-v-794d7a3a] {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: start;
+        -ms-flex-pack: start;
+        justify-content: flex-start;
+        margin-bottom: 16px
+    }
+
+    .card-item[data-v-5291983e] {
+        width: 204px;
+        height: 134px;
+        border-radius: 8px;
+        border: 2px solid #fae8d0;
+        background-color: #fff;
+        position: relative;
+        text-align: center;
+        margin-right: 26px;
+        -ms-flex-negative: 0;
+        flex-shrink: 0;
+        cursor: pointer
+    }
+
+    .card-item[data-v-5291983e]:last-child {
+        margin-right: 0
+    }
+
+    .card-item .card-icon[data-v-5291983e] {
+        position: absolute;
+        right: 0;
+        top: 0
+    }
+
+    .card-item .first_show[data-v-5291983e] {
+        position: absolute;
+        right: 0;
+        top: 10px;
+        width: 86px;
+        -webkit-transform: scale(.5);
+        transform: scale(.5);
+        -webkit-transform-origin: right 0;
+        transform-origin: right 0;
+        height: 168px;
+        z-index: 1;
+        background: url(https://csdnimg.cn/release/cmsfe/public/img/icon-logo.941fa02b.png) -2px 0 no-repeat
+    }
+
+    .card-item .slowWave[data-v-5291983e] {
+        -webkit-animation-name: person-slow-data-v-5291983e;
+        animation-name: person-slow-data-v-5291983e;
+        -webkit-animation-duration: 1s;
+        animation-duration: 1s;
+        -webkit-animation-iteration-count: 6;
+        animation-iteration-count: 6;
+        -webkit-animation-timing-function: step-start;
+        animation-timing-function: step-start
+    }
+
+
+    .card-item .card-foot[data-v-5291983e] {
+        position: absolute;
+        z-index: 2;
+        width: 100%;
+        height: 32px;
+        background-color: #fae8d0;
+        font-size: 12px;
+        line-height: 32px;
+        color: #69421b;
+        font-weight: 500;
+        bottom: 0;
+        border-radius: 0 0 6px 6px;
+        overflow: hidden
+    }
+
+    .card-item .goods-img[data-v-5291983e] {
+        display: inline-block;
+        width: 100%;
+        height: 100%
+    }
+
+    .card-item .item-bg[data-v-5291983e] {
+        background: #fff;
+        width: 100%;
+        height: 110px;
+        position: absolute;
+        z-index: 0;
+        border-radius: 6px
+    }
+
+    .card-item.active .item-bg[data-v-5291983e] {
+        background: #fff9f1
+    }
+
+
+    .card-item .t1[data-v-5291983e] {
+        font-size: 16px;
+        height: 22px;
+        line-height: 22px;
+        color: #222226;
+        font-weight: 700;
+        margin: 24px 0 12px;
+        position: relative;
+        z-index: 2
+    }
+
+    .card-item .t2[data-v-5291983e] {
+        font-size: 12px;
+        height: 32px;
+        line-height: 32px;
+        color: #b87100;
+        position: relative;
+        z-index: 2
+    }
+
+    .card-item .t2 span[data-v-5291983e] {
+        font-size: 24px;
+        font-weight: 700
+    }
+
+    .card-item .t2 .contractFirstPrice[data-v-5291983e] {
+        display: inline-block;
+        font-size: 12px;
+        color: #ccc;
+        text-decoration: line-through;
+        position: absolute;
+        right: 6px;
+        top: 5px
+    }
+
+    .card-item .t2[data-v-5291983e]:has(.show-original-price) {
+        margin-top: -10px
+    }
+
+    .card-item .t2 .show-original-price[data-v-5291983e] {
+        position: relative
+    }
+
+    .card-item .t2 .show-original-price[data-v-5291983e]:after {
+        content: attr(data-original-price);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1;
+        color: #999aaa;
+        text-decoration: line-through;
+        white-space: nowrap
+    }
+
+
+    .pay-info[data-v-794d7a3a] {
+        background-color: #fff;
+        padding: 0 36px 36px
+    }
+
+    .pay-info .pay-box[data-v-794d7a3a] {
+        height: 229px;
+        background: #f8f8f8;
+        border-radius: 8px;
+        padding: 16px;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: start;
+        -ms-flex-pack: start;
+        justify-content: flex-start;
+        position: relative
+    }
+
+    .pay-info .pay-box .pay-code[data-v-794d7a3a] {
+        width: 165px;
+        height: 197px;
+        background-color: #fff;
+        border-radius: 4px;
+        margin-right: 16px
+    }
+
+    .pay-info .pay-box .pay-code .pay-btn[data-v-794d7a3a] {
+        display: block;
+        width: 118px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 14px;
+        color: #fff;
+        background-color: #fc5531;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 2px;
+        margin: 82px auto 0
+    }
+
+    .pay-info .pay-box .pay-code .pay-btn[data-v-794d7a3a]:hover {
+        background-color: #fc1944
+    }
+
+    .pay-info .pay-box .pay-login[data-v-794d7a3a] {
+        width: 165px;
+        height: 197px;
+        margin-right: 16px;
+        padding: 6px;
+        background-color: #fff;
+        cursor: pointer
+    }
+
+    .pay-info .pay-box .pay-login .black[data-v-794d7a3a] {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .79);
+        padding-top: 50px
+    }
+
+    .pay-info .pay-box .pay-login .black span[data-v-794d7a3a] {
+        font-size: 14px;
+        line-height: 24px;
+        color: #fff;
+        display: block;
+        text-align: center
+    }
+
+
+    .price-info .pay-time .count-down-text[data-v-5e484e7a] {
+        display: inline-block;
+        width: 60px
+    }
+
+    .price-info .price-msg[data-v-5e484e7a] {
+        font-size: 12px;
+        height: 37px
+    }
+
+    .price-info .price-msg .now-price[data-v-5e484e7a] {
+        line-height: 48px;
+        font-weight: 700;
+        font-size: 32px;
+        font-family: DINCondensed-Bold, DINCondensed
+    }
+
+    .price-info .c-red[data-v-5e484e7a] {
+        color: #fc5531
+    }
+
+    .price-info .expect-desc[data-v-5e484e7a] {
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        font-weight: 700
+    }
+
+    .price-info .user-balance[data-v-5e484e7a] {
+        font-size: 14px;
+        line-height: 20px;
+        color: #555666;
+        margin-top: 8px
+    }
+
+
+    .price-info .user-balance .selce[data-v-5e484e7a] {
+        content: "";
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        margin-right: 6px;
+        margin-top: 3px;
+        cursor: pointer;
+        vertical-align: top
+    }
+
+    .price-info .user-balance .selce.active[data-v-5e484e7a] {
+        border: 4px solid #fff;
+        background-color: #277ccc;
+        -webkit-box-shadow: 0 0 0 1px #ccc;
+        box-shadow: 0 0 0 1px #ccc
+    }
+
+    .price-info .user-balance .help[data-v-5e484e7a] {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        vertical-align: top;
+        margin: 3px 8px 0;
+        background: url(https://csdnimg.cn/release/cmsfe/public/img/help.00723155.png) 50% no-repeat;
+        background-size: contain
+    }
+
+    .price-info .user-balance .invest[data-v-5e484e7a] {
+        cursor: pointer
+    }
+
+    .price-info .user-balance-desc[data-v-5e484e7a] {
+        font-size: 14px;
+        line-height: 20px;
+        color: #555666
+    }
+
+    .price-info .other-pay[data-v-5e484e7a] {
+        position: absolute;
+        bottom: 50px;
+        width: 100%
+    }
+
+    .price-info .other-pay .item[data-v-5e484e7a] {
+        padding: 0 16px;
+        display: inline-block;
+        margin-right: 16px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 14px;
+        color: #555666;
+        border: 1px solid #ccccd8;
+        border-radius: 4px;
+        cursor: pointer
+    }
+
+    .price-info .other-pay .item[data-v-5e484e7a]:last-child {
+        margin-right: 0
+    }
+
+    .price-info .other-pay .item i[data-v-5e484e7a] {
+        display: inline-block;
+        width: 16px;
+        height: 17px;
+        vertical-align: top;
+        margin: 8px 8px 0 0
+    }
+
+    .price-info .other-pay .item .yl-pay-icon[data-v-5e484e7a] {
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAABVVmdVV2dXV2VWVmhVVmYWFYwvAAAABXRSTlMA8K0mO+d4tCUAAABJSURBVCjPY6AKMBINhYNAZQYGZhAfIWLAwBSKAhQYGFEFBBhYUQUCsAgAMRywYhdABoNBIISBwRVDgBgzMAIIIwgxAhkjGqgBANS8ay8EkA9aAAAAAElFTkSuQmCC) 50% no-repeat;
+        background-size: contain
+    }
+
+    .price-info .other-pay .item .other-pay-icon[data-v-5e484e7a] {
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAiCAMAAAAJbCvNAAAAWlBMVEUAAABZWVlVVmZZWVpVVmZYWF9VVmdYWFxVV2ZYWVxVVVVZWVpaWlpYWFpZWVtWVmhUVWZVVWZVVWRUVWZVVmVVV2ZVVWVWVmVUV2ZUVGdXV2ZVVmZZWVlXV1+Qi9I8AAAAG3RSTlMA/fLi0CXHkWw6BvOoiHsc3a1V+OW5nINkQzJA5aClAAAAtklEQVQ4y82RWxKDIAxFE1DEt7XvEva/zSLITGbKpONXe768uUejCIeoG40UQN0W+wkpo0v9SORdgrDQtxj6LFBBGEIvCj05WcBvApE7sKKXX9LTIH6mJ2ylg/JEI4hHjZP0s1A3NRyms0a5jdOWbvFSGdvlfq7czvkV9qicqnm/P/VpBrCwlJ5hU8o7rizaKBg2uQM0LJooKDZZAR4sqig4xhNg5flDWOb6IgpOKScIkf8Ufs4boDA0IewA57kAAAAASUVORK5CYII=) 50% no-repeat;
+        background-size: contain
+    }
+
+    .price-info .other-pay .item[data-v-5e484e7a]:hover {
+        border-color: #555666
+    }
+
+
+    .qr_code[data-v-5e7b6906] {
+        width: 165px;
+        height: 165px;
+        border-radius: 4px;
+        background: #f0f0f0
+    }
+
+    .qr_code #notify[data-v-5e7b6906] {
+        background: #656565;
+        display: block;
+        position: absolute;
+        width: 165px;
+        height: 167px;
+        top: 14px;
+        left: 16px;
+        z-index: 99;
+        cursor: pointer
+    }
+
+    .qr_code #notify img.pay_icon[data-v-5e7b6906] {
+        width: 170px;
+        height: 170px;
+        display: block;
+    }
+
+    .qr_code #notify .pay_tip[data-v-5e7b6906] {
+        display: inline-block;
+        color: #fff;
+        font-size: 14px;
+        display: block;
+        width: 100%;
+        line-height: 20px;
+        text-align: center
+    }
+
+    .qr_code img[data-v-5e7b6906] {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 2px
+    }
+
+    .qr_code span[data-v-5e7b6906] {
+        color: #212529;
+        font-size: 12px
+    }
+
+    .qr_code .loading[data-v-5e7b6906] {
+        width: 100%;
+        height: 100%;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center
+    }
+
+    .qr_code .loading span[data-v-5e7b6906] {
+        font-size: 12px;
+        line-height: 17px;
+        text-align: center
+    }
+
+    .qr_code .qrcode-tips[data-v-5e7b6906] {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, .79);
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        cursor: pointer
+    }
+
+    .qr_code .qrcode-tips.scaned[data-v-5e7b6906], .qr_code .qrcode-tips.show[data-v-5e7b6906] {
+        cursor: default
+    }
+
+    .qr_code .qrcode-tips a[data-v-5e7b6906], .qr_code .qrcode-tips span[data-v-5e7b6906] {
+        font-size: 12px;
+        color: #fff;
+        line-height: 17px;
+        text-align: center
+    }
+
+    .scan_code[data-v-5e7b6906] {
+        width: 100%;
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+        margin: 0;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        padding: 0 10px
+    }
+
+    .scan_code .icon_item[data-v-5e7b6906] {
+        margin: 2px 5px 0 0;
+        width: 20px;
+        height: 20px
+    }
+
+    .scan_code .icon_item[data-v-5e7b6906]:last-of-type {
+        margin-right: 0
+    }
+
+    .scan_code .pay_intro[data-v-5e7b6906] {
+        -webkit-box-flex: 1;
+        -ms-flex-positive: 1;
+        flex-grow: 1;
+        text-align: right;
+        font-size: 16px;
+        line-height: 24px
+    }
+
+
+</style>
+<!-- 正文内容 -->
+<div class="user">
+    <div class="user-wrap">
+        <div class="user-content">
+            <!-- 主要内容 -->
+            <div class="user-body tabs-content">
+                <div style="margin-bottom: 3em">
+                    <h1>技术派付费产品列表</h1>
+                </div>
+
+                <div class="card-box" data-v-794d7a3a="">
+                    <div data-report-click="{&quot;spm&quot;:&quot;3001.4308.1&quot;,&quot;extra&quot;:{&quot;goodsId&quot;:128919,&quot;num&quot;:&quot;1&quot;}}"
+                         class="card-item  c-vip" data-v-5291983e="" data-v-794d7a3a=""><!----> <!----> <!----> <!---->
+                        <p class="t1" data-v-5291983e="">5篇付费阅读券</p>
+                        <p class="t2" data-v-5291983e="">
+                            ¥<span id="pricePM128919" data-original-price="49.00" data-v-5291983e="">
+        98.00
+      </span></p>
+                        <div class="card-foot" data-v-5291983e="">享 5次付费解锁阅读</div>
+                    </div>
+                    <div data-report-click="{&quot;spm&quot;:&quot;3001.4308.2&quot;,&quot;extra&quot;:{&quot;goodsId&quot;:127897,&quot;num&quot;:&quot;1&quot;}}"
+                         class="card-item  active c-vip" data-v-5291983e="" data-v-794d7a3a=""><!----> <!---->
+                        <p class="t1" data-v-5291983e="">10篇付费阅读券</p>
+                        <p class="t2" data-v-5291983e="">
+                            ¥<span id="pricePM127897" data-original-price="96.00" data-v-5291983e=""
+                        >96.00</span></p>
+                        <div class="card-foot" data-v-5291983e="">享 10次付费解锁阅读</div>
+                    </div>
+                    <div data-report-click="{&quot;spm&quot;:&quot;3001.4308.2&quot;,&quot;extra&quot;:{&quot;goodsId&quot;:127897,&quot;num&quot;:&quot;1&quot;}}"
+                         class="card-item  active c-vip" data-v-5291983e="" data-v-794d7a3a=""><!----> <!---->
+                        <p class="t1" data-v-5291983e="">15篇付费阅读券</p>
+                        <p class="t2" data-v-5291983e="">
+                            ¥<span id="pricePM127896" data-original-price="96.00" data-v-5291983e="">142.00</span>/月
+                            <!----></p>
+                        <div class="card-foot" data-v-5291983e="">享 15次付费解锁阅读</div>
+                    </div>
+                    <div data-report-click="{&quot;spm&quot;:&quot;3001.4308.3&quot;,&quot;extra&quot;:{&quot;goodsId&quot;:128915,&quot;num&quot;:&quot;1&quot;}}"
+                         class="card-item  c-vip" data-v-5291983e="" data-v-794d7a3a=""><!----> <!----> <!----> <!---->
+                        <p class="t1" data-v-5291983e="">专栏解锁券</p>
+                        <p class="t2" data-v-5291983e="">
+                            ¥<span id="pricePM128915" data-original-price="126.00" data-v-5291983e="">
+        126.00
+      </span>/月</p>
+                        <div class="card-foot" data-v-5291983e="">一篇精选课程、专栏免费看</div>
+                    </div>
+                    <div data-report-click="{&quot;spm&quot;:&quot;3001.4308.4&quot;,&quot;extra&quot;:{&quot;goodsId&quot;:108886,&quot;num&quot;:&quot;1&quot;}}"
+                         class="card-item  c-vip" data-v-5291983e="" data-v-794d7a3a=""><!----> <!----> <!----> <!---->
+                        <p class="t1" data-v-5291983e="">全场任意看</p>
+                        <p class="t2" data-v-5291983e="">
+                            ¥<span id="pricePM108886" data-original-price="20.33/月" data-v-5291983e="">
+        299.00
+      </span></p>
+                        <div class="card-foot" data-v-5291983e="">全场所有内容任意阅读</div>
+                    </div>
+
+                </div>
+
+                <div class="pay-info" data-v-794d7a3a="">
+                    <div class="pay-box" data-v-794d7a3a="">
+                        <div class="pay-code" data-v-794d7a3a="">
+                            <div data-v-5e7b6906="" data-v-794d7a3a="" class="qrcode-box">
+                                <div data-v-5e7b6906="" class="wrap-qrcode qr_code">
+                                    <div data-v-5e7b6906="" class="" id="notify">
+                                        <img id="qrImg"
+                                             data-v-5e7b6906="" class="pay_icon"
+                                             src="">
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.8em;padding-left: 1em;">打开微信，扫一扫支付</div>
+                            </div>
+
+                        </div>
+                        <div class="price-info" data-v-5e484e7a="" data-v-794d7a3a="">
+                            <div class="price-msg" data-v-5e484e7a="">
+
+                                <div data-v-5e484e7a="">
+                                    <h4>5篇付费阅读券</h4>
+                                    实付：
+                                    <span class="now-price c-red" data-v-5e484e7a=""
+                                          data-price="298.00">96.00</span><span
+                                        class="c-red" data-v-5e484e7a="">元
+    </span> <span data-v-5e484e7a="" class="c-red"> 已优惠2.00元！</span>
+
+                                </div>
+                                <div data-v-5e484e7a="" style="display: inline-block;margin-top:1em;color: gray">
+                                    购买之后，支持技术派5篇付费阅读文章的解锁
+                                </div>
+                            </div>
+
+                            <div data-v-5e484e7a="" class="other-pay">
+                                <div data-v-5e484e7a="" data-report-click="{&quot;spm&quot;:&quot;3001.6389&quot;}"
+                                     class="item"
+                                     onclick="goPay()">
+                                    <i data-v-5e484e7a="" class="other-pay-icon"></i>
+                                    H5支付
+                                </div>
+
+                                <div data-v-5e484e7a="" data-report-click="{&quot;spm&quot;:&quot;3001.6389&quot;}"
+                                     class="item"
+                                     onclick="nativePay()">
+                                    <i data-v-5e484e7a="" class="other-pay-icon"></i>
+                                    native支付
+                                </div>
+                            </div>
+                            <div style="position: absolute; bottom: 2px;font-size: 0.8em;color: gray;">
+                                <ul>
+                                    <li>tip: h5支付，请用手机浏览器登录打开本网页，然后点击 h5支付 按钮，会自动唤起微信进行支付</li>
+                                    <li>tip: native支付，点击按钮之后，左边二维码会刷新，请用手机微信扫一扫实现付款</li>
+                                    <ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div th:replace="components/layout/footer :: footer"></div>
+    <script>
+        function goPay() {
+            // 点击去支付
+            let id = parseInt(new Date().getTime() / 1000);
+            let amount = parseInt(Math.random() * 10, 10);
+            get("/test/h5pay?outTradeNo=" + id + '&amount=' + amount, {}, function (data) {
+                // 打开支付中间页
+                console.log("支付中间页:", data);
+                window.open(data.prePayId, "_blank");
+            });
+        }
+
+        function nativePay() {
+            // 点击去支付
+            let id = parseInt(new Date().getTime() / 1000);
+            let amount = parseInt(Math.random() * 10, 10);
+            get("/test/nativePay?outTradeNo=" + id + '&amount=' + amount, {}, function (data) {
+                // 打开支付中间页
+                console.log("支付中间页:", data);
+                qrImg = ''
+                if (data && data['prePayId']) {
+                    // 显示图片
+                    qrImg = data['prePayId']
+                    if (!(qrImg.startsWith("http") || qrImg.startsWith("blob"))) {
+                        qrImg = 'data:image/png;base64,' + qrImg;
+                    }
+                }
+                console.log('更新支付二维码图片: ', qrImg);
+                $('#qrImg').attr('src', qrImg);
+                toastr.info("支付二维码已展示再左边，请打开手机微信扫一扫试试吧")
+            });
+        }
+    </script>
+</div>
+</body>
+</html>

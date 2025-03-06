@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.article.service;
 
+import com.github.paicoding.forum.api.model.enums.pay.PayStatusEnum;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.PayConfirmDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
@@ -36,20 +37,30 @@ public interface ArticlePayService {
      *
      * @param payId         支付id
      * @param currentUserId 当前登录用户
+     * @param notes         备注
      * @return true 表示更新成功
      */
-    boolean updatePaying(Long payId, Long currentUserId);
+    boolean updatePaying(Long payId, Long currentUserId, String notes);
 
     /**
      * 支付状态更新
      *
-     * @param payId      支付id
-     * @param verifyCode 验证码
-     * @param payStatus  支付状态
+     * @param payId         支付id
+     * @param verifyCode    验证码
+     * @param payStatus     支付状态
+     * @param payTime       支付成功时间
+     * @param transactionId 三方交易流水号
      * @return
      */
-    boolean updatePayStatus(Long payId, String verifyCode, Integer payStatus);
+    boolean updatePayStatus(Long payId, String verifyCode, PayStatusEnum payStatus, Long payTime, String transactionId);
 
+    /**
+     * 构建支付结果回调的基础信息
+     *
+     * @param payId  支付id
+     * @param record 支付记录
+     * @return
+     */
     PayConfirmDTO buildPayConfirmInfo(Long payId, ArticlePayRecordDO record);
 
 

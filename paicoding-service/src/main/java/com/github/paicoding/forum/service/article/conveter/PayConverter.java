@@ -3,9 +3,11 @@ package com.github.paicoding.forum.service.article.conveter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.hui.quick.plugin.base.Base64Util;
 import com.github.hui.quick.plugin.qrcode.wrapper.QrCodeGenV3;
+import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticlePayInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserPayCodeDTO;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.PriceUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticlePayRecordDO;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,6 +29,13 @@ public class PayConverter {
         info.setPayStatus(record.getPayStatus());
         info.setReceiveUserId(record.getReceiveUserId());
         info.setArticleId(record.getArticleId());
+        info.setPayAmount(PriceUtil.toYuanPrice(record.getPayAmount()));
+        ThirdPayWayEnum payWay = ThirdPayWayEnum.ofPay(record.getPayWay());
+        if (payWay != null) {
+            info.setPayWay(payWay.getPay());
+            info.setPrePayExpireTime(record.getPrePayExpireTime() == null ? null : record.getPrePayExpireTime().getTime());
+            info.setPrePayId(genQrCode(record.getPrePayId()));
+        }
         return info;
     }
 
@@ -67,7 +76,7 @@ public class PayConverter {
     }
 
 
-    private static String genQrCode(String txt) {
+    public static String genQrCode(String txt) {
         try {
             BufferedImage img = QrCodeGenV3.of(txt).setSize(500).asImg();
             return Base64Util.encode(img, "png");

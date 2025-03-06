@@ -1,5 +1,6 @@
 view:
   site:
+    wxPayEnable: ${wx.pay.enable}
     needLoginArticleReadCount: 30 # 需要登录才能阅读的文章阅读次数
     zsxqArticleReadCount: 20 # 知识星球用户才能阅读的文章阅读次数统计间隔，单位：分钟
     needPayArticleReadCount: 20 # 付费文章，未付费可以看到的文章内容

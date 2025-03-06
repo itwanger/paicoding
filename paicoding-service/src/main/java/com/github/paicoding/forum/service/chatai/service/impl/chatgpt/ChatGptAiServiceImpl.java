@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.service.chatai.service.AbsChatService;
 import com.plexpt.chatgpt.listener.AbstractStreamListener;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.sse.EventSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,22 @@ public class ChatGptAiServiceImpl extends AbsChatService {
             }
 
             @Override
+            public void onClosed(EventSource eventSource) {
+                super.onClosed(eventSource);
+                // 检查是否正常结束对话
+                if (item.getAnswerType() != ChatAnswerTypeEnum.STREAM_END) {
+                    // 主动结束这一次的对话
+                    if (StringUtils.isBlank(lastMessage)) {
+                        item.appendAnswer("大模型超时未返回结果，主动关闭会话；请重新提问吧\n").setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                        consumer.accept(AiChatStatEnum.ERROR, chatRes);
+                    } else {
+                        item.appendAnswer("\n").setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                        consumer.accept(AiChatStatEnum.END, chatRes);
+                    }
+                }
+            }
+
+            @Override
             public void onError(Throwable throwable, String response) {
                 // 返回异常的场景
                 item.appendAnswer("Error:" + (StringUtils.isBlank(response) ? throwable.getMessage() : response))
@@ -63,7 +80,7 @@ public class ChatGptAiServiceImpl extends AbsChatService {
                     .setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, chatRes);
         });
-        chatGptIntegration.streamReturn(user, item, listener);
+        chatGptIntegration.streamReturn(user, chatRes.getRecords(), listener);
         return AiChatStatEnum.IGNORE;
     }
 

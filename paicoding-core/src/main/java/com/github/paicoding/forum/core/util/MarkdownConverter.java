@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.core.util;
 
+import com.github.paicoding.forum.core.markdown.CustomAdmonitionBlockParser;
+import com.github.paicoding.forum.core.markdown.CustomAdmonitionExtension;
+import com.vladsch.flexmark.ext.admonition.AdmonitionExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.emoji.EmojiExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
@@ -31,7 +34,9 @@ public class MarkdownConverter {
                 GitLabExtension.create(),       // GitLab特有的Markdown扩展
                 FootnoteExtension.create(),     // 脚注扩展，用于添加和解析脚注
                 TaskListExtension.create(),     // 任务列表扩展，用于创建任务列表
+                CustomAdmonitionExtension.create(),   // 提示框扩展，用于创建提示框
                 TablesExtension.create()));     // 表格扩展，用于解析和渲染表格
+
 
         // 使用配置的选项构建一个 Markdown 解析器
         Parser parser = Parser.builder(options).build();
