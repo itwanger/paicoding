@@ -11,6 +11,7 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
+import com.github.paicoding.forum.service.article.cache.ArticleCacheManager;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
@@ -55,6 +56,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Autowired
     private ImageService imageService;
 
+    @Autowired
+    private ArticleCacheManager articleCacheManager;
+
     @Resource
     private TransactionTemplate transactionTemplate;
 
@@ -85,6 +89,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
                     log.info("文章发布成功! title={}", req.getTitle());
                 } else {
                     articleId = updateArticle(article, content, req.getTagIds());
+                    articleCacheManager.delArticleInfo(articleId);
                     log.info("文章更新成功！ title={}", article.getTitle());
                 }
                 if (req.getColumnId() != null) {

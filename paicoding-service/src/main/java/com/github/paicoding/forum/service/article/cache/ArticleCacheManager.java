@@ -156,4 +156,12 @@ public class ArticleCacheManager {
         RedisClient.setStr(ARTICLE_COMMENTS_PREFIX + articleId + "_" + userId, OBJECT_MAPPER.writeValueAsString(sideBarItems));
     }
 
+    /**
+     * 删除文章信息缓存
+     * @param articleId
+     */
+    public void delArticleInfo(long articleId) {
+        RedisClient.delObject(ARTICLE_INFO_PREFIX + articleId);
+    }
+
 }
