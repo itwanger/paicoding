@@ -255,6 +255,13 @@ public class XunFeiIntegration {
          */
         @JsonAlias("completion_tokens")
         private int completionTokens;
+
+        /**
+         * TODO: 官网api改了，多了这么个字段，还没看是什么含义
+         */
+        @JsonAlias("search_prompt_tokens")
+        private int searchPromptTokens;
+
         /**
          * prompt_tokens和completion_tokens的和，也是本次交互计费的tokens大小
          */

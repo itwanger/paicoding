@@ -3,17 +3,17 @@
   <!-- 导航栏 -->
   <div class="custom-home">
     <div class="chat-wrap">
-      <div class="chat-sidebar">
+<!--      <div class="chat-sidebar">-->
         <!-- 侧边栏 -->
-        <ChatSideBar></ChatSideBar>
-      </div>
+<!--        <ChatSideBar></ChatSideBar>-->
+<!--      </div>-->
       <div class="chat-main">
         <div class="window-header">
           <div class="window-header-title">
             <div class="name">
               <div class="window-header-main-title home_chat-body-title__5S8w4"
                    v-if="!global.isLogin || !global.user">
-                点击登录，体验派聪明AI助手
+                点击登录，体验编程汇智能对话
               </div>
               <div class="chat-annotation active-color" v-else>
                 {{global.user.userName}}
@@ -168,6 +168,7 @@ const initWs = () => {
   msgRecords.value[chatType.value] = []
   let aiType = chatType.value
   console.log("AITYPE = ", aiType);
+  console.log("session = ", session)
   let socket = new WebSocket(`${WS_URL}/gpt/${session}/${aiType}`)
   stompClient = Stomp.over(socket)
   stompClient.connect({}, function(frame) {
@@ -386,6 +387,8 @@ onMounted(async () => {
   }else{
     messageTip("请先登录", 'info')
   }
+
+  console.log(global.isLogin, global.user.userId, chatTextAreaDisabled.value)
 })
 
 // 登录框

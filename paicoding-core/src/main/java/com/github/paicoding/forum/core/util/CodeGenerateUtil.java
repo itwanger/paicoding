@@ -2,9 +2,7 @@ package com.github.paicoding.forum.core.util;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author XuYifei
