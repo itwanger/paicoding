@@ -110,6 +110,34 @@
               </template>
             </el-card>
             <el-card class="mt-2">
+              <template #header>实习经历</template>
+              <template #default>
+                <el-collapse>
+                  <el-collapse-item title="小红书 引擎架构 平台化开发">
+                    <template #default>
+                      <div>
+                        <p class="m-1">
+                          <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>实习时间：</b>2024.12 —— 2025.03</span>
+                        </p>
+                        <p class="m-1">
+                          <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>⼯作核⼼：</b>搭建数据⽣产与消费侧的通⽤任务平台，为开发⼈员提供任务作业的提交与管理服务。主要技术栈为 SpringBoot、MySQL，使⽤CI/CD流程集成部署</span>
+                        </p>
+                        <p class="m-1 ml-2">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;参与设计⽤于⽣成任务作业的DSL配置与图化开发流程，使开发者能通过简易的配置⽣成任务作业，为每⽇近100亿的离线数据与50亿量级的实时消息提供⾼效可靠的数据的同步与索引构建服务</span>
+                        </p>
+                        <p class="m-1 ml-2">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;负责开发作业的监控模块，通过监控流批作业的运⾏状态，维护⽇均2000+⼤数据作业的运⾏状态，并在出现异常时及时告警</span>
+                        </p>
+                        <p class="m-1 ml-2">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;升级作业的配置版本管理功能，为开发⼈员提供多配置的回滚及对⽐功能</span>
+                        </p>
+                      </div>
+                    </template>
+                  </el-collapse-item>
+                </el-collapse>
+              </template>
+            </el-card>
+            <el-card class="mt-2">
               <template #header>项目经验</template>
               <template #default>
                 <el-collapse>
@@ -129,28 +157,22 @@
                           <span><el-icon size="13"><CaretRight /></el-icon><b>核心技术：</b></span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过验证码和前端保持半长链接映射关系，当用户扫码关注公众号并输入验证后，发起回调，识别用户信息并找到对应半长链接，实现系统自动登录</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;将⽤⼾相关动态消息的处理机制进⾏异步优化，在⾼负载情况下的M<b>最⼤响应时间降低33%</b></span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>将⽤⼾相关动态消息的处理机制进⾏异步优化，在⾼负载情况下的最⼤响应时间降低33%，提升系统效率和稳定性</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;通过<b>缓存+会话session</b>实现计数统计与在线⼈数实时展⽰，使系统的<b>平均响应速度提升了20%</b></span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>采用HandlerExceptionResolver的全局异常处理策略，提高了代码的健壮性和可维护性，优化了用户体验</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;基于ThreadLocal在封装线程隔离的全局上下⽂，减少⽤⼾信息的数据库查询次数</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>基于ThreadLocal在封装线程隔离的全局上下⽂，减少⽤⼾信息的数据库查询次数</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;针对热点⽂章进⾏<b>动态缓存</b>，将访问⾼频⽂章的响应时⻓从1000ms提升⾄700ms，QPS提升25%</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过AOP + TraceID 记录接口访问日志，实现任务的追踪、监控和诊断</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;通过分析系统的响应报告，进⾏简单的JVM参数调整，提升了系统的响应性能</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过缓存+会话session实现计数统计与在线⼈数实时展⽰，使系统的平均响应速度提升了20%</span>
-                        </p>
-                        <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>针对热点⽂章进⾏动态缓存，将访问⾼频⽂章的响应时⻓从1000ms提升⾄700ms，QPS提升25%</span>
-                        </p>
-                        <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>通过分析系统的响应报告，进⾏简单的JVM参数调整，提升了系统的响应性能</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;通过验证码和前端保持半⻓链接映射关系，当⽤⼾扫码关注公众号并输⼊验证码后，发起回调，识别⽤⼾信息并找到对应半⻓链接，实现系统⾃动登录</span>
                         </p>
                         <p class="m-1">
                           <span><el-icon size="13"><CaretRight /></el-icon><b>项目链接：</b><a href="http://www.xuyifei.site"><u>就是本项目</u></a></span>
@@ -173,19 +195,16 @@
                           <span><el-icon size="13"><CaretRight /></el-icon><b>核心技术：</b></span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>日志管理：</b>引入数据库日志管理机制，通过日志保障数据一致性，实现故障恢复功能，强化数据的安全性和稳定性</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>&nbsp;&nbsp;日志管理：</b>引入数据库日志管理机制，通过日志保障数据一致性，实现故障恢复功能，强化数据的安全性和稳定性</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>MVCC与锁协议：</b>基于两阶段锁（2PL）协议与MVCC实现事务的 读提交、可重复读 隔离级别，并解决了<b>版本跳跃</b>问题</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>&nbsp;&nbsp;MVCC与锁协议：</b>基于两阶段锁（2PL）协议与MVCC实现事务的 读提交、可重复读 隔离级别，并解决了<b>版本跳跃</b>问题</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>死锁检测与预防：</b>通过维护一个依赖等待图来监控并避免系统中出现死锁</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>&nbsp;&nbsp;死锁检测与预防：</b>通过维护一个依赖等待图来监控并避免系统中出现死锁</span>
                         </p>
                         <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>索引与表管理：</b>实现<b>基于B+树的聚簇索引</b>，支持高效的索引查询；并构建表管理器，负责管理表结构和字段信息、解析SQL语句</span>
-                        </p>
-                        <p class="m-1 ml-4">
-                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>采用HandlerExceptionResolver的全局异常处理策略，提高了代码的健壮性和可维护性，优化了用户体验。</span>
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon><b>&nbsp;&nbsp;索引与表管理：</b>实现<b>基于B+树的聚簇索引</b>，支持高效的索引查询；并构建表管理器，负责管理表结构和字段信息、解析SQL语句</span>
                         </p>
                         <p class="m-1">
                           <span><el-icon size="13"><CaretRight /></el-icon><b>项目链接：</b><a href="https://github.com/XuYi-fei/SimpleDB"><u>https://github.com/XuYi-fei/SimpleDB</u></a></span>

@@ -1,8 +1,6 @@
 // ============= 后端请求的地址 =============
 // 后端接口地址
 
-// export const BASE_URL = "https://www.xuyifei.site/api"
-// export const WS_URL = "ws://www.xuyifei.site/api"
 export const EXCEL_PROCESS_BASE_URL = "https://www.xuyifei.site:5000"
 
 //
