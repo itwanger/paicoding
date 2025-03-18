@@ -113,7 +113,7 @@ public class ForumDataSourceInitializer {
         String pwd = SpringUtil.getConfigOrElse("spring.datasource.password", "spring.dynamic.datasource.master.password");
         // 创建连接
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://" + url.getHost() + ":" + url.getPort() +
-                "?useUnicode=true&characterEncoding=UTF-8&useSSL=false", uname, pwd);
+                "?" + url.getRawQuery(), uname, pwd);
              Statement statement = connection.createStatement()) {
             // 查询数据库是否存在
             ResultSet set = statement.executeQuery("select schema_name from information_schema.schemata where schema_name = '" + database + "'");
