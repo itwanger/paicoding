@@ -9,7 +9,7 @@ spring:
     datasource:
       master:
         # 数据库名，从配置 database.name 中获取
-        url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password:
        # type: com.alibaba.druid.pool.DruidDataSource
@@ -26,7 +26,7 @@ spring:
         validationQuery: select 1
       slave:
         # 数据库名，从配置 database.name 中获取
-        url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password:
   redis:
