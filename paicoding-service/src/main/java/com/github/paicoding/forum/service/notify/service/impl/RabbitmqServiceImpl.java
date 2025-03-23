@@ -38,7 +38,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
     @Override
     public void publishMsg(String exchange,
                            BuiltinExchangeType exchangeType,
-                           String toutingKey,
+                           String routingKey,
                            String message) {
         try {
             //创建连接
@@ -49,7 +49,7 @@ public class RabbitmqServiceImpl implements RabbitmqService {
             // 声明exchange中的消息为可持久化，不自动删除
             channel.exchangeDeclare(exchange, exchangeType, true, false, null);
             // 发布消息
-            channel.basicPublish(exchange, toutingKey, null, message.getBytes());
+            channel.basicPublish(exchange, routingKey, null, message.getBytes());
             log.info("Publish msg: {}", message);
             channel.close();
             RabbitmqConnectionPool.returnConnection(rabbitmqConnection);
