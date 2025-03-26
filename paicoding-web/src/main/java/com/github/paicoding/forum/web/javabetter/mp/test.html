@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素弹球大师</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { background: #000; border: 2px solid #fff; }
+        .controls { position: absolute; top: 10px; color: #fff; font-family: 'Courier New', monospace; }
+        .controls button { background: #444; color: #fff; border: 1px solid #fff; padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="256" height="240"></canvas>
+<div class="controls">
+    <span>Score: <span id="score">0</span></span>
+    <span>Lives: <span id="lives">3</span></span>
+    <span>Level: <span id="level">1</span></span>
+    <button id="toggleAI">Switch to Human</button>
+</div>
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // 游戏设置
+    const PADDLE_WIDTH = 40, PADDLE_HEIGHT = 8;
+    const BALL_RADIUS = 4;
+    const BRICK_WIDTH = 24, BRICK_HEIGHT = 12;
+    const BRICK_ROWS = 5, BRICK_COLS = 8;
+    const PADDLE_SPEED = 4;
+    const BALL_SPEED = 3;
+    const COLORS = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+
+    // 游戏对象
+    let paddle = { x: canvas.width / 2 - PADDLE_WIDTH / 2, y: canvas.height - 20, width: PADDLE_WIDTH, height: PADDLE_HEIGHT };
+    let ball = { x: canvas.width / 2, y: canvas.height - 30, dx: BALL_SPEED, dy: -BALL_SPEED };
+    let bricks = [];
+    let score = 0, lives = 3, level = 1;
+    let isAI = true;
+
+    // 初始化砖块
+    function initBricks() {
+        bricks = [];
+        for (let i = 0; i < BRICK_ROWS; i++) {
+            bricks[i] = [];
+            for (let j = 0; j < BRICK_COLS; j++) {
+                bricks[i][j] = { x: j * (BRICK_WIDTH + 4) + 10, y: i * (BRICK_HEIGHT + 4) + 50, width: BRICK_WIDTH, height: BRICK_HEIGHT, active: true, type: Math.random() > 0.8 ? 'special' : 'normal' };
+            }
+        }
+    }
+
+    // 绘制游戏元素
+    function drawPaddle() {
+        ctx.fillStyle = '#FFF';
+        ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    }
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFF';
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawBricks() {
+        for (let i = 0; i < BRICK_ROWS; i++) {
+            for (let j = 0; j < BRICK_COLS; j++) {
+                if (bricks[i][j].active) {
+                    ctx.fillStyle = bricks[i][j].type === 'special' ? '#FF00FF' : COLORS[(i + j) % COLORS.length];
+                    ctx.fillRect(bricks[i][j].x, bricks[i][j].y, bricks[i][j].width, bricks[i][j].height);
+                }
+            }
+        }
+    }
+
+    // 碰撞检测
+    function ballCollision() {
+        // 挡板碰撞
+        if (ball.y + BALL_RADIUS > paddle.y && ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+            ball.dy = -ball.dy;
+            ball.dx = ((ball.x - (paddle.x + paddle.width / 2)) / paddle.width) * 4; // 根据碰撞位置调整角度
+            playSound('paddle');
+        }
+
+        // 砖块碰撞
+        for (let i = 0; i < BRICK_ROWS; i++) {
+            for (let j = 0; j < BRICK_COLS; j++) {
+                let brick = bricks[i][j];
+                if (brick.active && ball.x > brick.x && ball.x < brick.x + brick.width && ball.y > brick.y && ball.y < brick.y + brick.height) {
+                    brick.active = false;
+                    ball.dy = -ball.dy;
+                    score += brick.type === 'special' ? 50 : 10;
+                    if (brick.type === 'special') spawnPowerUp(brick.x + brick.width / 2, brick.y + brick.height / 2);
+                    playSound('brick');
+                }
+            }
+        }
+
+        // 边界碰撞
+        if (ball.x + BALL_RADIUS > canvas.width || ball.x - BALL_RADIUS < 0) ball.dx = -ball.dx;
+        if (ball.y - BALL_RADIUS < 0) ball.dy = -ball.dy;
+        if (ball.y + BALL_RADIUS > canvas.height) {
+            lives--;
+            if (lives === 0) gameOver();
+            else resetBall();
+        }
+    }
+
+    // 生成道具
+    function spawnPowerUp(x, y) {
+        // 实现道具逻辑
+    }
+
+    // AI控制
+    function aiControl() {
+        let targetX = ball.x - paddle.width / 2;
+        paddle.x += (targetX - paddle.x) * 0.1; // 平滑移动
+    }
+
+    // 重置球
+    function resetBall() {
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height - 30;
+        ball.dx = BALL_SPEED;
+        ball.dy = -BALL_SPEED;
+    }
+
+    // 游戏结束
+    function gameOver() {
+        alert('Game Over!');
+        document.location.reload();
+    }
+
+    // 生成音效
+    function playSound(type) {
+        let oscillator = audioCtx.createOscillator();
+        let gainNode = audioCtx.createGain();
+        oscillator.type = 'square';
+        gainNode.gain.value = 0.1;
+
+        switch (type) {
+            case 'paddle':
+                oscillator.frequency.value = 440;
+                break;
+            case 'brick':
+                oscillator.frequency.value = 880;
+                break;
+        }
+
+        oscillator.connect(gainNode).connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // 游戏循环
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPaddle();
+        drawBall();
+        drawBricks();
+        ballCollision();
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        if (isAI) aiControl();
+        requestAnimationFrame(gameLoop);
+
+        document.getElementById('score').textContent = score;
+        document.getElementById('lives').textContent = lives;
+        document.getElementById('level').textContent = level;
+    }
+
+    // 事件监听
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' && paddle.x > 0) paddle.x -= PADDLE_SPEED;
+        if (e.key === 'ArrowRight' && paddle.x + paddle.width < canvas.width) paddle.x += PADDLE_SPEED;
+    });
+
+    document.getElementById('toggleAI').addEventListener('click', () => {
+        isAI = !isAI;
+        document.getElementById('toggleAI').textContent = isAI ? 'Switch to Human' : 'Switch to AI';
+    });
+
+    // 初始化
+    initBricks();
+    gameLoop();
+</script>
+</body>
+</html>
