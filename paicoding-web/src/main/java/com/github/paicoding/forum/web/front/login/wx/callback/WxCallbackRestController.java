@@ -78,7 +78,7 @@ public class WxCallbackRestController {
         String content = msg.getContent();
         if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
             String key = msg.getEventKey();
-            if (StringUtils.isNotBlank(key) || key.startsWith("qrscene_")) {
+            if (StringUtils.isNotBlank(key) && key.startsWith("qrscene_")) {
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
                 // fixme 带参数二维码需要 微信认证，个人公众号无权限
                 String code = key.substring("qrscene_".length());
