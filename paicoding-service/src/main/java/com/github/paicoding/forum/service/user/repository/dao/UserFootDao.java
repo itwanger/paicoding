@@ -96,6 +96,22 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
 
     public UserFootStatisticDTO getFootCount() {
         return baseMapper.getFootCount();
+    }
 
+    /**
+     * 使用并发操作的悲观锁获取用户足迹
+     *
+     * @param documentId
+     * @param type
+     * @param userId
+     * @return
+     */
+    public UserFootDO getByDocumentAndUserIdWithLock(Long documentId, Integer type, Long userId) {
+        return lambdaQuery()
+                .eq(UserFootDO::getDocumentId, documentId)
+                .eq(UserFootDO::getDocumentType, type)
+                .eq(UserFootDO::getUserId, userId)
+                .last("FOR UPDATE")
+                .one();
     }
 }

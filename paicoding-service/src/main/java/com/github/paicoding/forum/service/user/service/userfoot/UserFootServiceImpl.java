@@ -4,7 +4,6 @@ import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.NotifyTypeEnum;
 import com.github.paicoding.forum.api.model.enums.OperateTypeEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserFootStatisticDTO;
 import com.github.paicoding.forum.core.common.CommonConstants;
@@ -20,6 +19,7 @@ import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.rabbitmq.client.BuiltinExchangeType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -60,9 +60,11 @@ public class UserFootServiceImpl implements UserFootService {
      * @param operateTypeEnum 操作类型：点赞，评论，收藏等
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserFootDO saveOrUpdateUserFoot(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum) {
         // 查询是否有该足迹；有则更新，没有则插入
-        UserFootDO readUserFootDO = userFootDao.getByDocumentAndUserId(documentId, documentType.getCode(), userId);
+        // 使用悲观锁获取记录，并在事务中处理
+        UserFootDO readUserFootDO = userFootDao.getByDocumentAndUserIdWithLock(documentId, documentType.getCode(), userId);
         if (readUserFootDO == null) {
             readUserFootDO = new UserFootDO();
             readUserFootDO.setUserId(userId);
@@ -88,14 +90,13 @@ public class UserFootServiceImpl implements UserFootService {
      * @param operateTypeEnum 操作类型：点赞，评论，收藏等
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void favorArticleComment(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum) {
-        // fixme 这里没有做并发控制，在大并发场景下，可能出现查询出来的数据，与db中数据不一致的场景
-        // fixme 解决方案：自旋等待的分布式锁 or 事务 + 悲观锁
-        // fixme 考虑到这个足迹的准确性影响并不大，留待有缘人进行修正
-
         // 查询是否有该足迹；有则更新，没有则插入
-        UserFootDO readUserFootDO = userFootDao.getByDocumentAndUserId(documentId, documentType.getCode(), userId);
+        // 使用悲观锁获取记录，并在事务中处理
+        UserFootDO readUserFootDO = userFootDao.getByDocumentAndUserIdWithLock(documentId, documentType.getCode(), userId);
         boolean dbChanged = false;
+
         if (readUserFootDO == null) {
             readUserFootDO = new UserFootDO();
             readUserFootDO.setUserId(userId);
@@ -115,7 +116,6 @@ public class UserFootServiceImpl implements UserFootService {
             // 幂等，直接返回
             return;
         }
-
 
         // 点赞、收藏两种操作时，需要发送异步消息，用于生成消息通知、更新文章/评论的相关计数统计、更新用户的活跃积分
         NotifyTypeEnum notifyType = OperateTypeEnum.getNotifyType(operateTypeEnum);
