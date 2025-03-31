@@ -96,6 +96,18 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
 
     public UserFootStatisticDTO getFootCount() {
         return baseMapper.getFootCount();
+    }
 
+    /**
+     * 加写锁查询
+     *
+     * @param id
+     * @return
+     */
+    public UserFootDO selectForUpdate(Long id) {
+        return lambdaQuery()
+                .eq(UserFootDO::getId, id)
+                .last("for update")
+                .one();
     }
 }

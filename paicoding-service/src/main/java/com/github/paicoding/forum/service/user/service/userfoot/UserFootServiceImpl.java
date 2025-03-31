@@ -105,10 +105,14 @@ public class UserFootServiceImpl implements UserFootService {
             setUserFootStat(readUserFootDO, operateTypeEnum);
             userFootDao.save(readUserFootDO);
             dbChanged = true;
-        } else if (setUserFootStat(readUserFootDO, operateTypeEnum)) {
-            readUserFootDO.setUpdateTime(new Date());
-            userFootDao.updateById(readUserFootDO);
-            dbChanged = true;
+        } else {
+            // 乐观锁，防止并发更新
+            readUserFootDO = userFootDao.selectForUpdate(readUserFootDO.getId());
+            if (setUserFootStat(readUserFootDO, operateTypeEnum)) {
+                readUserFootDO.setUpdateTime(new Date());
+                userFootDao.updateById(readUserFootDO);
+                dbChanged = true;
+            }
         }
 
         if (!dbChanged) {
