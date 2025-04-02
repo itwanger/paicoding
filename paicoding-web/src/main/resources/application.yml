@@ -24,7 +24,7 @@ spring:
       request-timeout:
   liquibase:
     change-log: classpath:liquibase/master.xml
-    enabled: true # 当实际使用的数据库不支持liquibase，如 mariadb 时，将这个参数设置为false
+    enabled: false # 当实际使用的数据库不支持liquibase，如 mariadb 时，将这个参数设置为false
   servlet:
     multipart:
       enabled: true
