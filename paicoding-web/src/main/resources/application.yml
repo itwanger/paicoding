@@ -99,12 +99,13 @@ logging:
       springframework:
         web:
           servlet:
-            handler.*: debug
+            handler.*: info # 定位为啥无妨访问swagger-ui时，可以把这个日志输出级别设置debug
 
 
 # 监控相关配置
 management:
   server:
+    address: 127.0.0.1 # 设置为本地ip，防止远程访问该连接进行关闭服务
     port: 8999
   endpoints:
     web:

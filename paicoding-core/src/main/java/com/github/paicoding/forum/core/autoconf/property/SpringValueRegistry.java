@@ -104,7 +104,9 @@ public class SpringValueRegistry {
             field.setAccessible(true);
             field.set(bean, newVal.apply(key, field.getType()));
             field.setAccessible(accessible);
-            log.info("更新value: {}#{} = {}", beanName, field.getName(), field.get(bean));
+            if (log.isDebugEnabled()) {
+                log.debug("更新value: {}#{} = {}", beanName, field.getName(), field.get(bean));
+            }
         }
 
         private void injectMethod(BiFunction<String, Class, Object> newVal)
