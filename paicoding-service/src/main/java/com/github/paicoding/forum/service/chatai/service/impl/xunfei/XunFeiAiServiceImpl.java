@@ -140,11 +140,16 @@ public class XunFeiAiServiceImpl extends AbsChatService {
             ChatItemVo item = chatRecord.getRecords().get(0);
             XunFeiIntegration.ResponseData responseData = xunFeiIntegration.parse2response(text);
             if (responseData.successReturn()) {
-                // 成功获取到结果
+                // 真正的回答
                 StringBuilder msg = new StringBuilder();
                 XunFeiIntegration.Payload pl = responseData.getPayload();
                 pl.getChoices().getText().forEach(s -> {
-                    msg.append(s.getContent());
+                    if (s.getReasoning_content() != null) {
+                        msg.append(s.getReasoning_content());
+                    }
+                    if (s.getContent() != null) {
+                        msg.append(s.getContent());
+                    }
                 });
                 item.appendAnswer(msg.toString());
 

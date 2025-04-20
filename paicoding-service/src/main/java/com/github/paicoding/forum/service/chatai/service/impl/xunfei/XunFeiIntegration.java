@@ -157,7 +157,7 @@ public class XunFeiIntegration {
         //填充parameter
         chat.addProperty("domain", xunFeiConfig.domain);
         chat.addProperty("random_threshold", 0);
-        chat.addProperty("max_tokens", 1024);
+        chat.addProperty("max_tokens", 2048);
         chat.addProperty("auditing", "default");
         parameter.add("chat", chat);
 
@@ -220,6 +220,7 @@ public class XunFeiIntegration {
         public String appId = "";
         public String apiKey = "";
         public String apiSecret = "";
+        public String  APIPassword = "";
         // 指定访问的领域,general指向V1.5版本 generalv2指向V2版本。注意：不同的取值对应的url也不一样！
         public String domain = "general";
     }
@@ -284,7 +285,7 @@ public class XunFeiIntegration {
          * 文本响应状态，取值为[0,1,2]; 0代表首个文本结果；1代表中间文本结果；2代表最后一个文本结果
          */
         private int status;
-        /**
+    /**
          * 返回的数据序号，取值为[0,9999999]
          */
         private int seq;
@@ -293,7 +294,7 @@ public class XunFeiIntegration {
     }
 
     @Data
-    public static class ChoicesText {
+public static class ChoicesText {
         /**
          * 结果序号，取值为[0,10]; 当前为保留字段，开发者可忽略
          */
@@ -306,6 +307,8 @@ public class XunFeiIntegration {
          * AI的回答内容
          */
         private String content;
+
+        private String reasoning_content;
     }
 
     @Data
