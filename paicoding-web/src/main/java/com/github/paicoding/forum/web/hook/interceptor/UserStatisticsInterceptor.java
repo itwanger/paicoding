@@ -38,9 +38,9 @@ public class UserStatisticsInterceptor {
 
     @Bean
     public AsyncHandlerInterceptor onlineUserStatisticInterceptor(UserStatisticServiceProperties userStatisticServiceProperties) {
-        if(UserStatisticServiceProperties.UserStatisticServiceType.CAFFEINE.equals(userStatisticServiceProperties.getType())) {
+        if (UserStatisticServiceProperties.UserStatisticServiceType.CAFFEINE.equals(userStatisticServiceProperties.getType())) {
             return new OnlineUserByCookieInterceptor();
-        }else{
+        } else {
             return new OnlineUserBySessionInterceptor();
         }
     }
@@ -56,7 +56,7 @@ public class UserStatisticsInterceptor {
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-            if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
+            if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
                 return true;
             }
             // 更新uv/pv计数
@@ -120,9 +120,13 @@ public class UserStatisticsInterceptor {
             if ("/doc.html".equals(requestURI) || requestURI.startsWith("/webjars/") || "/swagger-ui.html".equals(requestURI)) {
                 return true;
             }
-            if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
+            if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
                 return true;
             }
+            if ("/error".equals(requestURI) || isStaticURI(request)) {
+                return true;
+            }
+
             // 更新uv/pv计数
             SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath());
 
@@ -168,4 +172,20 @@ public class UserStatisticsInterceptor {
 
     }
 
+    /**
+     * fixme 这里和 ReqRecordFilter 中的判定逻辑可以提取出一个公用的方法
+     *
+     * @param request
+     * @return
+     */
+    private boolean isStaticURI(HttpServletRequest request) {
+        return request == null
+                || request.getRequestURI().endsWith("css")
+                || request.getRequestURI().endsWith("js")
+                || request.getRequestURI().endsWith("png")
+                || request.getRequestURI().endsWith("ico")
+                || request.getRequestURI().endsWith("svg")
+                || request.getRequestURI().endsWith("min.js.map")
+                || request.getRequestURI().endsWith("min.css.map");
+    }
 }

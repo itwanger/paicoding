@@ -1,9 +1,12 @@
 package com.github.paicoding.forum.core.rabbitmq;
 
 import com.github.paicoding.forum.core.common.CommonConstants;
+import com.github.paicoding.forum.core.config.RabbitmqProperties;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,7 +16,8 @@ import org.springframework.context.annotation.Configuration;
  * @author: XuYifei
  * @create: 2024-11-01
  */
-
+@ConditionalOnProperty(value = "rabbitmq.switchFlag")
+@EnableConfigurationProperties(RabbitmqProperties.class)
 @Configuration
 public class RabbitMqConfig {
     @Bean
