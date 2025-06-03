@@ -8,4 +8,4 @@ spring:
     
 
 rabbitmq:
-  switchFlag: true
+  switchFlag: false
