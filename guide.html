@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高铁之旅 · G3198站点指南</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF33FF',
+                        secondary: '#00F5FF',
+                        darkBg: '#0D0D0D',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Framer Motion CDN -->
+    <script src="https://unpkg.com/framer-motion@1.7.2/dist/framer-motion.umd.js"></script>
+
+    <style>
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+        .bento-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.3);
+        }
+        .large-text {
+            font-size: clamp(2rem, 8vw, 6rem);
+            font-weight: bold;
+        }
+        .highlight {
+            background-image: linear-gradient(to right, #FF33FF, #FF33FF);
+            background-repeat: no-repeat;
+            background-size: 100% 2px;
+            background-position: bottom;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-white">
+    <header class="py-10 text-center">
+        <h1 class="large-text">G3198 次列车站点指南</h1>
+        <p class="text-gray-400 mt-4">Explore the journey • 精选沿途城市景点与美食</p>
+    </header>
+
+    <main class="container mx-auto px-4">
+        <section class="bento-grid">
+            <!-- 西安北 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.1">
+                <img src="https://source.unsplash.com/600x400/?xi'an,landmark" alt="西安北" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">西安北</h2>
+                <p class="text-gray-300 mt-2">Xian North Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>兵马俑</strong> - Terracotta Warriors and Horses</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>大雁塔</strong> - Giant Wild Goose Pagoda</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>肉夹馍</strong> - Chinese Hamburger</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>凉皮</strong> - Spicy Cold Noodles</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 三门峡南 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.2">
+                <img src="https://source.unsplash.com/600x400/?sanmenxia,landscape" alt="三门峡南" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">三门峡南</h2>
+                <p class="text-gray-300 mt-2">Sanmenxia South Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-water text-primary mt-1"></i>
+                        <span><strong>黄河三峡</strong> - Three Gorges of Yellow River</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-mountain text-primary mt-1"></i>
+                        <span><strong>仰韶文化遗址</strong> - Yangshao Culture Ruins</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>卢氏烧饼</strong> - Lushi Sesame Cake</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>灵宝肉夹馍</strong> - Lingbao Meat Burger</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 洛阳龙门 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.3">
+                <img src="https://dashscope-result-wlcb-acdr-1.oss-cn-wulanchabu-acdr-1.aliyuncs.com/1d/96/20250529/8928fb36/96330605-58f4-4f58-ba40-96502181327a770248433.png?Expires=1748606465&OSSAccessKeyId=LTAI5tKPD3TMqf2Lna1fASuh&Signature=rQrXQlTV2X4Lfz7FSkLatvVSAy4%3D" alt="洛阳龙门" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">洛阳龙门</h2>
+                <p class="text-gray-300 mt-2">Luoyang Longmen Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>龙门石窟</strong> - Longmen Grottoes</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-leaf text-primary mt-1"></i>
+                        <span><strong>白马寺</strong> - White Horse Temple</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>洛阳水席</strong> - Luoyang Water Banquet</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>不翻汤</strong> - Bufen Tang (No-flip Soup)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 郑州东 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.4">
+                <img src="https://dashscope-result-wlcb-acdr-1.oss-cn-wulanchabu-acdr-1.aliyuncs.com/1d/5a/20250529/8928fb36/4a14aca1-7904-483e-8377-2376c61e381d1606681408.png?Expires=1748606925&OSSAccessKeyId=LTAI5tKPD3TMqf2Lna1fASuh&Signature=1yb8YFJqE2HOBobUktsjQIAoDzg%3D" alt="郑州东" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">郑州东</h2>
+                <p class="text-gray-300 mt-2">Zhengzhou East Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>少林寺</strong> - Shaolin Temple</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-mountain text-primary mt-1"></i>
+                        <span><strong>嵩山</strong> - Songshan Mountain</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>烩面</strong> - Zhengzhou Braised Noodles</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>胡辣汤</strong> - Hula Soup with Spices</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 商丘 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.5">
+                <img src="https://source.unsplash.com/600x400/?shangqiu,park" alt="商丘" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">商丘</h2>
+                <p class="text-gray-300 mt-2">Shangqiu Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-tree text-primary mt-1"></i>
+                        <span><strong>商丘古城</strong> - Shangqiu Ancient City</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-seedling text-primary mt-1"></i>
+                        <span><strong>火神台</strong> - Fire God Platform</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>哨子汤</strong> - Whistle Soup</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>葱油饼</strong> - Scallion Oil Pancake</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 亳州南 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.6">
+                <img src="https://source.unsplash.com/600x400/?bozhou,cultural" alt="亳州南" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">亳州南</h2>
+                <p class="text-gray-300 mt-2">Bozhou South Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-book-dead text-primary mt-1"></i>
+                        <span><strong>花戏楼</strong> - Hua Xilou Opera Stage</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-mosque text-primary mt-1"></i>
+                        <span><strong>南京巷钱庄</strong> - Nanjing Alley Money Shop</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>曹操鸡</strong> - Cao Cao Chicken</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>牛肉馍</strong> - Beef-filled Flatbread</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 阜阳西 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.7">
+                <img src="https://source.unsplash.com/600x400/?fuyang,night" alt="阜阳西" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">阜阳西</h2>
+                <p class="text-gray-300 mt-2">Fuyang West Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-museum text-primary mt-1"></i>
+                        <span><strong>八里河风景区</strong> - Balihetourist Area</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-monument text-primary mt-1"></i>
+                        <span><strong>文峰塔</strong> - Wenfeng Pagoda</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>卷馍</strong> - Juan Mo (Flatbread Roll)</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>格拉条</strong> - Gelatiao (Local Noodles)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 合肥南 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.8">
+                <img src="https://source.unsplash.com/600x400/?hefei,nanhai" alt="合肥南" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">合肥南</h2>
+                <p class="text-gray-300 mt-2">Hefei South Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>包公园</strong> - Bao Park</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-graduation-cap text-primary mt-1"></i>
+                        <span><strong>安徽名人馆</strong> - Anhui Celebrity Museum</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>小龙虾</strong> - Hefei Crayfish</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>淮南牛肉汤</strong> - Huainan Beef Soup</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 芜湖 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="0.9">
+                <img src="https://source.unsplash.com/600x400/?wuhu,river" alt="芜湖" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">芜湖</h2>
+                <p class="text-gray-300 mt-2">Wuhu Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>方特欢乐世界</strong> - Fantawild Amusement World</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-water text-primary mt-1"></i>
+                        <span><strong>镜湖公园</strong> - Jinghu Park</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>虾籽面</strong> - Shrimp Roe Noodles</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>小笼汤包</strong> - Xiaolongtangbao (Soup Dumplings)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 宣城 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="1.0">
+                <img src="https://source.unsplash.com/600x400/?xuancheng,ancient" alt="宣城" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">宣城</h2>
+                <p class="text-gray-300 mt-2">Xuancheng Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>敬亭山</strong> - Jingting Mountain</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-paint-brush text-primary mt-1"></i>
+                        <span><strong>宣纸文化园</strong> - Xuan Paper Cultural Park</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>水阳三腊</strong> - Shuiyang Three-cured Delicacy</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>宁国粑粑</strong> - Ningguo Rice Cake</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 杭州西 -->
+            <div class="bento-card p-6" data-motion="true" data-motion-delay="1.1">
+                <img src="https://source.unsplash.com/600x400/?hangzhou,xihu" alt="杭州西" class="w-full h-48 object-cover mb-4 rounded-lg">
+                <h2 class="large-text highlight">杭州西</h2>
+                <p class="text-gray-300 mt-2">Hangzhou West Station</p>
+                <ul class="mt-4 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-landmark text-primary mt-1"></i>
+                        <span><strong>西湖</strong> - West Lake</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-umbrella-beach text-primary mt-1"></i>
+                        <span><strong>千岛湖</strong> - Qiandaohu Lake</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>西湖醋鱼</strong> - West Lake Vinegar Fish</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-bowl-rice text-secondary mt-1"></i>
+                        <span><strong>龙井虾仁</strong> - Dragon Well Prawn</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-10 text-center text-gray-500">
+        <p>© 2025 G3198 Travel Guide | Built with ❤️ using TailwindCSS & Framer Motion</p>
+    </footer>
+
+    <script>
+        // Framer Motion 动画逻辑
+        const cards = document.querySelectorAll('[data-motion]');
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(50px)';
+            card.style.transition = `opacity 0.6s ease-out, transform 0.6s ease-out`;
+        });
+
+        const observerOptions = { root: null, threshold: 0.1 };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        cards.forEach(card => observer.observe(card));
+    </script>
+</body>
+</html>

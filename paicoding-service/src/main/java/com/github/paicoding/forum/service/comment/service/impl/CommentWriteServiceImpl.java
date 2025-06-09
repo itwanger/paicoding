@@ -110,7 +110,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         if (commentDO == null) {
             throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, "评论ID=" + commentId);
         }
-        if (Objects.equals(commentDO.getUserId(), userId)) {
+        if (!Objects.equals(commentDO.getUserId(), userId)) {
             throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "无权删除评论");
         }
         // 获取文章信息
