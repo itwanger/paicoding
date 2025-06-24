@@ -61,6 +61,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Autowired
     private AuthorWhiteListService articleWhiteListService;
 
+    // 构造方法的注入方式
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
         this.articleDao = articleDao;
         this.articleTagDao = articleTagDao;
