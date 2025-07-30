@@ -15,6 +15,8 @@ public class BCryptExample {
         // 打印加密后的密码（每次加密结果都不同）
         System.out.println("加密后的密码: " + encodedPassword);
 
+        System.out.println(args);
+
         // 登录时验证密码
         boolean isPasswordMatch = passwordEncoder.matches(rawPassword, encodedPassword);
         System.out.println("密码验证结果: " + isPasswordMatch); // 输出为 true

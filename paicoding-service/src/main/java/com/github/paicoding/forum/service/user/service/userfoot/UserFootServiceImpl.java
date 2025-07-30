@@ -89,7 +89,7 @@ public class UserFootServiceImpl implements UserFootService {
      */
     @Override
     public void favorArticleComment(DocumentTypeEnum documentType, Long documentId, Long authorId, Long userId, OperateTypeEnum operateTypeEnum) {
-        // fixme 这里没有做并发控制，再大并发场景下，可能出现查询出来的数据，与db中数据不一致的场景
+        // fixme 这里没有做并发控制，在大并发场景下，可能出现查询出来的数据，与db中数据不一致的场景
         // fixme 解决方案：自旋等待的分布式锁 or 事务 + 悲观锁
         // fixme 考虑到这个足迹的准确性影响并不大，留待有缘人进行修正
 

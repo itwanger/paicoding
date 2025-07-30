@@ -1,0 +1,59 @@
+<svg width="1200" height="1400" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        .title { font: bold 28px sans-serif; fill: white; }
+        .node { font: 16px sans-serif; fill: white; }
+        .line { stroke: #999; stroke-width: 1.5; }
+        .highlight { fill: #aa85f6; font-weight: bold; }
+    </style>
+
+    <!-- Title -->
+    <text x="20" y="40" class="title">字节跳动 AI 产品分类图谱</text>
+
+    <!-- 模型层 -->
+    <text x="40" y="90" class="highlight">模型层（Flow 团队）</text>
+    <text x="60" y="120" class="node">- 豆包大模型（语言）</text>
+
+    <!-- 应用层 -->
+    <text x="40" y="340" class="highlight">应用层</text>
+
+    <!-- Agent定制 -->
+    <text x="60" y="370" class="node">Agent定制</text>
+    <text x="80" y="420" class="node">- 扣子（国内，基于豆包）</text>
+
+    <!-- 聊天 -->
+    <text x="60" y="455" class="node">聊天</text>
+    <text x="80" y="480" class="node">- 豆包（国内，基于豆包）</text>
+
+    <!-- 社交 -->
+    <text x="60" y="540" class="node">社交</text>
+    <text x="80" y="565" class="node">- 猫箱（国内）</text>
+    <text x="80" y="615" class="node">- 星绘（国内）</text>
+
+    <!-- 图像/视频 -->
+    <text x="60" y="675" class="node">图像/视频</text>
+    <text x="80" y="700" class="node">- 即梦 Dreamina（剪映）</text>
+
+    <!-- 办公 -->
+    <text x="60" y="760" class="node">办公</text>
+    <text x="80" y="785" class="node">- 小悟空（国内，基于云雀）</text>
+
+    <!-- 教育 -->
+    <text x="60" y="845" class="node">教育</text>
+    <text x="80" y="870" class="node">- 河马爱学（国内）</text>
+
+    <!-- 内容创作 -->
+    <text x="60" y="930" class="node">内容创作</text>
+    <text x="80" y="955" class="node">- 即创（国内）</text>
+
+    <!-- 音乐 -->
+    <text x="60" y="990" class="node">音乐</text>
+    <text x="80" y="1015" class="node">- 海绵乐队（国内）</text>
+
+    <!-- 教育（其它） -->
+    <text x="60" y="1050" class="node">教育（其它）</text>
+    <text x="80" y="1075" class="node">- 识典古籍（国内）</text>
+
+    <!-- 代码生成 -->
+    <text x="60" y="1110" class="node">代码生成</text>
+    <text x="80" y="1135" class="node">- CodeGen</text>
+</svg>

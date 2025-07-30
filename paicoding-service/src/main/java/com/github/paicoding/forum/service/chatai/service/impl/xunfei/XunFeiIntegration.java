@@ -1,7 +1,9 @@
 package com.github.paicoding.forum.service.chatai.service.impl.xunfei;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.Data;
@@ -10,6 +12,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -132,6 +135,78 @@ public class XunFeiIntegration {
         return frame.toString();
     }
 
+    /**
+     * 结合上下文的回答
+     *
+     * @param uid
+     * @param items
+     * @return
+     */
+    public String buildSendMsg(String uid, List<ChatItemVo> items) {
+        JsonObject frame = new JsonObject();
+        JsonObject header = new JsonObject();
+        JsonObject chat = new JsonObject();
+        JsonObject parameter = new JsonObject();
+        JsonObject payload = new JsonObject();
+        JsonObject message = new JsonObject();
+        JsonArray ja = new JsonArray();
+
+        //填充header
+        header.addProperty("app_id", xunFeiConfig.appId);
+        header.addProperty("uid", uid);
+        //填充parameter
+        chat.addProperty("domain", xunFeiConfig.domain);
+        chat.addProperty("random_threshold", 0);
+        chat.addProperty("max_tokens", 2048);
+        chat.addProperty("auditing", "default");
+        parameter.add("chat", chat);
+
+        //填充payload
+        for (int i = items.size() - 1; i >= 0; i--) {
+            ChatItemVo item = items.get(i);
+            ja.addAll(toText(item));
+        }
+
+        message.add("text", ja);
+        payload.add("message", message);
+        frame.add("header", header);
+        frame.add("parameter", parameter);
+        frame.add("payload", payload);
+        return frame.toString();
+    }
+
+    /**
+     * 构建提问消息
+     *
+     * @param item
+     * @return
+     */
+    private static JsonArray toText(ChatItemVo item) {
+        JsonArray ary = new JsonArray();
+
+        if (item.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+            // 提示词
+            JsonObject obj = new JsonObject();
+            obj.addProperty("role", "user");
+            obj.addProperty("content", item.getQuestion().substring(ChatConstants.PROMPT_TAG.length()));
+            ary.add(obj);
+            return ary;
+        }
+
+        // 用户问答消息
+        JsonObject obj = new JsonObject();
+        obj.addProperty("role", "user");
+        obj.addProperty("content", item.getQuestion());
+        ary.add(obj);
+        if (StringUtils.isNotBlank(item.getAnswer())) {
+            JsonObject obj2 = new JsonObject();
+            obj2.addProperty("role", "assistant");
+            obj2.addProperty("content", item.getAnswer());
+            ary.add(obj);
+        }
+        return ary;
+    }
+
     public ResponseData parse2response(String text) {
         return JsonUtil.toObj(text, ResponseData.class);
     }
@@ -145,6 +220,7 @@ public class XunFeiIntegration {
         public String appId = "";
         public String apiKey = "";
         public String apiSecret = "";
+        public String  APIPassword = "";
         // 指定访问的领域,general指向V1.5版本 generalv2指向V2版本。注意：不同的取值对应的url也不一样！
         public String domain = "general";
     }
@@ -209,7 +285,7 @@ public class XunFeiIntegration {
          * 文本响应状态，取值为[0,1,2]; 0代表首个文本结果；1代表中间文本结果；2代表最后一个文本结果
          */
         private int status;
-        /**
+    /**
          * 返回的数据序号，取值为[0,9999999]
          */
         private int seq;
@@ -218,7 +294,7 @@ public class XunFeiIntegration {
     }
 
     @Data
-    public static class ChoicesText {
+public static class ChoicesText {
         /**
          * 结果序号，取值为[0,10]; 当前为保留字段，开发者可忽略
          */
@@ -231,6 +307,8 @@ public class XunFeiIntegration {
          * AI的回答内容
          */
         private String content;
+
+        private String reasoning_content;
     }
 
     @Data

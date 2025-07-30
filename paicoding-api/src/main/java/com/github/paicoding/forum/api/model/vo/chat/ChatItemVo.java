@@ -109,6 +109,8 @@ public class ChatItemVo implements Serializable, Cloneable {
         ChatItemVo item = new ChatItemVo();
         item.question = question;
         item.questionTime = questionTime;
+        item.answer = answer;
+        item.answerTime = answerTime;
         return item;
     }
 }

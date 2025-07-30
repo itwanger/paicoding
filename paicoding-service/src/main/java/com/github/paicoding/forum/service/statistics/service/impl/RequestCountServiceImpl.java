@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.statistics.service.impl;
 
+import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
 import com.github.paicoding.forum.service.statistics.repository.dao.RequestCountDao;
 import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,6 +60,16 @@ public class RequestCountServiceImpl implements RequestCountService {
     @Override
     public List<StatisticsDayDTO> getPvUvDayList(Integer day) {
         return requestCountDao.getPvUvDayList(day);
+    }
+
+    @Override
+    public long count() {
+        return requestCountDao.count();
+    }
+
+    @Override
+    public List<RequestCountDO> listRequestCount(PageParam pageParam) {
+        return requestCountDao.listRequestCount(pageParam);
     }
 
 }

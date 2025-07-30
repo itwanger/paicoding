@@ -11,7 +11,11 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -126,8 +130,8 @@ public class XunFeiAiServiceImpl extends AbsChatService {
         public void onOpen(WebSocket webSocket, Response response) {
             super.onOpen(webSocket, response);
             connectState = WsConnectStateEnum.CONNECTED;
-            // 连接成功之后，发送消息
-            webSocket.send(xunFeiIntegration.buildSendMsg(user, chatRecord.getRecords().get(0).getQuestion()));
+            // 连接成功之后，发送消息buildSendMsg
+            webSocket.send(xunFeiIntegration.buildSendMsg(user, chatRecord.getRecords()));
         }
 
         @Override
@@ -136,11 +140,16 @@ public class XunFeiAiServiceImpl extends AbsChatService {
             ChatItemVo item = chatRecord.getRecords().get(0);
             XunFeiIntegration.ResponseData responseData = xunFeiIntegration.parse2response(text);
             if (responseData.successReturn()) {
-                // 成功获取到结果
+                // 真正的回答
                 StringBuilder msg = new StringBuilder();
                 XunFeiIntegration.Payload pl = responseData.getPayload();
                 pl.getChoices().getText().forEach(s -> {
-                    msg.append(s.getContent());
+                    if (s.getReasoning_content() != null) {
+                        msg.append(s.getReasoning_content());
+                    }
+                    if (s.getContent() != null) {
+                        msg.append(s.getContent());
+                    }
                 });
                 item.appendAnswer(msg.toString());
 

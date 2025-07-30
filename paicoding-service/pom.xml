@@ -104,6 +104,19 @@
             <artifactId>wechatpay-java</artifactId>
             <version>0.2.14</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.idev.excel</groupId>
+            <artifactId>fastexcel</artifactId>
+        </dependency>
+
+        <!-- 火山豆包大模型SDK -->
+        <dependency>
+            <groupId>com.volcengine</groupId>
+            <artifactId>volcengine-java-sdk-ark-runtime</artifactId>
+            <version>0.1.150</version>
+        </dependency>
+
     </dependencies>
 
 </project>
