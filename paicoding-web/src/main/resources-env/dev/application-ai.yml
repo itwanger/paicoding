@@ -14,6 +14,7 @@ ai:
     invited: 0.1 # 被邀请
     inviteNum: 0.2 # 邀请人数执行策略
     starNumber: 4000 # 目前为 4000
+    historyContextCnt: 10 # 多轮对话上下文的条数，默认最多给10条
   source: # 支持的AI模型
     - CHAT_GPT_3_5
     - CHAT_GPT_4
@@ -52,3 +53,19 @@ xunfei:
   appId:
   apiKey:
   apiSecret:
+
+
+deepseek:
+  apiHost: https://api.deepseek.com
+  apiKey: # 使用自己的密钥进行替换
+  timeout: 900 # 超时时间，单位秒
+
+doubao:
+  api-key: # 使用自己的密钥进行替换
+  api-host: https://ark.cn-beijing.volces.com/api/v3
+  end-point: # 使用自己创建的接入点进行替换
+
+
+logging:
+  level:
+    com.github.paicoding.forum.service.chatai.service.impl.deepseek.DeepSeekChatServiceImpl: DEBUG # 本地启动时，开启debug日志

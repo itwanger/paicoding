@@ -41,7 +41,13 @@ public class Convert2OssFromHtml {
         File md = new File(mdPath);
         FileReader fileReader = FileReader.create(md, StandardCharsets.UTF_8);
         // 读取全部内容
-        String content = OSSUtil.upload(fileReader.readString(), imgOption);
+        String content;
+        try {
+            content = OSSUtil.upload(fileReader.readString(), imgOption);
+        } catch (Exception e) {
+            log.error("上传文件到OSS失败", e);
+            throw new RuntimeException("上传文件到OSS失败", e);
+        }
 
         FileWriter writer = new FileWriter(md);
         writer.write(content);

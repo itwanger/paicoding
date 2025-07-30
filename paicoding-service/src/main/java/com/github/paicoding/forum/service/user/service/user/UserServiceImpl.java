@@ -236,4 +236,14 @@ public class UserServiceImpl implements UserService {
         // 2. 更新ai相关信息
         userAiService.initOrUpdateAiInfo(loginReq);
     }
+
+    @Override
+    public BaseUserInfoDTO queryUserByLoginName(String uname) {
+        UserDO user = userDao.getUserByUserName(uname);
+        if (user == null) {
+            return null;
+        }
+
+        return queryBasicUserInfo(user.getId());
+    }
 }

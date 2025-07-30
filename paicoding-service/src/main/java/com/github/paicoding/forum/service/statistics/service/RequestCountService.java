@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.statistics.service;
 
+import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
 import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
 
@@ -21,4 +22,9 @@ public interface RequestCountService {
     Long getPvTotalCount();
 
     List<StatisticsDayDTO> getPvUvDayList(Integer day);
+
+    long count();
+
+    // 分页返回 RequestCountDO
+    List<RequestCountDO> listRequestCount(PageParam pageParam);
 }

@@ -22,6 +22,7 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        // 容器启动时自动注入，方便后续获取bean
         SpringUtil.context = applicationContext;
     }
 
@@ -31,6 +32,11 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
         binder = Binder.get(environment);
     }
 
+    /**
+     * 获取ApplicationContext
+     *
+     * @return
+     */
     public static ApplicationContext getContext() {
         return context;
     }
@@ -43,7 +49,11 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      * @return
      */
     public static <T> T getBean(Class<T> bean) {
-        return context.getBean(bean);
+        if (context != null) {
+            return context.getBean(bean);
+        } else {
+            throw new IllegalStateException("Spring ApplicationContext is not active or has been closed.");
+        }
     }
 
     public static <T> T getBeanOrNull(Class<T> bean) {
@@ -64,6 +74,10 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static boolean hasConfig(String key) {
+        return environment.containsProperty(key);
     }
 
     /**

@@ -7,7 +7,10 @@ server:
     enabled: true # 开启返回结果压缩，减少传输耗时
     min-response-size: 2KB
 
+
 spring:
+  application:
+    name: paicoding
   #  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
   #  profiles:
   #    active: dal,web,config,image
@@ -44,7 +47,7 @@ paicoding:
   sensitive: # 敏感词校验相关配置
     enable: true
     deny: # 自定义的敏感词，英文逗号分割
-    allow: 国,制作,码,亚洲,中国,公司,简历,性,国研,鬼,国庆,用户,扑克 # 自定义的非敏感词，英文逗号分割
+    allow: 国,制作,码,亚洲,中国,公司,简历,性,国研,鬼,国庆,用户,扑克,法,鲁迅,祖国,口,色,俄罗斯 # 自定义的非敏感词，英文逗号分割
   jwt:
     issuer: pai_coding # 签发者
     secret: hello_world # 签名密钥
@@ -92,3 +95,22 @@ knife4j:
 logging:
   level:
     com.github.paicoding.forum.service.rank.service.impl.*: debug # 指定具体包下的日志输出级别
+    org:
+      springframework:
+        web:
+          servlet:
+            handler.*: info # 定位为啥无妨访问swagger-ui时，可以把这个日志输出级别设置debug
+
+
+# 监控相关配置
+management:
+  server:
+    address: 127.0.0.1 # 设置为本地ip，防止远程访问该连接进行关闭服务
+    port: 8999
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}

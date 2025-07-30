@@ -22,4 +22,7 @@ const katexRender = function (tex, delimiter) {
 
 document.addEventListener("DOMContentLoaded", function() {
     katexRender();
+
+    // 借用一下地盘，配置一下 markdown 转 HTML 的全局对象
+    converter = new showdown.Converter();
 });
