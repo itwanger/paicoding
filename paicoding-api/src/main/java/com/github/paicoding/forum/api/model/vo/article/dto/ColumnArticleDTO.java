@@ -48,6 +48,16 @@ public class ColumnArticleDTO implements Serializable {
     private String column;
 
     /**
+     * 分组id
+     */
+    private Long groupId;
+
+    /**
+     * 分组名
+     */
+    private String groupName;
+
+    /**
      * 教程封面
      */
     private String columnCover;

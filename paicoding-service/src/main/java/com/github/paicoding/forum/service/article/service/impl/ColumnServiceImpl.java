@@ -112,7 +112,36 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Override
     public List<SimpleArticleDTO> queryColumnArticles(long columnId) {
-        return columnDao.listColumnArticles(columnId);
+        List<SimpleArticleDTO> list = columnDao.listColumnArticles(columnId);
+        long preGroup = -1;
+        for (SimpleArticleDTO article : list) {
+            if (preGroup != article.getGroupLevel()) {
+                preGroup = article.getGroupLevel();
+                article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));
+            } else {
+                // 和前面一个是同一层级，则不需要显示分组，直接沿用之前的即可
+                article.setGroupName("");
+                article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));
+            }
+        }
+        return list;
+    }
+
+    private int groupSectionToLevel(long section) {
+        // 0 - 1000 是一层, 1000 1000_000 是二层
+        if (section < 1000) {
+            return 1;
+        } else if (section < 1000_000) {
+            return 2;
+        } else if (section < 1000_000_000L) {
+            return 3;
+        } else if (section < 1000_000_000_000L) {
+            return 4;
+        } else if (section < 1000_000_000_000_000L) {
+            return 5;
+        } else {
+            return 6;
+        }
     }
 
     @Override

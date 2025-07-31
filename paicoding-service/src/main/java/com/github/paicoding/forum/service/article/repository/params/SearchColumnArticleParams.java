@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.article.repository.params;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * 专栏查询
