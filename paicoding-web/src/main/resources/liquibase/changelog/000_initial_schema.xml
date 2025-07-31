@@ -108,6 +108,11 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_241204.sql"/>
     </changeSet>
 
+    <!-- 专栏分组 -->
+    <changeSet id="000020241217_0" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_241217.sql"/>
+    </changeSet>
+
     <!-- ai聊天按照对话进行分组  -->
     <changeSet id="000020250206_0" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_250207.sql"/>

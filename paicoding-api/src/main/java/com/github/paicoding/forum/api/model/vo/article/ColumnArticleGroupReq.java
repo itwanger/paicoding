@@ -25,6 +25,11 @@ public class ColumnArticleGroupReq implements Serializable {
     private Long columnId;
 
     /**
+     * 父分组id
+     */
+    private Long parentGroupId;
+
+    /**
      * 文章ID
      */
     private String title;
@@ -32,5 +37,5 @@ public class ColumnArticleGroupReq implements Serializable {
     /**
      * 专栏排序
      */
-    private Integer sort;
+    private Long section;
 }

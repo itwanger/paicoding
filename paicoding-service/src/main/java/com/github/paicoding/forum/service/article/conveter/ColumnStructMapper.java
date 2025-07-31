@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleGroupDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
@@ -63,6 +64,11 @@ public interface ColumnStructMapper {
     ColumnInfoDO toDo(ColumnReq req);
 
 
-    @Mapping(source = "sort", target = "section")
-    ColumnArticleGroupDO toDO(ColumnArticleGroupReq req);
+    ColumnArticleGroupDO toGroupDO(ColumnArticleGroupReq req);
+
+    @Mapping(source = "id", target = "groupId")
+    ColumnArticleGroupDTO toGroupDTO(ColumnArticleGroupDO entity);
+
+    @Mapping(source = "id", target = "groupId")
+    List<ColumnArticleGroupDTO> toGroupDTOList(List<ColumnArticleGroupDO> entity);
 }

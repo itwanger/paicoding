@@ -1,9 +1,16 @@
 package com.github.paicoding.forum.service.article.service;
 
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.article.*;
+import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
+import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 
 import java.util.List;
@@ -33,6 +40,7 @@ public interface ColumnSettingService {
 
     /**
      * 保存专栏文章分组
+     *
      * @param req
      * @return
      */
@@ -74,4 +82,25 @@ public interface ColumnSettingService {
     void sortColumnArticleApi(SortColumnArticleReq req);
 
     void sortColumnArticleByIDApi(SortColumnArticleByIDReq req);
+
+
+
+    /**
+     * 获取专栏的分组情况
+     *
+     * @param columnId 专栏id
+     * @return
+     */
+    List<ColumnArticleGroupDTO> getColumnGroups(Long columnId);
+
+
+    boolean deleteColumnGroup(Long groupId);
+
+    /**
+     * 查询专栏下的文章信息
+     *
+     * @param columnId 专栏
+     * @return
+     */
+    List<ColumnArticleGroupDTO> getColumnGroupAndArticles(Long columnId);
 }

@@ -2,13 +2,22 @@ package com.github.paicoding.forum.service.article.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.article.*;
+import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
+import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -16,6 +25,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMapper;
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
+import com.github.paicoding.forum.service.article.helper.TreeBuilder;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleGroupDao;
@@ -28,10 +38,14 @@ import com.github.paicoding.forum.service.article.repository.params.SearchColumn
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,6 +82,14 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Override
     public void saveColumn(ColumnReq req) {
         ColumnInfoDO columnInfoDO = columnStructMapper.toDo(req);
+        if (req.getFreeStartTime() <= 0) {
+            // 兼容日期数据
+            columnInfoDO.setFreeStartTime(new Date(1000));
+        }
+        if (req.getFreeEndTime() <= 0) {
+            columnInfoDO.setFreeEndTime(new Date(1000));
+        }
+
         if (NumUtil.nullOrZero(req.getColumnId())) {
             columnDao.save(columnInfoDO);
         } else {
@@ -76,14 +98,132 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         }
     }
 
+    /**
+     * section 的排序规则
+     * 1. 以父节点的 section * 1000 为前缀，然后在同一个父节点中，按照顺序找位置（新增，则放在最后，修改则放在对应位置，并将其之后的进行顺移）
+     *
+     * @param req
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveColumnArticleGroup(ColumnArticleGroupReq req) {
-        ColumnArticleGroupDO groupDO = columnStructMapper.toDO(req);
-        if (NumUtil.nullOrZero(req.getId())) {
-            columnArticleGroupDao.save(groupDO);
-        } else {
+        ColumnArticleGroupDO groupDO = columnStructMapper.toGroupDO(req);
+        if (!NumUtil.nullOrZero(req.getId())) {
             groupDO.setId(req.getId());
-            columnArticleGroupDao.updateById(groupDO);
+        } else {
+            // 表示新增
+            groupDO.setId(null);
+        }
+        this.autoCalculateGroupSection(groupDO);
+    }
+
+    private void autoCalculateGroupSection(ColumnArticleGroupDO currentGroup) {
+        long baseSection = 0;
+        if (NumUtil.nullOrZero(currentGroup.getParentGroupId())) {
+            // 当前节点为顶级节点
+            currentGroup.setParentGroupId(0L);
+        } else {
+            // 找到父节点
+            ColumnArticleGroupDO parentGroup = columnArticleGroupDao.getById(currentGroup.getParentGroupId());
+            Asserts.notNull(parentGroup, "父节点非法");
+            baseSection = parentGroup.getSection() * ColumnArticleGroupDao.SECTION_STEP;
+        }
+
+        // 找同一个父节点的子节点
+        List<ColumnArticleGroupDO> list = columnArticleGroupDao.selectColumnGroupsBySameParent(currentGroup.getColumnId(), currentGroup.getParentGroupId());
+        if (CollectionUtils.isEmpty(list)) {
+            // 没有兄弟节点，当前为第一个
+            currentGroup.setSection(baseSection + 1L);
+
+            if (!NumUtil.nullOrZero(currentGroup.getId())) {
+                // 更新节点，需要同步更新这个节点下面的所有子节点的顺序
+                updateGroupSection(currentGroup);
+            } else {
+                // 新增节点
+                columnArticleGroupDao.saveOrUpdate(currentGroup);
+            }
+            return;
+        }
+
+
+        // 当前为新增节点时，找最大的一个顺序，进行 + 1即可
+        if (NumUtil.nullOrZero(currentGroup.getId())) {
+            // 新增节点
+            currentGroup.setSection(list.get(list.size() - 1).getSection() + 1L);
+            columnArticleGroupDao.saveOrUpdate(currentGroup);
+            return;
+        }
+
+        // 当前节点为更新时，则需要找到当前节点，并更新前/后的节点顺序
+        int oldIndex = -1; // 原来在的位置
+        int newIndex = 0; // 按照新的排序，应该插入的位置
+        for (int i = 0; i < list.size(); i++) {
+            ColumnArticleGroupDO item = list.get(i);
+            if (item.getId().equals(currentGroup.getId())) {
+                oldIndex = i;
+                if (item.getSection().equals(currentGroup.getSection())) {
+                    // 排序没有改变，直接返回
+                    return;
+                }
+            }
+
+            if (currentGroup.getSection() > item.getSection()) {
+                newIndex = i + 1;
+            }
+        }
+
+        if (oldIndex == newIndex) {
+            // 没有改变位置，只需要更新当前节点的子节点顺序
+            updateGroupSection(currentGroup);
+            return;
+        }
+
+        if (oldIndex == -1) {
+            // 表示节点为其他的父节点移动过来的， newIndex后面的节点都需要向后移动一位
+            long oldSection = currentGroup.getSection() + 1;
+            for (int i = newIndex; i < list.size(); i++) {
+                ColumnArticleGroupDO item = list.get(i);
+                item.setSection(oldSection);
+                oldSection += 1;
+                updateGroupSection(item);
+            }
+        } else if (newIndex > oldIndex) {
+            // 更新节点，当前节点向后移动了
+            long oldSection = list.get(oldIndex).getSection();
+            for (int i = oldIndex + 1; i < newIndex; i++) {
+                ColumnArticleGroupDO item = list.get(i);
+                item.setSection(oldSection);
+                oldSection += 1;
+                updateGroupSection(item);
+            }
+        } else {
+            // 更新节点，当前节点向前移动了
+            long oldSection = currentGroup.getSection() + 1;
+            for (int i = newIndex; i < oldIndex; i++) {
+                ColumnArticleGroupDO item = list.get(i);
+                item.setSection(oldSection);
+                oldSection += 1;
+                updateGroupSection(item);
+            }
+        }
+    }
+
+
+    /**
+     * 更新当前节点，和对应子节点的顺序
+     *
+     * @param groupDO
+     */
+    private void updateGroupSection(ColumnArticleGroupDO groupDO) {
+        // 更新当前节点的顺序
+        columnArticleGroupDao.updateById(groupDO);
+        // 更新子节点的顺序
+        List<ColumnArticleGroupDO> children = columnArticleGroupDao.selectColumnGroupsBySameParent(groupDO.getColumnId(), groupDO.getId());
+        long baseSection = groupDO.getSection() * ColumnArticleGroupDao.SECTION_STEP;
+        for (int i = 0; i < children.size(); i++) {
+            ColumnArticleGroupDO item = children.get(i);
+            item.setSection(baseSection + i + 1);
+            updateGroupSection(item);
         }
     }
 
@@ -97,8 +237,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     public void saveColumnArticle(Long articleId, Long columnId) {
         // 转换参数
         // 插入的时候，需要判断是否已经存在
-        ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
-                .eq(ColumnArticleDO::getArticleId, articleId));
+        ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getArticleId, articleId));
         if (exist != null) {
             if (!Objects.equals(columnId, exist.getColumnId())) {
                 // 更新
@@ -124,9 +263,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         ColumnArticleDO columnArticleDO = ColumnArticleStructMapper.INSTANCE.reqToDO(req);
         if (NumUtil.nullOrZero(columnArticleDO.getId())) {
             // 插入的时候，需要判断是否已经存在
-            ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
-                    .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
-                    .eq(ColumnArticleDO::getArticleId, columnArticleDO.getArticleId()));
+            ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId()).eq(ColumnArticleDO::getArticleId, columnArticleDO.getArticleId()));
             if (exist != null) {
                 throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, "请勿重复添加");
             }
@@ -160,12 +297,9 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         if (columnArticleDO != null) {
             columnArticleDao.removeById(id);
             // 删除的时候，批量更新 section，比如说原来是 1,2,3,4,5,6,7,8,9,10，删除 5，那么 6-10 的 section 都要减 1
-            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
-                    .setSql("section = section - 1")
-                    .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1").eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
                     // section 大于 1
-                    .gt(ColumnArticleDO::getSection, 1)
-                    .gt(ColumnArticleDO::getSection, columnArticleDO.getSection()));
+                    .gt(ColumnArticleDO::getSection, 1).gt(ColumnArticleDO::getSection, columnArticleDO.getSection()));
         }
     }
 
@@ -197,8 +331,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 // 当 activeSection 大于 overSection 时，表示文章被向上拖拽。
                 // 需要将 activeSection 到 overSection（不包括 activeSection 本身）之间的所有文章的 section 加 1，
                 // 并将 activeSection 设置为 overSection。
-                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
-                        .setSql("section = section + 1") // 将符合条件的记录的 section 字段的值增加 1
+                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section + 1") // 将符合条件的记录的 section 字段的值增加 1
                         .eq(ColumnArticleDO::getColumnId, overDO.getColumnId()) // 指定要更新记录的 columnId 条件
                         .ge(ColumnArticleDO::getSection, overSection) // 指定 section 字段的下限（包含此值）
                         .lt(ColumnArticleDO::getSection, activeSection)); // 指定 section 字段的上限
@@ -211,8 +344,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 // 那么 activeSection + 1 到 overSection 的 section 都要 -1
                 // 向下拖动
                 // 需要将 activeSection 到 overSection（包括 overSection）之间的所有文章的 section 减 1
-                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
-                        .setSql("section = section - 1") // 将符合条件的记录的 section 字段的值减少 1
+                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1") // 将符合条件的记录的 section 字段的值减少 1
                         .eq(ColumnArticleDO::getColumnId, overDO.getColumnId()) // 指定要更新记录的 columnId 条件
                         .gt(ColumnArticleDO::getSection, activeSection) // 指定 section 字段的下限（不包含此值）
                         .le(ColumnArticleDO::getSection, overSection)); // 指定 section 字段的上限（包含此值）
@@ -249,12 +381,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         // 如果存在，交换顺序
         if (changeColumnArticleDO != null) {
             // 交换顺序
-            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
-                    .set(ColumnArticleDO::getSection, columnArticleDO.getSection())
-                    .eq(ColumnArticleDO::getId, changeColumnArticleDO.getId()));
-            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
-                    .set(ColumnArticleDO::getSection, changeColumnArticleDO.getSection())
-                    .eq(ColumnArticleDO::getId, columnArticleDO.getId()));
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().set(ColumnArticleDO::getSection, columnArticleDO.getSection()).eq(ColumnArticleDO::getId, changeColumnArticleDO.getId()));
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().set(ColumnArticleDO::getSection, changeColumnArticleDO.getSection()).eq(ColumnArticleDO::getId, columnArticleDO.getId()));
         } else {
             // 如果不存在，直接修改顺序
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "输入的顺序不存在，无法完成交换");
@@ -310,14 +438,80 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Override
     public List<SimpleColumnDTO> listSimpleColumnBySearchKey(String key) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName, ColumnInfoDO::getCover)
-                .and(!StringUtils.isEmpty(key),
-                        v -> v.like(ColumnInfoDO::getColumnName, key)
-                )
-                .orderByDesc(ColumnInfoDO::getId);
+        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName, ColumnInfoDO::getCover).and(!StringUtils.isEmpty(key), v -> v.like(ColumnInfoDO::getColumnName, key)).orderByDesc(ColumnInfoDO::getId);
         List<ColumnInfoDO> articleDOS = columnDao.list(query);
         return ColumnStructMapper.INSTANCE.infoToSimpleDtos(articleDOS);
     }
 
+    @Override
+    public List<ColumnArticleGroupDTO> getColumnGroups(Long columnId) {
+        List<ColumnArticleGroupDO> entityList = columnArticleGroupDao.selectByColumnId(columnId);
+        if (CollectionUtils.isEmpty(entityList)) {
+            return Collections.emptyList();
+        }
+        List<ColumnArticleGroupDTO> dtoList = ColumnStructMapper.INSTANCE.toGroupDTOList(entityList);
+        return TreeBuilder.buildTree(dtoList);
+    }
 
+
+    public List<ColumnArticleGroupDTO> getColumnGroupAndArticles(Long columnId) {
+        List<ColumnArticleGroupDO> entityList = columnArticleGroupDao.selectByColumnId(columnId);
+        List<ColumnArticleGroupDTO> dtoList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(entityList)) {
+            dtoList = ColumnStructMapper.INSTANCE.toGroupDTOList(entityList);
+        }
+        // 分组，并设置一个未分组的默认分组项，用于挂文章没有指定分组的场景
+        Map<Long, ColumnArticleGroupDTO> groupMap = dtoList.stream().collect(Collectors.toMap(ColumnArticleGroupDTO::getGroupId, v -> v));
+        ColumnArticleGroupDTO defaultGroup = ColumnArticleGroupDTO.newDefaultGroup(columnId);
+
+
+        // 查询所有文章
+        SearchColumnArticleParams params = new SearchColumnArticleParams();
+        params.setColumnId(columnId);
+        List<ColumnArticleDTO> articleList = columnDao.listColumnArticlesDetail(params, PageParam.newPageInstance(1, Integer.MAX_VALUE));
+        // 将文章放入分组中
+        for (ColumnArticleDTO article : articleList) {
+            ColumnArticleGroupDTO group = groupMap.getOrDefault(article.getGroupId(), defaultGroup);
+            if (group.getArticles() == null) {
+                group.setArticles(new ArrayList<>());
+            }
+            group.getArticles().add(article);
+        }
+        if (CollectionUtils.isNotEmpty(defaultGroup.getArticles())) {
+            dtoList.add(0, defaultGroup);
+        }
+        return TreeBuilder.buildTree(dtoList);
+    }
+
+
+    /**
+     * 删除专栏内的文章分组
+     *
+     * @param groupId 分组id
+     * @return true 表示删除成功， false 表示删除失败
+     */
+    @Override
+    public boolean deleteColumnGroup(Long groupId) {
+        ColumnArticleGroupDO group = columnArticleGroupDao.getById(groupId);
+        if (group == null) {
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, groupId);
+        }
+
+        // 判断这个分组下是否有子分组，如果有，则不允许直接删除
+        ColumnArticleGroupDO sub = columnArticleGroupDao.selectByParentGroupId(groupId);
+        if (sub != null) {
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "存在子分组，不支持直接删除当前分组!");
+        }
+
+        // 判断分组下是否存在文章，如果存在，也不允许删除
+        ColumnArticleDO article = columnArticleDao.selectOneByGroupId(groupId);
+        if (article != null) {
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "分组下已经有文章了，不支持直接删除当前分组!");
+        }
+
+        // 直接删除
+        group.setDeleted(YesOrNoEnum.YES.getCode());
+        group.setUpdateTime(new Date());
+        return columnArticleGroupDao.updateById(group);
+    }
 }

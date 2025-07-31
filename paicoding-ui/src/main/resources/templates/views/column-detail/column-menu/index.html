@@ -5,6 +5,7 @@
     >
       <div class="section-list">
         <div th:each="menu, itemStat : ${vo.articleList}">
+          <div th:text="'📂 ' + ${menu.groupName}" style="margin-left: 0.2rem;border-bottom: 0.5px solid #aba2a240;" th:if="${ menu.groupName != null && menu.groupName != '未分组' && menu.groupName != '' }">分组</div>
           <a
             th:href="'/column/' + ${vo.column} + '/' + ${itemStat.index + 1}"
             th:class="${vo.section eq itemStat.index + 1} ? 'active section' : ' section'">

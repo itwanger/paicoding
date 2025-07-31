@@ -17,12 +17,28 @@ import lombok.EqualsAndHashCode;
 public class ColumnArticleGroupDO extends BaseDO {
     private static final long serialVersionUID = -2372103913090667453L;
 
+    /**
+     * 专栏id
+     */
     private Long columnId;
 
+    /**
+     * 父分组id，如果为0或者null，表示当前分组为顶层
+     */
+    private Long parentGroupId;
+
+    /**
+     * 分组名
+     */
     private String title;
 
     /**
      * 顺序，越小越靠前
      */
-    private Integer section;
+    private Long section;
+
+    /**
+     * 是否删除
+     */
+    private Integer deleted;
 }
