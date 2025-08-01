@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
@@ -103,4 +104,7 @@ public interface ColumnSettingService {
      * @return
      */
     List<ColumnArticleGroupDTO> getColumnGroupAndArticles(Long columnId);
+
+
+    boolean moveColumnArticleOrGroup(MoveColumnArticleOrGroupReq req);
 }
