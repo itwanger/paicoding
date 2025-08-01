@@ -13,14 +13,15 @@
             ca.article_id as id,
             (case ca.read_type when 0 then ci.type else ca.read_type end) as `readType`,
             (case LENGTH(a.short_title) when 0 then a.title else a.short_title end) as title,
-            ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`
+            ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`, g.title as `groupName`, g.`section` as `groupLevel`
         from
             column_article ca left join article a on ca.article_id = a.id
             left join column_info ci on ca.column_id = ci.id
+            left join column_article_group g on ca.group_id = g.id and g.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
         where
             ca.column_id = #{columnId}
         order by
-            ca.`section` asc
+            g.`section` asc, ca.`section` asc
     </select>
 
     <select id="getColumnArticle" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
@@ -36,10 +37,11 @@
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO">
         select c.id, c.article_id, a.title, a.short_title, c.column_id,
                col.column_name as `column`, col.cover as column_cover,
-               c.`section` as sort, c.create_time
+               c.`section` as sort, c.create_time, g.id as groupId, g.title as groupName
         from column_article as c
             left join article as a on c.article_id = a.id
             left join column_info as col on c.column_id = col.id
+            left join column_article_group as g on g.id = c.group_id
         where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
             <if test="columnId != null and columnId != -1">
                 and c.column_id = #{columnId}
@@ -47,7 +49,7 @@
             <if test="articleTitle != null and articleTitle != ''">
                 and a.short_title like concat('%', #{articleTitle}, '%')
             </if>
-        order by c.section asc
+        order by g.`section` asc, c.`section` asc
         <include refid="limit"/>
     </select>
 

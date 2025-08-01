@@ -24,6 +24,12 @@ public class ColumnArticleReq implements Serializable {
      */
     private Long columnId;
 
+
+    /**
+     * 专栏分组id
+     */
+    private Long groupId;
+
     /**
      * 文章ID
      */

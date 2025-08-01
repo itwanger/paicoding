@@ -2,7 +2,6 @@ package com.github.paicoding.forum.service.article.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
-import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,34 +13,32 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("column_article")
-public class ColumnArticleDO extends BaseDO {
+@TableName("column_article_group")
+public class ColumnArticleGroupDO extends BaseDO {
     private static final long serialVersionUID = -2372103913090667453L;
 
     /**
-     * 专栏
+     * 专栏id
      */
     private Long columnId;
 
     /**
-     * 专栏文章
+     * 父分组id，如果为0或者null，表示当前分组为顶层
      */
-    private Long articleId;
+    private Long parentGroupId;
 
     /**
-     * 专栏文章分组
+     * 分组名
      */
-    private Long groupId;
+    private String title;
 
     /**
      * 顺序，越小越靠前
      */
-    private Integer section;
+    private Long section;
 
     /**
-     * 专栏类型：免费、登录阅读、收费阅读等
-     *
-     * @see ColumnArticleReadEnum#getRead()
+     * 是否删除
      */
-    private Integer readType;
+    private Integer deleted;
 }

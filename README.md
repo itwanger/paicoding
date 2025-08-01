@@ -249,7 +249,11 @@ GitHub 上标星 13000+ 的开源知识库《 [二哥的 Java 进阶之路](http
 
 ![沉默王二公众号](https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/gongzhonghao.png)
 
-## 九、许可证
+## 九、更新记录
+
+[关键版本迭代记录](docs/version.md)
+
+## 十、许可证
 
 [Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
 
