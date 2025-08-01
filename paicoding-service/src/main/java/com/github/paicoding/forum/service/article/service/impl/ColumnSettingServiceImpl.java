@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
+import com.github.paicoding.forum.api.model.enums.column.MovePositionEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
@@ -49,6 +51,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -109,14 +112,38 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     public void saveColumnArticleGroup(ColumnArticleGroupReq req) {
         ColumnArticleGroupDO groupDO = columnStructMapper.toGroupDO(req);
         if (!NumUtil.nullOrZero(req.getId())) {
+            // 更新分组
             groupDO.setId(req.getId());
         } else {
             // 表示新增
             groupDO.setId(null);
         }
-        this.autoCalculateGroupSection(groupDO);
+        if (!firstAddGroup(groupDO)) {
+            this.autoCalculateGroupSection(groupDO);
+        }
     }
 
+    private boolean firstAddGroup(ColumnArticleGroupDO groupDO) {
+        // 如果这个分组是当前专栏的第一个分组；那么就直接新增分组；并将所有未分组的教程全部挂在这个分组下面
+        List<ColumnArticleGroupDO> dbRecords = columnArticleGroupDao.selectByColumnId(groupDO.getColumnId());
+        if (!CollectionUtils.isEmpty(dbRecords)) {
+            return false;
+        }
+
+        groupDO.setSection(1L);
+        columnArticleGroupDao.save(groupDO);
+
+        // 刷新这个专栏下所有教程的groupId
+        columnArticleDao.updateColumnGroupId(groupDO.getId(), groupDO.getColumnId());
+        return true;
+    }
+
+    /**
+     * 这里是兼容老的，直接通过修改分组的sort值来改变分组排序的场景；整个逻辑相对复杂、不容易理解；
+     * 可以结合 拖拽排序 moveColumnGroup 的实现进行对照，最终的表现一致，但是实现层和理解层差别还是很大的；一个好的接口设计，可以有效的降低实现复杂度
+     *
+     * @param currentGroup
+     */
     private void autoCalculateGroupSection(ColumnArticleGroupDO currentGroup) {
         long baseSection = 0;
         if (NumUtil.nullOrZero(currentGroup.getParentGroupId())) {
@@ -162,7 +189,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             if (item.getId().equals(currentGroup.getId())) {
                 oldIndex = i;
                 if (item.getSection().equals(currentGroup.getSection())) {
-                    // 排序没有改变，直接返回
+                    // 排序没有改变；只需要更新当前节点的信息即可
+                    columnArticleGroupDao.saveOrUpdate(currentGroup);
                     return;
                 }
             }
@@ -205,25 +233,6 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 oldSection += 1;
                 updateGroupSection(item);
             }
-        }
-    }
-
-
-    /**
-     * 更新当前节点，和对应子节点的顺序
-     *
-     * @param groupDO
-     */
-    private void updateGroupSection(ColumnArticleGroupDO groupDO) {
-        // 更新当前节点的顺序
-        columnArticleGroupDao.updateById(groupDO);
-        // 更新子节点的顺序
-        List<ColumnArticleGroupDO> children = columnArticleGroupDao.selectColumnGroupsBySameParent(groupDO.getColumnId(), groupDO.getId());
-        long baseSection = groupDO.getSection() * ColumnArticleGroupDao.SECTION_STEP;
-        for (int i = 0; i < children.size(); i++) {
-            ColumnArticleGroupDO item = children.get(i);
-            item.setSection(baseSection + i + 1);
-            updateGroupSection(item);
         }
     }
 
@@ -513,5 +522,162 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         group.setDeleted(YesOrNoEnum.YES.getCode());
         group.setUpdateTime(new Date());
         return columnArticleGroupDao.updateById(group);
+    }
+
+    @Override
+    @Transactional
+    public boolean moveColumnArticleOrGroup(MoveColumnArticleOrGroupReq req) {
+        if (NumUtil.upZero(req.getMoveArticleId())) {
+            // 移动教程
+            return moveColumnArticle(req);
+        } else {
+            // 移动分组
+            return moveColumnGroup(req);
+        }
+    }
+
+    private boolean moveColumnArticle(MoveColumnArticleOrGroupReq req) {
+        if (NumUtil.upZero(req.getTargetGroupId())) {
+            // 移动到目标分组的前后，则表示将当前教程移动到目标分组的父分组下，作为第一篇教程
+            // 将当前教程的排序设置为1，父分组下其他教程的排序 + 1
+            ColumnArticleGroupDO targetGroup = columnArticleGroupDao.getById(req.getTargetGroupId());
+            if (targetGroup == null) {
+                throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, req.getTargetGroupId());
+            }
+
+            if (Objects.equals(req.getMovePosition(), MovePositionEnum.IN.getCode())) {
+                // 移动到目标分组里面，将这个分组中所有的教程排序 + 1
+                columnArticleDao.updateColumnArticleGESectionToAdd(req.getColumnId(), targetGroup.getId(), 1, 1);
+                // 将当前教程设置为第一篇
+                columnArticleDao.updateColumnArticleSection(req.getColumnId(), req.getMoveArticleId(), targetGroup.getId(), 1);
+            } else {
+                // 移动到目标分组的父分组下，则表示将当前教程移动到目标分组的父分组下，作为第一篇教程
+                columnArticleDao.updateColumnArticleGESectionToAdd(req.getColumnId(), targetGroup.getParentGroupId(), 1, 1);
+                columnArticleDao.updateColumnArticleSection(req.getColumnId(), req.getMoveArticleId(), targetGroup.getParentGroupId(), 1);
+            }
+        } else {
+            // 移动到目标教程的前后，则需要更新groupId，
+            // 如果是后，将这个分组中，教程后面的所有教程的排序 + 2，当前教程的排序 = 目标教程的排序 + 1
+            // 如果是前，将这个分组中，目标教程及之后的所有教程排序 + 1，当前教程的排序 = 目标教程的排序
+            ColumnArticleDO targetArticle = columnArticleDao.selectColumnArticle(req.getColumnId(), req.getTargetArticleId());
+            if (targetArticle == null) {
+                throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, req.getTargetArticleId());
+            }
+
+            if (Objects.equals(req.getMovePosition(), MovePositionEnum.BEFORE.getCode())) {
+                // 移动到目标教程前，表示替换目标教程的顺序
+                columnArticleDao.updateColumnArticleGESectionToAdd(req.getColumnId(), targetArticle.getGroupId(), targetArticle.getSection(), 1);
+                columnArticleDao.updateColumnArticleSection(req.getColumnId(), req.getMoveArticleId(), targetArticle.getGroupId(), targetArticle.getSection());
+            } else {
+                // 移动到目标教程后
+                columnArticleDao.updateColumnArticleGESectionToAdd(req.getColumnId(), targetArticle.getGroupId(), targetArticle.getSection() + 1, 2);
+                columnArticleDao.updateColumnArticleSection(req.getColumnId(), req.getMoveArticleId(), targetArticle.getGroupId(), targetArticle.getSection() + 1);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 将一个教程分组，移动到另一个教程分组前、后、里
+     *
+     * @param req
+     * @return
+     */
+    private boolean moveColumnGroup(MoveColumnArticleOrGroupReq req) {
+        ColumnArticleGroupDO currentGroup = columnArticleGroupDao.getById(req.getMoveGroupId());
+        ColumnArticleGroupDO targetGroup = columnArticleGroupDao.getById(req.getTargetGroupId());
+
+        if (Objects.equals(req.getMovePosition(), MovePositionEnum.IN.getCode())) {
+            // 移动到目标分组内，作为该分组的第一个；目标分组中的其他分组全部往后移动一位
+            List<ColumnArticleGroupDO> subGroups = columnArticleGroupDao.selectColumnGroupsBySameParent(req.getColumnId(), targetGroup.getId());
+            AtomicLong baseSection = new AtomicLong(targetGroup.getSection() * ColumnArticleGroupDao.SECTION_STEP + 1);
+            currentGroup.setParentGroupId(targetGroup.getId());
+            currentGroup.setSection(baseSection.get());
+            this.updateGroupSection(currentGroup);
+            subGroups.forEach(sub -> {
+                if (!sub.getId().equals(currentGroup.getId())) {
+                    baseSection.addAndGet(1);
+                    sub.setSection(baseSection.get());
+                    updateGroupSection(sub);
+                }
+            });
+        } else if (Objects.equals(req.getMovePosition(), MovePositionEnum.BEFORE.getCode())) {
+            // 移动到目标分组前，则将目标分组的排序 + 1，当前分组的教程排序 = 目标分组的排序
+            List<ColumnArticleGroupDO> subGroups = columnArticleGroupDao.selectColumnGroupsBySameParent(req.getColumnId(), targetGroup.getParentGroupId());
+
+            // 首先将当前分组，从列表中移除
+            subGroups.removeIf(item -> item.getId().equals(currentGroup.getId()));
+
+            // 找到目标分组，在列表中的位置
+            long baseSection = -1;
+            for (int i = 0; i < subGroups.size(); i++) {
+                ColumnArticleGroupDO item = subGroups.get(i);
+                if (item.getId().equals(targetGroup.getId())) {
+                    baseSection = item.getSection();
+                    currentGroup.setParentGroupId(targetGroup.getParentGroupId());
+                    currentGroup.setSection(baseSection);
+                    this.updateGroupSection(currentGroup);
+
+                    baseSection += 1;
+                    item.setSection(baseSection);
+                    this.updateGroupSection(item);
+                    baseSection += 1;
+                    continue;
+                }
+                if (baseSection > 0) {
+                    // 表示已经找到了目标分组
+                    item.setSection(baseSection);
+                    baseSection += 1;
+                    this.updateGroupSection(item);
+                }
+            }
+        } else {
+            // 移动到目标分组后，则将目标分组后面的分组排序 + 1，当前分组的教程排序 = 目标分组的排序 + 1
+            List<ColumnArticleGroupDO> subGroups = columnArticleGroupDao.selectColumnGroupsBySameParent(req.getColumnId(), targetGroup.getParentGroupId());
+
+            // 首先将当前分组，从列表中移除
+            subGroups.removeIf(item -> item.getId().equals(currentGroup.getId()));
+
+            // 找到目标分组，在列表中的位置
+            long baseSection = -1;
+            for (int i = 0; i < subGroups.size(); i++) {
+                ColumnArticleGroupDO item = subGroups.get(i);
+                if (item.getId().equals(targetGroup.getId())) {
+                    baseSection = item.getSection() + 1;
+                    currentGroup.setParentGroupId(targetGroup.getParentGroupId());
+                    currentGroup.setSection(baseSection);
+                    this.updateGroupSection(currentGroup);
+
+                    baseSection += 1;
+                    continue;
+                }
+                if (baseSection > 0) {
+                    // 表示已经找到了目标分组
+                    item.setSection(baseSection);
+                    baseSection += 1;
+                    this.updateGroupSection(item);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 更新当前节点，和对应子节点的顺序
+     *
+     * @param groupDO
+     */
+    private void updateGroupSection(ColumnArticleGroupDO groupDO) {
+        // 更新当前节点的顺序
+        columnArticleGroupDao.updateById(groupDO);
+        // 更新子节点的顺序
+        List<ColumnArticleGroupDO> children = columnArticleGroupDao.selectColumnGroupsBySameParent(groupDO.getColumnId(), groupDO.getId());
+        long baseSection = groupDO.getSection() * ColumnArticleGroupDao.SECTION_STEP;
+        for (int i = 0; i < children.size(); i++) {
+            ColumnArticleGroupDO item = children.get(i);
+            item.setSection(baseSection + i + 1);
+            updateGroupSection(item);
+        }
     }
 }

@@ -60,4 +60,36 @@ public class ColumnArticleDao extends ServiceImpl<ColumnArticleMapper, ColumnArt
                 .eq(ColumnArticleDO::getGroupId, groupId)
                 .one();
     }
+
+    public void updateColumnGroupId(Long groupId, Long columnId) {
+        lambdaUpdate()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .set(ColumnArticleDO::getGroupId, groupId)
+                .update();
+    }
+
+    public ColumnArticleDO selectColumnArticle(Long columnId, Long articleId) {
+        return lambdaQuery()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .eq(ColumnArticleDO::getArticleId, articleId)
+                .one();
+    }
+
+    public void updateColumnArticleSection(Long columnId, Long articleId, Long groupId, Integer section) {
+        lambdaUpdate()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .eq(ColumnArticleDO::getArticleId, articleId)
+                .set(ColumnArticleDO::getSection, section)
+                .set(ColumnArticleDO::getGroupId, groupId)
+                .update();
+    }
+
+    public void updateColumnArticleGESectionToAdd(Long columnId, Long groupId, Integer section, Integer add) {
+        lambdaUpdate()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .eq(ColumnArticleDO::getGroupId, groupId)
+                .ge(ColumnArticleDO::getSection, section)
+                .setSql("section = section + " + add)
+                .update();
+    }
 }

@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
@@ -130,6 +131,19 @@ public class ColumnSettingRestController {
     public ResVo<String> sortColumnArticleByIDApi(@RequestBody SortColumnArticleByIDReq req) {
         columnSettingService.sortColumnArticleByIDApi(req);
         return ResVo.ok();
+    }
+
+
+    /**
+     * 移动专栏中教程或者分组的位置
+     * @param req 请求参数
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "moveColumnArticleOrGroup")
+    public ResVo<Boolean> moveColumnArticleOrGroup(@RequestBody MoveColumnArticleOrGroupReq req) {
+        columnSettingService.moveColumnArticleOrGroup(req);
+        return ResVo.ok(true);
     }
 
     @ApiOperation("获取教程列表")
