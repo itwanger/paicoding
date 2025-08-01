@@ -42,4 +42,10 @@ public class SimpleArticleDTO implements Serializable {
      */
     @ApiModelProperty("阅读模式")
     private Integer readType;
+
+    @ApiModelProperty("教程分组")
+    private String groupName;
+
+    @ApiModelProperty("分组层级")
+    private Integer groupLevel;
 }

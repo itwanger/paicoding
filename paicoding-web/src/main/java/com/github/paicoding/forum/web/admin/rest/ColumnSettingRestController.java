@@ -3,8 +3,16 @@ package com.github.paicoding.forum.web.admin.rest;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
-import com.github.paicoding.forum.api.model.vo.article.*;
+import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
+import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
+import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -19,7 +27,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -52,6 +65,19 @@ public class ColumnSettingRestController {
         return ResVo.ok();
     }
 
+    /**
+     * 维护专栏的分组情况
+     *
+     * @param req
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "saveColumnGroup")
+    public ResVo<Boolean> saveColumnArticleGroup(@RequestBody ColumnArticleGroupReq req) {
+        columnSettingService.saveColumnArticleGroup(req);
+        return ResVo.ok(true);
+    }
+
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "saveColumnArticle")
     public ResVo<String> saveColumnArticle(@RequestBody ColumnArticleReq req) {
@@ -71,6 +97,19 @@ public class ColumnSettingRestController {
     public ResVo<String> deleteColumn(@RequestParam(name = "columnId") Long columnId) {
         columnSettingService.deleteColumn(columnId);
         return ResVo.ok();
+    }
+
+    /**
+     * 删除专栏文章分组
+     *
+     * @param groupId 分组id
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "deleteColumnGroup")
+    public ResVo<Boolean> deleteColumnGroup(@RequestParam(name = "groupId") Long groupId) {
+        boolean ans = columnSettingService.deleteColumnGroup(groupId);
+        return ResVo.ok(ans);
     }
 
     @Permission(role = UserRole.ADMIN)
@@ -94,6 +133,19 @@ public class ColumnSettingRestController {
         return ResVo.ok();
     }
 
+
+    /**
+     * 移动专栏中教程或者分组的位置
+     * @param req 请求参数
+     * @return
+     */
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "moveColumnArticleOrGroup")
+    public ResVo<Boolean> moveColumnArticleOrGroup(@RequestBody MoveColumnArticleOrGroupReq req) {
+        columnSettingService.moveColumnArticleOrGroup(req);
+        return ResVo.ok(true);
+    }
+
     @ApiOperation("获取教程列表")
     @PostMapping(path = "list")
     public ResVo<PageVo<ColumnDTO>> list(@RequestBody SearchColumnReq req) {
@@ -101,11 +153,19 @@ public class ColumnSettingRestController {
         return ResVo.ok(columnDTOPageVo);
     }
 
+
+    @ApiOperation("获取教程分组列表")
+    @GetMapping(path = "listGroups")
+    public ResVo<List<ColumnArticleGroupDTO>> listGroups(@RequestParam("columnId") Long columnId) {
+        List<ColumnArticleGroupDTO> list = columnSettingService.getColumnGroups(columnId);
+        return ResVo.ok(list);
+    }
+
     /**
      * 获取教程配套的文章列表
      * <p>
-     *     请求参数有教程名、文章名
-     *     返回教程配套的文章列表
+     * 请求参数有教程名、文章名
+     * 返回教程配套的文章列表
      *
      * @return
      */
@@ -114,6 +174,20 @@ public class ColumnSettingRestController {
         PageVo<ColumnArticleDTO> vo = columnSettingService.getColumnArticleList(req);
         return ResVo.ok(vo);
     }
+
+
+    /**
+     * 教程的文章，根据分组进行汇聚展示
+     *
+     * @param columnId
+     * @return
+     */
+    @GetMapping(path = "listColumnByGroup")
+    public ResVo<List<ColumnArticleGroupDTO>> listColumnArticlesByGroup(@RequestParam("columnId") Long columnId) {
+        List<ColumnArticleGroupDTO> list = columnSettingService.getColumnGroupAndArticles(columnId);
+        return ResVo.ok(list);
+    }
+
 
     @ApiOperation("专栏搜索")
     @GetMapping(path = "query")
