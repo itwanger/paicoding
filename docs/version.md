@@ -1,5 +1,14 @@
 ## 技术派迭代关键历史进程
 
+### 2025年度
+
+- 2025/08/01 实现教程分组
+  - [Feature/1217/column group by liuyueyi · Pull Request #121 · itwanger/paicoding](https://github.com/itwanger/paicoding/pull/121/files)
+- 2025/02/18 短链服务
+  - [短链接功能 by betasecond · Pull Request #101 · itwanger/paicoding](https://github.com/itwanger/paicoding/pull/101)
+- 2025/02/10 派聪明实现多轮对话
+  - [feat: 派聪明支持多轮对话、提示词 by liuyueyi · Pull Request #97 · itwanger/paicoding](https://github.com/itwanger/paicoding/pull/97)
+
 ### 2024年度
 
 - 2024/12/06 完成微信支付集成，微信支付解锁文章付费阅读
