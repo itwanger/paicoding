@@ -680,7 +680,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 }
             }
         }
-
+        // 专栏内教程顺序重排
+        this.autoUpdateColumnArticleSections(req.getColumnId());
         return true;
     }
 
