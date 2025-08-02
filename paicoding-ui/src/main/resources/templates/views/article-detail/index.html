@@ -89,9 +89,9 @@
             </div>
             <div class="short-url-container">
               <div class="input-group">
-                <input type="text" id="shortUrl" class="form-control" readonly>
+                <input type="text" id="shortUrl" class="form-control" readonly style="font-size: 1rem;">
                 <div class="input-group-append">
-                  <button class="btn btn-outline-secondary" type="button" onclick="copyShortUrl()">复制</button>
+                  <button class="btn btn-outline-secondary" type="button" onclick="copyAndClose()">复制</button>
                 </div>
               </div>
             </div>
@@ -370,6 +370,12 @@
 
       bindCommentInputEvent();
 
+      function copyAndClose() {
+        // 复制短链
+        copyShortUrl();
+        // // 关闭弹窗，有个问题，关闭之后无法再次打开；先不关闭
+        // $('#shareModal').hide();
+      }
       /*]]>*/
     </script>
   </body>
