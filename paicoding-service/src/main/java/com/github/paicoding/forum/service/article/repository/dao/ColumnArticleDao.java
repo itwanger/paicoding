@@ -75,6 +75,12 @@ public class ColumnArticleDao extends ServiceImpl<ColumnArticleMapper, ColumnArt
                 .one();
     }
 
+    public void updateColumnArticleSection(Long id, Integer section) {
+        lambdaUpdate().eq(ColumnArticleDO::getId, id)
+                .set(ColumnArticleDO::getSection, section)
+                .update();
+    }
+
     public void updateColumnArticleSection(Long columnId, Long articleId, Long groupId, Integer section) {
         lambdaUpdate()
                 .eq(ColumnArticleDO::getColumnId, columnId)

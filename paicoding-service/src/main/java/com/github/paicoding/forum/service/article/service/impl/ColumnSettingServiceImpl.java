@@ -10,14 +10,7 @@ import com.github.paicoding.forum.api.model.enums.column.MovePositionEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
-import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
-import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.SearchColumnReq;
-import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
-import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.*;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
@@ -45,12 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -246,7 +234,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     public void saveColumnArticle(Long articleId, Long columnId) {
         // 转换参数
         // 插入的时候，需要判断是否已经存在
-        ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getArticleId, articleId));
+        ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
+                .eq(ColumnArticleDO::getArticleId, articleId));
         if (exist != null) {
             if (!Objects.equals(columnId, exist.getColumnId())) {
                 // 更新
@@ -272,7 +261,9 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         ColumnArticleDO columnArticleDO = ColumnArticleStructMapper.INSTANCE.reqToDO(req);
         if (NumUtil.nullOrZero(columnArticleDO.getId())) {
             // 插入的时候，需要判断是否已经存在
-            ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId()).eq(ColumnArticleDO::getArticleId, columnArticleDO.getArticleId()));
+            ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
+                    .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
+                    .eq(ColumnArticleDO::getArticleId, columnArticleDO.getArticleId()));
             if (exist != null) {
                 throw ExceptionUtil.of(StatusEnum.COLUMN_ARTICLE_EXISTS, "请勿重复添加");
             }
@@ -306,7 +297,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         if (columnArticleDO != null) {
             columnArticleDao.removeById(id);
             // 删除的时候，批量更新 section，比如说原来是 1,2,3,4,5,6,7,8,9,10，删除 5，那么 6-10 的 section 都要减 1
-            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1").eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1")
+                    .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())
                     // section 大于 1
                     .gt(ColumnArticleDO::getSection, 1).gt(ColumnArticleDO::getSection, columnArticleDO.getSection()));
         }
@@ -340,7 +332,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 // 当 activeSection 大于 overSection 时，表示文章被向上拖拽。
                 // 需要将 activeSection 到 overSection（不包括 activeSection 本身）之间的所有文章的 section 加 1，
                 // 并将 activeSection 设置为 overSection。
-                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section + 1") // 将符合条件的记录的 section 字段的值增加 1
+                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                        .setSql("section = section + 1") // 将符合条件的记录的 section 字段的值增加 1
                         .eq(ColumnArticleDO::getColumnId, overDO.getColumnId()) // 指定要更新记录的 columnId 条件
                         .ge(ColumnArticleDO::getSection, overSection) // 指定 section 字段的下限（包含此值）
                         .lt(ColumnArticleDO::getSection, activeSection)); // 指定 section 字段的上限
@@ -353,7 +346,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 // 那么 activeSection + 1 到 overSection 的 section 都要 -1
                 // 向下拖动
                 // 需要将 activeSection 到 overSection（包括 overSection）之间的所有文章的 section 减 1
-                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1") // 将符合条件的记录的 section 字段的值减少 1
+                columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                        .setSql("section = section - 1") // 将符合条件的记录的 section 字段的值减少 1
                         .eq(ColumnArticleDO::getColumnId, overDO.getColumnId()) // 指定要更新记录的 columnId 条件
                         .gt(ColumnArticleDO::getSection, activeSection) // 指定 section 字段的下限（不包含此值）
                         .le(ColumnArticleDO::getSection, overSection)); // 指定 section 字段的上限（包含此值）
@@ -390,8 +384,12 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         // 如果存在，交换顺序
         if (changeColumnArticleDO != null) {
             // 交换顺序
-            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().set(ColumnArticleDO::getSection, columnArticleDO.getSection()).eq(ColumnArticleDO::getId, changeColumnArticleDO.getId()));
-            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().set(ColumnArticleDO::getSection, changeColumnArticleDO.getSection()).eq(ColumnArticleDO::getId, columnArticleDO.getId()));
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                    .set(ColumnArticleDO::getSection, columnArticleDO.getSection())
+                    .eq(ColumnArticleDO::getId, changeColumnArticleDO.getId()));
+            columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate()
+                    .set(ColumnArticleDO::getSection, changeColumnArticleDO.getSection())
+                    .eq(ColumnArticleDO::getId, columnArticleDO.getId()));
         } else {
             // 如果不存在，直接修改顺序
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "输入的顺序不存在，无法完成交换");
@@ -418,7 +416,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             List<BaseUserInfoDTO> users = userService.batchQueryBasicUserInfo(userIds);
 
             // 创建一个id到用户信息的映射
-            Map<Long, BaseUserInfoDTO> userMap = users.stream().collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
+            Map<Long, BaseUserInfoDTO> userMap = users.stream()
+                    .collect(Collectors.toMap(BaseUserInfoDTO::getId, Function.identity()));
 
             // 设置作者信息
             columnDTOS.forEach(columnDTO -> {
@@ -447,7 +446,9 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Override
     public List<SimpleColumnDTO> listSimpleColumnBySearchKey(String key) {
         LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
-        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName, ColumnInfoDO::getCover).and(!StringUtils.isEmpty(key), v -> v.like(ColumnInfoDO::getColumnName, key)).orderByDesc(ColumnInfoDO::getId);
+        query.select(ColumnInfoDO::getId, ColumnInfoDO::getColumnName, ColumnInfoDO::getCover)
+                .and(!StringUtils.isEmpty(key), v -> v.like(ColumnInfoDO::getColumnName, key))
+                .orderByDesc(ColumnInfoDO::getId);
         List<ColumnInfoDO> articleDOS = columnDao.list(query);
         return ColumnStructMapper.INSTANCE.infoToSimpleDtos(articleDOS);
     }
@@ -470,7 +471,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             dtoList = ColumnStructMapper.INSTANCE.toGroupDTOList(entityList);
         }
         // 分组，并设置一个未分组的默认分组项，用于挂文章没有指定分组的场景
-        Map<Long, ColumnArticleGroupDTO> groupMap = dtoList.stream().collect(Collectors.toMap(ColumnArticleGroupDTO::getGroupId, v -> v));
+        Map<Long, ColumnArticleGroupDTO> groupMap = dtoList.stream()
+                .collect(Collectors.toMap(ColumnArticleGroupDTO::getGroupId, v -> v));
         ColumnArticleGroupDTO defaultGroup = ColumnArticleGroupDTO.newDefaultGroup(columnId);
 
 
@@ -574,7 +576,26 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 columnArticleDao.updateColumnArticleSection(req.getColumnId(), req.getMoveArticleId(), targetArticle.getGroupId(), targetArticle.getSection() + 1);
             }
         }
+
+        // 专栏内教程顺序重排
+        this.autoUpdateColumnArticleSections(req.getColumnId());
         return true;
+    }
+
+    /**
+     * 前台在显示文章时，是按照顺序递增的方式进行访问的，因此拖拽教程之后，我们对专栏内的教程做一次重排
+     *
+     * @param columnId
+     */
+    private void autoUpdateColumnArticleSections(Long columnId) {
+        SearchColumnArticleParams params = new SearchColumnArticleParams();
+        params.setColumnId(columnId);
+        List<ColumnArticleDTO> articleList = columnDao.listColumnArticlesDetail(params, PageParam.newPageInstance(1, Integer.MAX_VALUE));
+        int section = 1;
+        for (ColumnArticleDTO item : articleList) {
+            columnArticleDao.updateColumnArticleSection(item.getId(), section);
+            section += 1;
+        }
     }
 
     /**
