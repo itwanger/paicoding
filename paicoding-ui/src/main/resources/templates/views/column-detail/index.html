@@ -44,6 +44,34 @@
               </div>
             </div>
           </div>
+
+          <!--   文章分享   -->
+          <div class="modal fade" id="shareModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">分享文章</h5>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="qrcode-container mb-3">
+                    <img id="shareQrCode" src="" alt="分享二维码" style="width:200px;height:200px;">
+                  </div>
+                  <div class="short-url-container">
+                    <div class="input-group">
+                      <input type="text" id="shortUrl" class="form-control" readonly style="font-size: 1rem;">
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyAndClose()">复制</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
   </body>
@@ -314,5 +342,13 @@
     }
 
     bindCommentInputEvent()
+
+
+    function copyAndClose() {
+      // 复制短链
+      copyShortUrl();
+      // // 关闭弹窗，有个问题，关闭之后无法再次打开；先不关闭
+      // $('#shareModal').hide();
+    }
   </script>
 </html>
