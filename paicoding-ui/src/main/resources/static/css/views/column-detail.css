@@ -29,7 +29,7 @@
   display: flex;
   justify-content: flex-start;
   transition: all 0.2s;
-  padding: 9px 16px;
+  padding: 9px 10px 9px 10px;
   cursor: pointer;
 }
 
@@ -77,7 +77,6 @@
   font-size: 15px;
   line-height: 24px;
   display: flex;
-  max-width: 90%;
 }
 
 .book-directory-comp .section-list .section .center .main-line .title {
@@ -404,7 +403,6 @@
 }
 
 .right {
-  margin-left: 15px;
   font-size: 15px;
   line-height: 24px;
 }

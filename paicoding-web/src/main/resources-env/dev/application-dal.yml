@@ -3,7 +3,7 @@ spring:
     url: jdbc:mysql://localhost:3306/${database.name}?useUnicode=true&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     # fixme 注意：本地启动时，数据库用户名 + 密码，更新这里的配置
     username: root
-    password:
+    password: 123456
   dynamic: # 动态数据源
    # primary: master # 这个表示默认的数据源，如果是注释状态，则表明使用上面的单数据源模式
     datasource:
@@ -40,21 +40,14 @@ elasticsearch:
   open: false
   # es集群名称
   clusterName: elasticsearch
+  # es节点地址
   hosts: 127.0.0.1:9200
-  userName: elastic
-  password: elastic
-  # es 请求方式
+  # es请求方式
   scheme: http
-  # es 连接超时时间
+  # es连接超时时间（毫秒）
   connectTimeOut: 1000
-  # es socket 连接超时时间
+  # es socket连接超时时间（毫秒）
   socketTimeOut: 30000
-  # es 请求超时时间
-  connectionRequestTimeOut: 500
-  # es 最大连接数
-  maxConnectNum: 100
-  # es 每个路由的最大连接数
-  maxConnectNumPerRoute: 100
 
 
 
