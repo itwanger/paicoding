@@ -1,14 +1,24 @@
 <div class="book-summary collapse" id="collapseMenu">
   <div class="book-summary-inner">
-    <div
-      class="book-directory-comp beautify-scrollbar-warp book-directory"
-    >
+    <div class="book-directory-comp beautify-scrollbar-warp book-directory">
       <div class="section-list">
+        <!-- 重新组织分组结构 -->
         <div th:each="menu, itemStat : ${vo.articleList}">
-          <div th:text="'📂 ' + ${menu.groupName}" style="margin-left: 0.2rem;border-bottom: 0.5px solid #aba2a240;" th:if="${ menu.groupName != null && menu.groupName != '未分组' && menu.groupName != '' }">分组</div>
+          <!-- 只有当前文章是新分组的第一个文章时才显示分组标题 -->
+          <div class="group-header" 
+               th:if="${menu.groupName != null && menu.groupName != '未分组' && menu.groupName != '' && (itemStat.first || (itemStat.index > 0 && vo.articleList.get(itemStat.index-1).groupName != menu.groupName))}" 
+               th:attr="data-group=${menu.groupName}">
+            <div class="group-toggle">
+              <svg class="arrow-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 12L10 8L6 4" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="group-name" th:text="${menu.groupName}">分组</div>
+          </div>
           <a
             th:href="'/column/' + ${vo.column} + '/' + ${itemStat.index + 1}"
-            th:class="${vo.section eq itemStat.index + 1} ? 'active section' : ' section'">
+            th:class="${vo.section eq itemStat.index + 1} ? 'active section' : ' section'"
+            th:attr="data-group=${menu.groupName},data-column=${menu.column}">
             <div class="left">
               <div class="index" th:text="${itemStat.index + 1}">1</div>
             </div>

@@ -24,6 +24,41 @@
   padding: 18px 0;
 }
 
+/* 分组标题样式 */
+.group-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.group-header:hover {
+  background-color: #f5f5f5;
+}
+
+.group-toggle {
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+  transform: rotate(0deg); /* 默认向右 */
+}
+
+.group-toggle.expanded {
+  transform: rotate(90deg); /* 展开时向下 */
+}
+
+.group-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 分组文章容器 */
+.group-articles {
+  /* 可以添加额外样式 */
+}
+
 .book-directory-comp .section-list .section {
   position: relative;
   display: flex;
@@ -57,6 +92,10 @@
   .icon-camera
   path {
   fill: currentColor;
+}
+
+.book-summary .group-name {
+  margin-left: 0.2rem;border-bottom: 1px solid #aba2a240;
 }
 
 .book-directory-comp .section-list .section .left .index {
@@ -163,6 +202,7 @@
 }
 
 .book-summary {
+  width: 280px;
   height: 100%;
   cursor: default;
   flex-shrink: 0;

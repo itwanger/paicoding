@@ -341,8 +341,81 @@
       }
     }
 
-    bindCommentInputEvent()
+    // 分组展开/收缩功能
+    const initGroupToggle = function() {
+      // 使用Map存储分组状态
+      const groupStates = new Map();
+      
+      // 获取当前激活的文章所在分组
+      const $activeSection = $('.section.active');
+      const activeGroupName = $activeSection.attr('data-group');
+      
+      // 隐藏所有分组下的文章（除了当前激活文章所在的分组）
+      $('.section[data-group]').each(function() {
+        const $section = $(this);
+        const groupName = $section.attr('data-group');
+        
+        if (groupName && groupName !== '未分组') {
+          // 初始化分组状态
+          // 如果是当前激活文章所在的分组，则默认展开（状态为true），否则默认收缩（状态为false）
+          const isActiveGroup = (groupName === activeGroupName);
+          groupStates.set(groupName, isActiveGroup);
+          
+          // 设置默认显示/隐藏状态
+          if (!isActiveGroup) {
+            $section.hide();
+          }
+        }
+      });
+      
+      // 展开当前激活文章所在的分组（更新箭头状态）
+      if (activeGroupName && activeGroupName !== '未分组') {
+        $(`.group-header[data-group="${activeGroupName}"]`).find('.group-toggle').addClass('expanded');
+      }
+      
+      // 为所有分组标题添加点击事件（使用事件委托提高性能）
+      $(document).on('click', '.group-header', function() {
+        const $header = $(this);
+        const $toggle = $header.find('.group-toggle');
+        const groupName = $header.attr('data-group');
+        
+        // 获取当前状态并取反
+        const currentState = groupStates.get(groupName) || false;
+        const newState = !currentState;
+        
+        // 更新状态和UI
+        groupStates.set(groupName, newState);
+        $toggle.toggleClass('expanded', newState);
+        
+        // 批量操作DOM，减少重排
+        requestAnimationFrame(() => {
+          $(`.section[data-group="${groupName}"]`).toggle(newState);
+        });
+      });
+      
+      // 初始状态设置 - 移除没有在当前激活分组中的其他分组的expanded类
+      $('.group-header:not([data-group="' + activeGroupName + '"]) .group-toggle').removeClass('expanded');
+    }
 
+    // 更新浏览器标签页标题
+    const updatePageTitle = function() {
+      // 获取当前文章标题
+      const currentArticleTitle = $('.section.active .title-text').text();
+      // 获取专栏名称（从当前激活的文章元素中获取data-column属性）
+      const columnName = $('.section.active').data('column');
+      
+      if (currentArticleTitle && columnName) {
+        // 更新页面标题为"文章标题 - 专栏名称 - 网站名称"的格式
+        document.title = currentArticleTitle + ' - ' + columnName + ' - ' + [[${global.siteInfo.websiteName}]];
+      } else if (currentArticleTitle) {
+        // 如果没有专栏名称，至少显示文章标题
+        document.title = currentArticleTitle + ' - ' + [[${global.siteInfo.websiteName}]];
+      }
+    }
+
+    bindCommentInputEvent()
+    initGroupToggle()
+    updatePageTitle()
 
     function copyAndClose() {
       // 复制短链

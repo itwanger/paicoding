@@ -120,7 +120,6 @@ public class ColumnServiceImpl implements ColumnService {
                 article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));
             } else {
                 // 和前面一个是同一层级，则不需要显示分组，直接沿用之前的即可
-                article.setGroupName("");
                 article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));
             }
         }
