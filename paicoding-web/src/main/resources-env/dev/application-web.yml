@@ -9,7 +9,7 @@ spring:
     encoding: UTF-8
     servlet:
       content-type: text/html
-    cache: false
+    cache: false # 禁用Thymeleaf模板缓存以支持热部署
 
 short-link:
   whitelist: localhost, 127.0.0.1:8080,paicoding.com # 允许创建短链接的域名，示例: 域名,域名+端口

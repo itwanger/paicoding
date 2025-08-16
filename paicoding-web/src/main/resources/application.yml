@@ -7,8 +7,14 @@ server:
     enabled: true # 开启返回结果压缩，减少传输耗时
     min-response-size: 2KB
 
-
 spring:
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+    # 添加静态资源热部署配置
+    additional-paths: src/main/resources/static/**
   application:
     name: paicoding
   #  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
@@ -114,3 +120,8 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+  health:
+    elasticsearch:
+      enabled: false
+    mail:
+      enabled: false
