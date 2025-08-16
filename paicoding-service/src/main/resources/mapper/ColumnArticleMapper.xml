@@ -13,6 +13,7 @@
             ca.article_id as id,
             (case ca.read_type when 0 then ci.type else ca.read_type end) as `readType`,
             (case LENGTH(a.short_title) when 0 then a.title else a.short_title end) as title,
+            ci.column_name as `column`,
             ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`, g.title as `groupName`, g.`section` as `groupLevel`
         from
             column_article ca left join article a on ca.article_id = a.id
