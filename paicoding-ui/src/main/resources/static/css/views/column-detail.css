@@ -11,8 +11,8 @@
   padding: 20px 0;
 }
 .article-content-inter-wrap {
-  max-width: 800px;
-  margin: 0 auto;
+  margin-right: 310px;
+  margin-left: 20px;
 }
 
 .article-content {
@@ -22,6 +22,13 @@
 .book-directory-comp {
   color: #000;
   padding: 18px 0;
+}
+
+.column.toc-container {
+  background-color: var(--pai-color-fff-normal);
+  padding: 20px;
+  width: 280px;
+  right: 10px;
 }
 
 /* 分组标题样式 */
@@ -409,7 +416,7 @@
   z-index: 100;
   position: fixed;
   bottom: 70px;
-  width: 900px;
+  right: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -592,4 +599,63 @@
   .for-menu {
     display: none;
   }
+}
+
+.markdown-toc-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.markdown-toc-list li {
+  margin: 0;
+  padding: 0;
+}
+
+.toc-level-2 {
+  font-size: 1rem;
+  color: #333;
+  margin-left: 0;
+}
+
+.toc-level-3 {
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: 20px;
+}
+
+.toc-level-4 {
+  font-size: 12px;
+  color: #999;
+  margin-left: 40px;
+}
+
+.toc-level-5 {
+  font-size: 10px;
+  color: #999;
+  margin-left: 60px;
+}
+
+.toc-level-6 {
+  font-size: 10px;
+  color: #999;
+  margin-left: 80px;
+}
+
+/* 添加目录项选中状态样式 */
+.markdown-toc-list a.active {
+  color: #ff6900;
+  font-weight: bold;
+  border-left: 3px solid #ff6900;
+  padding-left: 10px;
+}
+
+.toc-h2.active {
+  color: #ff6900;
+  font-weight: bold;
+}
+
+.toc-h3.active {
+  color: #ff6900;
+  font-weight: bold;
 }
