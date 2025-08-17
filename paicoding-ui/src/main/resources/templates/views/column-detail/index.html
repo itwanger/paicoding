@@ -44,6 +44,15 @@
               </div>
             </div>
           </div>
+          
+          <!-- 文章内容导航 -->
+          <div id="toc-container-position"></div>
+          <div class="right-container toc-container column" style="display: none;">
+            <div class="widget">
+              <h3 class="com-nav-bar-title">目录</h3>
+              <div id="contentMenu" class="toc"></div>
+            </div>
+          </div>
 
           <!--   文章分享   -->
           <div class="modal fade" id="shareModal" tabindex="-1" role="dialog">
@@ -57,13 +66,13 @@
                 </div>
                 <div class="modal-body text-center">
                   <div class="qrcode-container mb-3">
-                    <img id="shareQrCode" src="" alt="分享二维码" style="width:200px;height:200px;">
+                    <img id="shareQrCode" src="" alt="分享二维码">
                   </div>
                   <div class="short-url-container">
-                    <div class="input-group">
-                      <input type="text" id="shortUrl" class="form-control" readonly style="font-size: 1rem;">
+                    <div class="input-group" style="max-width: 500px; margin: 0 auto;">
+                      <input type="text" id="shortUrl" class="form-control" readonly >
                       <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" onclick="copyAndClose()">复制</button>
+                        <button class="btn btn-primary" type="button" onclick="copyAndClose()">复制</button>
                       </div>
                     </div>
                   </div>
@@ -401,8 +410,12 @@
     const updatePageTitle = function() {
       // 获取当前文章标题
       const currentArticleTitle = $('.section.active .title-text').text();
-      // 获取专栏名称（从当前激活的文章元素中获取data-column属性）
-      const columnName = $('.section.active').data('column');
+      // 获取专栏名称（通过查找专栏目录中任意文章的data-group属性，然后找到对应的分组标题）
+      let columnName = '';
+      const $groupHeader = $('.group-header').first();
+      if ($groupHeader.length > 0) {
+        columnName = $groupHeader.find('.group-name').text();
+      }
       
       if (currentArticleTitle && columnName) {
         // 更新页面标题为"文章标题 - 专栏名称 - 网站名称"的格式
@@ -412,6 +425,108 @@
         document.title = currentArticleTitle + ' - ' + [[${global.siteInfo.websiteName}]];
       }
     }
+
+    // 生成内容导航菜单
+    function generateTocMenu() {
+      const tocContainer = $('.toc-container');
+      if (tocContainer.length > 0) {
+        const tocMenu = $('#contentMenu');
+        // 获取文章内容中的所有标题，排除modal-dialog中的标题
+        const contentHeadings = $('.article-info-wrap').find('h1, h2, h3, h4, h5, h6').not('.modal-dialog h1, .modal-dialog h2, .modal-dialog h3, .modal-dialog h4, .modal-dialog h5, .modal-dialog h6');
+
+        if (contentHeadings.length > 0) {
+          let tocHtml = '<ul class="markdown-toc-list">';
+          let lastLevel = 0;
+
+          contentHeadings.each(function() {
+            const $heading = $(this);
+            const level = parseInt(this.tagName.charAt(1));
+            const text = $heading.text();
+            const id = $heading.attr('id') || ('heading-' + text.replace(/\s+/g, '-').toLowerCase());
+
+            // 为标题添加id属性
+            $heading.attr('id', id);
+
+            // 构建导航菜单HTML
+            if (level > lastLevel) {
+              tocHtml += '<ul>';
+            } else if (level < lastLevel) {
+              tocHtml += '</li></ul></li>';
+            } else {
+              tocHtml += '</li>';
+            }
+
+            // 添加不同级别的标题类名
+            if (level === 2) {
+              tocHtml += `<li><a class="toc-level-${level} toc-h2" href="#${id}" level="${level}">${text}</a>`;
+            } else if (level === 3) {
+              tocHtml += `<li><a class="toc-level-${level} toc-h3" href="#${id}" level="${level}">${text}</a>`;
+            } else {
+              tocHtml += `<li><a class="toc-level-${level}" href="#${id}" level="${level}">${text}</a>`;
+            }
+            lastLevel = level;
+          });
+
+          tocHtml += '</li></ul>';
+          tocMenu.html(tocHtml);
+          tocContainer.show();
+          
+          // 添加点击事件监听器以更新选中状态
+          bindTocScrollSpy();
+        } else {
+          tocContainer.hide();
+        }
+      }
+    }
+    
+    // 绑定滚动监听和点击事件以更新目录选中状态
+    function bindTocScrollSpy() {
+      // 为目录链接添加点击事件
+      $('#contentMenu a').on('click', function(e) {
+        // 移除所有现有选中状态
+        $('#contentMenu a').removeClass('active');
+        // 为当前点击的链接添加选中状态
+        $(this).addClass('active');
+      });
+      
+      // 监听窗口滚动事件以自动更新选中状态
+      $(window).on('scroll', function() {
+        updateTocActiveState();
+      });
+      
+      // 初始化时更新一次选中状态
+      updateTocActiveState();
+    }
+    
+    // 更新目录的活动状态
+    function updateTocActiveState() {
+      const scrollPosition = $(window).scrollTop() + 100; // 添加偏移量以更准确匹配
+      
+      // 移除所有现有选中状态
+      $('#contentMenu a').removeClass('active');
+      
+      // 查找当前视口中的标题
+      let currentHeadingId = '';
+      $('.article-info-wrap :header[id]').each(function() {
+        const headingTop = $(this).offset().top;
+        if (headingTop <= scrollPosition) {
+          currentHeadingId = $(this).attr('id');
+        }
+      });
+      
+      // 为对应的目录项添加选中状态
+      if (currentHeadingId) {
+        $('#contentMenu a[href="#' + currentHeadingId + '"]').addClass('active');
+      }
+    }
+
+    $(document).ready(function () {
+      // 页面加载完成后更新标题
+      updatePageTitle();
+
+      // 生成内容导航菜单
+      generateTocMenu();
+    });
 
     bindCommentInputEvent()
     initGroupToggle()
