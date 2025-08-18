@@ -29,6 +29,8 @@
   padding: 20px;
   width: 280px;
   right: 10px;
+  max-height: calc(100vh - 60px); /* 设置最大高度 */
+  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
 /* 分组标题样式 */
@@ -613,7 +615,7 @@
 }
 
 .toc-level-2 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #333;
   margin-left: 0;
 }
