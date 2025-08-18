@@ -133,36 +133,17 @@
   color: #252933;
 }
 
-.book-directory-comp
-  .section-list
-  .section
-  .center
-  .main-line
-  .title
-  .icon-camera {
+.book-directory-comp .section-list .section .center .main-line .title .icon-camera {
   vertical-align: middle;
   display: inline-block;
   margin-right: 6px;
 }
 
-.book-directory-comp
-  .section-list
-  .section
-  .center
-  .main-line
-  .title
-  .icon-camera
-  path {
+.book-directory-comp .section-list .section .center .main-line .title .icon-camera path {
   fill: #8a919f;
 }
 
-.book-directory-comp
-  .section-list
-  .section
-  .center
-  .main-line
-  .title
-  .title-text {
+.book-directory-comp .section-list .section .center .main-line .title .title-text {
   vertical-align: bottom;
   font-size: 16px;
   line-height: 24px;
@@ -612,6 +593,10 @@
 .markdown-toc-list li {
   margin: 0;
   padding: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .toc-level-2 {
