@@ -483,17 +483,25 @@
     function bindTocScrollSpy() {
       // 为目录链接添加点击事件
       $('#contentMenu a').on('click', function(e) {
+        e.preventDefault();
         // 移除所有现有选中状态
         $('#contentMenu a').removeClass('active');
         // 为当前点击的链接添加选中状态
         $(this).addClass('active');
+
+        // 滚动到对应的内容区域
+        const targetId = $(this).attr('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
       });
-      
+
       // 监听窗口滚动事件以自动更新选中状态
       $(window).on('scroll', function() {
         updateTocActiveState();
       });
-      
+
       // 初始化时更新一次选中状态
       updateTocActiveState();
     }
@@ -501,10 +509,10 @@
     // 更新目录的活动状态
     function updateTocActiveState() {
       const scrollPosition = $(window).scrollTop() + 100; // 添加偏移量以更准确匹配
-      
+
       // 移除所有现有选中状态
       $('#contentMenu a').removeClass('active');
-      
+
       // 查找当前视口中的标题
       let currentHeadingId = '';
       $('.article-info-wrap :header[id]').each(function() {
@@ -513,10 +521,18 @@
           currentHeadingId = $(this).attr('id');
         }
       });
-      
+
       // 为对应的目录项添加选中状态
       if (currentHeadingId) {
         $('#contentMenu a[href="#' + currentHeadingId + '"]').addClass('active');
+      }
+
+      // 更新目录容器滚动位置
+      const tocContainer = $('.toc-container');
+      const activeLink = $('#contentMenu a.active');
+      if (activeLink.length > 0) {
+        const activeLinkTop = activeLink.offset().top - tocContainer.offset().top + tocContainer.scrollTop();
+        tocContainer.scrollTop(activeLinkTop - tocContainer.height() / 2);
       }
     }
 
