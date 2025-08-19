@@ -37,7 +37,7 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
      */
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        log.info("准备开始握手了!");
+        log.debug("准备开始握手了!");
         String session = SessionUtil.findCookieByName(request, LoginService.SESSION_KEY);
         ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
         SpringUtil.getBean(GlobalInitService.class).initLoginUser(session, reqInfo);
@@ -61,7 +61,7 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception ex) {
-        log.info("握手成功了!!!");
+        log.debug("握手成功了!!!");
         super.afterHandshake(request, response, wsHandler, ex);
     }
 }
