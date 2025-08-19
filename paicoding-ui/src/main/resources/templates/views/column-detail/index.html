@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${global.siteInfo.websiteName}">
+    <title th:text="${vo.article.title  + ' - ' + global.siteInfo.websiteName}">
       专栏内容详情页 | 技术派
     </title>
   </div>
@@ -537,8 +537,6 @@
     }
 
     $(document).ready(function () {
-      // 页面加载完成后更新标题
-      updatePageTitle();
 
       // 生成内容导航菜单
       generateTocMenu();
@@ -546,7 +544,6 @@
 
     bindCommentInputEvent()
     initGroupToggle()
-    updatePageTitle()
 
     function copyAndClose() {
       // 复制短链
