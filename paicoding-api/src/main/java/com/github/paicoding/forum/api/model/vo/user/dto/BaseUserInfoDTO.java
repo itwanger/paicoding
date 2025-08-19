@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
+
 /**
  * @author YiHui
  * @date 2022/8/15
@@ -77,6 +79,16 @@ public class BaseUserInfoDTO extends BaseDTO {
      * 星球状态
      */
     private UserAIStatEnum starStatus;
+
+    /**
+     * 星球编号
+     */
+    private String starNumber;
+
+    /**
+     * 星球到期时间(秒)
+     */
+    private Date expireTime;
 
     /**
      * 用户的邮箱

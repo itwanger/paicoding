@@ -15,7 +15,6 @@ import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
-import io.netty.util.internal.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -59,7 +58,10 @@ public class UserConverter {
     public static BaseUserInfoDTO toDTO(UserInfoDO info, UserAiDO userAiDO) {
         BaseUserInfoDTO user = toDTO(info);
         if (userAiDO != null) {
+            // 获取星球账号
             user.setStarStatus(UserAIStatEnum.fromCode(userAiDO.getState()));
+            user.setStarNumber(userAiDO.getStarNumber());
+            user.setExpireTime(userAiDO.getStarExpireTime());
         }
         return user;
     }

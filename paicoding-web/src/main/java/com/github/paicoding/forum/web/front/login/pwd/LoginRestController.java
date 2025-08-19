@@ -8,6 +8,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.web.front.login.zsxq.helper.ZsxqHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,8 @@ import java.util.Optional;
 public class LoginRestController {
     @Autowired
     private LoginService loginService;
+    @Autowired
+    private ZsxqHelper zsxqHelper;
 
     /**
      * 用户名和密码登录
@@ -81,5 +84,14 @@ public class LoginRestController {
         }
         response.sendRedirect(referer);
         return ResVo.ok(true);
+    }
+
+    /**
+     * 知识星球登录
+     */
+    @RequestMapping("login/zsxq")
+    public void redirectToZsxq(HttpServletResponse response) throws IOException {
+        String url = zsxqHelper.buildZsxqLoginUrl("login");
+        response.sendRedirect(url);
     }
 }

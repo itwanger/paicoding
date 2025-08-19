@@ -1,10 +1,14 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
+import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
+import com.github.paicoding.forum.core.util.RandUtil;
+import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
@@ -19,9 +23,11 @@ import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * 基于验证码、用户名密码的登录方式
@@ -54,9 +60,8 @@ public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private UserAiService userAiService;
-
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private ImageService imageService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -200,5 +205,55 @@ public class LoginServiceImpl implements LoginService {
             // 填写的邀请码不对, 找不到对应的用户
             throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "非法的邀请码【" + starNumber + "】");
         }
+    }
+
+    @Override
+    public String loginByZsxq(UserZsxqLoginReq req) {
+        Long userId;
+        // 1 若是全新的用户，则自动进行注册
+        UserAiDO aiDO = userAiDao.getByStarNumber(req.getStarNumber());
+        if (aiDO == null) {
+            UserPwdLoginReq loginReq = new UserPwdLoginReq()
+                    // 星球编号
+                    .setStarNumber(req.getStarNumber())
+                    // 使用知识星球的userId作为登录用户名
+                    .setUsername("ZSXQ_" + req.getStarUserId())
+                    // 系统随机生成密码
+                    .setPassword(RandUtil.random(8))
+                    // 使用知识星球的用户作为当前用户
+                    .setDisplayName(req.getUsername())
+                    // 用户头像
+                    .setAvatar(imageService.saveImg(req.getAvatar()))
+                    // 过期时间
+                    .setStarExpireTime(req.getExpireTime());
+            userId = registerService.registerByUserNameAndPassword(loginReq);
+
+            if (System.currentTimeMillis() < req.getExpireTime()) {
+                // 对于知识星球授权登录的情况，无需审核，直接成功
+                userAiDao.updateUserStarState(userId, UserAIStatEnum.FORMAL.getCode());
+            }
+        } else {
+            userId = aiDO.getUserId();
+            // 2 若是已经存在的用户，则尝试更新对应的星球账号信息
+            boolean needToUpdate = false;
+            if (aiDO.getStarExpireTime() == null || req.getExpireTime() != aiDO.getStarExpireTime().getTime()) {
+                // 更新有效期
+                aiDO.setStarExpireTime(new Date(req.getExpireTime()));
+                needToUpdate = true;
+            }
+
+            if (System.currentTimeMillis() < req.getExpireTime() && !Objects.equals(aiDO.getState(), UserAIStatEnum.FORMAL.getCode())) {
+                // 星球账号有效，同步更新用户星球状态
+                aiDO.setState(UserAIStatEnum.FORMAL.getCode());
+                needToUpdate = true;
+            }
+            if (needToUpdate) {
+                aiDO.setUpdateTime(new Date());
+                userAiDao.updateById(aiDO);
+            }
+        }
+
+        ReqInfoContext.getReqInfo().setUserId(userId);
+        return userSessionHelper.genSession(userId);
     }
 }

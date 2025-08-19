@@ -6,51 +6,36 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * 基于用户名密码登录的相关请求信息
+ * 知识星球登录
  *
  * @author YiHui
- * @date 2023/11/13
+ * @date 2025/08/19
  */
 @Data
 @Accessors(chain = true)
-public class UserPwdLoginReq implements Serializable {
+public class UserZsxqLoginReq implements Serializable {
     private static final long serialVersionUID = 2139742660700910738L;
     /**
-     * 用户id
+     * 知识星球用户id
      */
-    private Long userId;
+    private Long starUserId;
     /**
      * 登录用户名
      */
     private String username;
-
-    /**
-     * 登录密码
-     */
-    private String password;
-
     /**
      * 星球编号
      */
     private String starNumber;
-
-    /**
-     * 邀请码
-     */
-    private String invitationCode;
-
-    /**
-     * 现实的用户昵称
-     */
-    private String displayName;
-
     /**
      * 头像
      */
     private String avatar;
 
     /**
-     * 星球过期时间
+     * 过期时间(ms)
      */
-    private Long starExpireTime;
+    private Long expireTime;
+
+    private Boolean updateUserInfo;
 }

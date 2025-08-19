@@ -76,6 +76,32 @@
                                 placeholder="请输入个人简介"
                         />
                     </div>
+
+                    <div class="input-group">
+                        <span class="form-label">星球编号</span>
+                        <input
+                                th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}"
+                                id="starNumber"
+                                type="text"
+                                class="form-control"
+                                th:value="${vo.userHome != null ? vo.userHome.starNumber: ''}"
+                                placeholder="去绑定"
+                                disabled
+                        />
+                        <span class="form-label" style="margin-left: 1em" th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}">有效期：</span>
+                        <span th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}" id="starValidity" th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}">
+                        </span>
+                        <a
+                                href="/zsxq/bind?useXqName=false"
+                                id="bindStar"
+                                type="button"
+                                class="btn btn-primary"
+                                style="margin-left: 1em;border-radius: 8px"
+                                th:text="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != '' ? '重新绑定': '去绑定'}"
+                        >
+                            绑定
+                        </a>
+                    </div>
                 </div>
                 <div class="person-img-wrap">
                     <div class="person-img-inter-wrap">

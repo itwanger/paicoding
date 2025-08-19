@@ -1,17 +1,21 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
+import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
+import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
@@ -34,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -70,6 +75,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserAiService userAiService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Override
     public UserDO getWxUser(String wxuuid) {
@@ -131,7 +139,28 @@ public class UserServiceImpl implements UserService {
 
         // 查询 user_ai信息，标注用户是否为星球专属用户
         UserAiDO userAiDO = userAiDao.getByUserId(userId);
+        this.autoUpdateUserStarState(userAiDO);
         return UserConverter.toDTO(user, userAiDO);
+    }
+
+    private void autoUpdateUserStarState(UserAiDO userAiDO) {
+        if (userAiDO == null) {
+            return;
+        }
+        if (userAiDO.getStarExpireTime() == null) {
+            // 没有有效期，可能是非vip用户，也可能是历史没有同步过星球账号的用户
+            if (userAiDO.getState().equals(UserAIStatEnum.FORMAL.getCode())) {
+                // 没有失效时间的，默认设置为当前时间往后 + 30天
+                userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L));
+                userAiDO.setUpdateTime(new Date());
+                userAiDao.updateById(userAiDO);
+            }
+        } else if (System.currentTimeMillis() >= userAiDO.getStarExpireTime().getTime()){
+            // 账号已过期
+            userAiDO.setState(UserAIStatEnum.EXPIRED.getCode());
+            userAiDO.setUpdateTime(new Date());
+            userAiDao.updateById(userAiDO);
+        }
     }
 
     @Override
@@ -173,6 +202,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserStatisticInfoDTO queryUserInfoWithStatistic(Long userId) {
         BaseUserInfoDTO userInfoDTO = queryBasicUserInfo(userId);
+        UserAiDO aiDO = userAiDao.getByUserId(userId);
+        if (aiDO != null) {
+            userInfoDTO.setStarNumber(aiDO.getStarNumber());
+            userInfoDTO.setExpireTime(aiDO.getStarExpireTime());
+            userInfoDTO.setStarStatus(UserAIStatEnum.fromCode(aiDO.getState()));
+        }
+
         UserStatisticInfoDTO userHomeDTO = countService.queryUserStatisticInfo(userId);
         userHomeDTO = UserConverter.toUserHomeDTO(userHomeDTO, userInfoDTO);
 
@@ -245,5 +281,69 @@ public class UserServiceImpl implements UserService {
         }
 
         return queryBasicUserInfo(user.getId());
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void bindUserInfo(UserZsxqLoginReq loginReq) {
+        long userId = ReqInfoContext.getReqInfo().getUserId();
+        // 判断是否需要更新用户信息
+        if (loginReq.getUpdateUserInfo()) {
+            // 需要更新用户信息的场景，主要是更新头像 + 昵称
+            UserInfoDO user = new UserInfoDO();
+            user.setUserId(userId);
+            user.setUserName(loginReq.getUsername());
+            user.setPhoto(imageService.saveImg(loginReq.getAvatar()));
+            userDao.updateUserInfo(user);
+        }
+
+        // 更新用户绑定的星球账号信息
+        UserAiDO aiDO = userAiDao.getByUserId(userId);
+        if (aiDO == null) {
+            // 插入当前用户的星球信息
+            checkAndIllegalOtherStarNumber(userId, loginReq.getStarNumber());
+            aiDO = UserAiConverter.initAi(userId);
+            aiDO.setStarNumber(loginReq.getStarNumber());
+            this.autoUpdateStarInfo(aiDO, loginReq);
+        } else if (!aiDO.getStarNumber().equals(loginReq.getStarNumber())) {
+            // 存在，且星球号不同，以接口为准
+            checkAndIllegalOtherStarNumber(userId, loginReq.getStarNumber());
+            this.autoUpdateStarInfo(aiDO, loginReq);
+        }
+    }
+
+
+    /**
+     * 如果星球号被别的账号占用了，则下单之前的账号
+     *
+     * @param userId     当前用户
+     * @param starNumber 星球号
+     */
+    private void checkAndIllegalOtherStarNumber(Long userId, String starNumber) {
+        UserAiDO conflict = userAiDao.getByStarNumber(starNumber);
+        if (conflict != null && !conflict.getUserId().equals(userId)) {
+            // 知识星球回调的用户星球号，被其他账号绑定了的场景：去掉其他账号的星球号信息，以接口绑定的为准
+            conflict.setStarNumber("");
+            conflict.setState(UserAIStatEnum.NOT_PASS.getCode());
+            userAiDao.updateById(conflict);
+        }
+    }
+
+    /**
+     * 更新用户星球号信息
+     *
+     * @param aiDO
+     * @param loginReq
+     */
+    private void autoUpdateStarInfo(UserAiDO aiDO, UserZsxqLoginReq loginReq) {
+        aiDO.setStarNumber(loginReq.getStarNumber());
+        aiDO.setStarExpireTime(new Date(loginReq.getExpireTime()));
+        if (System.currentTimeMillis() < loginReq.getExpireTime()) {
+            aiDO.setState(UserAIStatEnum.FORMAL.getCode());
+        } else {
+            aiDO.setState(UserAIStatEnum.EXPIRED.getCode());
+        }
+        userAiDao.saveOrUpdateAiBindInfo(aiDO);
     }
 }
