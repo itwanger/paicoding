@@ -4,8 +4,20 @@
     <div class="user-head">
       <img th:src="${vo.userHome.photo}" class="user-head-img" />
       <div class="user-head-title-wrap">
-        <div class="user-head-title-name" th:text="${userHome.userName}">
-          用户名用户名用户名用户名用户名用户名用户名用户名用户名用户名用户名用户名
+        <div class="user-head-title-name">
+          <div th:text="${userHome.userName}">
+            用户名
+          </div>
+          <div style="font-size: 0.5em;color:gray;font-style: italic ; font-weight: normal"
+               th:if="${vo.userHome.starNumber != '' && vo.userHome.starNumber != null && global.isLogin && vo.userHome.userId == global.user.userId}">
+            知识星球编号: <span style="color:blue" th:text="${vo.userHome != null ? vo.userHome.starNumber: ''}"></span><br/>
+            <div th:if="${global.user.starStatus.code != 4}">
+              会员到期时间: <span style="color:blue" th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
+            </div>
+            <div th:else>
+              重新激活
+            </div>
+          </div>
         </div>
         <div class="user-head-title-classify">
           <div class="user-head-title-classify-item">

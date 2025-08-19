@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
+import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 
 /**
  * @author YiHui
@@ -50,4 +51,12 @@ public interface LoginService {
      * @return
      */
     String registerByUserPwd(UserPwdLoginReq loginReq);
+
+
+    /**
+     * 知识星球登录or账号信息绑定
+     * @param req
+     * @return
+     */
+    String loginByZsxq(UserZsxqLoginReq req);
 }

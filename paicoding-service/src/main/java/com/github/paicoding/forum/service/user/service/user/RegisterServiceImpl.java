@@ -18,9 +18,12 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserRandomGenHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 /**
  * 用户注册服务
@@ -83,12 +86,15 @@ public class RegisterServiceImpl implements RegisterService {
         // 3. 保存用户信息
         UserInfoDO userInfo = new UserInfoDO();
         userInfo.setUserId(user.getId());
-        userInfo.setUserName(loginReq.getUsername());
-        userInfo.setPhoto(UserRandomGenHelper.genAvatar());
+        userInfo.setUserName(StringUtils.isNoneBlank(loginReq.getDisplayName()) ? loginReq.getDisplayName() : loginReq.getUsername());
+        userInfo.setPhoto(StringUtils.isNotBlank(loginReq.getAvatar()) ? loginReq.getAvatar() : UserRandomGenHelper.genAvatar());
         userDao.save(userInfo);
 
         // 4. 保存ai相互信息
         UserAiDO userAiDO = UserAiConverter.initAi(user.getId(), loginReq.getStarNumber());
+        if (loginReq.getStarExpireTime() != null) {
+            userAiDO.setStarExpireTime(new Date(loginReq.getStarExpireTime()));
+        }
         userAiDao.saveOrUpdateAiBindInfo(userAiDO, loginReq.getInvitationCode());
         processAfterUserRegister(user.getId());
         return user.getId();
@@ -114,7 +120,7 @@ public class RegisterServiceImpl implements RegisterService {
 
         // 3. 保存ai相互信息
         UserAiDO userAiDO = UserAiConverter.initAi(user.getId());
-        userAiDao.saveOrUpdateAiBindInfo(userAiDO, null);
+        userAiDao.saveOrUpdateAiBindInfo(userAiDO);
         processAfterUserRegister(user.getId());
         return user.getId();
     }

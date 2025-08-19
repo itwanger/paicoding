@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
+import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
@@ -100,7 +101,7 @@ public interface UserService {
     Long getUserCount();
 
     /**
-     * 绑定用户信息
+     * 走人工的录入星球号，绑定用户信息流程
      */
     void bindUserInfo(UserPwdLoginReq loginReq);
 
@@ -112,4 +113,13 @@ public interface UserService {
      * @return
      */
     BaseUserInfoDTO queryUserByLoginName(String uname);
+
+
+    /**
+     * 知识星球API回调 -> 自动绑定用户的星球信息
+     *
+     * @param loginReq
+     */
+    void bindUserInfo(UserZsxqLoginReq loginReq);
+
 }

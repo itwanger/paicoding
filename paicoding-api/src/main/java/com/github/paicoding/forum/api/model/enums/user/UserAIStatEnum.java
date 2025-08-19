@@ -15,7 +15,9 @@ public enum UserAIStatEnum {
     // 正式用户
     FORMAL(2, "正式用户"),
     // 未通过
-    NOT_PASS(3, "未通过");
+    NOT_PASS(3, "未通过"),
+    EXPIRED(4, "已过期"),
+    ;
 
     UserAIStatEnum(Integer code, String desc) {
         this.code = code;

@@ -109,7 +109,9 @@
             <div th:switch="${global.user.starStatus.code}">
               <span th:case="2" th:text="星球VIP会员"></span>
               <span th:case="1" th:text="待审核"></span>
-              <a href="#" data-target="#registerModal" data-toggle="modal" th:case="-1">
+              <span th:case="4" th:text="已过期" onclick="vipExpired()"></span>
+<!--              <a href="#" data-target="#registerModal" data-toggle="modal" th:case="-1">-->
+              <a href="/zsxq/bind?useXqName=false" th:case="-1">
                 <span th:text="绑定星球编号"></span>
               </a>
             </div>
@@ -206,12 +208,10 @@
                 <div class="oauth-box">
                   <span>其他登录：</span>
                   <div class="oauth">
-                    <div class="oauth-bg">
-                      <!-- GitHub 的 log svg -->
-                      <svg data-v-52064cc0="" width="24px" height="24px" viewBox="0 0 46 46" version="1.1"
-                           xmlns="http://www.w3.org/2000/svg"
-                           class="github-icon"><title data-v-52064cc0="">icon_GitHub</title><desc data-v-52064cc0="">Created with sketchtool.</desc><defs data-v-52064cc0=""></defs><g data-v-52064cc0="" id="状态" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g data-v-52064cc0="" id="注册" transform="translate(-758.000000, -600.000000)"><g data-v-52064cc0="" id="Group-4" transform="translate(758.000000, 600.000000)"><rect data-v-52064cc0="" id="Rectangle-314" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="46" height="46"></rect><path data-v-52064cc0="" d="M5,23.4307576 C5,31.1317497 10.1024923,37.6642712 17.179508,39.9691117 C18.0705582,40.1296159 18.3952722,39.5913918 18.3952722,39.1291397 C18.3952722,38.7161088 18.3799658,37.61933 18.3712193,36.1651618 C13.4174176,37.2180695 12.3722103,33.8282205 12.3722103,33.8282205 C11.5620653,31.8144276 10.3944069,31.2783436 10.3944069,31.2783436 C8.77739677,30.1976152 10.5168579,30.2190158 10.5168579,30.2190158 C12.3044248,30.342069 13.2446741,32.0155929 13.2446741,32.0155929 C14.8332581,34.6788928 17.413477,33.9095426 18.4280715,33.4633409 C18.5898819,32.3376714 19.0501667,31.5693912 19.5585573,31.1338898 C15.6040438,30.6941082 11.4461741,29.198209 11.4461741,22.5190936 C11.4461741,20.6165837 12.1404279,19.0596928 13.2796601,17.8420009 C13.0959835,17.4011493 12.4848215,15.6281127 13.4545902,13.2291098 C13.4545902,13.2291098 14.9491492,12.7604375 18.3515396,15.0160567 C19.7717533,14.6287065 21.2958318,14.4361015 22.8100705,14.4286113 C24.3232158,14.4361015 25.846201,14.6287065 27.2686013,15.0160567 C30.6688051,12.7604375 32.1611774,13.2291098 32.1611774,13.2291098 C33.1331328,15.6281127 32.5219708,17.4011493 32.3393875,17.8420009 C33.4808064,19.0596928 34.1695936,20.6165837 34.1695936,22.5190936 C34.1695936,29.2153294 30.005164,30.6887581 26.0386241,31.1199794 C26.6771189,31.6582035 27.246735,32.7218115 27.246735,34.3482542 C27.246735,36.6777053 27.2248688,38.5577447 27.2248688,39.1291397 C27.2248688,39.5956719 27.5463028,40.1381761 28.4493795,39.9680417 C35.5209286,37.657851 40.6190476,31.1296097 40.6190476,23.4307576 C40.6190476,13.8037149 32.6444218,6 22.8078838,6 C12.9746258,6 5,13.8037149 5,23.4307576 Z" id="Fill-3" fill="#161614"></path></g></g></g></svg>
-                    </div>
+                    <a class="oauth-bg" href="/login/zsxq" style="background-color: white">
+                      <!-- 知识星球 -->
+                      <img class="XNo5Ab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB50lEQVR4AWIgFojtnMkH6LVOICKI4jiOjyTJupMkIblZhCRksZIkSQgJuUPIndxHWDchKyErWeQKSRKSlSQhJItFMkKSlbGm77Axft60M7tz8FnM9fu/Y988rKCICmw4TTbOkLXiOCR4DAeow22hEmdwHwpw4Ib0EGern/4J+mlev2x6wDUmDe+axDqyYcPH8W4I/cYeptET8l0H8o7tMC23DeFF9EfsxRxc0cDYf2P+aGj1YpvDuAnXYCnogYIhfEpui7UHtOudEJXKEcccMN942Gl46H8BFzL49oXXMWildRC2Ymp9mgUUpYB8wnkL+EAVWe9ExRfuoDfhAp59eReWLDyvKfT4iy/PtuTvd5twvvb4j+X9yOc01QJ0CKopFFDVIbiVpbIvwfAMGr68O+/kPlyf2QQLmNM1xzu5LCePEiygJFlrf5/hL9ntDCcQPiIT3kH/38U9qew4gQJOJKPsvziMunZPjOFrcMWE3rRj2HjmYwjPS9d7SqYbe3BjKGK1w5Zr+JvuL3UoanBFGSMRJ1w5YDufa/XwKF4DHi5hHpmARWYeJTgBzy+GbcEgrvQloob7Ju01ZSMXdfy6sCVrRDtOMdTJLB7ALt4jhDZwjlycC0k3ZlDAJWr4hIMPPOIYG1Em7C9NIk7FVs7AGgAAAABJRU5ErkJggg==" style="height:18px;width:18px" alt="" data-csiid="ZOSjaNv3F5KuhbIPoezhmAo_3" data-atf="4">
+                    </a>
                   </div>
                 </div>
                 <a class="clickable" data-toggle="modal" data-target="#registerModal" data-dismiss="modal">
@@ -650,6 +650,10 @@
 
         }, {id: session});
       }
+    }
+
+    function vipExpired() {
+      toastr.error("VIP已到期，请在我的，个人主页，去编辑中重新绑定星球账号 或者 去知识星球续费吧~");
     }
 
 

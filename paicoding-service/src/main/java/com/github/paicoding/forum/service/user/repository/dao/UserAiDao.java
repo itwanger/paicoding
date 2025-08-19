@@ -70,7 +70,7 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
 
         // 当不存在时，初始化一个
         ai = UserAiConverter.initAi(userId);
-        saveOrUpdateAiBindInfo(ai, null);
+        saveOrUpdateAiBindInfo(ai);
         return ai;
     }
 
@@ -159,6 +159,17 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
     public void batchUpdateState(List<Long> ids, Integer code) {
         LambdaUpdateWrapper<UserAiDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.in(UserAiDO::getId, ids).set(UserAiDO::getState, code);
+        userAiMapper.update(null, updateWrapper);
+    }
+
+    /**
+     * 更新用户的星球状态
+     * @param userId 用户id
+     * @param code 状态码
+     */
+    public void updateUserStarState(Long userId, Integer code) {
+        LambdaUpdateWrapper<UserAiDO> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(UserAiDO::getUserId, userId).set(UserAiDO::getState, code);
         userAiMapper.update(null, updateWrapper);
     }
 }

@@ -2,9 +2,12 @@ package com.github.paicoding.forum.service.user.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
+import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * ai用户表
@@ -60,7 +63,9 @@ public class UserAiDO extends BaseDO {
     private Integer strategy;
 
     /**
-     * 0 审核中 1 试用中 2 审核通过 3 审核拒绝
+     * 0 审核中 1 试用中 2 审核通过 3 审核拒绝 4 已过期
+     *
+     * @see UserAIStatEnum#getCode()
      */
     private Integer state;
 
@@ -69,4 +74,8 @@ public class UserAiDO extends BaseDO {
      */
     private Integer deleted;
 
+    /**
+     * 知识星球过期时间
+     */
+    private Date starExpireTime;
 }

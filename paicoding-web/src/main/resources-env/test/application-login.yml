@@ -1,0 +1,8 @@
+paicoding:
+  login:
+    zsxq:
+      api: https://wx.zsxq.com/connector/crm/identify_member.html
+      appId: 666
+      groupNumber: 666
+      secret: 666
+      redirectUrl: https://paicoding.com/login/zsxq/callback

@@ -128,4 +128,9 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_250224.sql"/>
     </changeSet>
 
+    <!-- 集成知识星球登录  -->
+    <changeSet id="000020250819_0" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_250819.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
