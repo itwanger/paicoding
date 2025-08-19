@@ -57,7 +57,7 @@ paicoding:
   jwt:
     issuer: pai_coding # 签发者
     secret: hello_world # 签名密钥
-    expire: 2592000000 # jwt的有效期，默认30天
+    expire: 432000000 # jwt的有效期，默认30天
 
 # 默认的数据库名
 database:
