@@ -18,6 +18,10 @@ public enum LoginTypeEnum {
      * 用户名+密码登录
      */
     USER_PWD(1),
+    /**
+     * 知识星球登录
+     */
+    ZSXQ(2),
     ;
     private int type;
 }
