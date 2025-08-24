@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.service.user;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.user.LoginTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -208,6 +209,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String loginByZsxq(UserZsxqLoginReq req) {
         Long userId;
         // 1 若是全新的用户，则自动进行注册
@@ -216,8 +218,8 @@ public class LoginServiceImpl implements LoginService {
             UserPwdLoginReq loginReq = new UserPwdLoginReq()
                     // 星球编号
                     .setStarNumber(req.getStarNumber())
-                    // 使用知识星球的userId作为登录用户名
-                    .setUsername("ZSXQ_" + req.getStarUserId())
+                    // 使用知识星球的starNumber作为登录用户名，前缀为zsq_
+                    .setUsername("zsxq_" + req.getStarNumber())
                     // 系统随机生成密码
                     .setPassword(RandUtil.random(8))
                     // 使用知识星球的用户作为当前用户
@@ -225,7 +227,11 @@ public class LoginServiceImpl implements LoginService {
                     // 用户头像
                     .setAvatar(imageService.saveImg(req.getAvatar()))
                     // 过期时间
-                    .setStarExpireTime(req.getExpireTime());
+                    .setStarExpireTime(req.getExpireTime())
+                    // 设置登录类型为知识星球登录
+                    .setLoginType(LoginTypeEnum.ZSXQ.getType())
+                    // 设置thirdAccountId为星球用户ID
+                    .setThirdAccountId(String.valueOf(req.getStarUserId()));
             userId = registerService.registerByUserNameAndPassword(loginReq);
 
             if (System.currentTimeMillis() < req.getExpireTime()) {

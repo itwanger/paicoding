@@ -78,9 +78,10 @@ public class RegisterServiceImpl implements RegisterService {
         user = new UserDO();
         user.setUserName(loginReq.getUsername());
         user.setPassword(userPwdEncoder.encPwd(loginReq.getPassword()));
-        user.setThirdAccountId("");
-        // 用户名密码注册
-        user.setLoginType(LoginTypeEnum.USER_PWD.getType());
+        // 使用传入的thirdAccountId，如果没有则设为空字符串
+        user.setThirdAccountId(loginReq.getThirdAccountId() != null ? loginReq.getThirdAccountId() : "");
+        // 根据传入的loginType设置，如果没有则默认为用户名密码登录
+        user.setLoginType(loginReq.getLoginType() != null ? loginReq.getLoginType() : LoginTypeEnum.USER_PWD.getType());
         userDao.saveUser(user);
 
         // 3. 保存用户信息

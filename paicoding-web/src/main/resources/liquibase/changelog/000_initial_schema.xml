@@ -132,5 +132,9 @@
     <changeSet id="000020250819_0" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_250819.sql"/>
     </changeSet>
+    <!-- 自动添加字典数据 2025-08-24 12:08:03 -->
+    <changeSet id="20250824_0" author="沉默王二">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_20250824.sql"/>
+    </changeSet>
 
 </databaseChangeLog>
