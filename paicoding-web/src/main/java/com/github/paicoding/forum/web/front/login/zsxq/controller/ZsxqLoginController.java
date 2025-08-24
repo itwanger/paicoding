@@ -69,7 +69,7 @@ public class ZsxqLoginController {
         if (ReqInfoContext.getReqInfo().getUser() == null) {
             String session = loginService.loginByZsxq(new UserZsxqLoginReq()
                     .setStarUserId(login.getUser_id())
-                    .setUsername(starNumber)
+                    .setUsername("zsxq_" + starNumber)
                     .setStarNumber(starNumber)
                     .setAvatar(login.getUser_icon())
                     .setExpireTime(login.getExpire_time() * 1000L)
@@ -88,7 +88,7 @@ public class ZsxqLoginController {
         // 3. 对于已登录场景，执行星球信息绑定
         userService.bindUserInfo(new UserZsxqLoginReq()
                 .setUpdateUserInfo(BooleanUtils.toBoolean(login.getExtra()))
-                .setUsername(starNumber)
+                .setUsername("zsxq_" + starNumber)
                 .setStarNumber(starNumber)
                 .setAvatar(login.getUser_icon())
                 .setExpireTime(login.getExpire_time() * 1000L)
