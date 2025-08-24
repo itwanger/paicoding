@@ -1,0 +1,1 @@
+insert into dict_common(`type_code`,`dict_code`,`dict_desc`,`sort_no`) values('UserAIStat','4','已过期',6);

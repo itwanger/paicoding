@@ -137,4 +137,8 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_20250824.sql"/>
     </changeSet>
 
+    <changeSet id="20250824_1" author="沉默王二">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_20250824_1.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
