@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.login.zsxq.controller;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.core.util.StarNumberUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.front.login.zsxq.helper.ZsxqHelper;
@@ -63,12 +64,13 @@ public class ZsxqLoginController {
             return;
         }
 
+        String starNumber = StarNumberUtil.formatStarNumber(login.getUser_number());
         // 2. 对于未登录的场景，执行星球登录
         if (ReqInfoContext.getReqInfo().getUser() == null) {
             String session = loginService.loginByZsxq(new UserZsxqLoginReq()
                     .setStarUserId(login.getUser_id())
-                    .setUsername(login.getUser_name())
-                    .setStarNumber(login.getUser_number())
+                    .setUsername(starNumber)
+                    .setStarNumber(starNumber)
                     .setAvatar(login.getUser_icon())
                     .setExpireTime(login.getExpire_time() * 1000L)
             );
@@ -86,8 +88,8 @@ public class ZsxqLoginController {
         // 3. 对于已登录场景，执行星球信息绑定
         userService.bindUserInfo(new UserZsxqLoginReq()
                 .setUpdateUserInfo(BooleanUtils.toBoolean(login.getExtra()))
-                .setUsername(login.getUser_name())
-                .setStarNumber(login.getUser_number())
+                .setUsername(starNumber)
+                .setStarNumber(starNumber)
                 .setAvatar(login.getUser_icon())
                 .setExpireTime(login.getExpire_time() * 1000L)
                 .setStarUserId(login.getUser_id())

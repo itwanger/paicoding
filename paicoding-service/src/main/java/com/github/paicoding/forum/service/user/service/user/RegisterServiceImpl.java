@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.core.util.RandUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.StarNumberUtil;
 import com.github.paicoding.forum.core.util.TransactionUtil;
 import com.github.paicoding.forum.service.user.converter.UserAiConverter;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
