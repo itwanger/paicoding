@@ -9,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.core.util.RandUtil;
+import com.github.paicoding.forum.core.util.StarNumberUtil;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
@@ -116,8 +117,6 @@ public class LoginServiceImpl implements LoginService {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + username);
         }
 
-        // passwordEncoder.matches(password, user.getPassword());
-
         if (!userPwdEncoder.match(password, user.getPassword())) {
             throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
         }
@@ -187,6 +186,10 @@ public class LoginServiceImpl implements LoginService {
         String starNumber = loginReq.getStarNumber();
         // 若传了星球信息，首先进行校验
         if (StringUtils.isNotBlank(starNumber)) {
+            // 格式化星球编号
+            starNumber = StarNumberUtil.formatStarNumber(starNumber);
+            loginReq.setStarNumber(starNumber);
+            
             if (Boolean.FALSE.equals(starNumberHelper.checkStarNumber(starNumber))) {
                 // 星球编号校验不通过，直接抛异常
                 throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
@@ -221,7 +224,7 @@ public class LoginServiceImpl implements LoginService {
                     // 使用知识星球的starNumber作为登录用户名，前缀为zsq_
                     .setUsername("zsxq_" + req.getStarNumber())
                     // 系统随机生成密码
-                    .setPassword(RandUtil.random(8))
+                    .setPassword("zsxqp_" + req.getStarNumber())
                     // 使用知识星球的用户作为当前用户
                     .setDisplayName(req.getUsername())
                     // 用户头像
