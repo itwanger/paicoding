@@ -1,6 +1,8 @@
 package com.github.paicoding.forum.web.front.login.zsxq.controller;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.StarNumberUtil;
@@ -60,8 +62,7 @@ public class ZsxqLoginController {
         // 1. 首先进行签名校验
         if (!zsxqHelper.verifySignature(login)) {
             log.info("登录失败：{}", login);
-            response.sendError(403, "请确认知识星球正常完成了系统授权登录哦~");
-            return;
+            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "请确认知识星球正常完成了系统授权登录哦~");
         }
 
         String starNumber = StarNumberUtil.formatStarNumber(login.getUser_number());
