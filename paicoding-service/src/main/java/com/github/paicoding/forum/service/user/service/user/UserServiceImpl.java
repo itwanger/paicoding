@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
                 userAiDO.setUpdateTime(new Date());
                 userAiDao.updateById(userAiDO);
             }
-        } else if (System.currentTimeMillis() >= userAiDO.getStarExpireTime().getTime()){
+        } else if (System.currentTimeMillis() >= userAiDO.getStarExpireTime().getTime()) {
             // 账号已过期
             userAiDO.setState(UserAIStatEnum.EXPIRED.getCode());
             userAiDO.setUpdateTime(new Date());
@@ -345,5 +345,18 @@ public class UserServiceImpl implements UserService {
             aiDO.setState(UserAIStatEnum.EXPIRED.getCode());
         }
         userAiDao.saveOrUpdateAiBindInfo(aiDO);
+    }
+
+
+    public UserDO getUserDO(Long userId) {
+        return userDao.getUserByUserId(userId);
+    }
+
+    public UserInfoDO getUserInfo(Long userId) {
+        return userDao.getByUserId(userId);
+    }
+
+    public UserAiDO getUserAiDO(Long userId) {
+        return userAiDao.getByUserId(userId);
     }
 }
