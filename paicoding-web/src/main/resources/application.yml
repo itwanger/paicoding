@@ -58,6 +58,9 @@ paicoding:
     issuer: pai_coding # 签发者
     secret: hello_world # 签名密钥
     expire: 432000000 # jwt的有效期，默认30天
+  openapi:
+    app-ids: test-app
+    ip-white-list: 0.0.0.0/0 # 默认白名单，所有ip都可以访问
 
 # 默认的数据库名
 database:

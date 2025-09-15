@@ -10,7 +10,12 @@ import org.lionsoul.ip2region.xdb.Searcher;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramSocket;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -113,7 +118,7 @@ public class IpUtil {
             LOCAL_IP = ipBySocketOpt.map(Inet4Address::getHostAddress).orElseGet(() -> inet4Addresses.isEmpty() ? DEFAULT_IP : inet4Addresses.get(0).getHostAddress());
             return LOCAL_IP;
         }
-        LOCAL_IP =  inet4Addresses.get(0).getHostAddress();
+        LOCAL_IP = inet4Addresses.get(0).getHostAddress();
         return LOCAL_IP;
     }
 
@@ -165,6 +170,52 @@ public class IpUtil {
             log.error("get remote ip error!", e);
             return "x.0.0.1";
         }
+    }
+
+    /**
+     * 判断IP是否在指定的CIDR范围内
+     *
+     * @param ip   IP地址，如 "192.168.1.100"
+     * @param cidr CIDR格式的网段，如 "192.168.1.0/24"，表示允许 192.168.1.0到192.168.1.255的IP地址；特殊的，对于 0.0.0.0/0，表示允许所有IP地址
+     * @return 如果IP在CIDR范围内返回true，否则返回false
+     */
+    public static boolean isIpInRange(String ip, String cidr) {
+        if ("0.0.0.0/0".equals(cidr)) {
+            return true;
+        }
+
+        try {
+            String[] parts = cidr.split("/");
+            String network = parts[0];
+            int prefixLength = Integer.parseInt(parts[1]);
+
+            // 将IP地址转换为整数
+            long ipAddr = ipToLong(ip);
+            long networkAddr = ipToLong(network);
+
+            // 计算子网掩码
+            long mask = -(1L << (32 - prefixLength));
+
+            // 比较网络地址是否匹配
+            return (ipAddr & mask) == (networkAddr & mask);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 将IP地址转换为long类型
+     *
+     * @param ip IP地址字符串
+     * @return long类型的IP地址
+     */
+    private static long ipToLong(String ip) {
+        String[] parts = ip.split("\\.");
+        long result = 0;
+        for (int i = 0; i < 4; i++) {
+            result |= (Long.parseLong(parts[i]) << (24 - i * 8));
+        }
+        return result & 0xFFFFFFFFL;
     }
 
     /**

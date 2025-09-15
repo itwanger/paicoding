@@ -6,7 +6,9 @@ import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 
 import java.util.Collection;
 import java.util.List;
@@ -122,4 +124,10 @@ public interface UserService {
      */
     void bindUserInfo(UserZsxqLoginReq loginReq);
 
+
+    UserDO getUserDO(Long userId);
+
+    UserInfoDO getUserInfo(Long userId);
+
+    UserAiDO getUserAiDO(Long userId);
 }
