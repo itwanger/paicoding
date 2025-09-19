@@ -245,17 +245,25 @@ public class LoginServiceImpl implements LoginService {
             userId = aiDO.getUserId();
             // 2 若是已经存在的用户，则尝试更新对应的星球账号信息
             boolean needToUpdate = false;
-            if (aiDO.getStarExpireTime() == null || req.getExpireTime() != aiDO.getStarExpireTime().getTime()) {
-                // 更新有效期
+
+            // 1. 更新过期时间（如果有变化）
+            if (aiDO.getStarExpireTime() == null ||
+                    Math.abs(req.getExpireTime() - aiDO.getStarExpireTime().getTime()) > 1000) { // 允许1秒误差
                 aiDO.setStarExpireTime(new Date(req.getExpireTime()));
                 needToUpdate = true;
             }
 
-            if (System.currentTimeMillis() < req.getExpireTime() && !Objects.equals(aiDO.getState(), UserAIStatEnum.FORMAL.getCode())) {
-                // 星球账号有效，同步更新用户星球状态
-                aiDO.setState(UserAIStatEnum.FORMAL.getCode());
+            // 2. 根据当前时间判断应该设置的状态
+            long currentTime = System.currentTimeMillis();
+            int expectedState = currentTime < req.getExpireTime() ?
+                    UserAIStatEnum.FORMAL.getCode() :
+                    UserAIStatEnum.EXPIRED.getCode(); // 假设有过期状态
+
+            if (!Objects.equals(aiDO.getState(), expectedState)) {
+                aiDO.setState(expectedState);
                 needToUpdate = true;
             }
+
             if (needToUpdate) {
                 aiDO.setUpdateTime(new Date());
                 userAiDao.updateById(aiDO);

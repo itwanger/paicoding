@@ -148,18 +148,21 @@ public class UserServiceImpl implements UserService {
             return;
         }
         if (userAiDO.getStarExpireTime() == null) {
-            // 没有有效期，可能是非vip用户，也可能是历史没有同步过星球账号的用户
-            if (userAiDO.getState().equals(UserAIStatEnum.FORMAL.getCode())) {
-                // 没有失效时间的，默认设置为当前时间往后 + 30天
-                userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L));
+            // 只有绑定了星球编号的用户才设置默认过期时间
+            if (userAiDO.getState().equals(UserAIStatEnum.FORMAL.getCode()) 
+                && StringUtils.isNotBlank(userAiDO.getStarNumber())) {
+                // 没有失效时间的星球用户，默认设置为当前时间往后 + 360天（一年）
+                userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + 360 * 24 * 60 * 60 * 1000L));
                 userAiDO.setUpdateTime(new Date());
                 userAiDao.updateById(userAiDO);
             }
         } else if (System.currentTimeMillis() >= userAiDO.getStarExpireTime().getTime()) {
             // 账号已过期
-            userAiDO.setState(UserAIStatEnum.EXPIRED.getCode());
-            userAiDO.setUpdateTime(new Date());
-            userAiDao.updateById(userAiDO);
+            if (!userAiDO.getState().equals(UserAIStatEnum.EXPIRED.getCode())) {
+                userAiDO.setState(UserAIStatEnum.EXPIRED.getCode());
+                userAiDO.setUpdateTime(new Date());
+                userAiDao.updateById(userAiDO);
+            }
         }
     }
 
