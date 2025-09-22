@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.service.whitelist;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.beust.ah.A;
 import com.github.paicoding.forum.api.model.enums.user.LoginTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
@@ -18,12 +19,14 @@ import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.params.SearchZsxqWhiteParams;
 import com.github.paicoding.forum.service.user.service.ZsxqWhiteListService;
+import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -42,6 +45,8 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
 
     @Autowired
     private UserPwdEncoder userPwdEncoder;
+    @Resource
+    private AiConfig aiConfig;
 
     @Override
     public PageVo<ZsxqUserInfoDTO> getList(SearchZsxqUserReq req) {
@@ -66,7 +71,7 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
         
         // 如果设置为正式用户状态，则将过期时间延长360天
         if (UserAIStatEnum.FORMAL.equals(operate) && userAiDO.getStarNumber() != null) {
-            userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + 360 * 24 * 60 * 60 * 1000L));
+            userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + aiConfig.getMaxNum().getExpireDays() * 24 * 60 * 60 * 1000L));
         }
 
         // 审核通过的时候调整用户的策略
@@ -123,7 +128,7 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
             LambdaUpdateWrapper<UserAiDO> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.in(UserAiDO::getId, ids)
                     .set(UserAiDO::getState, operate.getCode())
-                    .setSql("star_expire_time = date_add(now(), interval 360 day)");
+                    .setSql("star_expire_time = date_add(now(), interval " + aiConfig.getMaxNum().getExpireDays() + " day)");
             userAiDao.update(null, updateWrapper);
         } else {
             userAiDao.batchUpdateState(ids, operate.getCode());
