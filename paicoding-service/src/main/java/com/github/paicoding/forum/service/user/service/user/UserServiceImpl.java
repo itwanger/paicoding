@@ -153,9 +153,8 @@ public class UserServiceImpl implements UserService {
             return;
         }
         if (userAiDO.getStarExpireTime() == null) {
-            // 只有绑定了星球编号的用户才设置默认过期时间
-            if (userAiDO.getState().equals(UserAIStatEnum.FORMAL.getCode()) 
-                && StringUtils.isNotBlank(userAiDO.getStarNumber())) {
+            // 更新用户星球过期时间
+            if (userAiDO.getState().equals(UserAIStatEnum.FORMAL.getCode())) {
                 // 没有失效时间的星球用户，默认设置为当前时间往后 + 360天（一年）
                 userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + aiConfig.getMaxNum().getExpireDays() * 24 * 60 * 60 * 1000L));
                 userAiDO.setUpdateTime(new Date());
