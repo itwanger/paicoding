@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.service.user;
 
+import com.beust.ah.A;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
@@ -27,6 +28,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +80,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ImageService imageService;
+
+    @Resource
+    private AiConfig aiConfig;
 
     @Override
     public UserDO getWxUser(String wxuuid) {
@@ -152,7 +157,7 @@ public class UserServiceImpl implements UserService {
             if (userAiDO.getState().equals(UserAIStatEnum.FORMAL.getCode()) 
                 && StringUtils.isNotBlank(userAiDO.getStarNumber())) {
                 // 没有失效时间的星球用户，默认设置为当前时间往后 + 360天（一年）
-                userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + 360 * 24 * 60 * 60 * 1000L));
+                userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + aiConfig.getMaxNum().getExpireDays() * 24 * 60 * 60 * 1000L));
                 userAiDO.setUpdateTime(new Date());
                 userAiDao.updateById(userAiDO);
             }

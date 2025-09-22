@@ -50,6 +50,11 @@ public class AiConfig {
          * 多轮对话上下文的条数，默认最多给10条
          */
         private Integer historyContextCnt;
+
+        /**
+         * 过期天数
+         */
+        private Integer expireDays;
     }
 
     /**
