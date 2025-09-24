@@ -24,7 +24,7 @@ public class SessionUtil {
     }
 
     public static Cookie newCookie(String key, String session, String path, int maxAge) {
-        String host = ReqInfoContext.getReqInfo().getHost();
+        String host = ReqInfoContext.getReqInfo() == null ? "" : ReqInfoContext.getReqInfo().getHost();
         return newCookie(key, session, host, path, maxAge);
     }
 
