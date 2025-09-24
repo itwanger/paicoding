@@ -43,7 +43,7 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         SpringUtil.getBean(GlobalInitService.class).initLoginUser(session, reqInfo);
 
         if (reqInfo.getUser() == null) {
-            log.info("websocket 握手失败，请登录之后再试");
+            log.debug("websocket 握手失败，请登录之后再试");
             return false;
         }
 
