@@ -255,6 +255,22 @@ public class HttpRequestHelper {
     }
 
 
+    public static <R> R postJsonData(String url, Object data, Class<R> res) {
+        ResponseEntity<R> responseEntity;
+        try {
+            String threadName = Thread.currentThread().getName();
+            RestTemplate restTemplate = restTemplateMap.getUnchecked(threadName);
+            HttpEntity<Object> entity = new HttpEntity<>(data);
+            responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, res);
+        } catch (Exception e) {
+            log.warn("Failed to fetch content, url:{}, params:{}, exception:{}", url, data, e.getMessage());
+            return null;
+        }
+
+        return responseEntity.getBody();
+    }
+
+
     /**
      * readData
      *

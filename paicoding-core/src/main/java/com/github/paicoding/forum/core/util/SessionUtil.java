@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.core.util;
 
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
@@ -21,12 +22,38 @@ public class SessionUtil {
     }
 
     public static Cookie newCookie(String key, String session, String path, int maxAge) {
+        String host = ReqInfoContext.getReqInfo().getHost();
+        return newCookie(key, session, host, path, maxAge);
+    }
+
+    public static Cookie newCookie(String key, String session, String domain, String path, int maxAge) {
+        // 移除端口号
+        domain = removePortFromHost(domain);
         Cookie cookie = new Cookie(key, session);
+        if (StringUtils.isNotBlank(domain)) {
+            cookie.setDomain(domain);
+        }
         cookie.setPath(path);
         cookie.setMaxAge(maxAge);
         return cookie;
     }
 
+    /**
+     * 从host中移除端口号
+     *
+     * @param host 包含端口号的host，如 "localhost:8080"
+     * @return 移除端口号后的host，如 "localhost"
+     */
+    private static String removePortFromHost(String host) {
+        if (StringUtils.isBlank(host)) {
+            return host;
+        }
+        int portIndex = host.indexOf(':');
+        if (portIndex > 0) {
+            return host.substring(0, portIndex);
+        }
+        return host;
+    }
 
     public static Cookie delCookie(String key) {
         return delCookie(key, "/");

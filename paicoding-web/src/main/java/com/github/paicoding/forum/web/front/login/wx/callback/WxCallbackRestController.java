@@ -1,9 +1,11 @@
 package com.github.paicoding.forum.web.front.login.wx.callback;
 
+import cn.hutool.core.util.NumberUtil;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.paicoding.forum.core.net.HttpRequestHelper;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
@@ -91,9 +93,24 @@ public class WxCallbackRestController {
             }
         }
 
+        if (NumberUtil.isNumber(content) && content.length() == 4) {
+            BaseWxMsgResVo res = loginOcPai(msg);
+            return res;
+        }
+
         BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), content, msg.getFromUserName());
         fillResVo(res, msg);
         return res;
+    }
+
+
+    /**
+     * oc使用的和技术派是同一个微信公众号进行授权登录，按照验证码的位数进行区分；我们在这里做一个路由转发
+     *
+     * @return
+     */
+    private BaseWxMsgResVo loginOcPai(WxTxtMsgReqVo msg) {
+        return HttpRequestHelper.postJsonData(SpringUtil.getConfig("paicoding.openapi.oc-login-redirect-url"), msg, BaseWxMsgResVo.class);
     }
 
     private void fillResVo(BaseWxMsgResVo res, WxTxtMsgReqVo msg) {
