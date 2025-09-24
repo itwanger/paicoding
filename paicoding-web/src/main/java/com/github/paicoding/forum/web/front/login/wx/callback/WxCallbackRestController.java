@@ -110,7 +110,7 @@ public class WxCallbackRestController {
      * @return
      */
     private BaseWxMsgResVo loginOcPai(WxTxtMsgReqVo msg) {
-        return HttpRequestHelper.postJsonData(SpringUtil.getConfig("paicoding.openapi.oc-login-redirect-url"), msg, BaseWxMsgResVo.class);
+        return HttpRequestHelper.postJsonData(SpringUtil.getConfig("paicoding.openapi.oc-login-redirect-url"), msg, WxTxtMsgResVo.class);
     }
 
     private void fillResVo(BaseWxMsgResVo res, WxTxtMsgReqVo msg) {
