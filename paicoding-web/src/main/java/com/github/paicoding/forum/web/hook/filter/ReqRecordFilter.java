@@ -31,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Optional;
 import java.util.UUID;
@@ -116,7 +117,8 @@ public class ReqRecordFilter implements Filter {
             request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
 
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
-            reqInfo.setHost(request.getHeader("host"));
+            URL reqUrl = new URL(request.getRequestURL().toString());
+            reqInfo.setHost(reqUrl.getHost());
             reqInfo.setPath(request.getPathInfo());
             if (reqInfo.getPath() == null) {
                 String url = request.getRequestURI();
