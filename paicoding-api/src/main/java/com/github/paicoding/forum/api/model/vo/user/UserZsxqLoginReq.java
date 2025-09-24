@@ -23,6 +23,11 @@ public class UserZsxqLoginReq implements Serializable {
      * 登录用户名
      */
     private String username;
+
+    /**
+     * 用户昵称
+     */
+    private String displayName;
     /**
      * 星球编号
      */

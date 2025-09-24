@@ -117,8 +117,17 @@ public class ReqRecordFilter implements Filter {
             request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
 
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
-            URL reqUrl = new URL(request.getRequestURL().toString());
-            reqInfo.setHost(reqUrl.getHost());
+            String forwardedHost = request.getHeader("X-Forwarded-Host");
+            String hostHeader = request.getHeader("host");
+            if (StringUtils.isNotBlank(forwardedHost)) {
+                // 需要配合修改nginx的转发，添加  proxy_set_header X-Forwarded-Host $host;
+                reqInfo.setHost(forwardedHost);
+            } else if (StringUtils.isNotBlank(hostHeader)) {
+                reqInfo.setHost(hostHeader);
+            } else {
+                URL reqUrl = new URL(request.getRequestURL().toString());
+                reqInfo.setHost(reqUrl.getHost());
+            }
             reqInfo.setPath(request.getPathInfo());
             if (reqInfo.getPath() == null) {
                 String url = request.getRequestURI();
