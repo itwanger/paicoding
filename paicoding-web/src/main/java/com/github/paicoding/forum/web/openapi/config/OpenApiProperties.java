@@ -29,6 +29,11 @@ public class OpenApiProperties {
      */
     private String ipWhiteList;
 
+    /**
+     * oc的url
+     */
+    private String ocLoginRedirectUrl;
+
 
     public List<String> appIdList() {
         return Arrays.asList(appIds.split(","));
