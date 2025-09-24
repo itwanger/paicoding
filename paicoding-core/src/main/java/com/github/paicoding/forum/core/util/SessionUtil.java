@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.core.util;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +15,7 @@ import java.util.List;
  * @author YiHui
  * @date 2023/6/6
  */
+@Slf4j
 public class SessionUtil {
     private static final int COOKIE_AGE = 30 * 86400;
 
@@ -31,6 +33,10 @@ public class SessionUtil {
         domain = removePortFromHost(domain);
         Cookie cookie = new Cookie(key, session);
         if (StringUtils.isNotBlank(domain)) {
+            if (EnvUtil.isPro() && "127.0.0.1".equals(domain)) {
+                log.info("登录的来源：{}", ReqInfoContext.getReqInfo());
+                domain = "paicoding.com";
+            }
             cookie.setDomain(domain);
         }
         cookie.setPath(path);
