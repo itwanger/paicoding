@@ -300,7 +300,7 @@ public class UserServiceImpl implements UserService {
             // 需要更新用户信息的场景，主要是更新头像 + 昵称
             UserInfoDO user = new UserInfoDO();
             user.setUserId(userId);
-            user.setUserName(loginReq.getUsername());
+            user.setUserName(StringUtils.isNoneBlank(loginReq.getDisplayName()) ? loginReq.getDisplayName() : loginReq.getUsername());
             user.setPhoto(imageService.saveImg(loginReq.getAvatar()));
             userDao.updateUserInfo(user);
         }

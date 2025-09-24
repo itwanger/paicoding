@@ -8,7 +8,6 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
-import com.github.paicoding.forum.core.util.RandUtil;
 import com.github.paicoding.forum.core.util.StarNumberUtil;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
@@ -189,7 +188,7 @@ public class LoginServiceImpl implements LoginService {
             // 格式化星球编号
             starNumber = StarNumberUtil.formatStarNumber(starNumber);
             loginReq.setStarNumber(starNumber);
-            
+
             if (Boolean.FALSE.equals(starNumberHelper.checkStarNumber(starNumber))) {
                 // 星球编号校验不通过，直接抛异常
                 throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
@@ -226,7 +225,7 @@ public class LoginServiceImpl implements LoginService {
                     // 系统随机生成密码
                     .setPassword("zsxqp_" + req.getStarNumber())
                     // 使用知识星球的用户作为当前用户
-                    .setDisplayName(req.getUsername())
+                    .setDisplayName(StringUtils.isBlank(req.getDisplayName()) ? req.getUsername() : req.getDisplayName())
                     // 用户头像
                     .setAvatar(imageService.saveImg(req.getAvatar()))
                     // 过期时间
