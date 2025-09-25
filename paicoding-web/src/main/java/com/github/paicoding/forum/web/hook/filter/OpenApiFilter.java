@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 @Slf4j
 @Order(Integer.MIN_VALUE)
-@WebFilter(urlPatterns = "/openapi", filterName = "openApiFilter", asyncSupported = true)
+@WebFilter(urlPatterns = "/openapi/*", filterName = "openApiFilter", asyncSupported = true)
 public class OpenApiFilter implements Filter {
     /**
      * 用于身份校验的方式
