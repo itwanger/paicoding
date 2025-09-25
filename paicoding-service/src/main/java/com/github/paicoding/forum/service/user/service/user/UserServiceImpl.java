@@ -317,6 +317,25 @@ public class UserServiceImpl implements UserService {
             // 存在，且星球号不同，以接口为准
             checkAndIllegalOtherStarNumber(userId, loginReq.getStarNumber());
             this.autoUpdateStarInfo(aiDO, loginReq);
+        } else {
+            // 星球号相同，但需要检查过期时间和状态是否需要更新
+            Date currentExpireTime = aiDO.getStarExpireTime();
+            Date newExpireTime = new Date(loginReq.getExpireTime());
+
+            // 如果过期时间不同，或者当前状态是过期但新的过期时间未过期，则需要更新
+            boolean needUpdate = false;
+            if (currentExpireTime == null || !currentExpireTime.equals(newExpireTime)) {
+                needUpdate = true;
+            }
+            // 检查状态：如果用户当前是过期状态，但新的过期时间未过期，则需要更新状态为正常
+            if (aiDO.getState().equals(UserAIStatEnum.EXPIRED.getCode()) &&
+                System.currentTimeMillis() < loginReq.getExpireTime()) {
+                needUpdate = true;
+            }
+
+            if (needUpdate) {
+                this.autoUpdateStarInfo(aiDO, loginReq);
+            }
         }
     }
 
