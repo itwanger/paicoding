@@ -8,12 +8,17 @@ import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.MapUtils;
+import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.service.user.service.LoginService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -95,6 +100,11 @@ public class UserSessionHelper {
             return Long.valueOf(user);
         } catch (Exception e) {
             log.info("jwt token校验失败! token: {}, msg: {}", session, e.getMessage());
+            // 如果jwt过期，自动删除用户的cookie；主要是为了解决jwt的有效期与cookie有效期不一致的场景
+            HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+            if (response != null) {
+                response.addCookie(SessionUtil.delCookie(LoginService.SESSION_KEY));
+            }
             return null;
         }
     }

@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Slf4j
 public class SessionUtil {
-    private static final int COOKIE_AGE = 30 * 86400;
+    private static final int COOKIE_AGE = 5 * 86400;
 
     public static String buildSetCookieString(Cookie cookie) {
         StringBuilder sb = new StringBuilder();
@@ -84,7 +84,13 @@ public class SessionUtil {
         }
         int portIndex = host.indexOf(':');
         if (portIndex > 0) {
-            return host.substring(0, portIndex);
+            // 移除端口号
+            host = host.substring(0, portIndex);
+        }
+
+        // 将 www 开头的域名，移除掉开头的www
+        if (host.startsWith("www.")) {
+            host = host.substring(4);
         }
         return host;
     }
