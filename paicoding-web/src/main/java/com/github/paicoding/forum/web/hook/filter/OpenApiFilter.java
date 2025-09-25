@@ -1,13 +1,15 @@
 package com.github.paicoding.forum.web.hook.filter;
 
-import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.IpUtil;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.web.openapi.config.OpenApiProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -17,6 +19,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -52,13 +55,17 @@ public class OpenApiFilter implements Filter {
         } else {
             // 没有权限访问
             log.info("No Permission to Access OpenApi Endpoint!");
-            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "Can't Access OpenApi Endpoint!");
+            HttpServletResponse response = (HttpServletResponse) servletResponse;
+            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+            response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "Can't Access OpenApi Endpoint!")));
+            response.getWriter().flush();
         }
     }
 
     private boolean checkOpenApiAuth(HttpServletRequest request) {
         String appId = request.getHeader(OPEN_API_APP_ID);
         if (StringUtils.isBlank(appId) || !openApiProperties.appIdList().contains(appId)) {
+            log.info("request appId: {} not in {}", appId, openApiProperties.appIdList());
             return false;
         }
 
@@ -79,6 +86,8 @@ public class OpenApiFilter implements Filter {
                 return true;
             }
         }
+
+        log.info("request ip {} not in {}", ip, openApiProperties.ipWhiteList());
         return false;
     }
 
