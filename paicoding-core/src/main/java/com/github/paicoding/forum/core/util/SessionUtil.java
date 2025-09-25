@@ -34,6 +34,7 @@ public class SessionUtil {
         Cookie cookie = new Cookie(key, session);
         if (StringUtils.isNotBlank(domain)) {
             if (EnvUtil.isPro() && "127.0.0.1".equals(domain)) {
+                // 说明：对于使用nginx进行转发的场景，需要设置： proxy_set_header X-Forwarded-Host $host; 否则会导致这里拿到的host为 127.0.0.1
                 log.info("登录的来源：{}", ReqInfoContext.getReqInfo());
                 domain = "paicoding.com";
             }
@@ -62,12 +63,20 @@ public class SessionUtil {
     }
 
     public static Cookie delCookie(String key) {
-        return delCookie(key, "/");
+        String host = ReqInfoContext.getReqInfo() == null ? "" : ReqInfoContext.getReqInfo().getHost();
+        return delCookie(key, host);
     }
 
-    public static Cookie delCookie(String key, String path) {
+    public static Cookie delCookie(String key, String host) {
+        return delCookie(key, host, "/");
+    }
+
+    public static Cookie delCookie(String key, String host, String path) {
         Cookie cookie = new Cookie(key, null);
-        cookie.setPath("/");
+        cookie.setPath(path);
+        if (StringUtils.isNotBlank(host)) {
+            cookie.setDomain(removePortFromHost(host));
+        }
         cookie.setMaxAge(0);
         return cookie;
     }
