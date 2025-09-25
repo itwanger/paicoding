@@ -19,6 +19,33 @@ import java.util.List;
 public class SessionUtil {
     private static final int COOKIE_AGE = 30 * 86400;
 
+    public static String buildSetCookieString(Cookie cookie) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(cookie.getName()).append("=").append(cookie.getValue());
+
+        if (cookie.getMaxAge() >= 0) {
+            sb.append("; Max-Age=").append(cookie.getMaxAge());
+        }
+
+        if (cookie.getDomain() != null) {
+            sb.append("; Domain=").append(cookie.getDomain());
+        }
+
+        if (cookie.getPath() != null) {
+            sb.append("; Path=").append(cookie.getPath());
+        }
+
+        if (cookie.getSecure()) {
+            sb.append("; Secure");
+        }
+
+        if (cookie.isHttpOnly()) {
+            sb.append("; HttpOnly");
+        }
+
+        return sb.toString();
+    }
+
     public static Cookie newCookie(String key, String session) {
         return newCookie(key, session, "/", COOKIE_AGE);
     }
