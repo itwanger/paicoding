@@ -10,6 +10,7 @@
   overflow-y: auto;
   padding: 20px 0;
 }
+
 .article-content-inter-wrap {
   margin-right: 310px;
   margin-left: 20px;
@@ -510,6 +511,15 @@
   padding: 1rem 15px;
 }
 
+/* 为两个导航按钮添加不同的视觉样式 */
+.bd-search-docs-toggle {
+  color: #007bff; /* 蓝色，表示左侧专栏导航 */
+}
+
+.bd-toc-toggle {
+  color: #28a745; /* 绿色，表示右侧内容目录 */
+}
+
 @media (max-width: 700px) {
   .book-directory-comp {
     overflow-y: auto;
@@ -557,6 +567,49 @@
     height: 40px;
     font-size: 12px;
   }
+  
+  /* 移动端文章内容导航样式 */
+  .toc-container.column {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 300px;
+    z-index: 1050;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .toc-container.column.show {
+    transform: translateX(0);
+  }
+  
+  .toc-container.column .widget {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .toc-container.column .com-nav-bar-title {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 0;
+  }
+  
+  .toc-container.column .toc {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 15px;
+  }
+  
+  /* 在移动端移除右侧边距，使内容占满整个屏幕宽度 */
+  .article-content-inter-wrap {
+    margin-right: 0;
+    margin-left: 0;
+  }
 }
 
 @media (min-width: 721px) {
@@ -581,6 +634,21 @@
 
   .for-menu {
     display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  /* 在大屏幕上保留右边距，为目录留出空间 */
+  .article-content-inter-wrap {
+    margin-right: 310px;
+    margin-left: 20px;
+  }
+}
+
+/* 在小屏幕设备上隐藏内容导航 */
+@media (max-width: 991px) {
+  .toc-container.column:not(.show) {
+    display: none !important;
   }
 }
 

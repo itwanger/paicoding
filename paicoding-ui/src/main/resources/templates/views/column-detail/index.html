@@ -20,15 +20,37 @@
           <div class="for-menu">
             <form class="bd-search d-flex align-items-center">
               <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-              <!-- 折叠目录按钮 -->
+              <!-- 折叠专栏目录按钮 -->
               <button class="btn bd-search-docs-toggle d-md-none pl-1 pr-0"
                       type="button"
                       data-toggle="collapse"
                       data-target="#collapseMenu"
                       aria-controls="collapseMenu"
                       aria-expanded="false"
-                      aria-label="Toggle docs navigation">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false"><title>Menu</title><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"/></svg>
+                      aria-label="Toggle docs navigation"
+                      th:data-toggle-tooltip="tooltip" 
+                      title="展开/收起专栏目录">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false">
+                  <title>专栏目录</title>
+                  <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"/>
+                </svg>
+                <span class="d-md-none ml-1" style="font-size: 12px;">专栏</span>
+              </button>
+              <!-- 折叠文章内容导航按钮 -->
+              <button class="btn bd-toc-toggle d-md-none pl-1 pr-0 ml-2"
+                      type="button"
+                      data-toggle="collapse"
+                      data-target="#contentMenuCollapse"
+                      aria-controls="contentMenuCollapse"
+                      aria-expanded="false"
+                      aria-label="Toggle table of contents"
+                      th:data-toggle-tooltip="tooltip" 
+                      title="展开/收起文章目录">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <title>文章目录</title>
+                  <path d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <span class="d-md-none ml-1" style="font-size: 12px;">目录</span>
               </button>
             </form>
           </div>
@@ -47,10 +69,10 @@
           
           <!-- 文章内容导航 -->
           <div id="toc-container-position"></div>
-          <div class="right-container toc-container column" style="display: none;">
-            <div class="widget">
+          <div class="right-container toc-container column collapse d-md-block toc-responsive" id="contentMenuCollapse" style="display: none;">
+            <div class="widget rounded ">
               <h3 class="com-nav-bar-title">目录</h3>
-              <div id="contentMenu" class="toc"></div>
+              <div id="contentMenu" class="toc toc-sticky"></div>
             </div>
           </div>
 
@@ -495,6 +517,13 @@
         if (targetElement) {
           targetElement.scrollIntoView({ behavior: 'smooth' });
         }
+        
+        // 在小屏幕设备上，点击目录项后自动折叠内容导航
+        if (window.matchMedia('(max-width: 991px)').matches) {
+          $('#contentMenuCollapse').collapse('hide');
+          // 调整内容宽度
+          adjustContentWidth();
+        }
       });
 
       // 监听窗口滚动事件以自动更新选中状态
@@ -537,13 +566,61 @@
     }
 
     $(document).ready(function () {
-
       // 生成内容导航菜单
       generateTocMenu();
+      
+      // 检查屏幕尺寸并初始化移动端内容导航
+      checkTocMediaQuery();
+      $(window).resize(checkTocMediaQuery);
+      
+      // 监听内容导航的折叠/展开事件
+      $('#contentMenuCollapse').on('shown.bs.collapse', function () {
+        // 内容导航展开时的处理
+        adjustContentWidth();
+      }).on('hidden.bs.collapse', function () {
+        // 内容导航隐藏时的处理
+        adjustContentWidth();
+      });
+      
+      // 初始化工具提示
+      $('[data-toggle="tooltip"]').tooltip();
     });
 
     bindCommentInputEvent()
     initGroupToggle()
+
+    // 检查屏幕尺寸并处理内容导航显示状态
+    function checkTocMediaQuery() {
+      const tocContainer = $('.toc-container');
+      if (window.matchMedia('(min-width: 992px)').matches) {
+        // 大屏幕设备，显示内容导航
+        tocContainer.addClass('d-md-block').removeClass('collapse');
+        tocContainer.css('display', ''); // 清除可能的display: none
+      } else {
+        // 小屏幕设备，确保内容导航是折叠的
+        tocContainer.removeClass('d-md-block').addClass('collapse');
+        // 如果之前是展开状态，需要隐藏
+        if (tocContainer.hasClass('show')) {
+          tocContainer.collapse('hide');
+        }
+      }
+      // 调整内容宽度
+      adjustContentWidth();
+    }
+    
+    // 调整正文内容宽度
+    function adjustContentWidth() {
+      const tocContainer = $('.toc-container');
+      const contentWrap = $('.article-content-inter-wrap');
+      
+      if (window.matchMedia('(min-width: 992px)').matches) {
+        // 大屏幕设备，保留右边距为目录留出空间
+        contentWrap.css('margin-right', '310px');
+      } else {
+        // 小屏幕设备，右边距设为0以充分利用屏幕空间
+        contentWrap.css('margin-right', '0');
+      }
+    }
 
     function copyAndClose() {
       // 复制短链
