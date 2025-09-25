@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.login.wx.helper;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -151,7 +153,9 @@ public class WxLoginHelper {
             // 登录成功，写入session
             sseEmitter.send(session);
             // 设置cookie的路径
-            sseEmitter.send("login#" + LoginService.SESSION_KEY + "=" + session + ";path=/;");
+            Cookie cookie = SessionUtil.newCookie(LoginService.SESSION_KEY, session);
+            String setCookieStr = SessionUtil.buildSetCookieString(cookie);
+            sseEmitter.send("login#" + setCookieStr);
             return true;
         } catch (Exception e) {
             log.error("登录异常: {}", verifyCode, e);
