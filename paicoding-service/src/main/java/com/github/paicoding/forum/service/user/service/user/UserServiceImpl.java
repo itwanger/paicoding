@@ -295,14 +295,34 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public void bindUserInfo(UserZsxqLoginReq loginReq) {
         long userId = ReqInfoContext.getReqInfo().getUserId();
-        // 判断是否需要更新用户信息
-        if (loginReq.getUpdateUserInfo()) {
-            // 需要更新用户信息的场景，主要是更新头像 + 昵称
+
+        // 总是尝试更新用户信息（昵称和头像），因为知识星球的信息应该是最新的
+        boolean shouldUpdateUserInfo = loginReq.getUpdateUserInfo() != null ? loginReq.getUpdateUserInfo() : true;
+
+        if (shouldUpdateUserInfo) {
             UserInfoDO user = new UserInfoDO();
             user.setUserId(userId);
-            user.setUserName(StringUtils.isNoneBlank(loginReq.getDisplayName()) ? loginReq.getDisplayName() : loginReq.getUsername());
-            user.setPhoto(imageService.saveImg(loginReq.getAvatar()));
-            userDao.updateUserInfo(user);
+            boolean hasUpdates = false;
+
+            // 更新用户昵称：优先使用displayName，如果没有则使用username
+            if (StringUtils.isNotBlank(loginReq.getDisplayName())) {
+                user.setUserName(loginReq.getDisplayName());
+                hasUpdates = true;
+            } else if (StringUtils.isNotBlank(loginReq.getUsername())) {
+                user.setUserName(loginReq.getUsername());
+                hasUpdates = true;
+            }
+
+            // 更新头像（如果有的话）
+            if (StringUtils.isNotBlank(loginReq.getAvatar())) {
+                user.setPhoto(imageService.saveImg(loginReq.getAvatar()));
+                hasUpdates = true;
+            }
+
+            // 只有当有实际更新内容时才调用更新方法
+            if (hasUpdates) {
+                userDao.updateUserInfo(user);
+            }
         }
 
         // 更新用户绑定的星球账号信息
