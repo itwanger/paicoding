@@ -99,7 +99,7 @@ public class UserSessionHelper {
             }
             return Long.valueOf(user);
         } catch (Exception e) {
-            log.info("jwt token校验失败! token: {}, msg: {}", session, e.getMessage());
+            log.debug("jwt token校验失败! token: {}, msg: {}", session, e.getMessage());
             // 如果jwt过期，自动删除用户的cookie；主要是为了解决jwt的有效期与cookie有效期不一致的场景
             HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
             if (response != null) {
