@@ -1,10 +1,12 @@
 package com.github.paicoding.forum.web.front.login.wx.helper;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.login.LoginQrTypeEnum;
 import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -28,6 +30,7 @@ public class WxLoginHelper {
      */
     private final static Long SSE_EXPIRE_TIME = 15 * 60 * 1000L;
     private final LoginService sessionService;
+
     /**
      * key = 验证码, value = 长连接
      */
@@ -37,8 +40,11 @@ public class WxLoginHelper {
      */
     private LoadingCache<String, String> deviceCodeCache;
 
-    public WxLoginHelper(LoginService loginService) {
+    private final WxLoginQrGenIntegration wxLoginQrGenIntegration;
+
+    public WxLoginHelper(LoginService loginService, WxLoginQrGenIntegration wxLoginQrGenIntegration) {
         this.sessionService = loginService;
+        this.wxLoginQrGenIntegration = wxLoginQrGenIntegration;
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
             public SseEmitter load(String s) throws Exception {
@@ -69,7 +75,7 @@ public class WxLoginHelper {
      */
     public SseEmitter subscribe() throws IOException {
         String deviceId = ReqInfoContext.getReqInfo().getDeviceId();
-        String realCode = deviceCodeCache.getUnchecked(deviceId) ;
+        String realCode = deviceCodeCache.getUnchecked(deviceId);
         // fixme 设置15min的超时时间, 超时时间一旦设置不能修改；因此导致刷新验证码并不会增加连接的有效期
         SseEmitter sseEmitter = new SseEmitter(SSE_EXPIRE_TIME);
         SseEmitter oldSse = verifyCodeCache.getIfPresent(realCode);
@@ -89,6 +95,8 @@ public class WxLoginHelper {
         });
         // 若实际的验证码与前端显示的不同，则通知前端更新
         sseEmitter.send("initCode!");
+        // 发送用于登录的二维码
+        sseEmitter.send("qr#" + wxLoginQrGenIntegration.genLoginQrImg(realCode));
         sseEmitter.send("init#" + realCode);
         return sseEmitter;
     }
@@ -142,14 +150,16 @@ public class WxLoginHelper {
      * @return
      */
     public boolean login(String verifyCode) {
-        // 通过验证码找到对应的长连接
+        // 1. 通过验证码找到对应的长连接
         SseEmitter sseEmitter = verifyCodeCache.getIfPresent(verifyCode);
         if (sseEmitter == null) {
             return false;
         }
 
+        // 2. 生成登录凭证
         String session = sessionService.loginByWx(ReqInfoContext.getReqInfo().getUserId());
         try {
+            // 3. 将登录凭证发送给客户端，用于前端写入Cookie
             // 登录成功，写入session
             sseEmitter.send(session);
             // 设置cookie的路径
@@ -160,6 +170,7 @@ public class WxLoginHelper {
         } catch (Exception e) {
             log.error("登录异常: {}", verifyCode, e);
         } finally {
+            // 4. 登录完成，关闭SSE连接；清空验证码与SseEmitter的绑定关系
             sseEmitter.complete();
             verifyCodeCache.invalidate(verifyCode);
         }
