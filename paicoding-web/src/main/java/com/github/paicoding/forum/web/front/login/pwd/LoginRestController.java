@@ -76,7 +76,7 @@ public class LoginRestController {
         request.getSession().invalidate();
         Optional.ofNullable(ReqInfoContext.getReqInfo()).ifPresent(s -> loginService.logout(s.getSession()));
         // 移除cookie
-        response.addCookie(SessionUtil.delCookie(LoginService.SESSION_KEY));
+        SessionUtil.delCookies(LoginService.SESSION_KEY);
         // 重定向到当前页面
         String referer = request.getHeader("Referer");
         if (StringUtils.isBlank(referer)) {

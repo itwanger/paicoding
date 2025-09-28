@@ -95,7 +95,7 @@ public class AdminLoginController {
         // response.sendRedirect("/");
 
         // 移除cookie
-        response.addCookie(SessionUtil.delCookie(LoginService.SESSION_KEY));
+        SessionUtil.delCookies(LoginService.SESSION_KEY);
         return ResVo.ok(true);
     }
 }
