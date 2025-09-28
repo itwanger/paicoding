@@ -92,7 +92,7 @@
                         <span th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}" id="starValidity" th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}">
                         </span>
                         <a
-                                href="/zsxq/bind?useXqName=false"
+                                href="/zsxq/bind"
                                 id="bindStar"
                                 type="button"
                                 class="btn btn-primary"

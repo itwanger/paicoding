@@ -14,7 +14,7 @@
             <div th:if="${global.user.starStatus.code != 4}">
               会员到期时间: <span style="color:blue" th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
             </div>
-            <a th:if="${global.user.starStatus.code == 4}" style="color:red;font-style: normal;font-size: 1.2em" href="/zsxq/bind?useXqName=false">
+            <a th:if="${global.user.starStatus.code == 4}" style="color:red;font-style: normal;font-size: 1.2em" href="/zsxq/bind">
               会员已过期，知识星球续费之后点击此处，重置会员信息
             </a>
           </div>

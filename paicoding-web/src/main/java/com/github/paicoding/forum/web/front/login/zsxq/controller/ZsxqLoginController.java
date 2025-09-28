@@ -45,7 +45,7 @@ public class ZsxqLoginController {
      * @return
      */
     @RequestMapping("zsxq/bind")
-    public void autoBindZsxqUser(@RequestParam(name = "useXqName", required = false, defaultValue = "false") Boolean useXqName, HttpServletResponse response) throws IOException {
+    public void autoBindZsxqUser(@RequestParam(name = "useXqName", required = false, defaultValue = "true") Boolean useXqName, HttpServletResponse response) throws IOException {
         String url = zsxqHelper.buildZsxqLoginUrl("" + useXqName);
         response.sendRedirect(url);
     }
