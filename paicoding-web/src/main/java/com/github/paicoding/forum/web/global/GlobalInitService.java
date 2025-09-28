@@ -22,9 +22,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 /**
  * @author YiHui
@@ -109,17 +110,31 @@ public class GlobalInitService {
         if (request.getCookies() == null) {
             return;
         }
-        Optional.ofNullable(SessionUtil.findCookieByName(request, LoginService.SESSION_KEY))
-                .ifPresent(cookie -> initLoginUser(cookie.getValue(), reqInfo));
+
+        List<Cookie> list = SessionUtil.findCookiesByName(request, LoginService.SESSION_KEY);
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        for (Cookie ck : list) {
+            if (initLoginUser(ck.getValue(), reqInfo)) {
+                // 成功登录
+                return;
+            } else {
+                // 未登录，直接删除
+                SessionUtil.delCookie(ck);
+            }
+        }
     }
 
-    public void initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
+    public boolean initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
         BaseUserInfoDTO user = userService.getAndUpdateUserIpInfoBySessionId(session, null);
         if (user != null) {
             reqInfo.setSession(session);
             reqInfo.setUserId(user.getUserId());
             reqInfo.setUser(user);
             reqInfo.setMsgNum(notifyService.queryUserNotifyMsgCount(user.getUserId()));
+            return true;
         }
+        return false;
     }
 }

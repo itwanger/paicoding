@@ -5,11 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -100,6 +105,22 @@ public class SessionUtil {
         return delCookie(key, host);
     }
 
+    /**
+     * 移除所有相关的Cookie
+     *
+     * @param key
+     */
+    public static void delCookies(String key) {
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        Arrays.stream(request.getCookies()).filter(ck -> Objects.equals(ck.getName(), key)).forEach(ck -> {
+            ck.setMaxAge(0);
+            if (response != null) {
+                response.addCookie(ck);
+            }
+        });
+    }
+
     public static Cookie delCookie(String key, String host) {
         return delCookie(key, host, "/");
     }
@@ -112,6 +133,14 @@ public class SessionUtil {
         }
         cookie.setMaxAge(0);
         return cookie;
+    }
+
+    public static void delCookie(Cookie ck) {
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+        ck.setMaxAge(0);
+        if (response != null) {
+            response.addCookie(ck);
+        }
     }
 
     /**
@@ -129,6 +158,15 @@ public class SessionUtil {
 
         return Arrays.stream(cookies).filter(cookie -> StringUtils.equalsAnyIgnoreCase(cookie.getName(), name))
                 .findFirst().orElse(null);
+    }
+
+    public static List<Cookie> findCookiesByName(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null || cookies.length == 0) {
+            return null;
+        }
+
+        return Arrays.stream(cookies).filter(cookie -> StringUtils.equalsAnyIgnoreCase(cookie.getName(), name)).collect(Collectors.toList());
     }
 
 
