@@ -222,11 +222,11 @@
             <div class="tabpane-container">
               <h2 class="title">微信扫码/长按识别登录</h2>
               <div class="first">
-                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeWxQrCode}"/>
+                <img class="signin-qrcode" th:src="${global.siteInfo.contactMeWxQrCode}" id="loginQrImg"/>
               </div>
 
               <div class="explain">
-                <bold>输入验证码</bold>
+                <bold id="codeTip">输入验证码</bold>
                 <span id="code"></span>
                 <div><span id="state">有效期五分钟 👉</span> <a id="refreshCode">手动刷新</a></div>
               </div>
@@ -494,6 +494,9 @@
           newCode = text.substring(5).trim();
           codeTag.text(newCode);
           console.log("初始化验证码: ", newCode);
+        } else if (text.startsWith("qr#")) {
+          let qrImg = text.substring(3);
+          $("#loginQrImg").attr('src', qrImg);
         }
 
         if (newCode != null) {
