@@ -2,6 +2,8 @@ package com.github.paicoding.forum.web.front.login.wx.callback;
 
 import cn.hutool.core.util.NumberUtil;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
@@ -12,10 +14,12 @@ import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.pay.PayServiceFactory;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +28,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -77,13 +83,20 @@ public class WxCallbackRestController {
             consumes = {"application/xml", "text/xml"},
             produces = "application/xml;charset=utf-8")
     public BaseWxMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
+        // 对于需要开启安全校验的场景，需要配置
+        this.wxCallbackSecurityCheck();
         String content = msg.getContent();
         if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
             String key = msg.getEventKey();
-            if (StringUtils.isNotBlank(key) && key.startsWith("qrscene_")) {
+            if (StringUtils.isNotBlank(key)) {
+                // 对于关注事件，key的格式为 qrscene_验证码； 对于扫码事件，key的格式就是 验证码
+                String code;
+                if (key.startsWith("qrscene_")) {
+                    code = key.substring(8);
+                } else {
+                    code = key;
+                }
                 // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
-                // fixme 带参数二维码需要 微信认证，个人公众号无权限
-                String code = key.substring("qrscene_".length());
                 sessionService.autoRegisterWxUserInfo(msg.getFromUserName());
                 qrLoginHelper.login(code);
                 WxTxtMsgResVo res = new WxTxtMsgResVo();
@@ -101,6 +114,29 @@ public class WxCallbackRestController {
         BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), content, msg.getFromUserName());
         fillResVo(res, msg);
         return res;
+    }
+
+
+    /**
+     * 对微信的回调进行安全校验
+     */
+    private void wxCallbackSecurityCheck() {
+        String securityToken = SpringUtil.getBean(WxLoginProperties.class).getSecurityCheckToken();
+        if (StringUtils.isBlank(securityToken)) {
+            // 没有配置接口签名校验时，直接返回
+            return;
+        }
+
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String sig = request.getParameter("signature");
+        String timestamp = request.getParameter("timestamp");
+        String nonce = request.getParameter("nonce");
+        // 验证签名
+        String toSign = timestamp + nonce + securityToken;
+        if (!DigestUtils.sha1Hex(toSign).equals(sig)) {
+            log.error("微信回调签名校验失败，请检查接口签名配置");
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS);
+        }
     }
 
 
