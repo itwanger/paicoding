@@ -12,3 +12,5 @@
 ![二哥大号微信](https://cdn.tobebetterjavaer.com/paicoding/image-c043ce76c05f421fb8422fb6a704740d.png)
 
 ![二哥的狗腿子](https://cdn.tobebetterjavaer.com/paicoding/image-d81385eed032418a914370563903c7d4.png)
+
+![qrcode_paismart.jpg](https://cdn.tobebetterjavaer.com/paicoding/image-92f8f6ac757e4c2f88110280a7eb6247.jpg)
