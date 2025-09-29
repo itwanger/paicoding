@@ -20,6 +20,8 @@ import java.util.TreeMap;
 @Slf4j
 @Component
 public class ZsxqHelper {
+    public static final String EXTRA_TAG_USER_TRANSFER = "zsxqUserTransfer";
+
     @Autowired
     private ZsxqProperties zsxqProperties;
 

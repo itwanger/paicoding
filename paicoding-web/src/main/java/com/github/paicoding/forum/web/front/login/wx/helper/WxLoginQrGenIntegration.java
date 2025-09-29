@@ -11,6 +11,7 @@ import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
@@ -51,15 +52,25 @@ public class WxLoginQrGenIntegration {
             // 服务号登录，首先获取带链接的二维码信息
             String qrText = genServiceAccountLoginQrCode(code);
             // 根据二维码内容生成二维码图片，返回给前端
-            try {
-                BufferedImage img = QrCodeGenV3.of(qrText).setLogo(wxLoginProperties.getQrCodeLogo()).asImg();
-                return DomUtil.toDomSrc(Base64Util.encode(img, "png"), MediaType.ImagePng);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            String base64Img = genQrImg(qrText);
+            return DomUtil.toDomSrc(base64Img, MediaType.ImagePng);
         } else {
             // 普通公众号登录时
             return wxLoginProperties.getQrCodeImg();
+        }
+    }
+
+    private String genQrImg(String qrText) {
+        try {
+            BufferedImage img;
+            if (StringUtils.isBlank(wxLoginProperties.getQrCodeLogo())) {
+                img = QrCodeGenV3.of(qrText).asImg();
+            } else {
+                img = QrCodeGenV3.of(qrText).setLogo(wxLoginProperties.getQrCodeLogo()).asImg();
+            }
+            return Base64Util.encode(img, "png");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

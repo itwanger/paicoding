@@ -5,8 +5,9 @@
       <img th:src="${vo.userHome.photo}" class="user-head-img" />
       <div class="user-head-title-wrap">
         <div class="user-head-title-name">
-          <div th:text="${userHome.userName}">
-            用户名
+          <div>
+            <span th:text="${userHome.userName}">用户名</span>
+            <span class="user-edit" data-toggle="modal" data-target="#accountModify">账号迁移 >>></span>
           </div>
           <div style="font-size: 0.5em;color:gray;font-style: italic ; font-weight: normal"
                th:if="${vo.userHome.starNumber != '' && vo.userHome.starNumber != null && global.isLogin && vo.userHome.userId == global.user.userId}">

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 个人信息修改弹窗 -->
+<div
+        class="modal fade"
+        id="accountModify"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="loginModalDropLabel"
+        aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">账号迁移</h5>
+                <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="person-info">
+                    <!-- 添加切换按钮 -->
+                    <div class="input-group mb-4">
+                        <div class="btn-group w-100" role="group" aria-label="账号迁移方式切换">
+                            <button type="button" class="btn btn-primary" id="userPwdBtn">
+                                <i class="fa fa-user-lock"></i> 用户名/密码方式
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="zsxqBtn">
+                                <i class="fa fa-star"></i> 知识星球方式
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 用户名/密码方式表单 -->
+                    <div id="userPwdForm">
+                        <div class="alert alert-info mb-4">
+                            <i class="fa fa-info-circle"></i> 请输入您要迁移至的账号的用户名和密码
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="loginName" class="form-label">
+                                <i class="fa fa-user"></i> 用户名
+                            </label>
+                            <input
+                                    id="loginName"
+                                    type="text"
+                                    class="form-control form-control-lg"
+                                    placeholder="请输入用户登录名"
+                            />
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="userPassword" class="form-label">
+                                <i class="fa fa-key"></i> 密码
+                            </label>
+                            <input
+                                    id="userPassword"
+                                    type="password"
+                                    class="form-control form-control-lg"
+                                    placeholder="请输入密码"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- 知识星球方式表单 -->
+                    <div id="zsxqForm" style="display: none;">
+                        <div class="alert alert-warning mb-4">
+                            <i class="fa fa-exclamation-circle"></i> 将通过知识星球进行账号绑定和迁移
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fa fa-id-card"></i> 星球编号
+                            </label>
+                            <div class="input-group">
+                                <input
+                                        th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}"
+                                        id="starNumber"
+                                        type="text"
+                                        class="form-control form-control-lg"
+                                        th:value="${vo.userHome != null ? vo.userHome.starNumber: ''}"
+                                        placeholder="去绑定"
+                                        disabled
+                                />
+                                <div class="input-group-append">
+                                    <a
+                                            href="/user/api/transfer/zsxq"
+                                            id="bindStar"
+                                            class="btn btn-primary"
+                                            th:text="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != '' ? '重新绑定': '去绑定'}"
+                                    >
+                                        绑定
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}"
+                             class="form-group">
+                            <label class="form-label">
+                                <i class="fa fa-calendar-alt"></i> 有效期
+                            </label>
+                            <div class="form-control form-control-lg" readonly>
+                                <span id="starValidity"
+                                      th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-4" id="operateBtn">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fa fa-times"></i> 取消
+                </button>
+                <button id="publish" type="button" class="btn btn-primary">
+                    <i class="fa fa-save"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    // 在模态框显示时直接给按钮绑定事件
+    $('#accountModify').on('shown.bs.modal', function () {
+        // 使用事件委托确保事件正确绑定
+        $(document).on('click', '#publish', function () {
+            // 根据当前显示的表单执行不同的操作
+            if ($("#userPwdForm").is(":visible")) {
+                // 用户名/密码方式
+                transferByUserPwd();
+            }
+        });
+
+        // 清除旧的事件绑定
+        $('#userPwdBtn, #zsxqBtn').off('click');
+
+        // 直接绑定新的事件
+        $('#userPwdBtn').click(function () {
+            $(this).removeClass("btn-secondary");
+            $(this).addClass("btn-primary");
+            $('#zsxqBtn').removeClass("btn-primary");
+            $('#zsxqBtn').addClass("btn-secondary");
+            $('#userPwdForm').show();
+            $('#zsxqForm').hide();
+            $('#operateBtn').show();
+        });
+
+        $('#zsxqBtn').click(function () {
+            $(this).removeClass("btn-secondary");
+            $(this).addClass("btn-primary");
+            $('#userPwdBtn').removeClass("btn-primary");
+            $('#userPwdBtn').addClass("btn-secondary");
+            $('#zsxqForm').show();
+            $('#userPwdForm').hide();
+            $('#operateBtn').hide();
+        });
+    });
+
+    // 用户名/密码方式迁移
+    function transferByUserPwd() {
+        const loginName = $("#loginName").val();
+        const password = $("#userPassword").val();
+
+        if (!loginName || !password) {
+            toastr.info("请输入用户名和密码");
+            return;
+        }
+
+        // 显示加载状态
+        const originalText = $("#publish").html();
+        $("#publish").html('<i class="fa fa-spinner fa-spin"></i> 处理中...').prop('disabled', true);
+
+        // 调用后端接口进行用户名/密码方式迁移
+        $.ajax({
+            url: "/user/api/transfer/userPwd",
+            type: "POST",
+            data: {
+                username: loginName,
+                password: password
+            },
+            success: function (data) {
+                if (data.status.code === 0) {
+                    if (data.result > 0) {
+                        toastr.success("账号迁移成功");
+                        // 延迟刷新页面，让用户看到成功消息
+                        setTimeout(function () {
+                            window.location.href = "/user/home?userId=" + data.result;
+                        }, 1500);
+                    }
+
+                } else {
+                    toastr.error(data.status.msg);
+                    // 恢复按钮状态
+                    $("#publish").html(originalText).prop('disabled', false);
+                }
+            },
+            error: function () {
+                toastr.error("账号迁移失败，请稍后重试");
+                // 恢复按钮状态
+                $("#publish").html(originalText).prop('disabled', false);
+            }
+        });
+    }
+</script>
+</html>
