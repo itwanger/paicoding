@@ -8,6 +8,7 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.StarNumberUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.UserTransferService;
 import com.github.paicoding.forum.web.front.login.zsxq.helper.ZsxqHelper;
 import com.github.paicoding.forum.web.front.login.zsxq.vo.ZsxqLoginVo;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * 知识星球登录
@@ -37,6 +39,8 @@ public class ZsxqLoginController {
     private LoginService loginService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserTransferService userTransferService;
 
     /**
      * 用户信息绑定
@@ -87,7 +91,13 @@ public class ZsxqLoginController {
             return;
         }
 
-        // 3. 对于已登录场景，执行星球信息绑定
+        // 3. 如果是通过知识星球进行账号迁移
+        if (Objects.equals(login.getExtra(), ZsxqHelper.EXTRA_TAG_USER_TRANSFER)) {
+            // 迁移完成之后，跳转到新的用户主页
+            userTransferService.transferUser(starNumber);
+        }
+
+        // 4. 对于已登录场景，执行星球信息绑定
         userService.bindUserInfo(new UserZsxqLoginReq()
                 .setUpdateUserInfo(BooleanUtils.toBoolean(login.getExtra()))
                 .setUsername("zsxq_" + starNumber)
