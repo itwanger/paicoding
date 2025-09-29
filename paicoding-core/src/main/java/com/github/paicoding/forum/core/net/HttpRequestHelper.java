@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -38,8 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class HttpRequestHelper {
-    public static final String CHROME_UA =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
+    public static final String CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
 
     /**
      * rest template
@@ -47,13 +47,12 @@ public class HttpRequestHelper {
     private static LoadingCache<String, RestTemplate> restTemplateMap;
 
     static {
-        restTemplateMap = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES)
-                .build(new CacheLoader<String, RestTemplate>() {
-                    @Override
-                    public RestTemplate load(String key) throws Exception {
-                        return buildRestTemplate();
-                    }
-                });
+        restTemplateMap = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<String, RestTemplate>() {
+            @Override
+            public RestTemplate load(String key) throws Exception {
+                return buildRestTemplate();
+            }
+        });
     }
 
     /**
@@ -116,8 +115,7 @@ public class HttpRequestHelper {
      * @param <R>
      * @return
      */
-    public static <R> R fetchContentWithProxy(String url, HttpMethod method, Map<String, String> params,
-                                              HttpHeaders headers, Class<R> responseClass) {
+    public static <R> R fetchContentWithProxy(String url, HttpMethod method, Map<String, String> params, HttpHeaders headers, Class<R> responseClass) {
         R result = fetchContent(url, method, params, headers, responseClass, true);
         if (result == null) {
             return fetchContent(url, method, params, headers, responseClass, false);
@@ -135,8 +133,7 @@ public class HttpRequestHelper {
      * @param <R>
      * @return
      */
-    public static <R> R fetchContentWithoutProxy(String url, HttpMethod method, Map<String, String> params,
-                                                 HttpHeaders headers, Class<R> responseClass) {
+    public static <R> R fetchContentWithoutProxy(String url, HttpMethod method, Map<String, String> params, HttpHeaders headers, Class<R> responseClass) {
         return fetchContent(url, method, params, headers, responseClass, false);
     }
 
@@ -152,10 +149,7 @@ public class HttpRequestHelper {
      * @param <R>
      * @return
      */
-    private static <R> R fetchContent(String url, HttpMethod method,
-                                      Map<String, String> params,
-                                      HttpHeaders headers,
-                                      Class<R> responseClass, boolean useProxy) {
+    private static <R> R fetchContent(String url, HttpMethod method, Map<String, String> params, HttpHeaders headers, Class<R> responseClass, boolean useProxy) {
         String threadName = Thread.currentThread().getName();
         RestTemplate restTemplate = restTemplateMap.getUnchecked(threadName);
 
@@ -204,8 +198,7 @@ public class HttpRequestHelper {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private static <R> R fetchContentInternal(RestTemplate restTemplate, String url, HttpMethod method,
-                                              Map<String, String> params, HttpHeaders headers, Class<R> responseClass) {
+    private static <R> R fetchContentInternal(RestTemplate restTemplate, String url, HttpMethod method, Map<String, String> params, HttpHeaders headers, Class<R> responseClass) {
         ResponseEntity<R> responseEntity;
         try {
             SslUtils.ignoreSSL();
@@ -234,8 +227,7 @@ public class HttpRequestHelper {
         return responseEntity.getBody();
     }
 
-    public static <R> R fetchByRequestBody(String url, Map<String, Object> params, HttpHeaders headers,
-                                           Class<R> responseClass) {
+    public static <R> R fetchByRequestBody(String url, Map<String, Object> params, HttpHeaders headers, Class<R> responseClass) {
         ResponseEntity<R> responseEntity;
         try {
             String threadName = Thread.currentThread().getName();
@@ -254,13 +246,35 @@ public class HttpRequestHelper {
         return null;
     }
 
+    /**
+     * get 请求，参数通过params传递，要求url中有参数占位符，这样发起请求时，会自动将 params 中的参数拼接到url中
+     *
+     * @param url
+     * @param params
+     * @param res
+     * @param <R>
+     * @return
+     */
+    public static <R> R get(String url, Map<String, String> params, Class<R> res) {
+        return fetchContentWithoutProxy(url, HttpMethod.GET, params, new HttpHeaders(), res);
+    }
+
+    public static <R> R get(String url, Class<R> res) {
+        return fetchContentWithoutProxy(url, HttpMethod.GET, new HashMap<>(), new HttpHeaders(), res);
+    }
+
 
     public static <R> R postJsonData(String url, Object data, Class<R> res) {
         ResponseEntity<R> responseEntity;
         try {
             String threadName = Thread.currentThread().getName();
             RestTemplate restTemplate = restTemplateMap.getUnchecked(threadName);
-            HttpEntity<Object> entity = new HttpEntity<>(data);
+
+            // 设置请求头为 application/json
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> entity = new HttpEntity<>(data, headers);
             responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, res);
         } catch (Exception e) {
             log.warn("Failed to fetch content, url:{}, params:{}, exception:{}", url, data, e.getMessage());

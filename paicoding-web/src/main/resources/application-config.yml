@@ -10,7 +10,7 @@ view:
     zsxqUrl: https://paicoding.com/article/detail/314
     zsxqPosterUrl: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/javabetter.jpg
     contactMeTitle: 联系我 - 沉默王二的狗腿子
-    contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png
+    contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png  # 这里是用于登录的普通公众号的二维码
     contactMeStarQrCode: https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/qiye-weixin.png
     pageSize: 20
     cdnImgStyle:

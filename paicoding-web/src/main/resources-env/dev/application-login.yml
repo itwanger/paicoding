@@ -7,3 +7,10 @@ paicoding:
       groupNumber: 666
       secret: 666
       redirectUrl: https://paicoding.com/login/zsxq/callback
+    wx:
+      loginQrType: SUBSCRIPTION_ACCOUNT # SUBSCRIPTION_ACCOUNT 表示普通的公众号登录  SERVICE_ACCOUNT 表示服务号关注登录
+      appId: wx59x(使用公众号的appId)ffb8
+      appSecret: a7c4xb(使用公众号的appSecret)68c84
+      qrCodeImg: ${view.site.contactMeWxQrCode}
+      qrCodeLogo: ${view.site.websiteLogoUrl}
+      securityCheckToken: # 为空，表示不对微信回调的接口进行校验
