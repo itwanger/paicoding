@@ -12,3 +12,4 @@ paicoding:
       appSecret: a7c4xb(使用公众号的appSecret)68c84
       qrCodeImg: ${view.site.contactMeWxQrCode}
       qrCodeLogo: ${view.site.websiteLogoUrl}
+      securityCheckToken: # 为空，表示不对微信回调的接口进行校验

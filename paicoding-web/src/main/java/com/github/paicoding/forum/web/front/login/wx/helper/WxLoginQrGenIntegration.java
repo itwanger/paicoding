@@ -104,8 +104,8 @@ public class WxLoginQrGenIntegration {
      */
     private String genServiceAccountLoginQrCode(String code) {
         String url = WX_GEN_QR_URL + getAccessToken();
-        Map<String, Object> params = MapUtils.create("expire_seconds", 300, "action_name", "QR_STR_SCENE");
-        params.put("action_info", MapUtils.create("scene", MapUtils.create("scene_id", code, "scene_str", "paiCodingLogin")));
+        Map<String, Object> params = MapUtils.create("expire_seconds", 300, "action_name", "QR_SCENE");
+        params.put("action_info", MapUtils.create("scene", MapUtils.create("scene_id", code, "scene_str", "paiLogin#" + code)));
 
         WxLoginQrCodeRes res = HttpRequestHelper.postJsonData(url, params, WxLoginQrCodeRes.class);
         return res.url;
