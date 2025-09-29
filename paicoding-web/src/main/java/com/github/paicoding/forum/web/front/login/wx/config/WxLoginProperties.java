@@ -37,4 +37,9 @@ public class WxLoginProperties {
      * 二维码的logo，适用于服务号的场景
      */
     private String qrCodeLogo;
+
+    /**
+     * 微信公众号安全校验token，为后台配置
+     */
+    private String securityCheckToken;
 }

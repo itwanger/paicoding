@@ -269,7 +269,12 @@ public class HttpRequestHelper {
         try {
             String threadName = Thread.currentThread().getName();
             RestTemplate restTemplate = restTemplateMap.getUnchecked(threadName);
-            HttpEntity<Object> entity = new HttpEntity<>(data);
+
+            // 设置请求头为 application/json
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> entity = new HttpEntity<>(data, headers);
             responseEntity = restTemplate.exchange(url, HttpMethod.POST, entity, res);
         } catch (Exception e) {
             log.warn("Failed to fetch content, url:{}, params:{}, exception:{}", url, data, e.getMessage());
