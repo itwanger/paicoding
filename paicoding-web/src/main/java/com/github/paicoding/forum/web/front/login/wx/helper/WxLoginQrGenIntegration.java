@@ -50,7 +50,6 @@ public class WxLoginQrGenIntegration {
      */
     public String genLoginQrImg(String code) {
         LoginQrTypeEnum type = getLoginQrType();
-        log.info("当前登录二维码类型：{}", type);
         if (type == LoginQrTypeEnum.SERVICE_ACCOUNT) {
             // 服务号登录，首先获取带链接的二维码信息
             String qrText = genServiceAccountLoginQrCode(code);
