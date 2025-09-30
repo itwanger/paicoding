@@ -11,6 +11,7 @@ import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import lombok.Data;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import java.util.Map;
  * @author YiHui
  * @date 2025/9/28
  */
+@Slf4j
 @Component
 public class WxLoginQrGenIntegration {
 
@@ -48,6 +50,7 @@ public class WxLoginQrGenIntegration {
      */
     public String genLoginQrImg(String code) {
         LoginQrTypeEnum type = getLoginQrType();
+        log.info("当前登录二维码类型：{}", type);
         if (type == LoginQrTypeEnum.SERVICE_ACCOUNT) {
             // 服务号登录，首先获取带链接的二维码信息
             String qrText = genServiceAccountLoginQrCode(code);
