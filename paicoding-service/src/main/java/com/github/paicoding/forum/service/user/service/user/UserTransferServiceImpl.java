@@ -81,7 +81,7 @@ public class UserTransferServiceImpl implements UserTransferService {
         Long currentUserId = ReqInfoContext.getReqInfo().getUserId();
         if (Objects.equals(currentUserId, targetUser.getId())) {
             // 同一个用户，无需迁移
-            return false;
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "当前用户与目标用户相同，无需迁移");
         }
 
         UserDO loginUser = userDao.getUserByUserId(currentUserId);

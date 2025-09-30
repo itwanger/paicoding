@@ -131,16 +131,26 @@ public class WxLoginHelper {
             return null;
         }
 
-        // 重新生成一个验证码
-        deviceCodeCache.invalidate(deviceId);
-        String newCode = deviceCodeCache.getUnchecked(deviceId);
-        log.info("generate new loginCode! deviceId:{}, oldCode:{}, code:{}", deviceId, oldCode, newCode);
+        // 根据登录类型决定刷新逻辑
+        if (wxLoginQrGenIntegration.getLoginQrType() == LoginQrTypeEnum.SERVICE_ACCOUNT) {
+            // 服务号登录：刷新二维码图片，不更换验证码
+            lastSse.send("refreshQr!");
+            String newQrImg = wxLoginQrGenIntegration.genLoginQrImg(oldCode);
+            lastSse.send("qr#" + newQrImg);
+            log.info("refresh qr image for service account! deviceId:{}, code:{}", deviceId, oldCode);
+            return oldCode;
+        } else {
+            // 普通公众号登录：重新生成验证码
+            deviceCodeCache.invalidate(deviceId);
+            String newCode = deviceCodeCache.getUnchecked(deviceId);
+            log.info("generate new loginCode! deviceId:{}, oldCode:{}, code:{}", deviceId, oldCode, newCode);
 
-        lastSse.send("updateCode!");
-        lastSse.send("refresh#" + newCode);
-        verifyCodeCache.invalidate(oldCode);
-        verifyCodeCache.put(newCode, lastSse);
-        return newCode;
+            lastSse.send("updateCode!");
+            lastSse.send("refresh#" + newCode);
+            verifyCodeCache.invalidate(oldCode);
+            verifyCodeCache.put(newCode, lastSse);
+            return newCode;
+        }
     }
 
     /**

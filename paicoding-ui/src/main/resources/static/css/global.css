@@ -84,6 +84,7 @@ a {
 }
 
 a.underline {
+  text-decoration: underline;
   color: var(--pai-brand-1-normal);
 }
 
@@ -1257,12 +1258,29 @@ button:focus {
     display: none;
   }
 
-  .modal input, .modal input::placeholder,.modal .title {
-    font-size: 1rem;
+  /* 移动端登录框宽度优化 */
+  #loginModal .modal-dialog {
+    max-width: 320px;
+    margin: 1.75rem auto;
+  }
+
+  #loginModal .modal-content .modal-body {
+    padding: 20px 15px;
   }
 
   #loginModal .modal-content .modal-body .tabpane-container {
     border-left: none;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* 移动端隐藏tabpane-container内的title */
+  #loginModal .modal-content .modal-body .tabpane-container .title {
+    display: none;
+  }
+
+  .modal input, .modal input::placeholder,.modal .title {
+    font-size: 1rem;
   }
 
   #loginModal .first .signin-qrcode {

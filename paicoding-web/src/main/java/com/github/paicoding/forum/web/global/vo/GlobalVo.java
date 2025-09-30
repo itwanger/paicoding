@@ -58,4 +58,9 @@ public class GlobalVo {
     private List<SeoTagVo> ogp;
     private String jsonLd;
 
+    /**
+     * 微信登录二维码类型
+     */
+    private String loginQrType;
+
 }

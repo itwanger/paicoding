@@ -57,13 +57,15 @@ public class LoginRestController {
      * 绑定星球账号
      */
     @PostMapping("/login/register")
-    public ResVo<Boolean> register(UserPwdLoginReq loginReq,
+    public ResVo<Long> register(UserPwdLoginReq loginReq,
                                    HttpServletResponse response) {
         String session = loginService.registerByUserPwd(loginReq);
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息，用于身份识别
             response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
-            return ResVo.ok(true);
+            // 获取当前登录用户的ID
+            Long userId = ReqInfoContext.getReqInfo().getUserId();
+            return ResVo.ok(userId);
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "用户名和密码登录异常，请稍后重试");
         }

@@ -154,6 +154,7 @@
                   >
                     个人主页
                   </a>
+                  <a class="dropdown-item" data-toggle="modal" data-target="#accountModify" href="">迁移账号</a>
                   <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                 </div>
               </div>
@@ -163,6 +164,8 @@
       </div>
     </div>
   </nav>
+
+
   <!-- 登录 Modal -->
   <div
           th:if="${!global.isLogin}"
@@ -226,8 +229,15 @@
               </div>
 
               <div class="explain">
-                <bold id="codeTip">输入验证码</bold>
-                <span id="code"></span>
+                <!-- 根据登录类型显示不同的提示信息 -->
+                <div th:if="${global.loginQrType == 'SUBSCRIPTION_ACCOUNT'}">
+                  <bold id="codeTip">输入验证码</bold>
+                  <span id="code"></span>
+                </div>
+                <div th:if="${global.loginQrType == 'SERVICE_ACCOUNT'}">
+                  <bold id="codeTip">扫码关注登录</bold>
+                </div>
+                <!-- 状态和刷新按钮共用 -->
                 <div><span id="state">有效期五分钟 👉</span> <a id="refreshCode">手动刷新</a></div>
               </div>
             </div>
@@ -279,7 +289,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title">绑定二哥编程星球，畅享 VIP 尊享服务！</h6>
+          <h6 class="modal-title">绑定知识星球，畅享 VIP 尊享服务！</h6>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -295,25 +305,31 @@
                      href="https://paicoding.com/article/detail/358">戳我了解如何获取星球编号，新窗口打开</a>
                 </h1>
                 <form id="register-form">
-                  <div class="form-group">
-                    <input type="text"
-                           placeholder="星球编号，戳上面的链接有详细教程"
-                           class="form-control form-control-sm"
+                  <div class="form-group row">
+                    <label  class="col-sm-3 col-form-label col-form-label-sm pr-0" for="starNumber">星球编号</label>
+                    <div class="col-sm-9">
+                      <input type="text"
+                           placeholder="戳上面的链接，一般5位"
+                           class="form-control"
                            required
                            id="starNumber"
                            autocomplete="off">
+                    </div>
                   </div>
-                  <div class="form-group">
-                    <input type="text"
-                           placeholder="用户名密码登录时用"
-                           class="form-control form-control-sm"
-                           id="registerUser" required>
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label col-form-label-sm pr-0" for="registerUser">用户名</label>
+                    <div class="col-sm-9">
+                      <input type="text"
+                             placeholder="用户名密码方式登录时用"
+                             class="form-control"
+                             id="registerUser" required>
+                    </div>
                   </div>
-                  <div class="form-group">
-                    <input type="password" placeholder="密码，你自己能记得住的" class="form-control form-control-sm" id="registerPassword" required>
-                  </div>
-                  <div class="form-group">
-                    <input type="text" placeholder="微信搜沉默王二回复邀请码获取，也可不填" class="form-control form-control-sm" id="invitationCode" autocomplete="off">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label col-form-label-sm pr-0" for="registerPassword">密码</label>
+                    <div class="col-sm-9">
+                      <input type="password" placeholder="你自己能记得住的" class="form-control" id="registerPassword" required>
+                    </div>
                   </div>
                   <!-- 绑定过会直接登录 -->
                   <button type="submit"
@@ -323,7 +339,7 @@
               </div>
             </div>
             <div class="tabpane-container">
-              <h2 class="title">添加二哥微信 itwanger 审核更快</h2>
+              <h2 class="title">添加二哥微信 qing_gee 加速审核</h2>
               <div class="first">
                 <img class="signin-qrcode" th:src="${global.siteInfo.contactMeStarQrCode}"/>
               </div>
@@ -331,7 +347,6 @@
               <div class="explain">
                 <bold>记得备注</bold>
                 <code>星球编号</code>
-                <div>我会根据星球编号进行审核</div>
               </div>
             </div>
           </div>
@@ -340,12 +355,16 @@
     </div>
   </div>
 
+  <!--  账号迁移弹窗    -->
+  <div th:replace="views/user/info/transfer" th:if="${global.isLogin}"></div>
+
   <script src="/js/sockjs.min.js" th:src="${global.siteInfo.oss + '/js/sockjs.min.js'}"></script>
   <script src="/js/stomp.min.js" th:src="${global.siteInfo.oss + '/js/stomp.min.js'}"></script>
   <script
           src="/js/mock.js"
           th:if="${!#strings.equals(global.env, 'prod')}"
   ></script>
+
   <script th:inline="javascript">
     // 是否自动刷新验证码
     let autoRefresh;
@@ -385,13 +404,13 @@
 
     // 绑定星球
     $("#register-form").on("submit", function(event) {
+      console.log("绑定星球");
       event.preventDefault();
 
       // 获取用户名和密码，没有定义 ID
       const registerUser = $('#registerUser').val();
       const starNumber = $("#starNumber").val();
       const password = $("#registerPassword").val();
-      const invitationCode = $("#invitationCode").val();
 
       $.ajax({
         url: "/login/register",
@@ -400,15 +419,18 @@
           username: registerUser,
           starNumber: starNumber, // 移除padStart格式化，由后端处理
           password: password,
-          invitationCode: invitationCode
+          invitationCode: ''
         },
         success: function(response) {
           console.log(response);
           if(response.status.code === 0) {
-            // 登录成功
-            refreshPage();
+            // 绑定成功，显示成功提示并跳转到个人详情页面
+            toastr.success("绑定成功！正在跳转到个人详情页面...");
+            setTimeout(function() {
+              window.location.href = "/user/home?userId=" + response.result;
+            }, 1500);
           } else {
-            // 登录失败
+            // 绑定失败
             toastr.error(response.status.msg);
           }
         },
@@ -480,6 +502,9 @@
           // 刷新验证码
           newCode = text.substring(8).trim();
           codeTag.text(newCode);
+          stateTag.text("已刷新 ");
+        } else if (text === 'refreshQr!') {
+          // 服务号登录刷新二维码
           stateTag.text("已刷新 ");
         } else if (text === 'scan') {
           // 二维码扫描
@@ -581,6 +606,13 @@
     $('#loginModal').on('show.bs.modal', function () {
       console.log("登录弹窗已展示!");
       buildConnect();
+
+      // 移动端修改modal title
+      if (window.innerWidth <= 768) {
+        $('#loginModal .modal-title').text('微信扫码/长按识别登录');
+      } else {
+        $('#loginModal .modal-title').text('登录技术派畅享更多权益');
+      }
     })
     $('#refreshCode').click(() => {
       refreshCode();
