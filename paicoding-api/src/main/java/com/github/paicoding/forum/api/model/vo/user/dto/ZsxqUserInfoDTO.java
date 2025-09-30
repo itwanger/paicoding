@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 基本用户信息
@@ -56,4 +57,8 @@ public class ZsxqUserInfoDTO implements Serializable {
     // strategy
     @ApiModelProperty("AI策略")
     private Integer strategy;
+
+    // 过期时间
+    @ApiModelProperty("过期时间")
+    private Date expireTime;
 }

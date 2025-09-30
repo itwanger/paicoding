@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<!-- 个人信息修改弹窗 -->
+<!-- 账号迁移模态框 -->
 <div
         class="modal fade"
         id="accountModify"
@@ -11,81 +9,96 @@
         aria-labelledby="loginModalDropLabel"
         aria-hidden="true"
 >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">账号迁移</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header py-3" style="background: linear-gradient(135deg, var(--pai-brand-1-normal) 0%, var(--pai-brand-2-hover) 100%); color: white; border-bottom: none;">
+                <h5 class="modal-title font-weight-bold">
+                    <i class="fa fa-exchange-alt mr-2"></i>账号迁移
+                </h5>
                 <button
                         type="button"
-                        class="close"
+                        class="close text-white"
                         data-dismiss="modal"
                         aria-label="Close"
                 >
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-5" style="background-color: var(--pai-bg-light-2);">
                 <div class="person-info">
                     <!-- 添加切换按钮 -->
-                    <div class="input-group mb-4">
+                    <div class="form-group mb-4">
                         <div class="btn-group w-100" role="group" aria-label="账号迁移方式切换">
-                            <button type="button" class="btn btn-primary" id="userPwdBtn">
-                                <i class="fa fa-user-lock"></i> 用户名/密码方式
+                            <button type="button" class="btn rounded-left font-weight-bold" id="userPwdBtn" style="background-color: var(--pai-brand-1-normal); border-color: var(--pai-brand-1-normal); color: white;">
+                                <i class="fa fa-user-lock mr-1"></i> 用户名/密码方式
                             </button>
-                            <button type="button" class="btn btn-secondary" id="zsxqBtn">
-                                <i class="fa fa-star"></i> 知识星球方式
+                            <button type="button" class="btn rounded-right font-weight-bold" id="zsxqBtn" style="background-color: transparent; border: 2px solid var(--pai-color-5-gray); color: var(--pai-color-4-gray);">
+                                <i class="fa fa-star mr-1"></i> 知识星球方式
                             </button>
                         </div>
                     </div>
 
                     <!-- 用户名/密码方式表单 -->
-                    <div id="userPwdForm">
-                        <div class="alert alert-info mb-4">
-                            <i class="fa fa-info-circle"></i> 请输入您要迁移至的账号的用户名和密码
+                    <form id="userPwdForm" autocomplete="off">
+                        <div class="alert mb-4 rounded-lg" style="background-color: var(--pai-brand-7-light); border-left: 4px solid var(--pai-brand-1-normal); color: var(--pai-color-4-gray);">
+                            <i class="fa fa-info-circle mr-2"></i> 请输入您之前账号的用户名和密码
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label for="loginName" class="form-label">
-                                <i class="fa fa-user"></i> 用户名
+                        <div class="form-group mb-4">
+                            <label for="loginName" class="form-label font-weight-bold text-dark">
+                                <i class="fa fa-user mr-1"></i> 用户名
                             </label>
                             <input
                                     id="loginName"
+                                    name="loginName"
                                     type="text"
-                                    class="form-control form-control-lg"
+                                    class="form-control form-control-lg rounded-pill"
+                                    style="border: 2px solid var(--pai-border-color-1); transition: border-color 0.3s ease;"
                                     placeholder="请输入用户登录名"
+                                    required
+                                    autocomplete="username"
+                                    th:value="${global.user != null ? global.user.userName : ''}"
+                                    onfocus="this.style.borderColor='var(--pai-brand-1-normal)'"
+                                    onblur="this.style.borderColor='var(--pai-border-color-1)'"
                             />
                         </div>
 
                         <div class="form-group mb-4">
-                            <label for="userPassword" class="form-label">
-                                <i class="fa fa-key"></i> 密码
+                            <label for="userPassword" class="form-label font-weight-bold text-dark">
+                                <i class="fa fa-key mr-1"></i> 密码
                             </label>
                             <input
                                     id="userPassword"
+                                    name="userPassword"
                                     type="password"
-                                    class="form-control form-control-lg"
+                                    required
+                                    class="form-control form-control-lg rounded-pill"
+                                    style="border: 2px solid var(--pai-border-color-1); transition: border-color 0.3s ease;"
                                     placeholder="请输入密码"
+                                    autocomplete="current-password"
+                                    onfocus="this.style.borderColor='var(--pai-brand-1-normal)'"
+                                    onblur="this.style.borderColor='var(--pai-border-color-1)'"
                             />
                         </div>
-                    </div>
+                    </form>
 
                     <!-- 知识星球方式表单 -->
                     <div id="zsxqForm" style="display: none;">
-                        <div class="alert alert-warning mb-4">
-                            <i class="fa fa-exclamation-circle"></i> 将通过知识星球进行账号绑定和迁移
+                        <div class="alert mb-4 rounded-lg" style="background-color: var(--pai-bg-normal-1); border-left: 4px solid var(--pai-brand-3-click); color: var(--pai-color-4-gray);">
+                            <i class="fa fa-exclamation-circle mr-2"></i> 通过知识星球授权进行账号绑定和迁移
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label class="form-label">
-                                <i class="fa fa-id-card"></i> 星球编号
+                        <div class="form-group mb-4">
+                            <label class="form-label font-weight-bold text-dark">
+                                <i class="fa fa-id-card mr-1"></i> 星球编号
                             </label>
                             <div class="input-group">
                                 <input
-                                        th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}"
+                                        th:if="${global.user != null && global.user.starNumber != null && global.user.starNumber != ''}"
                                         id="starNumber"
                                         type="text"
-                                        class="form-control form-control-lg"
-                                        th:value="${vo.userHome != null ? vo.userHome.starNumber: ''}"
+                                        class="form-control form-control-lg rounded-pill" style="border: 2px solid var(--pai-border-color-1); background-color: var(--pai-bg-light-2);"
+                                        th:value="${global.user != null ? global.user.starNumber: ''}"
                                         placeholder="去绑定"
                                         disabled
                                 />
@@ -93,8 +106,8 @@
                                     <a
                                             href="/user/api/transfer/zsxq"
                                             id="bindStar"
-                                            class="btn btn-primary"
-                                            th:text="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != '' ? '重新绑定': '去绑定'}"
+                                            class="btn rounded-pill px-4 font-weight-bold" style="background-color: var(--pai-brand-1-normal); border-color: var(--pai-brand-1-normal); color: white;"
+                                            th:text="${global.user != null && global.user.starNumber != null && global.user.starNumber != '' ? '重新绑定': '去绑定'}"
                                     >
                                         绑定
                                     </a>
@@ -102,25 +115,25 @@
                             </div>
                         </div>
 
-                        <div th:if="${vo.userHome != null && vo.userHome.starNumber != null && vo.userHome.starNumber != ''}"
+                        <div th:if="${global.user != null && global.user.starNumber != null && global.user.starNumber != ''}"
                              class="form-group">
-                            <label class="form-label">
-                                <i class="fa fa-calendar-alt"></i> 有效期
+                            <label class="form-label font-weight-bold text-dark">
+                                <i class="fa fa-calendar-alt mr-1"></i> 有效期
                             </label>
-                            <div class="form-control form-control-lg" readonly>
+                            <div class="form-control form-control-lg rounded-pill" style="border: 2px solid var(--pai-border-color-1); background-color: var(--pai-bg-light-2);" readonly>
                                 <span id="starValidity"
-                                      th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
+                                      th:text="${global.user != null && global.user.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(global.user.expireTime): ''}"></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer pr-4" id="operateBtn">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fa fa-times"></i> 取消
+            <div class="modal-footer pr-5 pb-4 border-0" id="operateBtn" style="background-color: white; border-top: 1px solid var(--pai-border-color-1);">
+                <button type="button" class="btn rounded-pill px-4 font-weight-bold" data-dismiss="modal" style="background-color: var(--pai-color-5-gray); border-color: var(--pai-color-5-gray); color: var(--pai-color-4-gray);">
+                    <i class="fa fa-times mr-1"></i> 取消
                 </button>
-                <button id="publish" type="button" class="btn btn-primary">
-                    <i class="fa fa-save"></i> 保存
+                <button id="publish" type="button" class="btn rounded-pill px-4 font-weight-bold" style="background-color: var(--pai-brand-1-normal); border-color: var(--pai-brand-1-normal); color: white;">
+                    <i class="fa fa-save mr-1"></i> 保存
                 </button>
             </div>
         </div>
@@ -129,12 +142,21 @@
 <script th:inline="javascript">
     // 在模态框显示时直接给按钮绑定事件
     $('#accountModify').on('shown.bs.modal', function () {
-        // 使用事件委托确保事件正确绑定
-        $(document).on('click', '#publish', function () {
+        // 绑定表单提交事件，支持回车键提交
+        $('#userPwdForm').on('submit', function (e) {
+            e.preventDefault();
+            transferByUserPwd();
+        });
+
+        // 绑定保存按钮点击事件
+        $('#publish').off('click').on('click', function () {
             // 根据当前显示的表单执行不同的操作
             if ($("#userPwdForm").is(":visible")) {
-                // 用户名/密码方式
-                transferByUserPwd();
+                // 用户名/密码方式，触发表单提交
+                $('#userPwdForm').submit();
+            } else {
+                // 知识星球方式的处理逻辑可以在这里添加
+                toastr.info("知识星球迁移功能开发中...");
             }
         });
 
@@ -143,20 +165,36 @@
 
         // 直接绑定新的事件
         $('#userPwdBtn').click(function () {
-            $(this).removeClass("btn-secondary");
-            $(this).addClass("btn-primary");
-            $('#zsxqBtn').removeClass("btn-primary");
-            $('#zsxqBtn').addClass("btn-secondary");
+            // 激活用户名/密码按钮
+            $(this).css({
+                'background-color': 'var(--pai-brand-1-normal)',
+                'border-color': 'var(--pai-brand-1-normal)',
+                'color': 'white'
+            });
+            // 去激活知识星球按钮
+            $('#zsxqBtn').css({
+                'background-color': 'transparent',
+                'border': '2px solid var(--pai-color-5-gray)',
+                'color': 'var(--pai-color-4-gray)'
+            });
             $('#userPwdForm').show();
             $('#zsxqForm').hide();
             $('#operateBtn').show();
         });
 
         $('#zsxqBtn').click(function () {
-            $(this).removeClass("btn-secondary");
-            $(this).addClass("btn-primary");
-            $('#userPwdBtn').removeClass("btn-primary");
-            $('#userPwdBtn').addClass("btn-secondary");
+            // 激活知识星球按钮
+            $(this).css({
+                'background-color': 'var(--pai-brand-1-normal)',
+                'border-color': 'var(--pai-brand-1-normal)',
+                'color': 'white'
+            });
+            // 去激活用户名/密码按钮
+            $('#userPwdBtn').css({
+                'background-color': 'transparent',
+                'border': '2px solid var(--pai-color-5-gray)',
+                'color': 'var(--pai-color-4-gray)'
+            });
             $('#zsxqForm').show();
             $('#userPwdForm').hide();
             $('#operateBtn').hide();
@@ -175,7 +213,7 @@
 
         // 显示加载状态
         const originalText = $("#publish").html();
-        $("#publish").html('<i class="fa fa-spinner fa-spin"></i> 处理中...').prop('disabled', true);
+        $("#publish").html('<i class="fa fa-spinner fa-spin mr-1"></i> 处理中...').prop('disabled', true);
 
         // 调用后端接口进行用户名/密码方式迁移
         $.ajax({
@@ -193,6 +231,10 @@
                         setTimeout(function () {
                             window.location.href = "/user/home?userId=" + data.result;
                         }, 1500);
+                    } else {
+                        toastr.info("账号迁移失败，请检查用户名和密码是否正确");
+                        // 恢复按钮状态
+                        $("#publish").html(originalText).prop('disabled', false);
                     }
 
                 } else {
@@ -209,4 +251,3 @@
         });
     }
 </script>
-</html>

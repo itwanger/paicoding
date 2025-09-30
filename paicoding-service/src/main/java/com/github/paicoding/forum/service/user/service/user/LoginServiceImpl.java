@@ -145,6 +145,7 @@ public class LoginServiceImpl implements LoginService {
         Long userId = ReqInfoContext.getReqInfo().getUserId();
         loginReq.setUserId(userId);
         if (userId != null) {
+            // 如果星球编号已经绑定，且已经登录，应该跳转到个人中心页面
             // 2.1 如果用户已经登录，则走绑定用户信息流程
             userService.bindUserInfo(loginReq);
             return ReqInfoContext.getReqInfo().getSession();
@@ -193,14 +194,14 @@ public class LoginServiceImpl implements LoginService {
                 // 星球编号校验不通过，直接抛异常
                 throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
             }
+        } else {
+            throw ExceptionUtil.of(StatusEnum.USER_STAR_EMPTY);
+        }
 
-            UserAiDO userAi = userAiDao.getByStarNumber(starNumber);
-
-            // 如果星球编号已经被绑定了
-            if (userAi != null) {
-                // 判断星球是否已经被绑定了
-                throw ExceptionUtil.of(StatusEnum.USER_STAR_REPEAT, starNumber);
-            }
+        UserAiDO userAi = userAiDao.getByStarNumber(loginReq.getStarNumber());
+        // 如果星球编号已经被绑定了
+        if (userAi != null) {
+            throw ExceptionUtil.of(StatusEnum.USER_STAR_REPEAT, loginReq.getStarNumber());
         }
 
         String invitationCode = loginReq.getInvitationCode();

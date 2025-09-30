@@ -7,15 +7,14 @@
         <div class="user-head-title-name">
           <div>
             <span th:text="${userHome.userName}">用户名</span>
-            <span class="user-edit" data-toggle="modal" data-target="#accountModify">账号迁移 >>></span>
           </div>
-          <div style="font-size: 0.5em;color:gray;font-style: italic ; font-weight: normal"
-               th:if="${vo.userHome.starNumber != '' && vo.userHome.starNumber != null && global.isLogin && vo.userHome.userId == global.user.userId}">
-            知识星球编号: <span style="color:blue" th:text="${vo.userHome != null ? vo.userHome.starNumber: ''}"></span><br/>
+          <div th:if="${vo.userHome.starNumber != '' && vo.userHome.starNumber != null && global.isLogin && vo.userHome.userId == global.user.userId}"
+            style="font-size: 14px">
+            星球编号: <span th:text="${vo.userHome != null ? vo.userHome.starNumber: ''}"></span><br/>
             <div th:if="${global.user.starStatus.code != 4}">
-              会员到期时间: <span style="color:blue" th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
+              会员到期时间: <span th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
             </div>
-            <a th:if="${global.user.starStatus.code == 4}" style="color:red;font-style: normal;font-size: 1.2em" href="/zsxq/bind">
+            <a th:if="${global.user.starStatus.code == 4}" class="underline" href="/zsxq/bind">
               会员已过期，知识星球续费之后点击此处，重置会员信息
             </a>
           </div>

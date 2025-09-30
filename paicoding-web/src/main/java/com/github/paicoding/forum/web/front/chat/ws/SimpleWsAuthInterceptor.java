@@ -39,7 +39,7 @@ public class SimpleWsAuthInterceptor extends HttpSessionHandshakeInterceptor imp
         ReqInfoContext.addReqInfo(reqInfo);
         if (reqInfo.getUserId() == null) {
             // 未登录，拒绝链接
-            log.info("用户未登录，拒绝聊天!");
+            log.info("用户未登录，拒绝聊天! ");
             response.setStatusCode(HttpStatus.FORBIDDEN);
             return false;
         }

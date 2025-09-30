@@ -13,6 +13,7 @@ import com.github.paicoding.forum.service.statistics.service.UserStatisticServic
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
+import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,9 @@ public class GlobalInitService {
     @Resource
     private SitemapService sitemapService;
 
+    @Resource
+    private WxLoginProperties wxLoginProperties;
+
     /**
      * 全局属性配置
      */
@@ -64,6 +68,7 @@ public class GlobalInitService {
         vo.setOnlineCnt(userStatisticService.getOnlineUserCnt());
         vo.setSiteStatisticInfo(sitemapService.querySiteVisitInfo(null, null));
         vo.setTodaySiteStatisticInfo(sitemapService.querySiteVisitInfo(LocalDate.now(), null));
+        vo.setLoginQrType(wxLoginProperties.getLoginQrType());
 
         if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getSeo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeo().getOgp())) {
             Seo seo = seoInjectService.defaultSeo();

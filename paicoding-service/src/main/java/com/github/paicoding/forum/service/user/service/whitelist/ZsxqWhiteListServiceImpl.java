@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.service.user.service.whitelist;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.beust.ah.A;
 import com.github.paicoding.forum.api.model.enums.user.LoginTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
@@ -21,12 +21,12 @@ import com.github.paicoding.forum.service.user.repository.params.SearchZsxqWhite
 import com.github.paicoding.forum.service.user.service.ZsxqWhiteListService;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -115,8 +115,11 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
 
         // 更新星球编号
         userAiDO.setStarNumber(req.getStarNumber());
-        // 更新 AI 策略
-        userAiDO.setStrategy(req.getStrategy());
+
+        // 更新星球过期时间
+        if (req.getExpireTime() != null) {
+            userAiDO.setStarExpireTime(DateUtil.parseDate(req.getExpireTime()));
+        }
 
         userAiDao.updateById(userAiDO);
     }
