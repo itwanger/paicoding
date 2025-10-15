@@ -39,8 +39,9 @@ public class WxAckHelper {
         String textRes = null;
         // 返回的是图文消息
         List<WxImgTxtItemVo> imgTxtList = null;
-        if ("subscribe".equalsIgnoreCase(eventType)) {
-            // 订阅
+        if (("subscribe".equalsIgnoreCase(eventType) || "scan".equalsIgnoreCase(eventType))
+                && !CodeGenerateUtil.isVerifyCode(content)) {
+            // 单纯的服务号订阅、扫码，而不是登录的场景，返回下面的提示信息
             textRes = "优秀的你一关注，二哥英俊的脸上就泛起了笑容。我这个废柴，既可以把程序人生写得风趣幽默，也可以把技术文章写得通俗易懂。\n" +
                     "\n" +
                     "可能是 2023 年最硬核的面试学习资料，内容涵盖 Java、Spring、MySQL、Redis、计算机网络、操作系统、消息队列、分布式等，60 万+字，300 张+手绘图，GitHub 星标 9000+，相信一定能够帮助到你。\n" +
