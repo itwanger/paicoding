@@ -6,9 +6,13 @@ import com.github.hui.quick.plugin.base.DomUtil;
 import com.github.hui.quick.plugin.base.constants.MediaType;
 import com.github.hui.quick.plugin.qrcode.wrapper.QrCodeGenV3;
 import com.github.paicoding.forum.api.model.enums.login.LoginQrTypeEnum;
+import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.net.HttpRequestHelper;
 import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author YiHui
@@ -35,8 +40,22 @@ public class WxLoginQrGenIntegration {
 
     private volatile WxAccessToken accessToken;
 
+
+    /**
+     * key = 验证码 value = 根据验证码生成的带参数服务号二维码
+     */
+    private LoadingCache<String, String> loginImgCache;
+
     public WxLoginQrGenIntegration(WxLoginProperties wxLoginProperties) {
         this.wxLoginProperties = wxLoginProperties;
+
+        // 缓存五分钟，二维码的有效期为10分钟
+        loginImgCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, String>() {
+            @Override
+            public String load(String s) {
+                throw new NoVlaInGuavaException("no val: " + s);
+            }
+        });
     }
 
     public LoginQrTypeEnum getLoginQrType() {
@@ -116,12 +135,19 @@ public class WxLoginQrGenIntegration {
      * @see <a href="https://developers.weixin.qq.com/doc/service/api/qrcode/qrcodes/api_createqrcode.html"/>
      */
     private String genServiceAccountLoginQrCode(String code) {
-        String url = WX_GEN_QR_URL + getAccessToken();
-        Map<String, Object> params = MapUtils.create("expire_seconds", 300, "action_name", "QR_SCENE");
-        params.put("action_info", MapUtils.create("scene", MapUtils.create("scene_id", code, "scene_str", "paiLogin#" + code)));
+        // 同一个验证码的二维码可以进行缓存，避免重复调用；同时也可以提高接口时效
+        String url = loginImgCache.getIfPresent(code);
+        if (url != null) {
+            return url;
+        } else {
+            url = WX_GEN_QR_URL + getAccessToken();
+            Map<String, Object> params = MapUtils.create("expire_seconds", 600, "action_name", "QR_SCENE");
+            params.put("action_info", MapUtils.create("scene", MapUtils.create("scene_id", code, "scene_str", "paiLogin#" + code)));
 
-        WxLoginQrCodeRes res = HttpRequestHelper.postJsonData(url, params, WxLoginQrCodeRes.class);
-        return res.url;
+            WxLoginQrCodeRes res = HttpRequestHelper.postJsonData(url, params, WxLoginQrCodeRes.class);
+            loginImgCache.put(code, res.url);
+            return res.url;
+        }
     }
 
     @Data

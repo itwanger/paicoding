@@ -85,33 +85,27 @@ public class WxCallbackRestController {
     public BaseWxMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
         // 对于需要开启安全校验的场景，需要配置
         this.wxCallbackSecurityCheck();
-        String content = msg.getContent();
+        String code = msg.getContent();
         if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
+            // 对于符号的逻辑，code需要从eventKey中获取
             String key = msg.getEventKey();
             if (StringUtils.isNotBlank(key)) {
                 // 对于关注事件，key的格式为 qrscene_验证码； 对于扫码事件，key的格式就是 验证码
-                String code;
                 if (key.startsWith("qrscene_")) {
                     code = key.substring(8);
                 } else {
                     code = key;
                 }
-                // 带参数的二维码，扫描、关注事件拿到之后，直接登录，省却输入验证码这一步
-                sessionService.autoRegisterWxUserInfo(msg.getFromUserName());
-                qrLoginHelper.login(code);
-                WxTxtMsgResVo res = new WxTxtMsgResVo();
-                res.setContent("登录成功");
-                fillResVo(res, msg);
-                return res;
             }
         }
 
-        if (NumberUtil.isNumber(content) && content.length() == 4) {
-            BaseWxMsgResVo res = loginOcPai(msg);
-            return res;
+        if (directToLoginOcPai(code)) {
+            // 命中校招派登录的场景
+            return loginOcPai(msg);
         }
 
-        BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), content, msg.getFromUserName());
+        // 执行技术派登录、用户响应问答的场景
+        BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), code, msg.getFromUserName());
         fillResVo(res, msg);
         return res;
     }
@@ -137,6 +131,17 @@ public class WxCallbackRestController {
             log.error("微信回调签名校验失败，请检查接口签名配置");
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS);
         }
+    }
+
+
+    /**
+     * 当关键词命中下面的规则，表示登录校招派
+     *
+     * @param content
+     * @return
+     */
+    private boolean directToLoginOcPai(String content) {
+        return NumberUtil.isNumber(content) && content.length() == 4;
     }
 
 
