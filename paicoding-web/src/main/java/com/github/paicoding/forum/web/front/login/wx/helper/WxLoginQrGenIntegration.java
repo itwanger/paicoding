@@ -104,6 +104,10 @@ public class WxLoginQrGenIntegration {
             }
         }
 
+        if (accessToken == null || accessToken.accessToken == null) {
+            log.error("获取微信AccessToken失败,accessToken为null");
+            throw new RuntimeException("获取微信AccessToken失败");
+        }
         return accessToken.accessToken;
     }
 
@@ -121,11 +125,23 @@ public class WxLoginQrGenIntegration {
                 MapUtils.create("appid", wxLoginProperties.getAppId(), "secret", wxLoginProperties.getAppSecret()),
                 WxAccessToken.class);
 
-        if (token != null && token.accessToken != null) {
-            accessToken = token;
-            accessToken.expireTimestamp = System.currentTimeMillis() + token.expiresIn * 1000;
+        if (token == null) {
+            log.error("刷新微信AccessToken失败,API返回null");
+            return;
         }
-        this.accessToken = token;
+        if (StringUtils.isNotBlank(token.getErrCode()) && !"0".equals(token.getErrCode())) {
+            log.error("刷新微信AccessToken失败,errCode={}, errMsg={}", token.getErrCode(), token.getErrMsg());
+            return;
+        }
+
+        if (token.accessToken == null) {
+            log.error("刷新微信AccessToken失败,accessToken为null, response={}", token);
+            return;
+        }
+
+        accessToken = token;
+        accessToken.expireTimestamp = System.currentTimeMillis() + token.expiresIn * 1000;
+        log.info("刷新微信AccessToken成功,过期时间={}", accessToken.expireTimestamp);
     }
 
     /**
@@ -140,11 +156,29 @@ public class WxLoginQrGenIntegration {
         if (url != null) {
             return url;
         } else {
-            url = WX_GEN_QR_URL + getAccessToken();
+            String wxApiUrl = WX_GEN_QR_URL + getAccessToken();
             Map<String, Object> params = MapUtils.create("expire_seconds", 600, "action_name", "QR_SCENE");
             params.put("action_info", MapUtils.create("scene", MapUtils.create("scene_id", code, "scene_str", "paiLogin#" + code)));
 
-            WxLoginQrCodeRes res = HttpRequestHelper.postJsonData(url, params, WxLoginQrCodeRes.class);
+            WxLoginQrCodeRes res = HttpRequestHelper.postJsonData(wxApiUrl, params, WxLoginQrCodeRes.class);
+
+            // 检查响应是否有效
+            if (res == null) {
+                log.error("微信生成二维码API返回null,code={}", code);
+                throw new RuntimeException("微信生成二维码失败:API返回null");
+            }
+
+            if (StringUtils.isNotBlank(res.getErrCode()) && !"0".equals(res.getErrCode())) {
+                log.error("微信生成二维码API返回错误,code={}, errCode={}, errMsg={}", code, res.getErrCode(), res.getErrMsg());
+                throw new RuntimeException("微信生成二维码失败:" + res.getErrMsg());
+            }
+
+            if (StringUtils.isBlank(res.url)) {
+                log.error("微信生成二维码API返回的url为空,code={}, response={}", code, res);
+                throw new RuntimeException("微信生成二维码失败:返回的url为空");
+            }
+
+            // 只有在url不为空时才放入缓存
             loginImgCache.put(code, res.url);
             return res.url;
         }
