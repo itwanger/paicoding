@@ -57,7 +57,16 @@ public class WxLoginHelper {
             public String load(String s) {
                 int cnt = 0;
                 while (true) {
-                    String code = CodeGenerateUtil.genCode(cnt++);
+                    String code;
+                    // 根据登录类型选择不同的验证码生成策略
+                    if (wxLoginQrGenIntegration.getLoginQrType() == LoginQrTypeEnum.SERVICE_ACCOUNT) {
+                        // 服务号：使用随机验证码，不需要计数器
+                        code = CodeGenerateUtil.genCode(cnt, LoginQrTypeEnum.SERVICE_ACCOUNT);
+                    } else {
+                        // 订阅号：使用specialCodes，需要计数器
+                        code = CodeGenerateUtil.genCode(cnt++, LoginQrTypeEnum.SUBSCRIPTION_ACCOUNT);
+                    }
+
                     if (!verifyCodeCache.asMap().containsKey(code)) {
                         return code;
                     }

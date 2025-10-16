@@ -698,9 +698,23 @@
     }
 
     function vipExpired() {
-      toastr.error("VIP可能到期了？个人主页点击红字，知识星球授权一下就好了~");
-      // 跳转到个人主页
-      window.location.href = "/user/home?userId=" + [[${global.user != null ? global.user.userId : ''}]];
+      // 使用 SweetAlert2 显示确认对话框
+      Swal.fire({
+        title: 'VIP可能到期了？',
+        html: '请在个人主页点击红字，通过知识星球授权一下就好了。',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff8721',
+        confirmButtonText: '跳转到个人主页',
+        cancelButtonText: '留在当前页面',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // 用户点击确认，跳转到个人主页
+          window.location.href = "/user/home?userId=" + [[${global.user != null ? global.user.userId : ''}]];
+        }
+        // 用户点击取消，不做任何操作
+      });
     }
 
 
