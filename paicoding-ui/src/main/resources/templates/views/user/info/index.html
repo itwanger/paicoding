@@ -15,7 +15,7 @@
               会员到期时间: <span th:text="${vo.userHome != null && vo.userHome.expireTime != null ? T(com.github.paicoding.forum.core.util.DateUtil).time2day(vo.userHome.expireTime): ''}"></span>
             </div>
             <a th:if="${global.user.starStatus.code == 4}" class="underline" href="/zsxq/bind">
-              会员已过期，知识星球续费之后点击此处，重置会员信息
+              会员可能已过期，点击此处通过知识星球重置
             </a>
           </div>
         </div>
