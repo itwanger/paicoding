@@ -1252,10 +1252,18 @@ button:focus {
   border-color: var(--pai-border-color-1); font-size: 1rem;
 }
 
+.join-star img {
+  cursor: zoom-in;height: 200px;display: block;margin: 0 auto;object-fit: contain;width: auto;
+}
+
 @media (max-width: 768px) {
   #registerModal .modal-content .modal-body .tabpane-container,
   #loginModal .modal-content .modal-body .login-main, #loginModal .modal-footer {
     display: none;
+  }
+
+  .join-star img {
+    width: 100%;
   }
 
   /* 移动端登录框宽度优化 */
