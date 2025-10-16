@@ -148,7 +148,7 @@
                           class="dropdown-divider"
                   ></div>
                   <a
-                          th:href="${'/user/home?userId=' + global.user.userId}"
+                          th:href="${'/user/home?userId=' + (global.user?.userId ?: '')}"
                           class="dropdown-item"
                           href="#"
                   >
@@ -698,7 +698,9 @@
     }
 
     function vipExpired() {
-      toastr.error("VIP已到期，请在我的，个人主页，去编辑中重新绑定星球账号 或者 去知识星球续费吧~");
+      toastr.error("VIP可能到期了？个人主页点击红字，知识星球授权一下就好了~");
+      // 跳转到个人主页
+      window.location.href = "/user/home?userId=" + [[${global.user != null ? global.user.userId : ''}]];
     }
 
 

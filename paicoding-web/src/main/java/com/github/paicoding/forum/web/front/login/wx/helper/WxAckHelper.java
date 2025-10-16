@@ -78,7 +78,13 @@ public class WxAckHelper {
         else if (CodeGenerateUtil.isVerifyCode(content)) {
             sessionService.autoRegisterWxUserInfo(fromUser);
             if (qrLoginHelper.login(content)) {
-                textRes = "登录成功，开始愉快的玩耍技术派吧！";
+                textRes = "登录成功，开始愉快的玩耍技术派吧！\n\n" +
+                        "🎉 欢迎来到技术派！\n" +
+                        "👉 <a href=\"https://paicoding.com\">访问技术派官网</a> 👈\n\n" +
+                        "在这里你可以：\n" +
+                        "• 发布技术文章，分享你的经验\n" +
+                        "• 学习优质内容，提升技术能力\n" +
+                        "• 与技术爱好者交流互动";
             } else {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }
