@@ -37,7 +37,7 @@
               class="dropdown-divider"
       ></div>
       <a
-              th:href="${'/user/home?userId=' + global.user.userId}"
+              th:href="${'/user/home?userId=' + (global.user?.userId ?: '')}"
               class="dropdown-item"
               href="#"
       >
@@ -154,7 +154,7 @@
           <div id="tips" style="font-size: 0.8em;color: gray;text-align: left;margin: -1em 2em 1em 2em;background-color: #f3f3f3;padding: 1em">
             <div id="emailPayTip">
               <div class="form-group" th:if="${#strings.isEmpty(global.user.payCode)}">
-                <div style="font-size: 1.3em;color: red;text-align: center;">配置收款码之后才可以选择付费阅读哦~<a style="color: blue" th:href="'/user/home?userId=' + ${global.user.userId}" target="_blank">去配置</a></div>
+                <div style="font-size: 1.3em;color: red;text-align: center;">配置收款码之后才可以选择付费阅读哦~<a style="color: blue" th:href="'/user/home?userId=' + ${global.user != null ? global.user.userId : ''}" target="_blank">去配置</a></div>
               </div>
               <h5 style="margin-left: 4em;font-size: 1.2em;color: #363645">个人收款码说明:</h5>
               <ul style="margin-left: 6em">
