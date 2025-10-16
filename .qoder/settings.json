@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "ask": [
+      "Read(!/Users/itwanger/Documents/GitHub/paicoding/**)",
+      "Edit(!/Users/itwanger/Documents/GitHub/paicoding/**)"
+    ],
+    "allow": [
+      "Read(/Users/itwanger/Documents/GitHub/paicoding/**)",
+      "Edit(/Users/itwanger/Documents/GitHub/paicoding/**)"
+    ]
+  },
+  "memoryImport": {},
+  "monitoring": {}
+}

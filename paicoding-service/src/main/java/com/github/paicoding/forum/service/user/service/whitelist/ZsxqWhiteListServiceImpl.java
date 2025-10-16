@@ -121,6 +121,10 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
             userAiDO.setStarExpireTime(DateUtil.parseDate(req.getExpireTime()));
         }
 
+        if (userAiDO.getStarExpireTime() != null && userAiDO.getStarExpireTime().after(new Date())) {
+            userAiDO.setState(UserAIStatEnum.FORMAL.getCode());
+        }
+
         userAiDao.updateById(userAiDO);
     }
 
