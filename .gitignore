@@ -49,3 +49,11 @@ pid.log
 paicoding-web/src/main/resources/cert
 /.mvn
 *.class
+paicoding-web/src/test/java/com/github/paicoding/forum/test/ai/TestZhipu.java
+paicoding-web/src/test/java/com/github/paicoding/forum/test/ai/TestChatGPT.java
+paicoding-web/src/test/java/com/github/paicoding/forum/test/ai/TestChatGPT.java
+paicoding-web/src/test/java/com/github/paicoding/forum/test/ai/AllToolsTest.java
+paicoding-web/src/test/java/com/github/paicoding/forum/test/ai/TestChatGPT.java
+paicoding-web/src/main/java/com/github/paicoding/forum/web/javabetter/top/copydown/OSSUtil.java
+paicoding-web/src/main/java/com/github/paicoding/forum/web/javabetter/top/image/Convert2OSS.java
+paicoding-web/src/main/java/com/github/paicoding/forum/web/javabetter/zsxq/Random.java
