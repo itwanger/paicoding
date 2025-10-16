@@ -610,9 +610,13 @@
       // 移动端修改modal title
       if (window.innerWidth <= 768) {
         $('#loginModal .modal-title').text('微信扫码/长按识别登录');
+
+        // 初始化移动端登录状态检查
+        initMobileLoginCheck();
       } else {
         $('#loginModal .modal-title').text('登录技术派畅享更多权益');
       }
+
     })
     $('#refreshCode').click(() => {
       refreshCode();
@@ -643,10 +647,12 @@
     function now() {
       return new Date().getTime()
     }
+
     // 用于全局消息通知的长连接
     let userWsSocket = null;
     let userWsClient = null;
     let userWsAckTime = 0;
+
     function autoBuildNotifyWsConnect() {
       const logined = [[${global.isLogin}]]
       if (!logined) {
@@ -657,10 +663,13 @@
       const session = getCookie("f-session");
       if (session) {
         console.log("登录成功，准备建立连接!!!");
+
         let protocol = window.location.protocol.replace("http", "ws");
         let host = window.location.host;
+
         userWsSocket = new WebSocket(`${protocol}//${host}/notify`);
         userWsClient = Stomp.over(userWsSocket);
+
         userWsClient.connect({"uname": $("#uname").val()}, function (frame) {
           console.log('Connected: ' + frame);
           userWsAckTime = now();
@@ -668,6 +677,7 @@
             // 订阅用户的私人broker，用于接收系统私发消息； 后台通过向 /user/xxx/topic/notify 发送消息，来传递给某个私人用户
             console.log("系统消息: ", message);
             userWsAckTime = now();
+
             if (message.body != 'pong') {
               let html = `<div>${message.body}</div><div><a href="/notice/" target="_blank" style="color:blue"> 查看详情 </a></div>`
               toastr.success(html);
@@ -702,11 +712,136 @@
         userWsClient.send(`/app/msg/health`, {}, "ping");
       }
     }
+
     if ([[${global.isLogin}]]) {
       // 30s一次的ping/pong，用于长连接的保活
       notifyWsCheck();
       setInterval(notifyWsCheck, 30_000)
     }
+
+    // --------------- 移动端扫码登录状态检查 --------------
+    let visibilityChangeListener = null;
+    let loginCheckTimer = null;
+
+    /**
+     * 初始化移动端登录状态检查
+     * 主要用于企业服务号自动扫码登录场景
+     */
+    function initMobileLoginCheck() {
+      // 仅在移动端启用
+      if (!isMobileDevice()) {
+        return;
+      }
+
+      // 清理之前的监听器
+      if (visibilityChangeListener) {
+        document.removeEventListener('visibilitychange', visibilityChangeListener);
+      }
+
+      // 记录登录开始时间
+      localStorage.setItem('mobileLoginStartTime', Date.now().toString());
+      localStorage.setItem('mobileLoginCheckEnabled', 'true');
+
+      // 添加页面可见性监听
+      visibilityChangeListener = handleVisibilityChange;
+      document.addEventListener('visibilitychange', visibilityChangeListener);
+
+      console.log("移动端登录状态检查已初始化");
+    }
+
+    /**
+     * 处理页面可见性变化
+     */
+    function handleVisibilityChange() {
+      if (!document.hidden) {
+        // 页面重新可见，检查登录状态
+        checkMobileLoginStatus();
+      }
+    }
+
+    /**
+     * 检查移动端登录状态
+     */
+    function checkMobileLoginStatus() {
+      const startTime = localStorage.getItem('mobileLoginStartTime');
+      const checkEnabled = localStorage.getItem('mobileLoginCheckEnabled');
+
+      if (!startTime || !checkEnabled) {
+        return;
+      }
+
+      // 检查是否超时（5分钟）
+      if (Date.now() - parseInt(startTime) > 5 * 60 * 1000) {
+        console.log("登录检查超时，清理状态");
+        cleanupMobileLoginCheck();
+        return;
+      }
+
+      console.log("检查登录状态...");
+
+      // 显示检查中状态
+      stateTag.text("正在检查登录状态...");
+
+      // 调用后端接口检查登录状态
+      fetch('/login/status')
+        .then(response => response.json())
+        .then(data => {
+          if (data.status.code === 0 && data.result.loggedIn) {
+            // 登录成功，刷新页面
+            console.log("检测到登录成功，正在刷新页面...");
+            cleanupMobileLoginCheck();
+            refreshPage();
+          } else {
+            // 未登录，继续等待
+            console.log("尚未登录，继续等待...");
+            stateTag.text("有效期五分钟 👉");
+          }
+        })
+        .catch(error => {
+          console.error("检查登录状态失败:", error);
+          stateTag.text("连接中断，请刷新重连");
+        });
+    }
+
+    /**
+     * 清理移动端登录检查
+     */
+    function cleanupMobileLoginCheck() {
+      localStorage.removeItem('mobileLoginStartTime');
+      localStorage.removeItem('mobileLoginCheckEnabled');
+
+      if (visibilityChangeListener) {
+        document.removeEventListener('visibilitychange', visibilityChangeListener);
+        visibilityChangeListener = null;
+      }
+
+      if (loginCheckTimer) {
+        clearTimeout(loginCheckTimer);
+        loginCheckTimer = null;
+      }
+    }
+
+    /**
+     * 检查是否为移动设备
+     */
+    function isMobileDevice() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+             window.innerWidth <= 768;
+    }
+
+    /**
+     * 获取Cookie值
+     */
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // 页面卸载时清理
+    window.addEventListener('beforeunload', function() {
+      cleanupMobileLoginCheck();
+    });
 
   </script>
 </div>
