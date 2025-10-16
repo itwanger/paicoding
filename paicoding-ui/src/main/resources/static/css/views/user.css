@@ -467,3 +467,288 @@
 .tw-mr-1 {
   margin-right: 4px;
 }
+
+/* ========== 移动端适配 ========== */
+
+/* 平板端适配 (769px - 1199px) */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .user-wrap {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .user-head {
+    width: 100%;
+  }
+}
+
+/* 手机端适配 (最大768px) */
+@media (max-width: 768px) {
+  .user-wrap {
+    width: 100%;
+    padding: 0 16px;
+    min-height: auto;
+  }
+
+  .user-head {
+    width: 100%;
+    z-index: 20;
+    position: relative;
+  }
+
+  .user-content {
+    flex-direction: column;
+  }
+
+  .user-body {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 16px;
+    padding: 16px;
+    z-index: 1;
+  }
+
+  .user-left {
+    width: 100%;
+  }
+
+  .user-bg {
+    height: 240px;
+    background-size: cover;
+    background-position: center;
+    z-index: 20;
+  }
+
+  .user-head {
+    padding: 24px 16px 20px;
+    clip-path: none;
+    border-radius: 0;
+    z-index: 20;
+    position: relative;
+  }
+
+  .user-head-img {
+    width: 60px;
+    height: 60px;
+    left: 16px;
+    top: 10px;
+  }
+
+  .user-head-title-wrap {
+    margin-left: 90px;
+    flex-direction: column;
+    display: flex;
+  }
+
+  .user-head-title-name {
+    font-size: 18px;
+    max-width: 100%;
+    padding-top: 8px;
+    order: 1;
+  }
+
+  .user-head-title-classify {
+    display: none;
+  }
+
+  .user-head-footer {
+    display: none;
+  }
+
+  .user-head-title-classify-item {
+    width: 90px;
+    font-size: 12px;
+    gap: 4px;
+    margin: 0 12px;
+  }
+
+  .user-head-title-classify-item span:first-child {
+    font-size: 12px;
+    order: 2;
+  }
+
+  .user-head-title-classify-item span:last-child {
+    margin-top: 0;
+    font-size: 16px;
+    font-weight: 500;
+    order: 1;
+    color: #333;
+  }
+
+  .user-head-cell {
+    height: 30px;
+    align-self: center;
+  }
+
+  .user-edit {
+    width: 100%;
+    padding-top: 8px;
+  }
+
+  .user-text {
+    font-size: 14px;
+    display: none;
+  }
+
+  .tags {
+    font-size: 12px;
+  }
+
+  .tag-item {
+    height: 24px;
+    margin-right: 6px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .user-select-tag-wrap {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .user-select-tag-wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tag-select {
+    margin: 0 0 0 20px;
+    font-size: 16px;
+    padding: 10px 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tag-select:first-child {
+    margin-left: 0;
+  }
+
+  .achievement-wrap,
+  .process-wrap {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .achievement-title,
+  .process-title {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .achievement-item {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .follow-select-tag {
+    padding: 0 16px;
+    font-size: 16px;
+  }
+
+  .follow-item {
+    padding: 8px 0;
+    font-size: 16px;
+  }
+
+  .follow-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+  }
+
+  .follow-item-icon {
+    width: 60px;
+    height: 22px;
+    font-size: 11px;
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  #saveModel .modal-dialog {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+
+  #saveModel .modal-body {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .person-img-wrap {
+    margin-left: 0;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  .person-info {
+    width: 100%;
+  }
+
+  #saveModel .form-label {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+
+  #saveModel .input-group {
+    flex-direction: column;
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .tag-select:active,
+  .follow-select-tag:active {
+    opacity: 0.7;
+  }
+
+  .follow-item-icon:active,
+  .edit-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s;
+  }
+}
+
+/* 小屏手机适配 (最大576px) */
+@media (max-width: 576px) {
+  .user-wrap {
+    padding: 0 12px;
+  }
+
+  .user-body {
+    padding: 12px;
+  }
+
+  .user-bg {
+    height: 160px;
+  }
+
+  .user-head {
+    padding: 16px 12px;
+  }
+
+  .user-head-img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .user-head-title-wrap {
+    margin-left: 70px;
+  }
+
+  .user-head-title-name {
+    font-size: 16px;
+  }
+
+  .user-head-title-classify-item span:last-child {
+    font-size: 14px;
+  }
+
+  .tag-select {
+    margin: 0 0 0 16px;
+    font-size: 14px;
+    padding: 8px 0;
+  }
+}
