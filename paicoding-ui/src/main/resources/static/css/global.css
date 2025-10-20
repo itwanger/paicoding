@@ -1295,3 +1295,18 @@ button:focus {
     width: 180px;
   }
 }
+
+/* 图片说明样式 */
+.article-content figure {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.article-content figcaption {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--pai-color-3-gray);
+  font-style: italic;
+  line-height: 1.6;
+  text-align: center;
+}

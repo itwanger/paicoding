@@ -2,6 +2,7 @@ package com.github.paicoding.forum.core.util;
 
 import com.github.paicoding.forum.core.markdown.CustomAdmonitionBlockParser;
 import com.github.paicoding.forum.core.markdown.CustomAdmonitionExtension;
+import com.github.paicoding.forum.core.markdown.ImageCaptionExtension;
 import com.vladsch.flexmark.ext.admonition.AdmonitionExtension;
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension;
 import com.vladsch.flexmark.ext.emoji.EmojiExtension;
@@ -35,6 +36,7 @@ public class MarkdownConverter {
                 FootnoteExtension.create(),     // 脚注扩展，用于添加和解析脚注
                 TaskListExtension.create(),     // 任务列表扩展，用于创建任务列表
                 CustomAdmonitionExtension.create(),   // 提示框扩展，用于创建提示框
+                ImageCaptionExtension.create(), // 图片说明扩展，将alt文本显示为图片底部说明
                 TablesExtension.create()));     // 表格扩展，用于解析和渲染表格
 
 
