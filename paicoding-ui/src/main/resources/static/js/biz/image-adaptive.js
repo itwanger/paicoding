@@ -9,7 +9,7 @@
 
     function adjustImageWidth() {
         // 获取所有 figure 中的图片
-        const images = document.querySelectorAll('.article-content figure img');
+        const images = document.querySelectorAll('.article-content img');
 
         images.forEach(function(img) {
             // 如果图片已经加载完成
@@ -33,7 +33,7 @@
             img.style.maxWidth = '100%';
         } else {
             // 小图：在移动端不限制宽度，在PC端限制最大宽度为 500px
-            img.style.maxWidth = isMobile ? '100%' : '600px';
+            img.style.maxWidth = isMobile ? '100%' : '500px';
         }
     }
 
