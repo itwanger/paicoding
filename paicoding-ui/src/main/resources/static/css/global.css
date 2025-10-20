@@ -1302,6 +1302,12 @@ button:focus {
   text-align: center;
 }
 
+.article-content figure img {
+  border: 1px solid var(--pai-color-5-gray);
+  padding: 5px;
+  border-radius: 4px;
+}
+
 .article-content figcaption {
   margin-top: 10px;
   font-size: 14px;
