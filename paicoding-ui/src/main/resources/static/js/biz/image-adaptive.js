@@ -28,12 +28,12 @@
         const naturalWidth = img.naturalWidth;
         const isMobile = window.innerWidth <= 768;
 
-        if (naturalWidth >= 1000) {
+        if (naturalWidth >= 1200) {
             // 大图：允许充满容器
             img.style.maxWidth = '100%';
         } else {
             // 小图：在移动端不限制宽度，在PC端限制最大宽度为 500px
-            img.style.maxWidth = isMobile ? '100%' : '500px';
+            img.style.maxWidth = isMobile ? '100%' : '600px';
         }
     }
 
