@@ -405,6 +405,39 @@
       return notes;
     }
 
+    // 图片自适应宽度：根据图片原始宽度智能调整显示宽度
+    (function() {
+      function adjustImageWidth() {
+        // 选择所有 .article-content 下的图片，包括 figure 内和独立的图片
+        const images = document.querySelectorAll('.article-content img');
+
+        images.forEach(function(img) {
+          if (img.complete && img.naturalWidth > 0) {
+            applyWidthLimit(img);
+          } else {
+            img.addEventListener('load', function() {
+              applyWidthLimit(img);
+            });
+          }
+        });
+      }
+
+      function applyWidthLimit(img) {
+        const naturalWidth = img.naturalWidth;
+
+        if (naturalWidth >= 1000) {
+          // 大图：允许充满容器
+          img.style.maxWidth = '100%';
+        } else {
+          // 小图：限制最大宽度为 500px
+          img.style.maxWidth = '500px';
+        }
+      }
+
+      // 页面加载完成后执行
+      adjustImageWidth();
+    })();
+
   </script>
 </section>
 </html>
