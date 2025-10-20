@@ -438,6 +438,48 @@
       adjustImageWidth();
     })();
 
+    // 初始化 Fancybox 图片预览功能
+    (function() {
+      // 为所有文章图片添加 cursor 样式提示可点击
+      const images = document.querySelectorAll('.article-content img');
+      images.forEach(function(img) {
+        img.style.cursor = 'zoom-in';
+      });
+
+      // 初始化 Fancybox
+      Fancybox.bind('.article-content img', {
+        groupAll: true, // 将所有图片作为一组，支持左右翻页
+        Hash: false, // 不修改 URL hash
+        Toolbar: {
+          display: {
+            left: ["infobar"],
+            middle: [
+              "zoomIn",
+              "zoomOut",
+              "toggle1to1",
+              "rotateCCW",
+              "rotateCW",
+              "flipX",
+              "flipY",
+            ],
+            right: ["slideshow", "download", "thumbs", "close"]
+          }
+        },
+        Thumbs: {
+          autoStart: false, // 默认不显示缩略图
+        },
+        Images: {
+          zoom: true, // 启用缩放
+        },
+        on: {
+          reveal: (fancybox, slide) => {
+            // 图片打开时的回调，可以添加自定义逻辑
+            console.log('Image opened:', slide.src);
+          }
+        }
+      });
+    })();
+
   </script>
 </section>
 </html>
