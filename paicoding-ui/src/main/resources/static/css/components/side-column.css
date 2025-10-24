@@ -768,7 +768,7 @@
 
 .mod-subscribe__title {
   font-weight: 500;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 28px;
   color: var(--pai-color-3-black);
   margin-bottom: 16px;
@@ -838,4 +838,22 @@
   line-height: 22px;
   color: var(--pai-brand-6-mq);
   margin-bottom: 8px;
+}
+
+.mod-subscribe__image {
+  margin-top: 16px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(55, 99, 170, 0.1);
+}
+
+.mod-subscribe__image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.mod-subscribe__image:hover img {
+  transform: scale(1.02);
 }

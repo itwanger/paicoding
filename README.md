@@ -257,5 +257,5 @@ GitHub 上标星 13000+ 的开源知识库《 [二哥的 Java 进阶之路](http
 
 [Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
 
-Copyright (c) 2022-2024 技术派（楼仔、沉默王二、一灰、小超、小灰飞）
+Copyright (c) 2022-2025 技术派（楼仔、沉默王二、一灰、小超、小灰飞）
 
