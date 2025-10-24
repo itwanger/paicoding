@@ -12,6 +12,7 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.config.service.impl.ConfigSettingServiceImpl;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,6 +29,9 @@ public class ConfigSettingrRestController {
 
     @Autowired
     private ConfigSettingServiceImpl configSettingService;
+
+    @Autowired
+    private CacheManager caffeineCacheManager;
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
@@ -63,5 +67,14 @@ public class ConfigSettingrRestController {
     public ResVo<PageVo<ConfigDTO>> list(@RequestBody SearchConfigReq req) {
         PageVo<ConfigDTO> bannerDTOPageVo = configSettingService.getConfigList(req);
         return ResVo.ok(bannerDTOPageVo);
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "refresh")
+    public ResVo<String> refresh() {
+        caffeineCacheManager.getCacheNames().forEach(cacheName -> {
+            caffeineCacheManager.getCache(cacheName).clear();
+        });
+        return ResVo.ok("缓存已刷新");
     }
 }
