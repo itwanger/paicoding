@@ -29,6 +29,30 @@
   .home-right-item-post-title {
     flex: 1 1;
   }
+  
+  .oneline {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+  }
+  
+  .home-right-item-icon-wrap {
+    flex-shrink: 0;
+    display: inline-block;
+    margin-right: 4px;
+    line-height: initial;
+  }
+  
+  .home-right-item-post-title-txt {
+    flex: 1 1;
+    min-width: 0;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+  
+  .com-2-side-activity-desc {
+    margin-top: 4px;
+  }
   .home-right-item-post-time {
     color: #adb5bd;
     font-size: 14px;
@@ -185,7 +209,6 @@
     font-size: 14px;
     line-height: 24px;
     font-weight: 400;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
