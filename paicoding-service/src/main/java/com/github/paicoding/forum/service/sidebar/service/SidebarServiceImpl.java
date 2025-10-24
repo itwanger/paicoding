@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.sidebar.service;
 
+import com.github.paicoding.forum.api.model.enums.ConfigTagEnum;
 import com.github.paicoding.forum.api.model.enums.ConfigTypeEnum;
 import com.github.paicoding.forum.api.model.enums.SidebarStyleEnum;
 import com.github.paicoding.forum.api.model.enums.rank.ActivityRankTimeEnum;
@@ -58,7 +59,6 @@ public class SidebarServiceImpl implements SidebarService {
     public List<SideBarDTO> queryHomeSidebarList() {
         List<SideBarDTO> list = new ArrayList<>();
         list.add(noticeSideBar());
-        list.add(columnSideBar());
         list.add(hotArticles());
         SideBarDTO bar = rankList();
         if (bar != null) {
@@ -217,9 +217,24 @@ public class SidebarServiceImpl implements SidebarService {
      * @return
      */
     private SideBarDTO subscribeSideBar() {
-        return new SideBarDTO().setTitle("订阅").setSubTitle("楼仔")
-                .setImg("//cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg")
-                .setContent("10本校招必刷八股文")
+        List<ConfigDTO> subscribeList = configService.getConfigList(ConfigTypeEnum.COLUMN);
+        if (subscribeList.isEmpty()) {
+            return new SideBarDTO().setTitle("订阅").setSubTitle("楼仔")
+                    .setImg("//cdn.tobebetterjavaer.com/paicoding/a768cfc54f59d4a056f79d1c959dcae9.jpg")
+                    .setContent("10本校招必刷八股文")
+                    .setStyle(SidebarStyleEnum.SUBSCRIBE.getStyle());
+        }
+        ConfigDTO config = subscribeList.get(0);
+        String tagsDesc = "";
+        if (StringUtils.isNotBlank(config.getTags())) {
+            tagsDesc = Splitter.on(",").splitToStream(config.getTags())
+                    .map(s -> ConfigTagEnum.formCode(Integer.parseInt(s.trim())).getDesc())
+                    .collect(Collectors.joining(","));
+        }
+        return new SideBarDTO().setTitle(tagsDesc).setSubTitle(config.getName())
+                .setImg(config.getBannerUrl())
+                .setContent(config.getContent())
+                .setUrl(config.getJumpUrl())
                 .setStyle(SidebarStyleEnum.SUBSCRIBE.getStyle());
     }
 

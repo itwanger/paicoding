@@ -97,6 +97,7 @@ public class ImageServiceImpl implements ImageService {
             InputStream stream = FileReadUtil.getStreamByFileName(img);
             URI uri = URI.create(img);
             String path = uri.getPath();
+
             int index = path.lastIndexOf(".");
             String fileType = null;
             if (index > 0) {
