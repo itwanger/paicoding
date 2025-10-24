@@ -14,3 +14,5 @@
 ![二哥的狗腿子](https://cdn.tobebetterjavaer.com/paicoding/image-d81385eed032418a914370563903c7d4.png)
 
 ![qrcode_paismart.jpg](https://cdn.tobebetterjavaer.com/paicoding/image-92f8f6ac757e4c2f88110280a7eb6247.jpg)
+
+![面渣逆袭 PDF](https://cdn.tobebetterjavaer.com/paicoding/image-9feebceb9eeb4076b21dc5cf5caa734b.png)

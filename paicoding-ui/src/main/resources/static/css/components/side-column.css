@@ -770,7 +770,7 @@
   font-weight: 500;
   font-size: 16px;
   line-height: 28px;
-  color: var(--pai-color-3-black);
+  color: var(--pai-brand-1-normal);
   margin-bottom: 16px;
 }
 
@@ -836,8 +836,9 @@
   font-weight: 500;
   font-size: 14px;
   line-height: 22px;
-  color: var(--pai-brand-6-mq);
+  color: var(--pai-color-3-gray);
   margin-bottom: 8px;
+  margin-top: 8px;
 }
 
 .mod-subscribe__image {
