@@ -11,20 +11,22 @@
                 <div class="cdc-card__bd">
                     <div class="mod-subscribe__title" th:text="${side.subTitle}"></div>
                     <div class="mod-subscribe__content">
-                        <div class="mod-subscribe__content-tag">将获得</div>
+                        <div class="mod-subscribe__content-tag">你将获得</div>
                         <div class="mod-subscribe__content-inner">
                             <div class="mod-subscribe__content-detail">
                                 <div class="mod-subscribe__content-prize"
                                      th:text="${side.content}">10元无门槛代金券</div>
                             </div>
                             <div class="mod-subscribe__content-qr">
-                                <img th:src="${side.img}" th:alt="${side.subTitle}"></div>
+                                <img th:src="${global.siteInfo.contactMeWxQrCode}" th:alt="${side.subTitle}"></div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="mod-subscribe__image" th:if="${side.url}">
-                <img th:src="${side.url}" alt="订阅图片">
+                <a th:href="${side.url}" target="_blank">
+                    <img th:src="${side.img}" alt="订阅图片">
+                </a>
             </div>
         </div>
     </div>

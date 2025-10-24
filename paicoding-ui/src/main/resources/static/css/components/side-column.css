@@ -793,7 +793,7 @@
   position: absolute;
   left: -4px;
   top: 8px;
-  width: 64px;
+  width: 77px;
   height: 26px;
   line-height: 26px;
   background: url(../../img/you-will-get.png) 50% no-repeat;
@@ -838,7 +838,7 @@
   line-height: 22px;
   color: var(--pai-color-3-gray);
   margin-bottom: 8px;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .mod-subscribe__image {
@@ -846,6 +846,10 @@
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(55, 99, 170, 0.1);
+}
+
+.mod-subscribe__image a {
+  display: block;
 }
 
 .mod-subscribe__image img {
