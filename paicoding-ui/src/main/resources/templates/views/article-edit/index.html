@@ -393,7 +393,7 @@
         "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
         "h1", "h2", "h3", "h4", "|",
         "list-ul", "list-ol", "hr", "|",
-        "reference-link", "image", "code", "code-block", "table", "html-entities", "|",
+        "reference-link", "image", "video", "code", "code-block", "table", "html-entities", "|",
         "goto-line", "watch", "fullscreen", "clear", "search", "|",
         "help"
       ]
@@ -401,7 +401,8 @@
 
     // 用于增加自定义工具栏的功能，可以直接插入HTML标签，不使用默认的元素创建图标
     toolbarIconTexts : {
-      mdFile : "导入MD"
+      mdFile : "导入MD",
+      video : "<i class='fa fa-film'></i>"
     },
     toolbarHandlers: {
       mdFile : function(cm, icon, cursor, selection){
@@ -465,11 +466,120 @@
           reader.readAsText(file);
         };
         fileInput.click();
+      },
+      video : function(cm, icon, cursor, selection){
+        console.log("插入视频");
+
+        // 创建一个美化的弹窗
+        const dialogHtml = `
+          <div class="video-dialog-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div class="video-dialog-content" style="background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">插入视频</h3>
+              <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #666;">视频平台：</label>
+                <select id="videoPlatform" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                  <option value="bilibili">B站（Bilibili）</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="tencent">腾讯视频</option>
+                </select>
+              </div>
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #666;">视频链接或ID：</label>
+                <input type="text" id="videoUrl" placeholder="粘贴视频链接或BV号" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;" />
+                <div style="margin-top: 8px; font-size: 12px; color: #999;">
+                  <div id="platformTip">支持格式：https://www.bilibili.com/video/BV1xx411c7mD 或直接输入 BV1xx411c7mD</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button id="videoCancelBtn" style="padding: 8px 20px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 14px;">取消</button>
+                <button id="videoConfirmBtn" style="padding: 8px 20px; border: none; background: #ff6b81; color: white; border-radius: 4px; cursor: pointer; font-size: 14px;">插入</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        $('body').append(dialogHtml);
+
+        // 平台切换提示
+        $('#videoPlatform').on('change', function() {
+          const platform = $(this).val();
+          const tips = {
+            'bilibili': '支持格式：https://www.bilibili.com/video/BV1xx411c7mD 或直接输入 BV1xx411c7mD',
+            'youtube': '支持格式：https://www.youtube.com/watch?v=dQw4w9WgXcQ 或直接输入 dQw4w9WgXcQ',
+            'tencent': '支持格式：https://v.qq.com/x/page/a0123456789.html 或直接输入 a0123456789'
+          };
+          $('#platformTip').text(tips[platform]);
+        });
+
+        // 确认按钮
+        $('#videoConfirmBtn').on('click', function() {
+          const platform = $('#videoPlatform').val();
+          const url = $('#videoUrl').val().trim();
+
+          if (!url) {
+            toastr.warning('请输入视频链接或ID');
+            return;
+          }
+
+          let videoId = url;
+          let videoHtml = '';
+
+          // 解析不同平台的视频ID并生成HTML
+          if (platform === 'bilibili') {
+            const bvMatch = url.match(/BV[a-zA-Z0-9]+/);
+            if (bvMatch) {
+              videoId = bvMatch[0];
+            }
+            // 直接插入B站iframe HTML代码，这样编辑器也能预览
+            videoHtml = `\n<iframe src="//player.bilibili.com/player.html?bvid=${videoId}&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: 500px;"></iframe>\n\n`;
+          } else if (platform === 'youtube') {
+            const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+            if (ytMatch) {
+              videoId = ytMatch[1];
+            }
+            videoHtml = `\n<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 500px;"></iframe>\n\n`;
+          } else if (platform === 'tencent') {
+            const tencentMatch = url.match(/\/([a-z0-9]+)\.html/);
+            if (tencentMatch) {
+              videoId = tencentMatch[1];
+            }
+            videoHtml = `\n<iframe src="https://v.qq.com/txp/iframe/player.html?vid=${videoId}" frameborder="0" allowfullscreen style="width: 100%; height: 500px;"></iframe>\n\n`;
+          }
+
+          // 插入到编辑器
+          cm.replaceSelection(videoHtml);
+
+          // 关闭弹窗
+          $('.video-dialog-overlay').remove();
+
+          toastr.success('视频插入成功！可在预览面板查看');
+        });
+
+        // 取消按钮
+        $('#videoCancelBtn').on('click', function() {
+          $('.video-dialog-overlay').remove();
+        });
+
+        // 点击遮罩关闭
+        $('.video-dialog-overlay').on('click', function(e) {
+          if (e.target === this) {
+            $(this).remove();
+          }
+        });
+
+        // ESC键关闭
+        $(document).on('keydown.videoDialog', function(e) {
+          if (e.key === 'Escape') {
+            $('.video-dialog-overlay').remove();
+            $(document).off('keydown.videoDialog');
+          }
+        });
       }
     },
     lang: {
       toolbar: {
-        mdFile: "导入MD"
+        mdFile: "导入MD",
+        video: "插入视频"
       }
     },
 

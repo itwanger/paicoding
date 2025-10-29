@@ -100,3 +100,36 @@
   }
 }
 
+/* 视频容器样式 */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 宽高比 */
+  height: 0;
+  overflow: hidden;
+  margin: 1.5em 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #000;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+/* 移动端视频容器优化 */
+@media screen and (max-width: 768px) {
+  .video-container {
+    margin: 1em 0;
+    border-radius: 4px;
+  }
+
+  .video-container iframe {
+    border-radius: 4px;
+  }
+}
+

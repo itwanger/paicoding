@@ -405,6 +405,81 @@
       return notes;
     }
 
+    // 渲染视频
+    (function() {
+      const articleContent = document.getElementById('articleContent');
+      if (!articleContent) return;
+
+      let content = articleContent.innerHTML;
+
+      // B站视频渲染
+      // 支持格式: @[bilibili](BV1xx411c7mD) 或者直接链接 https://www.bilibili.com/video/BV1xx411c7mD
+      content = content.replace(/@\[bilibili\]\(([a-zA-Z0-9]+)\)/g, function(match, bvid) {
+        return `
+          <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <iframe
+              src="//player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0"
+              scrolling="no"
+              border="0"
+              frameborder="no"
+              framespacing="0"
+              allowfullscreen="true"
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+            </iframe>
+          </div>
+        `;
+      });
+
+      // 也支持直接粘贴B站链接
+      content = content.replace(/https?:\/\/www\.bilibili\.com\/video\/(BV[a-zA-Z0-9]+)/g, function(match, bvid) {
+        return `
+          <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <iframe
+              src="//player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0"
+              scrolling="no"
+              border="0"
+              frameborder="no"
+              framespacing="0"
+              allowfullscreen="true"
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+            </iframe>
+          </div>
+        `;
+      });
+
+      // YouTube视频渲染
+      content = content.replace(/@\[youtube\]\(([a-zA-Z0-9_-]+)\)/g, function(match, videoId) {
+        return `
+          <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <iframe
+              src="https://www.youtube.com/embed/${videoId}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+            </iframe>
+          </div>
+        `;
+      });
+
+      // 腾讯视频渲染
+      content = content.replace(/@\[tencent\]\(([a-z0-9]+)\)/g, function(match, videoId) {
+        return `
+          <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1.5em 0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <iframe
+              src="https://v.qq.com/txp/iframe/player.html?vid=${videoId}"
+              frameborder="0"
+              allowfullscreen
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+            </iframe>
+          </div>
+        `;
+      });
+
+      articleContent.innerHTML = content;
+      console.log('视频渲染完成');
+    })();
+
     // 初始化 Fancybox 图片预览功能
     (function() {
       // 为所有文章图片添加 cursor 样式提示可点击
