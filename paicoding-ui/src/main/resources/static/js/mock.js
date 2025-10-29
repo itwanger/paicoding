@@ -28,13 +28,18 @@ $('#mockLogin').click(function () {
         data: "<xml><URL><![CDATA[https://hhui.top]]></URL><ToUserName><![CDATA[一灰灰blog]]></ToUserName><FromUserName><![CDATA[demoUser1234]]></FromUserName><CreateTime>1655700579</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[" + code + "]]></Content><MsgId>11111111</MsgId></xml>",
         success: function (data) {
             console.log("success data", data);
-            if (data.status && data.status.code !== 0) {
-                toastr.error(data.message || data.status.msg);
-            }
+            // 登录请求成功后，等待1秒让后端处理完成，然后刷新页面
+            setTimeout(function() {
+                if (window.location.pathname === "/login") {
+                    window.location.href = "/";
+                } else {
+                    window.location.reload();
+                }
+            }, 1000);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("Error: " +textStatus + ", " + errorThrown);
-            toastr.error(data);
+            toastr.error("登录失败，请重试");
         }
     });
 })
@@ -50,13 +55,18 @@ $('#mockLogin2').click(function () {
         data: "<xml><URL><![CDATA[https://hhui.top]]></URL><ToUserName><![CDATA[一灰灰blog]]></ToUserName><FromUserName><![CDATA[" + randUid + "]]></FromUserName><CreateTime>1655700579</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[" + code + "]]></Content><MsgId>11111111</MsgId></xml>",
         success: function (data) {
             console.log("success data", data);
-            if (data.status.code !== 0) {
-                toastr.error(data.message || data.status.msg);
-            }
+            // 登录请求成功后，等待1秒让后端处理完成，然后刷新页面
+            setTimeout(function() {
+                if (window.location.pathname === "/login") {
+                    window.location.href = "/";
+                } else {
+                    window.location.reload();
+                }
+            }, 1000);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("Error: " +textStatus + ", " + errorThrown);
-            toastr.error(data);
+            toastr.error("登录失败，请重试");
         }
     });
 })
