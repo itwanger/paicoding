@@ -1227,13 +1227,34 @@ button:focus {
   top: 30px; */
   position: fixed;
   z-index: 10;
-  width: 230px;
+  width: 300px;
   top: 90px;
   right: 0;
 }
 
 .widget {
   margin-bottom: 30px;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+/* 目录滚动条样式 */
+.widget::-webkit-scrollbar {
+  width: 6px;
+}
+
+.widget::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.widget::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.widget::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 .comment-list-wrap {
