@@ -333,7 +333,7 @@ const genTocMenu = function genToc(selector, el) {
 
     if (pdfClosed) {
       // PDF已关闭，目录从顶部开始
-      tocTop = 10
+      tocTop = 30
     } else {
       // PDF显示，计算避开PDF的位置
       const pdfSidebar = $(".pdf.home-right-item-wrap.floating:not(.hidden)")[0]
