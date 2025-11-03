@@ -171,6 +171,16 @@ public class CommentReadServiceImpl implements CommentReadService {
         return result;
     }
 
+
+    @Override
+    public List<TopCommentDTO> queryHighlightComments(Long articleId) {
+        List<CommentDO> comments = commentDao.listHighlightCommentList(articleId);
+        if (CollectionUtils.isEmpty(comments)) {
+            return Collections.emptyList();
+        }
+        return comments.stream().map(CommentConverter::toTopDto).collect(Collectors.toList());
+    }
+
     @Override
     public int queryCommentCount(Long articleId) {
         return commentDao.commentCount(articleId);

@@ -19,6 +19,20 @@ import java.util.Map;
  */
 @Repository
 public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
+    /**
+     * 获取划线评论
+     *
+     * @param articleId
+     * @return
+     */
+    public List<CommentDO> listHighlightCommentList(Long articleId) {
+        return lambdaQuery()
+                .eq(CommentDO::getTopCommentId, 0)
+                .eq(CommentDO::getArticleId, articleId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .isNotNull(CommentDO::getHighlightInfo)
+                .list();
+    }
 
     /**
      * 获取评论列表

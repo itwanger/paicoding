@@ -39,6 +39,15 @@ public interface CommentReadService {
      */
     TopCommentDTO queryHotComment(Long articleId);
 
+
+    /**
+     * 查询文章的划线评论
+     *
+     * @param articleId
+     * @return
+     */
+    List<TopCommentDTO> queryHighlightComments(Long articleId);
+
     /**
      * 文章的有效评论数
      *
