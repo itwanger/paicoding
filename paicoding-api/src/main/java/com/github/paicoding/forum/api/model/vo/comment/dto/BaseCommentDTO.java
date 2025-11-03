@@ -52,6 +52,11 @@ public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
      */
     private Boolean praised;
 
+    /**
+     * 高亮信息
+     */
+    private HighlightDto highlight;
+
     @Override
     public int compareTo(@NotNull BaseCommentDTO o) {
         return Long.compare(o.getCommentTime(), this.commentTime);

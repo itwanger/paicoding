@@ -49,4 +49,9 @@ public class CommentDO extends BaseDO {
      * 0未删除 1 已删除
      */
     private Integer deleted;
+
+    /**
+     * 划线高亮选中的内容
+     */
+    private String highlightInfo;
 }
