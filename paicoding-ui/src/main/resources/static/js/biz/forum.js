@@ -262,19 +262,92 @@ const genTocMenu = function genToc(selector, el) {
     const articleDomRight =
       articleDom.getBoundingClientRect() &&
       articleDom.getBoundingClientRect().right
-    $(".toc-container").css("left", articleDomRight + 20)
+    const leftPosition = articleDomRight + 20
+
+    // 同时设置目录和PDF侧边栏的left值，保持一致
+    $(".toc-container").css("left", leftPosition)
+    $(".pdf.home-right-item-wrap.floating").css("left", leftPosition)
   }
 
-  // 处理目录的现实隐藏
+  // 处理目录和PDF侧边栏的显示隐藏
   function controlMenu(windowScrollTop) {
     docContentTop = document
       .querySelector("#toc-container-position")
       .getBoundingClientRect().top
+
     if (docContentTop < 30) {
       $(".toc-container").show()
+
+      // 检查用户是否手动关闭了PDF侧边栏
+      const pdfClosed = sessionStorage.getItem('pdfSidebarClosed') === 'true'
+
+      if (!pdfClosed) {
+        $(".pdf.home-right-item-wrap").addClass("floating").removeClass("hidden")
+
+        // 设置PDF侧边栏的left值，与目录保持一致
+        const tocLeft = $(".toc-container").css("left")
+        if (tocLeft) {
+          $(".pdf.home-right-item-wrap.floating").css("left", tocLeft)
+        }
+
+        // 添加关闭按钮（如果还没有）
+        if ($(".pdf.home-right-item-wrap.floating .pdf-close-btn").length === 0) {
+          $(".pdf.home-right-item-wrap.floating").append('<div class="pdf-close-btn" title="关闭"></div>')
+
+          // 绑定关闭按钮点击事件
+          $(".pdf-close-btn").on("click", function(e) {
+            e.stopPropagation()
+            $(".pdf.home-right-item-wrap").addClass("hidden")
+            sessionStorage.setItem('pdfSidebarClosed', 'true')
+
+            // 重新计算目录位置和高度
+            updateTocPosition(true)
+          })
+        }
+      } else {
+        $(".pdf.home-right-item-wrap").addClass("floating hidden")
+      }
+
+      // 更新目录位置
+      updateTocPosition(pdfClosed)
+
     } else {
       $(".toc-container").hide()
+      $(".pdf.home-right-item-wrap").removeClass("floating hidden")
+      $(".pdf-close-btn").remove() // 移除关闭按钮
+      $(".toc-container").css("top", "90px") // 恢复原始位置
+      $(".toc-container .widget").css("max-height", "calc(100vh - 120px)") // 恢复默认最大高度
+
+      // 清除PDF侧边栏的left样式，让它恢复到正常文档流
+      $(".pdf.home-right-item-wrap").css("left", "")
+
+      // 重置关闭状态
+      sessionStorage.removeItem('pdfSidebarClosed')
     }
+  }
+
+  // 更新目录位置和高度
+  function updateTocPosition(pdfClosed) {
+    const viewportHeight = window.innerHeight
+    let tocTop = 90 // 默认top值
+
+    if (pdfClosed) {
+      // PDF已关闭，目录从顶部开始
+      tocTop = 10
+    } else {
+      // PDF显示，计算避开PDF的位置
+      const pdfSidebar = $(".pdf.home-right-item-wrap.floating:not(.hidden)")[0]
+      if (pdfSidebar) {
+        const pdfHeight = pdfSidebar.offsetHeight
+        tocTop = 10 + pdfHeight + 20 // PDF top(10px) + PDF高度 + 间距(20px)
+      }
+    }
+
+    $(".toc-container").css("top", tocTop + "px")
+
+    // 动态计算目录的最大高度
+    const tocMaxHeight = viewportHeight - tocTop - 30 // 视口高度 - 目录top - 底部留白
+    $(".toc-container .widget").css("max-height", tocMaxHeight + "px")
   }
 
   window.addEventListener(

@@ -885,3 +885,57 @@
 .mod-subscribe__image:hover img {
   transform: scale(1.02);
 }
+
+/* PDF侧边栏浮动样式 */
+.pdf.home-right-item-wrap.floating {
+  position: fixed;
+  top: 10px;
+  width: 300px;
+  z-index: 11;
+  margin-bottom: 20px;
+  /* left值通过JavaScript动态设置，与目录保持一致 */
+}
+
+/* PDF侧边栏隐藏状态 */
+.pdf.home-right-item-wrap.floating.hidden {
+  display: none !important;
+}
+
+/* PDF侧边栏关闭按钮 */
+.pdf-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+  transition: all 0.3s ease;
+}
+
+.pdf-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+  transform: scale(1.1);
+}
+
+.pdf-close-btn::before,
+.pdf-close-btn::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 2px;
+  background-color: #fff;
+}
+
+.pdf-close-btn::before {
+  transform: rotate(45deg);
+}
+
+.pdf-close-btn::after {
+  transform: rotate(-45deg);
+}

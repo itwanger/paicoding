@@ -170,6 +170,8 @@ public class SidebarServiceImpl implements SidebarService {
                 visit = new RateVisitDTO();
             }
             visit.incrVisit();
+            // 增加下载次数
+            visit.incrDownload();
             // 更新阅读计数
             configService.updateVisit(configDTO.getId(), JsonUtil.toStr(visit));
             dto.setVisit(visit);
