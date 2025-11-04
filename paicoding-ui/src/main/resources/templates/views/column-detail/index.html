@@ -99,7 +99,7 @@
 
           <!--   文章分享   -->
           <div class="modal fade" id="shareModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-dialog-centered" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title">分享文章</h5>
@@ -117,6 +117,29 @@
                       <div class="input-group-append">
                         <button class="btn btn-primary" type="button" onclick="copyAndClose()">复制</button>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 引用评论弹窗 (移动端) -->
+          <div class="modal fade" id="quoteCommentModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">引用评论</h5>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="quote-content">
+                    <div class="quote-text" id="quotedTextModal"></div>
+                    <div class="quote-comment-form">
+                      <textarea id="quoteCommentInputModal" placeholder="写下您的评论..." class="form-control"></textarea>
+                      <button id="submitQuoteCommentModal" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
                     </div>
                   </div>
                 </div>
@@ -393,7 +416,7 @@
         // 对于侧边栏的评论回复
         if (replyBtn.attr("data-reply-top")) {
           // 刷新侧边的引用评论内容
-          showQuoteCommentSidebarWithComments(replyBtn.attr("data-reply-top"));
+          showQuoteCommentWithComments(replyBtn.attr("data-reply-top"));
         }
 
         document.getElementById("commentDiv").innerHTML = data
