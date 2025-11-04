@@ -1120,7 +1120,7 @@ button:focus {
 .arCatalog .arCatalog-body {
   margin-left: -2px;
   padding-left: 27px;
-  overflow: hidden;
+  overflow-y: auto;
   font-size: 14px;
 }
 

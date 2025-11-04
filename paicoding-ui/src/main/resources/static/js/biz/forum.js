@@ -420,9 +420,7 @@ const genTocMenu = function genToc(selector, el) {
 
     let retStr = `
 						<div class="arCatalog">
-							<div class="arCatalog-line" style="height: ${
-                catalogHeight + DEFAULT.moreHeight
-              }px"></div>
+							<div class="arCatalog-line" style="height: 100%"></div>
 							<div class="arCatalog-body" style="max-height: ${catalogHeight}px; height: ${catalogHeight}px">
 								<dl style="margin-top: ${marginTop}px">`
     let h2Index = 0,

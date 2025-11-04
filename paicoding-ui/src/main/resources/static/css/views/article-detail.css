@@ -133,3 +133,37 @@
   }
 }
 
+/* 文章详情页目录样式优化 - 解决双滚动条问题 */
+.article-detail {
+  position: relative;
+  z-index: 1; /* 确保页面滚动条可见 */
+}
+
+.article-detail .toc-container {
+  background-color: transparent; /* 背景透明，让下层滚动条可见 */
+  padding: 0;
+  position: fixed;
+  top: 90px; /* 初始值，会被JS动态调整 */
+  right: 0;
+  width: 300px;
+  z-index: 5;
+  /* 不设置max-height和overflow，让内层.widget处理滚动 */
+}
+
+.article-detail .toc-container .widget {
+  background-color: var(--pai-color-fff-normal); /* 背景色设置在内部容器 */
+  padding: 20px;
+  padding-right: 8px; /* 给内容留一点右侧空间 */
+  box-sizing: border-box;
+  max-height: calc(100vh - 120px); /* 设置最大高度，会被JS动态调整 */
+  overflow-y: auto; /* 滚动在widget层 */
+}
+
+/* 移除arCatalog-body的滚动，让它和arCatalog-line作为一个整体 */
+.article-detail .toc-container .arCatalog-body {
+  overflow-y: visible !important; /* 覆盖global.css和JS设置的overflow */
+  max-height: none !important; /* 移除高度限制 */
+  height: auto !important; /* 让高度自适应内容 */
+}
+
+
