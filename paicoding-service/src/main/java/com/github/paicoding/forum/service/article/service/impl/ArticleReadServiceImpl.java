@@ -107,6 +107,17 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return PageVo.build(tagDTOS, 1, 10, tagDTOS.size());
     }
 
+    /**
+     * 查询文章的内容，给ai用于分析
+     *
+     * @param articleId
+     * @return
+     */
+    @Override
+    public String queryArticleContentForAI(Long articleId) {
+        return articleDao.findLatestDetail(articleId).getContent();
+    }
+
     @Override
     public ArticleDTO queryDetailArticleInfo(Long articleId) {
         ArticleDTO article = articleDao.queryArticleDetail(articleId);
