@@ -9,6 +9,8 @@
   flex-direction: column;
   overflow-y: auto;
   padding: 20px 0;
+  position: relative; /* 创建定位上下文 */
+  z-index: 1; /* 确保滚动条在较低的层级，但仍然可见 */
 }
 
 .article-content-inter-wrap {
@@ -26,12 +28,21 @@
 }
 
 .column.toc-container {
-  background-color: var(--pai-color-fff-normal);
-  padding: 20px;
+  background-color: transparent; /* 背景透明，让下层滚动条可见 */
+  padding: 0;
   width: 280px;
-  right: 10px;
-  max-height: calc(100vh - 60px); /* 设置最大高度 */
+  position: fixed;
+  top: 80px; /* 从导航栏下方开始 */
+  right: 0; /* 紧贴右边缘 */
+  max-height: calc(100vh - 80px); /* 设置最大高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
+  z-index: 5; /* 在页面内容之上 */
+}
+
+.column.toc-container .widget {
+  background-color: var(--pai-color-fff-normal); /* 背景色设置在内部容器 */
+  padding: 20px;
+  margin-right: 12px; /* 右侧留出滚动条空间 */
 }
 
 /* 分组标题样式 */
