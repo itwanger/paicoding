@@ -7,6 +7,11 @@ let hiddenSidebars = [];
 // 标记是否正在处理评论图标点击
 let isHandlingCommentIcon = false;
 
+// 检测是否为移动设备
+function isMobileDevice() {
+    return window.innerWidth <= 768;
+}
+
 // 监听文本选择事件
 document.addEventListener('selectionchange', function () {
     // 如果正在处理评论图标点击，忽略选择变化
@@ -71,7 +76,11 @@ function showCommentIcon(range) {
 
     // 获取选中文本的位置
     const rect = range.getBoundingClientRect();
-    commentIcon.style.top = (window.scrollY + rect.top - 30) + 'px';
+    if (isMobileDevice()) {
+        commentIcon.style.top = (window.scrollY + rect.top - 10) + 'px';
+    } else {
+        commentIcon.style.top = (window.scrollY + rect.top - 30) + 'px';
+    }
     commentIcon.style.left = (window.scrollX + rect.right) + 'px';
 
     // 添加到页面
@@ -102,7 +111,9 @@ function handleCommentIconClick(e) {
     // 设置标记，防止选择变化事件隐藏图标
     isHandlingCommentIcon = true;
 
-    showQuoteCommentSidebar(selectedText);
+    // 检测设备类型，选择显示方式
+    showQuoteCommentForm(selectedText)
+
     hideCommentIcon();
 
     // 重新应用选择，保持文本选中状态，并添加下划线样式
@@ -118,7 +129,7 @@ function handleCommentIconClick(e) {
 
     // 聚焦到评论输入框
     setTimeout(function () {
-        const commentInput = document.getElementById('quoteCommentInput');
+        const commentInput = isMobileDevice() ? document.getElementById('quoteCommentInputModal') : document.getElementById('quoteCommentInput');
         if (commentInput) {
             commentInput.focus();
         }
@@ -155,7 +166,7 @@ function initUnderLine(comment) {
                 // 绑定点击事件
                 newNode.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    showQuoteCommentSidebarWithComments(comment.commentId);
+                    showQuoteCommentWithComments(comment.commentId)
                 });
             } catch (e) {
                 console.debug('无法为选中文本添加下划线样式:', e);
@@ -166,12 +177,16 @@ function initUnderLine(comment) {
 
 
 // 点击划线内容,加载评论数据
-function loadCommentData(commentId) {
+function loadCommentData(commentId, isModal) {
     // 调用后端API获取评论数据
     $.get('/comment/api/listTopComment?commentId=' + commentId, function (data) {
         if (data && data.status && data.status.code === 0) {
             // 处理获取到的评论数据
-            document.getElementById('quoteCommentSidebar').innerHTML = data.result;
+            if (isModal) {
+                document.getElementById('quoteCommentModal').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.result}</div>`;
+            } else {
+                document.getElementById('quoteCommentSidebar').innerHTML = data.result;
+            }
         } else {
             console.log('请求数据异常!', data);
         }
@@ -203,12 +218,13 @@ function applyUnderlineToSelection(range) {
         // 绑定点击事件
         newNode.addEventListener('click', function (e) {
             e.stopPropagation();
-            // 如果当前节点,存在 data-comment-id, 则调用 showQuoteCommentSidebarWithComments
             const selectedText = range.toString();
             if (newNode.hasAttribute('data-comment-id')) {
-                showQuoteCommentSidebarWithComments(newNode.getAttribute('data-comment-id'));
+                // 如果当前节点,存在 data-comment-id, 则调用 showQuoteCommentWithComments
+                showQuoteCommentWithComments(newNode.getAttribute('data-comment-id'))
             } else {
-                showQuoteCommentSidebar(selectedText);
+                // 首次划线，显示输入评论框
+                showQuoteCommentForm(selectedText)
             }
         });
     } catch (e) {
@@ -236,7 +252,7 @@ function applyUnderlineToSelection(range) {
                 span.addEventListener('click', function (e) {
                     e.stopPropagation();
                     const selectedText = span.textContent;
-                    showQuoteCommentSidebar(selectedText);
+                    showQuoteCommentForm(selectedText)
                 });
             } catch (e2) {
                 console.debug('第二种方法也失败了:', e2);
@@ -245,32 +261,56 @@ function applyUnderlineToSelection(range) {
     }
 }
 
-// 显示引用评论侧边栏并加载评论数据
-function showQuoteCommentSidebarWithComments(commentId) {
-    const sidebar = document.getElementById('quoteCommentSidebar');
+// 显示引用的评论信息
+function showQuoteCommentWithComments(commentId) {
+    if (isMobileDevice()) {
+        const modal = document.getElementById('quoteCommentModal');
 
-    if (sidebar) {
-        // 隐藏其他侧边栏
-        hideOtherSidebars();
-        // 显示侧边栏
-        sidebar.style.display = 'block';
-        sidebar.style.visibility = 'visible';
-        sidebar.style.position = 'sticky';
-        sidebar.style.top = '20px';
+        if (modal) {
+            // 显示引用评论弹窗并加载评论数据 (移动端)
+            $('#quoteCommentModal').modal('show');
 
-        // 清空输入框
-        const commentInput = document.getElementById('quoteCommentInput');
-        if (commentInput) {
-            commentInput.value = '';
+            // 清空输入框
+            const commentInput = document.getElementById('quoteCommentInputModal');
+            if (commentInput) {
+                commentInput.value = '';
+            }
+
+            const submitBtn = document.getElementById('submitQuoteCommentModal');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            // 加载评论数据
+            loadCommentData(commentId, true);
         }
+    } else {
+        // 显示引用评论侧边栏并加载评论数据
+        const sidebar = document.getElementById('quoteCommentSidebar');
 
-        const submitBtn = document.getElementById('submitQuoteComment');
-        if (submitBtn) {
-            submitBtn.disabled = true;
+        if (sidebar) {
+            // 隐藏其他侧边栏
+            hideOtherSidebars();
+            // 显示侧边栏
+            sidebar.style.display = 'block';
+            sidebar.style.visibility = 'visible';
+            sidebar.style.position = 'sticky';
+            sidebar.style.top = '20px';
+
+            // 清空输入框
+            const commentInput = document.getElementById('quoteCommentInput');
+            if (commentInput) {
+                commentInput.value = '';
+            }
+
+            const submitBtn = document.getElementById('submitQuoteComment');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            // 加载评论数据
+            loadCommentData(commentId, false);
         }
-
-        // 加载评论数据
-        loadCommentData(commentId);
     }
 }
 
@@ -310,11 +350,62 @@ function hideCommentIcon() {
     }
 }
 
-// 显示引用评论侧边栏
-function showQuoteCommentSidebar(text) {
-    const sidebar = document.getElementById('quoteCommentSidebar');
-    // 重新初始化这块内容
-    sidebar.innerHTML = `<div class="widget">
+function showQuoteCommentForm(text) {
+    // 首次划线，显示输入评论框
+    if (isMobileDevice()) {
+        // 移动端，使用弹窗的方式显示输入框
+        const modal = document.getElementById('quoteCommentModal');
+        modal.innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">引用评论</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="quote-content">
+              <div class="quote-text" id="quotedTextModal"></div>
+              <div class="quote-comment-form">
+                <textarea id="quoteCommentInputModal" placeholder="写下您的评论..." class="form-control"></textarea>
+                <button id="submitQuoteCommentModal" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`
+        initQuoteModalEvent();
+        const quotedText = document.getElementById('quotedTextModal');
+        const commentInput = document.getElementById('quoteCommentInputModal');
+        const submitBtn = document.getElementById('submitQuoteCommentModal');
+
+        if (quotedText) {
+            quotedText.textContent = text;
+        }
+
+        if (commentInput) {
+            commentInput.value = '';
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+        }
+
+        if (modal) {
+            // 显示弹窗
+            $('#quoteCommentModal').modal('show');
+
+            // 监听模态框关闭事件
+            $('#quoteCommentModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                // 模态框关闭时，清除选中的文本
+                hideQuoteCommentSidebar();
+            });
+        }
+    } else {
+        // pc，侧边栏的方式显示输入框
+        const sidebar = document.getElementById('quoteCommentSidebar');
+        // 重新初始化这块内容
+        sidebar.innerHTML = `<div class="widget">
                 <h3 class="com-nav-bar-title">化词评论</h3>
                 <div class="quote-content">
                   <div class="quote-text" id="quotedText">${text}</div>
@@ -325,37 +416,38 @@ function showQuoteCommentSidebar(text) {
                 </div>
               </div>`
 
-    // 重新绑定监听事件
-    initQuoteEvent();
-    if (sidebar) {
-        // 隐藏其他侧边栏
-        hideOtherSidebars();
-        // 显示侧边栏 - 使用更可靠的方式
-        sidebar.style.display = 'block';
-        sidebar.style.visibility = 'visible';
+        // 重新绑定监听事件
+        initQuoteEvent();
+        if (sidebar) {
+            // 隐藏其他侧边栏
+            hideOtherSidebars();
+            // 显示侧边栏 - 使用更可靠的方式
+            sidebar.style.display = 'block';
+            sidebar.style.visibility = 'visible';
 
-        // 确保侧边栏在视图中
-        sidebar.style.position = 'sticky';
-        sidebar.style.top = '20px';
+            // 确保侧边栏在视图中
+            sidebar.style.position = 'sticky';
+            sidebar.style.top = '20px';
 
-        // 清空输入框
-        const commentInput = document.getElementById('quoteCommentInput');
-        if (commentInput) {
-            commentInput.value = '';
+            // 清空输入框
+            const commentInput = document.getElementById('quoteCommentInput');
+            if (commentInput) {
+                commentInput.value = '';
+            }
+
+            const submitBtn = document.getElementById('submitQuoteComment');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+        } else {
+            // 再次尝试查找元素
+            setTimeout(() => {
+                const retrySidebar = document.getElementById('quoteCommentSidebar');
+                const retryQuoteText = document.getElementById('quotedText');
+                console.log('重试查找元素:', retrySidebar, retryQuoteText);
+            }, 100);
         }
-
-        const submitBtn = document.getElementById('submitQuoteComment');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-        }
-
-    } else {
-        // 再次尝试查找元素
-        setTimeout(() => {
-            const retrySidebar = document.getElementById('quoteCommentSidebar');
-            const retryQuoteText = document.getElementById('quotedText');
-            console.log('重试查找元素:', retrySidebar, retryQuoteText);
-        }, 100);
     }
 }
 
@@ -401,7 +493,56 @@ function showOtherSidebars() {
     hiddenSidebars = [];
 }
 
-initQuoteEvent();
+// 初始化弹窗事件
+function initQuoteModalEvent() {
+    // 监听引用评论输入框
+    const commentInput = document.getElementById('quoteCommentInputModal');
+    const submitBtn = document.getElementById('submitQuoteCommentModal');
+
+    if (commentInput && submitBtn) {
+        commentInput.addEventListener('input', function () {
+            submitBtn.disabled = this.value.trim() === '';
+        });
+
+        // 提交引用评论
+        submitBtn.addEventListener('click', function () {
+            const commentContent = commentInput.value.trim();
+
+            if (commentContent === '') {
+                toastr.error("评论内容不能为空");
+                return;
+            }
+
+            // 提交评论
+            const params = {
+                articleId: articleId,
+                commentContent: commentContent,
+                highlight: toSaveSelection,
+            };
+
+            console.log('准备提交评论信息:', params)
+            post("/comment/api/highlightComment", params, function (data) {
+                // 为新增的评论添加持久化高亮标记
+                if (window.highlightedElements && window.highlightedElements.length > 0) {
+                    const lastHighlight = window.highlightedElements[window.highlightedElements.length - 1];
+                    // 添加评论ID属性，用于点击时获取评论数据
+                    lastHighlight.setAttribute('data-comment-id', data.commentId);
+                    lastHighlight.classList.add('new-highlight');
+                    // 绑定点击事件
+                    lastHighlight.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        // 支持点击之后查看详情页
+                        showQuoteCommentWithComments(data.commentId);
+                    });
+                }
+
+                // 显示成功消息
+                toastr.success("评论发表成功");
+                document.getElementById('quoteCommentModal').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+            });
+        });
+    }
+}
 function initQuoteEvent() {
     // 添加点击页面其他地方隐藏引用评论侧边栏的功能
     document.addEventListener('click', function (e) {
@@ -449,13 +590,19 @@ function initQuoteEvent() {
                 lastHighlight.addEventListener('click', function (e) {
                     e.stopPropagation();
                     // 支持点击之后查看详情页
-                    showQuoteCommentSidebarWithComments(data.commentId);
+                    showQuoteCommentWithComments(data.commentId)
                 });
             }
 
             // 显示成功消息
             toastr.success("评论发表成功");
-            document.getElementById('quoteCommentSidebar').innerHTML = data.html;
+            document.getElementById('quoteCommentSidebar').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
         });
     });
+}
+
+if (isMobileDevice()) {
+    initQuoteModalEvent();
+} else {
+    initQuoteEvent();
 }
