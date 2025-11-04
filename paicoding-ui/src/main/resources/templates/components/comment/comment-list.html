@@ -64,7 +64,7 @@
         </h4>
 
         <div
-          th:replace="components/comment/comment-item :: comment_item(${hotComment})"
+          th:replace="components/comment/comment-item :: comment_item(${hotComment}, 'hot')"
         ></div>
         <hr />
       </div>
@@ -76,7 +76,7 @@
           条评论
         </h4>
         <div class="all-comment-item" th:each="comment : ${comments}">
-          <div th:replace="components/comment/comment-item :: comment_item(${comment})"></div>
+          <div th:replace="components/comment/comment-item :: comment_item(${comment}, 'bottom')"></div>
         </div>
       </div>
     </div>

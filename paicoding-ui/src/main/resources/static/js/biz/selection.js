@@ -1,9 +1,20 @@
+const ALLOWED = ['P','LI','UL','IMG','H1','H2','H3','H4','H5','H6'];
+
+function canShowCommentIcon(range) {
+    let startNode = range.startContainer;
+    let startEl = (startNode.nodeType === Node.TEXT_NODE) ? startNode.parentElement : startNode;
+    if (startEl && ALLOWED.includes(startEl.tagName)) {
+        return true;
+    }
+    return false;
+}
+
+
 // 序列化：以同类型标签的顺序计数 elementIndex
 function rangeToElementJSON(range) {
     const container = document.getElementById('articleContent');
     if (!container) throw new Error('#articleContent not found');
 
-    const ALLOWED = ['P','LI','UL','IMG','H1','H2','H3','H4','H5','H6'];
 
     // 从 startContainer 向上找第一个符合的元素
     let startNode = range.startContainer;

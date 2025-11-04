@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 一级评论及其回复 -->
-  <div th:fragment="comment_item(comment)" class="comment-list-wrap">
+  <div th:fragment="comment_item(comment, pos)" class="comment-list-wrap">
     <div class="comment-item-wrap">
       <div class="comment-item-top">
         <a th:href="${'/user/' + comment.userId}" target="_blank">
@@ -11,7 +11,7 @@
           <div class="common-item-content-head">
             <span>
               <a
-                th:text="${comment.userName} + ${comment.userId == article.author ? '（作者）': ''}"
+                th:text="${comment.userName} + ${comment.userId == (article != null ? article.author: null)  ? '（作者）': ''}"
                 th:href="${'/user/' + comment.userId}"
                 target="_blank"
                 class="comment-name"
@@ -25,6 +25,12 @@
               时间
             </span>
           </div>
+
+          <!--   显示原文引用  -->
+          <div class="quote-text" id="quotedText" th:if="${comment.highlight != null && !#strings.isEmpty(comment.highlight.selectedText) && pos != 'side'}"
+               th:text="'引用原文：' + ${comment.highlight.selectedText}">
+          </div>
+
           <div
             class="common-item-content-value"
             th:text="${comment.commentContent}"
@@ -54,7 +60,7 @@
           <div class="common-item-content-head">
             <span>
               <a
-                th:text="${reply.userName} + ${reply.userId == article.author ? '（作者）': ''}"
+                th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
                 th:href="${'/user/' + reply.userId}"
                 target="_blank"
                 class="comment-name"

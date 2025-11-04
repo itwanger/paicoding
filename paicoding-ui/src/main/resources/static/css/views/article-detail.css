@@ -140,13 +140,14 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
-  margin-top: 20px;
   max-height: 80vh;
+  margin-top: 20px;
   overflow-y: auto;
 }
 
 .quote-comment-sidebar .widget {
   padding: 0;
+  margin-bottom: 0;
 }
 
 .quote-comment-sidebar .com-nav-bar-title {
@@ -157,11 +158,17 @@
   border-bottom: 1px solid #eee;
 }
 
+.quote-comment-form .comment-list-wrap {
+  padding: 0;
+}
+
 .quote-text {
   background: #f8f9fa;
+  color: var(--pai-color-999-gray);
   border-left: 4px solid var(--pai-brand-2-hover);
   padding: 12px;
-  margin-bottom: 16px;
+  margin-top: 10px;
+  margin-bottom: 6px;
   font-size: 14px;
   line-height: 1.5;
   border-radius: 4px;
