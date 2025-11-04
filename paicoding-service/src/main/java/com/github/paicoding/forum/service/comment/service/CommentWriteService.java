@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.comment.service;
 
 import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
+import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 
 /**
  * 评论Service接口
@@ -17,6 +18,9 @@ public interface CommentWriteService {
      * @return
      */
     Long saveComment(CommentSaveReq commentSaveReq);
+
+
+    CommentDO addComment(CommentSaveReq commentSaveReq);
 
     /**
      * 删除评论

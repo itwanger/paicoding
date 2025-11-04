@@ -19,6 +19,10 @@ public class SubCommentDTO extends BaseCommentDTO {
      */
     private String parentContent;
 
+    /**
+     * 评论数量
+     */
+    private Integer commentCount;
 
     @Override
     public int compareTo(@NotNull BaseCommentDTO o) {

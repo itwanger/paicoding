@@ -60,7 +60,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         return comment.getId();
     }
 
-    private CommentDO addComment(CommentSaveReq commentSaveReq) {
+    public CommentDO addComment(CommentSaveReq commentSaveReq) {
         // 0.获取父评论信息，校验是否存在
         CommentDO parentComment = getParentCommentUser(commentSaveReq.getParentCommentId());
         Long parentUser = parentComment == null ? null : parentComment.getUserId();

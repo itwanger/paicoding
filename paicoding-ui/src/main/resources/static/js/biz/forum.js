@@ -271,7 +271,10 @@ const genTocMenu = function genToc(selector, el) {
       .querySelector("#toc-container-position")
       .getBoundingClientRect().top
     if (docContentTop < 30) {
-      $(".toc-container").show()
+      // 如果引用评论在展示,则不显示目录
+      if (!$("#quoteCommentSidebar").is(":visible")) {
+        $(".toc-container").show()
+      }
     } else {
       $(".toc-container").hide()
     }
