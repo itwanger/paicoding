@@ -7,6 +7,8 @@
   </div>
 
   <link rel="stylesheet" href="/css/views/column-detail.css" th:href="${global.siteInfo.oss + '/css/views/column-detail.css'}" />
+  <script src="/js/biz/selection.js" th:src="${global.siteInfo.oss + '/js/biz/selection.js'}"></script>
+  <script src="/js/biz/highlightcomment.js" th:src="${global.siteInfo.oss + '/js/biz/highlightcomment.js'}"></script>
 
   <body id="body">
     <!-- 导航栏 -->
@@ -28,7 +30,7 @@
                       aria-controls="collapseMenu"
                       aria-expanded="false"
                       aria-label="Toggle docs navigation"
-                      th:data-toggle-tooltip="tooltip" 
+                      th:data-toggle-tooltip="tooltip"
                       title="展开/收起专栏目录">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false">
                   <title>专栏目录</title>
@@ -44,7 +46,7 @@
                       aria-controls="contentMenuCollapse"
                       aria-expanded="false"
                       aria-label="Toggle table of contents"
-                      th:data-toggle-tooltip="tooltip" 
+                      th:data-toggle-tooltip="tooltip"
                       title="展开/收起文章目录">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <title>文章目录</title>
@@ -66,15 +68,34 @@
               </div>
             </div>
           </div>
-          
+
           <!-- 文章内容导航 -->
-          <div id="toc-container-position"></div>
-          <div class="right-container toc-container column collapse d-md-block toc-responsive" id="contentMenuCollapse" style="display: none;">
-            <div class="widget rounded ">
-              <h3 class="com-nav-bar-title">目录</h3>
-              <div id="contentMenu" class="toc toc-sticky"></div>
+          <div class="right-container toc-container column collapse d-md-block toc-responsive layout-side">
+            <div class="right-container">
+              <div id="toc-container-position" class="right-container"></div>
+              <div class="right-container toc-container column collapse d-md-block toc-responsive" id="contentMenuCollapse">
+                <div class="widget rounded ">
+                  <h3 class="com-nav-bar-title">目录</h3>
+                  <div id="contentMenu" class="toc toc-sticky"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 引用评论侧边栏 -->
+            <div id="quoteCommentSidebar" class="right-container quote-comment-sidebar" style="display: none;">
+              <div class="widget">
+                <h3 class="com-nav-bar-title">引用评论</h3>
+                <div class="quote-content">
+                  <div class="quote-text" id="quotedText"></div>
+                  <div class="quote-comment-form">
+                    <textarea id="quoteCommentInput" placeholder="写下您的评论..." class="form-control"></textarea>
+                    <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+
 
           <!--   文章分享   -->
           <div class="modal fade" id="shareModal" tabindex="-1" role="dialog">
@@ -157,6 +178,17 @@
     const isLogin = [[${ global.isLogin }]]
     const currentUserId = isLogin ? [[${ global.user != null ? global.user.userId : '' }]] : '';
     const currentUserAvatar = isLogin ? [[${ global.user != null ? global.user.photo : '' }]] : '';
+
+
+    // 为选中的文本添加下划线样式
+    const highlightComments = [[${vo.highlightComments}]];
+    console.log('highlightComments:', highlightComments)
+    if (highlightComments) {
+      // 初始化文章的下划线样式
+      initUnderlineToSelection(highlightComments);
+    }
+
+
     $("#praiseBtn").on('click', function () {
       if (!isLogin) {
         // 未登录，不执行相关操作
@@ -358,6 +390,12 @@
         topCommentId: replyBtn.attr("data-reply-top"),
       }
       post("/comment/api/post", params, function (data) {
+        // 对于侧边栏的评论回复
+        if (replyBtn.attr("data-reply-top")) {
+          // 刷新侧边的引用评论内容
+          showQuoteCommentSidebarWithComments(replyBtn.attr("data-reply-top"));
+        }
+
         document.getElementById("commentDiv").innerHTML = data
         bindCommentInputEvent()
       })
