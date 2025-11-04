@@ -115,6 +115,8 @@ public class ColumnViewController {
         // 热门评论
         TopCommentDTO hotComment = commentReadService.queryHotComment(articleId);
 
+        List<TopCommentDTO> highlightComment = commentReadService.queryHighlightComments(articleId);
+
         // 文章列表
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
@@ -122,6 +124,7 @@ public class ColumnViewController {
         vo.setArticle(articleDTO);
         vo.setComments(comments);
         vo.setHotComment(hotComment);
+        vo.setHighlightComments(highlightComment);
         vo.setColumn(columnId);
         vo.setSection(section);
         vo.setArticleList(articles);
