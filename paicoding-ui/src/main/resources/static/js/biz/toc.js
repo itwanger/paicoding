@@ -110,7 +110,7 @@ let articleCatalog = (function() {
 						<div class="arCatalog">
 							<div class="arCatalog-line" style="height: ${catalogHeight + DEFAULT.moreHeight}px"></div>
 							<div class="arCatalog-body" style="max-height: ${catalogHeight}px; height: ${catalogHeight}px">
-								<dl style="margin-top: ${marginTop}px">`
+								<dl>`
             let h2Index = 0,
                 h3Index = 1,
                 acIndex = '',

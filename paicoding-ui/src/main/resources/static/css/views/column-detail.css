@@ -14,7 +14,7 @@
 }
 
 .article-content-inter-wrap {
-  margin-right: 310px;
+  margin-right: 300px;
   margin-left: 20px;
 }
 
@@ -651,7 +651,7 @@
 @media (min-width: 992px) {
   /* 在大屏幕上保留右边距，为目录留出空间 */
   .article-content-inter-wrap {
-    margin-right: 310px;
+    margin-right: 300px;
     margin-left: 20px;
   }
 }
