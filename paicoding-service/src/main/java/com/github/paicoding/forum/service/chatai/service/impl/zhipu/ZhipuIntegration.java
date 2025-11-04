@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.chatai.service.impl.zhipu;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
@@ -83,6 +84,8 @@ public class ZhipuIntegration {
 
         // 序列化输出
         ObjectMapper mapper = MessageDeserializeFactory.defaultObjectMapper();
+        // 忽略未知字段
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         // 处理返回结果
         if (sseModelApiResp.isSuccess()) {
@@ -93,7 +96,7 @@ public class ZhipuIntegration {
             mapStreamToAccumulator(sseModelApiResp.getFlowable()).doOnNext(accumulator -> {
                         {
                             if (isFirst.getAndSet(false)) {
-                                log.info("Response: ");
+                                log.info("智谱大模型开始返回结果 -> ");
                             }
                             if (accumulator.getDelta() != null && accumulator.getDelta().getTool_calls() != null) {
                                 accumulator.getDelta().getTool_calls().forEach(toolCall -> {
@@ -117,7 +120,9 @@ public class ZhipuIntegration {
                                     }
                                 });
                                 String jsonString = mapper.writeValueAsString(accumulator.getDelta().getTool_calls());
-                                log.info("tool_calls: {}", jsonString);
+                                if (log.isDebugEnabled()) {
+                                    log.info("tool_calls: {}", jsonString);
+                                }
                             }
                             if (accumulator.getDelta() != null && accumulator.getDelta().getContent() != null) {
                                 String content = accumulator.getDelta().getContent();
@@ -135,8 +140,8 @@ public class ZhipuIntegration {
                         callback.accept(AiChatStatEnum.END, chatRecord);
                     })
                     .doOnError(throwable -> {
-                        log.error("Error: {}", throwable);
-                        callback.accept(AiChatStatEnum.ERROR, chatRecord);
+                        log.error("Error:", throwable);
+                            callback.accept(AiChatStatEnum.ERROR, chatRecord);
                     }) // Handle errors
                     .blockingSubscribe();// Use blockingSubscribe instead of blockingGet()
 

@@ -5,13 +5,15 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AiBotEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
+import com.github.paicoding.forum.api.model.vo.comment.dto.HighlightDto;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
-import com.github.paicoding.forum.service.chatai.bot.HaterBot;
+import com.github.paicoding.forum.service.chatai.bot.AiBots;
 import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * 评论Service
@@ -45,7 +48,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     @Autowired
     private UserFootService userFootWriteService;
     @Autowired
-    private HaterBot haterBot;
+    private AiBots aiBots;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -60,7 +63,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         return comment.getId();
     }
 
-    public CommentDO addComment(CommentSaveReq commentSaveReq) {
+    private CommentDO addComment(CommentSaveReq commentSaveReq) {
         // 0.获取父评论信息，校验是否存在
         CommentDO parentComment = getParentCommentUser(commentSaveReq.getParentCommentId());
         Long parentUser = parentComment == null ? null : parentComment.getUserId();
@@ -80,7 +83,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         userFootWriteService.saveCommentFoot(commentDO, article.getUserId(), parentUser);
 
         // 3. 触发杠精机器人
-        this.haterBotTrigger(commentDO, parentComment);
+        this.aiBotTrigger(commentDO, parentComment);
 
         // 4. 发布添加/回复评论事件
         SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.COMMENT, commentDO));
@@ -153,21 +156,23 @@ public class CommentWriteServiceImpl implements CommentWriteService {
      * @param comment 当前评论内容
      * @param parent  当前评论的父评论
      */
-    private void haterBotTrigger(CommentDO comment, CommentDO parent) {
+    private void aiBotTrigger(CommentDO comment, CommentDO parent) {
         boolean trigger = false;
-        Long haterBotUserId = haterBot.getBotUser().getUserId();
         Long topCommentId = 0L;
+        AiBotEnum botEnum = null;
         if (parent == null) {
             // 当前的评论就是顶级评论，根据回复内容是否有触发词来决定是否需要进行触发
-            String tag = "@" + AiBotEnum.HATER_BOT.getNickName();
-            if (comment.getContent().contains(tag)) {
+            botEnum = aiBots.triggerAiBotKeyWord(comment.getContent());
+            if (botEnum != null) {
+                String tag = "@" + botEnum.getNickName();
                 comment.setContent(StringUtils.replace(comment.getContent(), tag, ""));
                 trigger = true;
             }
             topCommentId = comment.getId();
         } else {
+            botEnum = aiBots.getAiBotByUserId(parent.getUserId());
             // 回复内容，根据回复的用户是否为机器人，来判定是否需要进行触发
-            if (Objects.equals(haterBotUserId, parent.getUserId())) {
+            if (botEnum != null) {
                 trigger = true;
             }
             topCommentId = comment.getTopCommentId();
@@ -175,20 +180,55 @@ public class CommentWriteServiceImpl implements CommentWriteService {
 
         // 评论中，@了机器人，那么开启评论对线模式
         if (trigger) {
-            log.info("评论「{}」 开启了在线互怼模式", comment);
+            log.info("评论「{}」 开启了AI机器人:{}", comment, botEnum);
             // sourceBizId: 主要用于构建聊天对话，以顶级评论 + 用户id作为唯一标识
             // 避免出现一个顶级评论开启对线，后续的回复中有其他用户参与进来时，因为用户id不同，这样传递给大模型的上下文就不会出现交叉
-            haterBot.trigger(comment.getContent(), "comment:" + topCommentId + "_" + comment.getUserId(), reply -> {
-                aiReply(haterBotUserId, reply, comment);
-            });
+            AiBotEnum finalBotEnum = botEnum;
+            aiBots.trigger(botEnum, initQAUserPrompt(botEnum, comment)
+                    , "comment:" + topCommentId + "_" + comment.getUserId()
+                    , reply -> aiReply(finalBotEnum, reply, comment)
+                    , initQABotSystemPrompt(botEnum, comment));
         }
     }
 
-    private void aiReply(Long aiUserId, String replyContent, CommentDO parentComment) {
+
+    private String initQAUserPrompt(AiBotEnum bot, CommentDO comment) {
+        if (bot == AiBotEnum.QA_BOT) {
+            String prefix = "";
+            if (StringUtils.isNotBlank(comment.getHighlightInfo())) {
+                HighlightDto highlightDto = JsonUtil.toObj(comment.getHighlightInfo(), HighlightDto.class);
+                if (StringUtils.isNotBlank(highlightDto.getSelectedText())) {
+                    prefix = "这是我从参考资料中选择的一段文本：\"" + highlightDto.getSelectedText() + "\"\n";
+                }
+            }
+
+            return prefix + comment.getContent();
+        } else {
+            return comment.getContent();
+        }
+    }
+
+    /**
+     * 初始化AI机器人的系统提示词
+     *
+     * @param bot     机器人枚举
+     * @param comment 评论
+     * @return 系统提示词
+     */
+    private Supplier<String> initQABotSystemPrompt(AiBotEnum bot, CommentDO comment) {
+        if (bot == AiBotEnum.QA_BOT) {
+            String article = articleReadService.queryArticleContentForAI(comment.getArticleId());
+            return () -> bot.getPrompt() + "\n\n" + article;
+        } else {
+            return bot::getPrompt;
+        }
+    }
+
+    private void aiReply(AiBotEnum aiBot, String replyContent, CommentDO parentComment) {
         CommentSaveReq save = new CommentSaveReq();
         save.setArticleId(parentComment.getArticleId());
         save.setCommentContent(replyContent);
-        save.setUserId(aiUserId);
+        save.setUserId(aiBots.getBotUser(aiBot).getUserId());
         save.setParentCommentId(parentComment.getId());
         save.setTopCommentId(NumUtil.upZero(parentComment.getTopCommentId()) ? parentComment.getTopCommentId() : parentComment.getId());
         SpringUtil.getBean(CommentWriteService.class).saveComment(save);

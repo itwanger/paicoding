@@ -39,6 +39,14 @@ public interface ArticleReadService {
     PageVo<TagDTO> queryTagsByArticleId(Long articleId);
 
     /**
+     * 获取文章内容，用于AI
+     *
+     * @param articleId
+     * @return
+     */
+    String queryArticleContentForAI(Long articleId);
+
+    /**
      * 查询文章详情，包括正文内容，分类、标签等信息
      *
      * @param articleId

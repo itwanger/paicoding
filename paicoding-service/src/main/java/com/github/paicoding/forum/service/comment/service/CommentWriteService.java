@@ -19,9 +19,6 @@ public interface CommentWriteService {
      */
     Long saveComment(CommentSaveReq commentSaveReq);
 
-
-    CommentDO addComment(CommentSaveReq commentSaveReq);
-
     /**
      * 删除评论
      *
