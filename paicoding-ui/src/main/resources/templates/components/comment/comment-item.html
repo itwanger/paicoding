@@ -32,8 +32,9 @@
           </div>
 
           <div
-            class="common-item-content-value"
-            th:text="${comment.commentContent}"
+            class="common-item-content-value comment-content-markdown"
+            th:attr="data-comment-id=${comment.commentId}"
+            th:utext="${comment.commentContent}"
           >
             内容
           </div>
@@ -74,8 +75,9 @@
             </span>
           </div>
           <div
-            class="common-item-content-value"
-            th:text="${reply.commentContent}"
+            class="common-item-content-value comment-content-markdown"
+            th:attr="data-comment-id=${reply.commentId}"
+            th:utext="${reply.commentContent}"
           >
             回复内容
           </div>
