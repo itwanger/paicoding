@@ -67,6 +67,83 @@ public class StrUtil {
     }
 
 
+    /**
+     * 安全地截取HTML内容，确保标签完整性
+     *
+     * @param html      原始HTML内容
+     * @param maxLength 截取长度
+     * @return 截取后的HTML内容
+     */
+    public static String safeSubstringHtml(String html, int maxLength) {
+        if (html == null || html.length() <= maxLength) {
+            return html;
+        }
+
+        try {
+            // 使用Jsoup解析HTML
+            org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parseBodyFragment(html);
+            org.jsoup.nodes.Element body = doc.body();
+
+            // 递归截取内容直到达到指定长度
+            StringBuilder result = new StringBuilder();
+            truncateElement(body, result, maxLength);
+
+            return result.toString();
+        } catch (Exception e) {
+            // 降级处理
+            String subContent = html.substring(0, maxLength);
+            int lastTagEnd = subContent.lastIndexOf('>');
+            if (lastTagEnd > 0 && subContent.lastIndexOf('<') > lastTagEnd) {
+                // 存在未闭合标签，截断到最近的完整标签
+                return subContent.substring(0, lastTagEnd + 1) + "...";
+            }
+            return subContent + "...";
+        }
+    }
+
+    private static void truncateElement(org.jsoup.nodes.Element element, StringBuilder result, int maxLength) {
+        if (result.length() >= maxLength) {
+            return;
+        }
+
+        for (org.jsoup.nodes.Node node : element.childNodes()) {
+            if (result.length() >= maxLength) {
+                break;
+            }
+
+            if (node instanceof org.jsoup.nodes.TextNode) {
+                org.jsoup.nodes.TextNode textNode = (org.jsoup.nodes.TextNode) node;
+                String text = textNode.getWholeText();
+                int availableLength = maxLength - result.length();
+                if (text.length() > availableLength) {
+                    result.append(text, 0, availableLength).append("...");
+                    break;
+                } else {
+                    result.append(text);
+                }
+            } else if (node instanceof org.jsoup.nodes.Element) {
+                org.jsoup.nodes.Element child = (org.jsoup.nodes.Element) node;
+                String tagName = child.tagName();
+                result.append("<").append(tagName);
+
+                // 添加属性
+                for (org.jsoup.nodes.Attribute attr : child.attributes()) {
+                    result.append(" ").append(attr.getKey()).append("=\"").append(attr.getValue()).append("\"");
+                }
+                result.append(">");
+
+                // 递归处理子元素
+                truncateElement(child, result, maxLength);
+
+                // 添加闭合标签
+                if (!child.tag().isSelfClosing()) {
+                    result.append("</").append(tagName).append(">");
+                }
+            }
+        }
+    }
+
+
     public static void main(String[] args) {
         String text = "这是一个有趣的表😄过滤- 123 143 d 哒哒";
         System.out.println(pickWxSupportTxt(text));

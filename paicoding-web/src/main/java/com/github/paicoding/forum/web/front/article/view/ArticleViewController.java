@@ -152,6 +152,9 @@ public class ArticleViewController extends BaseViewController {
         TopCommentDTO hotComment = commentService.queryHotComment(articleId);
         vo.setHotComment(hotComment);
 
+        // 查询文章的划线评论，用于高亮显示
+        List<TopCommentDTO> highlightComments = commentService.queryHighlightComments(articleId);
+        vo.setHighlightComments(highlightComments);
 
         // 作者信息
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());

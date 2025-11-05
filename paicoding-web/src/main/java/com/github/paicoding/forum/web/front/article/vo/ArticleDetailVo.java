@@ -33,6 +33,11 @@ public class ArticleDetailVo {
     private TopCommentDTO hotComment;
 
     /**
+     * 划线引用评论
+     */
+    private List<TopCommentDTO> highlightComments;
+
+    /**
      * 作者相关信息
      */
     private UserStatisticInfoDTO author;

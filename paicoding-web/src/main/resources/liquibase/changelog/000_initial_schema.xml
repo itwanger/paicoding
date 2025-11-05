@@ -141,4 +141,12 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_20250824_1.sql"/>
     </changeSet>
 
+    <!-- 正文划线评论  -->
+    <changeSet id="20251103_1" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251103.sql"/>
+    </changeSet>
+
+    <changeSet id="20251104_1" author="YiHui">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251104.sql"/>
+    </changeSet>
 </databaseChangeLog>

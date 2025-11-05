@@ -104,7 +104,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
 
     // ------------ article content  ----------------
 
-    private ArticleDetailDO findLatestDetail(long articleId) {
+    public ArticleDetailDO findLatestDetail(long articleId) {
         // 查询文章内容
         LambdaQueryWrapper<ArticleDetailDO> contentQuery = Wrappers.lambdaQuery();
         contentQuery.eq(ArticleDetailDO::getDeleted, YesOrNoEnum.NO.getCode())

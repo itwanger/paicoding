@@ -311,6 +311,10 @@ const genTocMenu = function genToc(selector, el) {
       // 更新目录位置
       updateTocPosition(pdfClosed)
 
+      // 如果引用评论在展示,则不显示目录
+      if (!$("#quoteCommentSidebar").is(":visible")) {
+        $(".toc-container").show()
+      }
     } else {
       $(".toc-container").hide()
       $(".pdf.home-right-item-wrap").removeClass("floating hidden")

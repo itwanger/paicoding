@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<!-- 评论列表 -->
+<div
+        th:fragment="comment_highlight(vo)"
+        class="widget"
+        id="commentList">
+    <h3 class="com-nav-bar-title">引用评论</h3>
+    <div class="quote-content">
+        <div class="quote-text" id="quotedText" th:text="${vo.highlight.selectedText}"></div>
+        <div class="quote-comment-form">
+            <!-- 评论列表 -->
+            <div th:replace="components/comment/comment-item :: comment_item(${vo}, 'side')"></div>
+        </div>
+    </div>
+
+    <!-- 二级评论 Modal -->
+    <div
+            class="modal fade"
+            id="commentModal"
+            data-backdrop="static"
+            data-keyboard="false"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="commentModalDropLabel"
+            aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalDropLabel">回复</h5>
+                    <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="repliedContent" class="comment-content-box-content"></p>
+                    <div class="input-group">
+              <textarea
+                      id="replyContent"
+                      placeholder="请输入回复内容"
+                      class="posts-comment-input-box-textarea"
+              ></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                            id="replyBtn"
+                            data-reply-id=""
+                            type="button"
+                            class="btn btn-primary"
+                    >
+                        回复
+                    </button>
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                    >
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,1 @@
+alter table `comment` add column `highlight_info` text comment '划线高亮的评论内容，包含划线内容偏移量，json格式' after `parent_comment_id`;

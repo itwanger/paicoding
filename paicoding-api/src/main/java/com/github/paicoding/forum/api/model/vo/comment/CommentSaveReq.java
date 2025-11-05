@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.comment;
 
+import com.github.paicoding.forum.api.model.vo.comment.dto.HighlightDto;
 import lombok.Data;
 
 /**
@@ -40,4 +41,9 @@ public class CommentSaveReq {
      * 顶级评论ID
      */
     private Long topCommentId;
+
+    /**
+     * 引用的正文内容
+     */
+    private HighlightDto highlight;
 }

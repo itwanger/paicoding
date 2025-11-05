@@ -20,6 +20,7 @@ import com.github.paicoding.forum.service.comment.service.CommentWriteService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
+import com.github.paicoding.forum.web.front.comment.vo.HighlightCommentVo;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -109,6 +110,52 @@ public class CommentRestController {
         TopCommentDTO hotComment = commentReadService.queryHotComment(req.getArticleId());
         vo.setHotComment(hotComment);
         String content = templateEngineHelper.render("views/article-detail/comment/index", vo);
+        return ResVo.ok(content);
+    }
+
+
+    /**
+     * 划线评论
+     *
+     * @param req
+     * @return
+     */
+    @Permission(role = UserRole.LOGIN)
+    @PostMapping(path = "highlightComment")
+    @ResponseBody
+    public ResVo<HighlightCommentVo> highlightComment(@RequestBody CommentSaveReq req) {
+        if (req.getArticleId() == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章id为空");
+        }
+        ArticleDO article = articleReadService.queryBasicArticle(req.getArticleId());
+        if (article == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
+        }
+
+        // 保存评论
+        req.setUserId(ReqInfoContext.getReqInfo().getUserId());
+        req.setCommentContent(StringEscapeUtils.escapeHtml3(req.getCommentContent()));
+        Long commentId = commentWriteService.saveComment(req);
+        TopCommentDTO comments = commentReadService.queryTopComments(commentId);
+        String content = templateEngineHelper.render("components/comment/comment-highlight", comments);
+        HighlightCommentVo vo = new HighlightCommentVo();
+        vo.setCommentId(commentId);
+        vo.setHtml(content);
+        return ResVo.ok(vo);
+    }
+
+    /**
+     * 获取文章的顶级评论列表
+     *
+     * @param commentId
+     * @return
+     */
+    @Permission(role = UserRole.ALL)
+    @GetMapping(path = "listTopComment")
+    @ResponseBody
+    public ResVo<String> listTopComment(Long commentId) {
+        TopCommentDTO comments = commentReadService.queryTopComments(commentId);
+        String content = templateEngineHelper.render("components/comment/comment-highlight", comments);
         return ResVo.ok(content);
     }
 

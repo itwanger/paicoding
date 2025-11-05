@@ -7,11 +7,17 @@ import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
-import com.github.paicoding.forum.api.model.vo.article.dto.*;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleOtherDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleFlipDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticlesDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.StrUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
@@ -21,6 +27,7 @@ import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
 import com.github.paicoding.forum.web.global.SeoInjectService;
+import liquibase.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -115,6 +122,8 @@ public class ColumnViewController {
         // 热门评论
         TopCommentDTO hotComment = commentReadService.queryHotComment(articleId);
 
+        List<TopCommentDTO> highlightComment = commentReadService.queryHighlightComments(articleId);
+
         // 文章列表
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(columnId);
 
@@ -122,6 +131,7 @@ public class ColumnViewController {
         vo.setArticle(articleDTO);
         vo.setComments(comments);
         vo.setHotComment(hotComment);
+        vo.setHighlightComments(highlightComment);
         vo.setColumn(columnId);
         vo.setSection(section);
         vo.setArticleList(articles);
@@ -207,15 +217,14 @@ public class ColumnViewController {
             }
 
             // 如果没有绑定星球，则返回 10% 的内容
-            // 10% 从全局的配置参数中获取
             int count = Integer.parseInt(globalViewConfig.getZsxqArticleReadCount());
-            return content.substring(0, content.length() * count / 100);
+            return StrUtil.safeSubstringHtml(content, content.length() * count / 100);
         }
 
         if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
             // 如果是登录阅读，但是用户没有登录，则返回 20% 的内容
             int count = Integer.parseInt(globalViewConfig.getNeedLoginArticleReadCount());
-            return content.substring(0, content.length() * count / 100);
+            return StrUtil.safeSubstringHtml(content, content.length() * count / 100);
         }
 
         return content;
