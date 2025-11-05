@@ -188,6 +188,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
                     , "comment:" + topCommentId + "_" + comment.getUserId()
                     , reply -> aiReply(finalBotEnum, reply, comment)
                     , initQABotSystemPrompt(botEnum, comment));
+            log.info("任务已完成提交~");
         }
     }
 
