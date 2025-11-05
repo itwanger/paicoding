@@ -9,18 +9,23 @@ import com.github.paicoding.forum.api.model.vo.comment.dto.BaseCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.SubCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
-import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.statistics.service.CountService;
+import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -160,19 +165,54 @@ public class CommentReadServiceImpl implements CommentReadService {
             return null;
         }
 
-        TopCommentDTO result = CommentConverter.toTopDto(comment);
-        // 查询子评论
-        List<CommentDO> subComments = commentDao.listSubCommentIdMappers(articleId, Collections.singletonList(comment.getId()));
-        List<SubCommentDTO> subs = subComments.stream().map(CommentConverter::toSubDto).collect(Collectors.toList());
-        result.setChildComments(subs);
+        return buildTopCommentInfo(comment);
+    }
 
-        // 填充评论信息
-        fillTopCommentInfo(result);
-        return result;
+
+    @Override
+    public List<TopCommentDTO> queryHighlightComments(Long articleId) {
+        List<CommentDO> comments = commentDao.listHighlightCommentList(articleId);
+        if (CollectionUtils.isEmpty(comments)) {
+            return Collections.emptyList();
+        }
+        return comments.stream().map(CommentConverter::toTopDto).collect(Collectors.toList());
     }
 
     @Override
     public int queryCommentCount(Long articleId) {
         return commentDao.commentCount(articleId);
+    }
+
+
+    /**
+     * 查询顶级评论及之下的所有评论
+     *
+     * @param commentId 评论id
+     * @return 顶级评论及之下的所有评论
+     */
+    @Override
+    public TopCommentDTO queryTopComments(Long commentId) {
+        CommentDO topComment = commentDao.getById(commentId);
+        if (topComment == null) {
+            return null;
+        }
+        return buildTopCommentInfo(topComment);
+    }
+
+    private TopCommentDTO buildTopCommentInfo(CommentDO topComment) {
+        // 1.获取顶级评论id
+        Long commentId = topComment.getId();
+        // 2.查询非一级评论
+        List<CommentDO> subComments = commentDao.listSubCommentIdMappers(topComment.getArticleId(), Collections.singletonList(commentId));
+
+        // 3.构建顶级评论实体
+        TopCommentDTO top = CommentConverter.toTopDto(topComment);
+
+        // 4.将非一级评论对象添加到顶级评论中
+        Map<Long, TopCommentDTO> topComments = MapUtils.create(top.getCommentId(), top);
+        buildCommentRelation(subComments, topComments);
+        TopCommentDTO dto = topComments.get(commentId);
+        fillTopCommentInfo(dto);
+        return top;
     }
 }

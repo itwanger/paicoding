@@ -48,6 +48,11 @@ public class ColumnArticlesDTO {
     private TopCommentDTO hotComment;
 
     /**
+     * 划线高亮评论
+     */
+    private List<TopCommentDTO> highlightComments;
+
+    /**
      * 文章目录列表
      */
     private List<SimpleArticleDTO> articleList;

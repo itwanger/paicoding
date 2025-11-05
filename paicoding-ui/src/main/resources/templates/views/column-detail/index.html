@@ -7,6 +7,9 @@
   </div>
 
   <link rel="stylesheet" href="/css/views/column-detail.css" th:href="${global.siteInfo.oss + '/css/views/column-detail.css'}" />
+  <script src="/js/biz/selection.js" th:src="${global.siteInfo.oss + '/js/biz/selection.js'}"></script>
+  <script src="/js/biz/highlightcomment.js" th:src="${global.siteInfo.oss + '/js/biz/highlightcomment.js'}"></script>
+  <script src="/js/biz/ai-comment.js" th:src="${global.siteInfo.oss + '/js/biz/ai-comment.js'}"></script>
 
   <body id="body">
     <!-- 导航栏 -->
@@ -28,7 +31,7 @@
                       aria-controls="collapseMenu"
                       aria-expanded="false"
                       aria-label="Toggle docs navigation"
-                      th:data-toggle-tooltip="tooltip" 
+                      th:data-toggle-tooltip="tooltip"
                       title="展开/收起专栏目录">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false">
                   <title>专栏目录</title>
@@ -44,7 +47,7 @@
                       aria-controls="contentMenuCollapse"
                       aria-expanded="false"
                       aria-label="Toggle table of contents"
-                      th:data-toggle-tooltip="tooltip" 
+                      th:data-toggle-tooltip="tooltip"
                       title="展开/收起文章目录">
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <title>文章目录</title>
@@ -66,19 +69,55 @@
               </div>
             </div>
           </div>
-          
+
           <!-- 文章内容导航 -->
-          <div id="toc-container-position"></div>
-          <div class="right-container toc-container column collapse d-md-block toc-responsive" id="contentMenuCollapse" style="display: none;">
-            <div class="widget rounded ">
-              <h3 class="com-nav-bar-title">目录</h3>
-              <div id="contentMenu" class="toc toc-sticky"></div>
+          <div class="right-container toc-container column collapse d-md-block toc-responsive layout-side">
+            <div class="right-container">
+              <div id="toc-container-position" class="right-container"></div>
+              <div class="right-container toc-container column collapse d-md-block toc-responsive" id="contentMenuCollapse">
+                <div class="widget rounded ">
+                  <h3 class="com-nav-bar-title">目录</h3>
+                  <div id="contentMenu" class="toc toc-sticky"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 引用评论侧边栏 -->
+            <div id="quoteCommentSidebar" class="right-container quote-comment-sidebar" style="display: none;">
+              <div class="widget">
+                <h3 class="com-nav-bar-title">划词评论</h3>
+                <div class="quote-content">
+                  <div class="quote-text" id="quotedText"></div>
+                  <div class="quote-comment-form comment-input-container">
+                    <textarea id="quoteCommentInput" placeholder="写下您的评论..." class="form-control"></textarea>
+
+                    <div class="comment-toolbar">
+                      <div class="toolbar-left">
+                        <div class="ai-bot-selector" id="aiBotSelector">
+                          <button type="button" class="ai-bot-btn" id="aiBotBtn">
+                            🤖
+                          </button>
+                          <div class="ai-bot-dropdown" id="aiBotDropdown" style="top: 100%; bottom: auto;">
+                            <div class="ai-bot-option" data-bot="hater">杠精AI</div>
+                            <div class="ai-bot-option" data-bot="smart">派聪明</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="toolbar-right">
+                        <span class="comment-count"><span id="commentCount">0</span>/512</span>
+                        <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
+
           <!--   文章分享   -->
           <div class="modal fade" id="shareModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-dialog-centered" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title">分享文章</h5>
@@ -96,6 +135,29 @@
                       <div class="input-group-append">
                         <button class="btn btn-primary" type="button" onclick="copyAndClose()">复制</button>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 引用评论弹窗 (移动端) -->
+          <div class="modal fade" id="quoteCommentModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">引用评论</h5>
+                  <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="quote-content">
+                    <div class="quote-text" id="quotedTextModal"></div>
+                    <div class="quote-comment-form">
+                      <textarea id="quoteCommentInputModal" placeholder="写下您的评论..." class="form-control"></textarea>
+                      <button id="submitQuoteCommentModal" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
                     </div>
                   </div>
                 </div>
@@ -157,6 +219,17 @@
     const isLogin = [[${ global.isLogin }]]
     const currentUserId = isLogin ? [[${ global.user != null ? global.user.userId : '' }]] : '';
     const currentUserAvatar = isLogin ? [[${ global.user != null ? global.user.photo : '' }]] : '';
+
+
+    // 为选中的文本添加下划线样式
+    const highlightComments = [[${vo.highlightComments}]];
+    console.log('highlightComments:', highlightComments)
+    if (highlightComments) {
+      // 初始化文章的下划线样式
+      initUnderlineToSelection(highlightComments);
+    }
+
+
     $("#praiseBtn").on('click', function () {
       if (!isLogin) {
         // 未登录，不执行相关操作
@@ -358,6 +431,12 @@
         topCommentId: replyBtn.attr("data-reply-top"),
       }
       post("/comment/api/post", params, function (data) {
+        // 对于侧边栏的评论回复
+        if (replyBtn.attr("data-reply-top")) {
+          // 刷新侧边的引用评论内容
+          showQuoteCommentWithComments(replyBtn.attr("data-reply-top"));
+        }
+
         document.getElementById("commentDiv").innerHTML = data
         bindCommentInputEvent()
       })

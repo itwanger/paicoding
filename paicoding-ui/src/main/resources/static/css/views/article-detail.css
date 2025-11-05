@@ -1,3 +1,19 @@
+/* 确保文章内容区域允许文本选择 */
+#articleContent {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* 确保评论图标在移动端可点击 */
+#comment-icon {
+  -webkit-touch-callout: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 .detail-content-title {
   color: rgba(0, 0, 0, 0.85);
@@ -167,3 +183,182 @@
 }
 
 
+/* 引用评论侧边栏样式 */
+.quote-content {
+  margin-bottom: 3rem;
+}
+.quote-comment-sidebar {
+  position: sticky;
+  top: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  max-height: 80vh;
+  margin-top: 20px;
+  overflow-y: auto;
+}
+
+.quote-comment-sidebar .widget {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.quote-comment-sidebar .com-nav-bar-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.quote-comment-form .comment-list-wrap {
+  padding: 0;
+}
+
+.quote-text {
+  background: #f8f9fa;
+  color: var(--pai-color-999-gray);
+  border-left: 4px solid var(--pai-brand-2-hover);
+  padding: 12px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.quote-comment-form #quoteCommentInput {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 14px;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.quote-comment-form #quoteCommentInput:focus {
+  outline: none;
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.quote-comment-form .c-btn {
+  font-size: 14px;
+}
+
+.quote-comment-form .c-btn:disabled {
+  background-color: var(--pai-brand-4-disable);
+  cursor: not-allowed;
+}
+
+.quote-comment-form .c-btn:disabled:hover {
+  background-color: var(--pai-color-5-gray);
+}
+
+/* 引用评论弹窗样式 (移动端) */
+
+#quoteCommentModal .widget {
+  border-radius: 8px;
+  background: white;
+  margin: 15vh 10vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  width: 100vw;
+}
+
+#quoteCommentModal .modal-content {
+  border-radius: 8px;
+  background: white;
+  margin: 15vh 10vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0px;
+}
+
+
+#quoteCommentModal .modal-header {
+  border-bottom: 1px solid #eee;
+  padding: 15px 20px;
+}
+
+#quoteCommentModal .modal-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#quoteCommentModal .quote-text {
+  background: #f8f9fa;
+  color: var(--pai-color-999-gray);
+  border-left: 4px solid var(--pai-brand-2-hover);
+  padding: 12px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+#quoteCommentModal .quote-comment-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#quoteCommentModal .quote-comment-form textarea:focus {
+  outline: none;
+  border-color: var(--pai-brand-2-hover);
+  box-shadow: 0 0 0 2px var(--pai-brand-3-click);
+}
+
+#quoteCommentModal .quote-comment-form .c-btn {
+  width: 100%;
+  font-size: 14px;
+}
+
+#quoteCommentModal .quote-comment-form .c-btn:disabled {
+  background-color: var(--pai-brand-4-disable);
+  cursor: not-allowed;
+}
+
+#quoteCommentModal .quote-comment-form .c-btn:disabled:hover {
+  background-color: var(--pai-color-5-gray);
+}
+
+/* 评论图标样式 */
+#comment-icon {
+  position: absolute;
+  cursor: pointer;
+  z-index: 1000;
+  background: var(--pai-brand-8-light);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+#comment-icon:hover {
+  background: var(--pai-brand-2-hover);
+  transform: scale(1.1);
+}

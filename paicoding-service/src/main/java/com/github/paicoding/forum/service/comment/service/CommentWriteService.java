@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.comment.service;
 
 import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
+import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 
 /**
  * 评论Service接口

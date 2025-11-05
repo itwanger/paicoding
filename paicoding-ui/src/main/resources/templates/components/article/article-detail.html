@@ -132,7 +132,7 @@
        aria-hidden="true"
        th:if="${other.readType == 4 && article.canRead != null && article.canRead == false}"
   >
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
@@ -166,7 +166,7 @@
        aria-hidden="true"
        th:if="${other.readType == 4}"
   >
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
@@ -208,7 +208,7 @@
        aria-labelledby="deleteModalDropLabel"
        aria-hidden="true"
   >
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
@@ -334,6 +334,7 @@
       console.log(loginRead, user)
       if (user == null) {
         // 未加入星球，展示弹窗
+        console.log('显示星球弹窗')
         $('#starModel').modal('show');
       } else {
         if (user.starStatus == "FORMAL") {

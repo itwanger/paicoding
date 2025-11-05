@@ -4,9 +4,7 @@ import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatSessionItemVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.bot.AiBots;
-import com.github.paicoding.forum.service.chatai.bot.HaterBot;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.chatai.service.ChatHistoryService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
@@ -62,9 +60,9 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
         List<ChatItemVo> list = RedisClient.lRange(getChatIdKey(source, userId, chatId), 0, size, ChatItemVo.class);
 
         // 对于特殊的交互机器人，自动补齐相关的提示词
-        ChatItemVo prompt = aiBots.autoBuildPrompt(userId);
+        ChatItemVo prompt = aiBots.autoBuildPrompt(userId, chatId);
         if (prompt != null) {
-            list.add(prompt);
+            list.add(0, prompt);
         }
         return list;
     }
