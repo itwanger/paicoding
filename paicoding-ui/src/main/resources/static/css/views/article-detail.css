@@ -150,6 +150,9 @@
 }
 
 /* 引用评论侧边栏样式 */
+.quote-content {
+  margin-bottom: 3rem;
+}
 .quote-comment-sidebar {
   position: sticky;
   top: 20px;
@@ -193,7 +196,7 @@
   overflow-y: auto;
 }
 
-.quote-comment-form textarea {
+.quote-comment-form #quoteCommentInput {
   width: 100%;
   min-height: 100px;
   padding: 10px;
@@ -201,12 +204,16 @@
   border-radius: 4px;
   resize: vertical;
   font-size: 14px;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-.quote-comment-form textarea:focus {
+.quote-comment-form #quoteCommentInput:focus {
   outline: none;
-  border-color: var(--pai-brand-2-hover);
-  box-shadow: 0 0 0 2px var(--pai-brand-3-click);
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .quote-comment-form .c-btn {

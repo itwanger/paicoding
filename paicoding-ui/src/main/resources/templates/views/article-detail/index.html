@@ -68,12 +68,29 @@
             <!-- 引用评论侧边栏 -->
             <div id="quoteCommentSidebar" class="right-container quote-comment-sidebar" style="display: none;">
               <div class="widget">
-                <h3 class="com-nav-bar-title">引用评论</h3>
+                <h3 class="com-nav-bar-title">划词评论</h3>
                 <div class="quote-content">
                   <div class="quote-text" id="quotedText"></div>
-                  <div class="quote-comment-form">
+                  <div class="quote-comment-form comment-input-container">
                     <textarea id="quoteCommentInput" placeholder="写下您的评论..." class="form-control"></textarea>
-                    <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+
+                    <div class="comment-toolbar">
+                      <div class="toolbar-left">
+                        <div class="ai-bot-selector" id="aiBotSelector">
+                          <button type="button" class="ai-bot-btn" id="aiBotBtn">
+                            🤖
+                          </button>
+                          <div class="ai-bot-dropdown" id="aiBotDropdown" style="top: 100%; bottom: auto;">
+                            <div class="ai-bot-option" data-bot="hater">杠精AI</div>
+                            <div class="ai-bot-option" data-bot="smart">派聪明</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="toolbar-right">
+                        <span class="comment-count"><span id="commentCount">0</span>/512</span>
+                        <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

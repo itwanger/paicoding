@@ -154,7 +154,7 @@
                 <div th:replace="views/user/pay/pay :: user_pay(${vo.payQrCodes})"></div>
             </div>
             <div class="modal-footer pr-4">
-                <button id="publish" type="button" class="btn btn-primary">
+                <button id="publishUserInfoBtn" type="button" class="btn btn-primary">
                     保存
                 </button>
             </div>
@@ -165,7 +165,7 @@
     let personImgWrap = $(".person-img-wrap"), pic = $("#pic"),
         upload = $("#upload");
 
-    $("#publish").on("click", function () {
+    $("#publishUserInfoBtn").on("click", function () {
         doPostUserInfo(false)
     })
 
@@ -221,7 +221,7 @@
         }
 
         // 收款码信息
-        console.log(qrMap);
+        console.log("准备更新用户信息：", qrMap);
 
         post("/user/api/saveUserInfo", params, function (data) {
             console.log("返回结果:", data);
