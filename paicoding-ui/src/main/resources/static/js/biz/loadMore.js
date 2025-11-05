@@ -10,6 +10,20 @@ const loadMore = function (loadMoreSelector, url, params, listId, callback) {
   let lastReqCondition = "" // 上一次请求条件
   let isNeedMore = true // 是否需要加载更多的标志
 
+  if (!params["triggerThreshold"]) {
+      // 定义一个检测是否为微信浏览器的函数
+      const isWeixinBrowser = () => {
+          const userAgent = navigator.userAgent.toLowerCase();
+          return userAgent.includes('micromessenger');
+      }
+      let triggerThreshold = 100;
+      // 如果是微信浏览器
+      if (isWeixinBrowser()) {
+          triggerThreshold = 400;
+      }
+      params["triggerThreshold"] = triggerThreshold;
+  }
+
   // 滚动事件处理函数
   const handleScroll = () => {
     const scrollEle = document.querySelector("html") // 获取滚动元素
