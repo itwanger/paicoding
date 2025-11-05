@@ -413,7 +413,7 @@ function showQuoteCommentForm(text) {
                 <div class="quote-content">
                   <div class="quote-text" id="quotedText">${text}</div>
                   <div class="quote-comment-form comment-input-container">
-                    <textarea id="quoteCommentInput" placeholder="写下您的评论，可选择@派聪明和杠精AI..." class="form-control"></textarea>
+                    <textarea id="quoteCommentInput" placeholder="写下您的评论，可选择@派聪明或者@杠精派..." class="form-control"></textarea>
 
                     <div class="comment-toolbar">
                       <div class="toolbar-left">
@@ -422,7 +422,7 @@ function showQuoteCommentForm(text) {
                             🤖
                           </button>
                           <div class="ai-bot-dropdown" id="sideAiBotDropdown" style="top: 100%; bottom: auto;">
-                            <div class="ai-bot-option" data-bot="hater">杠精AI</div>
+                            <div class="ai-bot-option" data-bot="hater">杠精派</div>
                             <div class="ai-bot-option" data-bot="smart">派聪明</div>
                           </div>
                         </div>
@@ -598,7 +598,7 @@ function initQuoteEvent() {
                 // 根据机器人类型设置前缀文本
                 let prefix = '';
                 if (botType === 'hater') {
-                    prefix = '@杠精机器人 ';
+                    prefix = '@杠精派 ';
                 } else if (botType === 'smart') {
                     prefix = '@派聪明 ';
                 }

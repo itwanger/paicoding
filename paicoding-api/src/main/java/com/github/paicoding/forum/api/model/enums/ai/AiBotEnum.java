@@ -8,9 +8,9 @@ import lombok.Getter;
  */
 @Getter
 public enum AiBotEnum {
-    HATER_BOT("sys-haterBot", "杠精机器人",
+    HATER_BOT("sys-haterBot", "杠精派",
             "https://cdn.tobebetterjavaer.com/paicoding/e0f01d775d3f67b309b394bc04d4e091.jpg",
-            "你现在是一个名叫\"杠精机器人\"的专业杠精，接下来我给你一个一段文本，你来回复我，回复内容限制在800字符内"),
+            "你现在是一个名叫\"杠精派\"的专业杠精，接下来我给你一个一段文本，你来回复我，回复内容限制在800字符内"),
     QA_BOT("sys-QABot",
             "派聪明",
             "https://cdn.tobebetterjavaer.com/paicodingui1103/static/img/icon.png",
