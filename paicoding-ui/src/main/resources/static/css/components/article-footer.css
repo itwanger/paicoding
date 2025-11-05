@@ -42,9 +42,9 @@
   height: 2px;
   width: 25%;
   background: linear-gradient(
-    270deg,
-    var(--pai-brand-1-normal),
-    var(--pai-color-fff-normal)
+          270deg,
+          var(--pai-brand-1-normal),
+          var(--pai-color-fff-normal)
   );
 }
 
@@ -56,9 +56,9 @@
   height: 2px;
   width: 25%;
   background: linear-gradient(
-    90deg,
-    var(--pai-brand-1-normal),
-    var(--pai-color-fff-normal)
+          90deg,
+          var(--pai-brand-1-normal),
+          var(--pai-color-fff-normal)
   );
 }
 
@@ -132,12 +132,127 @@
   flex: 1;
 }
 
-.comment-write-textarea {
+/* 新增的评论输入框容器样式 */
+.comment-input-container {
   width: 100%;
-  border: 1px solid var(--pai-color-999-gray);
-  border-radius: 2px;
-  padding: 8px 16px;
-  margin-bottom: 10px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--pai-color-999-gray);
+  transition: box-shadow 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.comment-input-container:focus-within {
+  box-shadow: 0 0 0 2px var(--pai-brand-3-click);
+}
+
+/* 使用更高特异性的选择器来确保样式不会被全局样式覆盖 */
+.comment-input-container .comment-write-textarea {
+  width: 100%;
+  border: none !important;
+  outline: none !important;
+  border-radius: 0;
+  padding: 12px 16px;
+  margin-bottom: 0;
+  resize: none;
+  min-height: 100px;
+  box-sizing: border-box;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+.comment-input-container .comment-write-textarea:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.comment-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 0 0 4px 4px;
+}
+
+.toolbar-left {
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* AI机器人选择器样式 */
+.ai-bot-selector {
+  position: relative;
+  display: inline-block;
+  /* 确保下拉菜单有足够的z-index */
+  z-index: 1001;
+}
+
+.ai-bot-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--pai-color-999-gray);
+}
+
+.ai-bot-btn:hover {
+  background-color: #e9ecef;
+  color: var(--pai-brand-2-hover);
+}
+
+.ai-bot-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 120px;
+  padding: 4px 0;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  /* 添加额外的z-index确保不会被遮挡 */
+  z-index: 9999;
+}
+
+.ai-bot-dropdown.show {
+  display: block;
+}
+
+.ai-bot-option {
+  display: block;
+  padding: 6px 12px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ai-bot-option:hover {
+  background-color: #f5f5f5;
+  color: var(--pai-brand-2-hover);
+}
+
+.comment-count {
+  font-size: 12px;
+  color: var(--pai-color-999-gray);
 }
 
 .comment-write-btn {
@@ -228,7 +343,7 @@
   padding: 1em 1.5em;
   position: relative;
   transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease,
-    box-shadow 0.1s ease;
+  box-shadow 0.1s ease;
   color: #276f86;
   font-size: 0.8em;
 }
