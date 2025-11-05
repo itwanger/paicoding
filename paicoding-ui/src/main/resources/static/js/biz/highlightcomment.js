@@ -154,8 +154,9 @@ function initUnderLine(comment) {
                 // 创建一个新的范围来包装选中的文本
                 const newNode = document.createElement('span');
                 newNode.style.textDecoration = 'underline';
-                newNode.style.textDecorationColor = '#ff6900';
-                newNode.style.textDecorationStyle = 'wavy';
+                newNode.style.textDecorationColor = '#ff8721';
+                newNode.style.textDecorationStyle = 'solid';
+                newNode.style.textDecorationThickness = '2px';
                 newNode.className = 'selected-text-highlight';
                 // 添加评论ID属性，用于点击时获取评论数据
                 newNode.setAttribute('data-comment-id', comment.commentId);
@@ -202,8 +203,10 @@ function applyUnderlineToSelection(range) {
         // 创建一个新的范围来包装选中的文本
         const newNode = document.createElement('span');
         newNode.style.textDecoration = 'underline';
-        newNode.style.textDecorationColor = '#ff6900';
-        newNode.style.textDecorationStyle = 'wavy';
+        newNode.style.textDecorationColor = '#ff8721';
+        newNode.style.textDecorationStyle = 'solid';
+        newNode.style.textDecorationThickness = '2px';
+        newNode.style.backgroundColor = 'rgba(255, 105, 0, 0.08)';
         newNode.className = 'selected-text-highlight';
 
         // 使用 surroundContents 方法包装选中的内容
@@ -410,7 +413,7 @@ function showQuoteCommentForm(text) {
                 <div class="quote-content">
                   <div class="quote-text" id="quotedText">${text}</div>
                   <div class="quote-comment-form comment-input-container">
-                    <textarea id="quoteCommentInput" placeholder="写下您的评论..." class="form-control"></textarea>
+                    <textarea id="quoteCommentInput" placeholder="写下您的评论，可选择@派聪明和杠精AI..." class="form-control"></textarea>
 
                     <div class="comment-toolbar">
                       <div class="toolbar-left">

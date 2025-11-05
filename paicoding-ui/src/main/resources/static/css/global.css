@@ -1340,3 +1340,7 @@ button:focus {
   line-height: 1.6;
   text-align: center;
 }
+
+.selected-text-highlight {
+  cursor: pointer;
+}
