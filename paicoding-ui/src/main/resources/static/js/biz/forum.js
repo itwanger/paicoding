@@ -426,7 +426,7 @@ const genTocMenu = function genToc(selector, el) {
 						<div class="arCatalog">
 							<div class="arCatalog-line" style="height: 100%"></div>
 							<div class="arCatalog-body" style="max-height: ${catalogHeight}px; height: ${catalogHeight}px">
-								<dl style="margin-top: ${marginTop}px">`
+								<dl>`
     let h2Index = 0,
       h3Index = 1,
       acIndex = "",
@@ -501,7 +501,7 @@ const genTocMenu = function genToc(selector, el) {
       }
     }
 
-    catalogDl.style.marginTop = marginTop + "px"
+    // catalogDl.style.marginTop = marginTop + "px"
   }
 
   // 动画实现滚动到目标位置
