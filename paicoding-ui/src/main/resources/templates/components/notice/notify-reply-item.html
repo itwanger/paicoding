@@ -32,7 +32,13 @@
           的评论
         </div>
       </div>
-      <div class="notification-comment" th:text="${msg.msg}">m</div>
+      <div class="notification-comment">
+        <a th:href="'/article/detail/' + ${msg.relatedId} + '#comment-' + ${msg.commentId}"
+           th:text="${msg.msg}"
+           style="color: inherit; text-decoration: none; cursor: pointer;">
+          m
+        </a>
+      </div>
 
       <div class="notification-bottom">
         <span

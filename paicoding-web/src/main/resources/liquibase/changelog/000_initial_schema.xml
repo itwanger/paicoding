@@ -151,7 +151,8 @@
     </changeSet>
 
     <!-- 修改杠精机器人名称为杠精派  -->
-    <changeSet id="20251105_1_1" author="沉默王二">
+    <!-- 通知表添加评论ID字段  -->
+    <changeSet id="20251105_2" author="沉默王二">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251105_1.sql"/>
     </changeSet>
 </databaseChangeLog>

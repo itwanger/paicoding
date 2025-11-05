@@ -25,6 +25,12 @@ public class NotifyMsgDO extends BaseDO {
     private Long relatedId;
 
     /**
+     * 关联的评论ID
+     * - 用于回复通知时，存储被回复的评论ID，方便跳转到具体评论位置
+     */
+    private Long commentId;
+
+    /**
      * 消息内容
      */
     private String msg;

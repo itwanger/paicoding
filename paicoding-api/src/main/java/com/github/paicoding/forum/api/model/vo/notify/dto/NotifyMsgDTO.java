@@ -21,6 +21,11 @@ public class NotifyMsgDTO implements Serializable {
     private String relatedId;
 
     /**
+     * 关联的评论ID
+     */
+    private Long commentId;
+
+    /**
      * 关联信息
      */
     private String relatedInfo;
