@@ -406,12 +406,29 @@ function showQuoteCommentForm(text) {
         const sidebar = document.getElementById('quoteCommentSidebar');
         // 重新初始化这块内容
         sidebar.innerHTML = `<div class="widget">
-                <h3 class="com-nav-bar-title">化词评论</h3>
+                <h3 class="com-nav-bar-title">划词评论</h3>
                 <div class="quote-content">
                   <div class="quote-text" id="quotedText">${text}</div>
-                  <div class="quote-comment-form">
+                  <div class="quote-comment-form comment-input-container">
                     <textarea id="quoteCommentInput" placeholder="写下您的评论..." class="form-control"></textarea>
-                    <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+
+                    <div class="comment-toolbar">
+                      <div class="toolbar-left">
+                        <div class="ai-bot-selector" id="sideAiBotSelector">
+                          <button type="button" class="ai-bot-btn" id="sideAiBotBtn">
+                            🤖
+                          </button>
+                          <div class="ai-bot-dropdown" id="sideAiBotDropdown" style="top: 100%; bottom: auto;">
+                            <div class="ai-bot-option" data-bot="hater">杠精AI</div>
+                            <div class="ai-bot-option" data-bot="smart">派聪明</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="toolbar-right">
+                        <span class="comment-count"><span id="sideCommentCount">0</span>/512</span>
+                        <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>`
@@ -553,16 +570,67 @@ function initQuoteEvent() {
         if (sidebar && sidebar.style.display !== 'none' && !sidebar.contains(e.target) && e.target !== commentInput) {
             hideQuoteCommentSidebar();
         }
+
+        // 添加 AI 机器人下拉框控制
+        const aiBotBtn = document.getElementById('sideAiBotBtn');
+        const aiBotDropdown = document.getElementById('sideAiBotDropdown');
+
+        if (aiBotBtn && aiBotBtn.contains(e.target)) {
+            // 切换下拉框显示状态
+            if (aiBotDropdown) {
+                aiBotDropdown.style.display = 'block';
+            }
+            e.stopPropagation();
+        } else if (aiBotDropdown && aiBotDropdown.style.display === 'block') {
+            // 点击其他地方隐藏下拉框
+            aiBotDropdown.style.display = 'none';
+        }
+
+        if (e.target.classList.contains('ai-bot-option')) {
+            const botType = e.target.getAttribute('data-bot');
+            const commentInput = document.getElementById('quoteCommentInput');
+            const aiBotDropdown = document.getElementById('sideAiBotDropdown');
+
+            if (commentInput && aiBotDropdown) {
+                // 根据机器人类型设置前缀文本
+                let prefix = '';
+                if (botType === 'hater') {
+                    prefix = '@杠精机器人 ';
+                } else if (botType === 'smart') {
+                    prefix = '@派聪明 ';
+                }
+
+                // 在输入框前缀添加机器人文本
+                const currentValue = commentInput.value;
+                if (!currentValue.startsWith(prefix)) {
+                    commentInput.value = prefix + currentValue;
+                }
+
+                // 隐藏下拉框
+                aiBotDropdown.style.display = 'none';
+
+                // 聚焦到输入框
+                commentInput.focus();
+                // 触发 input 事件以更新按钮状态和计数
+                commentInput.dispatchEvent(new Event('input'));
+            }
+        }
     });
 
     // 监听引用评论输入框
-    document.getElementById('quoteCommentInput').addEventListener('input', function () {
+    document.getElementById('quoteCommentInput')?.addEventListener('input', function () {
         const submitBtn = document.getElementById('submitQuoteComment');
         submitBtn.disabled = this.value.trim() === '';
+
+        // 更新文本计数
+        const commentCount = document.getElementById('sideCommentCount');
+        if (commentCount) {
+            commentCount.textContent = this.value.length;
+        }
     });
 
     // 提交引用评论
-    document.getElementById('submitQuoteComment').addEventListener('click', function () {
+    document.getElementById('submitQuoteComment')?.addEventListener('click', function () {
         const commentInput = document.getElementById('quoteCommentInput');
         const commentContent = commentInput.value.trim();
 
@@ -596,7 +664,11 @@ function initQuoteEvent() {
 
             // 显示成功消息
             toastr.success("评论发表成功");
-            document.getElementById('quoteCommentSidebar').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+            if (isMobileDevice()) {
+                document.getElementById('quoteCommentSidebar').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+            } else {
+                document.getElementById('quoteCommentSidebar').innerHTML = data.html;
+            }
         });
     });
 }
