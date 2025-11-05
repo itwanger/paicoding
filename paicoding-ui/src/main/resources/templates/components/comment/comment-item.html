@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 一级评论及其回复 -->
   <div th:fragment="comment_item(comment, pos)" class="comment-list-wrap">
-    <div class="comment-item-wrap">
+    <div class="comment-item-wrap" th:id="'comment-' + ${comment.commentId}">
       <div class="comment-item-top">
         <a th:href="${'/user/' + comment.userId}" target="_blank">
           <img th:src="${comment.userPhoto}" class="comment-item-img" />
@@ -51,6 +51,7 @@
       th:if="${!#lists.isEmpty(comment.childComments)}"
       th:each="reply : ${comment.childComments}"
       class="comment-item-wrap-second"
+      th:id="'comment-' + ${reply.commentId}"
     >
       <div class="comment-item-top">
         <a th:href="${'/user/' + reply.userId}" target="_blank">

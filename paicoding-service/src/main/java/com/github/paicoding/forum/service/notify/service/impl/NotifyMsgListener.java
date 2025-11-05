@@ -132,9 +132,10 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         msg.setNotifyUserId(parent.getUserId())
                 .setOperateUserId(comment.getUserId())
                 .setRelatedId(comment.getArticleId())
+                .setCommentId(comment.getId())
                 .setType(event.getNotifyType().getType())
                 .setState(NotifyStatEnum.UNREAD.getStat()).setMsg(comment.getContent());
-        // 回复同样支持多次回复，不做幂等校验
+        // 回复同样支持多次回复,不做幂等校验
         notifyMsgDao.save(msg);
 
         // 消息通知

@@ -17,6 +17,7 @@
         m.type as type,
         m.state as state,
         m.related_id as relatedId,
+        m.comment_id as commentId,
         a.title as relatedInfo,
         m.create_time as createTime
         from notify_msg as m
