@@ -154,6 +154,23 @@ public class NotifyServiceImpl implements NotifyService {
     }
 
     /**
+     * 给用户发送消息通知（带类型）
+     * @param userId 用户id
+     * @param type 通知类型
+     * @param msg 通知内容
+     */
+    @Override
+    public void notifyToUser(Long userId, NotifyTypeEnum type, String msg) {
+        // 组装 JSON 格式的消息：{"type":"reply","message":"您的评价收到一个新的回复"}
+        String jsonMsg = String.format("{\"type\":\"%s\",\"message\":\"%s\"}",
+                type.name().toLowerCase(),
+                msg.replace("\"", "\\\""));
+        wsUserSessionCache.getUnchecked(userId).forEach(s -> {
+            WebSocketResponseUtil.sendMsgToUser(s, NOTIFY_TOPIC, jsonMsg);
+        });
+    }
+
+    /**
      * 用户建立连接时，添加用户信息
      *
      * @param userId  用户id

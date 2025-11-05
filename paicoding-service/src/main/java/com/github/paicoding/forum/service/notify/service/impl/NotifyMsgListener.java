@@ -116,7 +116,8 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         notifyMsgDao.save(msg);
 
         // 消息通知
-        notifyService.notifyToUser(msg.getNotifyUserId(), String.format("您的文章《%s》收到一个新的评论，快去看看吧", article.getTitle()));
+        notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.COMMENT,
+                String.format("您的文章《%s》收到一个新的评论，快去看看吧", article.getTitle()));
     }
 
     /**
@@ -137,7 +138,8 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         notifyMsgDao.save(msg);
 
         // 消息通知
-        notifyService.notifyToUser(msg.getNotifyUserId(), String.format("您的评价《%s》收到一个新的回复，快去看看吧", parent.getContent()));
+        notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.REPLY,
+                String.format("您的评价《%s》收到一个新的回复，快去看看吧", parent.getContent()));
     }
 
     /**
@@ -165,9 +167,10 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为一个用户对一篇文章，可以重复的点赞、取消点赞，但是最终我们只通知一次
             notifyMsgDao.save(msg);
             // 消息通知
-            notifyService.notifyToUser(msg.getNotifyUserId(), String.format("太棒了，您的%s %s数+1!!!",
-                    Objects.equals(foot.getDocumentType(), DocumentTypeEnum.ARTICLE.getCode()) ? "文章" : "评论",
-                    event.getNotifyType().getMsg()));
+            notifyService.notifyToUser(msg.getNotifyUserId(), event.getNotifyType(),
+                    String.format("太棒了，您的%s %s数+1!!!",
+                            Objects.equals(foot.getDocumentType(), DocumentTypeEnum.ARTICLE.getCode()) ? "文章" : "评论",
+                            event.getNotifyType().getMsg()));
         }
     }
 
@@ -222,7 +225,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
 
-            notifyService.notifyToUser(msg.getNotifyUserId(), "恭喜您获得一枚新粉丝~");
+            notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.FOLLOW, "恭喜您获得一枚新粉丝~");
         }
     }
 
@@ -257,7 +260,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
             // 若之前已经有对应的通知，则不重复记录；因为用户的关注是一对一的，可以重复的关注、取消，但是最终我们只通知一次
             notifyMsgDao.save(msg);
 
-            notifyService.notifyToUser(msg.getNotifyUserId(), "您有一个新的系统通知消息，请注意查收");
+            notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.SYSTEM, "您有一个新的系统通知消息，请注意查收");
         }
     }
 
@@ -309,13 +312,16 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
 
         if (payStatus == PayStatusEnum.PAYING) {
             // 支付中
-            notifyService.notifyToUser(msg.getNotifyUserId(), String.format("您的文章《%s》收到一份打赏，请及时确认~", article.getTitle()));
+            notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.SYSTEM,
+                    String.format("您的文章《%s》收到一份打赏，请及时确认~", article.getTitle()));
         } else if (payStatus == PayStatusEnum.SUCCEED) {
             // 支付成功
-            notifyService.notifyToUser(msg.getNotifyUserId(), String.format("您对文章《%s》的支付已完成，刷新即可阅读全文哦~", article.getTitle()));
+            notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.SYSTEM,
+                    String.format("您对文章《%s》的支付已完成，刷新即可阅读全文哦~", article.getTitle()));
         } else if (payStatus == PayStatusEnum.FAIL) {
             // 支付失败
-            notifyService.notifyToUser(msg.getNotifyUserId(), String.format("您对文章《%s》的支付未成功，请重试一下吧~", article.getTitle()));
+            notifyService.notifyToUser(msg.getNotifyUserId(), NotifyTypeEnum.SYSTEM,
+                    String.format("您对文章《%s》的支付未成功，请重试一下吧~", article.getTitle()));
         }
     }
 }

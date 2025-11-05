@@ -59,7 +59,7 @@ $(document).ready(function () {
     // 选择AI机器人选项
     $aiBotOptions.on('click', function () {
         const botType = $(this).data('bot');
-        const botName = botType === 'hater' ? '杠精机器人' : '派聪明';
+        const botName = botType === 'hater' ? '杠精派' : '派聪明';
 
         // 在文本框中添加@机器人标签
         const currentText = $commentTextarea.val();

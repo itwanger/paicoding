@@ -149,4 +149,9 @@
     <changeSet id="20251104_1" author="YiHui">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251104.sql"/>
     </changeSet>
+
+    <!-- 修改杠精机器人名称为杠精派  -->
+    <changeSet id="20251105_1_1" author="沉默王二">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251105_1.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -64,6 +64,15 @@ public interface NotifyService {
      */
     void notifyToUser(Long userId, String msg);
 
+    /**
+     * ws: 给用户发送消息通知（带类型）
+     *
+     * @param userId 用户id
+     * @param type   通知类型
+     * @param msg    通知内容
+     */
+    void notifyToUser(Long userId, NotifyTypeEnum type, String msg);
+
 
     /**
      * ws: 维护与用户的长连接通道

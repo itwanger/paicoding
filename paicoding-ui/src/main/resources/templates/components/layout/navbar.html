@@ -682,7 +682,20 @@
             userWsAckTime = now();
 
             if (message.body != 'pong') {
-              let html = `<div>${message.body}</div><div><a href="/notice/" target="_blank" style="color:blue"> 查看详情 </a></div>`
+              // 解析 JSON 格式的消息
+              let type = 'comment'; // 默认类型
+              let messageText = message.body;
+              try {
+                const msgObj = JSON.parse(message.body);
+                if (msgObj.type && msgObj.message) {
+                  type = msgObj.type;
+                  messageText = msgObj.message;
+                }
+              } catch (e) {
+                // 如果不是 JSON 格式，保持原有逻辑（兼容旧消息）
+                console.log("非 JSON 格式的消息:", message.body);
+              }
+              let html = `<div>${messageText}</div><div><a href="/notice/${type}" target="_blank" style="color:blue"> 查看详情 </a></div>`
               toastr.success(html);
             }
           });
