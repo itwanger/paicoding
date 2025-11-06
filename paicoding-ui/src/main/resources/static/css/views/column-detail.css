@@ -432,17 +432,61 @@
   position: absolute;
   bottom: 0;
   z-index: 10;
-  width: 50px;
-  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 14px;
-  border-radius: 50%;
-  background-color: var(--pai-brand-1-normal);
-  color: var(--pai-color-fff-normal);
   user-select: none;
+  transition: all 0.3s ease;
+}
+
+.article-change-item:hover {
+  transform: scale(1.1);
+}
+
+.article-change-item:active {
+  transform: scale(1.05);
+}
+
+.article-change-item svg {
+  transition: all 0.3s ease;
+  width: 50px;
+  height: 50px;
+  padding: 13px;
+  border-radius: 50%;
+  background-color: white;
   box-shadow: 0 4px 10px rgb(0 0 0 / 15%);
+}
+
+.article-change-item:hover svg {
+  box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+}
+
+/* 评论数徽章样式 */
+.article-change-item.with-badge::after {
+  content: attr(badge);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background-color: white;
+  color: #333;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e0e0e0;
+  line-height: 1;
+}
+
+/* 隐藏评论数为0的徽章 */
+.article-change-item.with-badge[badge="0"]::after {
+  display: none;
 }
 
 .step-btn--prev .article-change-item {
