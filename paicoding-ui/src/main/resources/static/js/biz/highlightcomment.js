@@ -71,7 +71,7 @@ function showCommentIcon(range) {
     // 创建评论图标
     const commentIcon = document.createElement('div');
     commentIcon.id = 'comment-icon';
-    commentIcon.innerHTML = '💬';
+    commentIcon.innerHTML = '🤖';
 
 
     // 获取选中文本的位置
