@@ -11,9 +11,10 @@ import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -39,7 +40,11 @@ public class AiBotService {
 
     private Map<AiBotEnum, BaseUserInfoDTO> botUsers = new HashMap<>();
 
-    @PostConstruct
+    /**
+     * 在应用完全启动后初始化 AI 机器人用户
+     * 使用 ApplicationReadyEvent 确保 Liquibase 已完成数据库表创建
+     */
+    @EventListener(ApplicationReadyEvent.class)
     public void initBotUser() {
         for (AiBotEnum bot : AiBotEnum.values()) {
             BaseUserInfoDTO user = userService.queryUserByLoginName(bot.getUserName());
