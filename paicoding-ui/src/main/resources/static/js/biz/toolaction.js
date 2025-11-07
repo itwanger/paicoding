@@ -118,10 +118,9 @@ const copyShortUrl = async function() {
 // 绑定分享按钮点击事件
 $(document).ready(function() {
     $("#shareFloatBtn, #shareFloatBtnMd").click(function() {
-        // if (!isLogin) {
-        //     // 未登录时的处理
-        //     return;
-        // }
+        if (!isLogin) {
+            return;
+        }
         shareArticle();
     });
 });
