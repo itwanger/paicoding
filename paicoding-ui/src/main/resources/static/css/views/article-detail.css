@@ -152,7 +152,6 @@
 /* 文章详情页目录样式优化 - 解决双滚动条问题 */
 .article-detail {
   position: relative;
-  z-index: 1; /* 确保页面滚动条可见 */
 }
 
 .article-detail .toc-container {

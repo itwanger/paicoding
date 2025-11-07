@@ -10,7 +10,6 @@
   overflow-y: auto;
   padding: 20px 0;
   position: relative; /* 创建定位上下文 */
-  z-index: 1; /* 确保滚动条在较低的层级，但仍然可见 */
 }
 
 .article-content-inter-wrap {
