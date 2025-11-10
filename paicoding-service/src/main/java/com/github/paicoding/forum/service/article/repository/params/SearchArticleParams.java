@@ -45,4 +45,9 @@ public class SearchArticleParams extends PageParam {
      * 是否置顶: 0-不置顶，1-置顶
      */
     private Integer toppingStat;
+
+    /**
+     * URL slug,用于SEO友好URL
+     */
+    private String urlSlug;
 }

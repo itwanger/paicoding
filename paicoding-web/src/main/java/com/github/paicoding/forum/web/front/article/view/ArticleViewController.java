@@ -29,6 +29,7 @@ import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.article.vo.ArticleEditVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
 import com.github.paicoding.forum.web.global.SeoInjectService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -120,25 +122,77 @@ public class ArticleViewController extends BaseViewController {
 
 
     /**
-     * 文章详情页
-     * - 参数解析知识点
-     * - fixme * [1.Get请求参数解析姿势汇总 | 一灰灰Learning](https://hhui.top/spring-web/01.request/01.190824-springboot%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8Bweb%E7%AF%87%E4%B9%8Bget%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90%E5%A7%BF%E5%8A%BF%E6%B1%87%E6%80%BB/)
+     * 新的文章详情页URL (SEO优化版本)
+     * URL格式: /article/detail/{articleId}/{urlSlug}
+     * 示例: /article/detail/123/spring-boot-tutorial
      *
-     * @param articleId
-     * @return
+     * @param articleId 文章ID
+     * @param urlSlug   URL友好的文章标识
+     * @param model     视图模型
+     * @param response  HTTP响应,用于设置301状态码
+     * @return 视图名称或重定向URL
      */
-    @GetMapping("detail/{articleId}")
-    public String detail(@PathVariable(name = "articleId") Long articleId, Model model) throws IOException {
+    @GetMapping("detail/{articleId}/{urlSlug}")
+    public String detailWithSlug(@PathVariable(name = "articleId") Long articleId,
+                                 @PathVariable(name = "urlSlug") String urlSlug,
+                                 Model model,
+                                 HttpServletResponse response) throws IOException {
         // 针对专栏文章，做一个重定向
         ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
         if (columnArticle != null) {
             return String.format("redirect:/column/%d/%d", columnArticle.getColumnId(), columnArticle.getSection());
         }
 
+        // 获取文章基本信息以验证slug
+        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+
+        // 检查slug是否正确,如果不正确则301永久重定向到正确的URL
+        if (StringUtils.isNotBlank(articleDTO.getUrlSlug()) && !articleDTO.getUrlSlug().equals(urlSlug)) {
+            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+            return "redirect:/article/detail/" + articleId + "/" + articleDTO.getUrlSlug();
+        }
+
+        // 构建详情页视图
+        return buildDetailView(articleId, model);
+    }
+
+    /**
+     * 旧的文章详情页URL (仅ID版本,兼容性保留)
+     * URL格式: /article/detail/{articleId}
+     * 直接显示内容,不重定向(保持向后兼容)
+     *
+     * @param articleId 文章ID
+     * @param model     视图模型
+     * @param response  HTTP响应
+     * @return 视图名称
+     */
+    @GetMapping("detail/{articleId}")
+    public String detail(@PathVariable(name = "articleId") Long articleId,
+                        Model model,
+                        HttpServletResponse response) throws IOException {
+        // 针对专栏文章，做一个重定向
+        ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
+        if (columnArticle != null) {
+            return String.format("redirect:/column/%d/%d", columnArticle.getColumnId(), columnArticle.getSection());
+        }
+
+        // 直接显示内容,不重定向(保持向后兼容,避免影响已有的SEO)
+        return buildDetailView(articleId, model);
+    }
+
+    /**
+     * 构建文章详情页视图
+     * 提取公共逻辑,避免代码重复
+     *
+     * @param articleId 文章ID
+     * @param model     视图模型
+     * @return 视图名称
+     */
+    private String buildDetailView(Long articleId, Model model) throws IOException {
         ArticleDetailVo vo = new ArticleDetailVo();
         // 文章相关信息
         ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        // 根据文章类型，来自动处理文章类容
+        // 根据文章类型，来自动处理文章内容
         String content = articleReadViewServiceExtend.formatArticleReadType(articleDTO);
         // 返回给前端页面时，转换为html格式
         articleDTO.setContent(MarkdownConverter.markdownToHtml(content));

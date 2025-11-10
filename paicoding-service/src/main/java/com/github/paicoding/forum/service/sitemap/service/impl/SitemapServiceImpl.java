@@ -15,6 +15,7 @@ import com.github.paicoding.forum.service.sitemap.model.SiteUrlVo;
 import com.github.paicoding.forum.service.sitemap.service.SitemapService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -62,8 +63,31 @@ public class SitemapServiceImpl implements SitemapService {
             return vo;
         }
 
+        // 批量查询文章信息以获取slug
+        List<Long> articleIds = siteMap.keySet().stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        List<ArticleDO> articles = articleDao.listByIds(articleIds);
+        Map<Long, String> slugMap = articles.stream()
+                .collect(Collectors.toMap(ArticleDO::getId,
+                    article -> StringUtils.isNotBlank(article.getUrlSlug()) ? article.getUrlSlug() : "",
+                    (a, b) -> a));
+
         for (Map.Entry<String, Long> entry : siteMap.entrySet()) {
-            vo.addUrl(new SiteUrlVo(host + "/article/detail/" + entry.getKey(), DateUtil.time2utc(entry.getValue())));
+            Long articleId = Long.valueOf(entry.getKey());
+            String slug = slugMap.get(articleId);
+
+            // 优先使用新的SEO友好URL格式,如果没有slug则使用旧格式
+            String url;
+            if (StringUtils.isNotBlank(slug)) {
+                url = host + "/article/detail/" + articleId + "/" + slug;
+            } else {
+                // fallback到旧URL格式(用于还没有slug的旧文章)
+                url = host + "/article/detail/" + articleId;
+            }
+
+            vo.addUrl(new SiteUrlVo(url, DateUtil.time2utc(entry.getValue())));
         }
         return vo;
     }

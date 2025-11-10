@@ -30,6 +30,9 @@ public class SearchArticleReq {
     @ApiModelProperty("是否置顶: 0-不置顶，1-置顶")
     private Integer toppingStat;
 
+    @ApiModelProperty("URL slug,用于SEO友好URL")
+    private String urlSlug;
+
     @ApiModelProperty("请求页数，从1开始计数")
     private long pageNumber;
 
