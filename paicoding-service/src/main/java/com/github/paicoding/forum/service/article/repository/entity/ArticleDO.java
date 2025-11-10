@@ -41,6 +41,11 @@ public class ArticleDO extends BaseDO {
     private String shortTitle;
 
     /**
+     * URL友好的文章标识,用于SEO优化
+     */
+    private String urlSlug;
+
+    /**
      * 文章头图
      */
     private String picture;

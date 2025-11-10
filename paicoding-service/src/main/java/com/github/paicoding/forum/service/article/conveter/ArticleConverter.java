@@ -13,6 +13,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.core.util.PriceUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.CategoryDO;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
@@ -38,6 +39,17 @@ public class ArticleConverter {
         article.setId(req.getArticleId());
         article.setTitle(req.getTitle());
         article.setShortTitle(req.getShortTitle());
+
+        // 生成URL友好的slug用于SEO优化
+        if (StringUtils.isNotBlank(req.getUrlSlug())) {
+            // 如果用户指定了urlSlug(如从admin后台),则使用用户指定的
+            article.setUrlSlug(req.getUrlSlug());
+        } else {
+            // 否则自动生成: 优先使用shortTitle,其次使用title
+            String titleForSlug = StringUtils.isNotBlank(req.getShortTitle()) ? req.getShortTitle() : req.getTitle();
+            article.setUrlSlug(UrlSlugUtil.generateSlug(titleForSlug));
+        }
+
         article.setArticleType(ArticleTypeEnum.valueOf(req.getArticleType().toUpperCase()).getCode());
         article.setPicture(req.getCover() == null ? "" : req.getCover());
         article.setCategoryId(req.getCategoryId());
@@ -66,6 +78,7 @@ public class ArticleConverter {
         articleDTO.setArticleType(articleDO.getArticleType());
         articleDTO.setTitle(articleDO.getTitle());
         articleDTO.setShortTitle(articleDO.getShortTitle());
+        articleDTO.setUrlSlug(articleDO.getUrlSlug());
         articleDTO.setSummary(articleDO.getSummary());
         articleDTO.setCover(articleDO.getPicture());
         articleDTO.setSourceType(SourceTypeEnum.formCode(articleDO.getSource()).getDesc());

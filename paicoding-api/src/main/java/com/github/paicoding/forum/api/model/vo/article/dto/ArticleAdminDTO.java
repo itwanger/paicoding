@@ -45,6 +45,11 @@ public class ArticleAdminDTO implements Serializable {
     private String shortTitle;
 
     /**
+     * URL slug,用于SEO友好URL
+     */
+    private String urlSlug;
+
+    /**
      * 封面
      */
     private String cover;

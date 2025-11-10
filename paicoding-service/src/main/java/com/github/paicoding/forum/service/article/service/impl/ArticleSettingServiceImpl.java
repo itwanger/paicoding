@@ -64,6 +64,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (StringUtils.isNotBlank(req.getShortTitle())) {
             article.setShortTitle(req.getShortTitle());
         }
+        if (req.getUrlSlug() != null) {
+            article.setUrlSlug(req.getUrlSlug());
+        }
 
         ArticleEventEnum operateEvent = null;
         if (req.getStatus() != null) {

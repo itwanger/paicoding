@@ -155,4 +155,9 @@
     <changeSet id="20251105_2" author="沉默王二">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251105_1.sql"/>
     </changeSet>
+
+    <!-- 添加 url_slug 字段用于SEO友好的URL  -->
+    <changeSet id="20251110_1" author="Claude">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251110.sql"/>
+    </changeSet>
 </databaseChangeLog>

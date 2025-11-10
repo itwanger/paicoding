@@ -932,7 +932,14 @@
 
     post("/article/api/post", params, function (data) {
       console.log("返回结果:", data)
-      window.location.href = "/article/detail/" + data
+      // data现在是一个对象,包含articleId和urlSlug
+      if (data.urlSlug && data.urlSlug.length > 0) {
+        // 使用新的SEO友好URL
+        window.location.href = "/article/detail/" + data.articleId + "/" + data.urlSlug
+      } else {
+        // 兼容没有slug的情况(理论上不应该发生)
+        window.location.href = "/article/detail/" + data.articleId
+      }
     })
   }
 

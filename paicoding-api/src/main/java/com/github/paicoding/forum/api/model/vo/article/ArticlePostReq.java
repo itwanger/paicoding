@@ -32,6 +32,11 @@ public class ArticlePostReq implements Serializable {
     private String shortTitle;
 
     /**
+     * URL slug,用于SEO友好URL
+     */
+    private String urlSlug;
+
+    /**
      * 分类
      */
     private Long categoryId;

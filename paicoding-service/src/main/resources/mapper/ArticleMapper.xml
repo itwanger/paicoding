@@ -85,11 +85,14 @@
         <if test="searchParams.status != null and searchParams.status != -1">
             and a.status = #{searchParams.status}
         </if>
+        <if test="searchParams.urlSlug != null and searchParams.urlSlug != ''">
+            and a.url_slug = #{searchParams.urlSlug}
+        </if>
     </sql>
 
     <select id="listArticlesByParams"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO">
-        select a.id as article_id, a.title, a.short_title, a.offical_stat,
+        select a.id as article_id, a.title, a.short_title, a.url_slug, a.offical_stat,
                a.topping_stat, a.status, a.cream_stat, a.picture as cover,
                a.update_time,
                u.user_id as author, u.user_name as author_name,u.photo as author_avatar
