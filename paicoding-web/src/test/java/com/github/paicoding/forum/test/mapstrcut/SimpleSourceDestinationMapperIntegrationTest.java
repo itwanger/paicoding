@@ -8,12 +8,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 9/21/23
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = QuickForumApplication.class)
 public class SimpleSourceDestinationMapperIntegrationTest {

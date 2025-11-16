@@ -2,12 +2,6 @@ package com.github.paicoding.forum.test.ai;
 
 import java.util.Arrays;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 8/14/23
- */
 public class TestWenxin {
     public static void main(String[] args) {
         // 写一段冒泡排序

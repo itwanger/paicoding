@@ -3,12 +3,6 @@ package com.github.paicoding.forum.test.mapstrcut;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 9/21/23
- */
 @Mapper
 public interface SimpleSourceDestinationMapper {
     SimpleSourceDestinationMapper INSTANCE = Mappers.getMapper(SimpleSourceDestinationMapper.class);

@@ -4,12 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 6/29/23
- */
 @Data
 public class ZsxqUserPostReq implements Serializable {
     // id

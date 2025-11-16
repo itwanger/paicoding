@@ -2,12 +2,6 @@ package com.github.paicoding.forum.api.model.enums;
 
 import lombok.Getter;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 6/7/23
- */
 @Getter
 public enum ChatSocketStateEnum {
     // code desc

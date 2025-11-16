@@ -12,8 +12,8 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
 
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -83,7 +83,7 @@ public class UserSessionHelper {
         // jwt的校验方式，如果token非法或者过期，则直接验签失败
         try {
             DecodedJWT decodedJWT = verifier.verify(session);
-            String pay = new String(Base64Utils.decodeFromString(decodedJWT.getPayload()));
+            String pay = new String(Base64.getDecoder().decode(decodedJWT.getPayload()));
             // jwt验证通过，获取对应的userId
             String userId = String.valueOf(JsonUtil.toObj(pay, HashMap.class).get("u"));
 

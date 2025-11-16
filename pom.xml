@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.9</version>
+        <version>3.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.github.paicoding.forum</groupId>
@@ -22,11 +22,12 @@
     <description>simple forum by java &amp; spring</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>21</java.version>
         <guava.version>31.1-jre</guava.version>
         <guava.version>31.1-jre</guava.version>
-        <mybaits-plus.version>3.5.4</mybaits-plus.version>
+        <mybaits-plus.version>3.5.7</mybaits-plus.version>
         <druid-spring-boot-starter.version>1.2.20</druid-spring-boot-starter.version>
         <aliyun-sdk-oss.version>3.17.2</aliyun-sdk-oss.version>
         <qrcode-plugin.version>3.0.0</qrcode-plugin.version>
@@ -35,7 +36,7 @@
         <itextpdf.version>5.5.13.3</itextpdf.version>
         <kryo.version>5.4.0</kryo.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
         <ognl.version>3.2.11</ognl.version>
         <knife4j.version>4.0.0</knife4j.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
@@ -160,12 +161,6 @@
                 <groupId>ognl</groupId>
                 <artifactId>ognl</artifactId>
                 <version>${ognl.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
             </dependency>
 
             <!-- 引入 MapStruct -->

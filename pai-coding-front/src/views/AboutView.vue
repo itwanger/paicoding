@@ -83,16 +83,16 @@
               <template #default>
                 <div>
                   <p class="m-1">
-                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>Java基础：</b>熟悉Java基础知识，具备良好编码能力，能熟练应用常见的设计模式；熟练使用集合等基础框架</span>
+                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>语言基础：</b>具备良好编码能力，能熟练应用常见的设计模式；熟悉<b>Java</b>基础知识、熟练使用集合等基础框架；掌握<b>Golang</b>基本使用</span>
                   </p>
                   <p class="m-1">
-                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>MySQL：</b>熟练掌握MySQL，对锁机制、索引有深入了解</span>
+                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>容器技术：</b>掌握<b>Kubernetes</b>的使用，对<b>Kubernetes存储体系与CSI接口规范</b>有深入了解</span>
                   </p>
                   <p class="m-1">
-                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>Redis：</b>熟练使用Redis及其底层原理【底层数据结构、数据持久化机制、多种分布式集群实现方式】</span>
+                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>数据库：</b>熟练掌握<b>MySQL及基本原理</b>【锁机制、索引】；掌握<b>Redis及其底层原理</b>【底层数据结构、数据持久化机制】</span>
                   </p>
                   <p class="m-1">
-                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>框架：</b>会使用SpringMVC、SpringBoot、MyBatis等框架</span>
+                    <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>后端框架：</b>会使用SpringMVC、SpringBoot、MyBatis等框架</span>
                   </p>
                   <p class="m-1">
                     <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>JVM：</b>初步理解JVM原理【类加载机制、内存结构、垃圾回收机制等】</span>
@@ -113,7 +113,28 @@
               <template #header>实习经历</template>
               <template #default>
                 <el-collapse>
-                  <el-collapse-item title="小红书 引擎架构 平台化开发">
+                  <el-collapse-item title="阿里云 Kubernetes存储插件开发 产品架构&稳定性部门">
+                    <template #default>
+                      <div>
+                        <p class="m-1">
+                          <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>实习时间：</b>2025.05 —— 2025.09</span>
+                        </p>
+                        <p class="m-1">
+                          <span class="mr-3"><el-icon size="13"><CaretRight /></el-icon><b>⼯作核⼼：</b>基于k8s的CSI Driver接口编写存储插件，实现动态制备的lvm存储机制。主要技术栈为Kubernetes、golang、lvm、OSS等</span>
+                        </p>
+                        <p class="m-1 ml-2">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;参与设计k8s中动态制备的存储插件设计与实现，利用CSI接口规范编写自定义存储插件的注册、调用与制备过程</span>
+                        </p>
+                        <p class="m-1 ml-2">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;实现存储插件的动态制备能力，利用linux的lvm特性在调度节点上创建持久卷</span>
+                        </p>
+                        <p class="m-1 ml-2">
+                          <span class="mr-3"><el-icon size="11"><InfoFilled /></el-icon>&nbsp;&nbsp;扩展存储插件的快照功能，结合k8s提供的卷快照与lvm的快照机制实现OSS的数据存储，提升安全性</span>
+                        </p>
+                      </div>
+                    </template>
+                  </el-collapse-item>
+                  <el-collapse-item title="小红书 引擎架构-平台化开发">
                     <template #default>
                       <div>
                         <p class="m-1">

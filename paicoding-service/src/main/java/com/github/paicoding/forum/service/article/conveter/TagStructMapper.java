@@ -11,12 +11,6 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 5/29/23
- */
 @Mapper
 public interface TagStructMapper {
     // instance

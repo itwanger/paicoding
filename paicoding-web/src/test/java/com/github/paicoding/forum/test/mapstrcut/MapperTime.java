@@ -2,12 +2,6 @@ package com.github.paicoding.forum.test.mapstrcut;
 
 import java.util.Date;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 11/14/23
- */
 public class MapperTime {
     public static void main(String[] args) {
         Date date = new Date(1695288951000L); // 获取当前时间

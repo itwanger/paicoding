@@ -138,7 +138,7 @@ mvn clean install -DskipTests=true -Pprod
 
 |      工具       | 版本      | 下载                                                                                                                     |
 |:-------------:|:--------|------------------------------------------------------------------------------------------------------------------------|
-|      jdk      | 17+     | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
+|      jdk      | 21+     | [https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) |
 |     maven     | 3.5+    | [https://maven.apache.org/](https://maven.apache.org/)                                                                 |
 |     mysql     | 8.0+    | [https://www.mysql.com/downloads/](https://www.mysql.com/downloads/)                                                   |
 |     redis     | 6.0+    | [https://redis.io/download/](https://redis.io/download/)                                                               |

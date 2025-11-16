@@ -1,6 +1,6 @@
 view:
   site:
-    websiteName: 技术派
+    websiteName: 编程汇
     websiteLogoUrl: https://paicoding.com/img/logo.svg
     websiteFaviconIconUrl: https://paicoding.com/img/icon.png
     contactMeTitle: 联系我 - 小灰飞
@@ -10,8 +10,8 @@ view:
     cdnImgStyle:
     websiteRecord: 备案号:冀ICP备2023036490号-1
     wxLoginUrl: http://weixin.qq.com/r/WxwpMefE-rqBraNS90lJ
-    host: https://paicoding.com
-    welcomeInfo: 欢迎来到技术派，戳 <a href="/article/detail/16">技术派社区上线！</a> 了解我们
+    host: https://www.xuyifei.site
+    welcomeInfo: 欢迎来到编程汇！
     zsxqUrl: ''
     zsxqPosterUrl: ''
     contactMeStarQrCode: https://xuyifei-oss.oss-cn-beijing.aliyuncs.com/tech-pai/images/%E5%85%AC%E4%BC%97%E5%8F%B7qrcode.jpg

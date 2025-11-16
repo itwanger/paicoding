@@ -12,12 +12,6 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 
 import java.util.Arrays;
 
-/**
- * 微信搜索「沉默王二」，回复 Java
- *
- * @author 沉默王二
- * @date 4/15/23
- */
 public class MarkdownConverter {
     // 定义一个静态方法，将 Markdown 文本转换为 HTML
     public static String markdownToHtml(String markdown) {
