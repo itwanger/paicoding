@@ -19,6 +19,7 @@
               <el-dropdown-item><a class="dropdown-item" href="/">首页</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/column">教程</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/chat">LLM</a></el-dropdown-item>
+              <el-dropdown-item v-if="global.isLogin"><a class="dropdown-item" href="/tools/">工具</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/about">关于作者</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/plan">更新计划</a></el-dropdown-item>
             </el-dropdown-menu>
@@ -34,11 +35,14 @@
             <li :class="{'selected-domain': activeTab == '/column'}">
               <a class="nav-link" href="/column">教程</a>
             </li>
-            <li :class="{'selected-domain': activeTab == '/about'}">
-              <a class="nav-link" href="/about">关于作者</a>
-            </li>
             <li :class="{'selected-domain': activeTab == '/chat'}">
               <a class="nav-link" href="/chat">LLM</a>
+            </li>
+            <li v-if="global.isLogin" :class="{'selected-domain': activeTab.startsWith('/tools')}">
+              <a class="nav-link" href="/tools/">工具</a>
+            </li>
+            <li :class="{'selected-domain': activeTab == '/about'}">
+              <a class="nav-link" href="/about">关于作者</a>
             </li>
             <li class="max-lg:hidden" :class="{'selected-domain': activeTab == '/plan'}">
               <a class="nav-link" href="/plan">更新计划</a>
@@ -118,7 +122,6 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item><span @click="personalPage"> 个人主页 </span></el-dropdown-item>
-                  <el-dropdown-item><span @click="toolsPage"> 工具 </span></el-dropdown-item>
                   <el-dropdown-item><span @click="logout"> 登出 </span></el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -195,16 +198,6 @@ const personalPage = () => {
   }else{
     router.push(global.user.userId? '/user/' + global.user.userId: '/login')
   }
-}
-
-// ==========工具主页==========
-const toolsPage = () => {
-  console.log(route.fullPath)
-  if(route.fullPath.includes('/tools/')){
-    messageTip("已经在工具页了", MESSAGE_TYPE.INFO)
-    return
-  }
-  router.push('/tools/')
 }
 
 // ==========退出登录==========

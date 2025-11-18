@@ -5,7 +5,6 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtItemVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
-import com.github.paicoding.forum.service.chatai.service.ChatgptService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,6 @@ public class WxAckHelper {
     private LoginService sessionService;
     @Autowired
     private WxLoginHelper qrLoginHelper;
-
-    @Autowired
-    private ChatgptService chatgptService;
 
     /**
      * 返回自动响应的文本
@@ -47,16 +43,6 @@ public class WxAckHelper {
                     "\n" +
                     "本人的学习项目：<a href=\"http://www.xuyifei.site\">小灰飞的学习项目</a>\n";
         }
-        // 下面是关键词回复
-        else if (chatgptService.inChat(fromUser, content)) {
-            try {
-                textRes = chatgptService.chat(fromUser, content);
-            } catch (Exception e) {
-                log.error("派聪明 访问异常! content: {}", content, e);
-                textRes = "派聪明 出了点小状况，请稍后再试!";
-            }
-        }
-
         // 下面是回复图文消息
         else if ("加群".equalsIgnoreCase(content)) {
             WxImgTxtItemVo imgTxt = new WxImgTxtItemVo();

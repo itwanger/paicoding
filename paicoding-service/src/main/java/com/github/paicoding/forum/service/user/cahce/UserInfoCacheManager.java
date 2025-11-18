@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.service.user.cahce;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserInfoCacheManager {
 
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    // 配置 ObjectMapper 忽略未知字段，避免删除字段后缓存反序列化失败
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 
     public static final String USER_INFO_PREFIX = "user_info:";

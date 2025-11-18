@@ -30,11 +30,6 @@ public class UserPwdLoginReq implements Serializable {
     private String password;
 
     /**
-     * 星球编号
-     */
-    private String starNumber;
-
-    /**
      * 邀请码
      */
     private String invitationCode;

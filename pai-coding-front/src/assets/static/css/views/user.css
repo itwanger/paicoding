@@ -109,7 +109,7 @@
 
 
 .user-wrap {
-  margin: 0 auto;
+  margin: 20px auto;
   max-width: var(--max-width-1200);
   display: flex;
   flex-direction: column;
@@ -122,8 +122,9 @@
   border-radius: 4px;
   padding: 20px;
   background-color: #fff;
-  z-index: 10;
+  z-index: 2;
   margin-right: 20px;
+  position: relative;
 }
 
 .user-content {
@@ -131,9 +132,10 @@
 }
 
 .user-left {
-  z-index: 10;
+  z-index: 2;
   width: 30%;
   border-radius: 8px;
+  position: relative;
 }
 
 /* 关注 */
@@ -305,14 +307,15 @@
   background-repeat: no-repeat;
   background-size: auto 288px;
   position: relative;
-  height: 268px;
-  padding-top: 42px;
+  height: 288px;
+  padding-top: 30px;
 }
 
 @media (max-width: 768px) {
   .user-bg {
     background-size: auto 200px;
     height: 200px;
+    padding-top: 20px;
   }
 
 }
@@ -350,7 +353,8 @@
 .user-head {
   position: relative;
   border-radius: 8px;
-  padding-top: 36px;
+  padding-top: 20px;
+  padding-bottom: 12px;
   background: linear-gradient(
     180deg,
     hsla(0, 0%, 100%, 0.6),
@@ -360,21 +364,21 @@
   max-width: var(--max-width-1200);
   backdrop-filter: blur(10px);
   margin: 0 auto;
-  z-index: 10;
+  z-index: 1;
 }
 
 .user-head-img {
-  width: 90px;
-  height: 90px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background-color: #fff;
   position: absolute;
   left: 40px;
-  top: 13px;
+  top: 10px;
 }
 
 .user-head-title-wrap {
-  margin-left: 160px;
+  margin-left: 140px;
   display: flex;
   justify-content: space-between;
 }
@@ -384,25 +388,27 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 380px;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 500;
-  padding-top: 12px;
+  padding-top: 6px;
 }
 .user-head-title-classify {
   display: flex;
-  height: 86px;
-  padding-top: 20px;
+  height: 70px;
+  padding-top: 10px;
   align-items: center;
 }
 .user-head-title-classify-item {
-  width: 110px;
+  width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
   color: var(--pai-color-4-gray);
+  font-size: 14px;
 }
 .user-head-title-classify-item span:last-child {
-  margin-top: 12px;
+  margin-top: 8px;
+  font-size: 16px;
 }
 
 .user-head-cell {
@@ -414,7 +420,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2px 30px 6px;
+  padding: 0 30px 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .user-edit {
   font-size: 16px;

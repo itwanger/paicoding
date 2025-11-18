@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
-import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.*;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
@@ -184,18 +183,6 @@ public class ColumnRestController {
      * @return
      */
     private String trimContent(int readType, String content) {
-        if (readType == ColumnTypeEnum.STAR_READ.getType()) {
-            // 判断登录用户是否绑定了星球，如果是，则直接阅读完整的专栏内容
-            if (ReqInfoContext.getReqInfo().getUser() != null && ReqInfoContext.getReqInfo().getUser().getStarStatus() == UserAIStatEnum.FORMAL) {
-                return content;
-            }
-
-            // 如果没有绑定星球，则返回 10% 的内容
-            // 10% 从全局的配置参数中获取
-            int count = Integer.parseInt(globalViewConfig.getZsxqArticleReadCount());
-            return content.substring(0, content.length() * count / 100);
-        }
-
         if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
             // 如果是登录阅读，但是用户没有登录，则返回 20% 的内容
             int count = Integer.parseInt(globalViewConfig.getNeedLoginArticleReadCount());

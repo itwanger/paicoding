@@ -39,7 +39,13 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
     private GlobalInitService globalInitService;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {if (handler instanceof HandlerMethod) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // Skip interceptor for async dispatches to avoid conflicts with streaming responses
+        if (request.getDispatcherType() == jakarta.servlet.DispatcherType.ASYNC) {
+            return true;
+        }
+
+        if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Permission permission = handlerMethod.getMethod().getAnnotation(Permission.class);
             if (permission == null) {
@@ -58,9 +64,12 @@ public class GlobalViewInterceptor implements AsyncHandlerInterceptor {
                 if (handlerMethod.getMethod().getAnnotation(ResponseBody.class) != null
                         || handlerMethod.getMethod().getDeclaringClass().getAnnotation(RestController.class) != null) {
                     // 访问需要登录的rest接口
-                    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-                    response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_NOTLOGIN)));
-                    response.getWriter().flush();
+                    // Check if response is already committed (e.g., streaming already started)
+                    if (!response.isCommitted()) {
+                        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                        response.getWriter().println(JsonUtil.toStr(ResVo.fail(StatusEnum.FORBID_NOTLOGIN)));
+                        response.getWriter().flush();
+                    }
                     return false;
                 } else if (request.getRequestURI().startsWith("/api/admin/") || request.getRequestURI().startsWith("/admin/")) {
                     response.sendRedirect("/admin");

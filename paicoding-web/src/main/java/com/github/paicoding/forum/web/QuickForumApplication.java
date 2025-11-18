@@ -8,6 +8,7 @@ import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.model.openai.autoconfigure.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -37,7 +38,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableCaching
 @ServletComponentScan
 //@SpringBootApplication(scanBasePackages = {"com.github.paicoding.forum.web", "com.github.paicoding.forum.service"})
-@SpringBootApplication
+@SpringBootApplication(exclude =
+        {
+                OpenAiAudioSpeechAutoConfiguration.class,
+                OpenAiAudioTranscriptionAutoConfiguration.class,
+                OpenAiChatAutoConfiguration.class,
+                OpenAiEmbeddingAutoConfiguration.class,
+                OpenAiImageAutoConfiguration.class,
+                OpenAiModerationAutoConfiguration.class
+        }
+)
 public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunner {
     @Value("${server.port:8080}")
     private Integer webPort;

@@ -118,57 +118,6 @@
       </div>
     </div>
 
-    <div v-if="articleVo.other && articleVo.other.readType === 3 && !(global.user != null && global.user.starStatus == 'FORMAL')">
-      <div class="needlock">
-        <a class="btn-readmore no-login underline" href="#" target="_blank" data-target="#registerModal" data-toggle="modal">
-          <H2>已加入二哥编程星球，即刻绑定星球编号解锁🔐</H2>
-        </a>
-      </div>
-    </div>
-
-    <!-- 星球详情  -->
-    <div class="modal fade"
-         id="starModel"
-         data-backdrop="static"
-         data-keyboard="false"
-         tabindex="-1"
-         role="dialog"
-         aria-labelledby="deleteModalDropLabel"
-         aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
-              <h5 class="modal-title" id="startModel">该文档仅「二哥编程星球」的VIP用户可见</h5>
-            </a>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div  class="content join-star">
-              <p >二哥的编程星球内容包括：</p>
-              <p ><span class="category">1. 付费文档</span>: 编程汇、MYDB 等项目配套的 120+篇教程查看权限</p>
-              <p ><span class="category">2. 面试指南</span>: 校招、社招的 40 万+字面试求职攻略</p>
-              <p ><span class="category">3. 智能助手</span>: 无限期使用派聪明 AI 助手，已对接讯飞星火和 ChatGPT双通道，不用花 1 分钱</p>
-              <p ><span class="category">5. 简历修改</span>: 提供简历修改服务，附赠星球 100+优质简历模板可供参考</p>
-              <p ><span class="category">6. 学习环境</span>: 打造一个沉浸式的学习环境，有一种高考冲刺、大学考研的氛围</p> <br >
-              <img  src="https://cdn.tobebetterjavaer.com/paicoding/153ba04898384c0c6b03dfe6ce1cbe76.jpg" alt="二哥的星球" style="cursor: zoom-in;width: 100%"> <br >
-              <p >》步骤①：微信扫描上方二维码，点击「加入知识星球」按钮</p>
-              <p >》步骤②：访问星球置顶帖球友必看：
-                <a class="underline" href="https://t.zsxq.com/11rEo9Pdu" target="_blank">https://t.zsxq.com/11rEo9Pdu</a>，获取项目配套文档的语雀访问地址和密码</p>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <a href="#" data-target="#registerModal" data-toggle="modal" type="button" class="btn btn-primary" data-dismiss="modal">
-              已加入星球，绑定星球编号
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
     <!-- 删除文章再次确认 Modal -->
     <div class="modal fade"

@@ -75,10 +75,6 @@ public enum StatusEnum {
     USER_LOGIN_NAME_REPEAT(400_404_003, "用户登录名重复:%s"),
     // 待审核
     USER_NOT_AUDIT(400_500_001, "用户未审核:%s"),
-    // 星球编号不存在
-    USER_STAR_NOT_EXISTS(400_404_002, "星球编号不存在:%s"),
-    // 星球编号重复
-    USER_STAR_REPEAT(400_404_002, "星球编号重复:%s"),
     USER_PWD_ERROR(400_500_002, "用户名or密码错误"),
     // 权限不足
     NO_PERMISSION(400_403_002, "权限不足");

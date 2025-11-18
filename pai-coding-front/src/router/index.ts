@@ -66,11 +66,14 @@ const router = createRouter({
       name: 'column',
       component: () => import('@/views/ColumnView.vue')
     },
-    // ai聊天页
+    // ai聊天页 (Chat V2)
     {
       path: '/chat',
       name: 'chat',
-      component: () => import('@/views/ChatView.vue')
+      component: () => import('@/views/ChatViewV2.vue'),
+      meta: {
+        loginRequired: true
+      }
     },
     // 工具页
     {

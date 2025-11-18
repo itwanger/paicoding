@@ -27,12 +27,6 @@ public class GlobalViewConfig {
 
     private String contactMeWxQrCode;
 
-    private String contactMeStarQrCode;
-
-    private String zsxqUrl;
-
-    private String zsxqPosterUrl;
-
     private String contactMeTitle;
 
     /**
@@ -48,17 +42,9 @@ public class GlobalViewConfig {
     private String welcomeInfo;
 
     /**
-     * 星球信息
-     */
-    private String starInfo;
-
-    /**
      * oss的地址
      */
     private String oss;
-
-    // 知识星球文章可阅读数
-    private String zsxqArticleReadCount;
 
     // 需要登录文章可阅读数
     private String needLoginArticleReadCount;

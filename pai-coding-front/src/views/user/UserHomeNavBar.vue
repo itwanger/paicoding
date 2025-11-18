@@ -8,7 +8,7 @@
   >
     <el-tab-pane label="文章" name="articlesTab" lazy >
       <template #default>
-        <UserHomeNavBarArticleList :articles="articles"></UserHomeNavBarArticleList>
+        <UserHomeNavBarArticleList :articles="articles" empty-description="暂无发布的文章"></UserHomeNavBarArticleList>
         <!--        分页组件-->
         <el-pagination :page-sizes="[10, 20]" hide-on-single-page v-model:current-page="currentArticlesPage" v-model:page-size="articlesPageSize" layout="sizes, prev, pager, next" :page-count="totalArticlesPage" :default-current-page="1"
                        @update:page-size="onArticlesPageSizeChange" @update:current-page="onArticlesCurrentPageChange"
@@ -16,28 +16,28 @@
       </template>
     </el-tab-pane>
     <el-tab-pane v-if="global.user.id == userId" label="浏览记录" name="historyTab" lazy>
-      <UserHomeNavBarArticleList :articles="historyArticles"></UserHomeNavBarArticleList>
+      <UserHomeNavBarArticleList :articles="historyArticles" empty-description="暂无浏览记录"></UserHomeNavBarArticleList>
       <!--        分页组件-->
       <el-pagination :page-sizes="[10, 20]" hide-on-single-page v-model:current-page="currentHistoryArticlesPage" v-model:page-size="historyArticlesPageSize" layout="sizes, prev, pager, next" :page-count="totalHistoryArticlesPage" :default-current-page="1"
                      @update:page-size="onHistoryArticlesPageSizeChange" @update:current-page="onHistoryArticlesCurrentPageChange"
       />
     </el-tab-pane>
     <el-tab-pane label="关注列表" name="followTab" lazy>
-      <UserFollowedList :user="followUsers"></UserFollowedList>
+      <UserFollowedList :user="followUsers" empty-description="暂无关注的用户"></UserFollowedList>
       <!--        分页组件-->
       <el-pagination :page-sizes="[10, 20]" hide-on-single-page v-model:current-page="currentFollowersPage" v-model:page-size="followersPageSize" layout="sizes, prev, pager, next" :page-count="totalFollowersPage" :default-current-page="1"
                      @update:page-size="onFollowersPageSizeChange" @update:current-page="onFollowersCurrentPageChange"
       />
     </el-tab-pane>
     <el-tab-pane label="粉丝列表" name="fansTab" lazy>
-      <UserFollowedList :user="fans"></UserFollowedList>
+      <UserFollowedList :user="fans" empty-description="暂无粉丝"></UserFollowedList>
       <!--        分页组件-->
       <el-pagination :page-sizes="[10, 20]" hide-on-single-page v-model:current-page="currentFansPage" v-model:page-size="fansPageSize" layout="sizes, prev, pager, next" :page-count="totalFansPage" :default-current-page="1"
                      @update:page-size="onFansPageSizeChange" @update:current-page="onFansCurrentPageChange">
       </el-pagination>
     </el-tab-pane>
     <el-tab-pane label="收藏" name="starsTab" lazy>
-      <UserHomeNavBarArticleList :articles="starsArticles"></UserHomeNavBarArticleList>
+      <UserHomeNavBarArticleList :articles="starsArticles" empty-description="暂无收藏的文章"></UserHomeNavBarArticleList>
       <!--        分页组件-->
       <el-pagination :page-sizes="[10, 20]" hide-on-single-page v-model:current-page="currentStarArticlesPage" v-model:page-size="starArticlesPageSize" layout="sizes, prev, pager, next" :page-count="totalStarArticlesPage" :default-current-page="1"
                      @update:page-size="onStarArticlesPageSizeChange" @update:current-page="onStarArticlesCurrentPageChange"

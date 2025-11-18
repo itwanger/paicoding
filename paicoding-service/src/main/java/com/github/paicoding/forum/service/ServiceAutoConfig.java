@@ -16,7 +16,8 @@ import org.springframework.context.annotation.Configuration;
         "com.github.paicoding.forum.service.comment.repository.mapper",
         "com.github.paicoding.forum.service.config.repository.mapper",
         "com.github.paicoding.forum.service.statistics.repository.mapper",
-        "com.github.paicoding.forum.service.notify.repository.mapper",})
+        "com.github.paicoding.forum.service.notify.repository.mapper",
+        "com.github.paicoding.forum.service.chatv2.repository.mapper",})
 public class ServiceAutoConfig {
 
 }

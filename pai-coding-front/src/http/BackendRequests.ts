@@ -180,3 +180,154 @@ export function mockLogin2XML<CommonResponse>(code: string): Promise<AxiosRespon
     withCredentials: true, // 确保发送请求时包含凭证
   });
 }
+
+// ============== Chat V2 API ==============
+
+/**
+ * 获取可用模型列表
+ */
+export function getChatModels<T>(): Promise<AxiosResponse<T>> {
+  return doGet('/chatv2/api/models', {});
+}
+
+/**
+ * 获取默认模型
+ */
+export function getDefaultModel<T>(): Promise<AxiosResponse<T>> {
+  return doGet('/chatv2/api/models/default', {});
+}
+
+/**
+ * 获取会话列表
+ */
+export function getConversations<T>(): Promise<AxiosResponse<T>> {
+  return doGet('/chatv2/api/conversations', {});
+}
+
+/**
+ * 生成新的 conversationId
+ */
+export function generateConversationId<T>(): Promise<AxiosResponse<T>> {
+  return doPost('/chatv2/api/conversation/generate-id', {});
+}
+
+/**
+ * 获取会话详情
+ * 使用路径参数传递 conversationId
+ */
+export function getConversation<T>(conversationId: string): Promise<AxiosResponse<T>> {
+  return doGet(`/chatv2/api/conversation/${conversationId}`, {});
+}
+
+/**
+ * 更新会话标题
+ * 使用路径参数传递 conversationId
+ */
+export function updateConversationTitle<T>(conversationId: string, title: string): Promise<AxiosResponse<T>> {
+  return doPut(`/chatv2/api/conversation/${conversationId}/title`, { title });
+}
+
+/**
+ * 删除会话
+ * 使用路径参数传递 conversationId
+ */
+export function deleteConversation<T>(conversationId: string): Promise<AxiosResponse<T>> {
+  return doDelete(`/chatv2/api/conversation/${conversationId}`, {});
+}
+
+/**
+ * 发送消息（流式响应）
+ * 使用 axios onDownloadProgress 处理流式响应，参考 deepextract 实现
+ * 后端直接返回纯文本流，不带 SSE "data:" 前缀
+ */
+export async function sendChatMessage(
+  message: string,
+  conversationId: string | number,
+  modelId: string | null,
+  onChunk: (chunk: string) => void,
+  onComplete: () => void,
+  onError: (error: Error) => void
+): Promise<void> {
+  let lastLength = 0;
+  let requestCompleted = false;
+  const cancelTokenSource = axios.CancelToken.source();
+
+  const requestConfig = {
+    method: 'post',
+    url: '/chatv2/api/send',
+    data: {
+      conversationId: String(conversationId),
+      modelId,
+      message
+    },
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    responseType: 'text' as const, // 明确指定为文本类型，确保流式响应
+    withCredentials: true,
+    onDownloadProgress: (progressEvent: any) => {
+      if (requestCompleted) return;
+
+      // 获取累积的响应文本（纯文本，不带 SSE 格式）
+      const responseText = progressEvent.event?.target?.responseText || '';
+
+      console.log('📥 Progress event:', {
+        loaded: progressEvent.loaded,
+        total: progressEvent.total,
+        responseTextLength: responseText.length,
+        lastLength: lastLength,
+        newContent: responseText.substring(lastLength, lastLength + 50)
+      });
+
+      // 参考 deepextract: 检查是否完成
+      if (responseText.includes('[DONE]')) {
+        requestCompleted = true;
+        console.log('✅ Stream completed, responseText length:', responseText.length);
+        // 传递原始 responseText，让调用方自己处理清理
+        onChunk(responseText);
+        onComplete();
+        cancelTokenSource.cancel('Stream completed');
+        return;
+      }
+
+      // 检查是否有错误
+      if (responseText.includes('[ERROR]')) {
+        requestCompleted = true;
+        const errorMatch = responseText.match(/\[ERROR\] (.+)/);
+        const errorMsg = errorMatch ? errorMatch[1] : 'Unknown error';
+        console.error('❌ Stream error:', errorMsg);
+        onError(new Error(errorMsg));
+        cancelTokenSource.cancel('Stream error');
+        return;
+      }
+
+      // 参考 deepextract: 直接传递原始 responseText，实现流式更新
+      if (responseText.length > lastLength) {
+        console.log('📝 Updating, length:', responseText.length, 'preview:', responseText.substring(0, 50));
+        onChunk(responseText);
+        lastLength = responseText.length;
+      }
+    },
+    cancelToken: cancelTokenSource.token
+  };
+
+  try {
+    await axios(requestConfig);
+
+    // 请求正常完成但没有触发 [DONE]
+    if (!requestCompleted) {
+      onComplete();
+    }
+  } catch (error: any) {
+    if (axios.isCancel(error)) {
+      // 流式请求被正常取消（已完成）
+      console.log('Stream request cancelled normally');
+      return;
+    }
+
+    if (!requestCompleted) {
+      console.error('Stream error:', error);
+      onError(error);
+    }
+  }
+}

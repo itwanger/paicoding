@@ -26,7 +26,6 @@ import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
-import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.config.service.GlobalConfigService;
 import com.github.paicoding.forum.service.notify.service.RabbitmqService;
 import com.github.paicoding.forum.service.rank.service.listener.UserActivityListener;
@@ -288,21 +287,6 @@ public class TestController {
         configContainer.forceRefresh();
         return JsonUtil.toStr(configContainer.getCache());
     }
-
-    /**
-     * 更新启用的AI模型
-     *
-     * @param ai
-     * @return
-     */
-    @Permission(role = UserRole.ADMIN)
-    @GetMapping("ai/update")
-    public AISourceEnum updateAi(String ai) {
-        ChatFacade chatFacade = SpringUtil.getBean(ChatFacade.class);
-        chatFacade.refreshAiSourceCache(AISourceEnum.valueOf(ai));
-        return chatFacade.getRecommendAiSource();
-    }
-
     @Autowired
     private SensitiveService sensitiveService;
 

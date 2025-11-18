@@ -97,4 +97,19 @@
     <changeSet id="00000000000022" author="XuYifei">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/init_data_231113.sql"/>
     </changeSet>
+
+    <!-- Chat V2: LLM 对话系统重构  -->
+    <changeSet id="00000000000023" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251116_chat_v2.sql"/>
+    </changeSet>
+
+    <!-- Token 配额管理系统  -->
+    <changeSet id="00000000000024" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251117_token_quota.sql"/>
+    </changeSet>
+
+    <!-- 删除知识星球功能  -->
+    <changeSet id="00000000000025" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251118_remove_zsxq.sql"/>
+    </changeSet>
 </databaseChangeLog>

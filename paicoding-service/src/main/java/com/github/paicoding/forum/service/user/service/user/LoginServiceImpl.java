@@ -5,15 +5,11 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserSaveReq;
-import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
-import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.RegisterService;
-import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
-import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -35,13 +31,7 @@ public class LoginServiceImpl implements LoginService {
     private UserDao userDao;
 
     @Autowired
-    private UserAiDao userAiDao;
-
-
-    @Autowired
     private UserSessionHelper userSessionHelper;
-    @Autowired
-    private StarNumberHelper starNumberHelper;
 
     @Autowired
     private RegisterService registerService;
@@ -51,9 +41,6 @@ public class LoginServiceImpl implements LoginService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserAiService userAiService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -100,6 +87,7 @@ public class LoginServiceImpl implements LoginService {
      * @param password 密码
      * @return
      */
+    @Override
     public String loginByUserPwd(String username, String password) {
         UserDO user = userDao.getUserByUserName(username);
         if (user == null) {
@@ -111,9 +99,6 @@ public class LoginServiceImpl implements LoginService {
         }
 
         Long userId = user.getId();
-        // 1. 为了兼容历史数据，对于首次登录成功的用户，初始化ai信息
-        userAiService.initOrUpdateAiInfo(new UserPwdLoginReq().setUserId(userId).setUsername(username).setPassword(password));
-
         // 登录成功，返回对应的session
         ReqInfoContext.getReqInfo().setUserId(userId);
         return userSessionHelper.genToken(userId);
@@ -149,10 +134,9 @@ public class LoginServiceImpl implements LoginService {
                 throw ExceptionUtil.of(StatusEnum.USER_LOGIN_NAME_REPEAT, loginReq.getUsername());
             }
 
-            // 3.2 用户存在，尝试走绑定流程
+            // 3.2 用户存在，密码正确，直接登录
             userId = user.getId();
             loginReq.setUserId(userId);
-            userAiService.initOrUpdateAiInfo(loginReq);
         } else {
             //4. 走用户注册流程
             userId = registerService.registerByUserNameAndPassword(loginReq);
@@ -170,29 +154,6 @@ public class LoginServiceImpl implements LoginService {
     private void registerPreCheck(UserPwdLoginReq loginReq) {
         if (StringUtils.isBlank(loginReq.getUsername()) || StringUtils.isBlank(loginReq.getPassword())) {
             throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
-        }
-
-        String starNumber = loginReq.getStarNumber();
-        // 若传了星球信息，首先进行校验
-        if (StringUtils.isNotBlank(starNumber)) {
-            if (Boolean.FALSE.equals(starNumberHelper.checkStarNumber(starNumber))) {
-                // 星球编号校验不通过，直接抛异常
-                throw ExceptionUtil.of(StatusEnum.USER_STAR_NOT_EXISTS, "星球编号=" + starNumber);
-            }
-
-            UserAiDO userAi = userAiDao.getByStarNumber(starNumber);
-
-            // 如果星球编号已经被绑定了
-            if (userAi != null) {
-                // 判断星球是否已经被绑定了
-                throw ExceptionUtil.of(StatusEnum.USER_STAR_REPEAT, starNumber);
-            }
-        }
-
-        String invitationCode = loginReq.getInvitationCode();
-        if (StringUtils.isNotBlank(invitationCode) && userAiDao.getByInviteCode(invitationCode) == null) {
-            // 填写的邀请码不对, 找不到对应的用户
-            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "非法的邀请码【" + starNumber + "】");
         }
     }
 }

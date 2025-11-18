@@ -14,6 +14,7 @@
         </div>
         <!-- 右侧内容 -->
         <div class="user-left hidden-when-screen-small">
+          <UserTokenQuota v-if="userInfo.userHome && userInfo.userHome.userId" :userId="userInfo.userHome.userId"></UserTokenQuota>
           <UserAchievement :user="userInfo"></UserAchievement>
           <UserHistory :user="userInfo"></UserHistory>
         </div>
@@ -37,6 +38,7 @@ import { useGlobalStore } from '@/stores/global'
 import { defaultUserHomeInfo, type UserHomeInfoResponseType } from '@/http/ResponseTypes/UserHomeInfoResponseType'
 import UserHomeInfo from '@/views/user/UserHomeInfo.vue'
 import UserHomeNavBar from '@/views/user/UserHomeNavBar.vue'
+import UserTokenQuota from '@/views/user/UserTokenQuota.vue'
 import UserAchievement from '@/views/user/UserAchievement.vue'
 import UserHistory from '@/views/user/UserHistory.vue'
 

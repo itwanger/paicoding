@@ -109,6 +109,54 @@
                 <version>${springdoc.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-model-openai</artifactId>
+                <version>1.1.0-M1-PLATFORM</version>
+            </dependency>
+
+            <!-- Spring AI PgVector Store -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-pgvector-store</artifactId>
+                <version>1.1.0-M1-PLATFORM</version>
+            </dependency>
+
+            <!-- Spring AI Transformers（文本切分） -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-transformers</artifactId>
+                <version>1.1.0-M1-PLATFORM</version>
+            </dependency>
+
+            <!-- Spring AI MCP Client (用于调用 MCP 工具) -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-mcp-client</artifactId>
+                <version>1.1.0-M1-PLATFORM</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-mcp-client-webflux</artifactId>
+                <version>1.1.0-M1-PLATFORM</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-mcp-annotations</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+
+            <!-- Spring AI Chat Memory (for ChatMemory interface) -->
+            <!-- Use spring-ai-openai which includes core classes -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-openai</artifactId>
+                <version>1.1.0-M1-PLATFORM</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>

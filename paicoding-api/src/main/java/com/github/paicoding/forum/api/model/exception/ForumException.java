@@ -15,14 +15,17 @@ public class ForumException extends RuntimeException {
     private Status status;
 
     public ForumException(Status status) {
+        super(status.getMsg());
         this.status = status;
     }
 
     public ForumException(int code, String msg) {
+        super(msg);
         this.status = Status.newStatus(code, msg);
     }
 
     public ForumException(StatusEnum statusEnum, Object... args) {
+        super(statusEnum.getMsg());
         this.status = Status.newStatus(statusEnum, args);
     }
 

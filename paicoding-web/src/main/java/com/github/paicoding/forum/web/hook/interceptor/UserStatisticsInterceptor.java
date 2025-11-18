@@ -55,12 +55,23 @@ public class UserStatisticsInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            // Skip interceptor for async dispatches and error dispatches
+            if (request.getDispatcherType() == jakarta.servlet.DispatcherType.ASYNC
+                || request.getDispatcherType() == jakarta.servlet.DispatcherType.ERROR) {
+                return true;
+            }
 
             if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
                 return true;
             }
-            // 更新uv/pv计数
-            SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath());
+
+            // 更新uv/pv计数 - check if ReqInfo is available
+            if (ReqInfoContext.getReqInfo() != null) {
+                SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(
+                    ReqInfoContext.getReqInfo().getClientIp(),
+                    ReqInfoContext.getReqInfo().getPath()
+                );
+            }
 
             // 检查请求中是否包含 SESSION_ID Cookie
             String sessionId = getSessionIdFromCookies(request);
@@ -116,6 +127,12 @@ public class UserStatisticsInterceptor {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            // Skip interceptor for async dispatches and error dispatches
+            if (request.getDispatcherType() == jakarta.servlet.DispatcherType.ASYNC
+                || request.getDispatcherType() == jakarta.servlet.DispatcherType.ERROR) {
+                return true;
+            }
+
             String requestURI = request.getRequestURI();
             if ("/doc.html".equals(requestURI) || requestURI.startsWith("/webjars/") || "/swagger-ui.html".equals(requestURI)) {
                 return true;
@@ -123,8 +140,14 @@ public class UserStatisticsInterceptor {
             if(HttpMethod.OPTIONS.toString().equals(request.getMethod())){
                 return true;
             }
-            // 更新uv/pv计数
-            SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(ReqInfoContext.getReqInfo().getClientIp(), ReqInfoContext.getReqInfo().getPath());
+
+            // 更新uv/pv计数 - check if ReqInfo is available
+            if (ReqInfoContext.getReqInfo() != null) {
+                SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(
+                    ReqInfoContext.getReqInfo().getClientIp(),
+                    ReqInfoContext.getReqInfo().getPath()
+                );
+            }
 
             HttpSession session = request.getSession(true);
             session.setMaxInactiveInterval(30);

@@ -1,54 +1,25 @@
-net:
-  proxy:
-    # 代理相关信息
-    - ip: 127.0.0.1
-      port: 1080
-      type: SOCKS
-
-ai:
-  maxNum:
-    basic: 5 # 默认兜底策略
-    wechat: 10 # 公众号用户
-    star: 30 # 星球用户
-    starTry: 10 # 星球用户
-    invited: 0.1 # 被邀请
-    inviteNum: 0.2 # 邀请人数执行策略
-    starNumber: 4000 # 最大的星球编号
-  source: # 支持的AI模型
-    - CHAT_GPT_3_5
-    - CHAT_GPT_4
-    - PAI_AI
-    - XUN_FEI_AI
-
-# chatgpt
-chatgpt:
-  main: CHAT_GPT_3_5
-  conf:
-    CHAT_GPT_3_5:
-      keys:
-        - # 这里输入你的key
-      proxy: true # 表示走上面的代理进行访问
-      apiHost: https://api.openai.com/
-      timeOut: 900
-      maxToken: 3000
-    CHAT_GPT_4:
-      keys:
-        -
-      proxy: true
-      apiHost: https://api.openai.com/
-      timeOut: 900
-      maxToken: 200000
-  number:
-    # 普通用户
-    normal: 50
-    vip: 100
-
-
-
-# 讯飞AI
-xunfei:
-  hostUrl: https://spark-api.xf-yun.com/v1.1/chat
-  domain: "general"
-  appId:
-  apiKey:
-  apiSecret:
+# Chat V2: Spring AI 模型配置
+# 生产环境请配置实际的API密钥
+chat-v2:
+  models:
+    - id: qwen-plus
+      name: 通义千问-PLUS
+      provider: Alibaba
+      baseUrl: https://dashscope.aliyuncs.com/compatible-mode
+      apiKey: ${QWEN_API_KEY}
+      modelName: qwen-plus
+      maxTokens: 4096
+      temperature: 0.7
+      description: 强大的中文理解和生成能力，适合复杂对话
+      enabled: true
+    - id: deepseek-v3
+      name: deepseek-v3
+      provider: DeepSeek
+      baseUrl: https://dashscope.aliyuncs.com/compatible-mode
+      apiKey: ${DEEPSEEK_API_KEY}
+      modelName: deepseek-v3
+      maxTokens: 8192
+      temperature: 0.8
+      description: 高性价比的开源模型，支持长上下文
+      enabled: true
+  default-model: qwen-plus

@@ -14,15 +14,12 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.cahce.UserInfoCacheManager;
 import com.github.paicoding.forum.service.user.converter.UserConverter;
-import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
 import com.github.paicoding.forum.service.user.repository.entity.IpInfo;
-import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
-import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
@@ -52,9 +49,6 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
 
     @Resource
-    private UserAiDao userAiDao;
-
-    @Resource
     private UserRelationDao userRelationDao;
 
     @Autowired
@@ -68,9 +62,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserPwdEncoder userPwdEncoder;
-
-    @Autowired
-    private UserAiService userAiService;
 
     @Autowired
     private UserInfoCacheManager userInfoCacheManager;
@@ -131,9 +122,7 @@ public class UserServiceImpl implements UserService {
             userDao.updateById(user);
         }
 
-        // 查询 user_ai信息，标注用户是否为星球专属用户
-        UserAiDO userAiDO = userAiDao.getByUserId(userId);
-        return UserConverter.toDTO(user, userAiDO);
+        return UserConverter.toDTO(user);
     }
 
     @Override
@@ -240,8 +229,5 @@ public class UserServiceImpl implements UserService {
         user.setUserName(loginReq.getUsername());
         user.setPassword(userPwdEncoder.encPwd(loginReq.getPassword()));
         userDao.saveUser(user);
-
-        // 2. 更新ai相关信息
-        userAiService.initOrUpdateAiInfo(loginReq);
     }
 }

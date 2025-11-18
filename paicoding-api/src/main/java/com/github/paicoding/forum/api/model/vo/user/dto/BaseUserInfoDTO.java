@@ -1,7 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
 import com.github.paicoding.forum.api.model.entity.BaseDTO;
-import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
@@ -72,9 +71,4 @@ public class BaseUserInfoDTO extends BaseDTO {
      */
     @Schema(description = "用户最后登录的地理位置", example = "湖北·武汉")
     private String region;
-
-    /**
-     * 星球状态
-     */
-    private UserAIStatEnum starStatus;
 }

@@ -8,15 +8,14 @@ import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.TransactionUtil;
-import com.github.paicoding.forum.service.user.converter.UserAiConverter;
-import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
+import com.github.paicoding.forum.service.chatv2.service.TokenQuotaService;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
-import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserRandomGenHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author XuYifei
  * @date 2024-07-12
  */
+@Slf4j
 @Service
 public class RegisterServiceImpl implements RegisterService {
     @Autowired
@@ -34,8 +34,8 @@ public class RegisterServiceImpl implements RegisterService {
     @Autowired
     private UserDao userDao;
 
-    @Autowired
-    private UserAiDao userAiDao;
+    @Autowired(required = false)
+    private TokenQuotaService tokenQuotaService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -62,9 +62,6 @@ public class RegisterServiceImpl implements RegisterService {
         userInfo.setPhoto(UserRandomGenHelper.genAvatar());
         userDao.save(userInfo);
 
-        // 4. 保存ai相互信息
-        UserAiDO userAiDO = UserAiConverter.initAi(user.getId(), loginReq.getStarNumber());
-        userAiDao.saveOrUpdateAiBindInfo(userAiDO, loginReq.getInvitationCode());
         processAfterUserRegister(user.getId());
         return user.getId();
     }
@@ -89,9 +86,6 @@ public class RegisterServiceImpl implements RegisterService {
         userInfo.setPhoto(UserRandomGenHelper.defaultAvatar());
         userDao.save(userInfo);
 
-        // 3. 保存ai相互信息
-        UserAiDO userAiDO = UserAiConverter.initAi(user.getId());
-        userAiDao.saveOrUpdateAiBindInfo(userAiDO, null);
         processAfterUserRegister(user.getId());
         return user.getId();
     }
@@ -108,6 +102,17 @@ public class RegisterServiceImpl implements RegisterService {
             public void run() {
                 // 用户注册事件
                 SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.REGISTER, userId));
+
+                // 初始化用户 token 配额（ChatV2 功能）
+                if (tokenQuotaService != null) {
+                    try {
+                        tokenQuotaService.initUserQuota(userId);
+                        log.info("Token quota initialized for new user: userId={}", userId);
+                    } catch (Exception e) {
+                        log.error("Failed to initialize token quota for user: userId={}", userId, e);
+                        // 不抛出异常，避免影响注册流程
+                    }
+                }
             }
         });
     }
