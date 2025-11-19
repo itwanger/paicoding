@@ -65,7 +65,7 @@ interface UserModelQuota {
 }
 
 const props = defineProps<{
-  userId: number
+  userId: string
 }>()
 
 const quotas = ref<UserModelQuota[]>([])
@@ -73,7 +73,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response = await doGet<CommonResponse>('/chatv2/api/quota/my-quotas')
+    const response = await doGet<CommonResponse>('/chatv2/api/quota/my-quotas', {})
     if (response.data.status.code === 0) {
       quotas.value = response.data.result || []
     }

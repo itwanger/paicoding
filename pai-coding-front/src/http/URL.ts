@@ -1,11 +1,11 @@
 // ============= 后端请求的地址 =============
 // 后端接口地址
+// 从环境变量中读取配置，支持开发环境和生产环境的自动切换
 
-export const EXCEL_PROCESS_BASE_URL = "https://www.xuyifei.site:5000"
+export const EXCEL_PROCESS_BASE_URL = import.meta.env.VITE_EXCEL_PROCESS_BASE_URL || "http://localhost:5000"
 
-//
-export const BASE_URL = "http://localhost:8081"
-export const WS_URL = "ws://localhost:8081"
+export const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8081/api"
+export const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8081/api"
 
 
 // 获得global信息还有siteInfo信息

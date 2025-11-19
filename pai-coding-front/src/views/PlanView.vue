@@ -86,6 +86,22 @@ const loginDialogClicked = ref(false)
 
 const planText = ref('### 系统更新\n' +
     '\n' +
+    '> 更新时间：2025/11/19\n' +
+    '\n' +
+    '#### 配置优化\n' +
+    '\n' +
+    '- [x] 前端环境配置改造，支持开发/生产环境自动切换\n' +
+    '- [x] 使用Vite环境变量管理API地址，不再硬编码URL\n' +
+    '- [x] 新增.env.development和.env.production配置文件\n' +
+    '- [x] 添加TypeScript类型声明，提供环境变量类型支持\n' +
+    '\n' +
+    '#### Bug修复\n' +
+    '\n' +
+    '- [x] 修复ChatSidebar组件中Conversation类型缺少isEditing属性的TypeScript错误\n' +
+    '- [x] 修复ChatInput组件中conversationId不支持null类型的错误\n' +
+    '- [x] 修复UserTokenQuota组件中doGet调用缺少params参数的错误\n' +
+    '- [x] 修复UserHomeView组件中userId类型不匹配的错误\n' +
+    '\n' +
     '> 更新时间：2025/11/18\n' +
     '\n' +
     '#### 新增功能\n' +

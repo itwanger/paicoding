@@ -16,6 +16,7 @@ export interface Conversation {
   title: string
   updateTime: Date
   createTime: Date
+  isEditing?: boolean
 }
 
 export interface ModelInfo {

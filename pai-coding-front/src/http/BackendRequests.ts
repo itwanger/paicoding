@@ -242,7 +242,7 @@ export function deleteConversation<T>(conversationId: string): Promise<AxiosResp
  */
 export async function sendChatMessage(
   message: string,
-  conversationId: string | number,
+  conversationId: string | number | null,
   modelId: string | null,
   onChunk: (chunk: string) => void,
   onComplete: () => void,
