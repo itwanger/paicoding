@@ -7,7 +7,9 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
@@ -45,6 +47,8 @@ public class SitemapServiceImpl implements SitemapService {
     private ArticleDao articleDao;
     @Resource
     private CountService countService;
+    @Resource
+    private ColumnArticleDao columnArticleDao;
 
     /**
      * 查询站点地图
@@ -69,27 +73,39 @@ public class SitemapServiceImpl implements SitemapService {
                 .collect(Collectors.toList());
 
         List<ArticleDO> articles = articleDao.listByIds(articleIds);
-        Map<Long, String> slugMap = articles.stream()
-                .collect(Collectors.toMap(ArticleDO::getId,
-                    article -> StringUtils.isNotBlank(article.getUrlSlug()) ? article.getUrlSlug() : "",
-                    (a, b) -> a));
+        Map<Long, ArticleDO> articleMap = articles.stream()
+                .collect(Collectors.toMap(ArticleDO::getId, article -> article, (a, b) -> a));
 
         for (Map.Entry<String, Long> entry : siteMap.entrySet()) {
             Long articleId = Long.valueOf(entry.getKey());
-            String slug = slugMap.get(articleId);
+            ArticleDO article = articleMap.get(articleId);
+            if (article == null) {
+                continue;
+            }
 
-            // 优先使用新的SEO友好URL格式,如果没有slug则使用旧格式
             String url;
-            if (StringUtils.isNotBlank(slug)) {
-                url = host + "/article/detail/" + articleId + "/" + slug;
+            if (StringUtils.isNotBlank(article.getShortTitle())) {
+                ColumnArticleDO columnArticle = columnArticleDao.selectColumnArticleByArticleId(articleId);
+                if (columnArticle != null) {
+                    url = host + "/column/" + columnArticle.getColumnId() + "/" + columnArticle.getSection();
+                } else {
+                    url = buildArticleUrl(article, articleId);
+                }
             } else {
-                // fallback到旧URL格式(用于还没有slug的旧文章)
-                url = host + "/article/detail/" + articleId;
+                url = buildArticleUrl(article, articleId);
             }
 
             vo.addUrl(new SiteUrlVo(url, DateUtil.time2utc(entry.getValue())));
         }
         return vo;
+    }
+
+    private String buildArticleUrl(ArticleDO article, Long articleId) {
+        if (StringUtils.isNotBlank(article.getUrlSlug())) {
+            return host + "/article/detail/" + articleId + "/" + article.getUrlSlug();
+        } else {
+            return host + "/article/detail/" + articleId;
+        }
     }
 
     /**
