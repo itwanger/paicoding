@@ -7,7 +7,10 @@ import com.github.paicoding.forum.api.model.enums.ai.AiBotEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.async.AsyncUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
+import com.github.paicoding.forum.service.user.repository.dao.UserDao;
+import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,9 @@ public class AiBotService {
     @Autowired
     private RegisterService registerService;
 
+    @Autowired
+    private UserDao userDao;
+
     private Map<AiBotEnum, BaseUserInfoDTO> botUsers = new HashMap<>();
 
     /**
@@ -46,12 +52,21 @@ public class AiBotService {
      */
     @EventListener(ApplicationReadyEvent.class)
     public void initBotUser() {
+        String ossPrefix = SpringUtil.getConfig("view.site.oss", "");
         for (AiBotEnum bot : AiBotEnum.values()) {
             BaseUserInfoDTO user = userService.queryUserByLoginName(bot.getUserName());
+            String avatarUrl = ossPrefix + bot.getAvatar();
+            
             if (user == null) {
-                // 避免某些同学本地使用的版本，无法借助Liquid实现自动初始化AI机器人；我们这里加一个兜底的创建逻辑
-                Long userId = registerService.registerSystemUser(bot.getUserName(), bot.getNickName(), bot.getAvatar());
+                Long userId = registerService.registerSystemUser(bot.getUserName(), bot.getNickName(), avatarUrl);
                 user = userService.queryBasicUserInfo(userId);
+            } else {
+                UserInfoDO userInfoDO = userDao.getByUserId(user.getUserId());
+                if (!avatarUrl.equals(userInfoDO.getPhoto())) {
+                    userInfoDO.setPhoto(avatarUrl);
+                    userDao.updateUserInfo(userInfoDO);
+                    user = userService.queryBasicUserInfo(user.getUserId());
+                }
             }
             botUsers.put(bot, user);
         }

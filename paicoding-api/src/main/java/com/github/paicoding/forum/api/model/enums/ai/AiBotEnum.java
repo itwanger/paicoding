@@ -9,11 +9,11 @@ import lombok.Getter;
 @Getter
 public enum AiBotEnum {
     HATER_BOT("sys-haterBot", "杠精派",
-            "https://cdn.tobebetterjavaer.com/paicoding/e0f01d775d3f67b309b394bc04d4e091.jpg",
+            "/img/itwanger.jpg",
             "你现在是一个名叫\"杠精派\"的专业杠精，接下来我给你一个一段文本，你来回复我，回复内容限制在800字符内"),
     QA_BOT("sys-QABot",
             "派聪明",
-            "https://cdn.tobebetterjavaer.com/paicodingui1103/static/img/icon.png",
+            "/img/icon.png",
             "请你根据用户的提问，理解问题的核心意思，然后结合下面提供的参考资料，给出最清晰、最准确的答案。回答内容控制在800个字符内\n" +
                     "参考资料如下：\n"
     );
