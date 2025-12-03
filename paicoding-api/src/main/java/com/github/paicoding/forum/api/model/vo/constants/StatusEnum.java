@@ -78,7 +78,7 @@ public enum StatusEnum {
     // 星球编号不能为空
     USER_STAR_EMPTY(400_404_002, "星球编号不能为空:%s"),
     // 星球编号重复
-    USER_STAR_REPEAT(400_404_002, "星球编号:%s 已经绑定了，请添加二哥微信 qing_gee 加快审核"),
+    USER_STAR_REPEAT(400_404_002, "星球编号:%s 已经绑定了，请添加二哥微信 qing_gee 加快审核，或切换到登录窗口"),
     USER_PWD_ERROR(400_500_002, "用户名or密码错误");
 
     private int code;
