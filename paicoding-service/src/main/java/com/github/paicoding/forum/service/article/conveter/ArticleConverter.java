@@ -13,7 +13,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.core.util.PriceUtil;
-import com.github.paicoding.forum.core.util.UrlSlugUtil;
+import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.CategoryDO;
 import com.github.paicoding.forum.service.article.repository.entity.TagDO;
@@ -34,21 +34,10 @@ public class ArticleConverter {
 
     public static ArticleDO toArticleDo(ArticlePostReq req, Long author) {
         ArticleDO article = new ArticleDO();
-        // 设置作者ID
         article.setUserId(author);
         article.setId(req.getArticleId());
         article.setTitle(req.getTitle());
         article.setShortTitle(req.getShortTitle());
-
-        // 生成URL友好的slug用于SEO优化
-        if (StringUtils.isNotBlank(req.getUrlSlug())) {
-            // 如果用户指定了urlSlug(如从admin后台),则使用用户指定的
-            article.setUrlSlug(req.getUrlSlug());
-        } else {
-            // 否则自动生成: 优先使用shortTitle,其次使用title
-            String titleForSlug = StringUtils.isNotBlank(req.getShortTitle()) ? req.getShortTitle() : req.getTitle();
-            article.setUrlSlug(UrlSlugUtil.generateSlug(titleForSlug));
-        }
 
         article.setArticleType(ArticleTypeEnum.valueOf(req.getArticleType().toUpperCase()).getCode());
         article.setPicture(req.getCover() == null ? "" : req.getCover());
@@ -60,9 +49,7 @@ public class ArticleConverter {
         article.setDeleted(req.deleted() ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
         article.setReadType(req.getReadType() == null ? ArticleReadTypeEnum.NORMAL.getType() : req.getReadType());
         if (article.getReadType().equals(ArticleReadTypeEnum.PAY_READ.getType())) {
-            // 不指定价格时，默认0.99元
             article.setPayAmount(req.getPayAmount() == null ? 99 : req.getPayAmount());
-            // 当不指定具体的支付方式时，统一使用native的扫码支付方式
             article.setPayWay(StringUtils.isBlank(req.getPayWay()) ? ThirdPayWayEnum.WX_NATIVE.getPay() : req.getPayWay());
         }
         return article;

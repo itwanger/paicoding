@@ -20,6 +20,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
+import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -45,6 +46,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     @Autowired
     private ColumnArticleDao columnArticleDao;
 
+    @Autowired
+    private SlugGeneratorService slugGeneratorService;
+
     @Override
     @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
     public void updateArticle(ArticlePostReq req) {
@@ -64,8 +68,15 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (StringUtils.isNotBlank(req.getShortTitle())) {
             article.setShortTitle(req.getShortTitle());
         }
-        if (req.getUrlSlug() != null) {
+        if (StringUtils.isNotBlank(req.getUrlSlug())) {
             article.setUrlSlug(req.getUrlSlug());
+        } else {
+            String titleForSlug = StringUtils.isNotBlank(req.getShortTitle()) ? req.getShortTitle() : req.getTitle();
+            try {
+                article.setUrlSlug(slugGeneratorService.generateSlugWithAI(titleForSlug));
+            } catch (Exception e) {
+                article.setUrlSlug("article-" + System.currentTimeMillis());
+            }
         }
 
         ArticleEventEnum operateEvent = null;
