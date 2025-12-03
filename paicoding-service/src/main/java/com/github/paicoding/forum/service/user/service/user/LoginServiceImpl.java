@@ -199,8 +199,13 @@ public class LoginServiceImpl implements LoginService {
         }
 
         UserAiDO userAi = userAiDao.getByStarNumber(loginReq.getStarNumber());
-        // 如果星球编号已经被绑定了
         if (userAi != null) {
+            Long currentUserId = ReqInfoContext.getReqInfo().getUserId();
+            
+            if (currentUserId != null && userAi.getUserId().equals(currentUserId)) {
+                return;
+            }
+            
             throw ExceptionUtil.of(StatusEnum.USER_STAR_REPEAT, loginReq.getStarNumber());
         }
 
