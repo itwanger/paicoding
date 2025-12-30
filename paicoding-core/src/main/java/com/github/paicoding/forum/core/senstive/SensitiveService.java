@@ -14,9 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 敏感词服务类
@@ -85,10 +84,24 @@ public class SensitiveService {
     /**
      * 返回已命中的敏感词
      *
-     * @return key: 敏感词， value：计数
+     * @return key: 敏感词， value：计数（按命中次数降序排序）
      */
     public Map<String, Integer> getHitSensitiveWords() {
-        return RedisClient.hGetAll(SENSITIVE_WORD_CNT_PREFIX, Integer.class);
+        Map<String, Integer> hitWords = RedisClient.hGetAll(SENSITIVE_WORD_CNT_PREFIX, Integer.class);
+
+        if (CollectionUtils.isEmpty(hitWords)) {
+            return hitWords;
+        }
+
+        // 按 value（命中次数）降序排序
+        return hitWords.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
     }
 
     /**
