@@ -21,6 +21,7 @@ import com.github.paicoding.forum.service.user.repository.params.SearchZsxqWhite
 import com.github.paicoding.forum.service.user.service.ZsxqWhiteListService;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
+import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,8 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
     private UserPwdEncoder userPwdEncoder;
     @Resource
     private AiConfig aiConfig;
+    @Autowired
+    private UserSessionHelper userSessionHelper;
 
     @Override
     public PageVo<ZsxqUserInfoDTO> getList(SearchZsxqUserReq req) {
@@ -68,10 +71,15 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
 
         // 更新用户状态
         userAiDO.setState(operate.getCode());
-        
+
         // 如果设置为正式用户状态，则将过期时间延长360天
         if (UserAIStatEnum.FORMAL.equals(operate) && userAiDO.getStarNumber() != null) {
             userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + aiConfig.getMaxNum().getExpireDays() * 24 * 60 * 60 * 1000L));
+        }
+
+        // 如果状态变为未通过，则踢掉该用户的所有 session，让其立即下线
+        if (UserAIStatEnum.NOT_PASS.equals(operate)) {
+            userSessionHelper.removeAllSessionsByUserId(userAiDO.getUserId());
         }
 
         // 审核通过的时候调整用户的策略
@@ -139,6 +147,14 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
             userAiDao.update(null, updateWrapper);
         } else {
             userAiDao.batchUpdateState(ids, operate.getCode());
+
+            // 如果状态变为未通过，则踢掉这些用户的所有 session，让其立即下线
+            if (UserAIStatEnum.NOT_PASS.equals(operate)) {
+                List<UserAiDO> userAiList = userAiDao.listByIds(ids);
+                for (UserAiDO userAiDO : userAiList) {
+                    userSessionHelper.removeAllSessionsByUserId(userAiDO.getUserId());
+                }
+            }
         }
     }
 
