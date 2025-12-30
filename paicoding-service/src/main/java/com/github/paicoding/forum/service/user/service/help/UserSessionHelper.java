@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.paicoding.forum.core.cache.RedisClient;
+import org.springframework.data.redis.core.RedisCallback;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.MapUtils;
@@ -13,9 +14,14 @@ import com.github.paicoding.forum.service.user.service.LoginService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.redis.connection.DataType;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
@@ -48,12 +54,14 @@ public class UserSessionHelper {
     }
 
     private final JwtProperties jwtProperties;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private Algorithm algorithm;
     private JWTVerifier verifier;
 
-    public UserSessionHelper(JwtProperties jwtProperties) {
+    public UserSessionHelper(JwtProperties jwtProperties, RedisTemplate<String, String> redisTemplate) {
         this.jwtProperties = jwtProperties;
+        this.redisTemplate = redisTemplate;
         algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
         verifier = JWT.require(algorithm).withIssuer(jwtProperties.getIssuer()).build();
     }
@@ -73,6 +81,54 @@ public class UserSessionHelper {
 
     public void removeSession(String session) {
         RedisClient.del(session);
+    }
+
+    /**
+     * 根据用户ID删除其所有session，实现踢人下线功能
+     *
+     * @param userId 用户ID
+     */
+    public void removeAllSessionsByUserId(Long userId) {
+        if (userId == null) {
+            return;
+        }
+        String targetUserId = String.valueOf(userId);
+
+        // 使用 SCAN 命令遍历所有以 pai_ 开头的 key
+        // 检查 value 是否匹配目标 userId，如果匹配则删除该 session
+        redisTemplate.execute((RedisCallback<Void>) connection -> {
+            ScanOptions options = ScanOptions.scanOptions()
+                    .match("pai_*")
+                    .count(100)
+                    .build();
+
+            Cursor<byte[]> cursor = connection.scan(options);
+            while (cursor.hasNext()) {
+                byte[] key = cursor.next();
+                try {
+                    // 检查 key 类型，只处理 String 类型的 key（session token）
+                    DataType dataType = connection.type(key);
+                    if (dataType != DataType.STRING) {
+                        continue;
+                    }
+
+                    byte[] value = connection.get(key);
+
+                    if (value != null) {
+                        String userIdInRedis = new String(value, StandardCharsets.UTF_8);
+                        if (targetUserId.equals(userIdInRedis)) {
+                            // 删除匹配的 session token
+                            connection.keyCommands().del(key);
+                            log.info("踢掉用户 {} 的 session，key: {}", userId, new String(key, StandardCharsets.UTF_8));
+                        }
+                    }
+                } catch (Exception e) {
+                    // 跳过处理出错或类型不匹配的 key
+                    log.debug("处理 key 时出错，跳过: {}", new String(key, StandardCharsets.UTF_8), e);
+                }
+            }
+            return null;
+        });
     }
 
     /**
