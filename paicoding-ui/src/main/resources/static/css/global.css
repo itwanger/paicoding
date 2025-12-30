@@ -1528,12 +1528,21 @@ button:focus {
 .comment-content-markdown.markdown-rendered {
   word-wrap: break-word;
   word-break: break-word;
-  line-height: 0.5;
+  white-space: normal;
+  /* 不设置 line-height，让各个元素自己控制 */
 }
 
 .comment-content-markdown.markdown-rendered p {
-  margin: 0.2em 0;
-  line-height: 1.5;
+  margin: 0.3em 0;
+  line-height: 1.6;
+}
+
+.comment-content-markdown.markdown-rendered pre {
+  line-height: 1.8;
+}
+
+.comment-content-markdown.markdown-rendered blockquote p {
+  line-height: 1.6;
 }
 
 .comment-content-markdown.markdown-rendered p:first-child {
@@ -1561,10 +1570,11 @@ button:focus {
   background-color: #f6f8fa;
   border: 1px solid #e1e4e8;
   border-radius: 4px;
-  padding: 6px 10px;
+  padding: 12px 16px;
   overflow-x: auto;
-  margin: 0.4em 0;
+  margin: 0.8em 0;
   font-size: 0.9em;
+  line-height: 1.8;
 }
 
 .comment-content-markdown.markdown-rendered pre code {
@@ -1572,7 +1582,9 @@ button:focus {
   color: inherit;
   padding: 0;
   border-radius: 0;
-  font-size: 0.85em;
+  font-size: 0.9em;
+  line-height: 1.8;
+  display: block;
 }
 
 .comment-content-markdown.markdown-rendered strong {
@@ -1609,9 +1621,9 @@ button:focus {
 
 .comment-content-markdown.markdown-rendered ul,
 .comment-content-markdown.markdown-rendered ol {
-  margin: 0.2em 0;
+  margin: 0.4em 0;
   padding-left: 1.5em;
-  display: block;
+  /* 不设置 line-height，避免嵌套时叠加 */
 }
 
 .comment-content-markdown.markdown-rendered ul {
@@ -1628,8 +1640,13 @@ button:focus {
   margin: 0 0;
   display: list-item !important;
   list-style: inherit !important;
-  line-height: 1.5;
-  padding: 0.1em 0;
+  padding: 0.2em 0;
+  /* 使用 margin 来控制列表项之间的间距，而不是 line-height */
+}
+
+.comment-content-markdown.markdown-rendered li > p {
+  margin: 0;
+  line-height: 1.6;
 }
 
 .comment-content-markdown.markdown-rendered p + ul,

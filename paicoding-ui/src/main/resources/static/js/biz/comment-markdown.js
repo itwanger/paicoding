@@ -31,6 +31,12 @@
         // HTML 转义已经在后端完成,这里直接处理 Markdown 语法
         let html = text;
 
+        // 先处理 **`code`** 模式，转换为 `code`
+        html = html.replace(/\*\*`([^`]+)`\*\*/g, '`$1`');
+
+        // 清理 **<code>...</code>** 两侧的 ** 符号，保留 <code> 标签
+        html = html.replace(/\*\*<code>/g, '<code>').replace(/<\/code>\*\*/g, '</code>');
+
         // 代码块 (多行)
         html = html.replace(/```(\w*)\n([\s\S]*?)```/g, function(match, lang, code) {
             return '<pre><code class="language-' + lang + '">' + code + '</code></pre>';
@@ -70,18 +76,35 @@
             if (typeof marked !== 'undefined') {
                 // 配置 marked
                 marked.setOptions({
-                    breaks: false,  // 关闭自动换行，避免过多空行
+                    breaks: true,   // 启用单个换行符转换为 <br>
                     gfm: true,     // 启用 GitHub Flavored Markdown
                     sanitize: false, // 不进行 HTML 清理,因为后端已经转义
                     smartLists: true,
                     smartypants: true
                 });
 
-                let html = marked.parse(text);
+                // 预处理：保护 <code> 标签，使用占位符
+                const codeMap = {};
+                let processedText = text.replace(/<code>([\s\S]*?)<\/code>/g, function(match, content) {
+                    const placeholder = '__CODE_PLACEHOLDER_' + Object.keys(codeMap).length + '__';
+                    codeMap[placeholder] = '<code>' + content + '</code>';
+                    return placeholder;
+                });
+
+                let html = marked.parse(processedText);
+
+                // 恢复 <code> 标签
+                Object.keys(codeMap).forEach(function(placeholder) {
+                    html = html.replace(new RegExp(placeholder, 'g'), codeMap[placeholder]);
+                });
+
+                // 对于评论，移除顶层 <p> 标签包裹，避免样式问题
+                // 如果整个内容只是一个 <p> 标签包裹，则移除外层的 <p> 和 </p>
+                html = html.replace(/^<p>([\s\S]+?)<\/p>$/, '$1');
 
                 // 清理多余的空段落和空白行
                 html = html.replace(/<p>\s*<\/p>/g, ''); // 删除空段落
-                html = html.replace(/(<\/p>)\s*(<p>)/g, '$1$2'); // 合并连续段落间的空白
+                html = html.replace(/(<\/p>)\s*(<p>)/g, '</p><p>'); // 合并连续段落间的空白
                 html = html.replace(/\n{3,}/g, '\n\n'); // 限制最多2个连续换行
 
                 return html;
@@ -100,7 +123,20 @@
             return; // 已经渲染过,跳过
         }
 
-        const rawContent = element.textContent || element.innerText;
+        // 获取原始内容，如果是 HTML 实体，需要解码
+        let rawContent = element.textContent || element.innerText;
+
+        // 解码 HTML 实体（如 &lt; 转换为 <）
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = rawContent;
+        rawContent = textarea.value;
+
+        // 清理 **`code`** 模式，转换为 `code`
+        rawContent = rawContent.replace(/\*\*`([^`]+)`\*\*/g, '`$1`');
+
+        // 清理 **<code>...</code>** 两侧的 ** 符号
+        rawContent = rawContent.replace(/\*\*<code>/g, '<code>').replace(/<\/code>\*\*/g, '</code>');
+
         const commentId = element.dataset.commentId;
 
         // 检测是否包含 Markdown 语法
