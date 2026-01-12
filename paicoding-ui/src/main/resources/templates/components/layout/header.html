@@ -75,6 +75,78 @@
     <script src="/js/fancybox.umd.js" th:src="${global.siteInfo.oss + '/js/fancybox.umd.js'}"></script>
     <!-- 图片自适应宽度脚本 -->
     <script src="/js/biz/image-adaptive.js" th:src="${global.siteInfo.oss + '/js/biz/image-adaptive.js'}"></script>
+    <script>
+      // 图片域名替换监控器
+      (function() {
+        const targetDomain = 'cdn.tobebetterjavaer.com';
+        const replacementDomain = 'cdn.paicoding.com';
+
+        // 替换图片 URL 的函数
+        function replaceImageUrl(url) {
+          if (url && url.includes(targetDomain)) {
+            return url.replace(targetDomain, replacementDomain);
+          }
+          return url;
+        }
+
+        // 检查并替换单个图片
+        function checkAndReplaceImage(img) {
+          if (img.src && img.src.includes(targetDomain)) {
+            img.src = replaceImageUrl(img.src);
+          }
+        }
+
+        // 替换页面中现有的图片
+        function replaceExistingImages() {
+          const images = document.querySelectorAll('img[src*="' + targetDomain + '"]');
+          images.forEach(checkAndReplaceImage);
+        }
+
+        // 监听图片加载错误事件
+        document.addEventListener('error', function(e) {
+          if (e.target.tagName === 'IMG' && e.target.src.includes(targetDomain)) {
+            console.log('Image load error:', e.target.src);
+            e.target.src = replaceImageUrl(e.target.src);
+          }
+        }, true);
+
+        // 使用 MutationObserver 监控动态添加的图片
+        function setupDynamicMonitoring() {
+          const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+              mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                  if (node.tagName === 'IMG') {
+                    checkAndReplaceImage(node);
+                  }
+                  // 检查新增节点中的图片
+                  const images = node.querySelectorAll && node.querySelectorAll('img[src*="' + targetDomain + '"]');
+                  if (images) {
+                    images.forEach(checkAndReplaceImage);
+                  }
+                }
+              });
+            });
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        }
+
+        // 页面加载完成后执行替换
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            replaceExistingImages();
+            setupDynamicMonitoring();
+          });
+        } else {
+          replaceExistingImages();
+          setupDynamicMonitoring();
+        }
+      })();
+    </script>
 
     <th:block th:replace="${links}" />
     <th:block th:replace="${scripts}" />
