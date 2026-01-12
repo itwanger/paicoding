@@ -1,8 +1,11 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import com.github.paicoding.forum.api.model.vo.user.dto.ColumnFootCountDTO;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
 import lombok.Data;
 
 /**
@@ -30,6 +33,7 @@ public class ColumnDTO {
     /**
      * 封面
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String cover;
 
     /**
@@ -84,6 +88,7 @@ public class ColumnDTO {
     /**
      * 作者头像
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String authorAvatar;
 
     /**
@@ -95,4 +100,9 @@ public class ColumnDTO {
      * 统计计数相关信息
      */
     private ColumnFootCountDTO count;
+
+    public ColumnDTO setAuthorAvatar(String authorAvatar) {
+        this.authorAvatar = CdnUtil.autoTransCdn(authorAvatar);
+        return this;
+    }
 }

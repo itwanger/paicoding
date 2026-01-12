@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.api.model.vo.comment.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +28,7 @@ public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
     /**
      * 用户图像
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String userPhoto;
 
     /**
@@ -60,5 +64,10 @@ public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
     @Override
     public int compareTo(@NotNull BaseCommentDTO o) {
         return Long.compare(o.getCommentTime(), this.commentTime);
+    }
+
+    public BaseCommentDTO setUserPhoto(String userPhoto) {
+        this.userPhoto = CdnUtil.autoTransCdn( userPhoto);
+        return this;
     }
 }

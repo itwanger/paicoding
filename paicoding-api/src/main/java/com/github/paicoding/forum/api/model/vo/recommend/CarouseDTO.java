@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.api.model.vo.recommend;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -21,9 +24,15 @@ public class CarouseDTO implements Serializable {
     /**
      * 图片地址
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String imgUrl;
     /**
      * 跳转地址
      */
     private String actionUrl;
+
+    public CarouseDTO setImgUrl(String imgUrl) {
+        this.imgUrl = CdnUtil.autoTransCdn(imgUrl);
+        return this;
+    }
 }

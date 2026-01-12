@@ -1,7 +1,10 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.paicoding.forum.api.model.entity.BaseDTO;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -38,6 +41,7 @@ public class BaseUserInfoDTO extends BaseDTO {
     /**
      * 用户图像
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     @ApiModelProperty(value = "用户头像")
     private String photo;
     /**
@@ -101,4 +105,9 @@ public class BaseUserInfoDTO extends BaseDTO {
      */
     @ApiModelProperty(value = "用户的收款码", example = "{\"wx\":\"wxp://f2f0YUXuGn6X2dI6FS2GrMjuG0Lw2plZqwjO4keoZaRr320\"}")
     private String payCode;
+
+    public BaseUserInfoDTO setPhoto(String photo) {
+        this.photo = CdnUtil.autoTransCdn(photo);
+        return this;
+    }
 }

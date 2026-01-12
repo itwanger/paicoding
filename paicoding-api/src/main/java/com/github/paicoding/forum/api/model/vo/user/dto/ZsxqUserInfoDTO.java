@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -28,6 +31,7 @@ public class ZsxqUserInfoDTO implements Serializable {
     private String name;
 
     @ApiModelProperty("用户头像")
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String avatar;
 
     // 这个是 user 表中的 username
@@ -61,4 +65,9 @@ public class ZsxqUserInfoDTO implements Serializable {
     // 过期时间
     @ApiModelProperty("过期时间")
     private Date expireTime;
+
+    public ZsxqUserInfoDTO setAvatar(String avatar) {
+        this.avatar = CdnUtil.autoTransCdn(avatar);
+        return this;
+    }
 }

@@ -1,10 +1,13 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -42,6 +45,7 @@ public class ArticleDTO implements Serializable {
     /**
      * 作者头像
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String authorAvatar;
 
     /**
@@ -174,4 +178,9 @@ public class ArticleDTO implements Serializable {
      * @see ThirdPayWayEnum#wxPay()
      */
     private String payWay;
+
+    public ArticleDTO setAuthorAvatar(String authorAvatar) {
+        this.authorAvatar = CdnUtil.autoTransCdn(authorAvatar);
+        return this;
+    }
 }

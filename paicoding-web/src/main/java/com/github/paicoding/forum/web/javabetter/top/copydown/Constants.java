@@ -24,6 +24,7 @@ public class Constants {
     public final static String ossOrCdnUrls [] = {
             "http://cdn.tobebetterjavaer.com/tobebetterjavaer/images/",
             "https://cdn.tobebetterjavaer.com/tobebetterjavaer/images/",
+            "https://cdn.paicoding.com/",
             "https://itwanger-oss.oss-cn-beijing.aliyuncs.com/tobebetterjavaer/images/" };
 
     // 匹配图片的 markdown 语法

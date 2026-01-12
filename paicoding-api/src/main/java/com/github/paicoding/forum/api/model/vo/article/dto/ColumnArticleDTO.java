@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -60,6 +63,7 @@ public class ColumnArticleDTO implements Serializable {
     /**
      * 教程封面
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String columnCover;
 
     /**
@@ -71,4 +75,9 @@ public class ColumnArticleDTO implements Serializable {
      * 创建时间
      */
     private Timestamp createTime;
+
+    public ColumnArticleDTO setColumnCover(String columnCover) {
+        this.columnCover = CdnUtil.autoTransCdn(columnCover);
+        return this;
+    }
 }

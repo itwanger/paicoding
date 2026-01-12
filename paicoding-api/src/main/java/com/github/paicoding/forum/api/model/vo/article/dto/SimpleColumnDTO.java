@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.api.model.vo.article.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,5 +23,11 @@ public class SimpleColumnDTO implements Serializable {
 
     // 封面
     @ApiModelProperty("封面")
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String cover;
+
+    public SimpleColumnDTO setCover(String cover) {
+        this.cover = CdnUtil.autoTransCdn( cover);
+        return this;
+    }
 }
