@@ -114,9 +114,8 @@
               <span th:case="1" th:text="待审核"></span>
               <span th:case="3" th:text="未通过"></span>
               <span th:case="4" th:text="已过期" onclick="vipExpired()"></span>
-<!--              <a href="#" data-target="#registerModal" data-toggle="modal" th:case="-1">-->
               <a href="/zsxq/bind" th:case="-1">
-                <span th:text="绑定星球编号"></span>
+                <span th:text="知识星球授权"></span>
               </a>
             </div>
             <img src="/img/vip.gif" alt="VIP" th:src="${global.siteInfo.oss + '/img/vip.gif'}"/>
@@ -158,7 +157,9 @@
                   >
                     个人主页
                   </a>
-                  <a class="dropdown-item" data-toggle="modal" data-target="#accountModify" href="">迁移账号</a>
+                  <a class="dropdown-item" data-target="#registerModal" data-toggle="modal" href=""
+                     th:if="${global.user != null && global.user.starStatus != null && global.user.starStatus.code == -1}">绑定星球编号</a>
+                  <a class="dropdown-item" data-target="#accountModify" data-toggle="modal"  href="">迁移账号</a>
                   <a id="logoutBtn" href="/logout" class="dropdown-item">登出</a>
                 </div>
               </div>
