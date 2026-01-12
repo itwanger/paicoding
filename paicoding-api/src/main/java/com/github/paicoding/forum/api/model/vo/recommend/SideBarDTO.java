@@ -1,6 +1,9 @@
 package com.github.paicoding.forum.api.model.vo.recommend;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.paicoding.forum.api.model.enums.SidebarStyleEnum;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -20,8 +23,10 @@ public class SideBarDTO {
 
     private String subTitle;
 
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String icon;
 
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String img;
 
     private String url;
@@ -36,4 +41,14 @@ public class SideBarDTO {
      * @see SidebarStyleEnum#getStyle()
      */
     private Integer style;
+
+    public SideBarDTO setIcon(String icon) {
+        this.icon = CdnUtil.autoTransCdn( icon);
+        return this;
+    }
+
+    public SideBarDTO setImg(String img) {
+        this.img = CdnUtil.autoTransCdn( img);
+        return this;
+    }
 }

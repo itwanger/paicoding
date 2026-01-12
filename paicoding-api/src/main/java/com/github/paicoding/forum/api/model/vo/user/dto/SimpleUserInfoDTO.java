@@ -1,5 +1,8 @@
 package com.github.paicoding.forum.api.model.vo.user.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -24,8 +27,14 @@ public class SimpleUserInfoDTO implements Serializable {
     private String name;
 
     @ApiModelProperty("作者头像")
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String avatar;
 
     @ApiModelProperty("作者简介")
     private String profile;
+
+    public SimpleUserInfoDTO setAvatar(String avatar) {
+        this.avatar = CdnUtil.autoTransCdn(avatar);
+        return this;
+    }
 }

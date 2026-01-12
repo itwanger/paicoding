@@ -1,7 +1,10 @@
 package com.github.paicoding.forum.api.model.vo.banner.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.paicoding.forum.api.model.entity.BaseDTO;
 import com.github.paicoding.forum.api.model.enums.ConfigTagEnum;
+import com.github.paicoding.forum.api.model.util.cdn.CdnImgSerializer;
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import lombok.Data;
 
 /**
@@ -26,6 +29,7 @@ public class ConfigDTO extends BaseDTO {
     /**
      * 图片链接
      */
+    @JsonSerialize(using = CdnImgSerializer.class)
     private String bannerUrl;
 
     /**
@@ -59,4 +63,9 @@ public class ConfigDTO extends BaseDTO {
      * @see ConfigTagEnum#getCode()
      */
     private String tags;
+
+    public ConfigDTO setBannerUrl(String bannerUrl) {
+        this.bannerUrl = CdnUtil.autoTransCdn(bannerUrl);
+        return this;
+    }
 }
