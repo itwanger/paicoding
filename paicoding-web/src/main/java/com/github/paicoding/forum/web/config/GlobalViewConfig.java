@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.config;
 
+import com.github.paicoding.forum.api.model.util.cdn.CdnUtil;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -88,5 +89,36 @@ public class GlobalViewConfig {
             this.oss = "";
         }
         return this.oss;
+    }
+
+
+    public GlobalViewConfig setWebsiteLogoUrl(String websiteLogoUrl) {
+        this.websiteLogoUrl = CdnUtil.autoTransCdn(websiteLogoUrl);
+        return this;
+    }
+
+    public GlobalViewConfig setWebsiteFaviconIconUrl(String websiteFaviconIconUrl) {
+        this.websiteFaviconIconUrl = CdnUtil.autoTransCdn(websiteFaviconIconUrl);
+        return this;
+    }
+
+    public GlobalViewConfig setZsxqPosterUrl(String zsxqPosterUrl) {
+        this.zsxqPosterUrl = CdnUtil.autoTransCdn(zsxqPosterUrl);
+        return this;
+    }
+
+    public GlobalViewConfig setZsxqImgUrl(String zsxqImgUrl) {
+        this.zsxqImgUrl = CdnUtil.autoTransCdn(zsxqImgUrl);
+        return this;
+    }
+
+    public GlobalViewConfig setContactMeWxQrCode(String contactMeWxQrCode) {
+        this.contactMeWxQrCode = CdnUtil.autoTransCdn(contactMeWxQrCode);
+        return this;
+    }
+
+    public GlobalViewConfig setContactMeStarQrCode(String contactMeStarQrCode) {
+        this.contactMeStarQrCode = CdnUtil.autoTransCdn(contactMeStarQrCode);
+        return this;
     }
 }
