@@ -41,7 +41,7 @@ public class CommonConstants {
         {
             put(CATEGORY_ALL, new ArrayList<String>() {
                 {
-                    add("https://cdn.tobebetterjavaer.com/paicoding/8b5865e9461948aed4aacffc62adbae7.jpg");
+                    add("https://cdn.tobebetterjavaer.com/paicoding/077b7d8891e69701e8d3d4302392dab5.jpg");
                     add("https://cdn.tobebetterjavaer.com/paicoding/71505c62fb6375cbbd62af63964b2ad4.jpg");
                     add("https://cdn.tobebetterjavaer.com/paicoding/147915cdddea55ce37c2c5ecfc7c089e.jpg");
                     add("https://cdn.tobebetterjavaer.com/paicoding/dee73c8810cb699ae1ec774a54612080.jpg");
