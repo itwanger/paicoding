@@ -160,4 +160,9 @@
     <changeSet id="20251110_1" author="Claude">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251110.sql"/>
     </changeSet>
+
+    <!-- 增加 user_info 表的 photo 字段长度  -->
+    <changeSet id="20260121_1" author="Qoder">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260121.sql"/>
+    </changeSet>
 </databaseChangeLog>
