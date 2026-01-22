@@ -65,6 +65,10 @@ public class ZsxqUserInfoDTO implements Serializable {
     // 过期时间
     @ApiModelProperty("过期时间")
     private Date expireTime;
+    
+    // 最后登录时间
+    @ApiModelProperty("最后登录时间")
+    private Date lastLoginTime;
 
     public ZsxqUserInfoDTO setAvatar(String avatar) {
         this.avatar = CdnUtil.autoTransCdn(avatar);

@@ -22,6 +22,12 @@
         <if test="searchParams.status != null and searchParams.status != -1">
             and a.state = #{searchParams.status}
         </if>
+        <if test="searchParams.starNumberNotEmpty != null and searchParams.starNumberNotEmpty == true">
+            and a.star_number is not null and a.star_number != ''
+        </if>
+        <if test="searchParams.lastLoginWithinWeek != null and searchParams.lastLoginWithinWeek == true">
+            and u.update_time >= date_sub(now(), interval 7 day)
+        </if>
     </sql>
 
     <select id="listZsxqUsersByParams"
@@ -29,12 +35,20 @@
         select a.id, a.user_id, a.star_number, a.invite_code,
             a.invite_num, a.state, u.user_name as user_code,
             a.strategy, u.login_type, a.star_expire_time as expireTime,
-            ui.user_name as name, ui.photo as avatar
+            ui.user_name as name, ui.photo as avatar, u.update_time as lastLoginTime
         from user_ai a
         left join user u on u.id = a.user_id
         left join user_info ui on a.user_id = ui.user_id
         <include refid="zsxqWhitesByParams"/>
-        order by a.update_time desc
+        order by 
+        <choose>
+            <when test="searchParams.starNumberNotEmpty != null and searchParams.starNumberNotEmpty == true">
+                cast(a.star_number as unsigned) asc, a.update_time desc
+            </when>
+            <otherwise>
+                a.update_time desc
+            </otherwise>
+        </choose>
         <include refid="limit"/>
     </select>
     <select id="countZsxqUsersByParams" resultType="java.lang.Long">
