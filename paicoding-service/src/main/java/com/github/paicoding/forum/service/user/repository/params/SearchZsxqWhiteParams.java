@@ -33,5 +33,15 @@ public class SearchZsxqWhiteParams extends PageParam {
      * 用户编号
      */
     private String userCode;
+    
+    /**
+     * 是否只查询星球编号不为空的用户
+     */
+    private Boolean starNumberNotEmpty;
+    
+    /**
+     * 是否只查询最近一周登录的用户
+     */
+    private Boolean lastLoginWithinWeek;
 
 }
