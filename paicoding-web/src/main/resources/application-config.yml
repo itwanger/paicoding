@@ -18,4 +18,5 @@ view:
     wxLoginUrl: http://weixin.qq.com/r/WxwpMefE-rqBraNS90lJ
     host: http://127.0.0.1:${server.port}
     welcomeInfo: 欢迎来到技术派，戳<a href="/article/detail/15">技术派全方位视角解读</a>了解我们
+    columnInfoNews: 🎉 欢迎来到技术派教程频道！这里汇集了优质的技术专栏内容，助你快速成长！
     oss:

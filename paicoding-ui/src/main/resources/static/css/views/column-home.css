@@ -1,23 +1,34 @@
+/* ========================================
+   1. 页面布局基础样式
+   ======================================== */
+
+/* 主容器 */
 .custom-home {
     overflow: auto;
     padding-top: 20px;
     height: calc(100vh - 60px);
 }
 
+/* 内容包裹容器 */
 .custom-home-wrap {
-    width: 1200px;
     display: flex;
     margin: 0 auto 20px;
     min-height: calc(100% - 90px);
 }
 
+/* 主体内容区域 */
 .custom-home-body {
     flex: 1;
+    min-width: 0; /* 防止 flex item 被内容撑开，确保遵守容器宽度限制 */
     margin-right: 20px;
     border-radius: 8px;
 }
 
-/* 详情列表 */
+/* ========================================
+   2. 列表项基础样式
+   ======================================== */
+
+/* 列表项容器 */
 .item {
     display: flex;
     padding: 25px;
@@ -26,9 +37,9 @@
     border-bottom: var(--pai-hr-color-1) 1px solid;
 }
 
+/* 封面图片区域 */
 .poster {
     width: 110px;
-    height: 156px;
     flex-shrink: 0;
     position: relative;
 }
@@ -39,6 +50,7 @@
     border-radius: 2px;
 }
 
+/* 信息内容区域 */
 .info {
     position: relative;
     flex-grow: 1;
@@ -52,16 +64,13 @@
     font-size: 14px;
 }
 
-.author .name {
-    color: var(--pai-color-3-gray);
-    font-size: 14px;
-}
-
+/* 标题 */
 .title {
     font-size: 20px;
     line-height: 28px;
 }
 
+/* 描述信息 - 最多显示2行 */
 .info .desc {
     margin-top: 10px;
     font-size: 14px;
@@ -73,11 +82,17 @@
     color: var(--pai-color-3-gray);
 }
 
+/* ========================================
+   3. 用户信息相关样式
+   ======================================== */
+
+/* 用户信息容器 */
 .user {
     display: inline-flex;
     align-items: center;
 }
 
+/* 用户头像 */
 .user img {
     width: 26px;
     height: 26px;
@@ -88,6 +103,28 @@
     background-repeat: no-repeat;
 }
 
+/* 作者信息 */
+.author {
+    margin-top: 6px;
+}
+
+.author .name {
+    color: var(--pai-color-3-gray);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* 作者简介 */
+.self-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 4px;
+    font-size: 14px;
+    color: var(--pai-color-3-gray);
+}
+
+/* 其他信息（阅读数、时间等） */
 .other {
     margin-top: 6px;
     display: flex;
@@ -95,12 +132,11 @@
     color: #8a919f;
 }
 
-.author {
-    margin-top: 6px;
-}
+/* ========================================
+   4. 标签徽章样式
+   ======================================== */
 
-/*限时免费*/
-
+/* 新标签（限时免费等） */
 .new-tag-wrap {
     padding: 0 6px;
     height: 20px;
@@ -116,6 +152,7 @@
     background-color: var(--pai-brand-5-bak);
 }
 
+/* 通用标签 */
 .info .tag {
     display: inline-block;
     vertical-align: middle;
@@ -124,8 +161,11 @@
     transform: translateY(-2px);
 }
 
-/*level*/
+/* ========================================
+   5. 等级徽章样式
+   ======================================== */
 
+/* 等级徽章基础样式 */
 .com-2-level {
     display: inline-block;
     vertical-align: middle;
@@ -143,11 +183,15 @@
     font-weight: 700;
 }
 
-.uc-hero-level, .uc-hero-name {
-    margin-right: 10px;
-    margin-left: 10px;
+.com-2-level .text {
+    position: relative;
+    top: 1px;
+    display: block;
+    -webkit-transform: scale(.8);
+    transform: scale(.8);
 }
 
+/* 等级徽章 - 风格2（胶囊型） */
 .com-2-level.skin-2 {
     width: auto;
     height: 16px;
@@ -160,37 +204,29 @@
     font-style: normal;
 }
 
-.com-2-level .text {
-    position: relative;
-    top: 1px;
-    display: block;
-    -webkit-transform: scale(.8);
-    transform: scale(.8);
-}
-
 .com-2-level.skin-2 .text {
     top: 0;
     -webkit-transform: none;
     transform: none;
 }
 
-/*作者简介*/
-.self-description {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-left: 4px;
-    font-size: 14px;
-    color: var(--pai-color-3-gray);
+/* 等级相关间距 */
+.uc-hero-level,
+.uc-hero-name {
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
-/*限时免费*/
+/* ========================================
+   6. 促销信息样式
+   ======================================== */
 
+/* 限时免费提示 */
 .sale-tooltip {
     position: relative;
     flex: 0 0 auto;
     align-items: center;
-    background: linear-gradient(90deg,rgba(246,66,66,.25),rgba(246,66,66,0));
+    background: linear-gradient(90deg, rgba(246, 66, 66, .25), rgba(246, 66, 66, 0));
     border-radius: 100px;
     padding: 0 48px 0 8px;
     color: var(--pai-brand-6-mq);
@@ -204,23 +240,278 @@
     margin: 0 2px;
 }
 
+/* 阅读数前的分隔符 */
 .read-count:before {
     width: 6px;
     content: "·";
     margin: 0 4px;
 }
 
+/* ========================================
+   7. 视图切换功能
+   ======================================== */
+
+/* 视图切换容器 */
+.view-toggle-container {
+    padding: 15px 25px;
+    border-bottom: var(--pai-hr-color-1) 1px solid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 切换按钮组 */
+.view-toggle {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* 切换按钮 */
+.toggle-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e4e6eb;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #8a919f;
+}
+
+.toggle-btn:hover {
+    background: #f7f8fa;
+    border-color: var(--pai-brand-5-bak);
+    color: var(--pai-brand-5-bak);
+}
+
+.toggle-btn.active {
+    background: var(--pai-brand-5-bak);
+    border-color: var(--pai-brand-5-bak);
+    color: #fff;
+}
+
+/* ========================================
+   8. 跑马灯公告样式
+   ======================================== */
+
+/* 公告跑马灯容器 */
+.announcement-marquee {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    margin-right: 20px;
+}
+
+/* 喇叭图标 */
+.icon-speaker {
+    color: var(--pai-brand-5-bak);
+    flex-shrink: 0;
+}
+
+/* 跑马灯内容容器 */
+.marquee-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 24px;
+    line-height: 24px;
+}
+
+/* 跑马灯文本 */
+.marquee-text {
+    display: inline-block;
+    padding-left: 100%;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+    color: var(--pai-color-2-title);
+    font-size: 14px;
+}
+
+/* 跑马灯动画 */
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* 悬停时暂停动画 */
+.announcement-marquee:hover .marquee-text {
+    animation-play-state: paused;
+}
+
+/* ========================================
+   9. 网格视图样式
+   ======================================== */
+
+/* 网格布局容器 - 默认3列（超宽屏 >1400px） */
+.grid-view {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 25px;
+}
+
+/* 网格项基础样式 */
+.grid-view .item {
+    display: flex !important;
+    flex-direction: column;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.grid-view .item:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+/* 网格视图 - 封面图片 */
+.grid-view .poster {
+    width: 100%;
+    flex-shrink: 0;
+    background-color: #f5f5f5; /* 图片留白区域背景色 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-view .poster img {
+    width: 100%;
+    height: auto; /* 根据宽度自动计算高度，保持原始比例 */
+    max-height: 280px; /* 桌面端最大高度限制 */
+    object-fit: contain; /* 完整显示图片，不裁剪 */
+    display: block;
+    margin: 0 auto;
+}
+
+/* 网格视图 - 信息区域 */
+.grid-view .info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 网格视图 - 标题 */
+.grid-view .title {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 500;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    order: 1;
+}
+
+/* 网格视图 - 描述 */
+.grid-view .desc {
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--pai-color-3-gray);
+    margin: 0 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    order: 2;
+}
+
+/* 网格视图 - 底部行（作者+其他信息） */
+.grid-view .bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    order: 3;
+}
+
+.grid-view .author {
+    margin-top: 0;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.grid-view .other {
+    margin-top: 0;
+    font-size: 13px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* 网格视图 - 用户信息 */
+.grid-view .user {
+    display: flex;
+    align-items: center;
+}
+
+.grid-view .user img {
+    width: 24px;
+    height: 24px;
+    margin-right: 6px;
+}
+
+.grid-view .name {
+    font-size: 13px;
+}
+
+/* 网格视图 - 隐藏元素 */
+.grid-view .self-description,
+.grid-view .article-count,
+.grid-view .sale-tooltip {
+    display: none;
+}
+
+/* 网格视图 - 阅读数 */
+.grid-view .messages {
+    font-size: 13px;
+}
+
+.grid-view .read-count {
+    color: #8a919f;
+}
+
+.grid-view .read-count:before {
+    display: none;
+}
+
+/* ========================================
+   10. 列表视图样式
+   ======================================== */
+
+.list-view {
+    display: block;
+}
+
+/* ========================================
+   11. 响应式布局 - 移动端适配
+   ======================================== */
+
+/* 移动端（<768px） */
 @media screen and (max-width: 768px) {
+    /* 基础布局调整 */
     .custom-home {
         padding-top: 0;
-    }
-
-    .custom-home-right,
-    .self-description,
-    .article-count,
-    .sale-tooltip,
-    .read-count:before {
-        display: none;
     }
 
     .custom-home-wrap {
@@ -233,25 +524,57 @@
         margin-right: 0;
     }
 
+    /* 隐藏移动端不需要的元素 */
+    .custom-home-right,
+    .self-description,
+    .article-count,
+    .sale-tooltip,
+    .read-count:before {
+        display: none;
+    }
+
+    /* 列表项调整 */
+    .item {
+        padding: 15px;
+    }
+
+    .title {
+        font-size: 16px;
+        line-height: 22px;
+    }
+
     .other {
-        /*最多显示一行，超出部分省略号*/
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         margin-top: 0;
     }
 
-    .item {
+    /* 视图切换容器 */
+    .view-toggle-container {
+        padding: 10px 15px;
+    }
+
+    /* 网格视图 - 移动端1列布局 */
+    .grid-view {
         padding: 15px;
+        gap: 15px;
+        grid-template-columns: 1fr !important;
     }
 
-    .poster {
-        width: 90px;
-        height: 140px;
+    /* 移动端图片高度限制 */
+    .grid-view .poster img {
+        max-height: 360px;
     }
+}
 
-    .title {
-        font-size: 16px;
-        line-height: 22px;
+/* ========================================
+   12. 响应式布局 - 平板/中屏适配
+   ======================================== */
+
+/* 中等宽度（768px-1200px）：网格视图改为2列 */
+@media screen and (max-width: 1200px) {
+    .grid-view {
+        grid-template-columns: repeat(2, 1fr);
     }
 }

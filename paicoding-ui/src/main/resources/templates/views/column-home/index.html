@@ -14,9 +14,40 @@
 <div class="custom-home">
     <div class="custom-home-wrap">
         <div class="custom-home-body">
+            <!-- 视图切换按钮 -->
+            <div class="view-toggle-container bg-color-white">
+                <!-- 跑马灯公告 -->
+                <div class="announcement-marquee" th:if="${global.siteInfo.columnInfoNews != null && !#strings.isEmpty(global.siteInfo.columnInfoNews)}">
+                    <svg class="icon-speaker" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19.07 4.93C20.9447 6.80528 21.9979 9.34836 21.9979 12C21.9979 14.6516 20.9447 17.1947 19.07 19.07M15.54 8.46C16.4774 9.39764 17.0039 10.6692 17.0039 12C17.0039 13.3308 16.4774 14.6024 15.54 15.54" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="marquee-content">
+                        <span class="marquee-text" th:text="${global.siteInfo.columnInfoNews}">公告内容</span>
+                    </div>
+                </div>
+                
+                <div class="view-toggle">
+                    <button class="toggle-btn" data-view="list" title="竖排视图">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="4" rx="1" fill="currentColor"/>
+                            <rect x="3" y="10" width="18" height="4" rx="1" fill="currentColor"/>
+                            <rect x="3" y="16" width="18" height="4" rx="1" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button class="toggle-btn active" data-view="grid" title="网格视图">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor"/>
+                            <rect x="13" y="3" width="7" height="7" rx="1" fill="currentColor"/>
+                            <rect x="3" y="13" width="7" height="7" rx="1" fill="currentColor"/>
+                            <rect x="13" y="13" width="7" height="7" rx="1" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <!-- 文章列表 -->
             <div class="bg-color-white">
-                <div id="articleList">
+                <div id="articleList" class="grid-view">
                     <div th:replace="views/column-home/list/index">专栏列表</div>
                 </div>
             </div>
@@ -35,14 +66,85 @@
 <script th:inline="javascript">
     console.log("脚本已加载");
     
+    // 视图切换功能
+    (function() {
+        const articleList = document.getElementById('articleList');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        
+        // 从 localStorage 读取保存的视图模式，默认为 grid
+        const savedView = localStorage.getItem('column-view-mode') || 'grid';
+        
+        // 初始化视图
+        function initView() {
+            if (savedView === 'grid') {
+                articleList.classList.remove('list-view');
+                articleList.classList.add('grid-view');
+                toggleBtns.forEach(btn => {
+                    if (btn.dataset.view === 'grid') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        // 切换视图
+        function switchView(view) {
+            if (view === 'grid') {
+                articleList.classList.remove('list-view');
+                articleList.classList.add('grid-view');
+            } else {
+                articleList.classList.remove('grid-view');
+                articleList.classList.add('list-view');
+            }
+            
+            // 更新按钮状态
+            toggleBtns.forEach(btn => {
+                if (btn.dataset.view === view) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // 保存到 localStorage
+            localStorage.setItem('column-view-mode', view);
+            
+            // 更新 pageSize
+            params.size = getPageSizeForView(view);
+            console.log("视图切换到", view, "，pageSize =", params.size);
+        }
+        
+        // 绑定点击事件
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const view = this.dataset.view;
+                switchView(view);
+            });
+        });
+        
+        // 页面加载时初始化视图
+        initView();
+    })();
+    
     let isLoading = false;
     let hasMore = [[${vo.columns.hasMore}]];
-    const params = {
-        "page": 2,
-        "size": 4
+    
+    // 根据视图模式设置 pageSize
+    function getPageSizeForView(view) {
+        return view === 'grid' ? 6 : 4;
     }
     
-    console.log("初始化: hasMore =", hasMore);
+    // 从 localStorage 读取保存的视图模式，默认为 grid
+    const savedView = localStorage.getItem('column-view-mode') || 'grid';
+    
+    const params = {
+        "page": 2,
+        "size": getPageSizeForView(savedView)
+    }
+    
+    console.log("初始化: hasMore =", hasMore, "视图模式 =", savedView, "pageSize =", params.size);
     
     // 监听 .custom-home 元素的滚动（而不是 window）
     $('.custom-home').on('scroll', function() {

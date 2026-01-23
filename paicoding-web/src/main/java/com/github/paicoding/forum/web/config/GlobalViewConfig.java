@@ -84,6 +84,9 @@ public class GlobalViewConfig {
     // 需要支付的可阅读数
     private String needPayArticleReadCount;
 
+    // 专栏首页跑马灯公告
+    private String columnInfoNews;
+
     public String getOss() {
         if (oss == null) {
             this.oss = "";
