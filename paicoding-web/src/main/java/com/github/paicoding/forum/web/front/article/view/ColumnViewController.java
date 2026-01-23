@@ -73,7 +73,7 @@ public class ColumnViewController {
      */
     @GetMapping(path = {"list", "/", "", "home"})
     public String list(Model model) {
-        PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance());
+        PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance(1L, 4L));
         List<SideBarDTO> sidebars = sidebarService.queryColumnSidebarList();
         ColumnVo vo = new ColumnVo();
         vo.setColumns(columns);
