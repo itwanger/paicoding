@@ -15,6 +15,7 @@
       <div class="info">
         <div class="title">
           <span class="new-tag-wrap tag" th:if="${column.type == 2}">上新</span>
+          <span class="new-tag-wrap tag star-tag" th:if="${column.type == 3}">星球专享</span>
           <span class="text-highlight" th:text="${column.column}">
             分布式专栏
           </span>
@@ -68,7 +69,7 @@
                 </span>
               </span>
               <span class="sale-tooltip" th:if="${column.type == 2 && new java.util.Date().getTime() < column.freeEndTime }" >
-                <span th:text="${column.type == 2} ? '限时免费': '免费'"></span>
+                <span th:text="${column.type == 2} ? '限免': '免费'"></span>
                 <span class="count-down-text"
                       th:data-free-endTime="${column.freeEndTime}"
                       th:data-free-startTime="${column.freeStartTime}"

@@ -18,6 +18,7 @@
       <div class="info">
         <div class="title">
           <span class="new-tag-wrap tag" th:if="${column.type == 2}">上新</span>
+          <span class="new-tag-wrap tag star-tag" th:if="${column.type == 3}">星球专享</span>
           <span class="text-highlight" th:text="${column.column}">
             分布式专栏
           </span>
@@ -59,19 +60,19 @@
             <div class="messages">
               <span class="message">
                 <span class="article-count"
-                      th:text="(${column.state == 2} ? '已完结 ' : '已更新 ') + ${column.count.articleCount} + ' 小节'">
+                      th:text="(${column.state == 2} ? '已完结 ' : '已更新 ') + ${column.count.articleCount} + '小节'">
                   已更新21小节
                 </span>
                 <span class="read-count"
-                      th:text="'共 ' + ${column.count.totalNums} + ' 节'">
+                      th:text="'共' + ${column.count.totalNums} + '节'">
                   共100节
                 </span>
-                <span class="read-count" th:text="${column.count.readCount} + ' 人已阅读'">
+                <span class="read-count" th:text="${column.count.readCount} + '人在看'">
                   多少人阅读
                 </span>
               </span>
               <span class="sale-tooltip" th:if="${column.type == 2 && new java.util.Date().getTime() < column.freeEndTime }" >
-                <span th:text="${column.type == 2} ? '限时免费': '免费'"></span>
+                <span th:text="${column.type == 2} ? '限免': '免费'"></span>
                 <span class="count-down-text"
                       th:data-free-endTime="${column.freeEndTime}"
                       th:data-free-startTime="${column.freeStartTime}"
