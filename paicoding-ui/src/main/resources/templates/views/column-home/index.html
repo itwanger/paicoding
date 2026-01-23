@@ -19,13 +19,6 @@
                 <div id="articleList">
                     <div th:replace="views/column-home/list/index">专栏列表</div>
                 </div>
-                <button
-                        th:if="${vo.columns.hasMore}"
-                        id="loadMoreTag"
-                        type="button"
-                        class="btn btn-outline-primary btn-lg btn-block"
-                        th:text="加载更多"
-                ></button>
             </div>
         </div>
 
@@ -39,5 +32,51 @@
     <!-- 底部信息 -->
     <div th:replace="components/layout/footer :: footer"></div>
 </div>
+<script th:inline="javascript">
+    console.log("脚本已加载");
+    
+    let isLoading = false;
+    let hasMore = [[${vo.columns.hasMore}]];
+    const params = {
+        "page": 2,
+        "size": 4
+    }
+    
+    console.log("初始化: hasMore =", hasMore);
+    
+    // 监听 .custom-home 元素的滚动（而不是 window）
+    $('.custom-home').on('scroll', function() {
+        const scrollElem = $(this)[0];
+        const scrollTop = scrollElem.scrollTop;
+        const scrollHeight = scrollElem.scrollHeight;
+        const clientHeight = scrollElem.clientHeight;
+        const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
+        
+        if (isLoading || !hasMore) {
+            console.log("跳过加载:", isLoading ? "正在加载中" : "没有更多数据");
+            return;
+        }
+        
+        // 距离底部200px时触发加载
+        if (distanceToBottom <= 200) {
+            console.log("触发加载下一页");
+            isLoading = true;
+            $.get('/column/api/list', params, function(data) {
+                console.log("response: ", data);
+                const result = data.result;
+                $('#articleList').append(result.html);
+                hasMore = result.hasMore;
+                params["page"] = params["page"] + 1;
+                isLoading = false;
+                console.log("加载完成，hasMore =", hasMore);
+            }).fail(function(err) {
+                console.error("加载失败:", err);
+                isLoading = false;
+            });
+        }
+    });
+    
+    console.log("滚动监听器已注册到 .custom-home 元素");
+</script>
 </body>
 </html>
