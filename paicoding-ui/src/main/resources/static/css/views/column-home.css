@@ -149,7 +149,13 @@
     cursor: default;
     margin-right: 3px;
     transform: translateY(-3px);
-    background-color: var(--pai-brand-5-bak);
+    background-color: var(--pai-brand-5-gold);
+}
+
+/* 星球专享标签样式 */
+.star-tag {
+    background-color: var(--pai-brand-1-normal);
+    color: #fff;
 }
 
 /* 通用标签 */

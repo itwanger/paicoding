@@ -10,6 +10,8 @@ body {
   --pai-brand-4-disable: #d1a278;
   /*备用色 非常深的颜色*/
   --pai-brand-5-bak: #fe6617;
+  /* 金色与橙色的和谐搭配 */
+  --pai-brand-5-gold: #FFB84D;
   /*消息提醒点*/
   --pai-brand-6-mq: #f85959;
   --pai-brand-7-light: rgba(255, 105, 0, 0.15);
