@@ -16,9 +16,10 @@ public class CdnUtil {
      * @return
      */
     public static String autoTransCdn(String val) {
-        if (val.startsWith(TO_REPLACE_CDN)) {
-            return val.replace(TO_REPLACE_CDN, TARGET_REPLACE_CDN);
-        }
+//  备案完成，无需做域名替换
+//        if (val.startsWith(TO_REPLACE_CDN)) {
+//            return val.replace(TO_REPLACE_CDN, TARGET_REPLACE_CDN);
+//        }
         return val;
     }
 
