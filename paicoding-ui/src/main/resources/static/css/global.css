@@ -1329,8 +1329,6 @@ button:focus {
   border: 1px solid var(--pai-color-5-gray);
   padding: 5px;
   border-radius: 4px;
-  width: auto !important;
-  height: auto !important;
   display: block;
   margin: 0 auto;
 }

@@ -438,3 +438,51 @@ blockquote {
   height: 70px;
   margin-bottom: 12px;
 }
+
+/* ========================================
+   🔥 图片拖拽缩放功能样式 - Moveable 版本
+   ======================================== */
+
+/* 图片选中状态 */
+.editormd-preview-container img.image-selected {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+/* 尺寸提示浮层 */
+.image-size-tooltip {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 99999;
+  pointer-events: none;
+  display: none;
+  font-family: 'Courier New', monospace;
+}
+
+/* Moveable 控制点样式自定义 */
+.moveable-control-box {
+  z-index: 9999 !important;
+}
+
+.moveable-line {
+  background: #4CAF50 !important;
+}
+
+.moveable-control {
+  border: 2px solid #4CAF50 !important;
+  background: white !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+/* 确保预览区图片不超出容器 */
+.editormd-preview-container img {
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+}
