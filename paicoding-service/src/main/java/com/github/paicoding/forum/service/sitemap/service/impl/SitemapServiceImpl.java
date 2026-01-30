@@ -76,6 +76,10 @@ public class SitemapServiceImpl implements SitemapService {
         Map<Long, ArticleDO> articleMap = articles.stream()
                 .collect(Collectors.toMap(ArticleDO::getId, article -> article, (a, b) -> a));
 
+        long now = System.currentTimeMillis();
+        long thirtyDaysAgo = now - (30L * 24 * 60 * 60 * 1000);
+        long ninetyDaysAgo = now - (90L * 24 * 60 * 60 * 1000);
+
         for (Map.Entry<String, Long> entry : siteMap.entrySet()) {
             Long articleId = Long.valueOf(entry.getKey());
             ArticleDO article = articleMap.get(articleId);
@@ -95,7 +99,26 @@ public class SitemapServiceImpl implements SitemapService {
                 url = buildArticleUrl(article, articleId);
             }
 
-            vo.addUrl(new SiteUrlVo(url, DateUtil.time2utc(entry.getValue())));
+            // 根据文章更新时间决定 changefreq 和 priority
+            String changefreq;
+            String priority;
+            long updateTime = entry.getValue();
+            
+            if (updateTime > thirtyDaysAgo) {
+                // 30天内更新的文章
+                changefreq = "weekly";
+                priority = "0.8";
+            } else if (updateTime > ninetyDaysAgo) {
+                // 30-90天内更新的文章
+                changefreq = "monthly";
+                priority = "0.6";
+            } else {
+                // 90天以上的旧文章
+                changefreq = "yearly";
+                priority = "0.5";
+            }
+
+            vo.addUrl(new SiteUrlVo(url, DateUtil.time2sitemapDate(updateTime), changefreq, priority));
         }
         return vo;
     }
@@ -131,10 +154,17 @@ public class SitemapServiceImpl implements SitemapService {
 
     private SiteMapVo initBasicSite() {
         SiteMapVo vo = new SiteMapVo();
-        String time = DateUtil.time2utc(System.currentTimeMillis());
-        vo.addUrl(new SiteUrlVo(host + "/", time));
-        vo.addUrl(new SiteUrlVo(host + "/column", time));
-        vo.addUrl(new SiteUrlVo(host + "/admin-view", time));
+        String time = DateUtil.time2sitemapDate(System.currentTimeMillis());
+        
+        // 首页：最高优先级，每日更新
+        vo.addUrl(new SiteUrlVo(host + "/", time, "daily", "1.0"));
+        
+        // 专栏列表：高优先级，每周更新
+        vo.addUrl(new SiteUrlVo(host + "/column", time, "weekly", "0.8"));
+        
+        // 管理后台：低优先级，很少更新
+        vo.addUrl(new SiteUrlVo(host + "/admin-view", time, "yearly", "0.3"));
+        
         return vo;
     }
 

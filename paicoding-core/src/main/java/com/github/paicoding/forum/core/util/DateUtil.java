@@ -12,6 +12,9 @@ import java.time.format.DateTimeFormatter;
  */
 public class DateUtil {
     public static final DateTimeFormatter UTC_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    
+    // Sitemap 使用的日期格式（精度到天）
+    public static final DateTimeFormatter SITEMAP_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static final DateTimeFormatter DB_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     public static final DateTimeFormatter BLOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm");
@@ -53,6 +56,15 @@ public class DateUtil {
 
     public static String time2utc(long timestamp) {
         return format(UTC_FORMAT, timestamp);
+    }
+    
+    /**
+     * 时间戳转 Sitemap 格式的日期（精度到天）
+     * @param timestamp 毫秒时间戳
+     * @return yyyy-MM-dd 格式
+     */
+    public static String time2sitemapDate(long timestamp) {
+        return format(SITEMAP_DATE_FORMAT, timestamp);
     }
 
     public static String time2date(long timestamp) {

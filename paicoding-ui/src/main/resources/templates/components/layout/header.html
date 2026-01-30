@@ -8,6 +8,20 @@
       技术派
     </title>
     <meta name="baidu-site-verification" content="codeva-mbGuu7l4Q1" />
+    
+    <!-- 动态 keywords 和 description（优先使用 SEO 设置） -->
+    <th:block th:if="${global.ogp != null}">
+      <meta th:each="tag: ${global.ogp}" 
+            th:if="${tag.key == 'keywords'}" 
+            name="keywords" 
+            th:content="${tag.val}" />
+      <meta th:each="tag: ${global.ogp}" 
+            th:if="${tag.key == 'description'}" 
+            name="description" 
+            th:content="${tag.val}" />
+    </th:block>
+    
+    <!-- 默认 keywords 和 description（当 SEO 未设置时） -->
     <meta
       name="keywords"
       content="技术派,开源社区,java,spring boot,IT,程序员,开发者,mysql,redis,沉默王二"

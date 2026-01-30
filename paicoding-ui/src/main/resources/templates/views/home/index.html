@@ -11,6 +11,9 @@
 
     <!-- 正文内容 -->
     <div class="home">
+      <!-- 隐藏的 H1 标签，用于 SEO -->
+      <h1 style="position: absolute; left: -9999px; top: -9999px;">技术派 - 学编程就上技术派</h1>
+      
       <!-- 类别筛选 -->
       <div
         th:replace="views/home/navbar/index :: navbar(${vo.categories})"
