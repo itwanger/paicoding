@@ -2,10 +2,12 @@ package com.github.paicoding.forum.web.front.article.view;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleOtherDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.CategoryDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.PayConfirmDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
@@ -173,6 +175,19 @@ public class ArticleViewController extends BaseViewController {
         // 针对专栏文章，做一个重定向
         ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
         if (columnArticle != null) {
+            // 检查教程发布状态
+            ColumnDTO column = columnService.queryBasicColumnInfo(columnArticle.getColumnId());
+            Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
+            
+            // 教程未发布 && 不是作者本人 → 拒绝访问
+            if (column.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
+                if (loginUserId == null || !loginUserId.equals(column.getAuthor())) {
+                    model.addAttribute("toast", "教程未发布，暂时无法访问");
+                    return "views/error/403";
+                }
+                // 作者本人可以预览未发布的教程
+            }
+            
             return String.format("redirect:/column/%d/%d", columnArticle.getColumnId(), columnArticle.getSection());
         }
 

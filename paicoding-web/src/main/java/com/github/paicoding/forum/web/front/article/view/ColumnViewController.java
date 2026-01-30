@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.front.article.view;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
@@ -91,6 +92,16 @@ public class ColumnViewController {
     @GetMapping(path = "{columnId}")
     public String column(@PathVariable("columnId") Long columnId, Model model) {
         ColumnDTO dto = columnService.queryColumnInfo(columnId);
+        Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
+        
+        // 教程未发布 && 不是作者本人 → 拒绝访问
+        if (dto.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
+            if (loginUserId == null || !loginUserId.equals(dto.getAuthor())) {
+                model.addAttribute("toast", "教程未发布,暂时无法访问");
+                return "views/error/403";
+            }
+        }
+        
         model.addAttribute("vo", dto);
         return "/views/column-index/index";
     }
@@ -109,6 +120,15 @@ public class ColumnViewController {
         if (section <= 0) section = 1;
         // 查询专栏
         ColumnDTO column = columnService.queryBasicColumnInfo(columnId);
+        Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
+        
+        // 教程未发布 && 不是作者本人 → 拒绝访问
+        if (column.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
+            if (loginUserId == null || !loginUserId.equals(column.getAuthor())) {
+                model.addAttribute("toast", "教程未发布,暂时无法访问");
+                return "views/error/403";
+            }
+        }
 
         ColumnArticleDO columnArticle = columnService.queryColumnArticle(columnId, section);
         Long articleId = columnArticle.getArticleId();
