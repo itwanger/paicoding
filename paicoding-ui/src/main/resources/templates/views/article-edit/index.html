@@ -7,6 +7,10 @@
 <link rel="stylesheet" href="/editormd/css/editormd.css" th:href="${global.siteInfo.oss + '/editormd/css/editormd.css'}" />
 <link rel="stylesheet" href="/css/views/article-edit.css" th:href="${global.siteInfo.oss + '/css/views/article-edit.css'}" />
 <script src="/editormd/editormd.js" th:src="${global.siteInfo.oss + '/editormd/editormd.js'}"></script>
+<!-- 🔥 Moveable 库（图片缩放功能依赖） -->
+<script src="/js/lib/moveable.min.js" th:src="${global.siteInfo.oss + '/js/lib/moveable.min.js'}"></script>
+<!-- 🔥 图片拖拽缩放模块 -->
+<script src="/js/biz/editor-image-resize.js" th:src="${global.siteInfo.oss + '/js/biz/editor-image-resize.js'}"></script>
 
 <body id="body">
 <!-- 正文内容 -->
@@ -597,6 +601,12 @@
       //this.width("100%");
       //this.height(480);
       //this.resize("100%", 640);
+
+      // 🔥 初始化图片拖拽缩放功能
+      if (window.EditorImageResize) {
+        EditorImageResize.init(this);
+        console.log('[Editor] 图片缩放功能已启用');
+      }
     },
     onchange: function () {
       let newVal = this.getMarkdown();
