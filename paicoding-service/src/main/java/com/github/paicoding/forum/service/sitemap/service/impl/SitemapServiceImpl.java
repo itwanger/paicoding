@@ -147,6 +147,31 @@ public class SitemapServiceImpl implements SitemapService {
     }
 
     /**
+     * 生成 robots.txt 内容
+     */
+    @Override
+    public String getRobotsTxt() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("User-agent: *\n");
+        sb.append("Allow: /\n");
+        sb.append("\n");
+        sb.append("# 禁止抓取管理后台\n");
+        sb.append("Disallow: /admin/\n");
+        sb.append("Disallow: /admin-view/\n");
+        sb.append("\n");
+        sb.append("# 禁止抓取API接口\n");
+        sb.append("Disallow: /api/\n");
+        sb.append("\n");
+        sb.append("# 禁止抓取用户相关页面\n");
+        sb.append("Disallow: /user/login\n");
+        sb.append("Disallow: /user/register\n");
+        sb.append("\n");
+        sb.append("# Sitemap 位置\n");
+        sb.append("Sitemap: ").append(host).append("/sitemap.xml\n");
+        return sb.toString();
+    }
+
+    /**
      * 基于文章的上下线，自动更新站点地图
      *
      * @param event

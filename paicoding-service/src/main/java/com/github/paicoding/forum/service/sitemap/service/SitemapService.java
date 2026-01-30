@@ -8,6 +8,7 @@ import java.time.LocalDate;
 /**
  * 站点统计相关服务：
  * - 站点地图
+ * - robots.txt
  * - pv/uv
  *
  * @author YiHui
@@ -21,6 +22,13 @@ public interface SitemapService {
      * @return
      */
     SiteMapVo getSiteMap();
+
+    /**
+     * 生成 robots.txt 内容
+     *
+     * @return
+     */
+    String getRobotsTxt();
 
     /**
      * 刷新站点地图
