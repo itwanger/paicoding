@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 import java.nio.charset.Charset;
 
 /**
- * 生成 sitemap.xml
+ * 生成 sitemap.xml 和 robots.txt
  *
  * @author YiHui
  * @date 2023/2/13
@@ -41,6 +41,12 @@ public class SiteMapController {
         ans = ans.replaceAll(" xmlns=\"\"", "");
 
         return ans.getBytes(Charset.defaultCharset());
+    }
+
+    @RequestMapping(path = "/robots.txt",
+            produces = "text/plain;charset=utf-8")
+    public String robotsTxt() {
+        return sitemapService.getRobotsTxt();
     }
 
     @GetMapping(path = "/sitemap/refresh")
