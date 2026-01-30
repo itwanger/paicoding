@@ -85,8 +85,56 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             columnDao.save(columnInfoDO);
         } else {
             columnInfoDO.setId(req.getColumnId());
+            
+            // 查询修改前的专栏状态
+            ColumnInfoDO oldColumn = columnDao.getById(req.getColumnId());
+            boolean wasOffline = oldColumn != null && oldColumn.getState() == 0;
+            boolean isNowOnline = columnInfoDO.getState() != null && columnInfoDO.getState() != 0;
+            
             columnDao.updateById(columnInfoDO);
+            
+            // 如果专栏从"未发布"变为"连载"或"已完结"，批量发布专栏内的未发布文章
+            if (wasOffline && isNowOnline) {
+                batchPublishColumnArticles(req.getColumnId());
+            }
         }
+    }
+    
+    /**
+     * 批量发布专栏内所有未发布的文章
+     * 
+     * @param columnId 专栏ID
+     */
+    private void batchPublishColumnArticles(Long columnId) {
+        // 查询专栏内所有文章ID
+        List<ColumnArticleDO> columnArticles = columnArticleDao.lambdaQuery()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .list();
+        
+        if (CollectionUtils.isEmpty(columnArticles)) {
+            return;
+        }
+        
+        List<Long> articleIds = columnArticles.stream()
+                .map(ColumnArticleDO::getArticleId)
+                .collect(Collectors.toList());
+        
+        // 查询这些文章中状态为未发布(0)的文章
+        List<ArticleDO> offlineArticles = articleDao.lambdaQuery()
+                .in(ArticleDO::getId, articleIds)
+                .eq(ArticleDO::getStatus, 0)
+                .list();
+        
+        if (CollectionUtils.isEmpty(offlineArticles)) {
+            return;
+        }
+        
+        List<Long> offlineArticleIds = offlineArticles.stream()
+                .map(ArticleDO::getId)
+                .collect(Collectors.toList());
+        
+        // 批量更新为已发布状态
+        articleDao.batchUpdateArticleStatus(offlineArticleIds, 1);
     }
 
     /**

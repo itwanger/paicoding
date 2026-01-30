@@ -45,7 +45,8 @@ public class ArticleConverter {
         article.setSource(req.getSource());
         article.setSourceUrl(req.getSourceUrl());
         article.setSummary(req.getSummary());
-        article.setStatus(req.pushStatus().getCode());
+        // 优先使用 req.getStatus()，如果为 null 则使用 actionType 推断
+        article.setStatus(req.getStatus() != null ? req.getStatus() : req.pushStatus().getCode());
         article.setDeleted(req.deleted() ? YesOrNoEnum.YES.getCode() : YesOrNoEnum.NO.getCode());
         article.setReadType(req.getReadType() == null ? ArticleReadTypeEnum.NORMAL.getType() : req.getReadType());
         if (article.getReadType().equals(ArticleReadTypeEnum.PAY_READ.getType())) {
@@ -155,6 +156,7 @@ public class ArticleConverter {
         searchArticleParams.setStatus(req.getStatus());
         searchArticleParams.setOfficalStat(req.getOfficalStat());
         searchArticleParams.setToppingStat(req.getToppingStat());
+        searchArticleParams.setColumnId(req.getColumnId());
         searchArticleParams.setPageNum(req.getPageNumber());
         searchArticleParams.setPageSize(req.getPageSize());
         return searchArticleParams;
