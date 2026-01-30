@@ -15,4 +15,6 @@ import lombok.EqualsAndHashCode;
 public class SearchTagParams extends PageParam {
     // 标签名称
     private String tag;
+    // 状态
+    private Integer status;
 }

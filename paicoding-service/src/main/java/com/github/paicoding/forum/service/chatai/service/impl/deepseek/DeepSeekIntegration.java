@@ -50,10 +50,44 @@ public class DeepSeekIntegration {
 
     /**
      * 一次性返回的交互方式
-     * todo 待实现； 目前技术派主推流式交互，暂无下面的应用场景，留待有缘人补全
      */
     public boolean directReturn(ChatItemVo item) {
-        return false;
+        List<ChatMsg> msg = toMsg(item);
+        ChatReq req = new ChatReq();
+        req.setModel("deepseek-chat");
+        req.setMessages(msg);
+        req.setStream(false);
+        
+        try {
+            String body = JsonUtil.toStr(req);
+            Request request = new Request.Builder()
+                    .url(deepSeekConf.getApiHost() + "/chat/completions")
+                    .addHeader("Authorization", "Bearer " + deepSeekConf.getApiKey())
+                    .addHeader("Content-Type", "application/json")
+                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), body))
+                    .build();
+            
+            okhttp3.Response response = okHttpClient.newCall(request).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                String responseBody = response.body().string();
+                // 解析响应 JSON
+                com.alibaba.fastjson.JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(responseBody);
+                com.alibaba.fastjson.JSONArray choices = jsonObject.getJSONArray("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    com.alibaba.fastjson.JSONObject firstChoice = choices.getJSONObject(0);
+                    com.alibaba.fastjson.JSONObject message = firstChoice.getJSONObject("message");
+                    String content = message.getString("content");
+                    item.initAnswer(content);
+                    log.info("DeepSeek AI 调用成功! 传参:{}, 返回:{}", item.getQuestion(), content);
+                    return true;
+                }
+            }
+            log.error("DeepSeek调用失败: {}", response);
+            return false;
+        } catch (Exception e) {
+            log.error("deepseek调用失败", e);
+            return false;
+        }
     }
 
     /**

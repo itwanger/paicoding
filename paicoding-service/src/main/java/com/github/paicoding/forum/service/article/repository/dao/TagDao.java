@@ -59,6 +59,7 @@ public class TagDao extends ServiceImpl<TagMapper, TagDO> {
     private LambdaQueryChainWrapper<TagDO> createTagQuery(SearchTagParams params) {
         return lambdaQuery()
                 .eq(TagDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(params.getStatus() != null, TagDO::getStatus, params.getStatus())
                 .apply(StringUtils.isNotBlank(params.getTag()),
                         "LOWER(tag_name) LIKE {0}",
                         "%" + params.getTag().toLowerCase() + "%");

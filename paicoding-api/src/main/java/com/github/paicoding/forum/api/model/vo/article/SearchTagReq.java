@@ -12,6 +12,8 @@ import lombok.Data;
 public class SearchTagReq {
     // 标签名称
     private String tag;
+    // 状态
+    private Integer status;
     // 分页
     private Long pageNumber;
     private Long pageSize;
