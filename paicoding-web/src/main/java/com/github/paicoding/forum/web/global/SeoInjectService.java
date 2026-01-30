@@ -82,14 +82,30 @@ public class SeoInjectService {
             jsonLd.put("image", image);
         }
 
+        // 优化 JSON-LD 为 TechArticle 类型
+        jsonLd.put("@type", "TechArticle");
         jsonLd.put("headline", title);
         jsonLd.put("description", description);
+        
         Map<String, Object> author = new HashMap<>();
         author.put("@type", "Person");
         author.put("name", authorName);
         jsonLd.put("author", author);
+        
         jsonLd.put("dateModified", updateTime);
         jsonLd.put("datePublished", publishedTime);
+        
+        // 添加发布者信息
+        Map<String, Object> publisher = new HashMap<>();
+        publisher.put("@type", "Organization");
+        publisher.put("name", "技术派");
+        
+        Map<String, Object> logo = new HashMap<>();
+        logo.put("@type", "ImageObject");
+        logo.put("url", globalViewConfig.getHost() + "/img/logo.svg");
+        publisher.put("logo", logo);
+        
+        jsonLd.put("publisher", publisher);
 
         ReqInfoContext.getReqInfo().setSeo(seo);
     }
@@ -130,16 +146,38 @@ public class SeoInjectService {
         list.add(new SeoTagVo("description", detail.getArticle().getSummary()));
         list.add(new SeoTagVo("keywords", detail.getArticle().getCategory().getCategory() + "," + detail.getArticle().getTags().stream().map(TagDTO::getTag).collect(Collectors.joining(","))));
 
-
+        // 优化 JSON-LD 为 TechArticle 类型（教程也是技术文章）
+        jsonLd.put("@type", "TechArticle");
         jsonLd.put("headline", title);
         jsonLd.put("description", description);
+        
         Map<String, Object> author = new HashMap<>();
         author.put("@type", "Person");
         author.put("name", authorName);
         jsonLd.put("author", author);
+        
         jsonLd.put("dateModified", updateTime);
         jsonLd.put("datePublished", publishedTime);
         jsonLd.put("image", image);
+        
+        // 添加发布者信息
+        Map<String, Object> publisher = new HashMap<>();
+        publisher.put("@type", "Organization");
+        publisher.put("name", "技术派");
+        
+        Map<String, Object> logo = new HashMap<>();
+        logo.put("@type", "ImageObject");
+        logo.put("url", globalViewConfig.getHost() + "/img/logo.svg");
+        publisher.put("logo", logo);
+        
+        jsonLd.put("publisher", publisher);
+        
+        // 添加教程所属专栏信息
+        Map<String, Object> isPartOf = new HashMap<>();
+        isPartOf.put("@type", "Course");
+        isPartOf.put("name", column.getColumn());
+        isPartOf.put("description", column.getIntroduction());
+        jsonLd.put("isPartOf", isPartOf);
 
         if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeo(seo);
     }
@@ -196,7 +234,15 @@ public class SeoInjectService {
         jsonLd.put("@context", "https://schema.org");
         jsonLd.put("@type", "WebSite");
         jsonLd.put("name", "技术派");
+        jsonLd.put("url", globalViewConfig.getHost());
         jsonLd.put("description", DES);
+        
+        // 添加搜索功能
+        Map<String, Object> potentialAction = new HashMap<>();
+        potentialAction.put("@type", "SearchAction");
+        potentialAction.put("target", globalViewConfig.getHost() + "/search?q={search_term_string}");
+        potentialAction.put("query-input", "required name=search_term_string");
+        jsonLd.put("potentialAction", potentialAction);
 
         if (ReqInfoContext.getReqInfo() != null) {
             ReqInfoContext.getReqInfo().setSeo(seo);
@@ -208,6 +254,9 @@ public class SeoInjectService {
 
         List<SeoTagVo> list = new ArrayList<>();
         Map<String, Object> map = new HashMap<>();
+        
+        // 添加 @context，确保所有页面都有
+        map.put("@context", "https://schema.org");
 
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();

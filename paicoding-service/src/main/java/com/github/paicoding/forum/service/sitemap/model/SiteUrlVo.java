@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JacksonXmlRootElement(localName = "url")
 public class SiteUrlVo {
 
@@ -22,4 +21,21 @@ public class SiteUrlVo {
     @JacksonXmlProperty(localName = "lastmod")
     private String lastMod;
 
+    @JacksonXmlProperty(localName = "changefreq")
+    private String changefreq;
+
+    @JacksonXmlProperty(localName = "priority")
+    private String priority;
+
+    public SiteUrlVo(String loc, String lastMod) {
+        this.loc = loc;
+        this.lastMod = lastMod;
+    }
+
+    public SiteUrlVo(String loc, String lastMod, String changefreq, String priority) {
+        this.loc = loc;
+        this.lastMod = lastMod;
+        this.changefreq = changefreq;
+        this.priority = priority;
+    }
 }
