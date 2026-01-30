@@ -8,44 +8,11 @@ PaiCoding is a Spring Boot-based community platform for technical content sharin
 
 ## Build and Test Commands
 
-### Build
-```bash
-# Clean and install all modules
-mvn clean install -DskipTests=true
+### Important Notes
+- **Project JDK**: This project uses Java 8
+- **Local Environment**: Current local JDK is Java 21
+- **Build Commands**: DO NOT use `mvn clean` commands due to JDK version mismatch (Java 21 vs Java 8). This will cause compilation errors with Lombok and other annotation processors.
 
-# Build for specific environment (dev/test/pre/prod)
-mvn clean install -DskipTests=true -P<env>
-
-# Build web module only
-cd paicoding-web && mvn clean package spring-boot:repackage -DskipTests=true -Pprod
-```
-
-### Test
-```bash
-# Run all tests
-mvn test
-
-# Run tests in specific module
-cd paicoding-web && mvn test
-
-# Run single test class
-mvn test -Dtest=ClassName
-
-# Run single test method
-mvn test -Dtest=ClassName#methodName
-```
-
-### Run Application
-```bash
-# Local development (requires MySQL and Redis running)
-# Entry point: QuickForumApplication in paicoding-web module
-# Default port: 8080
-# Configure database in: paicoding-web/src/main/resources-env/dev/application-dal.yml
-
-# Production deployment
-./launch.sh start        # Build and deploy
-./launch.sh restart      # Restart existing deployment
-```
 
 ## Architecture
 

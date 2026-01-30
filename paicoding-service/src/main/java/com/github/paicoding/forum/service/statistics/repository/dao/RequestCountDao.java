@@ -66,4 +66,14 @@ public class RequestCountDao extends ServiceImpl<RequestCountMapper, RequestCoun
     public void incrementCount(Long id) {
         baseMapper.incrementCount(id);
     }
+
+    /**
+     * 插入或更新请求计数(使用ON DUPLICATE KEY UPDATE避免并发插入问题)
+     *
+     * @param host 主机地址
+     * @param date 日期
+     */
+    public void insertOrUpdate(String host, Date date) {
+        baseMapper.insertOrUpdate(host, date);
+    }
 }

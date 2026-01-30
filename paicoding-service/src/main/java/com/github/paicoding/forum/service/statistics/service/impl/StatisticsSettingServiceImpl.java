@@ -54,13 +54,8 @@ public class StatisticsSettingServiceImpl implements StatisticsSettingService {
 
     @Override
     public void saveRequestCount(String host) {
-        RequestCountDO requestCountDO = requestCountService.getRequestCount(host);
-        if (requestCountDO == null) {
-            requestCountService.insert(host);
-        } else {
-            // 改为数据库直接更新
-            requestCountService.incrementCount(requestCountDO.getId());
-        }
+        // 使用 INSERT ON DUPLICATE KEY UPDATE 一次性完成插入或更新操作
+        requestCountService.insert(host);
     }
 
     @Override

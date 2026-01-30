@@ -33,17 +33,12 @@ public class RequestCountServiceImpl implements RequestCountService {
 
     @Override
     public void insert(String host) {
-        RequestCountDO requestCountDO = null;
         try {
-            requestCountDO = new RequestCountDO();
-            requestCountDO.setHost(host);
-            requestCountDO.setCnt(1);
-            requestCountDO.setDate(Date.valueOf(LocalDate.now()));
-            requestCountDao.save(requestCountDO);
+            // 使用 INSERT ON DUPLICATE KEY UPDATE 避免并发插入导致的重复键异常
+            requestCountDao.insertOrUpdate(host, Date.valueOf(LocalDate.now()));
         } catch (Exception e) {
-            // fixme 非数据库原因得异常，则大概率是0点的并发访问，导致同一天写入多条数据的问题； 可以考虑使用分布式锁来避免
-            // todo 后续考虑使用redis自增来实现pv计数统计
-            log.error("save requestCount error: {}", requestCountDO, e);
+            // 记录异常但不影响主流程
+            log.error("save requestCount error for host: {}, date: {}", host, LocalDate.now(), e);
         }
     }
 
