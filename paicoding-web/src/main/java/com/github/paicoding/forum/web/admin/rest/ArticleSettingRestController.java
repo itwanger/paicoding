@@ -4,6 +4,8 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateReq;
+import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateRes;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
@@ -13,6 +15,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.service.article.service.AiSeoService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
@@ -44,6 +47,9 @@ public class ArticleSettingRestController {
 
     @Autowired
     private ArticleWriteService articleWriteService;
+
+    @Autowired
+    private AiSeoService aiSeoService;
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
@@ -111,6 +117,13 @@ public class ArticleSettingRestController {
         vo.setKey(key);
         vo.setItems(list);
         return ResVo.ok(vo);
+    }
+
+    @ApiOperation("AI生成SEO标题和描述")
+    @PostMapping(path = "generate/seo")
+    public ResVo<AiSeoGenerateRes> generateSeo(@RequestBody AiSeoGenerateReq req) {
+        AiSeoGenerateRes response = aiSeoService.generateSeoTitleAndDescription(req);
+        return ResVo.ok(response);
     }
 
 }
