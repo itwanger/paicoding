@@ -3,10 +3,12 @@ package com.github.paicoding.forum.service.statistics.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.paicoding.forum.api.model.vo.statistics.dto.StatisticsDayDTO;
 import com.github.paicoding.forum.service.statistics.repository.entity.RequestCountDO;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -39,4 +41,14 @@ public interface RequestCountMapper extends BaseMapper<RequestCountDO> {
      */
     @Update("update request_count set cnt = cnt + 1 where id = #{id}")
     void incrementCount(Long id);
+
+    /**
+     * 插入或更新请求计数(解决并发重复插入问题)
+     *
+     * @param host 主机地址
+     * @param date 日期
+     */
+    @Insert("INSERT INTO request_count (host, cnt, date) VALUES (#{host}, 1, #{date}) " +
+            "ON DUPLICATE KEY UPDATE cnt = cnt + 1")
+    void insertOrUpdate(@Param("host") String host, @Param("date") Date date);
 }

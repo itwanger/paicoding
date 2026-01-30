@@ -17,6 +17,11 @@ public class NotifyMsgDO extends BaseDO {
     private static final long serialVersionUID = -4043774744889659100L;
 
     /**
+     * 消息内容最大长度(数据库字段定义为 VARCHAR(1024))
+     */
+    private static final int MAX_MSG_LENGTH = 1000;
+
+    /**
      * 消息关联的主体
      * - 如文章收藏、评论、回复评论、点赞消息，这里存文章ID；
      * - 如系统通知消息时，这里存的是系统通知消息正文主键，也可以是0
@@ -56,4 +61,19 @@ public class NotifyMsgDO extends BaseDO {
      * 0 未查看 1 已查看
      */
     private Integer state;
+
+    /**
+     * 设置消息内容，自动截断超长内容
+     *
+     * @param msg 消息内容
+     * @return this
+     */
+    public NotifyMsgDO setMsg(String msg) {
+        if (msg != null && msg.length() > MAX_MSG_LENGTH) {
+            this.msg = msg.substring(0, MAX_MSG_LENGTH) + "...";
+        } else {
+            this.msg = msg;
+        }
+        return this;
+    }
 }
