@@ -183,24 +183,19 @@ public class SeoInjectService {
     public Seo defaultSeo() {
         Seo seo = initBasicSeoTag();
         List<SeoTagVo> list = seo.getOgp();
-        list.add(new SeoTagVo("og:title", "技术派"));
+        list.add(new SeoTagVo("og:title", "技术派 - 学编程就上技术派"));
         list.add(new SeoTagVo("og:description", DES));
-        list.add(new SeoTagVo("og:type", "article"));
+        list.add(new SeoTagVo("og:type", "website"));
         list.add(new SeoTagVo("og:locale", "zh-CN"));
 
-        list.add(new SeoTagVo("article:tag", "后端,前端,Java,Spring,计算机"));
-        list.add(new SeoTagVo("article:section", "开源社区"));
-        list.add(new SeoTagVo("article:author", "技术派"));
-
-        list.add(new SeoTagVo("author", "技术派"));
-        list.add(new SeoTagVo("title", "技术派"));
+        list.add(new SeoTagVo("title", "技术派 - 学编程就上技术派"));
         list.add(new SeoTagVo("description", DES));
         list.add(new SeoTagVo("keywords", KEYWORDS));
 
         Map<String, Object> jsonLd = seo.getJsonLd();
         jsonLd.put("@context", "https://schema.org");
-        jsonLd.put("@type", "Article");
-        jsonLd.put("headline", "技术派");
+        jsonLd.put("@type", "WebSite");
+        jsonLd.put("name", "技术派");
         jsonLd.put("description", DES);
 
         if (ReqInfoContext.getReqInfo() != null) {
