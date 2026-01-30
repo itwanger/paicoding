@@ -33,6 +33,9 @@ public class SearchArticleReq {
     @ApiModelProperty("URL slug,用于SEO友好URL")
     private String urlSlug;
 
+    @ApiModelProperty("专栏ID")
+    private Long columnId;
+
     @ApiModelProperty("请求页数，从1开始计数")
     private long pageNumber;
 

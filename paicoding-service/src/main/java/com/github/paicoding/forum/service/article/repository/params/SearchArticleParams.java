@@ -50,4 +50,9 @@ public class SearchArticleParams extends PageParam {
      * URL slug,用于SEO友好URL
      */
     private String urlSlug;
+
+    /**
+     * 专栏ID
+     */
+    private Long columnId;
 }

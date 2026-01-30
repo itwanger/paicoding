@@ -389,4 +389,20 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return articleDOS;
 
     }
+
+    /**
+     * 批量更新专栏内文章的发布状态
+     * 
+     * @param articleIds 文章ID列表
+     * @param status 目标状态
+     */
+    public void batchUpdateArticleStatus(List<Long> articleIds, Integer status) {
+        if (CollectionUtils.isEmpty(articleIds)) {
+            return;
+        }
+        lambdaUpdate()
+                .in(ArticleDO::getId, articleIds)
+                .set(ArticleDO::getStatus, status)
+                .update();
+    }
 }

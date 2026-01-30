@@ -88,6 +88,12 @@
         <if test="searchParams.urlSlug != null and searchParams.urlSlug != ''">
             and a.url_slug = #{searchParams.urlSlug}
         </if>
+        <if test="searchParams.columnId != null and searchParams.columnId != -1">
+            and exists (
+                select 1 from column_article ca
+                where ca.article_id = a.id and ca.column_id = #{searchParams.columnId}
+            )
+        </if>
     </sql>
 
     <select id="listArticlesByParams"
