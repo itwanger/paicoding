@@ -13,7 +13,7 @@
   <script src="/js/biz/ai-comment.js" th:src="${global.siteInfo.oss + '/js/biz/ai-comment.js'}"></script>
   <script src="/js/biz/comment-markdown.js" th:src="${global.siteInfo.oss + '/js/biz/comment-markdown.js'}"></script>
 
-  <body id="body">
+  <body id="body" data-copy-limit="200" data-copy-limit-scope="#articleContent" data-copy-limit-exempt="pre,code">
     <!-- 导航栏 -->
     <div th:replace="components/layout/navbar :: navbar"></div>
     <div class="article-wrap">

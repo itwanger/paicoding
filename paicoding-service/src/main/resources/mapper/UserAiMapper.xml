@@ -34,7 +34,7 @@
             resultType="com.github.paicoding.forum.api.model.vo.user.dto.ZsxqUserInfoDTO">
         select a.id, a.user_id, a.star_number, a.invite_code,
             a.invite_num, a.state, u.user_name as user_code,
-            a.strategy, u.login_type, a.star_expire_time as expireTime,
+            a.strategy, u.login_type, date_format(a.star_expire_time, '%Y-%m-%d') as expireTime,
             ui.user_name as name, ui.photo as avatar, u.update_time as lastLoginTime
         from user_ai a
         left join user u on u.id = a.user_id

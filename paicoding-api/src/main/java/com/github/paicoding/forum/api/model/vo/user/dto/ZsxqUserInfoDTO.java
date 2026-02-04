@@ -62,9 +62,9 @@ public class ZsxqUserInfoDTO implements Serializable {
     @ApiModelProperty("AI策略")
     private Integer strategy;
 
-    // 过期时间
+    // 过期时间 (日期字符串: yyyy-MM-dd)
     @ApiModelProperty("过期时间")
-    private Date expireTime;
+    private String expireTime;
     
     // 最后登录时间
     @ApiModelProperty("最后登录时间")
