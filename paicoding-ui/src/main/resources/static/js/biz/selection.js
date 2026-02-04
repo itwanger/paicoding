@@ -129,3 +129,58 @@ function elementJSONToRange(json) {
 
     return range;
 }
+
+// Copy limit for column pages (enabled via data attributes on <body>)
+function setupCopyLimit() {
+    const body = document.body;
+    if (!body || !body.dataset || !body.dataset.copyLimit) return;
+
+    const limit = Number(body.dataset.copyLimit);
+    if (!Number.isFinite(limit) || limit <= 0) return;
+
+    const scopeSelector = body.dataset.copyLimitScope || '#articleContent';
+    const exemptSelector = body.dataset.copyLimitExempt || 'pre,code';
+    const container = document.querySelector(scopeSelector);
+    if (!container) return;
+
+    document.addEventListener('copy', function (event) {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) return;
+
+        const anchorNode = selection.anchorNode;
+        const focusNode = selection.focusNode;
+        if (!anchorNode || !focusNode) return;
+
+        if (!container.contains(anchorNode) || !container.contains(focusNode)) return;
+
+        const anchorEl = anchorNode.nodeType === Node.ELEMENT_NODE ? anchorNode : anchorNode.parentElement;
+        const focusEl = focusNode.nodeType === Node.ELEMENT_NODE ? focusNode : focusNode.parentElement;
+        if (!anchorEl || !focusEl) return;
+
+        const anchorExempt = anchorEl.closest(exemptSelector);
+        const focusExempt = focusEl.closest(exemptSelector);
+        if (anchorExempt && focusExempt && anchorExempt === focusExempt) return;
+
+        const text = selection.toString();
+        if (!text || text.length <= limit) return;
+
+        const truncated = text.slice(0, limit);
+        if (event && event.clipboardData) {
+            event.clipboardData.setData('text/plain', truncated);
+            event.preventDefault();
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            event.preventDefault();
+            navigator.clipboard.writeText(truncated).catch(function () {});
+        }
+
+        if (typeof toastr !== 'undefined' && typeof toastr.info === 'function') {
+            toastr.info('仅允许复制前 ' + limit + ' 字');
+        }
+    }, true);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupCopyLimit);
+} else {
+    setupCopyLimit();
+}
