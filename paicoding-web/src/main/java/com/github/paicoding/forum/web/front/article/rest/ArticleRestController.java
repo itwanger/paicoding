@@ -86,6 +86,10 @@ public class ArticleRestController {
      */
     @GetMapping("/data/detail/{articleId}")
     public ResVo<ArticleDetailVo> detail(@PathVariable(name = "articleId") Long articleId) throws IOException {
+        // === Fix: validate articleId to avoid potential NPE ===
+        if (articleId == null || articleId <= 0) {
+            return ResVo.fail("Invalid articleId: " + articleId);
+        } 
         ArticleDetailVo vo = new ArticleDetailVo();
         // 文章相关信息
         ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
