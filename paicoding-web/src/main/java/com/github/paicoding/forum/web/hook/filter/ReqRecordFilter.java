@@ -113,6 +113,7 @@ public class ReqRecordFilter implements Filter {
 //            request.getSession().setAttribute("latestVisit", System.currentTimeMillis());
 
             ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
+            reqInfo.setTraceId(MdcUtil.getTraceId());
             reqInfo.setHost(request.getHeader("host"));
             reqInfo.setPath(request.getPathInfo());
             if (reqInfo.getPath() == null) {

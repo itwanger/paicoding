@@ -1,6 +1,15 @@
 import axios, { AxiosError, type AxiosResponse } from "axios";
 import {clearStorage, getTokenName, messageConfirm, messageTip} from "@/util/utils";
-import { BASE_URL, MOCK_LOGIN_URL } from '@/http/URL'
+import {
+  BASE_URL,
+  KNOWLEDGE_AGENT_ASK_URL,
+  KNOWLEDGE_DOC_DETAIL_URL,
+  KNOWLEDGE_DOC_LIST_URL,
+  KNOWLEDGE_SEARCH_URL,
+  KNOWLEDGE_TAGS_URL,
+  KNOWLEDGE_TREE_URL,
+  MOCK_LOGIN_URL
+} from '@/http/URL'
 import { LOCALSTORAGE_AUTHORIZATION } from '@/constants/LocalStorageConstants'
 
 axios.defaults.baseURL = BASE_URL;
@@ -330,4 +339,30 @@ export async function sendChatMessage(
       onError(error);
     }
   }
+}
+
+// ============== Knowledge Base API ==============
+
+export function getKnowledgeTree<T>(): Promise<AxiosResponse<T>> {
+  return doGet(KNOWLEDGE_TREE_URL, {})
+}
+
+export function getKnowledgeTags<T>(): Promise<AxiosResponse<T>> {
+  return doGet(KNOWLEDGE_TAGS_URL, {})
+}
+
+export function getKnowledgeDocs<T>(params: { categoryId?: number | null; tagId?: number | null; page?: number; size?: number }): Promise<AxiosResponse<T>> {
+  return doGet(KNOWLEDGE_DOC_LIST_URL, params)
+}
+
+export function searchKnowledgeDocs<T>(params: { q: string; categoryId?: number | null; tagId?: number | null; page?: number; size?: number }): Promise<AxiosResponse<T>> {
+  return doGet(KNOWLEDGE_SEARCH_URL, params)
+}
+
+export function getKnowledgeDocDetail<T>(docId: number | string): Promise<AxiosResponse<T>> {
+  return doGet(`${KNOWLEDGE_DOC_DETAIL_URL}/${docId}`, {})
+}
+
+export function askKnowledgeAgent<T>(payload: { question: string; contextDocIds?: number[]; allowMutation?: boolean }): Promise<AxiosResponse<T>> {
+  return doPost(KNOWLEDGE_AGENT_ASK_URL, payload)
 }

@@ -81,6 +81,11 @@ public class ReqInfoContext {
 
         private String deviceId;
 
+        /**
+         * 全链路追踪ID
+         */
+        private String traceId;
+
         @Override
         public String getName() {
             return session;
