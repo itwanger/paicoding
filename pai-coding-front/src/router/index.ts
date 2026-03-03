@@ -75,6 +75,11 @@ const router = createRouter({
         loginRequired: true
       }
     },
+    {
+      path: '/knowledge',
+      name: 'knowledge',
+      component: () => import('@/views/KnowledgeView.vue')
+    },
     // 工具页
     {
       path: '/tools',

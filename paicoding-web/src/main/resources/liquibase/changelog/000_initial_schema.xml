@@ -112,4 +112,9 @@
     <changeSet id="00000000000025" author="XuYifei">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_251118_remove_zsxq.sql"/>
     </changeSet>
+
+    <!-- 知识库管理系统  -->
+    <changeSet id="00000000000026" author="XuYifei">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260302_knowledge_base.sql"/>
+    </changeSet>
 </databaseChangeLog>

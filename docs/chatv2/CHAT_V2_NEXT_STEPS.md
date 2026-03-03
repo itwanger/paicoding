@@ -32,8 +32,7 @@ npm install @types/marked --save-dev
 
 **选项 A：使用环境变量（推荐）**
 ```bash
-export QWEN_API_KEY="sk-xxxxxxxxxxxxxxxxxx"
-export DEEPSEEK_API_KEY="sk-xxxxxxxxxxxxxxxxxx"
+export BAILIAN_API_KEY="sk-xxxxxxxxxxxxxxxxxx"
 ```
 
 **选项 B：直接修改配置文件**
@@ -46,7 +45,7 @@ chat-v2:
       name: 通义千问-Plus
       provider: Alibaba
       baseUrl: https://dashscope.aliyuncs.com/compatible-mode/v1
-      apiKey: sk-your-actual-qwen-api-key-here  # 替换这里
+      apiKey: sk-your-actual-bailian-api-key-here  # 替换这里
       modelName: qwen-plus
       maxTokens: 4096
       temperature: 0.7
@@ -54,7 +53,7 @@ chat-v2:
       name: DeepSeek-Chat
       provider: DeepSeek
       baseUrl: https://api.deepseek.com/v1
-      apiKey: sk-your-actual-deepseek-api-key-here  # 替换这里
+      apiKey: sk-your-actual-bailian-api-key-here  # 替换这里
       modelName: deepseek-chat
       maxTokens: 4096
       temperature: 0.7
@@ -110,7 +109,7 @@ mysql -u your_user -p your_database < paicoding-web/src/main/resources/liquibase
 **现象：** 调用 LLM 时报 401 或认证错误
 
 **解决：**
-1. 检查环境变量是否设置正确：`echo $QWEN_API_KEY`
+1. 检查环境变量是否设置正确：`echo $BAILIAN_API_KEY`
 2. 或者直接在 `application-ai.yml` 中配置 API Key
 3. 重启后端应用使配置生效
 
@@ -147,8 +146,7 @@ npm install marked
 npm install @types/marked --save-dev
 
 # 2. 设置环境变量（替换为你的实际 API Key）
-export QWEN_API_KEY="sk-xxxxxxxxxxxxxxxxxx"
-export DEEPSEEK_API_KEY="sk-xxxxxxxxxxxxxxxxxx"
+export BAILIAN_API_KEY="sk-xxxxxxxxxxxxxxxxxx"
 
 # 3. 启动后端（在项目根目录）
 cd /Users/xuyifei/repos/pai_coding

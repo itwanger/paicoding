@@ -100,3 +100,11 @@ export const WRITE_ARTICLE_URL = "/article/edit"
 // ============= 额外的后端工具服务地址 =============
 // excel处理地址
 export const EXCEL_PROCESS_URL = "/tools/transfer"
+
+// ============= 知识库相关 =============
+export const KNOWLEDGE_TREE_URL = "/knowledge/api/tree"
+export const KNOWLEDGE_TAGS_URL = "/knowledge/api/tags"
+export const KNOWLEDGE_DOC_LIST_URL = "/knowledge/api/docs"
+export const KNOWLEDGE_SEARCH_URL = "/knowledge/api/search"
+export const KNOWLEDGE_DOC_DETAIL_URL = "/knowledge/api/doc"
+export const KNOWLEDGE_AGENT_ASK_URL = "/knowledge/api/agent/ask"

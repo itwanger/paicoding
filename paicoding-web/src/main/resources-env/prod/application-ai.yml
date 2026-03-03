@@ -6,7 +6,7 @@ chat-v2:
       name: 通义千问-PLUS
       provider: Alibaba
       baseUrl: https://dashscope.aliyuncs.com/compatible-mode
-      apiKey: ${QWEN_API_KEY}
+      apiKey: ${BAILIAN_API_KEY:}
       modelName: qwen-plus
       maxTokens: 4096
       temperature: 0.7
@@ -16,10 +16,17 @@ chat-v2:
       name: deepseek-v3
       provider: DeepSeek
       baseUrl: https://dashscope.aliyuncs.com/compatible-mode
-      apiKey: ${DEEPSEEK_API_KEY}
+      apiKey: ${BAILIAN_API_KEY:}
       modelName: deepseek-v3
       maxTokens: 8192
       temperature: 0.8
       description: 高性价比的开源模型，支持长上下文
       enabled: true
   default-model: qwen-plus
+
+knowledge-ai:
+  baseUrl: https://dashscope.aliyuncs.com/compatible-mode
+  apiKey: ${BAILIAN_API_KEY:}
+  modelName: qwen3.5-plus
+  maxTokens: 4096
+  temperature: 0.3

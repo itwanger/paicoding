@@ -38,3 +38,9 @@ xunfei:
   appId:
   apiKey:
   apiSecret:
+knowledge-ai:
+  baseUrl: https://dashscope.aliyuncs.com/compatible-mode
+  apiKey: ${BAILIAN_API_KEY:}
+  modelName: qwen3.5-plus
+  maxTokens: 4096
+  temperature: 0.3

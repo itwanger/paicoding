@@ -32,7 +32,7 @@ chat-v2:
       name: 通义千问-Plus
       provider: Alibaba
       baseUrl: https://dashscope.aliyuncs.com/compatible-mode/v1
-      apiKey: ${QWEN_API_KEY}
+      apiKey: ${BAILIAN_API_KEY}
       modelName: qwen-plus
       maxTokens: 4096
       temperature: 0.7
@@ -95,11 +95,10 @@ npm install @types/marked --save-dev
 
 ```bash
 # 方式1：通过环境变量
-export QWEN_API_KEY="your_qwen_api_key"
-export DEEPSEEK_API_KEY="your_deepseek_api_key"
+export BAILIAN_API_KEY="your_bailian_api_key"
 
 # 方式2：直接修改配置文件（不推荐用于生产环境）
-# 将 ${QWEN_API_KEY:your_qwen_api_key_here} 替换为实际的 API Key
+# 将 ${BAILIAN_API_KEY:your_bailian_api_key_here} 替换为实际的 API Key
 ```
 
 ### 3. 启动应用

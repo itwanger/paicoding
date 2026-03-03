@@ -18,6 +18,7 @@
             <el-dropdown-menu>
               <el-dropdown-item><a class="dropdown-item" href="/">首页</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/column">教程</a></el-dropdown-item>
+              <el-dropdown-item><a class="dropdown-item" href="/knowledge">知识库</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/chat">LLM</a></el-dropdown-item>
               <el-dropdown-item v-if="global.isLogin"><a class="dropdown-item" href="/tools/">工具</a></el-dropdown-item>
               <el-dropdown-item><a class="dropdown-item" href="/about">关于作者</a></el-dropdown-item>
@@ -34,6 +35,9 @@
             </li>
             <li :class="{'selected-domain': activeTab == '/column'}">
               <a class="nav-link" href="/column">教程</a>
+            </li>
+            <li :class="{'selected-domain': activeTab.startsWith('/knowledge')}">
+              <a class="nav-link" href="/knowledge">知识库</a>
             </li>
             <li :class="{'selected-domain': activeTab == '/chat'}">
               <a class="nav-link" href="/chat">LLM</a>
