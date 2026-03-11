@@ -19,6 +19,25 @@
     <div class="article-wrap">
         <!-- 目录 -->
         <div th:replace="views/column-detail/column-menu/index"></div>
+        <div class="column-sidebar-rail">
+          <button id="columnMenuDesktopToggle"
+                  class="column-sidebar-toggle"
+                  type="button"
+                  aria-controls="collapseMenu"
+                  aria-expanded="true"
+                  aria-label="收起教程目录"
+                  data-tooltip="收起教程目录"
+                  title="收起教程目录">
+            <span class="column-sidebar-toggle__grip" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <svg class="column-sidebar-toggle__icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M9 3L5 7L9 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
         <!-- 内容 -->
         <div class="article-content-wrap bg-color">
           <!--  增加一个搜索的 Form 表单和左侧目录折叠的按钮  -->
@@ -172,15 +191,68 @@
   </body>
 
   <script th:inline="javascript">
+    const COLUMN_MENU_COLLAPSED_KEY = 'column-menu-collapsed';
+
+    function isColumnMenuDesktop() {
+      return window.matchMedia('(min-width: 721px)').matches;
+    }
+
+    function applyColumnMenuState(collapsed) {
+      const articleWrap = document.querySelector('.article-wrap');
+      const menu = document.getElementById('collapseMenu');
+      const menuInner = menu ? menu.querySelector('.book-summary-inner') : null;
+      if (!articleWrap || !menu) {
+        return;
+      }
+
+      articleWrap.classList.toggle('column-menu-collapsed', collapsed);
+      if (collapsed) {
+        menu.style.width = '0';
+        menu.style.minWidth = '0';
+        menu.style.borderRightWidth = '0';
+        menu.style.overflow = 'hidden';
+        if (menuInner) {
+          menuInner.style.opacity = '0';
+          menuInner.style.pointerEvents = 'none';
+        }
+      } else {
+        menu.style.width = '';
+        menu.style.minWidth = '';
+        menu.style.borderRightWidth = '';
+        menu.style.overflow = '';
+        if (menuInner) {
+          menuInner.style.opacity = '';
+          menuInner.style.pointerEvents = '';
+        }
+      }
+    }
+
+    function updateColumnMenuToggle() {
+      const toggle = document.getElementById('columnMenuDesktopToggle');
+      if (!toggle) {
+        return;
+      }
+      const collapsed = document.querySelector('.article-wrap').classList.contains('column-menu-collapsed');
+      const label = collapsed ? '展开教程目录' : '收起教程目录';
+      toggle.classList.toggle('is-collapsed', collapsed);
+      toggle.setAttribute('aria-expanded', String(!collapsed));
+      toggle.setAttribute('aria-label', label);
+      toggle.setAttribute('title', label);
+      toggle.setAttribute('data-tooltip', label);
+    }
+
     // menu 是否显示
     function checkMediaQuery() {
-      if (window.matchMedia('(min-width: 700px)').matches) {
-        // 如果屏幕宽度大于600px，添加 'show' 类
+      const articleWrap = document.querySelector('.article-wrap');
+      if (isColumnMenuDesktop()) {
         $('#collapseMenu').addClass('show');
+        const collapsed = localStorage.getItem(COLUMN_MENU_COLLAPSED_KEY) === 'true';
+        applyColumnMenuState(collapsed);
       } else {
-        // 否则，移除 'show' 类
+        applyColumnMenuState(false);
         $('#collapseMenu').removeClass('show');
       }
+      updateColumnMenuToggle();
     }
 
     // 监听窗口大小变化
@@ -203,6 +275,17 @@
 
     $('#collapseMenu').on('shown.bs.collapse', function () {
       scrollToMenu();
+    })
+
+    $('#columnMenuDesktopToggle').on('click', function () {
+      if (!isColumnMenuDesktop()) {
+        return;
+      }
+      const articleWrap = document.querySelector('.article-wrap');
+      const collapsed = !articleWrap.classList.contains('column-menu-collapsed');
+      applyColumnMenuState(collapsed);
+      localStorage.setItem(COLUMN_MENU_COLLAPSED_KEY, String(collapsed));
+      updateColumnMenuToggle();
     })
 
     scrollToMenu();
