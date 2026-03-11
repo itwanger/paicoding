@@ -65,6 +65,7 @@
 </div>
 <script th:inline="javascript">
     console.log("脚本已加载");
+    const COLUMN_PAGE_SIZE = 6;
     
     // 视图切换功能
     (function() {
@@ -74,23 +75,7 @@
         // 从 localStorage 读取保存的视图模式，默认为 grid
         const savedView = localStorage.getItem('column-view-mode') || 'grid';
         
-        // 初始化视图
-        function initView() {
-            if (savedView === 'grid') {
-                articleList.classList.remove('list-view');
-                articleList.classList.add('grid-view');
-                toggleBtns.forEach(btn => {
-                    if (btn.dataset.view === 'grid') {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                });
-            }
-        }
-        
-        // 切换视图
-        function switchView(view) {
+        function applyView(view) {
             if (view === 'grid') {
                 articleList.classList.remove('list-view');
                 articleList.classList.add('grid-view');
@@ -98,8 +83,7 @@
                 articleList.classList.remove('grid-view');
                 articleList.classList.add('list-view');
             }
-            
-            // 更新按钮状态
+
             toggleBtns.forEach(btn => {
                 if (btn.dataset.view === view) {
                     btn.classList.add('active');
@@ -107,13 +91,15 @@
                     btn.classList.remove('active');
                 }
             });
+        }
+        
+        // 切换视图
+        function switchView(view) {
+            applyView(view);
             
             // 保存到 localStorage
             localStorage.setItem('column-view-mode', view);
-            
-            // 更新 pageSize
-            params.size = getPageSizeForView(view);
-            console.log("视图切换到", view, "，pageSize =", params.size);
+            console.log("视图切换到", view);
         }
         
         // 绑定点击事件
@@ -125,26 +111,19 @@
         });
         
         // 页面加载时初始化视图
-        initView();
+        applyView(savedView);
     })();
     
     let isLoading = false;
     let hasMore = [[${vo.columns.hasMore}]];
     
-    // 根据视图模式设置 pageSize
-    function getPageSizeForView(view) {
-        return view === 'grid' ? 6 : 4;
-    }
-    
-    // 从 localStorage 读取保存的视图模式，默认为 grid
-    const savedView = localStorage.getItem('column-view-mode') || 'grid';
-    
     const params = {
         "page": 2,
-        "size": getPageSizeForView(savedView)
+        // 首屏固定渲染 6 条，后续翻页也必须保持一致，否则会出现重复数据
+        "size": COLUMN_PAGE_SIZE
     }
     
-    console.log("初始化: hasMore =", hasMore, "视图模式 =", savedView, "pageSize =", params.size);
+    console.log("初始化: hasMore =", hasMore, "pageSize =", params.size);
     
     // 监听 .custom-home 元素的滚动（而不是 window）
     $('.custom-home').on('scroll', function() {

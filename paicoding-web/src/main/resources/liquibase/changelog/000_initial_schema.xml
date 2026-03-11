@@ -165,4 +165,9 @@
     <changeSet id="20260121_1" author="Qoder">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260121.sql"/>
     </changeSet>
+
+    <!-- 扩大 global_conf 表 value 字段长度  -->
+    <changeSet id="20260228_1" author="Qoder">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260228.sql"/>
+    </changeSet>
 </databaseChangeLog>
