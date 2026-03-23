@@ -52,11 +52,12 @@ public class Convert {
         public void run() {
             URL url = new URL(originImgUrl);
             InputStream inputStream = url.openStream();
-            OutputStream outputStream = new FileOutputStream(destinationImgPath);
-            byte[] buffer = new byte[2048];
-            int length = 0;
-            while ((length = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, length);
+            try (OutputStream outputStream = new FileOutputStream(destinationImgPath)) {
+                            byte[] buffer = new byte[2048];
+                            int length = 0;
+                            while ((length = inputStream.read(buffer)) != -1) {
+                                outputStream.write(buffer, 0, length);
+                            }
             }
         }
     }
