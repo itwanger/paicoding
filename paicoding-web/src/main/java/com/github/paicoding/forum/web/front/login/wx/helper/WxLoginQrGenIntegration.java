@@ -14,6 +14,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.Data;
+import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -95,7 +96,7 @@ public class WxLoginQrGenIntegration {
         }
     }
 
-    private String getAccessToken() {
+    public String getAccessToken() {
         if (!checkAccessToken()) {
             synchronized (this) {
                 if (!checkAccessToken()) {
@@ -117,10 +118,10 @@ public class WxLoginQrGenIntegration {
      * @return true 有效；false 失效
      */
     private boolean checkAccessToken() {
-        return accessToken != null && accessToken.expireTimestamp > System.currentTimeMillis() + 60_000L;
+        return accessToken != null && accessToken.expireTimestamp > System.currentTimeMillis() + 300_000L;
     }
 
-    private synchronized void refreshAccessToken() {
+    public synchronized void refreshAccessToken() {
         WxAccessToken token = HttpRequestHelper.get(WX_TOKEN_URL,
                 MapUtils.create("appid", wxLoginProperties.getAppId(), "secret", wxLoginProperties.getAppSecret()),
                 WxAccessToken.class);

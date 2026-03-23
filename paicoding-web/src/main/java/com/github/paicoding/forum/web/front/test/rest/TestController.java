@@ -21,6 +21,7 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.EmailUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
+import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
@@ -34,6 +35,7 @@ import com.github.paicoding.forum.service.statistics.repository.entity.RequestCo
 import com.github.paicoding.forum.service.statistics.service.RequestCountService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.statistics.service.impl.CountServiceImpl;
+import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginQrGenIntegration;
 import com.github.paicoding.forum.web.front.test.vo.EmailReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -506,4 +508,15 @@ public class TestController {
         }
     }
 
+
+    @Autowired
+    private WxLoginQrGenIntegration wxLoginQrGenIntegration;
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping(path = "refreshToken")
+    public Object refreshToken() {
+        String old = wxLoginQrGenIntegration.getAccessToken();
+        wxLoginQrGenIntegration.refreshAccessToken();
+        String newToken = wxLoginQrGenIntegration.getAccessToken();
+        return MapUtils.create("old", old, "new", newToken);
+    }
 }
