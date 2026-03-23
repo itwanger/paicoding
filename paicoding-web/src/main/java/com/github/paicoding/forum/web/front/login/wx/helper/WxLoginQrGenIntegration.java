@@ -142,7 +142,7 @@ public class WxLoginQrGenIntegration {
 
         accessToken = token;
         accessToken.expireTimestamp = System.currentTimeMillis() + token.expiresIn * 1000;
-        log.info("刷新微信AccessToken成功,过期时间={}", accessToken.expireTimestamp);
+        log.info("刷新微信AccessToken成功,过期时间={}", accessToken);
     }
 
     /**
@@ -168,6 +168,14 @@ public class WxLoginQrGenIntegration {
                 log.error("微信生成二维码API返回null,code={}", code);
                 throw new RuntimeException("微信生成二维码失败:API返回null");
             }
+
+            if (StringUtils.isNotBlank(res.getErrCode()) && "40001".equals(res.getErrCode())) {
+                // token 失效，强制刷新一下token，然后再次尝试生成登录二维码
+                this.refreshAccessToken();
+                wxApiUrl = WX_GEN_QR_URL + getAccessToken();
+                res = HttpRequestHelper.postJsonData(wxApiUrl, params, WxLoginQrCodeRes.class);
+            }
+
 
             if (StringUtils.isNotBlank(res.getErrCode()) && !"0".equals(res.getErrCode())) {
                 log.error("微信生成二维码API返回错误,code={}, errCode={}, errMsg={}", code, res.getErrCode(), res.getErrMsg());
