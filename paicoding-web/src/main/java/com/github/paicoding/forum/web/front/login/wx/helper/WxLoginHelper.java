@@ -11,6 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -169,23 +170,37 @@ public class WxLoginHelper {
      * @return
      */
     public boolean login(String verifyCode) {
+        return StringUtils.isNotBlank(login(verifyCode, true));
+    }
+
+    /**
+     * mock 登录时直接返回 session，由接口响应写回 cookie
+     *
+     * @param verifyCode 用户输入的登录验证码
+     * @return 登录 session
+     */
+    public String loginWithoutNotify(String verifyCode) {
+        return login(verifyCode, false);
+    }
+
+    private String login(String verifyCode, boolean notifyClient) {
         // 1. 通过验证码找到对应的长连接
         SseEmitter sseEmitter = verifyCodeCache.getIfPresent(verifyCode);
         if (sseEmitter == null) {
-            return false;
+            return null;
         }
 
         // 2. 生成登录凭证
         String session = sessionService.loginByWx(ReqInfoContext.getReqInfo().getUserId());
         try {
-            // 3. 将登录凭证发送给客户端，用于前端写入Cookie
-            // 登录成功，写入session
-            sseEmitter.send(session);
-            // 设置cookie的路径
-            Cookie cookie = SessionUtil.newCookie(LoginService.SESSION_KEY, session);
-            String setCookieStr = SessionUtil.buildSetCookieString(cookie);
-            sseEmitter.send("login#" + setCookieStr);
-            return true;
+            if (notifyClient) {
+                // 3. 将登录凭证发送给客户端，用于前端写入Cookie
+                sseEmitter.send(session);
+                Cookie cookie = SessionUtil.newCookie(LoginService.SESSION_KEY, session);
+                String setCookieStr = SessionUtil.buildSetCookieString(cookie);
+                sseEmitter.send("login#" + setCookieStr);
+            }
+            return session;
         } catch (Exception e) {
             log.error("登录异常: {}", verifyCode, e);
         } finally {
@@ -193,6 +208,6 @@ public class WxLoginHelper {
             sseEmitter.complete();
             verifyCodeCache.invalidate(verifyCode);
         }
-        return false;
+        return null;
     }
 }

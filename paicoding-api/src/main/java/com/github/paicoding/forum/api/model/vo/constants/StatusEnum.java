@@ -31,6 +31,7 @@ public enum StatusEnum {
     // 全局传参异常
     ILLEGAL_ARGUMENTS(100_400_001, "参数异常"),
     ILLEGAL_ARGUMENTS_MIXED(100_400_002, "参数异常:%s"),
+    SENSITIVE_CONTENT(100_400_003, "%s"),
 
     // 全局权限相关
     FORBID_ERROR(100_403_001, "无权限"),

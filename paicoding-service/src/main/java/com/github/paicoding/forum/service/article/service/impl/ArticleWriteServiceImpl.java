@@ -18,6 +18,7 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.image.service.ImageService;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveAiOptimizeService;
 import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Autowired
     private AuthorWhiteListService articleWhiteListService;
 
+    @Autowired
+    private SensitiveAiOptimizeService sensitiveAiOptimizeService;
+
     // 构造方法的注入方式
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
         this.articleDao = articleDao;
@@ -75,6 +79,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      */
     @Override
     public Long saveArticle(ArticlePostReq req, Long author) {
+        if (req.pushStatus() == PushStatusEnum.ONLINE) {
+            sensitiveAiOptimizeService.validateArticleOrThrow(req.getTitle(), req.getSummary(), req.getContent());
+        }
         ArticleDO article = ArticleConverter.toArticleDo(req, author);
         String content = imageService.mdImgReplace(req.getContent());
         return transactionTemplate.execute(new TransactionCallback<Long>() {

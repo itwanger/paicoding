@@ -6,15 +6,19 @@ server:
   compression:
     enabled: true # 开启返回结果压缩，减少传输耗时
     min-response-size: 2KB
+  shutdown: graceful # 优雅关闭，避免 AsynchronousCloseException
+  tomcat:
+    connection-timeout: 20000 # 连接超时时间
+    threads:
+      max: 200 # 最大工作线程数
+      min-spare: 10 # 最小空闲线程数
 
 spring:
   devtools:
-    restart:
-      enabled: true
     livereload:
       enabled: true
-    # 添加静态资源热部署配置
-    additional-paths: src/main/resources/static/**
+    restart:
+      enabled: true
   application:
     name: paicoding
   #  Spring Boot 2.4为了提升对Kubernetes的支持 将 spring.profiles 作废了
@@ -28,6 +32,9 @@ spring:
     # 引入下面这个配置，主要是为了解决自定义实现的多数据源功能，自主注册的datasource替换默认的
     allow-bean-definition-overriding: true
     allow-circular-references: true
+  # 优雅关闭超时时间
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   mvc:
     async:
       request-timeout:
@@ -110,6 +117,10 @@ logging:
         web:
           servlet:
             handler.*: info # 定位为啥无妨访问swagger-ui时，可以把这个日志输出级别设置debug
+      apache:
+        tomcat:
+          util:
+            net: warn # 抑制 Tomcat NioEndpoint 的 AsynchronousCloseException 警告
 
 
 # 监控相关配置

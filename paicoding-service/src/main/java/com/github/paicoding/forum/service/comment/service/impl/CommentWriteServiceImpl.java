@@ -18,6 +18,7 @@ import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentWriteService;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveAiOptimizeService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,10 +50,13 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     private UserFootService userFootWriteService;
     @Autowired
     private AiBots aiBots;
+    @Autowired
+    private SensitiveAiOptimizeService sensitiveAiOptimizeService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveComment(CommentSaveReq commentSaveReq) {
+        sensitiveAiOptimizeService.validateCommentOrThrow(commentSaveReq.getCommentContent());
         // 保存评论
         CommentDO comment;
         if (NumUtil.nullOrZero(commentSaveReq.getCommentId())) {

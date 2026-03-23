@@ -4,13 +4,13 @@ image:
   tmp-upload-path: /tmp/forum/
   cdn-host:
   oss:
-    type: local
+    type: ali # ali 为阿里云oss，local 为本地存储
     prefix: paicoding/
-    endpoint:
-    ak:
-    sk:
-    bucket:
-    host: https://cdn.tobebetterjavaer.com/
+    endpoint: oss-cn-beijing.aliyuncs.com
+    ak: REDACTED_OSS_AK
+    sk: REDACTED_OSS_SK
+    bucket: itwanger-oss
+    host:
 
 spring:
   web:

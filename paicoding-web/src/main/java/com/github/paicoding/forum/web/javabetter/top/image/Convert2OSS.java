@@ -1,10 +1,14 @@
 package com.github.paicoding.forum.web.javabetter.top.image;
 
 import cn.hutool.core.io.file.FileReader;
+import com.github.paicoding.forum.core.config.ImageProperties;
 import com.github.paicoding.forum.web.javabetter.top.copydown.Constants;
 import com.github.paicoding.forum.web.javabetter.top.copydown.ImgOption;
 import com.github.paicoding.forum.web.javabetter.top.copydown.OSSUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,13 +29,13 @@ public class Convert2OSS {
     // 网络上的图片
     // 下载到本地一份（备份）
     // 上传到 OSS 一份（CDN）
-    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         // 如果是爬虫
         // 原创
         // 原创需要指定路径
 
-        final String category = "cityselect";
-        final String filename = "wuhan";
+        final String category = "nice-article/weixin";
+        final String filename = "jwtjsonwebtokengjmxj";
 
         ImgOption imgOption = ImgOption.builder()
                 // 本地的都用分隔符
@@ -45,7 +49,7 @@ public class Convert2OSS {
             // 对整个文档里面的图片链接转链
             // 下载到本地，上传到 OSS，替换链接
             // 正则表达式，找到对应的图片
-            String mdPath = Paths.get(Constants.DESTINATION,"docs" ,imgOption.getImgCategory()).toString()+ filename + ".md";
+            String mdPath = Paths.get(Constants.DESTINATION,"docs", "src", imgOption.getImgCategory(), imgOption.getImgNamePrefix() + ".md").toString();
             File md = new File(mdPath);
             FileReader fileReader = FileReader.create(md, StandardCharsets.UTF_8);
             // 读取全部内容

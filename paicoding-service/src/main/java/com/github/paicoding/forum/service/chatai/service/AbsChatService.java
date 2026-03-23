@@ -6,14 +6,15 @@ import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
-import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.chatai.bot.AiBots;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveAiOptimizeService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public abstract class AbsChatService implements ChatService {
     @Autowired
     private UserAiService userAiService;
     @Autowired
-    private SensitiveService sensitiveService;
+    private SensitiveAiOptimizeService sensitiveAiOptimizeService;
     @Autowired
     private ChatHistoryService chatHistoryService;
 
@@ -189,9 +190,9 @@ public abstract class AbsChatService implements ChatService {
     protected AiChatStatEnum answer(Long user, ChatRecordsVo res) {
         ChatItemVo itemVo = res.getRecords().get(0);
         AiChatStatEnum ans;
-        List<String> sensitiveWords = sensitiveService.contains(itemVo.getQuestion());
-        if (!CollectionUtils.isEmpty(sensitiveWords)) {
-            itemVo.initAnswer(String.format(ChatConstants.SENSITIVE_QUESTION, sensitiveWords));
+        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(itemVo.getQuestion());
+        if (StringUtils.isNotBlank(sensitiveMessage)) {
+            itemVo.initAnswer(sensitiveMessage);
             ans = AiChatStatEnum.ERROR;
         } else {
             ans = doAnswer(user, itemVo);
@@ -240,11 +241,11 @@ public abstract class AbsChatService implements ChatService {
             return res;
         }
 
-        List<String> sensitiveWord = sensitiveService.contains(res.getRecords().get(0).getQuestion());
-        if (!CollectionUtils.isEmpty(sensitiveWord) && !SpringUtil.getBean(AiBots.class).aiBots(user)) {
+        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(res.getRecords().get(0).getQuestion());
+        if (StringUtils.isNotBlank(sensitiveMessage) && !SpringUtil.getBean(AiBots.class).aiBots(user)) {
             // 机器人不进行敏感词校验
             // 包含敏感词的提问，直接返回异常
-            res.getRecords().get(0).initAnswer(String.format(ChatConstants.SENSITIVE_QUESTION, sensitiveWord));
+            res.getRecords().get(0).initAnswer(sensitiveMessage);
             consumer.accept(res);
         } else {
             final ChatRecordsVo newRes = res.clone();

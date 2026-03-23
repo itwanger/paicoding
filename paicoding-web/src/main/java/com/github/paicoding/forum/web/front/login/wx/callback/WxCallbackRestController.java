@@ -3,11 +3,14 @@ package com.github.paicoding.forum.web.front.login.wx.callback;
 import cn.hutool.core.util.NumberUtil;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.core.net.HttpRequestHelper;
+import com.github.paicoding.forum.core.util.EnvUtil;
+import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.service.notify.service.NotifyService;
@@ -27,11 +30,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -108,6 +113,31 @@ public class WxCallbackRestController {
         BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), code, msg.getFromUserName());
         fillResVo(res, msg);
         return res;
+    }
+
+    /**
+     * 非生产环境下使用的 mock 登录，避免依赖 SSE 回推 cookie
+     */
+    @PostMapping(path = "mock/login")
+    public ResVo<Boolean> mockLogin(@RequestParam("code") String code,
+                                    @RequestParam(name = "fromUserName", defaultValue = "demoUser1234") String fromUserName,
+                                    HttpServletResponse response) {
+        if (EnvUtil.isPro()) {
+            return ResVo.fail(StatusEnum.FORBID_ERROR_MIXED, "生产环境不支持 mock 登录");
+        }
+
+        if (StringUtils.isBlank(code)) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "验证码不能为空");
+        }
+
+        sessionService.autoRegisterWxUserInfo(fromUserName);
+        String session = qrLoginHelper.loginWithoutNotify(code);
+        if (StringUtils.isBlank(session)) {
+            return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "验证码已过期，请刷新后重试");
+        }
+
+        response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
+        return ResVo.ok(true);
     }
 
 

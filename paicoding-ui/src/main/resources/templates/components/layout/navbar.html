@@ -552,7 +552,11 @@
       source.onerror = function (e, evt) {
         console.log("连接错误，重新开始", e, evt)
         stateTag.text("连接中断,请刷新重连");
-        buildConnect(code);
+        try {
+          source.close();
+        } catch (err) {
+          console.log("关闭异常连接失败", err);
+        }
       }
 
       fetchCodeCnt = 0;
@@ -575,6 +579,10 @@
             console.log("data>>>>>>>>: ", data);
             if (data != 'fail') {
               codeTag.text(data);
+              if ([[${!#strings.equals(global.env, 'prod')}]]) {
+                $("#mockLogin").attr('data-verify-code', data);
+                $("#mockLogin2").attr('data-verify-code', data);
+              }
               try {
                 window.clearInterval(intHook);
               } catch (e) {}

@@ -5,12 +5,19 @@ import cn.hutool.http.HttpUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.github.paicoding.forum.core.config.ImageProperties;
+import com.github.paicoding.forum.core.config.OssProperties;
+import com.github.paicoding.forum.service.image.oss.impl.AliOssWrapper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,10 +29,31 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class OSSUtil {
-    @Autowired
-    @Setter
-    @Getter
-    private static ImageProperties properties;
+
+    private static AliOssWrapper initOss() throws Exception {
+        // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
+        String endpoint = "oss-cn-beijing.aliyuncs.com";
+        // 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
+        String accessKeyId = "REDACTED_OSS_AK";
+        String accessKeySecret = "REDACTED_OSS_SK";
+        String bucketName = "itwanger-oss";
+        String host = "https://cdn.tobebetterjavaer.com/";
+
+        AliOssWrapper aliOss = new AliOssWrapper();
+        ImageProperties properties = new ImageProperties();
+        OssProperties oss = new OssProperties();
+        oss.setAk(accessKeyId);
+        oss.setSk(accessKeySecret);
+        oss.setBucket(bucketName);
+        oss.setEndpoint(endpoint);
+        oss.setBucket(bucketName);
+        oss.setHost(host);
+        oss.setPrefix("javabetter/");
+        properties.setOss(oss);
+
+        aliOss.setProperties(properties);
+        return aliOss;
+    }
 
     public static boolean needUploadOss(String imageUrl) {
         boolean flag = true;
@@ -38,13 +66,13 @@ public class OSSUtil {
         return flag;
     }
 
-    public static String upload(String md, ImgOption imgOption) {
+    public static String upload(String md, ImgOption imgOption) throws Exception {
         Pattern p = Pattern.compile(Constants.mdImgPattern, Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(md);
 
+        OssProperties properties = initOss().getProperties().getOss();
 
-
-        OSS ossClient = new OSSClientBuilder().build(properties.getOss().getEndpoint(), properties.getOss().getAk(), properties.getOss().getSk());
+        OSS ossClient = new OSSClientBuilder().build(properties.getEndpoint(), properties.getAk(), properties.getSk());
 
         while (m.find()) {
             // 图片描述
@@ -79,12 +107,15 @@ public class OSSUtil {
                 // 替换链接
                 md = md.replace(imgOption.getImgOriginUrl(), imgOption.getImgCndUrl());
 
-                File downloadImage = HttpUtil.downloadFileFromUrl(temp, imgOption.getImgDownloadDestComplete());
+//                File downloadImage = HttpUtil.downloadFileFromUrl(temp, imgOption.getImgDownloadDestComplete());
 
                 // objectName nice-article/one-01.jpg
                 // 目录+分类
                 // ossFolder tobebetterjavaer/images/
-                ossClient.putObject(Constants.bucketName, imgOption.getImgOssObjectName(), downloadImage);
+                // 直接通过 URL 上传到 OSS，不用下载到本地
+                URL imageUrl = new URL(temp); // imgOption 是你的图片选项对象
+                InputStream inputStream = imageUrl.openStream();
+                ossClient.putObject(Constants.bucketName, imgOption.getImgOssObjectName(), inputStream);
 
             }
         }

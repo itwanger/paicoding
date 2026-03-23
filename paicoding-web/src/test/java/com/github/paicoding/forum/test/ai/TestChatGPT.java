@@ -9,15 +9,15 @@ public class TestChatGPT {
     public static void main(String[] args) {
         // export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
         //国内需要代理
-        // Proxy proxy = Proxys.http("127.0.0.1", 7892);
-        Proxy proxy = Proxys.http("10.3.4.136", 7892);
+         Proxy proxy = Proxys.http("127.0.0.1", 7890);
+//        Proxy proxy = Proxys.http("10.3.4.136", 7890);
         //socks5 代理
         // Proxy proxy = Proxys.socks5("127.0.0.1", 1080);
 
         ChatGPT chatGPT = ChatGPT.builder()
 //                .apiKey("REDACTED_OPENAI_KEY")
-                .apiKey("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")
-                .proxy(proxy)
+                .apiKey("REDACTED_OPENAI_KEY")
+//                .proxy(proxy)
                 .apiHost("https://api.openai.com/") //反向代理地址
                 .build()
                 .init();

@@ -2,24 +2,38 @@ net:
   proxy:
     # 代理相关信息
     - ip: 127.0.0.1
-      port: 1080
+      port: 7890
       type: SOCKS
 
 ai:
   maxNum:
     basic: 5 # 默认兜底策略
-    wechat: 10 # 公众号用户
+    wechat: 100 # 公众号用户
     star: 100 # 星球用户
     starTry: 30 # 星球用户
     invited: 0.1 # 被邀请
     inviteNum: 0.2 # 邀请人数执行策略
     starNumber: 4000 # 目前为 4000
+    expireDays: 60 # 过期天数
     historyContextCnt: 10 # 多轮对话上下文的条数，默认最多给10条
   source: # 支持的AI模型
     - CHAT_GPT_3_5
     - CHAT_GPT_4
     - PAI_AI
     - XUN_FEI_AI
+    - ZHI_PU_AI
+    - ALI_AI
+
+# 阿里通义千问
+ali:
+  model: qwen-turbo-0919
+
+# 智谱 AI
+zhipu:
+  apiSecretKey: REDACTED_ZHIPU_SECRET
+  requestIdTemplate: "paicoding-%d"
+  # 调整模型 glm-4-alltools
+  model: glm-4-air-0111
 
 # chatgpt
 chatgpt:
@@ -27,7 +41,7 @@ chatgpt:
   conf:
     CHAT_GPT_3_5:
       keys:
-        - # 这里输入你的key
+        - REDACTED_OPENAI_KEY # 这里输入你的key
       proxy: true # 表示走上面的代理进行访问
       apiHost: https://api.openai.com/
       timeOut: 900
@@ -48,24 +62,24 @@ chatgpt:
 
 # 讯飞AI
 xunfei:
-  hostUrl: http://spark-api.xf-yun.com/v2.1/chat
-  domain: "generalv2"
-  appId:
-  apiKey:
-  apiSecret:
-
+  hostUrl: http://spark-api.xf-yun.com/v1/x1
+  domain: "x1"
+  appId: f740451b
+  apiKey: REDACTED_XUNFEI_API_KEY
+  apiSecret: REDACTED_XUNFEI_API_SECRET
+  APIPassword: REDACTED_XUNFEI_API_PASSWORD
 
 deepseek:
   apiHost: https://api.deepseek.com
-  apiKey: # 使用自己的密钥进行替换
+  apiKey: REDACTED_DEEPSEEK_KEY # 使用自己的密钥进行替换
   timeout: 900 # 超时时间，单位秒
 
 doubao:
-  api-key: # 使用自己的密钥进行替换
+  api-key: REDACTED_DOUBAO_KEY # 使用自己的密钥进行替换
   api-host: https://ark.cn-beijing.volces.com/api/v3
-  end-point: # 使用自己创建的接入点进行替换
-
+  end-point: REDACTED_DOUBAO_ENDPOINT # 使用自己创建的接入点进行替换
 
 logging:
   level:
     com.github.paicoding.forum.service.chatai.service.impl.deepseek.DeepSeekChatServiceImpl: DEBUG # 本地启动时，开启debug日志
+
