@@ -51,6 +51,7 @@ public class TemplateEngineHelper {
     public <T> String renderToVo(String template, String second, T val) {
         Context context = new Context();
         context.setVariable("vo", MapUtils.create(second, val));
+        context.setVariable("global", globalInitService.globalAttr());
         return springTemplateEngine.process(template, context);
     }
 }

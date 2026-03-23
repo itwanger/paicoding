@@ -97,7 +97,7 @@ public class UserViewController extends BaseViewController {
      * @param model
      * @return
      */
-    @GetMapping(path = "/{userId}")
+    @GetMapping(path = "/{userId:\\d+}")
     public String detail(@PathVariable(name = "userId") Long userId, @RequestParam(name = "homeSelectType", required = false) String homeSelectType,
                          @RequestParam(name = "followSelectType", required = false) String followSelectType,
                          Model model) {
