@@ -1,6 +1,9 @@
 <div class="home_sidebar-header__b5asC">
     <div class="home_sidebar-title__d8_c_">
-        <a href="https://paicoding.com/article/detail/358" class="underline">戳我了解如何使用派聪明</a>
+        <a href="https://paicoding.com/article/detail/358" class="underline" th:text="${'戳我了解如何使用' + global.siteInfo.paiChatName}">戳我了解如何使用 PaiChat</a>
+    </div>
+    <div class="home_sidebar-title__d8_c_">
+        <a href="/paismart" class="underline" th:text="${'体验新版' + global.siteInfo.paiSmartName}">体验新版派聪明 PaiSmart</a>
     </div>
     <div class="home_sidebar-sub-title__IS2Or">
         <input type="text" id="promptField" placeholder="请输入提示词，回车确认" style="width: 100%; height: 30px; padding: 5px;margin-bottom: 1em">
@@ -280,7 +283,7 @@
                           fill="currentColor"></path>
                 </svg>
             </div>
-            <span class="login-guide-text">畅玩派聪明，已接入DeepSeek、openai、讯飞星火、智谱</span>
+            <span class="login-guide-text" th:text="${'畅玩 ' + global.siteInfo.paiChatName + '，已接入DeepSeek、openai、讯飞星火、智谱'}">畅玩 PaiChat，已接入DeepSeek、openai、讯飞星火、智谱</span>
         </li>
         <li class="login-guide-list-item">
             <div class="login-guide-icon-wrap">

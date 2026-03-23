@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.test.ai;
 
+import com.github.paicoding.forum.core.util.DotenvUtil;
 import com.plexpt.chatgpt.ChatGPT;
 import com.plexpt.chatgpt.util.Proxys;
 
@@ -13,10 +14,7 @@ public class TestChatGPT {
 //        Proxy proxy = Proxys.http("10.3.4.136", 7890);
         //socks5 代理
         // Proxy proxy = Proxys.socks5("127.0.0.1", 1080);
-        String apiKey = System.getenv("OPENAI_API_KEY");
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            throw new IllegalStateException("Please set OPENAI_API_KEY before running TestChatGPT");
-        }
+        String apiKey = DotenvUtil.requireFirst("OPENAI_API_KEY", "PAICODING_OPENAI_API_KEY");
 
         ChatGPT chatGPT = ChatGPT.builder()
                 .apiKey(apiKey)

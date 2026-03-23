@@ -32,6 +32,21 @@ public class GlobalViewConfig {
 
     private String websiteFaviconIconUrl;
 
+    /**
+     * 技术派站内旧版 AI 聊天入口名称
+     */
+    private String paiChatName;
+
+    /**
+     * 技术派站外新版派聪明入口名称
+     */
+    private String paiSmartName;
+
+    /**
+     * 新版派聪明跳转地址
+     */
+    private String paiSmartUrl;
+
     private String contactMeWxQrCode;
 
     private String contactMeStarQrCode;
@@ -92,6 +107,18 @@ public class GlobalViewConfig {
             this.oss = "";
         }
         return this.oss;
+    }
+
+    public String getPaiChatName() {
+        return paiChatName == null || paiChatName.trim().isEmpty() ? "PaiChat" : paiChatName;
+    }
+
+    public String getPaiSmartName() {
+        return paiSmartName == null || paiSmartName.trim().isEmpty() ? "PaiSmart" : paiSmartName;
+    }
+
+    public String getPaiSmartUrl() {
+        return paiSmartUrl == null || paiSmartUrl.trim().isEmpty() ? "http://localhost:9527/" : paiSmartUrl;
     }
 
 

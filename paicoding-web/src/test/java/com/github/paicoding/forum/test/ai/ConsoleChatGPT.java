@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.test.ai;
 
 import cn.hutool.core.util.NumberUtil;
+import com.github.paicoding.forum.core.util.DotenvUtil;
 import com.plexpt.chatgpt.ChatGPT;
 import com.plexpt.chatgpt.ChatGPTStream;
 import com.plexpt.chatgpt.entity.chat.Message;
@@ -45,10 +46,7 @@ public class ConsoleChatGPT {
 
         System.out.println();
 //        System.out.println("Please enter APIKEY, press Enter twice to submit:");
-        String key = System.getenv("OPENAI_API_KEY");
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalStateException("Please set OPENAI_API_KEY before running ConsoleChatGPT");
-        }
+        String key = DotenvUtil.requireFirst("OPENAI_API_KEY", "PAICODING_OPENAI_API_KEY");
         check(key);
 
         String useProxy = "y";

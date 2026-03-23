@@ -32,6 +32,9 @@ import java.util.Objects;
 @Slf4j
 @Configuration
 public class ForumDataSourceInitializer {
+    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
+    private static final int DEFAULT_MYSQL_PORT = 3306;
+
     @Value("${database.name}")
     private String database;
 
@@ -104,16 +107,15 @@ public class ForumDataSourceInitializer {
      */
     private boolean autoInitDatabase() {
         // 查询失败，可能是数据库不存在，尝试创建数据库之后再次测试
-
-        // 数据库链接
-        URI url = URI.create(SpringUtil.getConfigOrElse("spring.datasource.url", "spring.dynamic.datasource.master.url").substring(5));
+        String datasourceUrl = SpringUtil.getConfigOrElse("spring.datasource.url", "spring.dynamic.datasource.master.url");
+        DbServerConfig dbServerConfig = parseDbServerConfig(datasourceUrl);
         // 用户名
         String uname = SpringUtil.getConfigOrElse("spring.datasource.username", "spring.dynamic.datasource.master.username");
         // 密码
         String pwd = SpringUtil.getConfigOrElse("spring.datasource.password", "spring.dynamic.datasource.master.password");
+        String adminJdbcUrl = buildAdminJdbcUrl(dbServerConfig);
         // 创建连接
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://" + url.getHost() + ":" + url.getPort() +
-                "?" + url.getRawQuery(), uname, pwd);
+        try (Connection connection = DriverManager.getConnection(adminJdbcUrl, uname, pwd);
              Statement statement = connection.createStatement()) {
             // 查询数据库是否存在
             ResultSet set = statement.executeQuery("select schema_name from information_schema.schemata where schema_name = '" + database + "'");
@@ -133,7 +135,51 @@ public class ForumDataSourceInitializer {
             log.info("数据库已存在，无需初始化");
             return false;
         } catch (SQLException e2) {
-            throw new RuntimeException(e2);
+            throw new IllegalStateException("无法连接 MySQL 服务，尝试自动初始化数据库失败。请检查 MySQL 是否已启动，以及配置项 " +
+                    "'spring.datasource.url'、'spring.datasource.username'、'spring.datasource.password' 是否正确。当前连接信息: host=" +
+                    dbServerConfig.host + ", port=" + dbServerConfig.port + ", database=" + database, e2);
+        }
+    }
+
+    private DbServerConfig parseDbServerConfig(String datasourceUrl) {
+        if (datasourceUrl == null || !datasourceUrl.startsWith(MYSQL_JDBC_PREFIX)) {
+            throw new IllegalStateException("仅支持 MySQL JDBC URL，当前配置: " + datasourceUrl);
+        }
+
+        try {
+            URI uri = URI.create(datasourceUrl.substring(5));
+            String host = uri.getHost();
+            if (host == null || host.isEmpty()) {
+                throw new IllegalStateException("无法从 JDBC URL 中解析数据库主机: " + datasourceUrl);
+            }
+            int port = uri.getPort() > 0 ? uri.getPort() : DEFAULT_MYSQL_PORT;
+            return new DbServerConfig(host, port, uri.getRawQuery());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("JDBC URL 格式不合法: " + datasourceUrl, e);
+        }
+    }
+
+    private String buildAdminJdbcUrl(DbServerConfig dbServerConfig) {
+        StringBuilder jdbcUrl = new StringBuilder(MYSQL_JDBC_PREFIX)
+                .append(dbServerConfig.host)
+                .append(":")
+                .append(dbServerConfig.port)
+                .append("/");
+        if (dbServerConfig.query != null && !dbServerConfig.query.isEmpty()) {
+            jdbcUrl.append("?").append(dbServerConfig.query);
+        }
+        return jdbcUrl.toString();
+    }
+
+    private static class DbServerConfig {
+        private final String host;
+        private final int port;
+        private final String query;
+
+        private DbServerConfig(String host, int port, String query) {
+            this.host = host;
+            this.port = port;
+            this.query = query;
         }
     }
 }

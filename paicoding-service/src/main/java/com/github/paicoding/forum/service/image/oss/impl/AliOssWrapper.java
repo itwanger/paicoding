@@ -19,6 +19,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.StreamUtils;
 
 import java.io.ByteArrayInputStream;
@@ -148,9 +149,19 @@ public class AliOssWrapper implements ImageUploader, InitializingBean, Disposabl
     }
 
     private void init() {
+        validateOssConfig();
         // 创建OSSClient实例。
         log.info("init ossClient");
         ossClient = new OSSClientBuilder().build(properties.getOss().getEndpoint(), properties.getOss().getAk(), properties.getOss().getSk());
+    }
+
+    private void validateOssConfig() {
+        Assert.notNull(properties, "image properties must not be null");
+        Assert.notNull(properties.getOss(), "image.oss config must not be null");
+        Assert.hasText(properties.getOss().getEndpoint(), "image.oss.endpoint must not be blank when image.oss.type=ali");
+        Assert.hasText(properties.getOss().getAk(), "image.oss.ak must not be blank when image.oss.type=ali");
+        Assert.hasText(properties.getOss().getSk(), "image.oss.sk must not be blank when image.oss.type=ali");
+        Assert.hasText(properties.getOss().getBucket(), "image.oss.bucket must not be blank when image.oss.type=ali");
     }
 
     @Override

@@ -3,6 +3,22 @@
 WEB_PATH="paicoding-web"
 JAR_NAME="paicoding-web-0.0.1-SNAPSHOT.jar"
 
+function load_env_file() {
+    local env_file="$1"
+    if [ -f "${env_file}" ]; then
+        echo "加载环境配置: ${env_file}"
+        set -a
+        # shellcheck disable=SC1090
+        source "${env_file}"
+        set +a
+    fi
+}
+
+function load_env() {
+    load_env_file ".env"
+    load_env_file ".env.local"
+}
+
 # 部署
 function start() {
     git pull
@@ -29,6 +45,7 @@ function restart() {
 }
 
 function run() {
+  load_env
   echo "启动脚本：==========="
   echo "nohup java -server -Xms1g -Xmx1g -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} > /dev/null 2>&1 &"
   echo "==========="

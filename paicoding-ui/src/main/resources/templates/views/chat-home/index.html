@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${global.siteInfo.websiteName}">
-        派聪明 | 技术派
+    <title th:text="${global.siteInfo.paiChatName + ' | ' + global.siteInfo.websiteName}">
+        PaiChat | 技术派
     </title>
 </div>
 
@@ -26,7 +26,7 @@
                         <div class="window-header-main-title home_chat-body-title__5S8w4"
                              th:data-target="${!global.isLogin ? '#loginModal' : (global.user.starStatus.code == -1 ? '#registerModal' : '')}"
                              th:data-toggle="${!global.isLogin || global.user.starStatus.code == -1 ? 'modal' : ''}">
-                            点击登录，体验派聪明AI助手
+                            <span th:text="${'点击登录，体验 ' + global.siteInfo.paiChatName}">点击登录，体验 PaiChat</span>
                         </div>
                         <div class="chat-annotation" th:if="${global.user != null}">
                             <div th:switch="${global.user.starStatus.code}">
@@ -46,7 +46,7 @@
 
                     </div>
 
-                    <div class="window-header-sub-title">与派聪明的 <span id="chatCnt">0</span> 条对话
+                    <div class="window-header-sub-title">与<span th:text="${global.siteInfo.paiChatName}">PaiChat</span>的 <span id="chatCnt">0</span> 条对话
                         <span class="info">以天为单位，无限期重置）</span></div>
                 </div>
                 <!-- 加一个下拉框，选项是 OpenAI 讯飞星火 技术派 DeepSeek 通义千问 智谱清言 豆包-->
@@ -66,7 +66,7 @@
             </div>
 
             <div class="chat-input">
-                <textarea id="input-field" class="form-control" rows="3" placeholder="你好，我是派聪明，快登录和我对线吧" disabled></textarea>
+                <textarea id="input-field" class="form-control" rows="3" th:placeholder="${'你好，我是 ' + global.siteInfo.paiChatName + '，快登录和我对线吧'}" placeholder="你好，我是 PaiChat，快登录和我对线吧" disabled></textarea>
                 <button id="send-btn" disabled>
                     <div class="button_icon-button-icon__qlUH3 no-dark">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" fill="none"><defs><path id="send-white_svg__a" d="M0 0h16v16H0z"></path></defs><g><mask id="send-white_svg__b" fill="#fff"><use xlink:href="#send-white_svg__a"></use></mask><g mask="url(#send-white_svg__b)"><path transform="translate(1.333 2)" d="M0 4.71 6.67 6l1.67 6.67L12.67 0 0 4.71Z" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path><path transform="translate(8.003 6.117)" d="M0 1.89 1.89 0" style="stroke: rgb(255, 255, 255); stroke-width: 1.33333; stroke-opacity: 1; stroke-dasharray: 0, 0;"></path></g></g></svg>

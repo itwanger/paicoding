@@ -7,6 +7,9 @@ view:
     websiteName: 技术派
     websiteLogoUrl: https://paicoding.com/img/logo.svg
     websiteFaviconIconUrl: https://paicoding.com/img/icon.png
+    paiChatName: PaiChat
+    paiSmartName: PaiSmart
+    paiSmartUrl: ${PAI_SMART_URL:https://smart.paicoding.com/}
     contactMeTitle: 联系我 - 沉默王二的狗腿子
     contactMeWxQrCode: https://cdn.tobebetterjavaer.com/paicoding/paicoding-qrcode.png
     pageSize: 20

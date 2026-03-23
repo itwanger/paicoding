@@ -25,6 +25,22 @@ WORK_DIR_PRO="/home/admin/workspace/paicoding-forum/"
 declare LOG_FILES
 LOG_BACKUP_FOLDER="logs/"
 
+function load_env_file() {
+    local env_file="$1"
+    if [ -f "${env_file}" ]; then
+        echo "加载环境配置: ${env_file}"
+        set -a
+        # shellcheck disable=SC1090
+        source "${env_file}"
+        set +a
+    fi
+}
+
+function load_env() {
+    load_env_file ".env"
+    load_env_file ".env.local"
+}
+
 function stop() {
     # kill
     echo "--- 应用线下 ---"
@@ -61,6 +77,7 @@ function restart() {
 }
 
 function run() {
+  load_env
   echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
   echo "==================="
   nohup java -server -Dspring.devtools.restart.enabled=false -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &

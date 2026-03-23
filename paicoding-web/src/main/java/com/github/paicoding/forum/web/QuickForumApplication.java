@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paicoding.forum.core.util.DotenvUtil;
 import com.github.paicoding.forum.core.util.SocketUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
@@ -68,6 +69,7 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     }
 
     public static void main(String[] args) {
+        DotenvUtil.load();
         SpringApplication.run(QuickForumApplication.class, args);
     }
 

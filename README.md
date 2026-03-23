@@ -112,6 +112,42 @@ mvn clean install -DskipTests=true -Pprod
   - xxx/application-image.yml: 定义上传图片的相关配置信息
   - xxx/application-web.yml: 定义web相关的配置信息
 
+#### `.env` 配置说明
+
+项目支持在仓库根目录通过 `.env` / `.env.local` 管理本地或服务器上的敏感配置。
+
+- 首次使用时，可复制 `.env.example` 为 `.env`
+- Spring Boot 启动前会自动加载 `.env` / `.env.local`
+- `launch.sh` 和 `deploy.sh` 启动 jar 时，也会自动 `source` 这两个文件
+- `.env.local` 适合放机器本地专属配置，优先级高于 `.env`
+- 进程环境变量和 `-D` 启动参数优先级仍然更高
+- `.env`、`.env.local` 已加入 `.gitignore`，不会提交到仓库
+
+示例：
+
+```bash
+cp .env.example .env
+```
+
+常见配置包括：
+
+- `PAICODING_DB_PASSWORD`
+- `PAICODING_OPENAI_API_KEY`
+- `PAICODING_ZHIPU_API_SECRET_KEY`
+- `PAICODING_XUNFEI_APP_ID`
+- `PAICODING_XUNFEI_API_KEY`
+- `PAICODING_XUNFEI_API_SECRET`
+- `PAICODING_XUNFEI_API_PASSWORD`
+- `PAICODING_DEEPSEEK_API_KEY`
+- `PAICODING_DOUBAO_API_KEY`
+- `PAICODING_DOUBAO_ENDPOINT`
+- `PAICODING_WX_APP_SECRET`
+- `PAICODING_OSS_AK`
+- `PAICODING_OSS_SK`
+- `PAICODING_OSS_ENDPOINT`
+- `PAICODING_OSS_BUCKET`
+- `PAICODING_OSS_HOST`
+
 [前端工程结构说明](docs/前端工程结构说明.md)
 
 ### 技术选型
@@ -220,10 +256,26 @@ mvn clean install -DskipTests=true -Pprod
 
 > [本地开发环境手把手教程](docs/本地开发环境配置教程.md)
 
+本地启动前，建议先准备 `.env`：
+
+```bash
+cp .env.example .env
+```
+
+如果通过脚本启动：
+
+```bash
+./launch.sh start
+```
+
+脚本会自动加载当前目录下的 `.env` / `.env.local`。
+
 ### 云服务器部署教程
 
 > [环境搭建 & 基于源码的部署教程](docs/安装环境.md)
 > [服务器启动教程](docs/服务器启动教程.md)
+
+服务器上如果使用 `./launch.sh start` 或 `./deploy.sh restart` 启动，也需要提前在脚本所在目录准备 `.env` 或通过系统环境变量注入对应配置。
 
 ## 五、友情链接
 
@@ -258,4 +310,3 @@ GitHub 上标星 13000+ 的开源知识库《 [二哥的 Java 进阶之路](http
 [Apache License 2.0](https://github.com/itwanger/paicoding/edit/main/README.md)
 
 Copyright (c) 2022-2025 技术派（楼仔、沉默王二、一灰、小超、小灰飞）
-

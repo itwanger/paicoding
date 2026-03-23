@@ -6,6 +6,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.github.paicoding.forum.core.config.ImageProperties;
 import com.github.paicoding.forum.core.config.OssProperties;
+import com.github.paicoding.forum.core.util.DotenvUtil;
 import com.github.paicoding.forum.service.image.oss.impl.AliOssWrapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,11 +57,7 @@ public class OSSUtil {
     }
 
     private static String requireEnv(String name) {
-        String value = System.getenv(name);
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalStateException("Missing required environment variable: " + name);
-        }
-        return value;
+        return DotenvUtil.require(name);
     }
 
     public static boolean needUploadOss(String imageUrl) {
