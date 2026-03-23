@@ -12,6 +12,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -29,6 +33,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 主体来自讯飞官方java sdk
@@ -209,6 +216,79 @@ public class XunFeiIntegration {
 
     public ResponseData parse2response(String text) {
         return JsonUtil.toObj(text, ResponseData.class);
+    }
+
+    public String testConnection(String question) {
+        if (StringUtils.isBlank(xunFeiConfig.hostUrl) || StringUtils.isBlank(xunFeiConfig.appId)
+                || StringUtils.isBlank(xunFeiConfig.apiKey) || StringUtils.isBlank(xunFeiConfig.apiSecret)) {
+            throw new IllegalStateException("讯飞配置不完整，请先补齐 hostUrl/appId/apiKey/apiSecret");
+        }
+
+        final String url = buildXunFeiUrl();
+        if (StringUtils.isBlank(url)) {
+            throw new IllegalStateException("讯飞鉴权地址生成失败");
+        }
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<String> result = new AtomicReference<String>();
+        final AtomicReference<String> error = new AtomicReference<String>();
+        final String prompt = StringUtils.defaultIfBlank(question, "请只回复连接成功");
+
+        Request request = new Request.Builder().url(url).build();
+        final WebSocket[] socketHolder = new WebSocket[1];
+        socketHolder[0] = okHttpClient.newWebSocket(request, new WebSocketListener() {
+            @Override
+            public void onOpen(WebSocket webSocket, Response response) {
+                webSocket.send(buildSendMsg("admin-ai-test", prompt));
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, String text) {
+                ResponseData responseData = parse2response(text);
+                if (responseData == null || responseData.getHeader() == null) {
+                    error.set("讯飞返回结果为空");
+                } else if (!responseData.successReturn()) {
+                    error.set("讯飞调用失败:" + responseData.getHeader().getMessage());
+                } else {
+                    StringBuilder msg = new StringBuilder();
+                    if (responseData.getPayload() != null && responseData.getPayload().getChoices() != null
+                            && responseData.getPayload().getChoices().getText() != null) {
+                        responseData.getPayload().getChoices().getText().forEach(s -> {
+                            if (s.getReasoning_content() != null) {
+                                msg.append(s.getReasoning_content());
+                            }
+                            if (s.getContent() != null) {
+                                msg.append(s.getContent());
+                            }
+                        });
+                    }
+                    result.set(StringUtils.defaultIfBlank(msg.toString(), "连接成功"));
+                }
+                webSocket.close(1000, "test finished");
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+                error.set("讯飞连接失败:" + t.getMessage());
+                latch.countDown();
+            }
+        });
+
+        try {
+            if (!latch.await(12, TimeUnit.SECONDS)) {
+                socketHolder[0].cancel();
+                throw new IllegalStateException("讯飞连通性测试超时");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("讯飞连通性测试被中断");
+        }
+
+        if (StringUtils.isNotBlank(error.get())) {
+            throw new IllegalStateException(error.get());
+        }
+        return StringUtils.defaultIfBlank(result.get(), "连接成功");
     }
 
 

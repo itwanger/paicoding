@@ -17,5 +17,8 @@ public class WxMenuValidateResDTO implements Serializable {
 
     private Boolean valid;
     private String normalizedMenuJson;
+    private List<String> menuErrors;
+    private List<String> replyErrors;
     private List<String> errors;
+    private List<String> warnings;
 }

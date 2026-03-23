@@ -51,6 +51,11 @@ public enum AISourceEnum {
      * 豆包 AI
      */
     DOU_BAO_AI(7, "豆包")
+    ,
+    /**
+     * 智谱 Coding Plan
+     */
+    ZHIPU_CODING(8, "智谱Coding")
     ;
 
 

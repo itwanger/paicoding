@@ -8,6 +8,7 @@ import com.github.paicoding.forum.service.chatai.service.ChatServiceFactory;
 import com.github.paicoding.forum.service.chatai.service.impl.ali.AliIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.chatgpt.ChatGptIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.xunfei.XunFeiIntegration;
+import com.github.paicoding.forum.service.chatai.service.impl.zhipu.ZhipuCodingIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.zhipu.ZhipuIntegration;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.google.common.base.Supplier;
@@ -84,6 +85,9 @@ public class ChatFacade {
             } else if (!except.contains(AISourceEnum.ZHI_PU_AI)  && StringUtils.isNotBlank(SpringUtil.getBean(ZhipuIntegration.ZhipuConfig.class)
                     .getApiSecretKey())) {
                 source = AISourceEnum.ZHI_PU_AI;
+            } else if (!except.contains(AISourceEnum.ZHIPU_CODING) && StringUtils.isNotBlank(SpringUtil.getBean(ZhipuCodingIntegration.ZhipuCodingConfig.class)
+                    .getApiKey())) {
+                source = AISourceEnum.ZHIPU_CODING;
             } else if (!except.contains(AISourceEnum.XUN_FEI_AI) && StringUtils.isNotBlank(SpringUtil.getBean(XunFeiIntegration.XunFeiConfig.class)
                     .getApiKey())) {
                 source = AISourceEnum.XUN_FEI_AI;

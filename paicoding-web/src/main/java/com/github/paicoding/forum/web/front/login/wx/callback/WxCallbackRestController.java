@@ -110,7 +110,7 @@ public class WxCallbackRestController {
         }
 
         // 执行技术派登录、用户响应问答的场景
-        BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), code, msg.getFromUserName());
+        BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), msg.getEventKey(), code, msg.getFromUserName());
         fillResVo(res, msg);
         return res;
     }

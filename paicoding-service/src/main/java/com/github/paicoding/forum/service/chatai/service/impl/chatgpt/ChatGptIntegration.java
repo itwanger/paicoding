@@ -4,6 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.net.ProxyCenter;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
@@ -47,6 +48,8 @@ import java.util.concurrent.TimeUnit;
 public class ChatGptIntegration {
     @Autowired
     private ChatGptConfig config;
+    @Autowired
+    private DynamicConfigContainer dynamicConfigContainer;
 
     @Data
     @Configuration
@@ -99,6 +102,14 @@ public class ChatGptIntegration {
                         return ImmutablePair.of(null, null);
                     }
                 });
+        dynamicConfigContainer.registerRefreshCallback(config, this::refreshAfterConfigChange);
+    }
+
+    private void refreshAfterConfigChange() {
+        if (cacheStream != null) {
+            cacheStream.invalidateAll();
+        }
+        log.info("ChatGpt 配置已刷新");
     }
 
     /**
@@ -162,10 +173,13 @@ public class ChatGptIntegration {
     }
 
     public boolean directReturn(Long routingKey, ChatItemVo chat) {
+        return directReturn(routingKey, chat, config.getMain());
+    }
 
-        AISourceEnum selectModel = config.getMain();
+    public boolean directReturn(Long routingKey, ChatItemVo chat, AISourceEnum model) {
+        AISourceEnum selectModel = model == null ? config.getMain() : model;
         GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
-        ChatGPT gpt = getGpt(routingKey, config.getMain());
+        ChatGPT gpt = getGpt(routingKey, selectModel);
         try {
             ChatCompletion chatCompletion = ChatCompletion.builder().model(parse2GptMode(selectModel).getName())
                     .messages(Arrays.asList(Message.of(chat.getQuestion()))).maxTokens(conf.getMaxToken()).build();

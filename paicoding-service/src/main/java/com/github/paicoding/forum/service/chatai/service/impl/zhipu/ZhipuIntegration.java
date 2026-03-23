@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -182,13 +183,18 @@ public class ZhipuIntegration {
     }
 
     public boolean directReturn(Long user, ChatItemVo chat) {
+        if (StringUtils.isBlank(config.getApiSecretKey())) {
+            throw new IllegalStateException("未配置 zhipu.apiSecretKey");
+        }
         List<ChatMessage> messages = new ArrayList<>();
         ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), chat.getQuestion());
         messages.add(chatMessage);
-        String requestId = String.format(config.requestIdTemplate, user + System.currentTimeMillis());
+        String requestTemplate = StringUtils.defaultIfBlank(config.getRequestIdTemplate(), "paicoding-%d");
+        String requestId = String.format(requestTemplate, user + System.currentTimeMillis());
+        String model = StringUtils.defaultIfBlank(config.getModel(), Constants.ModelChatGLM4);
 
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .model(Constants.ModelChatGLM4)
+                .model(model)
                 .stream(Boolean.FALSE)
                 .invokeMethod(Constants.invokeMethod)
                 .messages(messages)
@@ -198,16 +204,40 @@ public class ZhipuIntegration {
                 .networkConfig(300, 100, 100, 100, TimeUnit.SECONDS)
                 .connectionPool(new okhttp3.ConnectionPool(8, 1, TimeUnit.SECONDS))
                 .build();
-        ModelApiResponse invokeModelApiResp = client.invokeModelApi(chatCompletionRequest);
-        if (invokeModelApiResp.isSuccess()) {
-            invokeModelApiResp.getData().getChoices().forEach(choice -> {
-                chat.initAnswer(JsonUtil.toStr(choice.getMessage().getContent()), ChatAnswerTypeEnum.JSON);
-                log.info("智谱 AI 试用! 传参:{}, 返回:{}", chat, invokeModelApiResp);
-            });
+        try {
+            ModelApiResponse invokeModelApiResp = client.invokeModelApi(chatCompletionRequest);
+            if (invokeModelApiResp == null) {
+                throw new IllegalStateException("智谱 AI 未返回结果");
+            }
+            if (!invokeModelApiResp.isSuccess()) {
+                String errMsg = invokeModelApiResp.getError() == null ? null : invokeModelApiResp.getError().getMessage();
+                String detail = StringUtils.defaultIfBlank(errMsg, invokeModelApiResp.getMsg());
+                if (StringUtils.isBlank(detail)) {
+                    detail = "code=" + invokeModelApiResp.getCode();
+                }
+                throw new IllegalStateException("智谱 AI 调用失败: " + detail);
+            }
+            if (invokeModelApiResp.getData() == null || invokeModelApiResp.getData().getChoices() == null
+                    || invokeModelApiResp.getData().getChoices().isEmpty()) {
+                throw new IllegalStateException("智谱 AI 未返回内容");
+            }
+            String answer = null;
+            for (Choice choice : invokeModelApiResp.getData().getChoices()) {
+                answer = extractChoiceContent(choice);
+                if (StringUtils.isNotBlank(answer)) {
+                    break;
+                }
+            }
+            if (StringUtils.isBlank(answer)) {
+                throw new IllegalStateException("智谱 AI 返回结构缺少 message.content");
+            }
+            chat.initAnswer(answer, ChatAnswerTypeEnum.JSON);
+            log.info("智谱 AI 试用! 传参:{}, 返回:{}", chat, invokeModelApiResp);
+            return true;
+        } finally {
+            client.getConfig().getHttpClient().dispatcher().executorService().shutdown();
+            client.getConfig().getHttpClient().connectionPool().evictAll();
         }
-
-
-        return true;
     }
 
     public static Flowable<ChatMessageAccumulator> mapStreamToAccumulator(Flowable<ModelData> flowable) {
@@ -230,5 +260,22 @@ public class ZhipuIntegration {
             list.add(new ChatMessage(ChatMessageRole.ASSISTANT.value(), item.getAnswer()));
         }
         return list;
+    }
+
+    private String extractChoiceContent(Choice choice) {
+        if (choice == null || choice.getMessage() == null) {
+            return null;
+        }
+        Object content = choice.getMessage().getContent();
+        if (content instanceof String) {
+            return (String) content;
+        }
+        if (content != null) {
+            return JsonUtil.toStr(content);
+        }
+        if (!Objects.isNull(choice.getMessage().getTool_calls())) {
+            return JsonUtil.toStr(choice.getMessage().getTool_calls());
+        }
+        return null;
     }
 }

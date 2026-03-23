@@ -52,13 +52,12 @@
                 <!-- 加一个下拉框，选项是 OpenAI 讯飞星火 技术派 DeepSeek 通义千问 智谱清言 豆包-->
                 <div class="chat-type">
                     <select class="styled-dropdown" id="chat-type">
-                        <option value="DEEP_SEEK">DeepSeek</option>
-                        <option value="CHAT_GPT_3_5">OpenAI</option>
-                        <option value="ALI_AI">通义千问</option>
-                        <option value="XUN_FEI_AI">讯飞星火</option>
-                        <option value="ZHI_PU_AI">智谱</option>
-                        <option value="DOU_BAO_AI">豆包</option>
-                        <option value="PAI_AI" selected>技术派</option>
+                        <option th:each="item : ${chatSourceOptions}"
+                                th:value="${item.value}"
+                                th:text="${item.name}"
+                                th:selected="${item.value == selectedChatSource}">
+                            技术派
+                        </option>
                     </select>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AiChatStatEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.volcengine.ApiException;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
@@ -12,12 +13,8 @@ import com.volcengine.ark.runtime.model.completion.chat.ChatMessageRole;
 import com.volcengine.ark.runtime.service.ArkService;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -30,12 +27,19 @@ import java.util.function.BiConsumer;
 @Service
 public class DoubaoIntegration {
     @Autowired
-    private final DoubaoConfig doubaoConfig;
-    private final ArkService service;
+    private DoubaoConfig doubaoConfig;
+    @Autowired
+    private DynamicConfigContainer dynamicConfigContainer;
 
+    private volatile ArkService service;
 
-    public DoubaoIntegration(DoubaoConfig doubaoConfig) {
-        this.doubaoConfig = doubaoConfig;
+    @PostConstruct
+    public void init() {
+        dynamicConfigContainer.registerRefreshCallback(doubaoConfig, this::refreshService);
+        refreshService();
+    }
+
+    private synchronized void refreshService() {
         String baseUrl = "https://ark.cn-beijing.volces.com/api/v3";
         if (!StringUtils.hasText(doubaoConfig.getApiKey())) {
             log.info("豆包API KEY 未配置，停止初始化DoubaoIntegration");
@@ -52,9 +56,6 @@ public class DoubaoIntegration {
                 .apiKey(this.doubaoConfig.getApiKey())
                 .build();
     }
-
-
-
 
     public AiChatStatEnum directAnswer(Long user, ChatItemVo chat) {
         if (service == null) {

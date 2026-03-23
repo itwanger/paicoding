@@ -2,21 +2,26 @@ package com.github.paicoding.forum.api.model.vo.wx.menu;
 
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * 微信菜单草稿保存请求
+ * 微信菜单整套配置
  *
  * @author Codex
  * @date 2026/3/23
  */
 @Data
-public class WxMenuSaveReq {
+public class WxMenuConfigDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     /**
-     * 菜单 JSON
+     * 微信官方菜单 JSON
      */
     private String menuJson;
 
     /**
-     * 备注，可选
+     * 备注
      */
     private String comment;
 
@@ -33,7 +38,7 @@ public class WxMenuSaveReq {
     /**
      * 关键字/事件回复规则
      */
-    private java.util.List<WxMenuKeywordReplyDTO> keywordReplies;
+    private List<WxMenuKeywordReplyDTO> keywordReplies;
 
     /**
      * none / fixed_reply / ai_reply
@@ -45,7 +50,7 @@ public class WxMenuSaveReq {
     private Boolean aiEnable;
 
     /**
-     * 兼容旧结构：click 菜单回复配置
+     * 兼容旧结构：click 菜单 key -> 回复内容
      */
-    private java.util.List<WxMenuClickReplyDTO> clickReplies;
+    private List<WxMenuClickReplyDTO> clickReplies;
 }

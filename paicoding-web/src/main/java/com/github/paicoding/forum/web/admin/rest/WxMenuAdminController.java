@@ -2,6 +2,10 @@ package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuDetailDTO;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiReq;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiResDTO;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewMatchReq;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewMatchResDTO;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPublishReq;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPublishResDTO;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuSaveReq;
@@ -62,5 +66,17 @@ public class WxMenuAdminController {
     @PostMapping(path = "sync")
     public ResVo<WxMenuDetailDTO> sync() {
         return ResVo.ok(wxMenuService.syncRemoteToDraft());
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "preview/match")
+    public ResVo<WxMenuPreviewMatchResDTO> previewMatch(@RequestBody(required = false) WxMenuPreviewMatchReq req) {
+        return ResVo.ok(wxMenuService.previewMatch(req));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping(path = "preview/ai")
+    public ResVo<WxMenuPreviewAiResDTO> previewAi(@RequestBody(required = false) WxMenuPreviewAiReq req) {
+        return ResVo.ok(wxMenuService.previewAi(req));
     }
 }

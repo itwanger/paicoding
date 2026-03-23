@@ -4,15 +4,22 @@ import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtItemVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiReq;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiResDTO;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuReplyArticleDTO;
+import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuReplyDTO;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatgptService;
+import com.github.paicoding.forum.service.config.service.WxMenuService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -29,18 +36,25 @@ public class WxAckHelper {
     @Autowired
     private ChatgptService chatgptService;
 
+    @Autowired
+    private WxMenuService wxMenuService;
+
     /**
      * 返回自动响应的文本
      *
      * @return
      */
-    public BaseWxMsgResVo buildResponseBody(String eventType, String content, String fromUser) {
+    public BaseWxMsgResVo buildResponseBody(String eventType, String eventKey, String content, String fromUser) {
         // 返回的文本消息
         String textRes = null;
         // 返回的是图文消息
         List<WxImgTxtItemVo> imgTxtList = null;
         if (("subscribe".equalsIgnoreCase(eventType) || "scan".equalsIgnoreCase(eventType))
                 && !CodeGenerateUtil.isVerifyCode(content)) {
+            BaseWxMsgResVo configuredReply = buildConfiguredReply(wxMenuService.getSubscribeReply());
+            if (configuredReply != null) {
+                return configuredReply;
+            }
             // 单纯的服务号订阅、扫码，而不是登录的场景，返回下面的提示信息
             textRes = "优秀的你一关注，二哥英俊的脸上就泛起了笑容。我这个废柴，既可以把程序人生写得风趣幽默，也可以把技术文章写得通俗易懂。\n" +
                     "\n" +
@@ -50,18 +64,21 @@ public class WxAckHelper {
                     "\n" +
                     "没有什么使我停留——除了目的，纵然岸旁有玫瑰、有绿荫、有宁静的港湾，我是不系之舟。\n";
         }
+
+        BaseWxMsgResVo configuredRuleReply = buildConfiguredReply(wxMenuService.matchKeywordReply(eventType, eventKey, content));
+        if (configuredRuleReply != null) {
+            return configuredRuleReply;
+        }
+
         // 下面是关键词回复
-        else if (chatgptService.inChat(fromUser, content)) {
+        if (chatgptService.inChat(fromUser, content)) {
             try {
                 textRes = chatgptService.chat(fromUser, content);
             } catch (Exception e) {
                 log.error("派聪明 访问异常! content: {}", content, e);
                 textRes = "派聪明 出了点小状况，请稍后再试!";
             }
-        }
-
-        // 下面是回复图文消息
-        else if ("加群".equalsIgnoreCase(content)) {
+        } else if ("加群".equalsIgnoreCase(content)) {
             WxImgTxtItemVo imgTxt = new WxImgTxtItemVo();
             imgTxt.setTitle("扫码加群");
             imgTxt.setDescription("加入技术派的技术交流群，卷起来！");
@@ -89,6 +106,14 @@ public class WxAckHelper {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }
         } else {
+            BaseWxMsgResVo aiReply = buildAiFallbackReply(content);
+            if (aiReply != null) {
+                return aiReply;
+            }
+            BaseWxMsgResVo configuredReply = buildFallbackReply();
+            if (configuredReply != null) {
+                return configuredReply;
+            }
             textRes = "/:? 还在找其它资料么？\n" +
                     "\n" +
                     "[机智] 添加二哥的微信 itwanger 后，微信回复 “110”，即可获得 10 本校招/社招必刷八股文，以及技术派团队的原创手册《高并发手册》、《Spring 源码解析手册》、《设计模式手册》、《JVM 核心手册》、《Java 并发编程手册》、《架构选型手册》，工作面试两不误，工作面试两不误。\n" +
@@ -106,5 +131,75 @@ public class WxAckHelper {
             vo.setArticleCount(imgTxtList.size());
             return vo;
         }
+    }
+
+    private BaseWxMsgResVo buildFallbackReply() {
+        String strategy = StringUtils.defaultIfBlank(wxMenuService.getMessageFallbackStrategy(), "fixed_reply");
+        if ("fixed_reply".equalsIgnoreCase(strategy)) {
+            return buildConfiguredReply(wxMenuService.getDefaultReply());
+        }
+        return null;
+    }
+
+    private BaseWxMsgResVo buildAiFallbackReply(String content) {
+        String strategy = StringUtils.defaultIfBlank(wxMenuService.getMessageFallbackStrategy(), "fixed_reply");
+        if (!"ai_reply".equalsIgnoreCase(strategy) || !Boolean.TRUE.equals(wxMenuService.getAiEnable())) {
+            return null;
+        }
+
+        WxMenuPreviewAiReq req = new WxMenuPreviewAiReq();
+        req.setContent(content);
+        req.setAiEnable(Boolean.TRUE);
+        req.setAiPrompt(wxMenuService.getAiPrompt());
+        req.setAiProvider(wxMenuService.getAiProvider());
+
+        WxMenuPreviewAiResDTO res = wxMenuService.previewAi(req);
+        if (res == null || !Boolean.TRUE.equals(res.getSuccess()) || StringUtils.isBlank(res.getReplyText())) {
+            return null;
+        }
+
+        WxTxtMsgResVo vo = new WxTxtMsgResVo();
+        vo.setContent(res.getReplyText());
+        return vo;
+    }
+
+    private BaseWxMsgResVo buildConfiguredReply(WxMenuReplyDTO reply) {
+        if (reply == null || StringUtils.isBlank(reply.getReplyType())) {
+            return null;
+        }
+
+        if ("text".equalsIgnoreCase(reply.getReplyType())) {
+            if (StringUtils.isBlank(reply.getContent())) {
+                return null;
+            }
+            WxTxtMsgResVo vo = new WxTxtMsgResVo();
+            vo.setContent(reply.getContent());
+            return vo;
+        }
+
+        if ("news".equalsIgnoreCase(reply.getReplyType()) && reply.getArticles() != null && !reply.getArticles().isEmpty()) {
+            WxImgTxtMsgResVo vo = new WxImgTxtMsgResVo();
+            List<WxImgTxtItemVo> articles = reply.getArticles().stream()
+                    .filter(item -> item != null && StringUtils.isNotBlank(item.getTitle()))
+                    .map(this::toImgTxtItem)
+                    .collect(Collectors.toList());
+            if (articles.isEmpty()) {
+                return null;
+            }
+            vo.setArticles(articles);
+            vo.setArticleCount(articles.size());
+            return vo;
+        }
+
+        return null;
+    }
+
+    private WxImgTxtItemVo toImgTxtItem(WxMenuReplyArticleDTO article) {
+        WxImgTxtItemVo item = new WxImgTxtItemVo();
+        item.setTitle(article.getTitle());
+        item.setDescription(article.getDescription());
+        item.setPicUrl(article.getPicUrl());
+        item.setUrl(article.getUrl());
+        return item;
     }
 }

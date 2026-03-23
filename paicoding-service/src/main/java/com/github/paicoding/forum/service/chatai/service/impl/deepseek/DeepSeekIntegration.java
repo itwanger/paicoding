@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.chatai.service.impl.deepseek;
 
 import cn.hutool.http.ContentType;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import lombok.AllArgsConstructor;
@@ -36,15 +37,23 @@ import java.util.concurrent.TimeUnit;
 public class DeepSeekIntegration {
     @Autowired
     private DeepSeekConf deepSeekConf;
+    @Autowired
+    private DynamicConfigContainer dynamicConfigContainer;
 
     private OkHttpClient okHttpClient;
 
     @PostConstruct
     public void init() {
+        dynamicConfigContainer.registerRefreshCallback(deepSeekConf, this::refreshClient);
+        refreshClient();
+    }
+
+    private void refreshClient() {
+        long timeout = deepSeekConf.getTimeout() == null ? 900L : deepSeekConf.getTimeout();
         this.okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)   // 建立连接的超时时间
-                .readTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)  // 建立连接后读取数据的超时时间
-                .writeTimeout(deepSeekConf.getTimeout(), TimeUnit.SECONDS)
+                .connectTimeout(timeout, TimeUnit.SECONDS)   // 建立连接的超时时间
+                .readTimeout(timeout, TimeUnit.SECONDS)  // 建立连接后读取数据的超时时间
+                .writeTimeout(timeout, TimeUnit.SECONDS)
                 .build();
     }
 
@@ -161,7 +170,7 @@ public class DeepSeekIntegration {
     @Data
     @Component
     @ConfigurationProperties(prefix = "deepseek")
-    private class DeepSeekConf {
+    public static class DeepSeekConf {
         private String apiKey;
         private String apiHost;
         private Long timeout;
