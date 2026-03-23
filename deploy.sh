@@ -9,6 +9,7 @@ EXECUTABLE_JAR_NAME="paicoding-web-0.0.1-SNAPSHOT.jar"
 TMP_EXECUTABLE_JAR_NAME=${EXECUTABLE_JAR_NAME}".tmp"
 BAK_EXECUTABLE_JAR_NAME=${EXECUTABLE_JAR_NAME}".bak"
 EXECUTABLE_JAR_PATH="./${WEB_PATH}/target/${EXECUTABLE_JAR_NAME}"
+STARTUP_LOG_FILE="logs/startup-prod.log"
 
 DEPLOY_SCRIPT="deploy.sh"
 START_FUNC_NAME="start"
@@ -78,9 +79,10 @@ function restart() {
 
 function run() {
   load_env
-  echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} > /dev/null 2>&1 &"
+  mkdir -p logs
+  echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} >> ${STARTUP_LOG_FILE} 2>&1 &"
   echo "==================="
-  nohup java -server -Dspring.devtools.restart.enabled=false -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} "$@" > /dev/null 2>&1 &
+  nohup java -server -Dspring.devtools.restart.enabled=false -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} "$@" >> "${STARTUP_LOG_FILE}" 2>&1 &
   echo $! > ${PID_FILE_NAME}
 }
 

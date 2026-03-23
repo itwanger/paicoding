@@ -18,15 +18,23 @@ public class CustomizeErrorController implements ErrorController {
     public ModelAndView errorHtml(HttpServletRequest request, Model model) {
         HttpStatus status = getStatus(request);
 
+        if (status == HttpStatus.FORBIDDEN) {
+            model.addAttribute("toast", "403无权限");
+            return new ModelAndView("error/403");
+        }
+
         if (status.is4xxClientError()) {
-            model.addAttribute("message", "你这个请求错了吧，要不要换个姿势！！！");
-
+            model.addAttribute("toast", "请求地址不存在");
+            return new ModelAndView("error/404");
         }
+
         if (status.is5xxServerError()) {
-            model.addAttribute("message", "服务器冒烟了，要不然你稍后再试试！！！");
+            model.addAttribute("toast", "服务器内部异常");
+            return new ModelAndView("error/500");
         }
 
-        return new ModelAndView("error");
+        model.addAttribute("toast", "请求处理异常");
+        return new ModelAndView("error/500");
 
     }
 
