@@ -1,5 +1,5 @@
 log:
-  path: /home/admin/workspace/paicoding/logs # 请使用实际的地址进行替换
+  path: ${PAICODING_LOG_PATH:/home/admin/workspace/paicoding/logs} # 请使用实际的地址进行替换
 env:
   name: prod
 
@@ -18,4 +18,4 @@ chatgpt:
 
 
 short-link:
-  whitelist: localhost, 127.0.0.1:8080,paicoding.com # 允许创建短链接的域名，示例: 域名,域名+端口
+  whitelist: ${PAICODING_SHORT_LINK_WHITELIST:localhost,127.0.0.1:8080,paicoding.com} # 允许创建短链接的域名，示例: 域名,域名+端口

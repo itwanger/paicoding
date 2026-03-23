@@ -2,11 +2,13 @@ package com.github.paicoding.forum.service.pay.config;
 
 import com.github.hui.quick.plugin.base.file.FileReadUtil;
 import lombok.Data;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 微信支付配置
@@ -40,6 +42,16 @@ public class WxPayConfig {
      * @return 私钥内容
      */
     public String getPrivateKeyContent() {
+        if (privateKey != null && privateKey.contains("-----BEGIN PRIVATE KEY")) {
+            // 私钥内容是直接以文本的方式提供的，直接返回
+            return privateKey;
+        }
+
+        if (privateKey != null && (privateKey.endsWith("=") || privateKey.length() > 200)) {
+            // 如果是base64编码的传入方式, 使用base64进行解码
+            return new String(Base64.decodeBase64(privateKey), StandardCharsets.UTF_8);
+        }
+
         try {
             return FileReadUtil.readAll(privateKey);
         } catch (IOException e) {

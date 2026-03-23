@@ -6,12 +6,12 @@ image:
   # 临时存储目录
   tmp-upload-path: /tmp/forum/
   # 图片访问域名
-  cdn-host: https://imgs.hhui.top/
+  cdn-host: https://cdn.paicoding.com/
   oss:
-    type: local
-    endpoint:
+    type: ali # 本地开发默认走本地存储；如需阿里云 OSS，请改为 ali 并配置下面的 ak/sk
     prefix: paicoding/
-    ak:
-    sk:
-    bucket:
-    host:
+    endpoint: ${PAICODING_OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
+    ak: ${PAICODING_OSS_AK:LTAIxxxxc9C}
+    sk: ${PAICODING_OSS_SK:somVtxxxxQha}
+    bucket: ${PAICODING_OSS_BUCKET:paicoding-oss}
+    host: ${PAICODING_OSS_HOST:https://cdn.paicoding.com/}

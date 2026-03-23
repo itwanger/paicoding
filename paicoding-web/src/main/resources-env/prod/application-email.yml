@@ -1,11 +1,11 @@
 #邮箱配置
 spring:
   mail:
-    host: smtp.163.com
-    from: xhhuiblog@163.com
+    host: ${PAICODING_MAIL_HOST:smtp.163.com}
+    from: ${PAICODING_MAIL_FROM:xhhuiblog@163.com}
     # 使用自己的发送方用户名 + 授权码填充
-    username:
-    password:
+    username: ${PAICODING_MAIL_USERNAME:xhhuiblog}
+    password: ${PAICODING_MAIL_PASSWORD:}
     default-encoding: UTF-8
     port: 465
     properties:
@@ -21,4 +21,4 @@ spring:
             required: true
 alarm:
   # 接收报警的用户邮箱，多个人时，使用英文逗号分隔
-  user: xhhuiblog@163.com
+  user: ${PAICODING_MAIL_USER:xhhuiblog@163.com}

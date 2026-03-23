@@ -48,18 +48,18 @@ chatgpt:
 
 # 讯飞AI
 xunfei:
-  hostUrl: http://spark-api.xf-yun.com/v2.1/chat
-  domain: "generalv2"
-  appId:
-  apiKey:
-  apiSecret:
+  hostUrl: ${XUFEI_HOST_URL:http://spark-api.xf-yun.com/v3.5/chat}
+  domain: ${XUFEI_DOMAIN:generalv2}
+  appId: ${XUFEI_APPID:5exxx1}
+  apiKey: ${XUFEI_APIKEY:YzxxxxxVj}
+  apiSecret: ${XUFEI_SECRET:88ddxxxxxx40}
 
 deepseek:
-  apiHost: https://api.deepseek.com
-  apiKey: # 使用自己的密钥进行替换
+  apiHost: ${DEEPSEEK_HOST:https://api.deepseek.com}
+  apiKey: ${DEEPSEEK_APIKEY:} # 使用自己的密钥进行替换
   timeout: 900 # 超时时间，单位秒
 
 doubao:
-  api-key: # 使用自己的密钥进行替换
-  api-host: https://ark.cn-beijing.volces.com/api/v3
-  end-point: # 使用自己创建的接入点进行替换
+  api-key: ${DOUBAO_APIKEY:} # 使用自己的密钥进行替换
+  api-host: {$DOUBAO_HOST:https://ark.cn-beijing.volces.com/api/v3}
+  end-point: ${DOUBAO_ENDPOINT:} # 使用自己创建的接入点进行替换
