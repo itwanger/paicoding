@@ -1,7 +1,7 @@
 spring:
   datasource:
     url: jdbc:mysql://${PAICODING_DB_HOST:localhost}:${PAICODING_DB_PORT:3306}/${database.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: ${PAICODING_DB_USERNAME:prod_root}
+    username: ${PAICODING_DB_USERNAME:root}
     password: ${PAICODING_DB_PASSWORD:}
   redis:
     host: ${PAICODING_REDIS_HOST:localhost}
