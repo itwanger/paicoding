@@ -113,7 +113,7 @@ public class UserActivityRankServiceImpl implements UserActivityRankService {
                 Double newAns = RedisClient.zIncrBy(todayRankKey, String.valueOf(userId), score);
                 RedisClient.zIncrBy(monthRankKey, String.valueOf(userId), score);
                 if (log.isDebugEnabled()) {
-                    log.info("活跃度更新加分! key#field = {}#{}, add = {}, newScore = {}", todayRankKey, userId, score, newAns);
+                    log.debug("活跃度更新加分! key#field = {}#{}, add = {}, newScore = {}", todayRankKey, userId, score, newAns);
                 }
                 if (newAns <= score) {
                     // 由于上面只实现了日/月活跃度的增加，但是没有设置对应的有效期；为了避免持久保存导致redis占用较高；因此这里设定了缓存的有效期
