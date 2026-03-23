@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class WxLoginQrGenIntegration {
 
-    private static final String WX_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}";
+    private static final String WX_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/stable_token?grant_type=client_credential&appid={appid}&secret={secret}";
     private static final String WX_GEN_QR_URL = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=";
 
     private final WxLoginProperties wxLoginProperties;
