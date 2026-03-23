@@ -190,7 +190,7 @@ public abstract class AbsChatService implements ChatService {
     protected AiChatStatEnum answer(Long user, ChatRecordsVo res) {
         ChatItemVo itemVo = res.getRecords().get(0);
         AiChatStatEnum ans;
-        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(itemVo.getQuestion());
+        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(source(), itemVo.getQuestion());
         if (StringUtils.isNotBlank(sensitiveMessage)) {
             itemVo.initAnswer(sensitiveMessage);
             ans = AiChatStatEnum.ERROR;
@@ -241,7 +241,7 @@ public abstract class AbsChatService implements ChatService {
             return res;
         }
 
-        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(res.getRecords().get(0).getQuestion());
+        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(source(), res.getRecords().get(0).getQuestion());
         if (StringUtils.isNotBlank(sensitiveMessage) && !SpringUtil.getBean(AiBots.class).aiBots(user)) {
             // 机器人不进行敏感词校验
             // 包含敏感词的提问，直接返回异常

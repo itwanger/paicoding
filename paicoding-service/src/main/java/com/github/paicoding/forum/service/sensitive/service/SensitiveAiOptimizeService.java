@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.sensitive.service;
 
 import com.alibaba.fastjson.JSON;
+import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
@@ -76,6 +77,10 @@ public class SensitiveAiOptimizeService {
             return null;
         }
         return advice.getUserMessage();
+    }
+
+    public String buildChatBlockMessage(AISourceEnum source, String question) {
+        return buildChatBlockMessage(question);
     }
 
     private SensitiveAdvice analyze(String text, SensitiveScene scene) {
