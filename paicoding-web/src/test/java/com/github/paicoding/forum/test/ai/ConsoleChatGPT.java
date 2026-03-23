@@ -45,7 +45,10 @@ public class ConsoleChatGPT {
 
         System.out.println();
 //        System.out.println("Please enter APIKEY, press Enter twice to submit:");
-        String key = "REDACTED_OPENAI_KEY";
+        String key = System.getenv("OPENAI_API_KEY");
+        if (key == null || key.trim().isEmpty()) {
+            throw new IllegalStateException("Please set OPENAI_API_KEY before running ConsoleChatGPT");
+        }
         check(key);
 
         String useProxy = "y";

@@ -13,10 +13,13 @@ public class TestChatGPT {
 //        Proxy proxy = Proxys.http("10.3.4.136", 7890);
         //socks5 代理
         // Proxy proxy = Proxys.socks5("127.0.0.1", 1080);
+        String apiKey = System.getenv("OPENAI_API_KEY");
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            throw new IllegalStateException("Please set OPENAI_API_KEY before running TestChatGPT");
+        }
 
         ChatGPT chatGPT = ChatGPT.builder()
-//                .apiKey("REDACTED_OPENAI_KEY")
-                .apiKey("REDACTED_OPENAI_KEY")
+                .apiKey(apiKey)
 //                .proxy(proxy)
                 .apiHost("https://api.openai.com/") //反向代理地址
                 .build()

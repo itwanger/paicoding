@@ -7,8 +7,8 @@ image:
     type: ali # ali 为阿里云oss，local 为本地存储
     prefix: paicoding/
     endpoint: oss-cn-beijing.aliyuncs.com
-    ak: REDACTED_OSS_AK
-    sk: REDACTED_OSS_SK
+    ak: ${PAICODING_OSS_AK:}
+    sk: ${PAICODING_OSS_SK:}
     bucket: itwanger-oss
     host:
 
