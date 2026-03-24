@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
@@ -18,7 +19,6 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.image.service.ImageService;
-import com.github.paicoding.forum.service.sensitive.service.SensitiveAiOptimizeService;
 import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +63,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     private AuthorWhiteListService articleWhiteListService;
 
     @Autowired
-    private SensitiveAiOptimizeService sensitiveAiOptimizeService;
+    private SensitiveService sensitiveService;
 
     // 构造方法的注入方式
     public ArticleWriteServiceImpl(ArticleDao articleDao, ArticleTagDao articleTagDao) {
@@ -79,11 +79,9 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      */
     @Override
     public Long saveArticle(ArticlePostReq req, Long author) {
-        if (req.pushStatus() == PushStatusEnum.ONLINE) {
-            sensitiveAiOptimizeService.validateArticleOrThrow(req.getTitle(), req.getSummary(), req.getContent());
-        }
         ArticleDO article = ArticleConverter.toArticleDo(req, author);
         String content = imageService.mdImgReplace(req.getContent());
+        recordSensitiveHits(req.getTitle(), req.getSummary(), content);
         return transactionTemplate.execute(new TransactionCallback<Long>() {
             @Override
             public Long doInTransaction(TransactionStatus status) {
@@ -214,11 +212,41 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
      * @return
      */
     private boolean needToReview(ArticleDO article) {
-        // 把 admin 用户加入白名单
-        BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
-        if (user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name())) {
-            return false;
+        return article.getStatus() == PushStatusEnum.ONLINE.getCode() && !canBypassArticlePublishModeration(article.getUserId());
+    }
+
+    private void recordSensitiveHits(String title, String summary, String content) {
+        StringBuilder builder = new StringBuilder();
+        appendIfPresent(builder, title);
+        appendIfPresent(builder, summary);
+        appendIfPresent(builder, content);
+        if (builder.length() > 0) {
+            sensitiveService.contains(builder.toString());
         }
-        return article.getStatus() == PushStatusEnum.ONLINE.getCode() && !articleWhiteListService.authorInArticleWhiteList(article.getUserId());
+    }
+
+    private void appendIfPresent(StringBuilder builder, String text) {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        if (builder.length() > 0) {
+            builder.append('\n');
+        }
+        builder.append(text);
+    }
+
+    /**
+     * 管理员和文章发布白名单作者，统一豁免发布审核与敏感词拦截。
+     *
+     * @param authorId 作者id
+     * @return true 表示可直接发布
+     */
+    private boolean canBypassArticlePublishModeration(Long authorId) {
+        ReqInfoContext.ReqInfo reqInfo = ReqInfoContext.getReqInfo();
+        BaseUserInfoDTO user = reqInfo == null ? null : reqInfo.getUser();
+        if (user != null && user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name())) {
+            return true;
+        }
+        return authorId != null && articleWhiteListService.authorInArticleWhiteList(authorId);
     }
 }

@@ -12,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.rank.dto.RankItemDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.RateVisitDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarDTO;
 import com.github.paicoding.forum.api.model.vo.recommend.SideBarItemDTO;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
@@ -44,6 +45,9 @@ public class SidebarServiceImpl implements SidebarService {
 
     @Autowired
     private ArticleDao articleDao;
+
+    @Autowired
+    private SensitiveService sensitiveService;
 
     /**
      * 使用caffeine本地缓存，来处理侧边栏不怎么变动的消息
@@ -192,10 +196,14 @@ public class SidebarServiceImpl implements SidebarService {
         List<SimpleArticleDTO> list = articleDao.listAuthorHotArticles(authorId, PageParam.newPageInstance(PageParam.DEFAULT_PAGE_NUM, size));
         List<SideBarItemDTO> items = list.stream().filter(s -> !s.getId().equals(articleId))
                 .map(s -> new SideBarItemDTO()
-                        .setTitle(s.getTitle()).setUrl("/article/detail/" + s.getId())
+                        .setTitle(sanitizeText(s.getTitle())).setUrl("/article/detail/" + s.getId())
                         .setTime(s.getCreateTime().getTime()))
                 .collect(Collectors.toList());
         return new SideBarDTO().setTitle("相关文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
+    }
+
+    private String sanitizeText(String text) {
+        return text == null ? null : sensitiveService.replace(text);
     }
 
 

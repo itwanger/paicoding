@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.ColumnFootCountDTO;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
@@ -38,6 +39,9 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SensitiveService sensitiveService;
 
     @Override
     public ColumnArticleDO getColumnArticleRelation(Long articleId) {
@@ -115,6 +119,9 @@ public class ColumnServiceImpl implements ColumnService {
         List<SimpleArticleDTO> list = columnDao.listColumnArticles(columnId);
         long preGroup = -1;
         for (SimpleArticleDTO article : list) {
+            article.setTitle(sanitizeText(article.getTitle()));
+            article.setColumn(sanitizeText(article.getColumn()));
+            article.setGroupName(sanitizeText(article.getGroupName()));
             if (preGroup != article.getGroupLevel()) {
                 preGroup = article.getGroupLevel();
                 article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));
@@ -146,6 +153,10 @@ public class ColumnServiceImpl implements ColumnService {
     @Override
     public Long getTutorialCount() {
         return this.columnDao.countColumnArticles();
+    }
+
+    private String sanitizeText(String text) {
+        return text == null ? null : sensitiveService.replace(text);
     }
 
 }

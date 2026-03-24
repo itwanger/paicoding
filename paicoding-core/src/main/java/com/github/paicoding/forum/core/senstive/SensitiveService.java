@@ -127,6 +127,20 @@ public class SensitiveService {
     }
 
     /**
+     * 敏感词替换，并记录命中统计
+     *
+     * @param txt 原始文本
+     * @return 替换后的文本
+     */
+    public String replaceAndCount(String txt) {
+        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable())) {
+            return txt;
+        }
+        contains(txt);
+        return sensitiveWordBs.replace(txt);
+    }
+
+    /**
      * 查询文本中所有命中的敏感词
      *
      * @param txt 校验文本

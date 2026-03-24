@@ -2,9 +2,7 @@ package com.github.paicoding.forum.service.sensitive.service;
 
 import com.alibaba.fastjson.JSON;
 import com.github.paicoding.forum.api.model.enums.ai.AISourceEnum;
-import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
-import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.service.chatai.service.impl.deepseek.DeepSeekIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.zhipu.ZhipuIntegration;
@@ -56,19 +54,11 @@ public class SensitiveAiOptimizeService {
     @Autowired
     private ZhipuIntegration zhipuIntegration;
 
-    public void validateCommentOrThrow(String content) {
-        SensitiveAdvice advice = analyze(content, SensitiveScene.COMMENT);
-        if (!advice.isPass()) {
-            throw ExceptionUtil.of(StatusEnum.SENSITIVE_CONTENT, advice.getUserMessage());
+    public String sanitizeChatQuestion(String question) {
+        if (StringUtils.isBlank(question)) {
+            return question;
         }
-    }
-
-    public void validateArticleOrThrow(String title, String summary, String content) {
-        String articleSnapshot = buildArticleSnapshot(title, summary, content);
-        SensitiveAdvice advice = analyze(articleSnapshot, SensitiveScene.ARTICLE);
-        if (!advice.isPass()) {
-            throw ExceptionUtil.of(StatusEnum.SENSITIVE_CONTENT, advice.getUserMessage());
-        }
+        return sensitiveService.replaceAndCount(question);
     }
 
     public String buildChatBlockMessage(String question) {

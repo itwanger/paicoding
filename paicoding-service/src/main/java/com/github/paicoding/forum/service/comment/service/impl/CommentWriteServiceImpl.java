@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.paicoding.forum.api.model.vo.comment.dto.HighlightDto;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.notify.NotifyMsgEvent;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
@@ -18,7 +19,6 @@ import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentWriteService;
-import com.github.paicoding.forum.service.sensitive.service.SensitiveAiOptimizeService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,12 +51,11 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     @Autowired
     private AiBots aiBots;
     @Autowired
-    private SensitiveAiOptimizeService sensitiveAiOptimizeService;
-
+    private SensitiveService sensitiveService;
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveComment(CommentSaveReq commentSaveReq) {
-        sensitiveAiOptimizeService.validateCommentOrThrow(commentSaveReq.getCommentContent());
+        sensitiveService.contains(commentSaveReq.getCommentContent());
         // 保存评论
         CommentDO comment;
         if (NumUtil.nullOrZero(commentSaveReq.getCommentId())) {

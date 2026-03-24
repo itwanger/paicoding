@@ -8,7 +8,6 @@ import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
-import com.github.paicoding.forum.service.chatai.bot.AiBots;
 import com.github.paicoding.forum.service.chatai.constants.ChatConstants;
 import com.github.paicoding.forum.service.sensitive.service.SensitiveAiOptimizeService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
@@ -153,7 +152,7 @@ public abstract class AbsChatService implements ChatService {
         res.setMaxCnt(maxCnt);
         res.setUsedCnt(usedCnt);
 
-        ChatItemVo item = new ChatItemVo().initQuestion(question);
+        ChatItemVo item = new ChatItemVo().initQuestion(sensitiveAiOptimizeService.sanitizeChatQuestion(question));
         if (!res.hasQaCnt()) {
             // 次数已经使用完毕，不需要再与AI进行交互了；直接返回
             item.initAnswer(ChatConstants.TOKEN_OVER);
@@ -204,17 +203,9 @@ public abstract class AbsChatService implements ChatService {
     }
 
     protected AiChatStatEnum answer(Long user, ChatRecordsVo res) {
-        ChatItemVo itemVo = res.getRecords().get(0);
-        AiChatStatEnum ans;
-        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(source(), itemVo.getQuestion());
-        if (StringUtils.isNotBlank(sensitiveMessage)) {
-            itemVo.initAnswer(sensitiveMessage);
-            ans = AiChatStatEnum.ERROR;
-        } else {
-            ans = doAnswer(user, res);
-            if (ans == AiChatStatEnum.END) {
-                processAfterSuccessedAnswered(user, res);
-            }
+        AiChatStatEnum ans = doAnswer(user, res);
+        if (ans == AiChatStatEnum.END) {
+            processAfterSuccessedAnswered(user, res);
         }
         return ans;
     }
@@ -264,32 +255,24 @@ public abstract class AbsChatService implements ChatService {
             return res;
         }
 
-        String sensitiveMessage = sensitiveAiOptimizeService.buildChatBlockMessage(source(), res.getRecords().get(0).getQuestion());
-        if (StringUtils.isNotBlank(sensitiveMessage) && !SpringUtil.getBean(AiBots.class).aiBots(user)) {
-            // 机器人不进行敏感词校验
-            // 包含敏感词的提问，直接返回异常
-            res.getRecords().get(0).initAnswer(sensitiveMessage);
-            consumer.accept(res);
-        } else {
-            final ChatRecordsVo newRes = res.clone();
-            AiChatStatEnum needReturn = doAsyncAnswer(user, newRes, (ans, vo) -> {
-                if (ans == AiChatStatEnum.END) {
-                    // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
-                    processAfterSuccessedAnswered(user, newRes);
-                } else if (ans == AiChatStatEnum.ERROR) {
-                    // 执行异常，更新AI模型
-                    SpringUtil.getBean(ChatFacade.class).refreshAiSourceCache(Sets.newHashSet(source()));
-                }
-                // ai异步返回结果之后，我们将结果推送给前端用户
-                consumer.accept(newRes);
-            });
-
-            if (needReturn.needResponse()) {
-                // 异步响应时，为了避免长时间的等待，这里直接响应用户的提问，返回一个稍等得提示文案
-                ChatItemVo nowItem = res.getRecords().get(0);
-                nowItem.initAnswer(ChatConstants.ASYNC_CHAT_TIP);
-                consumer.accept(res);
+        final ChatRecordsVo newRes = res.clone();
+        AiChatStatEnum needReturn = doAsyncAnswer(user, newRes, (ans, vo) -> {
+            if (ans == AiChatStatEnum.END) {
+                // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
+                processAfterSuccessedAnswered(user, newRes);
+            } else if (ans == AiChatStatEnum.ERROR) {
+                // 执行异常，更新AI模型
+                SpringUtil.getBean(ChatFacade.class).refreshAiSourceCache(Sets.newHashSet(source()));
             }
+            // ai异步返回结果之后，我们将结果推送给前端用户
+            consumer.accept(newRes);
+        });
+
+        if (needReturn.needResponse()) {
+            // 异步响应时，为了避免长时间的等待，这里直接响应用户的提问，返回一个稍等得提示文案
+            ChatItemVo nowItem = res.getRecords().get(0);
+            nowItem.initAnswer(ChatConstants.ASYNC_CHAT_TIP);
+            consumer.accept(res);
         }
         return res;
     }

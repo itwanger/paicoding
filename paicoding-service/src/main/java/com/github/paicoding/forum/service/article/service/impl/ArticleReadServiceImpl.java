@@ -16,6 +16,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.ArticleUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
@@ -86,6 +87,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SensitiveService sensitiveService;
 
     // 是否开启ES
     @Value("${elasticsearch.open:false}")
@@ -167,7 +171,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
         // 设置文章的点赞列表
         article.setPraisedUsers(userFootService.queryArticlePraisedUsers(articleId));
-        return article;
+        return sanitizeArticleForDisplay(article);
     }
 
 
@@ -222,7 +226,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         key = key.trim();
         if (!openES) {
             List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
-            return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
+            return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(sanitizeText(s.getTitle())))
                     .collect(Collectors.toList());
         }
         // TODO ES整合
@@ -250,7 +254,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             return null;
         }
         List<ArticleDO> records = articleDao.selectByIds(ids);
-        return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(s.getTitle()))
+        return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(sanitizeText(s.getTitle())))
                 .collect(Collectors.toList());
     }
 
@@ -327,13 +331,39 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         BaseUserInfoDTO author = userService.queryBasicUserInfo(dto.getAuthor());
         dto.setAuthorName(author.getUserName());
         dto.setAuthorAvatar(author.getPhoto());
-        return dto;
+        return sanitizeArticleForDisplay(dto);
     }
 
     @Override
     public PageListVo<SimpleArticleDTO> queryHotArticlesForRecommend(PageParam pageParam) {
         List<SimpleArticleDTO> list = articleDao.listHotArticles(pageParam);
+        list.forEach(this::sanitizeSimpleArticleForDisplay);
         return PageListVo.newVo(list, pageParam.getPageSize());
+    }
+
+    private ArticleDTO sanitizeArticleForDisplay(ArticleDTO article) {
+        if (article == null) {
+            return null;
+        }
+        article.setTitle(sanitizeText(article.getTitle()));
+        article.setShortTitle(sanitizeText(article.getShortTitle()));
+        article.setSummary(sanitizeText(article.getSummary()));
+        article.setContent(sanitizeText(article.getContent()));
+        return article;
+    }
+
+    private SimpleArticleDTO sanitizeSimpleArticleForDisplay(SimpleArticleDTO article) {
+        if (article == null) {
+            return null;
+        }
+        article.setTitle(sanitizeText(article.getTitle()));
+        article.setColumn(sanitizeText(article.getColumn()));
+        article.setGroupName(sanitizeText(article.getGroupName()));
+        return article;
+    }
+
+    private String sanitizeText(String text) {
+        return text == null ? null : sensitiveService.replace(text);
     }
 
     @Override
