@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.front.login.wx.callback;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import cn.hutool.core.util.NumberUtil;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
@@ -8,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.wx.BaseWxMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgReqVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
+import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.net.HttpRequestHelper;
 import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,6 +53,13 @@ import java.util.function.Function;
 @RequestMapping(path = "wx")
 @RestController
 public class WxCallbackRestController {
+    private static final String SUCCESS_ACK_BODY = "success";
+    private static final long CALLBACK_DEDUPE_LOCK_SECONDS = 30L;
+    private static final long CALLBACK_RESPONSE_CACHE_SECONDS = 600L;
+    private static final String CALLBACK_DEDUPE_LOCK_KEY_PREFIX = "wx:callback:lock:";
+    private static final String CALLBACK_RESPONSE_CACHE_KEY_PREFIX = "wx:callback:resp:";
+    private static final XmlMapper XML_MAPPER = new XmlMapper();
+
     @Autowired
     private LoginService sessionService;
     @Autowired
@@ -85,34 +95,58 @@ public class WxCallbackRestController {
      * @return
      */
     @PostMapping(path = "callback",
-            consumes = {"application/xml", "text/xml"},
-            produces = "application/xml;charset=utf-8")
-    public BaseWxMsgResVo callBack(@RequestBody WxTxtMsgReqVo msg) {
+            consumes = {"application/xml", "text/xml"})
+    public ResponseEntity<String> callBack(@RequestBody WxTxtMsgReqVo msg) {
         // 对于需要开启安全校验的场景，需要配置
         this.wxCallbackSecurityCheck();
+        String dedupeId = buildDedupeId(msg);
+        String cachedResponse = readCachedResponse(dedupeId);
+        if (StringUtils.isNotBlank(cachedResponse)) {
+            return buildCallbackResponse(cachedResponse);
+        }
+
+        String dedupeLockKey = tryLockCallback(dedupeId);
+        if (StringUtils.isNotBlank(dedupeId) && dedupeLockKey == null) {
+            cachedResponse = readCachedResponse(dedupeId);
+            return buildCallbackResponse(StringUtils.defaultIfBlank(cachedResponse, SUCCESS_ACK_BODY));
+        }
+
         String code = msg.getContent();
-        if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
-            // 对于符号的逻辑，code需要从eventKey中获取
-            String key = msg.getEventKey();
-            if (StringUtils.isNotBlank(key)) {
-                // 对于关注事件，key的格式为 qrscene_验证码； 对于扫码事件，key的格式就是 验证码
-                if (key.startsWith("qrscene_")) {
-                    code = key.substring(8);
-                } else {
-                    code = key;
+        try {
+            if ("subscribe".equals(msg.getEvent()) || "scan".equalsIgnoreCase(msg.getEvent())) {
+                // 对于符号的逻辑，code需要从eventKey中获取
+                String key = msg.getEventKey();
+                if (StringUtils.isNotBlank(key)) {
+                    // 对于关注事件，key的格式为 qrscene_验证码； 对于扫码事件，key的格式就是 验证码
+                    if (key.startsWith("qrscene_")) {
+                        code = key.substring(8);
+                    } else {
+                        code = key;
+                    }
                 }
             }
-        }
 
-        if (directToLoginOcPai(code)) {
-            // 命中校招派登录的场景
-            return loginOcPai(msg);
+            String responseBody;
+            if (directToLoginOcPai(code)) {
+                // 命中校招派登录的场景
+                BaseWxMsgResVo res = loginOcPai(msg);
+                responseBody = renderWxResponse(msg, res);
+            } else {
+                // 执行技术派登录、用户响应问答的场景
+                WxAckHelper.WxAckResult ackResult = wxHelper.buildResponseBody(msg.getEvent(), msg.getEventKey(), code, msg.getFromUserName());
+                if (ackResult == null || ackResult.isAckOnly()) {
+                    responseBody = SUCCESS_ACK_BODY;
+                } else {
+                    responseBody = renderWxResponse(msg, ackResult.getResponse());
+                }
+            }
+            cacheResponse(dedupeId, responseBody);
+            return buildCallbackResponse(responseBody);
+        } finally {
+            if (dedupeLockKey != null) {
+                RedisClient.del(dedupeLockKey);
+            }
         }
-
-        // 执行技术派登录、用户响应问答的场景
-        BaseWxMsgResVo res = wxHelper.buildResponseBody(msg.getEvent(), msg.getEventKey(), code, msg.getFromUserName());
-        fillResVo(res, msg);
-        return res;
     }
 
     /**
@@ -188,6 +222,68 @@ public class WxCallbackRestController {
         res.setFromUserName(msg.getToUserName());
         res.setToUserName(msg.getFromUserName());
         res.setCreateTime(System.currentTimeMillis() / 1000);
+    }
+
+    private String renderWxResponse(WxTxtMsgReqVo msg, BaseWxMsgResVo res) {
+        if (res == null) {
+            return SUCCESS_ACK_BODY;
+        }
+        fillResVo(res, msg);
+        try {
+            return XML_MAPPER.writeValueAsString(res);
+        } catch (Exception e) {
+            log.error("序列化微信被动回复XML失败, msg={}", msg, e);
+            return SUCCESS_ACK_BODY;
+        }
+    }
+
+    private String buildDedupeId(WxTxtMsgReqVo msg) {
+        if (msg == null) {
+            return null;
+        }
+        if (StringUtils.isNotBlank(msg.getMsgId())) {
+            return "msgid:" + msg.getMsgId();
+        }
+        if (StringUtils.isBlank(msg.getFromUserName()) || msg.getCreateTime() == null) {
+            return null;
+        }
+        return "event:" + msg.getFromUserName() + ":" + msg.getCreateTime()
+                + ":" + StringUtils.defaultString(msg.getEvent())
+                + ":" + StringUtils.defaultString(msg.getEventKey());
+    }
+
+    private String tryLockCallback(String dedupeId) {
+        if (StringUtils.isBlank(dedupeId)) {
+            return null;
+        }
+        String lockKey = CALLBACK_DEDUPE_LOCK_KEY_PREFIX + dedupeId;
+        Boolean locked = RedisClient.setStrIfAbsentWithExpire(lockKey, "1", CALLBACK_DEDUPE_LOCK_SECONDS);
+        return Boolean.TRUE.equals(locked) ? lockKey : null;
+    }
+
+    private void cacheResponse(String dedupeId, String responseBody) {
+        if (StringUtils.isBlank(dedupeId) || StringUtils.isBlank(responseBody)) {
+            return;
+        }
+        RedisClient.setStrWithExpire(CALLBACK_RESPONSE_CACHE_KEY_PREFIX + dedupeId, responseBody, CALLBACK_RESPONSE_CACHE_SECONDS);
+    }
+
+    private String readCachedResponse(String dedupeId) {
+        if (StringUtils.isBlank(dedupeId)) {
+            return null;
+        }
+        return RedisClient.getStr(CALLBACK_RESPONSE_CACHE_KEY_PREFIX + dedupeId);
+    }
+
+    private ResponseEntity<String> buildCallbackResponse(String responseBody) {
+        if (StringUtils.isBlank(responseBody) || SUCCESS_ACK_BODY.equalsIgnoreCase(responseBody)) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(SUCCESS_ACK_BODY);
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/xml;charset=utf-8"))
+                .body(responseBody);
     }
 
 

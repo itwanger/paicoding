@@ -37,6 +37,14 @@ public class ZhipuCodingAiServiceImpl extends AbsChatService {
     }
 
     @Override
+    public AiChatStatEnum doAnswer(Long user, ChatRecordsVo response) {
+        if (zhipuCodingIntegration.directReturn(response.getRecords(), response.getRecords().get(0))) {
+            return AiChatStatEnum.END;
+        }
+        return AiChatStatEnum.ERROR;
+    }
+
+    @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         ChatItemVo item = response.getRecords().get(0);
         AbstractStreamListener listener = new AbstractStreamListener() {

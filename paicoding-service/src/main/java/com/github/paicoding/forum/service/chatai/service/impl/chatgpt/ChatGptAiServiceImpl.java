@@ -34,6 +34,14 @@ public class ChatGptAiServiceImpl extends AbsChatService {
     }
 
     @Override
+    public AiChatStatEnum doAnswer(Long user, ChatRecordsVo response) {
+        if (chatGptIntegration.directReturn(user, response.getRecords(), response.getRecords().get(0))) {
+            return AiChatStatEnum.END;
+        }
+        return AiChatStatEnum.ERROR;
+    }
+
+    @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         ChatItemVo item = chatRes.getRecords().get(0);
         AbstractStreamListener listener = new AbstractStreamListener() {

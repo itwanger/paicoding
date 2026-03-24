@@ -176,22 +176,30 @@ public class ChatGptIntegration {
         return directReturn(routingKey, chat, config.getMain());
     }
 
+    public boolean directReturn(Long routingKey, List<ChatItemVo> chatList, ChatItemVo answerTarget) {
+        return directReturn(routingKey, chatList, answerTarget, config.getMain());
+    }
+
     public boolean directReturn(Long routingKey, ChatItemVo chat, AISourceEnum model) {
+        return directReturn(routingKey, Arrays.asList(chat), chat, model);
+    }
+
+    public boolean directReturn(Long routingKey, List<ChatItemVo> chatList, ChatItemVo answerTarget, AISourceEnum model) {
         AISourceEnum selectModel = model == null ? config.getMain() : model;
         GptConf conf = config.getConf().getOrDefault(selectModel, config.getConf().get(config.getMain()));
         ChatGPT gpt = getGpt(routingKey, selectModel);
         try {
             ChatCompletion chatCompletion = ChatCompletion.builder().model(parse2GptMode(selectModel).getName())
-                    .messages(Arrays.asList(Message.of(chat.getQuestion()))).maxTokens(conf.getMaxToken()).build();
+                    .messages(ChatConstants.toMsgList(chatList, this::toMsg)).maxTokens(conf.getMaxToken()).build();
             ChatCompletionResponse response = gpt.chatCompletion(chatCompletion);
             List<ChatChoice> list = response.getChoices();
-            chat.initAnswer(JsonUtil.toStr(list), ChatAnswerTypeEnum.JSON);
-            log.info("chatgpt试用! 传参:{}, 返回:{}", chat, list);
+            answerTarget.initAnswer(JsonUtil.toStr(list), ChatAnswerTypeEnum.JSON);
+            log.info("chatgpt试用! 传参:{}, 返回:{}", chatList, list);
             return true;
         } catch (Exception e) {
             // 对于系统异常，不用继续等待了
-            chat.initAnswer(e.getMessage());
-            log.info("chatgpt执行异常！ key:{}", chat, e);
+            answerTarget.initAnswer(e.getMessage());
+            log.info("chatgpt执行异常！ key:{}", chatList, e);
             return false;
         }
     }

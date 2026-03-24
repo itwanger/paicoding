@@ -183,12 +183,14 @@ public class ZhipuIntegration {
     }
 
     public boolean directReturn(Long user, ChatItemVo chat) {
+        return directReturn(user, java.util.Arrays.asList(chat), chat);
+    }
+
+    public boolean directReturn(Long user, List<ChatItemVo> chatList, ChatItemVo answerTarget) {
         if (StringUtils.isBlank(config.getApiSecretKey())) {
             throw new IllegalStateException("未配置 zhipu.apiSecretKey");
         }
-        List<ChatMessage> messages = new ArrayList<>();
-        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), chat.getQuestion());
-        messages.add(chatMessage);
+        List<ChatMessage> messages = ChatConstants.toMsgList(chatList, this::toMsg);
         String requestTemplate = StringUtils.defaultIfBlank(config.getRequestIdTemplate(), "paicoding-%d");
         String requestId = String.format(requestTemplate, user + System.currentTimeMillis());
         String model = StringUtils.defaultIfBlank(config.getModel(), Constants.ModelChatGLM4);
@@ -231,8 +233,8 @@ public class ZhipuIntegration {
             if (StringUtils.isBlank(answer)) {
                 throw new IllegalStateException("智谱 AI 返回结构缺少 message.content");
             }
-            chat.initAnswer(answer, ChatAnswerTypeEnum.JSON);
-            log.info("智谱 AI 试用! 传参:{}, 返回:{}", chat, invokeModelApiResp);
+            answerTarget.initAnswer(answer, ChatAnswerTypeEnum.JSON);
+            log.info("智谱 AI 试用! 传参:{}, 返回:{}", chatList, invokeModelApiResp);
             return true;
         } finally {
             client.getConfig().getHttpClient().dispatcher().executorService().shutdown();

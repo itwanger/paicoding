@@ -53,6 +53,13 @@ zhipu:
   requestIdTemplate: "paicoding-%d"
   # 调整模型 glm-4-alltools
   model: ${PAICODING_ZHIPU_MODEL:glm-4-air-0111}
+  coding:
+    apiHost: ${PAICODING_ZHIPU_CODING_API_HOST:https://open.bigmodel.cn/api/coding/paas/v4}
+    model: ${PAICODING_ZHIPU_CODING_MODEL:GLM-5}
+    timeout: ${PAICODING_ZHIPU_CODING_TIMEOUT:120}
+    maxTokens: ${PAICODING_ZHIPU_CODING_MAX_TOKENS:512}
+    temperature: ${PAICODING_ZHIPU_CODING_TEMPERATURE:0.3}
+    thinkingType: ${PAICODING_ZHIPU_CODING_THINKING_TYPE:disabled}
 
 # 讯飞AI
 xunfei:

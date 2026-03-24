@@ -28,6 +28,14 @@ public class AliAiServiceImpl extends AbsChatService {
     }
 
     @Override
+    public AiChatStatEnum doAnswer(Long user, ChatRecordsVo response) {
+        if (aliIntegration.directReturn(user, response.getRecords(), response.getRecords().get(0))) {
+            return AiChatStatEnum.END;
+        }
+        return AiChatStatEnum.ERROR;
+    }
+
+    @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo chatRes, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         aliIntegration.streamReturn(user, chatRes, consumer);
         return AiChatStatEnum.IGNORE;

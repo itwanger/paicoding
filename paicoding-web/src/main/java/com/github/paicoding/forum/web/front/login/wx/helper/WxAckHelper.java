@@ -5,13 +5,15 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtItemVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxImgTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiReq;
-import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiResDTO;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuReplyArticleDTO;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuReplyDTO;
+import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatgptService;
 import com.github.paicoding.forum.service.config.service.WxMenuService;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -38,13 +41,15 @@ public class WxAckHelper {
 
     @Autowired
     private WxMenuService wxMenuService;
+    @Autowired
+    private WxAsyncReplyHelper wxAsyncReplyHelper;
 
     /**
      * 返回自动响应的文本
      *
      * @return
      */
-    public BaseWxMsgResVo buildResponseBody(String eventType, String eventKey, String content, String fromUser) {
+    public WxAckResult buildResponseBody(String eventType, String eventKey, String content, String fromUser) {
         // 返回的文本消息
         String textRes = null;
         // 返回的是图文消息
@@ -53,7 +58,7 @@ public class WxAckHelper {
                 && !CodeGenerateUtil.isVerifyCode(content)) {
             BaseWxMsgResVo configuredReply = buildConfiguredReply(wxMenuService.getSubscribeReply());
             if (configuredReply != null) {
-                return configuredReply;
+                return WxAckResult.reply(configuredReply);
             }
             // 单纯的服务号订阅、扫码，而不是登录的场景，返回下面的提示信息
             textRes = "优秀的你一关注，二哥英俊的脸上就泛起了笑容。我这个废柴，既可以把程序人生写得风趣幽默，也可以把技术文章写得通俗易懂。\n" +
@@ -67,7 +72,7 @@ public class WxAckHelper {
 
         BaseWxMsgResVo configuredRuleReply = buildConfiguredReply(wxMenuService.matchKeywordReply(eventType, eventKey, content));
         if (configuredRuleReply != null) {
-            return configuredRuleReply;
+            return WxAckResult.reply(configuredRuleReply);
         }
 
         // 下面是关键词回复
@@ -106,13 +111,13 @@ public class WxAckHelper {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }
         } else {
-            BaseWxMsgResVo aiReply = buildAiFallbackReply(content);
+            WxAckResult aiReply = buildAiFallbackReply(content, fromUser);
             if (aiReply != null) {
                 return aiReply;
             }
             BaseWxMsgResVo configuredReply = buildFallbackReply();
             if (configuredReply != null) {
-                return configuredReply;
+                return WxAckResult.reply(configuredReply);
             }
             textRes = "/:? 还在找其它资料么？\n" +
                     "\n" +
@@ -124,12 +129,12 @@ public class WxAckHelper {
         if (textRes != null) {
             WxTxtMsgResVo vo = new WxTxtMsgResVo();
             vo.setContent(textRes);
-            return vo;
+            return WxAckResult.reply(vo);
         } else {
             WxImgTxtMsgResVo vo = new WxImgTxtMsgResVo();
             vo.setArticles(imgTxtList);
             vo.setArticleCount(imgTxtList.size());
-            return vo;
+            return WxAckResult.reply(vo);
         }
     }
 
@@ -141,7 +146,7 @@ public class WxAckHelper {
         return null;
     }
 
-    private BaseWxMsgResVo buildAiFallbackReply(String content) {
+    private WxAckResult buildAiFallbackReply(String content, String fromUser) {
         String strategy = StringUtils.defaultIfBlank(wxMenuService.getMessageFallbackStrategy(), "fixed_reply");
         if (!"ai_reply".equalsIgnoreCase(strategy) || !Boolean.TRUE.equals(wxMenuService.getAiEnable())) {
             return null;
@@ -153,14 +158,17 @@ public class WxAckHelper {
         req.setAiPrompt(wxMenuService.getAiPrompt());
         req.setAiProvider(wxMenuService.getAiProvider());
 
-        WxMenuPreviewAiResDTO res = wxMenuService.previewAi(req);
-        if (res == null || !Boolean.TRUE.equals(res.getSuccess()) || StringUtils.isBlank(res.getReplyText())) {
+        try {
+            // 被动回复只做快速确认，真正的AI结果通过客服消息异步补发给用户。
+            AsyncUtil.callWithTimeLimit(300, TimeUnit.MILLISECONDS, () -> {
+                wxAsyncReplyHelper.sendAiReply(fromUser, req);
+                return Boolean.TRUE;
+            });
+            return WxAckResult.ackOnly();
+        } catch (Exception e) {
+            log.warn("触发微信 AI 异步回复失败, content={}", content, e);
             return null;
         }
-
-        WxTxtMsgResVo vo = new WxTxtMsgResVo();
-        vo.setContent(res.getReplyText());
-        return vo;
     }
 
     private BaseWxMsgResVo buildConfiguredReply(WxMenuReplyDTO reply) {
@@ -201,5 +209,20 @@ public class WxAckHelper {
         item.setPicUrl(article.getPicUrl());
         item.setUrl(article.getUrl());
         return item;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class WxAckResult {
+        private BaseWxMsgResVo response;
+        private boolean ackOnly;
+
+        public static WxAckResult reply(BaseWxMsgResVo response) {
+            return new WxAckResult(response, false);
+        }
+
+        public static WxAckResult ackOnly() {
+            return new WxAckResult(null, true);
+        }
     }
 }

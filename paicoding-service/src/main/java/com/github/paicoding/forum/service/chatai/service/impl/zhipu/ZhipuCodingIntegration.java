@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.chatai.service.impl.zhipu;
 
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.util.JsonUtil;
@@ -37,6 +38,9 @@ import java.util.concurrent.TimeUnit;
 public class ZhipuCodingIntegration {
     private static final String DEFAULT_API_HOST = "https://open.bigmodel.cn/api/coding/paas/v4";
     private static final String DEFAULT_MODEL = "GLM-4.5-air";
+    private static final String DEFAULT_THINKING_TYPE = "disabled";
+    private static final int DEFAULT_MAX_TOKENS = 512;
+    private static final double DEFAULT_TEMPERATURE = 0.3D;
 
     @Autowired
     private ZhipuCodingConfig config;
@@ -61,11 +65,23 @@ public class ZhipuCodingIntegration {
     }
 
     public boolean directReturn(ChatItemVo item) {
+        return doDirectReturn(toMsg(item), item);
+    }
+
+    public boolean directReturn(List<ChatItemVo> items, ChatItemVo answerTarget) {
+        List<ChatMsg> messages = ChatConstants.toMsgList(items, this::toMsg);
+        return doDirectReturn(messages, answerTarget);
+    }
+
+    private boolean doDirectReturn(List<ChatMsg> messages, ChatItemVo answerTarget) {
         ensureConfigured();
         ChatReq req = new ChatReq();
         req.setModel(resolveModel());
-        req.setMessages(toMsg(item));
+        req.setMessages(messages);
         req.setStream(false);
+        req.setThinking(new Thinking(resolveThinkingType()));
+        req.setMaxTokens(resolveMaxTokens());
+        req.setTemperature(resolveTemperature());
 
         try {
             String requestUrl = resolveApiHost() + "/chat/completions";
@@ -91,19 +107,19 @@ public class ZhipuCodingIntegration {
                         if (StringUtils.isBlank(content)) {
                             throw new IllegalStateException("智谱 Coding 未返回 message.content");
                         }
-                        item.initAnswer(content);
+                        answerTarget.initAnswer(content);
                         return true;
                     }
                 }
 
                 String errorMsg = buildErrorMessage(response.code(), responseBody);
-                item.initAnswer(errorMsg);
+                answerTarget.initAnswer(errorMsg);
                 log.error("智谱 Coding 调用失败, url={}, requestBody={}, code={}, body={}", requestUrl, requestJson, response.code(), responseBody);
                 return false;
             }
         } catch (Exception e) {
             log.error("智谱 Coding 调用失败", e);
-            item.initAnswer(StringUtils.defaultIfBlank(e.getMessage(), "智谱 Coding 调用失败"));
+            answerTarget.initAnswer(StringUtils.defaultIfBlank(e.getMessage(), "智谱 Coding 调用失败"));
             return false;
         }
     }
@@ -123,6 +139,9 @@ public class ZhipuCodingIntegration {
         req.setModel(resolveModel());
         req.setMessages(messages);
         req.setStream(true);
+        req.setThinking(new Thinking(resolveThinkingType()));
+        req.setMaxTokens(resolveMaxTokens());
+        req.setTemperature(resolveTemperature());
 
         try {
             String requestUrl = resolveApiHost() + "/chat/completions";
@@ -161,6 +180,18 @@ public class ZhipuCodingIntegration {
         return StringUtils.defaultIfBlank(config.getModel(), DEFAULT_MODEL);
     }
 
+    private String resolveThinkingType() {
+        return StringUtils.defaultIfBlank(config.getThinkingType(), DEFAULT_THINKING_TYPE);
+    }
+
+    private Integer resolveMaxTokens() {
+        return config.getMaxTokens() == null || config.getMaxTokens() <= 0 ? DEFAULT_MAX_TOKENS : config.getMaxTokens();
+    }
+
+    private Double resolveTemperature() {
+        return config.getTemperature() == null ? DEFAULT_TEMPERATURE : config.getTemperature();
+    }
+
     private String buildErrorMessage(int code, String responseBody) {
         if (StringUtils.isBlank(responseBody)) {
             return "智谱 Coding 调用失败，HTTP " + code;
@@ -192,6 +223,9 @@ public class ZhipuCodingIntegration {
         private String apiHost;
         private String model;
         private Long timeout;
+        private Integer maxTokens;
+        private Double temperature;
+        private String thinkingType;
     }
 
     @Data
@@ -199,6 +233,17 @@ public class ZhipuCodingIntegration {
         private String model;
         private boolean stream;
         private List<ChatMsg> messages;
+        @JsonProperty("max_tokens")
+        private Integer maxTokens;
+        private Double temperature;
+        private Thinking thinking;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Thinking {
+        private String type;
     }
 
     @Data

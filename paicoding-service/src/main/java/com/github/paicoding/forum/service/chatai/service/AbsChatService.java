@@ -211,7 +211,7 @@ public abstract class AbsChatService implements ChatService {
             itemVo.initAnswer(sensitiveMessage);
             ans = AiChatStatEnum.ERROR;
         } else {
-            ans = doAnswer(user, itemVo);
+            ans = doAnswer(user, res);
             if (ans == AiChatStatEnum.END) {
                 processAfterSuccessedAnswered(user, res);
             }
@@ -227,6 +227,13 @@ public abstract class AbsChatService implements ChatService {
      * @return true 表示正确回答了； false 表示回答出现异常
      */
     public abstract AiChatStatEnum doAnswer(Long user, ChatItemVo chat);
+
+    /**
+     * 同步提问，默认仅使用当前问题；需要上下文的实现可以覆盖此方法
+     */
+    public AiChatStatEnum doAnswer(Long user, ChatRecordsVo response) {
+        return doAnswer(user, response.getRecords().get(0));
+    }
 
     /**
      * 成功返回之后的后置操作

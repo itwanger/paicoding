@@ -5,9 +5,11 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.Charset;
@@ -150,6 +152,23 @@ public class RedisClient {
             @Override
             public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
                 return redisConnection.setEx(keyBytes(key), expire, valBytes(value));
+            }
+        });
+    }
+
+    /**
+     * 仅当key不存在时写入缓存，并设置过期时间
+     *
+     * @param key
+     * @param value
+     * @param expire s为单位
+     * @return true 写入成功；false key已存在
+     */
+    public static Boolean setStrIfAbsentWithExpire(String key, String value, Long expire) {
+        return template.execute(new RedisCallback<Boolean>() {
+            @Override
+            public Boolean doInRedis(RedisConnection redisConnection) throws DataAccessException {
+                return redisConnection.set(keyBytes(key), valBytes(value), Expiration.seconds(expire), RedisStringCommands.SetOption.SET_IF_ABSENT);
             }
         });
     }

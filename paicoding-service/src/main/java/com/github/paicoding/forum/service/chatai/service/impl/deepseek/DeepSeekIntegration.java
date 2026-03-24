@@ -61,7 +61,11 @@ public class DeepSeekIntegration {
      * 一次性返回的交互方式
      */
     public boolean directReturn(ChatItemVo item) {
-        List<ChatMsg> msg = toMsg(item);
+        return directReturn(java.util.Arrays.asList(item), item);
+    }
+
+    public boolean directReturn(List<ChatItemVo> items, ChatItemVo answerTarget) {
+        List<ChatMsg> msg = ChatConstants.toMsgList(items, this::toMsg);
         ChatReq req = new ChatReq();
         req.setModel("deepseek-chat");
         req.setMessages(msg);
@@ -86,8 +90,8 @@ public class DeepSeekIntegration {
                     com.alibaba.fastjson.JSONObject firstChoice = choices.getJSONObject(0);
                     com.alibaba.fastjson.JSONObject message = firstChoice.getJSONObject("message");
                     String content = message.getString("content");
-                    item.initAnswer(content);
-                    log.info("DeepSeek AI 调用成功! 传参:{}, 返回:{}", item.getQuestion(), content);
+                    answerTarget.initAnswer(content);
+                    log.info("DeepSeek AI 调用成功! 传参:{}, 返回:{}", JsonUtil.toStr(msg), content);
                     return true;
                 }
             }

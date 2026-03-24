@@ -58,14 +58,19 @@ public class DoubaoIntegration {
     }
 
     public AiChatStatEnum directAnswer(Long user, ChatItemVo chat) {
+        return directAnswer(user, java.util.Arrays.asList(chat), chat);
+    }
+
+    public AiChatStatEnum directAnswer(Long user, List<ChatItemVo> chatList, ChatItemVo answerTarget) {
         if (service == null) {
             log.warn("豆包ai服务未初始化成功 目前apikey:{}，目前apiHost:{}",doubaoConfig.getApiKey(),doubaoConfig.getApiHost());
-            chat.initAnswer("Service not initialized");
+            answerTarget.initAnswer("Service not initialized");
             return AiChatStatEnum.ERROR;
         }
-        List<ChatMessage> messages = new ArrayList<>();
-        messages.add(ChatMessage.builder().role(ChatMessageRole.SYSTEM).content("你是豆包，是由字节跳动开发的 AI 人工智能助手").build());
-        messages.add(ChatMessage.builder().role(ChatMessageRole.USER).content(chat.getQuestion()).build());
+        List<ChatMessage> messages = ChatConstants.toMsgList(chatList, this::toMsg);
+        if (messages.isEmpty() || messages.get(0).getRole() != ChatMessageRole.SYSTEM) {
+            messages.add(0, ChatMessage.builder().role(ChatMessageRole.SYSTEM).content("你是豆包，是由字节跳动开发的 AI 人工智能助手").build());
+        }
 
         ChatCompletionRequest request = ChatCompletionRequest.builder()
                 .model(doubaoConfig.getEndPoint())
@@ -74,10 +79,10 @@ public class DoubaoIntegration {
 
         try {
             String response = (String) service.createChatCompletion(request).getChoices().get(0).getMessage().getContent();
-            chat.initAnswer(response, ChatAnswerTypeEnum.TEXT);
+            answerTarget.initAnswer(response, ChatAnswerTypeEnum.TEXT);
             return AiChatStatEnum.END;
         } catch (Exception e) {
-            chat.initAnswer("Error: " + e.getMessage());
+            answerTarget.initAnswer("Error: " + e.getMessage());
             return AiChatStatEnum.ERROR;
         }
     }

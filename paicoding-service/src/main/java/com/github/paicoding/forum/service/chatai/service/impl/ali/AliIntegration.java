@@ -97,26 +97,29 @@ public class AliIntegration {
     }
 
     public boolean directReturn(Long user, ChatItemVo chat) {
+        return directReturn(user, java.util.Arrays.asList(chat), chat);
+    }
+
+    public boolean directReturn(Long user, List<ChatItemVo> chatList, ChatItemVo answerTarget) {
         Generation gen = new Generation();
-        Message systemMsg = Message.builder()
-                .role(Role.SYSTEM.getValue())
-                .content("You are a helpful assistant.")
-                .build();
-        Message userMsg = Message.builder()
-                .role(Role.USER.getValue())
-                .content(chat.getQuestion())
-                .build();
+        List<Message> messages = ChatConstants.toMsgList(chatList, this::toMsg);
+        if (messages.isEmpty() || !Role.SYSTEM.getValue().equals(messages.get(0).getRole())) {
+            messages.add(0, Message.builder()
+                    .role(Role.SYSTEM.getValue())
+                    .content("You are a helpful assistant.")
+                    .build());
+        }
         GenerationParam param = GenerationParam.builder()
                 .model(config.getModel())
-                .messages(Arrays.asList(systemMsg, userMsg))
+                .messages(messages)
                 .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                 .build();
 
         try {
             GenerationResult invokeModelApiResp = gen.call(param);
 
-            chat.initAnswer(JsonUtil.toStr(invokeModelApiResp), ChatAnswerTypeEnum.JSON);
-            log.info("阿里 AI 试用! 传参:{}, 返回:{}", chat, invokeModelApiResp);
+            answerTarget.initAnswer(JsonUtil.toStr(invokeModelApiResp), ChatAnswerTypeEnum.JSON);
+            log.info("阿里 AI 试用! 传参:{}, 返回:{}", chatList, invokeModelApiResp);
         } catch (NoApiKeyException | InputRequiredException e) {
             throw new RuntimeException(e);
         }

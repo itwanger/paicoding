@@ -34,6 +34,25 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
     }
 
     @Override
+    public AiChatStatEnum doAnswer(Long user, ChatRecordsVo response) {
+        ChatItemVo item = response.getRecords().get(0);
+        StringBuilder question = new StringBuilder();
+        for (int i = response.getRecords().size() - 1; i >= 0; i--) {
+            ChatItemVo record = response.getRecords().get(i);
+            if (record == null || StringUtils.isBlank(record.getQuestion())) {
+                continue;
+            }
+            if (record.getQuestion().startsWith(ChatConstants.PROMPT_TAG)) {
+                question.append(record.getQuestion().substring(ChatConstants.PROMPT_TAG.length())).append("\n");
+            } else {
+                question.append(record.getQuestion());
+            }
+        }
+        item.initAnswer(qa(question.toString()));
+        return AiChatStatEnum.END;
+    }
+
+    @Override
     public AiChatStatEnum doAsyncAnswer(Long user, ChatRecordsVo response, BiConsumer<AiChatStatEnum, ChatRecordsVo> consumer) {
         AsyncUtil.execute(() -> {
             AsyncUtil.sleep(1500);

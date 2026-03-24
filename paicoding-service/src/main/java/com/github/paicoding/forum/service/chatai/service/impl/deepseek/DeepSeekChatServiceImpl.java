@@ -43,6 +43,14 @@ public class DeepSeekChatServiceImpl extends AbsChatService {
         return AiChatStatEnum.ERROR;
     }
 
+    @Override
+    public AiChatStatEnum doAnswer(Long user, ChatRecordsVo response) {
+        if (deepSeekIntegration.directReturn(response.getRecords(), response.getRecords().get(0))) {
+            return AiChatStatEnum.END;
+        }
+        return AiChatStatEnum.ERROR;
+    }
+
     /**
      * 异步流式的返回结果
      *
