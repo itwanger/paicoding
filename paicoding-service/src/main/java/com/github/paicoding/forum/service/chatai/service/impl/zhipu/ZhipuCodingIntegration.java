@@ -75,24 +75,28 @@ public class ZhipuCodingIntegration {
                     .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JsonUtil.toStr(req)))
                     .build();
 
-            okhttp3.Response response = okHttpClient.newCall(request).execute();
-            if (response.isSuccessful() && response.body() != null) {
-                String responseBody = response.body().string();
-                com.alibaba.fastjson.JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(responseBody);
-                com.alibaba.fastjson.JSONArray choices = jsonObject.getJSONArray("choices");
-                if (choices != null && !choices.isEmpty()) {
-                    com.alibaba.fastjson.JSONObject firstChoice = choices.getJSONObject(0);
-                    com.alibaba.fastjson.JSONObject message = firstChoice.getJSONObject("message");
-                    String content = message == null ? null : message.getString("content");
-                    if (StringUtils.isBlank(content)) {
-                        throw new IllegalStateException("智谱 Coding 未返回 message.content");
+            try (okhttp3.Response response = okHttpClient.newCall(request).execute()) {
+                String responseBody = response.body() == null ? null : response.body().string();
+                if (response.isSuccessful() && StringUtils.isNotBlank(responseBody)) {
+                    com.alibaba.fastjson.JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(responseBody);
+                    com.alibaba.fastjson.JSONArray choices = jsonObject.getJSONArray("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        com.alibaba.fastjson.JSONObject firstChoice = choices.getJSONObject(0);
+                        com.alibaba.fastjson.JSONObject message = firstChoice.getJSONObject("message");
+                        String content = message == null ? null : message.getString("content");
+                        if (StringUtils.isBlank(content)) {
+                            throw new IllegalStateException("智谱 Coding 未返回 message.content");
+                        }
+                        item.initAnswer(content);
+                        return true;
                     }
-                    item.initAnswer(content);
-                    return true;
                 }
+
+                String errorMsg = buildErrorMessage(response.code(), responseBody);
+                item.initAnswer(errorMsg);
+                log.error("智谱 Coding 调用失败, code={}, body={}", response.code(), responseBody);
+                return false;
             }
-            log.error("智谱 Coding 调用失败: {}", response);
-            return false;
         } catch (Exception e) {
             log.error("智谱 Coding 调用失败", e);
             item.initAnswer(StringUtils.defaultIfBlank(e.getMessage(), "智谱 Coding 调用失败"));
@@ -148,6 +152,29 @@ public class ZhipuCodingIntegration {
 
     private String resolveModel() {
         return StringUtils.defaultIfBlank(config.getModel(), DEFAULT_MODEL);
+    }
+
+    private String buildErrorMessage(int code, String responseBody) {
+        if (StringUtils.isBlank(responseBody)) {
+            return "智谱 Coding 调用失败，HTTP " + code;
+        }
+
+        try {
+            com.alibaba.fastjson.JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(responseBody);
+            String msg = jsonObject.getString("message");
+            if (StringUtils.isBlank(msg)) {
+                msg = jsonObject.getString("error");
+            }
+            if (StringUtils.isBlank(msg) && jsonObject.getJSONObject("error") != null) {
+                msg = jsonObject.getJSONObject("error").getString("message");
+            }
+            if (StringUtils.isNotBlank(msg)) {
+                return "智谱 Coding 调用失败，HTTP " + code + "：" + msg;
+            }
+        } catch (Exception ignore) {
+            // ignore
+        }
+        return "智谱 Coding 调用失败，HTTP " + code + "：" + responseBody;
     }
 
     @Data
