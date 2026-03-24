@@ -16,6 +16,8 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 敏感词服务类
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class SensitiveService {
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://[^\\s)\\]>'\"]+");
     /**
      * 敏感词命中计数统计
      */
@@ -64,19 +67,13 @@ public class SensitiveService {
      * @return 返回命中的敏感词
      */
     public List<String> contains(String txt) {
-        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable())) {
+        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable()) || txt == null) {
             return Collections.emptyList();
         }
 
-        List<String> ans = sensitiveWordBs.findAll(txt);
-        if (CollectionUtils.isEmpty(ans)) {
-            return ans;
-        }
-
-        // 敏感词命中次数+1
-        RedisClient.PipelineAction action = RedisClient.pipelineAction();
-        ans.forEach(key -> action.add(SENSITIVE_WORD_CNT_PREFIX, key, (connection, k, v) -> connection.hIncrBy(k, v, 1)));
-        action.execute();
+        String protectedText = protectUrls(txt, new LinkedHashMap<>());
+        List<String> ans = sensitiveWordBs.findAll(protectedText);
+        recordHits(ans);
         return ans;
     }
 
@@ -120,10 +117,10 @@ public class SensitiveService {
      * @return
      */
     public String replace(String txt) {
-        if (BooleanUtils.isTrue(sensitiveConfig.getEnable())) {
-            return sensitiveWordBs.replace(txt);
+        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable()) || txt == null) {
+            return txt;
         }
-        return txt;
+        return replaceInternal(txt, false);
     }
 
     /**
@@ -133,11 +130,10 @@ public class SensitiveService {
      * @return 替换后的文本
      */
     public String replaceAndCount(String txt) {
-        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable())) {
+        if (!BooleanUtils.isTrue(sensitiveConfig.getEnable()) || txt == null) {
             return txt;
         }
-        contains(txt);
-        return sensitiveWordBs.replace(txt);
+        return replaceInternal(txt, true);
     }
 
     /**
@@ -147,6 +143,58 @@ public class SensitiveService {
      * @return 命中的敏感词
      */
     public List<String> findAll(String txt) {
-        return sensitiveWordBs.findAll(txt);
+        if (txt == null) {
+            return Collections.emptyList();
+        }
+        return sensitiveWordBs.findAll(protectUrls(txt, new LinkedHashMap<>()));
+    }
+
+    private String replaceInternal(String txt, boolean recordHit) {
+        Map<String, String> placeholders = new LinkedHashMap<>();
+        String protectedText = protectUrls(txt, placeholders);
+        if (recordHit) {
+            recordHits(sensitiveWordBs.findAll(protectedText));
+        }
+        String replaced = sensitiveWordBs.replace(protectedText);
+        return restorePlaceholders(replaced, placeholders);
+    }
+
+    private void recordHits(List<String> words) {
+        if (CollectionUtils.isEmpty(words)) {
+            return;
+        }
+
+        RedisClient.PipelineAction action = RedisClient.pipelineAction();
+        words.forEach(key -> action.add(SENSITIVE_WORD_CNT_PREFIX, key, (connection, k, v) -> connection.hIncrBy(k, v, 1)));
+        action.execute();
+    }
+
+    private String protectUrls(String txt, Map<String, String> placeholders) {
+        if (txt == null || txt.isEmpty()) {
+            return txt;
+        }
+
+        Matcher matcher = URL_PATTERN.matcher(txt);
+        StringBuffer buffer = new StringBuffer();
+        int index = 0;
+        while (matcher.find()) {
+            String token = "__PAI_URL_" + index++ + "__";
+            placeholders.put(token, matcher.group());
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(token));
+        }
+        matcher.appendTail(buffer);
+        return buffer.toString();
+    }
+
+    private String restorePlaceholders(String txt, Map<String, String> placeholders) {
+        if (txt == null || placeholders.isEmpty()) {
+            return txt;
+        }
+
+        String restored = txt;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            restored = restored.replace(entry.getKey(), entry.getValue());
+        }
+        return restored;
     }
 }

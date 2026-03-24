@@ -16,6 +16,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.ArticleUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
@@ -29,6 +30,7 @@ import com.github.paicoding.forum.service.constant.EsFieldConstant;
 import com.github.paicoding.forum.service.constant.EsIndexConstant;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
+import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +89,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthorWhiteListService articleWhiteListService;
 
     @Autowired
     private SensitiveService sensitiveService;
@@ -345,6 +350,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         if (article == null) {
             return null;
         }
+        if (shouldBypassSensitiveFilter(article.getAuthor())) {
+            return article;
+        }
         article.setTitle(sanitizeText(article.getTitle()));
         article.setShortTitle(sanitizeText(article.getShortTitle()));
         article.setSummary(sanitizeText(article.getSummary()));
@@ -364,6 +372,17 @@ public class ArticleReadServiceImpl implements ArticleReadService {
 
     private String sanitizeText(String text) {
         return text == null ? null : sensitiveService.replace(text);
+    }
+
+    private boolean shouldBypassSensitiveFilter(Long authorId) {
+        if (authorId == null) {
+            return false;
+        }
+        if (articleWhiteListService.authorInArticleWhiteList(authorId)) {
+            return true;
+        }
+        BaseUserInfoDTO author = userService.queryBasicUserInfo(authorId);
+        return author != null && StringUtils.equalsIgnoreCase(author.getRole(), UserRole.ADMIN.name());
     }
 
     @Override
