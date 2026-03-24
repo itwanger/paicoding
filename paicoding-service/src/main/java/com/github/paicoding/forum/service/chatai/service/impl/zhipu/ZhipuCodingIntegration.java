@@ -68,16 +68,20 @@ public class ZhipuCodingIntegration {
         req.setStream(false);
 
         try {
+            String requestUrl = resolveApiHost() + "/chat/completions";
+            String requestJson = JsonUtil.toStr(req);
+            log.info("智谱 Coding 请求, url={}, requestBody={}", requestUrl, requestJson);
             Request request = new Request.Builder()
-                    .url(resolveApiHost() + "/chat/completions")
+                    .url(requestUrl)
                     .addHeader("Authorization", "Bearer " + config.getApiKey())
                     .addHeader("Content-Type", "application/json")
-                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JsonUtil.toStr(req)))
+                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestJson))
                     .build();
 
             try (okhttp3.Response response = okHttpClient.newCall(request).execute()) {
                 String responseBody = response.body() == null ? null : response.body().string();
                 if (response.isSuccessful() && StringUtils.isNotBlank(responseBody)) {
+                    log.info("智谱 Coding 响应, code={}, body={}", response.code(), responseBody);
                     com.alibaba.fastjson.JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(responseBody);
                     com.alibaba.fastjson.JSONArray choices = jsonObject.getJSONArray("choices");
                     if (choices != null && !choices.isEmpty()) {
@@ -94,7 +98,7 @@ public class ZhipuCodingIntegration {
 
                 String errorMsg = buildErrorMessage(response.code(), responseBody);
                 item.initAnswer(errorMsg);
-                log.error("智谱 Coding 调用失败, code={}, body={}", response.code(), responseBody);
+                log.error("智谱 Coding 调用失败, url={}, requestBody={}, code={}, body={}", requestUrl, requestJson, response.code(), responseBody);
                 return false;
             }
         } catch (Exception e) {
@@ -121,12 +125,15 @@ public class ZhipuCodingIntegration {
         req.setStream(true);
 
         try {
+            String requestUrl = resolveApiHost() + "/chat/completions";
+            String requestJson = JsonUtil.toStr(req);
+            log.info("智谱 Coding 流式请求, url={}, requestBody={}", requestUrl, requestJson);
             EventSource.Factory factory = EventSources.createFactory(okHttpClient);
             Request request = new Request.Builder()
-                    .url(resolveApiHost() + "/chat/completions")
+                    .url(requestUrl)
                     .addHeader("Authorization", "Bearer " + config.getApiKey())
                     .addHeader("Content-Type", "application/json")
-                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JsonUtil.toStr(req)))
+                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestJson))
                     .build();
             factory.newEventSource(request, listener);
         } catch (Exception e) {

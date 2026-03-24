@@ -108,7 +108,20 @@ public abstract class AbsChatService implements ChatService {
     @Override
     public ChatRecordsVo chat(Long user, String question) {
         // 构建提问、返回的实体类，计算使用次数，最大次数
-        ChatRecordsVo res = initResVo(user, question);
+        ChatRecordsVo res = initResVo(user, null, question);
+        if (!res.hasQaCnt()) {
+            return res;
+        }
+
+        // 执行提问
+        answer(user, res);
+        // 返回AI应答结果
+        return res;
+    }
+
+    @Override
+    public ChatRecordsVo chat(Long user, String prompt, String question) {
+        ChatRecordsVo res = initResVo(user, prompt, question);
         if (!res.hasQaCnt()) {
             return res;
         }
@@ -121,7 +134,7 @@ public abstract class AbsChatService implements ChatService {
 
     @Override
     public ChatRecordsVo chat(Long user, String question, Consumer<ChatRecordsVo> consumer) {
-        ChatRecordsVo res = initResVo(user, question);
+        ChatRecordsVo res = initResVo(user, null, question);
         if (!res.hasQaCnt()) {
             return res;
         }
@@ -132,7 +145,7 @@ public abstract class AbsChatService implements ChatService {
         return res;
     }
 
-    private ChatRecordsVo initResVo(Long user, String question) {
+    private ChatRecordsVo initResVo(Long user, String prompt, String question) {
         ChatRecordsVo res = new ChatRecordsVo();
         res.setSource(source());
         int maxCnt = getMaxQaCnt(user);
@@ -150,6 +163,9 @@ public abstract class AbsChatService implements ChatService {
 
         // 构建多轮对话的聊天上下文
         List<ChatItemVo> history = buildChatContext(user);
+        if (StringUtils.isNotBlank(prompt)) {
+            history.add(0, new ChatItemVo().initQuestion(ChatConstants.PROMPT_TAG + prompt));
+        }
         history.add(0, item);
         res.setRecords(history);
         return res;
@@ -234,7 +250,7 @@ public abstract class AbsChatService implements ChatService {
      */
     @Override
     public ChatRecordsVo asyncChat(Long user, String question, Consumer<ChatRecordsVo> consumer) {
-        ChatRecordsVo res = initResVo(user, question);
+        ChatRecordsVo res = initResVo(user, null, question);
         if (!res.hasQaCnt()) {
             // 次数使用完毕
             consumer.accept(res);

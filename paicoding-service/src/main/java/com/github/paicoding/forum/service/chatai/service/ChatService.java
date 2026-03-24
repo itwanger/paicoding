@@ -37,6 +37,18 @@ public interface ChatService {
     ChatRecordsVo chat(Long user, String question);
 
     /**
+     * 开始进入聊天，支持在同一次请求里附带系统提示词
+     *
+     * @param user 提问人
+     * @param prompt 系统提示词
+     * @param question 聊天的问题
+     * @return 返回的结果
+     */
+    default ChatRecordsVo chat(Long user, String prompt, String question) {
+        return chat(user, question);
+    }
+
+    /**
      * 开始进入聊天
      *
      * @param user     提问人

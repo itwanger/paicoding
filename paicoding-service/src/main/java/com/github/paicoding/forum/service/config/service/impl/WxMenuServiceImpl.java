@@ -453,10 +453,7 @@ public class WxMenuServiceImpl implements WxMenuService {
             reqInfo.setUser(previewUser == null ? oldUser : previewUser);
             reqInfo.setChatId("wx-menu-preview-" + UUID.randomUUID().toString().replace("-", ""));
 
-            if (StringUtils.isNotBlank(req.getAiPrompt())) {
-                chatService.chat(previewUserId, ChatConstants.PROMPT_TAG + req.getAiPrompt());
-            }
-            ChatRecordsVo vo = chatService.chat(previewUserId, req.getContent());
+            ChatRecordsVo vo = chatService.chat(previewUserId, req.getAiPrompt(), req.getContent());
             String answer = extractAnswer(vo);
             if (StringUtils.isBlank(answer)) {
                 res.setErrorMsg("AI 未返回内容");
