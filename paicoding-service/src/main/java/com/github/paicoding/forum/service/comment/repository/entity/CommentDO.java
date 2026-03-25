@@ -2,7 +2,6 @@ package com.github.paicoding.forum.service.comment.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
-import com.github.paicoding.forum.core.senstive.ano.SensitiveField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -32,7 +31,6 @@ public class CommentDO extends BaseDO {
     /**
      * 评论内容
      */
-    @SensitiveField(bind = "content")
     private String content;
 
     /**

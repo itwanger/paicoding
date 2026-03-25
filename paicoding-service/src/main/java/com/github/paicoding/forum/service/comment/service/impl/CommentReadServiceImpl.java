@@ -9,11 +9,13 @@ import com.github.paicoding.forum.api.model.vo.comment.dto.BaseCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.SubCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.service.comment.converter.CommentConverter;
 import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,6 +52,12 @@ public class CommentReadServiceImpl implements CommentReadService {
     @Autowired
     private UserFootService userFootService;
 
+    @Autowired
+    private SensitiveService sensitiveService;
+
+    @Autowired
+    private SensitiveBypassService sensitiveBypassService;
+
     @Override
     public CommentDO queryComment(Long commentId) {
         return commentDao.getById(commentId);
@@ -61,11 +70,14 @@ public class CommentReadServiceImpl implements CommentReadService {
         if (CollectionUtils.isEmpty(comments)) {
             return Collections.emptyList();
         }
+        Map<Long, Boolean> bypassCache = new HashMap<>();
+        sanitizeCommentContents(comments, bypassCache);
         // map 存 commentId -> 评论
         Map<Long, TopCommentDTO> topComments = comments.stream().collect(Collectors.toMap(CommentDO::getId, CommentConverter::toTopDto));
 
         // 2.查询非一级评论
         List<CommentDO> subComments = commentDao.listSubCommentIdMappers(articleId, topComments.keySet());
+        sanitizeCommentContents(subComments, bypassCache);
 
         // 3.构建一级评论的子评论
         buildCommentRelation(subComments, topComments);
@@ -175,6 +187,7 @@ public class CommentReadServiceImpl implements CommentReadService {
         if (CollectionUtils.isEmpty(comments)) {
             return Collections.emptyList();
         }
+        sanitizeCommentContents(comments, new HashMap<>());
         return comments.stream().map(CommentConverter::toTopDto).collect(Collectors.toList());
     }
 
@@ -200,10 +213,13 @@ public class CommentReadServiceImpl implements CommentReadService {
     }
 
     private TopCommentDTO buildTopCommentInfo(CommentDO topComment) {
+        Map<Long, Boolean> bypassCache = new HashMap<>();
+        sanitizeCommentContents(Collections.singletonList(topComment), bypassCache);
         // 1.获取顶级评论id
         Long commentId = topComment.getId();
         // 2.查询非一级评论
         List<CommentDO> subComments = commentDao.listSubCommentIdMappers(topComment.getArticleId(), Collections.singletonList(commentId));
+        sanitizeCommentContents(subComments, bypassCache);
 
         // 3.构建顶级评论实体
         TopCommentDTO top = CommentConverter.toTopDto(topComment);
@@ -214,5 +230,21 @@ public class CommentReadServiceImpl implements CommentReadService {
         TopCommentDTO dto = topComments.get(commentId);
         fillTopCommentInfo(dto);
         return top;
+    }
+
+    private void sanitizeCommentContents(List<CommentDO> comments, Map<Long, Boolean> bypassCache) {
+        if (CollectionUtils.isEmpty(comments)) {
+            return;
+        }
+        comments.forEach(comment -> {
+            boolean bypass = bypassCache.computeIfAbsent(comment.getUserId(), sensitiveBypassService::shouldBypassByUserId);
+            if (!bypass) {
+                comment.setContent(sanitizeText(comment.getContent()));
+            }
+        });
+    }
+
+    private String sanitizeText(String text) {
+        return text == null ? null : sensitiveService.replace(text);
     }
 }

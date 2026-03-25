@@ -19,6 +19,7 @@ import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.config.service.ConfigService;
 import com.github.paicoding.forum.service.rank.service.UserActivityRankService;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class SidebarServiceImpl implements SidebarService {
 
     @Autowired
     private SensitiveService sensitiveService;
+
+    @Autowired
+    private SensitiveBypassService sensitiveBypassService;
 
     /**
      * 使用caffeine本地缓存，来处理侧边栏不怎么变动的消息
@@ -196,7 +200,7 @@ public class SidebarServiceImpl implements SidebarService {
         List<SimpleArticleDTO> list = articleDao.listAuthorHotArticles(authorId, PageParam.newPageInstance(PageParam.DEFAULT_PAGE_NUM, size));
         List<SideBarItemDTO> items = list.stream().filter(s -> !s.getId().equals(articleId))
                 .map(s -> new SideBarItemDTO()
-                        .setTitle(sanitizeText(s.getTitle())).setUrl("/article/detail/" + s.getId())
+                        .setTitle(sensitiveBypassService.shouldBypassByUserId(s.getAuthorId()) ? s.getTitle() : sanitizeText(s.getTitle())).setUrl("/article/detail/" + s.getId())
                         .setTime(s.getCreateTime().getTime()))
                 .collect(Collectors.toList());
         return new SideBarDTO().setTitle("相关文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());

@@ -22,6 +22,9 @@ public class SimpleArticleDTO implements Serializable {
     @ApiModelProperty("文章ID")
     private Long id;
 
+    @ApiModelProperty("作者ID")
+    private Long authorId;
+
     @ApiModelProperty("文章标题")
     private String title;
 

@@ -16,6 +16,7 @@ import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.service.ColumnService;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,9 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Autowired
     private SensitiveService sensitiveService;
+
+    @Autowired
+    private SensitiveBypassService sensitiveBypassService;
 
     @Override
     public ColumnArticleDO getColumnArticleRelation(Long articleId) {
@@ -119,9 +123,11 @@ public class ColumnServiceImpl implements ColumnService {
         List<SimpleArticleDTO> list = columnDao.listColumnArticles(columnId);
         long preGroup = -1;
         for (SimpleArticleDTO article : list) {
-            article.setTitle(sanitizeText(article.getTitle()));
-            article.setColumn(sanitizeText(article.getColumn()));
-            article.setGroupName(sanitizeText(article.getGroupName()));
+            if (!sensitiveBypassService.shouldBypassByUserId(article.getAuthorId())) {
+                article.setTitle(sanitizeText(article.getTitle()));
+                article.setColumn(sanitizeText(article.getColumn()));
+                article.setGroupName(sanitizeText(article.getGroupName()));
+            }
             if (preGroup != article.getGroupLevel()) {
                 preGroup = article.getGroupLevel();
                 article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));

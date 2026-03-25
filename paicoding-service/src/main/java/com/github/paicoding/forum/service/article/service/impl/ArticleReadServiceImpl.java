@@ -16,7 +16,6 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
-import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.ArticleUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
@@ -28,9 +27,9 @@ import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.constant.EsFieldConstant;
 import com.github.paicoding.forum.service.constant.EsIndexConstant;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
-import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -91,10 +90,10 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     private UserService userService;
 
     @Autowired
-    private AuthorWhiteListService articleWhiteListService;
+    private SensitiveService sensitiveService;
 
     @Autowired
-    private SensitiveService sensitiveService;
+    private SensitiveBypassService sensitiveBypassService;
 
     // 是否开启ES
     @Value("${elasticsearch.open:false}")
@@ -231,7 +230,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         key = key.trim();
         if (!openES) {
             List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
-            return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(sanitizeText(s.getTitle())))
+            return records.stream()
+                    .map(s -> new SimpleArticleDTO().setId(s.getId()).setAuthorId(s.getUserId()).setTitle(s.getTitle()))
+                    .map(this::sanitizeSimpleArticleForDisplay)
                     .collect(Collectors.toList());
         }
         // TODO ES整合
@@ -259,7 +260,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             return null;
         }
         List<ArticleDO> records = articleDao.selectByIds(ids);
-        return records.stream().map(s -> new SimpleArticleDTO().setId(s.getId()).setTitle(sanitizeText(s.getTitle())))
+        return records.stream()
+                .map(s -> new SimpleArticleDTO().setId(s.getId()).setAuthorId(s.getUserId()).setTitle(s.getTitle()))
+                .map(this::sanitizeSimpleArticleForDisplay)
                 .collect(Collectors.toList());
     }
 
@@ -364,6 +367,9 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         if (article == null) {
             return null;
         }
+        if (sensitiveBypassService.shouldBypassByUserId(article.getAuthorId())) {
+            return article;
+        }
         article.setTitle(sanitizeText(article.getTitle()));
         article.setColumn(sanitizeText(article.getColumn()));
         article.setGroupName(sanitizeText(article.getGroupName()));
@@ -375,14 +381,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     }
 
     private boolean shouldBypassSensitiveFilter(Long authorId) {
-        if (authorId == null) {
-            return false;
-        }
-        if (articleWhiteListService.authorInArticleWhiteList(authorId)) {
-            return true;
-        }
-        BaseUserInfoDTO author = userService.queryBasicUserInfo(authorId);
-        return author != null && StringUtils.equalsIgnoreCase(author.getRole(), UserRole.ADMIN.name());
+        return sensitiveBypassService.shouldBypassByUserId(authorId);
     }
 
     @Override

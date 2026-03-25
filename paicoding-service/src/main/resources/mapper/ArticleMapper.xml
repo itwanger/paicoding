@@ -9,7 +9,7 @@
     </sql>
 
     <select id="listArticlesOrderById" resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
-        select id, title, update_time as createTime from article
+        select id, user_id as authorId, title, update_time as createTime from article
         where id > #{lastId}
         and status =${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
         and deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
@@ -18,7 +18,7 @@
 
     <select id="listArticlesByReadCounts"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
-        select rc.document_id as id, a.title as title, a.create_time as createTime
+        select rc.document_id as id, a.user_id as authorId, a.title as title, a.create_time as createTime
         from read_count as rc left join article as a on rc.document_id = a.id
         where rc.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
         and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
@@ -49,7 +49,7 @@
 
     <select id="listArticlesByUserIdOrderByReadCounts"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO">
-        select rc.document_id as id, a.title as title, a.create_time as createTime
+        select rc.document_id as id, a.user_id as authorId, a.title as title, a.create_time as createTime
         from read_count as rc left join article as a on rc.document_id = a.id
         where rc.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
         and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
