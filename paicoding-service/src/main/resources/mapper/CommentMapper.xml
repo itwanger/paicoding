@@ -2,6 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.paicoding.forum.service.comment.repository.mapper.CommentMapper">
 
+    <sql id="commentAdminWhere">
+        where c.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <if test="req.commentId != null">
+            and c.id = #{req.commentId}
+        </if>
+        <if test="req.articleId != null">
+            and c.article_id = #{req.articleId}
+        </if>
+        <if test="req.userId != null">
+            and c.user_id = #{req.userId}
+        </if>
+        <if test="req.articleTitle != null and req.articleTitle != ''">
+            and a.title like concat('%', #{req.articleTitle}, '%')
+        </if>
+        <if test="req.userName != null and req.userName != ''">
+            and u.user_name like concat('%', #{req.userName}, '%')
+        </if>
+        <if test="req.content != null and req.content != ''">
+            and c.content like concat('%', #{req.content}, '%')
+        </if>
+        <if test="req.commentType != null and req.commentType == 1">
+            and c.top_comment_id = 0
+        </if>
+        <if test="req.commentType != null and req.commentType == 2">
+            and c.top_comment_id &gt; 0
+        </if>
+    </sql>
+
     <select id="getHotTopCommentId" resultType="java.util.Map">
         select top_comment_id, count(*) as cnt
         from comment
@@ -9,5 +37,47 @@
           and top_comment_id > 0
         group by top_comment_id
         order by cnt desc limit 1
+    </select>
+
+    <select id="listCommentsByParams" resultType="com.github.paicoding.forum.api.model.vo.comment.dto.CommentAdminDTO">
+        select c.id as commentId,
+               c.article_id as articleId,
+               a.title as articleTitle,
+               c.user_id as userId,
+               u.user_name as userName,
+               u.photo as userAvatar,
+               c.content as commentContent,
+               c.parent_comment_id as parentCommentId,
+               c.top_comment_id as topCommentId,
+               pc.content as parentCommentContent,
+               tc.content as topCommentContent,
+               case when c.top_comment_id = 0 then 1 else 2 end as commentType,
+               case when c.top_comment_id = 0 then (
+                   select count(1)
+                   from comment sc
+                   where sc.top_comment_id = c.id
+                     and sc.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+               ) else 0 end as replyCount,
+               c.highlight_info as highlightInfo,
+               c.create_time as createTime,
+               c.update_time as updateTime
+        from comment c
+                 left join article a on c.article_id = a.id
+                 left join user_info u on c.user_id = u.user_id and u.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+                 left join comment pc on c.parent_comment_id = pc.id
+                 left join comment tc on c.top_comment_id = tc.id
+        <include refid="commentAdminWhere"/>
+        order by c.create_time desc, c.id desc
+        <if test="pageParam != null">
+            limit #{pageParam.offset}, #{pageParam.limit}
+        </if>
+    </select>
+
+    <select id="countCommentsByParams" resultType="java.lang.Long">
+        select count(1)
+        from comment c
+                 left join article a on c.article_id = a.id
+                 left join user_info u on c.user_id = u.user_id and u.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <include refid="commentAdminWhere"/>
     </select>
 </mapper>

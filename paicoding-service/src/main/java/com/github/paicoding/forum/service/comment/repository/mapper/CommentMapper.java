@@ -1,9 +1,13 @@
 package com.github.paicoding.forum.service.comment.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.comment.SearchCommentReq;
+import com.github.paicoding.forum.api.model.vo.comment.dto.CommentAdminDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,5 +18,9 @@ import java.util.Map;
  */
 public interface CommentMapper extends BaseMapper<CommentDO> {
     Map<String, Object> getHotTopCommentId(@Param("articleId") Long articleId);
+
+    List<CommentAdminDTO> listCommentsByParams(@Param("req") SearchCommentReq req, @Param("pageParam") PageParam pageParam);
+
+    Long countCommentsByParams(@Param("req") SearchCommentReq req);
 
 }

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.comment.SearchCommentReq;
+import com.github.paicoding.forum.api.model.vo.comment.dto.CommentAdminDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.repository.mapper.CommentMapper;
 import org.springframework.stereotype.Repository;
@@ -84,6 +86,21 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
         }
 
         return baseMapper.selectById(Long.parseLong(String.valueOf(map.get("top_comment_id"))));
+    }
+
+    public List<CommentAdminDTO> listCommentsByParams(SearchCommentReq req, PageParam pageParam) {
+        return baseMapper.listCommentsByParams(req, pageParam);
+    }
+
+    public Long countCommentsByParams(SearchCommentReq req) {
+        return baseMapper.countCommentsByParams(req);
+    }
+
+    public Long countReplyByTopCommentId(Long topCommentId) {
+        return lambdaQuery()
+                .eq(CommentDO::getTopCommentId, topCommentId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .count();
     }
 
 }

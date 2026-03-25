@@ -104,6 +104,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
             throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, commentSaveReq.getCommentId());
         }
         commentDO.setContent(commentSaveReq.getCommentContent());
+        commentDO.setUpdateTime(new Date());
         commentDao.updateById(commentDO);
         return commentDO;
     }
