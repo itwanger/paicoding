@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PraiseStatEnum;
+import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.comment.dto.BaseCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.SubCommentDTO;
@@ -173,7 +174,7 @@ public class CommentReadServiceImpl implements CommentReadService {
     @Override
     public TopCommentDTO queryHotComment(Long articleId) {
         CommentDO comment = commentDao.getHotComment(articleId);
-        if (comment == null) {
+        if (comment == null || Objects.equals(comment.getDeleted(), YesOrNoEnum.YES.getCode())) {
             return null;
         }
 

@@ -84,8 +84,11 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
         if (CollectionUtils.isEmpty(map)) {
             return null;
         }
-
-        return baseMapper.selectById(Long.parseLong(String.valueOf(map.get("top_comment_id"))));
+        CommentDO hotComment = baseMapper.selectById(Long.parseLong(String.valueOf(map.get("top_comment_id"))));
+        if (hotComment == null || hotComment.getDeleted() == YesOrNoEnum.YES.getCode()) {
+            return null;
+        }
+        return hotComment;
     }
 
     public List<CommentAdminDTO> listCommentsByParams(SearchCommentReq req, PageParam pageParam) {

@@ -31,11 +31,14 @@
     </sql>
 
     <select id="getHotTopCommentId" resultType="java.util.Map">
-        select top_comment_id, count(*) as cnt
-        from comment
-        where article_id = #{articleId}
-          and top_comment_id > 0
-        group by top_comment_id
+        select c.top_comment_id, count(*) as cnt
+        from comment c
+                 inner join comment tc on c.top_comment_id = tc.id
+        where c.article_id = #{articleId}
+          and c.top_comment_id > 0
+          and c.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+          and tc.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        group by c.top_comment_id
         order by cnt desc limit 1
     </select>
 
