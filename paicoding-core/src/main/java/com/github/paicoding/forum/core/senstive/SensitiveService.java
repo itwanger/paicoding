@@ -8,6 +8,12 @@ import com.github.houbb.sensitive.word.support.deny.WordDenySystem;
 import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.pinyin4j.PinyinHelper;
+import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,10 +35,12 @@ import java.util.regex.Pattern;
 @Service
 public class SensitiveService {
     private static final Pattern URL_PATTERN = Pattern.compile("https?://[^\\s)\\]>'\"]+");
+    private static final Pattern CHINESE_PATTERN = Pattern.compile("[\\u4e00-\\u9fa5]");
     /**
      * 敏感词命中计数统计
      */
     private static final String SENSITIVE_WORD_CNT_PREFIX = "sensitive_word";
+    private static final HanyuPinyinOutputFormat PINYIN_FORMAT = buildPinyinFormat();
     private volatile SensitiveWordBs sensitiveWordBs;
     @Autowired
     private SensitiveProperty sensitiveConfig;
@@ -120,7 +128,7 @@ public class SensitiveService {
         if (!BooleanUtils.isTrue(sensitiveConfig.getEnable()) || txt == null) {
             return txt;
         }
-        return replaceInternal(txt, false);
+        return replaceFriendlyInternal(txt);
     }
 
     /**
@@ -133,7 +141,7 @@ public class SensitiveService {
         if (!BooleanUtils.isTrue(sensitiveConfig.getEnable()) || txt == null) {
             return txt;
         }
-        return replaceInternal(txt, true);
+        return replaceWithDefaultMask(txt, true);
     }
 
     /**
@@ -149,7 +157,18 @@ public class SensitiveService {
         return sensitiveWordBs.findAll(protectUrls(txt, new LinkedHashMap<>()));
     }
 
-    private String replaceInternal(String txt, boolean recordHit) {
+    private String replaceFriendlyInternal(String txt) {
+        Map<String, String> placeholders = new LinkedHashMap<>();
+        String protectedText = protectUrls(txt, placeholders);
+        List<String> hitWords = sensitiveWordBs.findAll(protectedText);
+        if (CollectionUtils.isEmpty(hitWords)) {
+            return txt;
+        }
+        String replaced = replaceHitWords(protectedText, hitWords);
+        return restorePlaceholders(replaced, placeholders);
+    }
+
+    private String replaceWithDefaultMask(String txt, boolean recordHit) {
         Map<String, String> placeholders = new LinkedHashMap<>();
         String protectedText = protectUrls(txt, placeholders);
         if (recordHit) {
@@ -196,5 +215,80 @@ public class SensitiveService {
             restored = restored.replace(entry.getKey(), entry.getValue());
         }
         return restored;
+    }
+
+    private String replaceHitWords(String txt, List<String> hitWords) {
+        String replaced = txt;
+        List<String> orderedWords = hitWords.stream()
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .sorted(Comparator.comparingInt(String::length).reversed())
+                .collect(Collectors.toList());
+        for (String word : orderedWords) {
+            String friendlyWord = toFriendlyReplacement(word);
+            if (StringUtils.equals(word, friendlyWord)) {
+                continue;
+            }
+            replaced = replaced.replace(word, friendlyWord);
+        }
+        return replaced;
+    }
+
+    private String toFriendlyReplacement(String word) {
+        if (StringUtils.isBlank(word)) {
+            return word;
+        }
+        if (CHINESE_PATTERN.matcher(word).find()) {
+            String pinyin = toPinyin(word);
+            if (StringUtils.isNotBlank(pinyin) && !StringUtils.equalsIgnoreCase(word, pinyin)) {
+                return pinyin;
+            }
+        }
+        return toFullWidth(word);
+    }
+
+    private String toPinyin(String word) {
+        StringBuilder builder = new StringBuilder();
+        for (char c : word.toCharArray()) {
+            if (isChinese(c)) {
+                try {
+                    String[] pinyinArray = PinyinHelper.toHanyuPinyinStringArray(c, PINYIN_FORMAT);
+                    if (pinyinArray != null && pinyinArray.length > 0) {
+                        builder.append(pinyinArray[0]);
+                        continue;
+                    }
+                } catch (Exception e) {
+                    log.debug("敏感词转拼音失败, char={}", c, e);
+                }
+            }
+            builder.append(c);
+        }
+        return builder.toString();
+    }
+
+    private String toFullWidth(String word) {
+        StringBuilder builder = new StringBuilder(word.length());
+        for (char c : word.toCharArray()) {
+            if (c == ' ') {
+                builder.append('\u3000');
+            } else if (c >= 33 && c <= 126) {
+                builder.append((char) (c + 65248));
+            } else {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
+    }
+
+    private boolean isChinese(char c) {
+        return c >= '\u4e00' && c <= '\u9fa5';
+    }
+
+    private static HanyuPinyinOutputFormat buildPinyinFormat() {
+        HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
+        format.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+        format.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+        format.setVCharType(HanyuPinyinVCharType.WITH_V);
+        return format;
     }
 }
