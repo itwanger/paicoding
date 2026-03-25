@@ -19,9 +19,6 @@
         <if test="req.userName != null and req.userName != ''">
             and u.user_name like concat('%', #{req.userName}, '%')
         </if>
-        <if test="req.content != null and req.content != ''">
-            and c.content like concat('%', #{req.content}, '%')
-        </if>
         <if test="req.commentType != null and req.commentType == 1">
             and c.top_comment_id = 0
         </if>

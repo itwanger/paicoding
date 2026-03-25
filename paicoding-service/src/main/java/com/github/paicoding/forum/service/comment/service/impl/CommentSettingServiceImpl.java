@@ -9,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.comment.SearchCommentReq;
 import com.github.paicoding.forum.api.model.vo.comment.dto.CommentAdminDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
@@ -16,11 +17,17 @@ import com.github.paicoding.forum.service.comment.repository.dao.CommentDao;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import com.github.paicoding.forum.service.comment.service.CommentSettingService;
 import com.github.paicoding.forum.service.comment.service.CommentWriteService;
+import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.Normalizer;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentSettingServiceImpl implements CommentSettingService {
@@ -40,12 +47,28 @@ public class CommentSettingServiceImpl implements CommentSettingService {
     @Autowired
     private CommentWriteService commentWriteService;
 
+    @Autowired
+    private SensitiveService sensitiveService;
+
+    @Autowired
+    private SensitiveBypassService sensitiveBypassService;
+
     @Override
     public PageVo<CommentAdminDTO> getCommentList(SearchCommentReq req) {
         long pageNumber = req.getPageNumber() <= 0 ? PageParam.DEFAULT_PAGE_NUM : req.getPageNumber();
         long pageSize = req.getPageSize() <= 0 ? PageParam.DEFAULT_PAGE_SIZE : req.getPageSize();
-        PageParam pageParam = PageParam.newPageInstance(pageNumber, pageSize);
-        return PageVo.build(commentDao.listCommentsByParams(req, pageParam), pageSize, pageNumber, commentDao.countCommentsByParams(req));
+        if (StringUtils.isBlank(req.getContent())) {
+            PageParam pageParam = PageParam.newPageInstance(pageNumber, pageSize);
+            return PageVo.build(commentDao.listCommentsByParams(req, pageParam), pageSize, pageNumber, commentDao.countCommentsByParams(req));
+        }
+
+        List<CommentAdminDTO> matched = commentDao.listCommentsByParams(req, null).stream()
+                .filter(comment -> matchContent(req.getContent(), comment))
+                .collect(Collectors.toList());
+        int fromIndex = (int) Math.min((pageNumber - 1) * pageSize, matched.size());
+        int toIndex = (int) Math.min(fromIndex + pageSize, matched.size());
+        List<CommentAdminDTO> pageList = fromIndex >= toIndex ? Collections.emptyList() : matched.subList(fromIndex, toIndex);
+        return PageVo.build(pageList, pageSize, pageNumber, matched.size());
     }
 
     @Override
@@ -150,5 +173,32 @@ public class CommentSettingServiceImpl implements CommentSettingService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private boolean matchContent(String keyword, CommentAdminDTO comment) {
+        String normalizedKeyword = normalizeSearchText(keyword);
+        if (StringUtils.isBlank(normalizedKeyword)) {
+            return true;
+        }
+
+        String originalContent = StringUtils.defaultString(comment.getCommentContent());
+        if (normalizeSearchText(originalContent).contains(normalizedKeyword)) {
+            return true;
+        }
+
+        if (!sensitiveBypassService.shouldBypassByUserId(comment.getUserId())) {
+            String displayContent = sensitiveService.replace(originalContent);
+            return normalizeSearchText(displayContent).contains(normalizedKeyword);
+        }
+        return false;
+    }
+
+    private String normalizeSearchText(String text) {
+        if (StringUtils.isBlank(text)) {
+            return "";
+        }
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFKC).toLowerCase();
+        normalized = normalized.replaceAll("\\s+", "");
+        return normalized.trim();
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.regex.Matcher;
@@ -42,6 +43,7 @@ public class SensitiveService {
     private static final String SENSITIVE_WORD_CNT_PREFIX = "sensitive_word";
     private static final HanyuPinyinOutputFormat PINYIN_FORMAT = buildPinyinFormat();
     private volatile SensitiveWordBs sensitiveWordBs;
+    private volatile Set<String> customDenyWords = Collections.emptySet();
     @Autowired
     private SensitiveProperty sensitiveConfig;
     @Autowired
@@ -51,16 +53,22 @@ public class SensitiveService {
     public void refresh() {
         dynamicConfigContainer.registerRefreshCallback(sensitiveConfig, this::refresh);
         IWordDeny deny = () -> {
-            List<String> sub = WordDenySystem.getInstance().deny();
-            sub.addAll(sensitiveConfig.getDeny());
+            List<String> sub = new ArrayList<>(WordDenySystem.getInstance().deny());
+            sub.addAll(Optional.ofNullable(sensitiveConfig.getDeny()).orElse(Collections.emptyList()));
             return sub;
         };
 
         IWordAllow allow = () -> {
-            List<String> sub = WordAllowSystem.getInstance().allow();
-            sub.addAll(sensitiveConfig.getAllow());
+            List<String> sub = new ArrayList<>(WordAllowSystem.getInstance().allow());
+            sub.addAll(Optional.ofNullable(sensitiveConfig.getAllow()).orElse(Collections.emptyList()));
             return sub;
         };
+        customDenyWords = Optional.ofNullable(sensitiveConfig.getDeny())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(StringUtils::isNotBlank)
+                .map(this::normalizeWordKey)
+                .collect(Collectors.toSet());
         sensitiveWordBs = SensitiveWordBs.newInstance()
                 .wordDeny(deny)
                 .wordAllow(allow)
@@ -225,13 +233,28 @@ public class SensitiveService {
                 .sorted(Comparator.comparingInt(String::length).reversed())
                 .collect(Collectors.toList());
         for (String word : orderedWords) {
-            String friendlyWord = toFriendlyReplacement(word);
+            String friendlyWord = isCustomDenyWord(word) ? toMaskReplacement(word) : toFriendlyReplacement(word);
             if (StringUtils.equals(word, friendlyWord)) {
                 continue;
             }
             replaced = replaced.replace(word, friendlyWord);
         }
         return replaced;
+    }
+
+    private boolean isCustomDenyWord(String word) {
+        return customDenyWords.contains(normalizeWordKey(word));
+    }
+
+    private String normalizeWordKey(String word) {
+        if (StringUtils.isBlank(word)) {
+            return StringUtils.EMPTY;
+        }
+        return Normalizer.normalize(word.trim(), Normalizer.Form.NFKC).toLowerCase(Locale.ROOT);
+    }
+
+    private String toMaskReplacement(String word) {
+        return StringUtils.repeat('*', word.length());
     }
 
     private String toFriendlyReplacement(String word) {
