@@ -89,12 +89,31 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware, Ap
         return context.getBean(beanName);
     }
 
+    public static <T> T getBean(String beanName, Class<T> beanClass) {
+        if (isActive()) {
+            return context.getBean(beanName, beanClass);
+        } else {
+            throw new IllegalStateException("Spring ApplicationContext is not active or has been closed.");
+        }
+    }
+
     public static Object getBeanOrNull(String beanName) {
         if (!isActive()) {
             return null;
         }
         try {
             return context.getBean(beanName);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static <T> T getBeanOrNull(String beanName, Class<T> beanClass) {
+        if (!isActive()) {
+            return null;
+        }
+        try {
+            return context.getBean(beanName, beanClass);
         } catch (Exception e) {
             return null;
         }

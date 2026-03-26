@@ -1,10 +1,12 @@
 package com.github.paicoding.forum.service.statistics.service.impl;
 
+import com.github.paicoding.forum.api.model.enums.DocumentTypeEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.ArticleFootCountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
+import com.github.paicoding.forum.service.article.repository.mapper.ReadCountMapper;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.statistics.constants.CountConstants;
 import com.github.paicoding.forum.service.statistics.service.CountService;
@@ -12,12 +14,17 @@ import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserFootDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserRelationDao;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 计数服务，后续计数相关的可以考虑基于redis来做
@@ -44,6 +51,12 @@ public class CountServiceImpl implements CountService {
 
     @Resource
     private UserDao userDao;
+
+    @Resource
+    private ReadCountMapper readCountMapper;
+
+    @Resource(name = "stringRedisTemplate")
+    private RedisTemplate<String, String> stringRedisTemplate;
 
     @Override
     public ArticleFootCountDTO queryArticleCountInfoByArticleId(Long articleId) {
@@ -99,9 +112,8 @@ public class CountServiceImpl implements CountService {
 
     @Override
     public void incrArticleReadCount(Long authorUserId, Long articleId) {
-        // db层的计数+1
-        articleDao.incrReadCount(articleId);
-        // redis计数器 +1
+        // 优化：只更新 Redis 计数器，不再直接写数据库
+        // 定时任务 syncArticleReadCountToDb 会将 Redis 计数同步到数据库
         RedisClient.pipelineAction()
                 .add(CountConstants.ARTICLE_STATISTIC_INFO + articleId, CountConstants.READ_COUNT,
                         (connection, key, value) -> connection.hIncrBy(key, value, 1))
@@ -130,6 +142,74 @@ public class CountServiceImpl implements CountService {
             }
         }
         log.info("结束自动刷新用户统计信息，共耗时: {}ms, maxUserId: {}", System.currentTimeMillis() - now, userId);
+    }
+
+    /**
+     * 每5分钟执行一次，将 Redis 中的文章阅读计数同步到数据库
+     */
+    @Scheduled(cron = "0 */5 * * * ?")
+    public void syncArticleReadCountToDb() {
+        Long start = System.currentTimeMillis();
+        log.info("开始同步文章阅读计数到数据库");
+
+        try {
+            // 扫描所有文章统计 key
+            Set<String> keys = scanKeys(CountConstants.ARTICLE_STATISTIC_INFO + "*");
+
+            int synced = 0;
+            for (String key : keys) {
+                try {
+                    // 提取 articleId
+                    Long articleId = Long.parseLong(key.replace(CountConstants.ARTICLE_STATISTIC_INFO, ""));
+
+                    // 获取 Redis 中的阅读计数
+                    Integer readCount = getArticleReadCount(key);
+                    if (readCount != null && readCount > 0) {
+                        // 更新数据库
+                        saveArticleReadCount(articleId, readCount);
+                        synced++;
+                    }
+                } catch (Exception e) {
+                    log.error("同步阅读计数失败, key: {}", key, e);
+                }
+            }
+
+            log.info("同步文章阅读计数完成，共同步 {} 篇文章，耗时: {}ms", synced, System.currentTimeMillis() - start);
+        } catch (Exception e) {
+            log.error("同步文章阅读计数异常", e);
+        }
+    }
+
+    /**
+     * 扫描匹配的 Redis key
+     */
+    @SuppressWarnings("unchecked")
+    Set<String> scanKeys(String pattern) {
+        Set<String> keys = new HashSet<>();
+        ScanOptions options = ScanOptions.scanOptions().match("pai_" + pattern).count(100).build();
+
+        try (Cursor<String> cursor = stringRedisTemplate.scan(options)) {
+            while (cursor.hasNext()) {
+                String key = cursor.next();
+                // 移除前缀 "pai_"
+                keys.add(key.substring(4));
+            }
+        }
+        return keys;
+    }
+
+    /**
+     * 获取 Redis 中文章当前的阅读总数
+     */
+    Integer getArticleReadCount(String key) {
+        return RedisClient.hGet(key, CountConstants.READ_COUNT, Integer.class);
+    }
+
+    /**
+     * 将 Redis 中的阅读总数覆盖写入数据库，保证定时同步幂等
+     */
+    void saveArticleReadCount(Long articleId, Integer readCount) {
+        readCountMapper.insertOrUpdate(articleId, DocumentTypeEnum.ARTICLE.getCode(), readCount);
     }
 
 
