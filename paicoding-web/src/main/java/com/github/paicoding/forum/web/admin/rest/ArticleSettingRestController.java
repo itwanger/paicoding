@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateRes;
+import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
@@ -124,6 +125,12 @@ public class ArticleSettingRestController {
     public ResVo<AiSeoGenerateRes> generateSeo(@RequestBody AiSeoGenerateReq req) {
         AiSeoGenerateRes response = aiSeoService.generateSeoTitleAndDescription(req);
         return ResVo.ok(response);
+    }
+
+    @ApiOperation("生成文章语义URL")
+    @PostMapping(path = "generate/slug")
+    public ResVo<String> generateSlug(@RequestBody AiSlugGenerateReq req) {
+        return ResVo.ok(articleSettingService.generateUrlSlug(req));
     }
 
 }

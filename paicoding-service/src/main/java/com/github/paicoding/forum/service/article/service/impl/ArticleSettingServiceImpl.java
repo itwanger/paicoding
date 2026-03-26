@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
@@ -68,15 +69,8 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (StringUtils.isNotBlank(req.getShortTitle())) {
             article.setShortTitle(req.getShortTitle());
         }
-        if (StringUtils.isNotBlank(req.getUrlSlug())) {
-            article.setUrlSlug(req.getUrlSlug());
-        } else {
-            String titleForSlug = StringUtils.isNotBlank(req.getShortTitle()) ? req.getShortTitle() : req.getTitle();
-            try {
-                article.setUrlSlug(slugGeneratorService.generateSlugWithAI(titleForSlug));
-            } catch (Exception e) {
-                article.setUrlSlug("article-" + System.currentTimeMillis());
-            }
+        if (req.getUrlSlug() != null) {
+            article.setUrlSlug(StringUtils.trim(req.getUrlSlug()));
         }
 
         ArticleEventEnum operateEvent = null;
@@ -96,6 +90,15 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
             // 发布文章待审核、上线、下线事件
             SpringUtil.publishEvent(new ArticleMsgEvent<>(this, operateEvent, article));
         }
+    }
+
+    @Override
+    public String generateUrlSlug(AiSlugGenerateReq req) {
+        String titleForSlug = StringUtils.defaultIfBlank(req.getShortTitle(), req.getTitle());
+        if (StringUtils.isBlank(titleForSlug)) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "标题不能为空!");
+        }
+        return slugGeneratorService.generateSlugWithAI(titleForSlug);
     }
 
     @Override

@@ -5,6 +5,9 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -14,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @date 2022/8/29
  */
 @Component
-public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
+public class SpringUtil implements ApplicationContextAware, EnvironmentAware, ApplicationListener<ContextClosedEvent> {
     private volatile static ApplicationContext context;
     private volatile static Environment environment;
 
@@ -30,6 +33,15 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
     public void setEnvironment(Environment environment) {
         SpringUtil.environment = environment;
         binder = Binder.get(environment);
+    }
+
+    @Override
+    public void onApplicationEvent(ContextClosedEvent event) {
+        if (context == event.getApplicationContext()) {
+            context = null;
+            environment = null;
+            binder = null;
+        }
     }
 
     /**
@@ -48,8 +60,14 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      * @param <T>
      * @return
      */
+    public static boolean isActive() {
+        return context instanceof ConfigurableApplicationContext
+                ? ((ConfigurableApplicationContext) context).isActive()
+                : context != null;
+    }
+
     public static <T> T getBean(Class<T> bean) {
-        if (context != null) {
+        if (isActive()) {
             return context.getBean(bean);
         } else {
             throw new IllegalStateException("Spring ApplicationContext is not active or has been closed.");
@@ -57,6 +75,9 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
     }
 
     public static <T> T getBeanOrNull(Class<T> bean) {
+        if (!isActive()) {
+            return null;
+        }
         try {
             return context.getBean(bean);
         } catch (Exception e) {
@@ -69,6 +90,9 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
     }
 
     public static Object getBeanOrNull(String beanName) {
+        if (!isActive()) {
+            return null;
+        }
         try {
             return context.getBean(beanName);
         } catch (Exception e) {
@@ -77,7 +101,7 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
     }
 
     public static boolean hasConfig(String key) {
-        return environment.containsProperty(key);
+        return environment != null && environment.containsProperty(key);
     }
 
     /**
@@ -87,10 +111,13 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      * @return
      */
     public static String getConfig(String key) {
-        return environment.getProperty(key);
+        return environment == null ? null : environment.getProperty(key);
     }
 
     public static String getConfigOrElse(String mainKey, String slaveKey) {
+        if (environment == null) {
+            return null;
+        }
         String ans = environment.getProperty(mainKey);
         if (ans == null) {
             return environment.getProperty(slaveKey);
@@ -106,7 +133,7 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      * @return
      */
     public static String getConfig(String key, String val) {
-        return environment.getProperty(key, val);
+        return environment == null ? val : environment.getProperty(key, val);
     }
 
     /**
@@ -115,7 +142,9 @@ public class SpringUtil implements ApplicationContextAware, EnvironmentAware {
      * @param event
      */
     public static void publishEvent(ApplicationEvent event) {
-        context.publishEvent(event);
+        if (isActive()) {
+            context.publishEvent(event);
+        }
     }
 
 

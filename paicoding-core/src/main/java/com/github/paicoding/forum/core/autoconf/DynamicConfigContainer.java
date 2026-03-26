@@ -12,7 +12,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -21,11 +24,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 自定义的配置工厂类，专门用于 ConfDot 属性配置文件的配置加载，支持从自定义的配置源获取
@@ -35,7 +42,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class DynamicConfigContainer implements EnvironmentAware, ApplicationContextAware, CommandLineRunner {
+public class DynamicConfigContainer implements EnvironmentAware, ApplicationContextAware, CommandLineRunner, ApplicationListener<ContextClosedEvent> {
+    private ScheduledExecutorService refreshScheduler;
+    private final AtomicBoolean stopped = new AtomicBoolean(false);
+    private final AtomicBoolean refreshTaskRegistered = new AtomicBoolean(false);
     private ConfigurableEnvironment environment;
     private ApplicationContext applicationContext;
     /**
@@ -74,7 +84,15 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * @return true 表示有信息变更; false 表示无信息变更
      */
     private boolean loadAllConfigFromDb() {
-        List<Map<String, Object>> list = SpringUtil.getBean(JdbcTemplate.class).queryForList("select `key`, `value` from global_conf where deleted = 0");
+        if (!isContextAvailable()) {
+            return false;
+        }
+        JdbcTemplate jdbcTemplate = SpringUtil.getBeanOrNull(JdbcTemplate.class);
+        if (jdbcTemplate == null) {
+            log.debug("Spring Context unavailable, skip loading db config");
+            return false;
+        }
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("select `key`, `value` from global_conf where deleted = 0");
         Map<String, Object> val = Maps.newHashMapWithExpectedSize(list.size());
         for (Map<String, Object> conf : list) {
             val.put(conf.get("key").toString(), conf.get("value").toString());
@@ -108,6 +126,9 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * 监听配置的变更
      */
     public void reloadConfig() {
+        if (!isContextAvailable()) {
+            return;
+        }
         String before = JsonUtil.toStr(cache);
         boolean toRefresh = loadAllConfigFromDb();
         if (toRefresh) {
@@ -120,6 +141,9 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * 强制刷新缓存配置
      */
     public void forceRefresh() {
+        if (!isContextAvailable()) {
+            return;
+        }
         loadAllConfigFromDb();
         refreshConfig();
         log.info("db配置强制刷新! {}", JsonUtil.toStr(cache));
@@ -129,6 +153,9 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * 支持配置的动态刷新
      */
     private void refreshConfig() {
+        if (!isContextAvailable()) {
+            return;
+        }
         applicationContext.getBeansWithAnnotation(ConfigurationProperties.class).values().forEach(bean -> {
             Bindable<?> target = Bindable.ofInstance(bean).withAnnotations(AnnotationUtils.findAnnotation(bean.getClass(), ConfigurationProperties.class));
             bind(target);
@@ -142,13 +169,47 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
      * 注册db的动态配置变更
      */
     private void registerConfRefreshTask() {
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+        if (!refreshTaskRegistered.compareAndSet(false, true)) {
+            return;
+        }
+        stopped.set(false);
+        ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, runnable -> {
+            Thread thread = new Thread(runnable, "dynamic-config-refresh");
+            thread.setDaemon(true);
+            return thread;
+        });
+        executor.setRemoveOnCancelPolicy(true);
+        refreshScheduler = executor;
+        refreshScheduler.scheduleAtFixedRate(() -> {
             try {
+                if (!isContextAvailable()) {
+                    return;
+                }
                 reloadConfig();
             } catch (Exception e) {
                 log.warn("自动更新db配置信息异常!", e);
             }
         }, 5, 5, TimeUnit.MINUTES);
+    }
+
+    /**
+     * 应用关闭时，关闭定时刷新任务，避免 Spring Context 关闭后仍尝试获取 Bean
+     */
+    @PreDestroy
+    public void destroy() {
+        stopped.set(true);
+        refreshTaskRegistered.set(false);
+        if (refreshScheduler != null && !refreshScheduler.isShutdown()) {
+            refreshScheduler.shutdownNow();
+            log.info("动态配置刷新定时任务已关闭");
+        }
+    }
+
+    @Override
+    public void onApplicationEvent(ContextClosedEvent event) {
+        if (applicationContext == event.getApplicationContext()) {
+            destroy();
+        }
     }
 
     /**
@@ -182,5 +243,13 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
         reloadConfig();
         registerConfRefreshTask();
         autoUpdateSpringValueConfig();
+    }
+
+    private boolean isContextAvailable() {
+        if (stopped.get() || applicationContext == null) {
+            return false;
+        }
+        return !(applicationContext instanceof ConfigurableApplicationContext)
+                || ((ConfigurableApplicationContext) applicationContext).isActive();
     }
 }
