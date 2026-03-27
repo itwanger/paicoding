@@ -24,6 +24,16 @@ public class TopCommentDTO extends BaseCommentDTO {
      */
     private List<SubCommentDTO> childComments;
 
+    /**
+     * 子评论总数（用于显示"展开N条回复"）
+     */
+    private Integer childCommentCount;
+
+    /**
+     * 是否有更多子评论（用于前端判断是否显示展开按钮）
+     */
+    private Boolean hasMoreChild;
+
     public List<SubCommentDTO> getChildComments() {
         if (childComments == null) {
             childComments = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.comment.service;
 
 import com.github.paicoding.forum.api.model.vo.PageParam;
+import com.github.paicoding.forum.api.model.vo.comment.vo.SubCommentListVO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 
@@ -64,4 +65,21 @@ public interface CommentReadService {
      * @return
      */
     int queryCommentCount(Long articleId);
+
+    /**
+     * 分页查询子评论
+     *
+     * @param topCommentId 一级评论ID
+     * @param page 分页参数
+     * @return 子评论列表（含分页信息）
+     */
+    SubCommentListVO getSubComments(Long topCommentId, PageParam page);
+
+    /**
+     * 统计一级评论的子评论数量
+     *
+     * @param topCommentId 一级评论ID
+     * @return 子评论数量
+     */
+    int countSubComments(Long topCommentId);
 }

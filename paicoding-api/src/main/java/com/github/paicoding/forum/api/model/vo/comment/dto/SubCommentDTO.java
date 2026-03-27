@@ -15,6 +15,11 @@ import org.jetbrains.annotations.NotNull;
 public class SubCommentDTO extends BaseCommentDTO {
 
     /**
+     * 父评论ID
+     */
+    private Long parentCommentId;
+
+    /**
      * 父评论内容
      */
     private String parentContent;

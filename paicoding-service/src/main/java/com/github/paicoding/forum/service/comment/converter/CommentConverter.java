@@ -65,6 +65,7 @@ public class CommentConverter {
     public static SubCommentDTO toSubDto(CommentDO comment) {
         SubCommentDTO sub = new SubCommentDTO();
         parseDto(comment, sub);
+        sub.setParentCommentId(comment.getParentCommentId());
         return sub;
     }
 }

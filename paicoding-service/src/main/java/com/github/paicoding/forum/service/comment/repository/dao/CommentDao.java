@@ -12,8 +12,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -104,6 +106,43 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
                 .eq(CommentDO::getTopCommentId, topCommentId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .count();
+    }
+
+    /**
+     * 批量统计子评论数量
+     *
+     * @param articleId 文章ID
+     * @param topCommentIds 一级评论ID集合
+     * @return Map<topCommentId, count>
+     */
+    public Map<Long, Integer> countSubComments(Long articleId, Collection<Long> topCommentIds) {
+        if (CollectionUtils.isEmpty(topCommentIds)) {
+            return Collections.emptyMap();
+        }
+        List<Map<String, Object>> rows = baseMapper.countSubCommentsByTopIds(articleId, topCommentIds);
+        if (CollectionUtils.isEmpty(rows)) {
+            return Collections.emptyMap();
+        }
+        return rows.stream().collect(Collectors.toMap(
+                row -> ((Number) row.get("key")).longValue(),
+                row -> ((Number) row.get("value")).intValue()
+        ));
+    }
+
+    /**
+     * 分页查询子评论
+     *
+     * @param topCommentId 一级评论ID
+     * @param pageParam 分页参数
+     * @return 子评论列表
+     */
+    public List<CommentDO> listSubComments(Long topCommentId, PageParam pageParam) {
+        return lambdaQuery()
+                .eq(CommentDO::getTopCommentId, topCommentId)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last(PageParam.getLimitSql(pageParam))
+                .orderByAsc(CommentDO::getId)
+                .list();
     }
 
 }

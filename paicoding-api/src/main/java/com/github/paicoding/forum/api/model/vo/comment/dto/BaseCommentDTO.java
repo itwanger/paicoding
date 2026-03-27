@@ -61,6 +61,11 @@ public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
      */
     private HighlightDto highlight;
 
+    /**
+     * 评论时间字符串（格式化后）
+     */
+    private String commentTimeStr;
+
     @Override
     public int compareTo(@NotNull BaseCommentDTO o) {
         return Long.compare(o.getCommentTime(), this.commentTime);

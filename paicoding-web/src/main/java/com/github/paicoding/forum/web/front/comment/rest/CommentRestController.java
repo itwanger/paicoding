@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.paicoding.forum.api.model.vo.comment.vo.SubCommentListVO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
@@ -157,6 +158,30 @@ public class CommentRestController {
         TopCommentDTO comments = commentReadService.queryTopComments(commentId);
         String content = templateEngineHelper.render("components/comment/comment-highlight", comments);
         return ResVo.ok(content);
+    }
+
+    /**
+     * 分页加载子评论
+     *
+     * @param topCommentId 一级评论ID
+     * @param pageNum 页码
+     * @param pageSize 每页数量
+     * @return 子评论列表
+     */
+    @Permission(role = UserRole.ALL)
+    @GetMapping(path = "subComments")
+    @ResponseBody
+    public ResVo<SubCommentListVO> getSubComments(
+            @RequestParam Long topCommentId,
+            @RequestParam Long pageNum,
+            @RequestParam Long pageSize) {
+        if (NumUtil.nullOrZero(topCommentId)) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "一级评论ID为空");
+        }
+        pageNum = Optional.ofNullable(pageNum).orElse(PageParam.DEFAULT_PAGE_NUM);
+        pageSize = Optional.ofNullable(pageSize).orElse(PageParam.DEFAULT_PAGE_SIZE);
+        SubCommentListVO result = commentReadService.getSubComments(topCommentId, PageParam.newPageInstance(pageNum, pageSize));
+        return ResVo.ok(result);
     }
 
     /**

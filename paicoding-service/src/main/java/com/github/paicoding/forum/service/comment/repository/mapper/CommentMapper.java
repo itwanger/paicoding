@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.comment.dto.CommentAdminDTO;
 import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -22,5 +23,14 @@ public interface CommentMapper extends BaseMapper<CommentDO> {
     List<CommentAdminDTO> listCommentsByParams(@Param("req") SearchCommentReq req, @Param("pageParam") PageParam pageParam);
 
     Long countCommentsByParams(@Param("req") SearchCommentReq req);
+
+    /**
+     * 批量统计子评论数量
+     *
+     * @param articleId 文章ID
+     * @param topCommentIds 一级评论ID集合
+     * @return Map<topCommentId, count>
+     */
+    List<Map<String, Object>> countSubCommentsByTopIds(@Param("articleId") Long articleId, @Param("topCommentIds") Collection<Long> topCommentIds);
 
 }

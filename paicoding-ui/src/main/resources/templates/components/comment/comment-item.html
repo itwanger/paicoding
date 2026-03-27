@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 一级评论及其回复 -->
   <div th:fragment="comment_item(comment, pos)" class="comment-list-wrap">
-    <div class="comment-item-wrap" th:id="'comment-' + ${comment.commentId}">
+    <div class="comment-item-wrap" th:id="${pos == 'bottom' ? 'comment-' + comment.commentId : pos + '-comment-' + comment.commentId}">
       <div class="comment-item-top">
         <a th:href="${'/user/' + comment.userId}" target="_blank">
           <img th:src="${comment.userPhoto}" class="comment-item-img" />
@@ -27,7 +27,7 @@
           </div>
 
           <!--   显示原文引用  -->
-          <div class="quote-text" id="quotedText" th:if="${comment.highlight != null && !#strings.isEmpty(comment.highlight.selectedText) && pos != 'side'}"
+          <div class="quote-text" th:if="${comment.highlight != null && !#strings.isEmpty(comment.highlight.selectedText) && pos != 'side'}"
                th:text="'引用原文：' + ${comment.highlight.selectedText}">
           </div>
 
@@ -47,66 +47,27 @@
       </div>
     </div>
 
-    <!-- 二级评论 -->
-    <div
-      th:if="${!#lists.isEmpty(comment.childComments)}"
-      th:each="reply : ${comment.childComments}"
-      class="comment-item-wrap-second"
-      th:id="'comment-' + ${reply.commentId}"
-    >
-      <div class="comment-item-top">
-        <a th:href="${'/user/' + reply.userId}" target="_blank">
-          <img th:src="${reply.userPhoto}" class="comment-item-img" />
-        </a>
-        <div class="common-item-content">
-          <div class="common-item-content-head">
-            <span>
-              <a
-                th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
-                th:href="${'/user/' + reply.userId}"
-                target="_blank"
-                class="comment-name"
-              ></a>
-            </span>
-            <span
-              th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(reply.commentTime)}"
-            >
-              回复时间
-            </span>
-          </div>
-          <div
-            class="common-item-content-value comment-content-markdown"
-            th:attr="data-comment-id=${reply.commentId}"
-            th:text="${reply.commentContent}"
-          >
-            回复内容
-          </div>
-          <small
-            th:if="${!#strings.isEmpty(reply.parentContent)}"
-            style="
-              display: flex;
-              background: #f2f3f5;
-              border: 1px solid #e4e6eb;
-              box-sizing: border-box;
-              border-radius: 4px;
-              padding: 0 12px;
-              line-height: 36px;
-              height: 36px;
-              font-size: 14px;
-              color: #8a919f;
-              margin-top: 8px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            "
-          >
-            <span th:text="${reply.parentContent}">回复的引用</span>
-          </small>
-          <div>
-            <div
-              th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"
-            ></div>
-          </div>
+    <!-- 展开回复按钮 (懒加载模式) -->
+    <div class="expand-replies-wrap" th:if="${comment.commentCount != null && comment.commentCount > 0}"
+         th:attr="data-top-comment-id=${comment.commentId}, data-comment-count=${comment.commentCount}">
+      <div class="expand-replies-btn c-color-main"
+           th:data-top-comment-id="${comment.commentId}"
+           th:data-page-num="1"
+           onclick="toggleSubComments(this)">
+        <svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="expand-text" th:text="'展开 ' + ${comment.commentCount} + ' 条回复'"></span>
+      </div>
+      <div class="sub-comments-container" style="display: none;">
+        <div class="loading-indicator" style="display: none; padding: 12px; text-align: center; color: #86909c;">
+          <span>加载中...</span>
         </div>
+      </div>
+      <div class="load-more-sub-comments" style="display: none;">
+        <a href="javascript:void(0)" class="c-color-main"
+           th:attr="data-top-comment-id=${comment.commentId}"
+           onclick="loadMoreSubComments(this)">展开更多回复</a>
       </div>
     </div>
   </div>

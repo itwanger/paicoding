@@ -19,6 +19,63 @@
         </symbol>
       </svg>
     </div>
+
+    <style>
+      .expand-replies-wrap {
+        margin: 10px 0 0 48px;
+      }
+      .expand-replies-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        padding: 7px 14px;
+        border: 1px solid #ffd8bf;
+        border-radius: 999px;
+        background: #fff5ec;
+        color: #ff6b35;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+      .expand-replies-btn:hover {
+        background: #ffefe2;
+        border-color: #ffbe94;
+      }
+      .expand-replies-btn .expand-icon {
+        flex: 0 0 auto;
+        transition: transform 0.2s ease;
+      }
+      .expand-replies-btn.expanded .expand-icon {
+        transform: rotate(90deg);
+      }
+      .sub-comments-container {
+        margin-top: 12px;
+        padding-left: 12px;
+        border-left: 2px solid #f2f3f5;
+      }
+      .sub-comment-item-highlight {
+        background: #fff8e8;
+        border-radius: 12px;
+        transition: background 1.2s ease;
+      }
+      .load-more-sub-comments {
+        padding: 10px 0 0 14px;
+        font-size: 13px;
+      }
+      .load-more-sub-comments a {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #f7f8fa;
+        color: #4e5969;
+      }
+      .load-more-sub-comments a:hover {
+        background: #eef1f5;
+        color: #1d2129;
+      }
+    </style>
     <div class="comment-write-wrap">
       <img
         th:if="${global.isLogin}"
@@ -144,5 +201,340 @@
         </div>
       </div>
     </div>
+
+    <script th:inline="javascript">
+      var commentListIsLogin = [[${global.isLogin}]];
+
+      function loadSubComments(topCommentId, pageNum, callback) {
+        $.ajax({
+          url: '/comment/api/subComments',
+          type: 'GET',
+          data: {
+            topCommentId: topCommentId,
+            pageNum: pageNum,
+            pageSize: 10
+          },
+          success: function(res) {
+            if (res.status && res.status.code === 0) {
+              callback(res.result);
+            } else {
+              callback(null);
+            }
+          },
+          error: function() {
+            callback(null);
+          }
+        });
+      }
+
+      function buildSubCommentHtml(reply, topCommentId) {
+        var authorTag = reply.author ? '（作者）' : '';
+        var loginAttrs = commentListIsLogin ? '' : ' data-target="#loginModal" data-toggle="modal"';
+        var parentHtml = reply.parentContent ? '<small style="display:flex;background:#f2f3f5;border:1px solid #e4e6eb;box-sizing:border-box;border-radius:4px;padding:0 12px;line-height:36px;height:36px;font-size:14px;color:#8a919f;margin-top:8px;overflow:hidden;text-overflow:ellipsis;"><span>' + escapeHtml(reply.parentContent) + '</span></small>' : '';
+
+        return '<div class="comment-item-wrap-second sub-comment-item" data-comment-id="' + reply.commentId + '">' +
+                '<div class="comment-item-top">' +
+                '<a href="/user/' + reply.userId + '" target="_blank">' +
+                '<img src="' + reply.userPhoto + '" class="comment-item-img" />' +
+                '</a>' +
+                '<div class="common-item-content">' +
+                '<div class="common-item-content-head">' +
+                '<span><a href="/user/' + reply.userId + '" target="_blank" class="comment-name">' + escapeHtml(reply.userName) + authorTag + '</a></span>' +
+                '<span>' + reply.commentTimeStr + '</span>' +
+                '</div>' +
+                '<div class="common-item-content-value comment-content-markdown" data-comment-id="' + reply.commentId + '">' + escapeHtml(reply.commentContent) + '</div>' +
+                parentHtml +
+                '<div class="action-box">' +
+                '<div class="item dig-item"' + loginAttrs +
+                ' data-comment-id="' + reply.commentId + '"' +
+                ' data-praise-count="' + reply.praiseCount + '"' +
+                ' data-praised="' + !!reply.praised + '"' +
+                ' onclick="praiseComment(this, ' + commentListIsLogin + ')">' +
+                '<svg width="16" height="16"><use xlink:href="#icon-zan"></use></svg>' +
+                '<span>' + (reply.praiseCount > 0 ? reply.praiseCount : '点赞') + '</span>' +
+                '</div>' +
+                '<div class="item reply-comment hf-con-block"' + loginAttrs +
+                ' data-reply-top="' + topCommentId + '"' +
+                ' data-reply-id="' + reply.commentId + '"' +
+                ' data-reply-nickname="' + escapeHtml(reply.userName) + '"' +
+                ' data-reply-content="' + escapeHtml(reply.commentContent) + '"' +
+                (commentListIsLogin ? ' onclick="toggleDynamicReply(this)"' : '') + '>' +
+                '<svg width="16" height="16"><use xlink:href="#icon-comment"></use></svg>' +
+                '<span class="reply-comment-text">回复</span>' +
+                '<span class="reply-comment-text-none">取消回复</span>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+      }
+
+      function escapeHtml(text) {
+        if (!text) {
+          return '';
+        }
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function renderSubComments(subComments, container, topCommentId) {
+        subComments.forEach(function(reply) {
+          if (container.find('.sub-comment-item[data-comment-id="' + reply.commentId + '"]').length === 0) {
+            container.append(buildSubCommentHtml(reply, topCommentId));
+          }
+        });
+      }
+
+      function bindDynamicReplyInput(input) {
+        input.off('input.dynamicReply propertychange.dynamicReply')
+                .on('input.dynamicReply propertychange.dynamicReply', function() {
+                  var submitBtn = $(this).siblings('.hf-pl');
+                  if ($(this).val()) {
+                    submitBtn.attr('disabled', false).removeClass('hf-pl--disabled');
+                  } else {
+                    submitBtn.attr('disabled', true).addClass('hf-pl--disabled');
+                  }
+                });
+      }
+
+      window.submitDynamicReply = function(btn) {
+        var currentDom = $(btn);
+        var replyContent = currentDom.siblings('.hf-input');
+        var replyBtn = currentDom.closest('.common-item-content').find('.reply-comment').first();
+        var targetTopCommentId = replyBtn.attr('data-reply-top');
+        var currentWrap = currentDom.closest('.expand-replies-wrap');
+
+        if (!replyContent.val()) {
+          toastr.error('回复内容不能为空');
+          return;
+        }
+
+        currentDom.attr('disabled', true).addClass('hf-pl--disabled');
+        var params = {
+          articleId: $('#postsTitle').attr('data-id'),
+          commentContent: replyContent.val(),
+          parentCommentId: replyBtn.attr('data-reply-id'),
+          topCommentId: replyBtn.attr('data-reply-top')
+        };
+
+        $.ajax({
+          method: 'POST',
+          url: '/comment/api/post',
+          contentType: 'application/json',
+          data: JSON.stringify(params),
+          success: function(data) {
+            if (!data || !data.status || data.status.code !== 0) {
+              currentDom.attr('disabled', false).removeClass('hf-pl--disabled');
+              toastr.error(data && data.status ? data.status.msg : '评论失败');
+              return;
+            }
+            toastr.success('评论成功');
+            currentDom.closest('.hf-con').remove();
+            replyBtn.addClass('hf-con-block');
+            replyBtn.find('.reply-comment-text').show();
+            replyBtn.find('.reply-comment-text-none').hide();
+            if (currentWrap.length && targetTopCommentId) {
+              refreshExpandedSubComments(currentWrap, targetTopCommentId, function(success) {
+                if (success) {
+                  highlightLatestSubComment(currentWrap);
+                }
+              });
+            }
+          },
+          error: function() {
+            currentDom.attr('disabled', false).removeClass('hf-pl--disabled');
+            toastr.error('出现bug了，热心反馈下吧!');
+          }
+        });
+      }
+
+      window.toggleDynamicReply = function(btn) {
+        var currentDom = $(btn);
+        $('.hf-con').remove();
+        $('.reply-comment').each(function() {
+          $(this).addClass('hf-con-block');
+          $(this).find('.reply-comment-text').show();
+          $(this).find('.reply-comment-text-none').hide();
+        });
+
+        var fhName = currentDom.closest('.common-item-content').find('.comment-name').html();
+        var fhHtml = '<div class="hf-con pull-left"><textarea class="hf-input" placeholder=""></textarea><button type="button" disabled class="hf-pl hf-pl--disabled" onclick="submitDynamicReply(this)">评论</button></div>';
+
+        if (currentDom.is('.hf-con-block')) {
+          currentDom.closest('.common-item-content').append(fhHtml);
+          currentDom.removeClass('hf-con-block');
+          var replyInput = currentDom.closest('.common-item-content')
+                  .find('.hf-input')
+                  .last();
+          replyInput
+                  .val('')
+                  .focus()
+                  .attr('placeholder', '回复@' + fhName + '：');
+          bindDynamicReplyInput(replyInput);
+          currentDom.find('.reply-comment-text').hide();
+          currentDom.find('.reply-comment-text-none').show();
+          return;
+        }
+
+        currentDom.addClass('hf-con-block');
+        currentDom.closest('.common-item-content').find('.pull-left').remove();
+        currentDom.find('.reply-comment-text').show();
+        currentDom.find('.reply-comment-text-none').hide();
+      }
+
+      function updateExpandText(expandText, totalCount, loadedCount) {
+        var remaining = totalCount - loadedCount;
+        if (remaining > 0) {
+          expandText.text('收起回复（还有 ' + remaining + ' 条）');
+        } else {
+          expandText.text('收起回复');
+        }
+      }
+
+      function showLoadMoreButton(wrap, hasMore) {
+        wrap.data('has-more', hasMore);
+        var btnWrap = wrap.find('.load-more-sub-comments').first();
+        if (hasMore) {
+          btnWrap.show();
+        } else {
+          btnWrap.hide();
+        }
+      }
+
+      function highlightLatestSubComment(wrap) {
+        var latestComment = wrap.find('.sub-comment-item').last();
+        if (!latestComment.length) {
+          return;
+        }
+        latestComment.addClass('sub-comment-item-highlight');
+        latestComment[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function() {
+          latestComment.removeClass('sub-comment-item-highlight');
+        }, 1800);
+      }
+
+      function updateTopCommentReplyText(wrap, totalCount) {
+        var topReplyText = wrap.prev('.comment-item-wrap').find('.reply-comment-text').first();
+        if (!topReplyText.length) {
+          return;
+        }
+        topReplyText.text(totalCount > 0 ? '回复' + totalCount : '回复');
+      }
+
+      function refreshExpandedSubComments(wrap, topCommentId, callback) {
+        var container = wrap.find('.sub-comments-container').first();
+        var loadingIndicator = container.find('.loading-indicator');
+        var expandBtn = wrap.find('.expand-replies-btn').first();
+        var expandText = expandBtn.find('.expand-text');
+
+        container.children('.sub-comment-item').remove();
+        container.show();
+        loadingIndicator.show();
+        expandBtn.addClass('expanded');
+        wrap.find('.load-more-sub-comments').hide();
+
+        function loadAllPages(pageNum, totalCount) {
+          loadSubComments(topCommentId, pageNum, function(result) {
+            if (!result || !result.list) {
+              loadingIndicator.hide();
+              if (callback) {
+                callback(false);
+              }
+              return;
+            }
+
+            var latestTotal = result.total || totalCount || 0;
+            renderSubComments(result.list, container, topCommentId);
+            wrap.data('comment-count', latestTotal);
+            updateTopCommentReplyText(wrap, latestTotal);
+            updateExpandText(expandText, latestTotal, container.children('.sub-comment-item').length);
+
+            if (result.hasMore) {
+              loadAllPages(pageNum + 1, latestTotal);
+              return;
+            }
+
+            loadingIndicator.hide();
+            showLoadMoreButton(wrap, false);
+            updateExpandText(expandText, latestTotal, container.children('.sub-comment-item').length);
+            if (callback) {
+              callback(true);
+            }
+          });
+        }
+
+        loadAllPages(1, parseInt(wrap.data('comment-count'), 10) || 0);
+      }
+
+      function toggleSubComments(btn) {
+        var $btn = $(btn);
+        var wrap = $btn.closest('.expand-replies-wrap');
+        var topCommentId = $btn.data('top-comment-id');
+        var container = wrap.find('.sub-comments-container').first();
+        var loadingIndicator = container.find('.loading-indicator');
+        var expandText = $btn.find('.expand-text');
+
+        if (container.children('.sub-comment-item').length === 0) {
+          loadingIndicator.show();
+          $btn.addClass('expanded');
+
+          loadSubComments(topCommentId, 1, function(result) {
+            loadingIndicator.hide();
+            if (result && result.list && result.list.length > 0) {
+              renderSubComments(result.list, container, topCommentId);
+              container.show();
+              updateExpandText(expandText, result.total, container.children('.sub-comment-item').length);
+              showLoadMoreButton(wrap, result.hasMore);
+            } else {
+              showLoadMoreButton(wrap, false);
+              expandText.text('暂无回复');
+            }
+          });
+          return;
+        }
+
+        if (container.is(':visible')) {
+          container.slideUp();
+          wrap.find('.load-more-sub-comments').hide();
+          $btn.removeClass('expanded');
+          expandText.text('展开 ' + wrap.data('comment-count') + ' 条回复');
+          return;
+        }
+
+        container.slideDown();
+        if (wrap.data('has-more')) {
+          wrap.find('.load-more-sub-comments').show();
+        }
+        $btn.addClass('expanded');
+        updateExpandText(expandText, wrap.data('comment-count'), container.children('.sub-comment-item').length);
+      }
+
+      window.loadMoreSubComments = function(btn) {
+        var $btn = $(btn);
+        var wrap = $btn.closest('.expand-replies-wrap');
+        var topCommentId = $btn.data('top-comment-id');
+        var container = wrap.find('.sub-comments-container').first();
+        var loadedCount = container.children('.sub-comment-item').length;
+        var pageNum = Math.floor(loadedCount / 10) + 1;
+
+        $btn.text('加载中...');
+
+        loadSubComments(topCommentId, pageNum, function(result) {
+          if (result && result.list && result.list.length > 0) {
+            renderSubComments(result.list, container, topCommentId);
+            updateExpandText(wrap.find('.expand-text').first(), result.total, container.children('.sub-comment-item').length);
+            showLoadMoreButton(wrap, result.hasMore);
+            $btn.text(result.hasMore ? '展开更多回复' : '没有更多了');
+            if (!result.hasMore) {
+              $btn.off('click');
+            }
+            return;
+          }
+
+          showLoadMoreButton(wrap, false);
+          $btn.text('没有更多了').off('click');
+        });
+      }
+    </script>
   </div>
 </html>

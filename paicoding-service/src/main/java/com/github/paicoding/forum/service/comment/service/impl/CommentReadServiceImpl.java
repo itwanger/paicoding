@@ -9,6 +9,7 @@ import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.comment.dto.BaseCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.SubCommentDTO;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.paicoding.forum.api.model.vo.comment.vo.SubCommentListVO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.MapUtils;
@@ -76,18 +77,22 @@ public class CommentReadServiceImpl implements CommentReadService {
         // map 存 commentId -> 评论
         Map<Long, TopCommentDTO> topComments = comments.stream().collect(Collectors.toMap(CommentDO::getId, CommentConverter::toTopDto));
 
-        // 2.查询非一级评论
-        List<CommentDO> subComments = commentDao.listSubCommentIdMappers(articleId, topComments.keySet());
-        sanitizeCommentContents(subComments, bypassCache);
+        // 2.统计每个一级评论的子评论数量（不再加载完整子评论列表）
+        Map<Long, Integer> subCommentCountMap = commentDao.countSubComments(articleId, topComments.keySet());
 
-        // 3.构建一级评论的子评论
-        buildCommentRelation(subComments, topComments);
+        // 3.设置子评论数量和是否有更多标志
+        topComments.forEach((commentId, dto) -> {
+            Integer childCount = subCommentCountMap.getOrDefault(commentId, 0);
+            dto.setCommentCount(childCount);
+            dto.setChildCommentCount(childCount);
+            dto.setHasMoreChild(childCount > 0);
+        });
 
         // 4.挑出需要返回的数据，排序，并补齐对应的用户信息，最后排序返回
         List<TopCommentDTO> result = new ArrayList<>();
         comments.forEach(comment -> {
             TopCommentDTO dto = topComments.get(comment.getId());
-            fillTopCommentInfo(dto);
+            fillTopCommentInfoLazy(dto);
             result.add(dto);
         });
 
@@ -126,6 +131,9 @@ public class CommentReadServiceImpl implements CommentReadService {
         fillCommentInfo(comment);
         comment.getChildComments().forEach(this::fillCommentInfo);
         Collections.sort(comment.getChildComments());
+        comment.setCommentCount(comment.getChildComments().size());
+        comment.setChildCommentCount(comment.getChildComments().size());
+        comment.setHasMoreChild(false);
     }
 
     /**
@@ -139,15 +147,9 @@ public class CommentReadServiceImpl implements CommentReadService {
             // 如果用户注销，给一个默认的用户
             comment.setUserName("默认用户");
             comment.setUserPhoto("");
-            if (comment instanceof TopCommentDTO) {
-                ((TopCommentDTO) comment).setCommentCount(0);
-            }
         } else {
             comment.setUserName(userInfoDO.getUserName());
             comment.setUserPhoto(userInfoDO.getPhoto());
-            if (comment instanceof TopCommentDTO) {
-                ((TopCommentDTO) comment).setCommentCount(((TopCommentDTO) comment).getChildComments().size());
-            }
         }
 
         // 查询点赞数
@@ -163,6 +165,9 @@ public class CommentReadServiceImpl implements CommentReadService {
         } else {
             comment.setPraised(false);
         }
+
+        // 设置评论时间字符串
+        comment.setCommentTimeStr(com.github.paicoding.forum.core.util.DateUtil.time2day(comment.getCommentTime()));
     }
 
     /**
@@ -195,6 +200,103 @@ public class CommentReadServiceImpl implements CommentReadService {
     @Override
     public int queryCommentCount(Long articleId) {
         return commentDao.commentCount(articleId);
+    }
+
+
+    /**
+     * 懒加载模式：填充一级评论信息（不包含子评论详情）
+     */
+    private void fillTopCommentInfoLazy(TopCommentDTO comment) {
+        fillCommentInfo(comment);
+        // 懒加载模式下不填充子评论详情
+    }
+
+
+    /**
+     * 统计一级评论的子评论数量
+     *
+     * @param topCommentId 一级评论ID
+     * @return 子评论数量
+     */
+    @Override
+    public int countSubComments(Long topCommentId) {
+        return commentDao.countReplyByTopCommentId(topCommentId).intValue();
+    }
+
+
+    /**
+     * 分页查询子评论
+     *
+     * @param topCommentId 一级评论ID
+     * @param page 分页参数
+     * @return 子评论列表
+     */
+    @Override
+    public SubCommentListVO getSubComments(Long topCommentId, PageParam page) {
+        SubCommentListVO result = new SubCommentListVO();
+
+        // 1. 查询子评论总数
+        int total = countSubComments(topCommentId);
+        result.setTotal(total);
+
+        if (total == 0) {
+            result.setList(Collections.emptyList());
+            result.setHasMore(false);
+            return result;
+        }
+
+        // 2. 分页查询子评论
+        List<CommentDO> subCommentDOs = commentDao.listSubComments(topCommentId, page);
+        if (CollectionUtils.isEmpty(subCommentDOs)) {
+            result.setList(Collections.emptyList());
+            result.setHasMore(false);
+            return result;
+        }
+
+        // 3. 敏感词处理
+        Map<Long, Boolean> bypassCache = new HashMap<>();
+        sanitizeCommentContents(subCommentDOs, bypassCache);
+
+        // 4. 转换为DTO
+        List<SubCommentDTO> subComments = subCommentDOs.stream()
+                .map(CommentConverter::toSubDto)
+                .collect(Collectors.toList());
+
+        // 5. 构建父子关系（用于设置parentContent）
+        // 获取一级评论信息
+        CommentDO topComment = commentDao.getById(topCommentId);
+        if (topComment != null) {
+            sanitizeCommentContents(Collections.singletonList(topComment), bypassCache);
+            // 查询所有子评论（不分页）用于构建回复关系
+            List<CommentDO> allSubComments = commentDao.listSubCommentIdMappers(topComment.getArticleId(), Collections.singletonList(topCommentId));
+            sanitizeCommentContents(allSubComments, bypassCache);
+            Map<Long, SubCommentDTO> allSubCommentMap = allSubComments.stream()
+                    .collect(Collectors.toMap(CommentDO::getId, CommentConverter::toSubDto));
+
+            // 设置parentContent
+            subComments.forEach(sub -> {
+                if (Objects.equals(sub.getParentCommentId(), topCommentId)) {
+                    sub.setParentContent(topComment.getContent());
+                    return;
+                }
+                SubCommentDTO parent = allSubCommentMap.get(sub.getParentCommentId());
+                sub.setParentContent(parent == null ? "~~已删除~~" : parent.getCommentContent());
+            });
+        }
+
+        // 6. 按时间排序
+        Collections.sort(subComments, (a, b) -> Long.compare(a.getCommentTime(), b.getCommentTime()));
+
+        // 7. 填充用户信息、点赞等
+        subComments.forEach(this::fillCommentInfo);
+
+        result.setList(subComments);
+
+        // 8. 计算是否有更多
+        long loadedCount = (page.getPageNum() - 1) * page.getPageSize() + subComments.size();
+        result.setHasMore(loadedCount < total);
+
+        return result;
     }
 
 
