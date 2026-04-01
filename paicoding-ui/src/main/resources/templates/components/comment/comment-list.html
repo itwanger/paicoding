@@ -443,7 +443,9 @@
           $(this).find('.reply-comment-text-none').hide();
         });
 
-        var fhName = currentDom.closest('.common-item-content').find('.comment-name').html();
+        var fhName = currentDom.attr('data-reply-nickname') ||
+                currentDom.closest('.common-item-content').find('.comment-name').first().text();
+        fhName = fhName ? fhName.trim() : '';
         var fhHtml = '<div class="hf-con pull-left"><textarea class="hf-input" placeholder=""></textarea><button type="button" disabled class="hf-pl hf-pl--disabled" onclick="submitDynamicReply(this)">评论</button></div>';
 
         if (currentDom.is('.hf-con-block')) {
@@ -471,11 +473,26 @@
       function showLoadMoreButton(wrap, hasMore) {
         wrap.data('has-more', hasMore);
         var btnWrap = wrap.find('.load-more-sub-comments').first();
+        var loadMoreBtn = btnWrap.find('a').first();
         if (hasMore) {
+          updateLoadMoreText(wrap);
           btnWrap.show();
         } else {
+          if (loadMoreBtn.length) {
+            loadMoreBtn.text('没有更多了');
+          }
           btnWrap.hide();
         }
+      }
+
+      function setLoadMorePageNum(wrap, pageNum) {
+        var nextPage = pageNum || 1;
+        var loadMoreBtn = wrap.find('.load-more-sub-comments a').first();
+        if (!loadMoreBtn.length) {
+          return;
+        }
+        loadMoreBtn.attr('data-page-num', nextPage);
+        loadMoreBtn.data('page-num', nextPage);
       }
 
       function getPreloadedCount(wrap) {
@@ -512,9 +529,27 @@
           return;
         }
 
-        var remaining = Math.max(0, getTotalCount(wrap) - getLoadedCount(wrap));
-        expandText.text(remaining > 0 ? '收起回复（还有 ' + remaining + ' 条）' : '收起回复');
+        expandText.text('收起回复');
         expandBtn.addClass('expanded');
+      }
+
+      function setLoadMorePageNum(wrap, pageNum) {
+        var nextPage = pageNum || 1;
+        var loadMoreBtn = wrap.find('.load-more-sub-comments a').first();
+        if (!loadMoreBtn.length) {
+          return;
+        }
+        loadMoreBtn.attr('data-page-num', nextPage);
+        loadMoreBtn.data('page-num', nextPage);
+      }
+
+      function updateLoadMoreText(wrap) {
+        var loadMoreBtn = wrap.find('.load-more-sub-comments a').first();
+        if (!loadMoreBtn.length) {
+          return;
+        }
+        var remaining = Math.max(0, getTotalCount(wrap) - getLoadedCount(wrap));
+        loadMoreBtn.text(remaining > 0 ? '展开剩余 ' + remaining + ' 条回复' : '没有更多了');
       }
 
       function setReplyToggleVisibility(wrap, totalCount) {
@@ -596,6 +631,7 @@
             updateExpandText(wrap, true);
 
             if (result.hasMore) {
+              setLoadMorePageNum(wrap, pageNum + 1);
               loadAllPages(pageNum + 1, latestTotal);
               return;
             }
@@ -650,6 +686,7 @@
               wrap.data('comment-count', result.total || wrap.data('comment-count'));
               setReplyToggleVisibility(wrap, result.total || wrap.data('comment-count'));
               updateExpandText(wrap, true);
+              setLoadMorePageNum(wrap, Math.floor(loadedCount / 10) + 2);
               showLoadMoreButton(wrap, result.hasMore);
             } else {
               showLoadMoreButton(wrap, false);
@@ -672,8 +709,7 @@
         var wrap = $btn.closest('.expand-replies-wrap');
         var topCommentId = $btn.data('top-comment-id');
         var container = wrap.find('.sub-comments-container').first();
-        var loadedCount = container.children('.sub-comment-item').length;
-        var pageNum = Math.floor(loadedCount / 10) + 1;
+        var pageNum = parseInt($btn.attr('data-page-num'), 10) || 1;
 
         $btn.text('加载中...');
 
@@ -683,8 +719,8 @@
             wrap.data('comment-count', result.total || wrap.data('comment-count'));
             setReplyToggleVisibility(wrap, result.total || wrap.data('comment-count'));
             updateExpandText(wrap, true);
+            setLoadMorePageNum(wrap, pageNum + 1);
             showLoadMoreButton(wrap, result.hasMore);
-            $btn.text(result.hasMore ? '展开更多回复' : '没有更多了');
             if (!result.hasMore) {
               $btn.off('click');
             }

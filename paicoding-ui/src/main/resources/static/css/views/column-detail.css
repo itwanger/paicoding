@@ -62,8 +62,28 @@
 
 .column.toc-container .widget {
   background-color: var(--pai-color-fff-normal); /* 背景色设置在内部容器 */
-  padding: 20px;
+  padding: 12px;
   margin-right: 12px; /* 右侧留出滚动条空间 */
+}
+
+.column.toc-container.highlight-sidebar-active {
+  width: 310px;
+}
+
+.column.toc-container.highlight-sidebar-active.underline {
+  width: 320px;
+}
+
+.column.toc-container.highlight-sidebar-active #quoteCommentSidebar .widget {
+  padding: 0;
+  margin-right: 0;
+}
+
+.column.toc-container.highlight-sidebar-active #quoteCommentSidebar {
+  top: 0 !important;
+  padding: 20px;
+  margin-top: 0;
+  max-height: calc(100vh - 80px);
 }
 
 /* 分组标题样式 */

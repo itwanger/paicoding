@@ -1356,7 +1356,6 @@ button:focus {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
   max-height: 80vh;
   margin-top: 20px;
   overflow-y: auto;
@@ -1668,11 +1667,30 @@ button:focus {
 }
 
 .highlight-comment-thread .expand-replies-btn {
-  padding: 6px 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  color: #667085;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid #ffd8bf;
+  border-radius: 999px;
+  background: #fff5ec;
+  color: #ff6b35;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgba(255, 107, 53, 0.08);
+  transition: all 0.2s ease;
+}
+
+.highlight-comment-thread .expand-replies-btn:hover {
+  background: #ffefe2;
+  border-color: #ffbe94;
+  color: #ff6b35;
+  box-shadow: 0 10px 24px rgba(255, 107, 53, 0.12);
+}
+
+.highlight-comment-thread .expand-replies-btn .expand-icon {
+  flex: 0 0 auto;
 }
 
 .highlight-comment-thread .sub-comments-container {
@@ -1734,6 +1752,24 @@ button:focus {
 
 .highlight-comment-thread .load-more-sub-comments {
   padding: 4px 0 0;
+}
+
+.highlight-comment-thread .load-more-sub-comments a {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid #e7ecf3;
+  border-radius: 999px;
+  background: #fff;
+  color: #667085;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  transition: all 0.2s ease;
+}
+
+.highlight-comment-thread .load-more-sub-comments a:hover {
+  border-color: #ffbe94;
+  background: #fff8f2;
+  color: #ff6b35;
 }
 
 #quoteCommentModal .highlight-comment-thread__close {

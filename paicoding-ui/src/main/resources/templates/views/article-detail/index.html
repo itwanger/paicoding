@@ -310,6 +310,31 @@
           }
       });
 
+      function scrollToLatestTopComment(commentContent) {
+        const trimmedContent = commentContent ? commentContent.trim() : ""
+        const commentItems = document.querySelectorAll("#commentDiv .all-comment-items .all-comment-item .comment-item-wrap")
+        let targetComment = null
+
+        if (trimmedContent) {
+          targetComment = Array.from(commentItems).find(function (item) {
+            const contentNode = item.querySelector(".common-item-content-value")
+            return contentNode && contentNode.innerText && contentNode.innerText.trim().indexOf(trimmedContent) >= 0
+          })
+        }
+
+        if (!targetComment) {
+          targetComment = document.querySelector("#commentDiv .all-comment-items .all-comment-item:first-child .comment-item-wrap")
+        }
+
+        if (!targetComment) {
+          targetComment = document.getElementById("commentList")
+        }
+
+        if (targetComment && typeof targetComment.scrollIntoView === "function") {
+          targetComment.scrollIntoView({ behavior: "smooth", block: "center" })
+        }
+      }
+
       function bindCommentInputEvent() {
         // 直接评论
         const commentContent = $("#commentContent")
@@ -320,6 +345,7 @@
             toastr.error("评论内容长度要求在[1,512]之间")
             return
           }
+          const submittedContent = content.trim()
           // 提交评论
           const params = {
             // 文章id
@@ -331,6 +357,9 @@
             // 使用 Ajax 的方式，直接更新评论列表
             document.getElementById("commentDiv").innerHTML = data
             bindCommentInputEvent()
+            window.requestAnimationFrame(function () {
+              scrollToLatestTopComment(submittedContent)
+            })
           })
         });
 
@@ -372,10 +401,13 @@
         $(".hf-con").remove()
 
         // 获取回复人的名字
-        var fhName = currentDom
-                .parents(".common-item-content")
-                .find(".comment-name")
-                .html()
+        var fhName = currentDom.attr("data-reply-nickname") ||
+                currentDom
+                        .parents(".common-item-content")
+                        .find(".comment-name")
+                        .first()
+                        .text()
+        fhName = fhName ? fhName.trim() : ""
         //回复@
         var fhN = "回复@" + fhName + "："
         var fhHtml =
@@ -437,7 +469,9 @@
             showQuoteCommentWithComments(replyBtn.attr("data-reply-top"));
           }
 
-          const currentWrap = currentDom.closest(".expand-replies-wrap")
+          const currentWrap = currentDom.closest(".expand-replies-wrap").length
+            ? currentDom.closest(".expand-replies-wrap")
+            : currentDom.closest(".comment-item-wrap").next(".expand-replies-wrap")
           const topCommentId = replyBtn.attr("data-reply-top")
 
           if (currentWrap.length && topCommentId && typeof refreshExpandedSubComments === "function") {

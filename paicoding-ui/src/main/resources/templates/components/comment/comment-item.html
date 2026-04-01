@@ -195,8 +195,9 @@
       </div>
       <div class="load-more-sub-comments" style="display: none;">
         <a href="javascript:void(0)" class="c-color-main"
-           th:attr="data-top-comment-id=${comment.commentId}"
-           onclick="loadMoreSubComments(this)">展开更多回复</a>
+           th:attr="data-top-comment-id=${comment.commentId},data-page-num=${comment.childComments != null && !#lists.isEmpty(comment.childComments) ? 2 : 1}"
+           th:text="'展开剩余 ' + ${comment.childCommentCount - (comment.childComments != null ? #lists.size(comment.childComments) : 0)} + ' 条回复'"
+           onclick="loadMoreSubComments(this)">展开剩余回复</a>
       </div>
     </div>
   </div>

@@ -43,6 +43,7 @@ function toggleHighlightSidebarMode(active) {
     const host = getSidebarHost();
 
     if (host) {
+        host.classList.toggle('highlight-sidebar-active', !!active);
         if (active) {
             if (!hiddenSidebars.length) {
                 hiddenSidebars = Array.from(host.children)
@@ -70,8 +71,12 @@ function toggleHighlightSidebarMode(active) {
         sidebar.style.visibility = active ? 'visible' : 'hidden';
         if (active) {
             sidebar.style.position = 'sticky';
-            sidebar.style.top = '20px';
+            sidebar.style.top = '';
         }
+    }
+
+    if (typeof window.adjustContentWidth === 'function') {
+        window.adjustContentWidth();
     }
 
     syncSidebarCompanions();

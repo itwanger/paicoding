@@ -174,11 +174,21 @@
   overflow-y: auto; /* 滚动在widget层 */
 }
 
+.article-detail #quoteCommentSidebar {
+  top: 0;
+  margin-top: 0;
+}
+
+.article-detail #quoteCommentSidebar .widget {
+  padding: 20px;
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+
 /* 移除arCatalog-body的滚动，让它和arCatalog-line作为一个整体 */
 .article-detail .toc-container .arCatalog-body {
   overflow-y: visible !important; /* 覆盖global.css和JS设置的overflow */
   max-height: none !important; /* 移除高度限制 */
   height: auto !important; /* 让高度自适应内容 */
 }
-
 
