@@ -279,6 +279,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
      * @param articleId
      * @param columnId
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveColumnArticle(Long articleId, Long columnId) {
         // 转换参数
         // 插入的时候，需要判断是否已经存在
@@ -300,6 +301,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             columnArticleDO.setSection(maxSection + 1);
             columnArticleDao.save(columnArticleDO);
         }
+
+        this.autoUpdateColumnArticleSections(columnId);
     }
 
     @Override
@@ -331,6 +334,8 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             articleDO.setId(req.getArticleId());
             articleDao.updateById(articleDO);
         }
+
+        this.autoUpdateColumnArticleSections(columnArticleDO.getColumnId());
     }
 
     @Override

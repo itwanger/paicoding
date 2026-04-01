@@ -1,6 +1,5 @@
 package com.github.paicoding.forum.service.article.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
@@ -21,11 +20,13 @@ import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
+import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +47,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Autowired
     private ColumnArticleDao columnArticleDao;
+
+    @Autowired
+    private ColumnSettingService columnSettingService;
 
     @Autowired
     private SlugGeneratorService slugGeneratorService;
@@ -115,15 +119,15 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteArticle(Long articleId) {
         ArticleDO dto = articleDao.getById(articleId);
         if (dto != null && dto.getDeleted() != YesOrNoEnum.YES.getCode()) {
-            // 查询该文章是否关联了教程，如果已经关联了教程，则不能删除
-            long count = columnArticleDao.count(
-                    Wrappers.<ColumnArticleDO>lambdaQuery().eq(ColumnArticleDO::getArticleId, articleId));
-
-            if (count > 0) {
-                throw ExceptionUtil.of(StatusEnum.ARTICLE_RELATION_TUTORIAL, articleId, "请先解除文章与教程的关联关系");
+            List<ColumnArticleDO> relations = columnArticleDao.listByArticleId(articleId);
+            if (!relations.isEmpty()) {
+                for (ColumnArticleDO relation : relations) {
+                    columnSettingService.deleteColumnArticle(relation.getId());
+                }
             }
 
             dto.setDeleted(YesOrNoEnum.YES.getCode());
