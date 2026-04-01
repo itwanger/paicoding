@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:with="article=${vo.article}" th:each="comment : ${vo.comments}">
+    <div th:replace="components/comment/comment-item :: comment_item(${comment}, 'bottom')"></div>
+  </div>
+</html>

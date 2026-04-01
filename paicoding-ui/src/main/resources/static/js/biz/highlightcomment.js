@@ -6,6 +6,76 @@ let toSaveSelection = null;
 let hiddenSidebars = [];
 // 标记是否正在处理评论图标点击
 let isHandlingCommentIcon = false;
+let quoteSidebarGlobalEventsBound = false;
+
+function getHighlightSidebar() {
+    return document.getElementById('quoteCommentSidebar');
+}
+
+function getSidebarHost() {
+    const sidebar = getHighlightSidebar();
+    return sidebar ? sidebar.parentElement : null;
+}
+
+function normalizeHighlightSidebarState() {
+    const sidebar = getHighlightSidebar();
+    if (!sidebar) {
+        return;
+    }
+
+    // 清理可能导致整个侧栏被意外隐藏的临时类名。
+    sidebar.classList.remove('__web-inspector-hide-shortcut__');
+    sidebar.style.visibility = 'visible';
+
+    const widget = sidebar.querySelector('.widget');
+    if (widget) {
+        widget.style.visibility = 'visible';
+    }
+}
+
+function syncSidebarCompanions() {
+    // 触发目录/PDF 侧栏的滚动态刷新，让划词评论模式即时接管右侧区域。
+    window.dispatchEvent(new Event('scroll'));
+}
+
+function toggleHighlightSidebarMode(active) {
+    const sidebar = getHighlightSidebar();
+    const host = getSidebarHost();
+
+    if (host) {
+        if (active) {
+            if (!hiddenSidebars.length) {
+                hiddenSidebars = Array.from(host.children)
+                    .filter(el => el !== sidebar)
+                    .map(el => ({
+                        element: el,
+                        display: el.style.display || ''
+                    }));
+            }
+
+            hiddenSidebars.forEach(item => {
+                item.element.style.display = 'none';
+            });
+        } else if (hiddenSidebars.length) {
+            hiddenSidebars.forEach(item => {
+                item.element.style.display = item.display;
+            });
+            hiddenSidebars = [];
+        }
+    }
+
+    if (sidebar) {
+        normalizeHighlightSidebarState();
+        sidebar.style.display = active ? 'block' : 'none';
+        sidebar.style.visibility = active ? 'visible' : 'hidden';
+        if (active) {
+            sidebar.style.position = 'sticky';
+            sidebar.style.top = '20px';
+        }
+    }
+
+    syncSidebarCompanions();
+}
 
 // 检测是否为移动设备
 function isMobileDevice() {
@@ -184,9 +254,20 @@ function loadCommentData(commentId, isModal) {
         if (data && data.status && data.status.code === 0) {
             // 处理获取到的评论数据
             if (isModal) {
-                document.getElementById('quoteCommentModal').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.result}</div>`;
+                const modal = document.getElementById('quoteCommentModal');
+                modal.innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.result}</div>`;
+                decorateHighlightThread(modal);
+                if (window.autoExpandSingleReplyWraps) {
+                    window.autoExpandSingleReplyWraps(modal);
+                }
             } else {
-                document.getElementById('quoteCommentSidebar').innerHTML = data.result;
+                const sidebar = getHighlightSidebar();
+                sidebar.innerHTML = data.result;
+                decorateHighlightThread(sidebar);
+                normalizeHighlightSidebarState();
+                if (window.autoExpandSingleReplyWraps) {
+                    window.autoExpandSingleReplyWraps(sidebar);
+                }
             }
         } else {
             console.log('请求数据异常!', data);
@@ -194,6 +275,71 @@ function loadCommentData(commentId, isModal) {
     }).fail(function () {
 
     });
+}
+
+function decorateHighlightThread(container) {
+    if (!container) {
+        return;
+    }
+
+    const widget = container.querySelector('.widget');
+    if (!widget) {
+        return;
+    }
+
+    widget.classList.add('highlight-comment-thread');
+    if (widget.id === 'commentList') {
+        widget.id = 'highlightCommentList';
+    }
+
+    const title = widget.querySelector('.com-nav-bar-title');
+    const isSidebarContainer = container.id === 'quoteCommentSidebar';
+    if (title && (!title.parentElement || !title.parentElement.classList.contains('highlight-comment-thread__head-main'))) {
+        const existingHead = title.parentElement && title.parentElement.classList.contains('highlight-comment-thread__head')
+            ? title.parentElement
+            : null;
+        const head = existingHead || document.createElement('div');
+        head.className = 'highlight-comment-thread__head';
+        const headMain = document.createElement('div');
+        headMain.className = 'highlight-comment-thread__head-main';
+
+        if (!existingHead) {
+            title.parentNode.insertBefore(head, title);
+        }
+
+        head.appendChild(headMain);
+        headMain.appendChild(title);
+
+        const desc = document.createElement('p');
+        desc.className = 'highlight-comment-thread__desc';
+        desc.textContent = '围绕这段划线内容的讨论';
+        headMain.appendChild(desc);
+    }
+
+    const head = widget.querySelector('.highlight-comment-thread__head');
+    if (head && isSidebarContainer && !head.querySelector('.highlight-comment-thread__close')) {
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'highlight-comment-thread__close';
+        closeBtn.setAttribute('aria-label', '关闭划线评论');
+        closeBtn.textContent = '×';
+        head.appendChild(closeBtn);
+    }
+
+    const quoteContent = widget.querySelector('.quote-content');
+    const quoteText = quoteContent ? quoteContent.querySelector('.quote-text') : null;
+    if (quoteContent && quoteText && !quoteContent.querySelector('.highlight-comment-thread__quote-label')) {
+        const label = document.createElement('div');
+        label.className = 'highlight-comment-thread__quote-label';
+        label.textContent = '划线片段';
+        quoteContent.insertBefore(label, quoteText);
+    }
+
+    const count = 1 + Number(widget.querySelector('.expand-replies-wrap')?.dataset.commentCount || 0);
+    const titleNode = widget.querySelector('.com-nav-bar-title');
+    if (titleNode && count > 0 && isSidebarContainer) {
+        titleNode.textContent = `划线评论（${count}）`;
+    }
 }
 
 
@@ -289,16 +435,10 @@ function showQuoteCommentWithComments(commentId) {
         }
     } else {
         // 显示引用评论侧边栏并加载评论数据
-        const sidebar = document.getElementById('quoteCommentSidebar');
+        const sidebar = getHighlightSidebar();
 
         if (sidebar) {
-            // 隐藏其他侧边栏
-            hideOtherSidebars();
-            // 显示侧边栏
-            sidebar.style.display = 'block';
-            sidebar.style.visibility = 'visible';
-            sidebar.style.position = 'sticky';
-            sidebar.style.top = '20px';
+            toggleHighlightSidebarMode(true);
 
             // 清空输入框
             const commentInput = document.getElementById('quoteCommentInput');
@@ -406,11 +546,18 @@ function showQuoteCommentForm(text) {
         }
     } else {
         // pc，侧边栏的方式显示输入框
-        const sidebar = document.getElementById('quoteCommentSidebar');
+        const sidebar = getHighlightSidebar();
         // 重新初始化这块内容
         sidebar.innerHTML = `<div class="widget">
-                <h3 class="com-nav-bar-title">划词评论</h3>
+                <div class="highlight-comment-thread__head">
+                  <div class="highlight-comment-thread__head-main">
+                    <h3 class="com-nav-bar-title">划词评论</h3>
+                    <p class="highlight-comment-thread__desc">围绕这段划线内容的讨论</p>
+                  </div>
+                  <button type="button" class="highlight-comment-thread__close" aria-label="关闭划线评论">×</button>
+                </div>
                 <div class="quote-content">
+                  <div class="highlight-comment-thread__quote-label">划线片段</div>
                   <div class="quote-text" id="quotedText">${text}</div>
                   <div class="quote-comment-form comment-input-container">
                     <textarea id="quoteCommentInput" placeholder="写下您的评论，可选择@派聪明或者@杠精派..." class="form-control"></textarea>
@@ -439,15 +586,7 @@ function showQuoteCommentForm(text) {
         // 重新绑定监听事件
         initQuoteEvent();
         if (sidebar) {
-            // 隐藏其他侧边栏
-            hideOtherSidebars();
-            // 显示侧边栏 - 使用更可靠的方式
-            sidebar.style.display = 'block';
-            sidebar.style.visibility = 'visible';
-
-            // 确保侧边栏在视图中
-            sidebar.style.position = 'sticky';
-            sidebar.style.top = '20px';
+            toggleHighlightSidebarMode(true);
 
             // 清空输入框
             const commentInput = document.getElementById('quoteCommentInput');
@@ -473,43 +612,19 @@ function showQuoteCommentForm(text) {
 
 // 隐藏引用评论侧边栏
 function hideQuoteCommentSidebar() {
-    const sidebar = document.getElementById('quoteCommentSidebar');
+    const sidebar = getHighlightSidebar();
     if (sidebar) {
-        sidebar.style.display = 'none';
-        sidebar.style.visibility = 'hidden';
-        // 恢复其他侧边栏
-        showOtherSidebars();
+        toggleHighlightSidebarMode(false);
     }
 }
 
 // 隐藏其他侧边栏
 function hideOtherSidebars() {
-    // 获取所有需要隐藏的侧边栏元素
-    const sidebars = document.querySelectorAll('.layout-side > .right-container, .layout-side > div:not(#quoteCommentSidebar)');
-    if (hiddenSidebars && hiddenSidebars.length > 0) {
-        console.log('已经隐藏了，无需再次隐藏~');
-        return;
-    }
-
     hiddenSidebars = [];
-
-    sidebars.forEach(function (sidebar) {
-        // 排除引用评论侧边栏本身
-        if (sidebar.id !== 'quoteCommentSidebar' && sidebar.style.display !== 'none') {
-            hiddenSidebars.push({
-                element: sidebar,
-                display: sidebar.style.display || getComputedStyle(sidebar).display
-            });
-            sidebar.style.display = 'none';
-        }
-    });
 }
 
 // 恢复其他侧边栏
 function showOtherSidebars() {
-    hiddenSidebars.forEach(function (item) {
-        item.element.style.display = item.display;
-    });
     hiddenSidebars = [];
 }
 
@@ -564,61 +679,59 @@ function initQuoteModalEvent() {
     }
 }
 function initQuoteEvent() {
-    // 添加点击页面其他地方隐藏引用评论侧边栏的功能
-    document.addEventListener('click', function (e) {
-        const sidebar = document.getElementById('quoteCommentSidebar');
-        const commentInput = document.getElementById('quoteCommentInput');
+    if (!quoteSidebarGlobalEventsBound) {
+        quoteSidebarGlobalEventsBound = true;
 
-        // 如果点击的不是侧边栏内部元素，也不是评论输入框，则隐藏侧边栏
-        if (sidebar && sidebar.style.display !== 'none' && !sidebar.contains(e.target) && e.target !== commentInput) {
-            hideQuoteCommentSidebar();
-        }
-
-        // 添加 AI 机器人下拉框控制
-        const aiBotBtn = document.getElementById('sideAiBotBtn');
-        const aiBotDropdown = document.getElementById('sideAiBotDropdown');
-
-        if (aiBotBtn && aiBotBtn.contains(e.target)) {
-            // 切换下拉框显示状态
-            if (aiBotDropdown) {
-                aiBotDropdown.style.display = 'block';
-            }
-            e.stopPropagation();
-        } else if (aiBotDropdown && aiBotDropdown.style.display === 'block') {
-            // 点击其他地方隐藏下拉框
-            aiBotDropdown.style.display = 'none';
-        }
-
-        if (e.target.classList.contains('ai-bot-option')) {
-            const botType = e.target.getAttribute('data-bot');
+        // 添加点击页面其他地方隐藏引用评论侧边栏的功能
+        document.addEventListener('click', function (e) {
+            const sidebar = getHighlightSidebar();
             const commentInput = document.getElementById('quoteCommentInput');
+            const aiBotBtn = document.getElementById('sideAiBotBtn');
             const aiBotDropdown = document.getElementById('sideAiBotDropdown');
 
-            if (commentInput && aiBotDropdown) {
-                // 根据机器人类型设置前缀文本
-                let prefix = '';
-                if (botType === 'hater') {
-                    prefix = '@杠精派 ';
-                } else if (botType === 'smart') {
-                    prefix = '@派聪明 ';
-                }
-
-                // 在输入框前缀添加机器人文本
-                const currentValue = commentInput.value;
-                if (!currentValue.startsWith(prefix)) {
-                    commentInput.value = prefix + currentValue;
-                }
-
-                // 隐藏下拉框
-                aiBotDropdown.style.display = 'none';
-
-                // 聚焦到输入框
-                commentInput.focus();
-                // 触发 input 事件以更新按钮状态和计数
-                commentInput.dispatchEvent(new Event('input'));
+            if (e.target.closest('.highlight-comment-thread__close')) {
+                hideQuoteCommentSidebar();
+                e.stopPropagation();
+                return;
             }
-        }
-    });
+
+            if (aiBotBtn && aiBotBtn.contains(e.target)) {
+                if (aiBotDropdown) {
+                    aiBotDropdown.style.display = aiBotDropdown.style.display === 'block' ? 'none' : 'block';
+                }
+                e.stopPropagation();
+                return;
+            }
+
+            if (e.target.classList.contains('ai-bot-option')) {
+                const botType = e.target.getAttribute('data-bot');
+
+                if (commentInput && aiBotDropdown) {
+                    let prefix = '';
+                    if (botType === 'hater') {
+                        prefix = '@杠精派 ';
+                    } else if (botType === 'smart') {
+                        prefix = '@派聪明 ';
+                    }
+
+                    const currentValue = commentInput.value;
+                    if (!currentValue.startsWith(prefix)) {
+                        commentInput.value = prefix + currentValue;
+                    }
+
+                    aiBotDropdown.style.display = 'none';
+                    commentInput.focus();
+                    commentInput.dispatchEvent(new Event('input'));
+                }
+                e.stopPropagation();
+                return;
+            }
+
+            if (aiBotDropdown && aiBotDropdown.style.display === 'block' && (!aiBotDropdown.contains(e.target))) {
+                aiBotDropdown.style.display = 'none';
+            }
+        });
+    }
 
     // 监听引用评论输入框
     document.getElementById('quoteCommentInput')?.addEventListener('input', function () {
@@ -668,9 +781,13 @@ function initQuoteEvent() {
             // 显示成功消息
             toastr.success("评论发表成功");
             if (isMobileDevice()) {
-                document.getElementById('quoteCommentSidebar').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+                const sidebar = getHighlightSidebar();
+                sidebar.innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+                decorateHighlightThread(sidebar);
             } else {
-                document.getElementById('quoteCommentSidebar').innerHTML = data.html;
+                const sidebar = getHighlightSidebar();
+                sidebar.innerHTML = data.html;
+                decorateHighlightThread(sidebar);
             }
         });
     });

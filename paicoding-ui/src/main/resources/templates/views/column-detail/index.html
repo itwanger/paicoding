@@ -84,7 +84,7 @@
             <div th:replace="components/article/article-detail :: article_info(${vo.article}, null, ${vo.other}, ${vo.payUsers})"></div>
             <!--  评论  -->
             <div id="commentDiv">
-              <div th:replace="components/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article})"
+              <div th:replace="components/comment/comment-list :: comment_list(${vo.hotComment}, ${vo.comments}, ${vo.article}, ${vo.topCommentTotal})"
               >
                 评论列表
               </div>
@@ -105,27 +105,34 @@
 
             <!-- 引用评论侧边栏 -->
             <div id="quoteCommentSidebar" class="right-container quote-comment-sidebar" style="display: none;">
-              <div class="widget">
-                <h3 class="com-nav-bar-title">划词评论</h3>
+              <div class="widget highlight-comment-thread">
+                <div class="highlight-comment-thread__head">
+                  <div class="highlight-comment-thread__head-main">
+                    <h3 class="com-nav-bar-title">划线评论</h3>
+                    <p class="highlight-comment-thread__desc">围绕这段划线内容的讨论</p>
+                  </div>
+                  <button type="button" class="highlight-comment-thread__close" aria-label="关闭划线评论">×</button>
+                </div>
                 <div class="quote-content">
+                  <div class="highlight-comment-thread__quote-label">划线片段</div>
                   <div class="quote-text" id="quotedText"></div>
                   <div class="quote-comment-form comment-input-container">
                     <textarea id="quoteCommentInput" placeholder="写下您的评论..." class="form-control"></textarea>
 
                     <div class="comment-toolbar">
                       <div class="toolbar-left">
-                        <div class="ai-bot-selector" id="aiBotSelector">
-                          <button type="button" class="ai-bot-btn" id="aiBotBtn">
+                        <div class="ai-bot-selector" id="sideAiBotSelector">
+                          <button type="button" class="ai-bot-btn" id="sideAiBotBtn">
                             🤖
                           </button>
-                          <div class="ai-bot-dropdown" id="aiBotDropdown" style="top: 100%; bottom: auto;">
+                          <div class="ai-bot-dropdown" id="sideAiBotDropdown" style="top: 100%; bottom: auto;">
                             <div class="ai-bot-option" data-bot="hater">杠精派</div>
                             <div class="ai-bot-option" data-bot="smart">派聪明</div>
                           </div>
                         </div>
                       </div>
                       <div class="toolbar-right">
-                        <span class="comment-count"><span id="commentCount">0</span>/512</span>
+                        <span class="comment-count"><span id="sideCommentCount">0</span>/512</span>
                         <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
                       </div>
                     </div>
@@ -437,6 +444,9 @@
     // 回复
     $(document).on("click", ".reply-comment", function () {
       const currentDom = $(this)
+      if (currentDom.attr("data-toggle") === "modal") {
+        return
+      }
       createComment(currentDom)
     })
 
@@ -520,6 +530,19 @@
         if (replyBtn.attr("data-reply-top")) {
           // 刷新侧边的引用评论内容
           showQuoteCommentWithComments(replyBtn.attr("data-reply-top"));
+        }
+
+        const currentWrap = currentDom.closest(".expand-replies-wrap")
+        const topCommentId = replyBtn.attr("data-reply-top")
+
+        if (currentWrap.length && topCommentId && typeof refreshExpandedSubComments === "function") {
+          currentDom.closest(".hf-con").remove()
+          refreshExpandedSubComments(currentWrap, topCommentId, function(success) {
+            if (success && typeof highlightLatestSubComment === "function") {
+              highlightLatestSubComment(currentWrap)
+            }
+          })
+          return
         }
 
         document.getElementById("commentDiv").innerHTML = data

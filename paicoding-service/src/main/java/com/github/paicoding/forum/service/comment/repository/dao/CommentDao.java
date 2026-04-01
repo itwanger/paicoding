@@ -81,6 +81,15 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
         return baseMapper.selectCount(queryWrapper).intValue();
     }
 
+    public int topCommentCount(Long articleId) {
+        return lambdaQuery()
+                .eq(CommentDO::getArticleId, articleId)
+                .eq(CommentDO::getTopCommentId, 0)
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .count()
+                .intValue();
+    }
+
     public CommentDO getHotComment(Long articleId) {
         Map<String, Object> map = baseMapper.getHotTopCommentId(articleId);
         if (CollectionUtils.isEmpty(map)) {
@@ -127,6 +136,13 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
                 row -> ((Number) row.get("key")).longValue(),
                 row -> ((Number) row.get("value")).intValue()
         ));
+    }
+
+    public List<CommentDO> listFirstSubComments(Long articleId, Collection<Long> topCommentIds) {
+        if (CollectionUtils.isEmpty(topCommentIds)) {
+            return Collections.emptyList();
+        }
+        return baseMapper.listFirstSubCommentsByTopIds(articleId, topCommentIds);
     }
 
     /**

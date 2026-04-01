@@ -93,4 +93,21 @@
           and deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
         group by top_comment_id
     </select>
+
+    <select id="listFirstSubCommentsByTopIds" resultType="com.github.paicoding.forum.service.comment.repository.entity.CommentDO">
+        select c.*
+        from comment c
+                 inner join (
+            select min(id) as id
+            from comment
+            where article_id = #{articleId}
+              and top_comment_id in
+            <foreach collection="topCommentIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+              and deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+            group by top_comment_id
+        ) first_sub on first_sub.id = c.id
+        order by c.id asc
+    </select>
 </mapper>

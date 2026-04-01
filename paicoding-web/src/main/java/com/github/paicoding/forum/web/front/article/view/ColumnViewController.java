@@ -138,6 +138,7 @@ public class ColumnViewController {
         articleDTO.setContent(MarkdownConverter.markdownToHtml(articleDTO.getContent()));
         // 评论信息
         List<TopCommentDTO> comments = commentReadService.getArticleComments(articleId, PageParam.newPageInstance());
+        Integer topCommentTotal = commentReadService.queryTopCommentCount(articleId);
 
         // 热门评论
         TopCommentDTO hotComment = commentReadService.queryHotComment(articleId);
@@ -150,6 +151,7 @@ public class ColumnViewController {
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
         vo.setArticle(articleDTO);
         vo.setComments(comments);
+        vo.setTopCommentTotal(topCommentTotal);
         vo.setHotComment(hotComment);
         vo.setHighlightComments(highlightComment);
         vo.setColumn(columnId);

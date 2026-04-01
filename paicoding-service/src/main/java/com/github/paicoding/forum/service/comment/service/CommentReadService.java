@@ -67,6 +67,14 @@ public interface CommentReadService {
     int queryCommentCount(Long articleId);
 
     /**
+     * 一级评论总数
+     *
+     * @param articleId 文章ID
+     * @return 一级评论总数
+     */
+    int queryTopCommentCount(Long articleId);
+
+    /**
      * 分页查询子评论
      *
      * @param topCommentId 一级评论ID

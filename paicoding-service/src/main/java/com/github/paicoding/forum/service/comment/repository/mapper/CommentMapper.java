@@ -33,4 +33,13 @@ public interface CommentMapper extends BaseMapper<CommentDO> {
      */
     List<Map<String, Object>> countSubCommentsByTopIds(@Param("articleId") Long articleId, @Param("topCommentIds") Collection<Long> topCommentIds);
 
+    /**
+     * 批量查询每个一级评论的第一条子评论
+     *
+     * @param articleId 文章ID
+     * @param topCommentIds 一级评论ID集合
+     * @return 每个一级评论的第一条子评论
+     */
+    List<CommentDO> listFirstSubCommentsByTopIds(@Param("articleId") Long articleId, @Param("topCommentIds") Collection<Long> topCommentIds);
+
 }

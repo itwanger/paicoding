@@ -216,6 +216,7 @@ public class ArticleViewController extends BaseViewController {
         // 评论信息
         List<TopCommentDTO> comments = commentService.getArticleComments(articleId, PageParam.newPageInstance(1L, 10L));
         vo.setComments(comments);
+        vo.setTopCommentTotal(commentService.queryTopCommentCount(articleId));
 
         // 热门评论
         TopCommentDTO hotComment = commentService.queryHotComment(articleId);

@@ -28,6 +28,11 @@ public class ArticleDetailVo {
     private List<TopCommentDTO> comments;
 
     /**
+     * 一级评论总数
+     */
+    private Integer topCommentTotal;
+
+    /**
      * 热门评论
      */
     private TopCommentDTO hotComment;

@@ -1,9 +1,129 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <div th:fragment="sub_comment_item(comment, reply, pos, preloaded)"
+       class="comment-item-wrap-second sub-comment-item"
+       th:attr="data-comment-id=${reply.commentId},data-preloaded=${preloaded}">
+    <div class="comment-item-top" th:if="${pos == 'side'}">
+      <div class="comment-item-meta">
+        <a th:href="${'/user/' + reply.userId}" target="_blank">
+          <img th:src="${reply.userPhoto}" class="comment-item-img" />
+        </a>
+        <div class="common-item-content-head">
+          <span>
+            <a
+              th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
+              th:href="${'/user/' + reply.userId}"
+              target="_blank"
+              class="comment-name"
+            >
+              作者
+            </a>
+          </span>
+          <span class="comment-time" th:text="${reply.commentTimeStr}">时间</span>
+        </div>
+      </div>
+      <div class="common-item-content">
+        <div
+          class="common-item-content-value comment-content-markdown"
+          th:attr="data-comment-id=${reply.commentId}"
+          th:text="${reply.commentContent}"
+        >
+          内容
+        </div>
+        <div class="comment-reply-context"
+             th:if="${reply.parentContent != null && !#strings.isEmpty(reply.parentContent)}">
+          <div class="comment-reply-path"
+               th:text="${reply.parentCommentId == comment.commentId ? '回复主评论' : '回复上一条评论'}">
+            回复主评论
+          </div>
+          <div class="comment-parent-preview" th:text="${reply.parentContent}">引用内容</div>
+        </div>
+        <div th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
+      </div>
+    </div>
+
+    <div class="comment-item-top" th:unless="${pos == 'side'}">
+      <a th:href="${'/user/' + reply.userId}" target="_blank">
+        <img th:src="${reply.userPhoto}" class="comment-item-img" />
+      </a>
+      <div class="common-item-content">
+        <div class="common-item-content-head">
+          <span>
+            <a
+              th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
+              th:href="${'/user/' + reply.userId}"
+              target="_blank"
+              class="comment-name"
+            >
+              作者
+            </a>
+          </span>
+          <span class="comment-time" th:text="${reply.commentTimeStr}">时间</span>
+        </div>
+        <div
+          class="common-item-content-value comment-content-markdown"
+          th:attr="data-comment-id=${reply.commentId}"
+          th:text="${reply.commentContent}"
+        >
+          内容
+        </div>
+        <div class="comment-reply-context"
+             th:if="${reply.parentContent != null && !#strings.isEmpty(reply.parentContent)}">
+          <div class="comment-reply-path"
+               th:text="${reply.parentCommentId == comment.commentId ? '回复主评论' : '回复上一条评论'}">
+            回复主评论
+          </div>
+          <div class="comment-parent-preview" th:text="${reply.parentContent}">引用内容</div>
+        </div>
+        <div th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 一级评论及其回复 -->
   <div th:fragment="comment_item(comment, pos)" class="comment-list-wrap">
     <div class="comment-item-wrap" th:id="${pos == 'bottom' ? 'comment-' + comment.commentId : pos + '-comment-' + comment.commentId}">
-      <div class="comment-item-top">
+      <div class="comment-item-top" th:if="${pos == 'side'}">
+        <div class="comment-item-meta">
+          <a th:href="${'/user/' + comment.userId}" target="_blank">
+            <img th:src="${comment.userPhoto}" class="comment-item-img" />
+          </a>
+          <div class="common-item-content-head">
+            <span>
+              <a
+                th:text="${comment.userName} + ${comment.userId == (article != null ? article.author: null)  ? '（作者）': ''}"
+                th:href="${'/user/' + comment.userId}"
+                target="_blank"
+                class="comment-name"
+              >
+                作者
+              </a>
+            </span>
+            <span
+              class="comment-time"
+              th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(comment.commentTime)}"
+            >
+              时间
+            </span>
+          </div>
+        </div>
+        <div class="common-item-content">
+          <div
+            class="common-item-content-value comment-content-markdown"
+            th:attr="data-comment-id=${comment.commentId}"
+            th:text="${comment.commentContent}"
+          >
+            内容
+          </div>
+          <div>
+            <div
+              th:replace="components/comment/comment-action :: comment_action(${comment})"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comment-item-top" th:unless="${pos == 'side'}">
         <a th:href="${'/user/' + comment.userId}" target="_blank">
           <img th:src="${comment.userPhoto}" class="comment-item-img" />
         </a>
@@ -20,6 +140,7 @@
               </a>
             </span>
             <span
+              class="comment-time"
               th:text="${T(com.github.paicoding.forum.core.util.DateUtil).time2day(comment.commentTime)}"
             >
               时间
@@ -49,20 +170,28 @@
 
     <!-- 展开回复按钮 (懒加载模式) -->
     <div class="expand-replies-wrap" th:if="${comment.commentCount != null && comment.commentCount > 0}"
-         th:attr="data-top-comment-id=${comment.commentId}, data-comment-count=${comment.commentCount}">
+         th:attr="data-top-comment-id=${comment.commentId}, data-comment-count=${comment.commentCount}, data-loaded-count=${comment.childComments != null ? #lists.size(comment.childComments) : 0}, data-has-more-child=${comment.hasMoreChild}">
+      <div class="sub-comments-container"
+           th:style="${comment.childComments != null && !#lists.isEmpty(comment.childComments) ? 'display: block;' : 'display: none;'}">
+        <div th:each="reply : ${comment.childComments}">
+          <div th:replace="components/comment/comment-item :: sub_comment_item(${comment}, ${reply}, ${pos}, true)"></div>
+        </div>
+        <div class="loading-indicator" style="display: none; padding: 12px; text-align: center; color: #86909c;">
+          <span>加载中...</span>
+        </div>
+      </div>
       <div class="expand-replies-btn c-color-main"
+           th:if="${comment.childCommentCount == null || comment.childCommentCount > (comment.childComments != null ? #lists.size(comment.childComments) : 0)}"
            th:data-top-comment-id="${comment.commentId}"
            th:data-page-num="1"
            onclick="toggleSubComments(this)">
         <svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="expand-text" th:text="'展开 ' + ${comment.commentCount} + ' 条回复'"></span>
-      </div>
-      <div class="sub-comments-container" style="display: none;">
-        <div class="loading-indicator" style="display: none; padding: 12px; text-align: center; color: #86909c;">
-          <span>加载中...</span>
-        </div>
+        <span class="expand-text"
+              th:text="'展开剩余 ' + ${comment.childCommentCount - (comment.childComments != null ? #lists.size(comment.childComments) : 0)} + ' 条回复'">
+          展开剩余回复
+        </span>
       </div>
       <div class="load-more-sub-comments" style="display: none;">
         <a href="javascript:void(0)" class="c-color-main"

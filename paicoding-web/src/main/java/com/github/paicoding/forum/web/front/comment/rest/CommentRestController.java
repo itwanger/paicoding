@@ -21,6 +21,7 @@ import com.github.paicoding.forum.service.comment.service.CommentWriteService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.component.TemplateEngineHelper;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
+import com.github.paicoding.forum.web.front.comment.vo.CommentPageVo;
 import com.github.paicoding.forum.web.front.comment.vo.HighlightCommentVo;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +107,7 @@ public class CommentRestController {
         // 评论信息
         List<TopCommentDTO> comments = commentReadService.getArticleComments(req.getArticleId(), PageParam.newPageInstance());
         vo.setComments(comments);
+        vo.setTopCommentTotal(commentReadService.queryTopCommentCount(req.getArticleId()));
 
         // 热门评论
         TopCommentDTO hotComment = commentReadService.queryHotComment(req.getArticleId());
@@ -158,6 +160,43 @@ public class CommentRestController {
         TopCommentDTO comments = commentReadService.queryTopComments(commentId);
         String content = templateEngineHelper.render("components/comment/comment-highlight", comments);
         return ResVo.ok(content);
+    }
+
+    /**
+     * 分页加载一级评论 html 片段
+     *
+     * @param articleId 文章ID
+     * @param pageNum 页码
+     * @param pageSize 每页数量
+     * @return 评论 html 片段
+     */
+    @Permission(role = UserRole.ALL)
+    @GetMapping(path = "listPageHtml")
+    @ResponseBody
+    public ResVo<CommentPageVo> listPageHtml(Long articleId, Long pageNum, Long pageSize) {
+        if (NumUtil.nullOrZero(articleId)) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章id为空");
+        }
+
+        pageNum = Optional.ofNullable(pageNum).orElse(PageParam.DEFAULT_PAGE_NUM);
+        pageSize = Optional.ofNullable(pageSize).orElse(PageParam.DEFAULT_PAGE_SIZE);
+
+        ArticleDO article = articleReadService.queryBasicArticle(articleId);
+        if (article == null) {
+            return ResVo.fail(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不存在!");
+        }
+
+        List<TopCommentDTO> comments = commentReadService.getArticleComments(articleId, PageParam.newPageInstance(pageNum, pageSize));
+        ArticleDetailVo renderVo = new ArticleDetailVo();
+        renderVo.setArticle(ArticleConverter.toDto(article));
+        renderVo.setComments(comments);
+
+        CommentPageVo result = new CommentPageVo();
+        result.setHtml(templateEngineHelper.render("components/comment/comment-page-items", renderVo));
+        int topCommentTotal = commentReadService.queryTopCommentCount(articleId);
+        result.setHasMore(pageNum * pageSize < topCommentTotal);
+        result.setNextPageNum(pageNum + 1);
+        return ResVo.ok(result);
     }
 
     /**

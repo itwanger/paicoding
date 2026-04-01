@@ -2,7 +2,7 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <!-- 评论列表 -->
   <div
-    th:fragment="comment_list(hotComment, comments, article)"
+    th:fragment="comment_list(hotComment, comments, article, topCommentTotal)"
     class="comment-list-wrap bg-color-white"
     id="commentList">
     <div>
@@ -21,9 +21,7 @@
     </div>
 
     <style>
-      .expand-replies-wrap {
-        margin: 10px 0 0 48px;
-      }
+
       .expand-replies-btn {
         display: inline-flex;
         align-items: center;
@@ -47,11 +45,10 @@
         transition: transform 0.2s ease;
       }
       .expand-replies-btn.expanded .expand-icon {
-        transform: rotate(90deg);
+        transform: rotate(-90deg);
       }
       .sub-comments-container {
         margin-top: 12px;
-        padding-left: 12px;
         border-left: 2px solid #f2f3f5;
       }
       .sub-comment-item-highlight {
@@ -74,6 +71,24 @@
       .load-more-sub-comments a:hover {
         background: #eef1f5;
         color: #1d2129;
+      }
+      .load-more-top-comments {
+        padding: 8px 0 0 56px;
+      }
+      .load-more-top-comments-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border: 1px solid #d9dde6;
+        border-radius: 999px;
+        background: #fff;
+        color: #4e5969;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .load-more-top-comments-btn:hover {
+        border-color: #ffbe94;
+        color: #ff6b35;
       }
     </style>
     <div class="comment-write-wrap">
@@ -139,11 +154,21 @@
       <!-- 全部评论列表 -->
       <div class="all-comment bg-color-white" th:if="${!#lists.isEmpty(comments)}">
         <h4 class="all-comment-title">
-          <em th:text="${#lists.size(comments)}"></em>
+          <em th:text="${article != null && article.count != null ? article.count.commentCount : #lists.size(comments)}"></em>
           条评论
         </h4>
-        <div class="all-comment-item" th:each="comment : ${comments}">
-          <div th:replace="components/comment/comment-item :: comment_item(${comment}, 'bottom')"></div>
+        <div class="all-comment-items">
+          <div class="all-comment-item" th:each="comment : ${comments}">
+            <div th:replace="components/comment/comment-item :: comment_item(${comment}, 'bottom')"></div>
+          </div>
+        </div>
+        <div class="load-more-top-comments" th:if="${topCommentTotal != null && topCommentTotal > #lists.size(comments)}">
+          <button type="button"
+                  class="load-more-top-comments-btn"
+                  th:attr="data-article-id=${article.articleId},data-page-num=2,data-page-size=10"
+                  onclick="loadMoreTopComments(this)">
+            展开更多评论
+          </button>
         </div>
       </div>
     </div>
@@ -203,7 +228,7 @@
     </div>
 
     <script th:inline="javascript">
-      var commentListIsLogin = [[${global.isLogin}]];
+      var commentListIsLogin = /*[[${global.isLogin}]]*/ false;
 
       function loadSubComments(topCommentId, pageNum, callback) {
         $.ajax({
@@ -227,10 +252,71 @@
         });
       }
 
-      function buildSubCommentHtml(reply, topCommentId) {
+      function loadTopCommentPage(articleId, pageNum, pageSize, callback) {
+        $.ajax({
+          url: '/comment/api/listPageHtml',
+          type: 'GET',
+          data: {
+            articleId: articleId,
+            pageNum: pageNum,
+            pageSize: pageSize
+          },
+          success: function(res) {
+            if (res.status && res.status.code === 0) {
+              callback(res.result);
+            } else {
+              callback(null);
+            }
+          },
+          error: function() {
+            callback(null);
+          }
+        });
+      }
+
+      function buildSubCommentHtml(reply, topCommentId, isHighlightThread) {
         var authorTag = reply.author ? '（作者）' : '';
         var loginAttrs = commentListIsLogin ? '' : ' data-target="#loginModal" data-toggle="modal"';
-        var parentHtml = reply.parentContent ? '<small style="display:flex;background:#f2f3f5;border:1px solid #e4e6eb;box-sizing:border-box;border-radius:4px;padding:0 12px;line-height:36px;height:36px;font-size:14px;color:#8a919f;margin-top:8px;overflow:hidden;text-overflow:ellipsis;"><span>' + escapeHtml(reply.parentContent) + '</span></small>' : '';
+        var replyLabel = String(reply.parentCommentId) === String(topCommentId) ? '回复主评论' : '回复上一条评论';
+        var parentHtml = reply.parentContent ? '<div class="comment-reply-context"><div class="comment-reply-path">' + replyLabel + '</div><div class="comment-parent-preview">' + escapeHtml(reply.parentContent) + '</div></div>' : '';
+
+        if (isHighlightThread) {
+          return '<div class="comment-item-wrap-second sub-comment-item" data-comment-id="' + reply.commentId + '">' +
+                  '<div class="comment-item-top">' +
+                  '<div class="comment-item-meta">' +
+                  '<a href="/user/' + reply.userId + '" target="_blank">' +
+                  '<img src="' + reply.userPhoto + '" class="comment-item-img" />' +
+                  '</a>' +
+                  '<div class="common-item-content-head">' +
+                  '<span><a href="/user/' + reply.userId + '" target="_blank" class="comment-name">' + escapeHtml(reply.userName) + authorTag + '</a></span>' +
+                  '<span class="comment-time">' + reply.commentTimeStr + '</span>' +
+                  '</div>' +
+                  '</div>' +
+                  '<div class="common-item-content">' +
+                  '<div class="common-item-content-value comment-content-markdown" data-comment-id="' + reply.commentId + '">' + escapeHtml(reply.commentContent) + '</div>' +
+                  parentHtml +
+                  '<div class="action-box">' +
+                  '<div class="item dig-item"' + loginAttrs +
+                  ' data-comment-id="' + reply.commentId + '"' +
+                  ' data-praise-count="' + reply.praiseCount + '"' +
+                  ' data-praised="' + !!reply.praised + '"' +
+                  ' onclick="praiseComment(this, ' + commentListIsLogin + ')">' +
+                  '<svg width="16" height="16"><use xlink:href="#icon-zan"></use></svg>' +
+                  '<span>' + (reply.praiseCount > 0 ? reply.praiseCount : '点赞') + '</span>' +
+                  '</div>' +
+                  '<div class="item reply-comment hf-con-block"' + loginAttrs +
+                  ' data-reply-top="' + topCommentId + '"' +
+                  ' data-reply-id="' + reply.commentId + '"' +
+                  ' data-reply-nickname="' + escapeHtml(reply.userName) + '"' +
+                  ' data-reply-content="' + escapeHtml(reply.commentContent) + '">' +
+                  '<svg width="16" height="16"><use xlink:href="#icon-comment"></use></svg>' +
+                  '<span class="reply-comment-text">回复</span>' +
+                  '<span class="reply-comment-text-none">取消回复</span>' +
+                  '</div>' +
+                  '</div>' +
+                  '</div>' +
+                  '</div>';
+        }
 
         return '<div class="comment-item-wrap-second sub-comment-item" data-comment-id="' + reply.commentId + '">' +
                 '<div class="comment-item-top">' +
@@ -240,7 +326,7 @@
                 '<div class="common-item-content">' +
                 '<div class="common-item-content-head">' +
                 '<span><a href="/user/' + reply.userId + '" target="_blank" class="comment-name">' + escapeHtml(reply.userName) + authorTag + '</a></span>' +
-                '<span>' + reply.commentTimeStr + '</span>' +
+                '<span class="comment-time">' + reply.commentTimeStr + '</span>' +
                 '</div>' +
                 '<div class="common-item-content-value comment-content-markdown" data-comment-id="' + reply.commentId + '">' + escapeHtml(reply.commentContent) + '</div>' +
                 parentHtml +
@@ -257,8 +343,7 @@
                 ' data-reply-top="' + topCommentId + '"' +
                 ' data-reply-id="' + reply.commentId + '"' +
                 ' data-reply-nickname="' + escapeHtml(reply.userName) + '"' +
-                ' data-reply-content="' + escapeHtml(reply.commentContent) + '"' +
-                (commentListIsLogin ? ' onclick="toggleDynamicReply(this)"' : '') + '>' +
+                ' data-reply-content="' + escapeHtml(reply.commentContent) + '">' +
                 '<svg width="16" height="16"><use xlink:href="#icon-comment"></use></svg>' +
                 '<span class="reply-comment-text">回复</span>' +
                 '<span class="reply-comment-text-none">取消回复</span>' +
@@ -278,9 +363,10 @@
       }
 
       function renderSubComments(subComments, container, topCommentId) {
+        var isHighlightThread = container.closest('.highlight-comment-thread').length > 0;
         subComments.forEach(function(reply) {
           if (container.find('.sub-comment-item[data-comment-id="' + reply.commentId + '"]').length === 0) {
-            container.append(buildSubCommentHtml(reply, topCommentId));
+            container.append(buildSubCommentHtml(reply, topCommentId, isHighlightThread));
           }
         });
       }
@@ -382,15 +468,6 @@
         currentDom.find('.reply-comment-text-none').hide();
       }
 
-      function updateExpandText(expandText, totalCount, loadedCount) {
-        var remaining = totalCount - loadedCount;
-        if (remaining > 0) {
-          expandText.text('收起回复（还有 ' + remaining + ' 条）');
-        } else {
-          expandText.text('收起回复');
-        }
-      }
-
       function showLoadMoreButton(wrap, hasMore) {
         wrap.data('has-more', hasMore);
         var btnWrap = wrap.find('.load-more-sub-comments').first();
@@ -399,6 +476,75 @@
         } else {
           btnWrap.hide();
         }
+      }
+
+      function getPreloadedCount(wrap) {
+        return wrap.find('.sub-comments-container .sub-comment-item[data-preloaded="true"]').length;
+      }
+
+      function getLoadedCount(wrap) {
+        return wrap.find('.sub-comments-container .sub-comment-item').length;
+      }
+
+      function getTotalCount(wrap) {
+        return parseInt(wrap.data('comment-count'), 10) || 0;
+      }
+
+      function setCollapsedExpandText(wrap) {
+        var expandText = wrap.find('.expand-text').first();
+        if (!expandText.length) {
+          return;
+        }
+        var remaining = Math.max(0, getTotalCount(wrap) - getPreloadedCount(wrap));
+        expandText.text(remaining > 0 ? '展开剩余 ' + remaining + ' 条回复' : '展开回复');
+      }
+
+      function updateExpandText(wrap, expanded) {
+        var expandBtn = wrap.find('.expand-replies-btn').first();
+        var expandText = expandBtn.find('.expand-text');
+        if (!expandText.length) {
+          return;
+        }
+
+        if (!expanded) {
+          setCollapsedExpandText(wrap);
+          expandBtn.removeClass('expanded');
+          return;
+        }
+
+        var remaining = Math.max(0, getTotalCount(wrap) - getLoadedCount(wrap));
+        expandText.text(remaining > 0 ? '收起回复（还有 ' + remaining + ' 条）' : '收起回复');
+        expandBtn.addClass('expanded');
+      }
+
+      function setReplyToggleVisibility(wrap, totalCount) {
+        var expandBtn = wrap.find('.expand-replies-btn').first();
+        if (!expandBtn.length) {
+          return;
+        }
+
+        if ((totalCount || 0) <= getPreloadedCount(wrap)) {
+          expandBtn.hide();
+          wrap.find('.load-more-sub-comments').hide();
+          return;
+        }
+
+        expandBtn.show();
+        updateExpandText(wrap, wrap.data('expanded') === true);
+      }
+
+      window.autoExpandSingleReplyWraps = function(scope) {
+        var root = scope ? $(scope) : $(document);
+        root.find('.expand-replies-wrap').each(function() {
+          var wrap = $(this);
+          var totalCount = getTotalCount(wrap);
+
+          if (totalCount <= 0) {
+            return;
+          }
+
+          setReplyToggleVisibility(wrap, totalCount);
+        });
       }
 
       function highlightLatestSubComment(wrap) {
@@ -424,13 +570,11 @@
       function refreshExpandedSubComments(wrap, topCommentId, callback) {
         var container = wrap.find('.sub-comments-container').first();
         var loadingIndicator = container.find('.loading-indicator');
-        var expandBtn = wrap.find('.expand-replies-btn').first();
-        var expandText = expandBtn.find('.expand-text');
 
         container.children('.sub-comment-item').remove();
         container.show();
         loadingIndicator.show();
-        expandBtn.addClass('expanded');
+        wrap.data('expanded', true);
         wrap.find('.load-more-sub-comments').hide();
 
         function loadAllPages(pageNum, totalCount) {
@@ -445,9 +589,11 @@
 
             var latestTotal = result.total || totalCount || 0;
             renderSubComments(result.list, container, topCommentId);
+            container.children('.sub-comment-item').first().attr('data-preloaded', 'true');
             wrap.data('comment-count', latestTotal);
             updateTopCommentReplyText(wrap, latestTotal);
-            updateExpandText(expandText, latestTotal, container.children('.sub-comment-item').length);
+            setReplyToggleVisibility(wrap, latestTotal);
+            updateExpandText(wrap, true);
 
             if (result.hasMore) {
               loadAllPages(pageNum + 1, latestTotal);
@@ -456,7 +602,8 @@
 
             loadingIndicator.hide();
             showLoadMoreButton(wrap, false);
-            updateExpandText(expandText, latestTotal, container.children('.sub-comment-item').length);
+            setReplyToggleVisibility(wrap, latestTotal);
+            updateExpandText(wrap, true);
             if (callback) {
               callback(true);
             }
@@ -472,41 +619,52 @@
         var topCommentId = $btn.data('top-comment-id');
         var container = wrap.find('.sub-comments-container').first();
         var loadingIndicator = container.find('.loading-indicator');
-        var expandText = $btn.find('.expand-text');
+        var totalCount = getTotalCount(wrap);
+        var loadedCount = getLoadedCount(wrap);
+        var preloadedCount = getPreloadedCount(wrap);
+        var isExpanded = wrap.data('expanded') === true;
 
-        if (container.children('.sub-comment-item').length === 0) {
+        if (isExpanded) {
+          var extraItems = container.children('.sub-comment-item').not('[data-preloaded="true"]');
+          if (extraItems.length > 0) {
+            extraItems.remove();
+          } else if (preloadedCount === 0) {
+            container.slideUp();
+          }
+          wrap.find('.load-more-sub-comments').hide();
+          wrap.data('expanded', false);
+          updateExpandText(wrap, false);
+          return;
+        }
+
+        if (loadedCount < totalCount) {
           loadingIndicator.show();
-          $btn.addClass('expanded');
+          wrap.data('expanded', true);
+          updateExpandText(wrap, true);
+          container.show();
 
-          loadSubComments(topCommentId, 1, function(result) {
+          loadSubComments(topCommentId, Math.floor(loadedCount / 10) + 1, function(result) {
             loadingIndicator.hide();
             if (result && result.list && result.list.length > 0) {
               renderSubComments(result.list, container, topCommentId);
-              container.show();
-              updateExpandText(expandText, result.total, container.children('.sub-comment-item').length);
+              wrap.data('comment-count', result.total || wrap.data('comment-count'));
+              setReplyToggleVisibility(wrap, result.total || wrap.data('comment-count'));
+              updateExpandText(wrap, true);
               showLoadMoreButton(wrap, result.hasMore);
             } else {
               showLoadMoreButton(wrap, false);
-              expandText.text('暂无回复');
+              updateExpandText(wrap, true);
             }
           });
           return;
         }
 
-        if (container.is(':visible')) {
-          container.slideUp();
-          wrap.find('.load-more-sub-comments').hide();
-          $btn.removeClass('expanded');
-          expandText.text('展开 ' + wrap.data('comment-count') + ' 条回复');
-          return;
-        }
-
+        wrap.data('expanded', true);
         container.slideDown();
         if (wrap.data('has-more')) {
           wrap.find('.load-more-sub-comments').show();
         }
-        $btn.addClass('expanded');
-        updateExpandText(expandText, wrap.data('comment-count'), container.children('.sub-comment-item').length);
+        updateExpandText(wrap, true);
       }
 
       window.loadMoreSubComments = function(btn) {
@@ -522,7 +680,9 @@
         loadSubComments(topCommentId, pageNum, function(result) {
           if (result && result.list && result.list.length > 0) {
             renderSubComments(result.list, container, topCommentId);
-            updateExpandText(wrap.find('.expand-text').first(), result.total, container.children('.sub-comment-item').length);
+            wrap.data('comment-count', result.total || wrap.data('comment-count'));
+            setReplyToggleVisibility(wrap, result.total || wrap.data('comment-count'));
+            updateExpandText(wrap, true);
             showLoadMoreButton(wrap, result.hasMore);
             $btn.text(result.hasMore ? '展开更多回复' : '没有更多了');
             if (!result.hasMore) {
@@ -535,6 +695,38 @@
           $btn.text('没有更多了').off('click');
         });
       }
+
+      window.loadMoreTopComments = function(btn) {
+        var $btn = $(btn);
+        var articleId = $btn.data('article-id');
+        var pageNum = $btn.data('page-num');
+        var pageSize = $btn.data('page-size');
+
+        $btn.prop('disabled', true).text('加载中...');
+
+        loadTopCommentPage(articleId, pageNum, pageSize, function(result) {
+          if (!result || !result.html) {
+            $btn.closest('.load-more-top-comments').hide();
+            return;
+          }
+
+          var tempWrap = $('<div></div>').html(result.html);
+          $('#commentList .all-comment-items').append(tempWrap.children());
+          window.autoExpandSingleReplyWraps($('#commentList .all-comment-items'));
+
+          if (result.hasMore) {
+            $btn.prop('disabled', false).text('展开更多评论');
+            $btn.data('page-num', result.nextPageNum);
+            return;
+          }
+
+          $btn.closest('.load-more-top-comments').hide();
+        });
+      }
+
+      $(function() {
+        window.autoExpandSingleReplyWraps(document);
+      });
     </script>
   </div>
 </html>

@@ -3,10 +3,17 @@
 <!-- 评论列表 -->
 <div
         th:fragment="comment_highlight(vo)"
-        class="widget"
-        id="commentList">
-    <h3 class="com-nav-bar-title">引用评论</h3>
+        class="widget highlight-comment-thread"
+        id="highlightCommentList">
+    <div class="highlight-comment-thread__head">
+        <div class="highlight-comment-thread__head-main">
+            <h3 class="com-nav-bar-title">划线评论</h3>
+            <p class="highlight-comment-thread__desc">围绕这段划线内容的讨论</p>
+        </div>
+        <button type="button" class="highlight-comment-thread__close" aria-label="关闭划线评论">×</button>
+    </div>
     <div class="quote-content">
+        <div class="highlight-comment-thread__quote-label">划线片段</div>
         <div class="quote-text" id="quotedText" th:text="${vo.highlight.selectedText}"></div>
         <div class="quote-comment-form">
             <!-- 评论列表 -->

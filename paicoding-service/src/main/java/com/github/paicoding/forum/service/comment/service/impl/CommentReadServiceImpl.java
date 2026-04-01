@@ -77,22 +77,19 @@ public class CommentReadServiceImpl implements CommentReadService {
         // map 存 commentId -> 评论
         Map<Long, TopCommentDTO> topComments = comments.stream().collect(Collectors.toMap(CommentDO::getId, CommentConverter::toTopDto));
 
-        // 2.统计每个一级评论的子评论数量（不再加载完整子评论列表）
+        // 2.统计每个一级评论的子评论数量
         Map<Long, Integer> subCommentCountMap = commentDao.countSubComments(articleId, topComments.keySet());
 
-        // 3.设置子评论数量和是否有更多标志
-        topComments.forEach((commentId, dto) -> {
-            Integer childCount = subCommentCountMap.getOrDefault(commentId, 0);
-            dto.setCommentCount(childCount);
-            dto.setChildCommentCount(childCount);
-            dto.setHasMoreChild(childCount > 0);
-        });
+        // 3.首屏为每个一级评论预加载一条子评论，剩余的再懒加载
+        List<CommentDO> previewSubComments = commentDao.listFirstSubComments(articleId, topComments.keySet());
+        sanitizeCommentContents(previewSubComments, bypassCache);
+        buildCommentRelation(previewSubComments, topComments);
 
         // 4.挑出需要返回的数据，排序，并补齐对应的用户信息，最后排序返回
         List<TopCommentDTO> result = new ArrayList<>();
         comments.forEach(comment -> {
             TopCommentDTO dto = topComments.get(comment.getId());
-            fillTopCommentInfoLazy(dto);
+            fillTopCommentPreviewInfo(dto, subCommentCountMap.getOrDefault(comment.getId(), 0));
             result.add(dto);
         });
 
@@ -202,13 +199,22 @@ public class CommentReadServiceImpl implements CommentReadService {
         return commentDao.commentCount(articleId);
     }
 
+    @Override
+    public int queryTopCommentCount(Long articleId) {
+        return commentDao.topCommentCount(articleId);
+    }
+
 
     /**
      * 懒加载模式：填充一级评论信息（不包含子评论详情）
      */
-    private void fillTopCommentInfoLazy(TopCommentDTO comment) {
+    private void fillTopCommentPreviewInfo(TopCommentDTO comment, int childCount) {
         fillCommentInfo(comment);
-        // 懒加载模式下不填充子评论详情
+        comment.getChildComments().forEach(this::fillCommentInfo);
+        Collections.sort(comment.getChildComments());
+        comment.setCommentCount(childCount);
+        comment.setChildCommentCount(childCount);
+        comment.setHasMoreChild(childCount > comment.getChildComments().size());
     }
 
 
@@ -320,18 +326,18 @@ public class CommentReadServiceImpl implements CommentReadService {
         sanitizeCommentContents(Collections.singletonList(topComment), bypassCache);
         // 1.获取顶级评论id
         Long commentId = topComment.getId();
-        // 2.查询非一级评论
-        List<CommentDO> subComments = commentDao.listSubCommentIdMappers(topComment.getArticleId(), Collections.singletonList(commentId));
-        sanitizeCommentContents(subComments, bypassCache);
+        Map<Long, Integer> subCommentCountMap = commentDao.countSubComments(topComment.getArticleId(), Collections.singletonList(commentId));
+        List<CommentDO> previewSubComments = commentDao.listFirstSubComments(topComment.getArticleId(), Collections.singletonList(commentId));
+        sanitizeCommentContents(previewSubComments, bypassCache);
 
-        // 3.构建顶级评论实体
+        // 2.构建顶级评论实体
         TopCommentDTO top = CommentConverter.toTopDto(topComment);
 
-        // 4.将非一级评论对象添加到顶级评论中
+        // 3.将首条子评论挂到顶级评论下，剩余的前端按需展开
         Map<Long, TopCommentDTO> topComments = MapUtils.create(top.getCommentId(), top);
-        buildCommentRelation(subComments, topComments);
+        buildCommentRelation(previewSubComments, topComments);
         TopCommentDTO dto = topComments.get(commentId);
-        fillTopCommentInfo(dto);
+        fillTopCommentPreviewInfo(dto, subCommentCountMap.getOrDefault(commentId, 0));
         return top;
     }
 

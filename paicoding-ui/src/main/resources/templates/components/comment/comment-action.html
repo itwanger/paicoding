@@ -3,13 +3,12 @@
   <!-- 一级评论回复 -->
   <div th:fragment="comment_action(comment)" class="action-box">
     <div
+      th:if="${global.isLogin}"
       th:class="${comment.praised ? 'item dig-item active': 'item dig-item'}"
-      th:data-target="${global.isLogin ? '' : '#loginModal'}"
-      th:data-toggle="${global.isLogin ? '' : 'modal'}"
       th:data-comment-id="${comment.commentId}"
       th:data-praise-count="${comment.praiseCount}"
       th:data-praised="${comment.praised}"
-      th:onclick="'praiseComment(this, ' + ${global.isLogin} + ')'"
+      onclick="praiseComment(this, true)"
     >
       <svg width="16" height="16">
         <use xlink:href="#icon-zan"></use>
@@ -19,10 +18,46 @@
       </span>
     </div>
     <div
+      th:unless="${global.isLogin}"
+      th:class="${comment.praised ? 'item dig-item active': 'item dig-item'}"
+      data-target="#loginModal"
+      data-toggle="modal"
+      th:data-comment-id="${comment.commentId}"
+      th:data-praise-count="${comment.praiseCount}"
+      th:data-praised="${comment.praised}"
+      onclick="praiseComment(this, false)"
+    >
+      <svg width="16" height="16">
+        <use xlink:href="#icon-zan"></use>
+      </svg>
+      <span th:text="${comment.praiseCount > 0 ? comment.praiseCount: '点赞'}">
+        点赞
+      </span>
+    </div>
+    <div
+      th:if="${global.isLogin}"
       class="item reply-comment hf-con-block"
       id="article-detail-reply-comment"
-      th:data-target="${global.isLogin ? '' : '#loginModal'}"
-      th:data-toggle="${global.isLogin ? '' : 'modal'}"
+      th:data-reply-top="${comment.commentId}"
+      th:data-reply-id="${comment.commentId}"
+      th:data-reply-nickname="${comment.userName}"
+      th:data-reply-content="${comment.commentContent}"
+    >
+      <svg width="16" height="16">
+        <use xlink:href="#icon-comment"></use>
+      </svg>
+      <span
+        class="reply-comment-text"
+        th:text="${comment.commentCount > 0 ? '回复' +  comment.commentCount : '回复'}"
+      ></span>
+      <span class="reply-comment-text-none">取消回复</span>
+    </div>
+    <div
+      th:unless="${global.isLogin}"
+      class="item reply-comment hf-con-block"
+      id="article-detail-reply-comment"
+      data-target="#loginModal"
+      data-toggle="modal"
       th:data-reply-top="${comment.commentId}"
       th:data-reply-id="${comment.commentId}"
       th:data-reply-nickname="${comment.userName}"
@@ -42,13 +77,12 @@
   <!-- 子评论的回复 -->
   <div th:fragment="sub_comment_action(comment, reply)" class="action-box">
     <div
+      th:if="${global.isLogin}"
       th:class="${reply.praised ? 'item dig-item active': 'item dig-item'}"
-      th:data-target="${global.isLogin ? '' : '#loginModal'}"
-      th:data-toggle="${global.isLogin ? '' : 'modal'}"
       th:data-comment-id="${reply.commentId}"
       th:data-praise-count="${reply.praiseCount}"
       th:data-praised="${reply.praised}"
-      th:onclick="'praiseComment(this, ' + ${global.isLogin} + ')'"
+      onclick="praiseComment(this, true)"
     >
       <svg width="16" height="16">
         <use xlink:href="#icon-zan"></use>
@@ -58,9 +92,41 @@
       </span>
     </div>
     <div
+      th:unless="${global.isLogin}"
+      th:class="${reply.praised ? 'item dig-item active': 'item dig-item'}"
+      data-target="#loginModal"
+      data-toggle="modal"
+      th:data-comment-id="${reply.commentId}"
+      th:data-praise-count="${reply.praiseCount}"
+      th:data-praised="${reply.praised}"
+      onclick="praiseComment(this, false)"
+    >
+      <svg width="16" height="16">
+        <use xlink:href="#icon-zan"></use>
+      </svg>
+      <span th:text="${reply.praiseCount > 0 ? reply.praiseCount: '点赞'}">
+        点赞
+      </span>
+    </div>
+    <div
+      th:if="${global.isLogin}"
       class="item reply-comment hf-con-block"
-      th:data-target="${global.isLogin ? '' : '#loginModal'}"
-      th:data-toggle="${global.isLogin ? '' : 'modal'}"
+      th:data-reply-top="${comment.commentId}"
+      th:data-reply-id="${reply.commentId}"
+      th:data-reply-nickname="${reply.userName}"
+      th:data-reply-content="${reply.commentContent}"
+    >
+      <svg width="16" height="16">
+        <use xlink:href="#icon-comment"></use>
+      </svg>
+      <span class="reply-comment-text">回复</span>
+      <span class="reply-comment-text-none">取消回复</span>
+    </div>
+    <div
+      th:unless="${global.isLogin}"
+      class="item reply-comment hf-con-block"
+      data-target="#loginModal"
+      data-toggle="modal"
       th:data-reply-top="${comment.commentId}"
       th:data-reply-id="${reply.commentId}"
       th:data-reply-nickname="${reply.userName}"

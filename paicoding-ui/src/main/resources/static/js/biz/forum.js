@@ -274,8 +274,16 @@ const genTocMenu = function genToc(selector, el) {
     docContentTop = document
       .querySelector("#toc-container-position")
       .getBoundingClientRect().top
+    const quoteSidebarVisible = $("#quoteCommentSidebar").is(":visible")
 
     if (docContentTop < 30) {
+      if (quoteSidebarVisible) {
+        $(".toc-container").hide()
+        $(".pdf.home-right-item-wrap").addClass("floating hidden")
+        $(".pdf-close-btn").remove()
+        return
+      }
+
       $(".toc-container").show()
 
       // 检查用户是否手动关闭了PDF侧边栏
@@ -311,10 +319,6 @@ const genTocMenu = function genToc(selector, el) {
       // 更新目录位置
       updateTocPosition(pdfClosed)
 
-      // 如果引用评论在展示,则不显示目录
-      if (!$("#quoteCommentSidebar").is(":visible")) {
-        $(".toc-container").show()
-      }
     } else {
       $(".toc-container").hide()
       $(".pdf.home-right-item-wrap").removeClass("floating hidden")
