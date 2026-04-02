@@ -84,7 +84,7 @@ function toggleHighlightSidebarMode(active) {
 
 // 检测是否为移动设备
 function isMobileDevice() {
-    return window.innerWidth <= 768;
+    return window.innerWidth <= 991;
 }
 
 // 监听文本选择事件

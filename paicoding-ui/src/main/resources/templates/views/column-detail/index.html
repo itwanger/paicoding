@@ -45,7 +45,7 @@
             <form class="bd-search d-flex align-items-center">
               <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
               <!-- 折叠专栏目录按钮 -->
-              <button class="btn bd-search-docs-toggle d-md-none pl-1 pr-0"
+              <button class="btn bd-search-docs-toggle d-lg-none pl-1 pr-0"
                       type="button"
                       data-toggle="collapse"
                       data-target="#collapseMenu"
@@ -58,10 +58,10 @@
                   <title>专栏目录</title>
                   <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"/>
                 </svg>
-                <span class="d-md-none ml-1" style="font-size: 12px;">专栏</span>
+                <span class="d-lg-none ml-1" style="font-size: 12px;">专栏</span>
               </button>
               <!-- 折叠文章内容导航按钮 -->
-              <button class="btn bd-toc-toggle d-md-none pl-1 pr-0 ml-2"
+              <button class="btn bd-toc-toggle d-lg-none pl-1 pr-0 ml-2"
                       type="button"
                       data-toggle="collapse"
                       data-target="#contentMenuCollapse"
@@ -74,7 +74,7 @@
                   <title>文章目录</title>
                   <path d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
-                <span class="d-md-none ml-1" style="font-size: 12px;">目录</span>
+                <span class="d-lg-none ml-1" style="font-size: 12px;">目录</span>
               </button>
             </form>
           </div>
@@ -92,12 +92,15 @@
           </div>
 
           <!-- 文章内容导航 -->
-          <div class="right-container toc-container column collapse d-md-block toc-responsive layout-side">
+          <div class="right-container toc-container column collapse d-lg-block toc-responsive layout-side">
             <div class="right-container">
               <div id="toc-container-position" class="right-container"></div>
-              <div class="right-container toc-container column collapse d-md-block toc-responsive" id="contentMenuCollapse">
+              <div class="right-container toc-container column collapse d-lg-block toc-responsive" id="contentMenuCollapse">
                 <div class="widget rounded ">
-                  <h3 class="com-nav-bar-title">目录</h3>
+                  <div class="toc-drawer-header">
+                    <h3 class="com-nav-bar-title">目录</h3>
+                    <button type="button" class="toc-drawer-close" id="tocDrawerClose" aria-label="关闭文章目录">×</button>
+                  </div>
                   <div id="contentMenu" class="toc toc-sticky"></div>
                 </div>
               </div>
@@ -141,6 +144,7 @@
               </div>
             </div>
           </div>
+          <div class="toc-drawer-backdrop" id="tocDrawerBackdrop" style="display: none;"></div>
 
         </div>
       </div>
@@ -201,7 +205,7 @@
     const COLUMN_MENU_COLLAPSED_KEY = 'column-menu-collapsed';
 
     function isColumnMenuDesktop() {
-      return window.matchMedia('(min-width: 721px)').matches;
+      return window.matchMedia('(min-width: 992px)').matches;
     }
 
     function applyColumnMenuState(collapsed) {
@@ -890,13 +894,43 @@
       $(window).resize(checkTocMediaQuery);
       
       // 监听内容导航的折叠/展开事件
-      $('#contentMenuCollapse').on('shown.bs.collapse', function () {
+      $('#contentMenuCollapse').on('show.bs.collapse', function () {
+        syncTocDrawerState(true);
+      }).on('shown.bs.collapse', function () {
+        syncTocDrawerState(true);
         // 内容导航展开时的处理
         adjustContentWidth();
+      }).on('hide.bs.collapse', function () {
+        syncTocDrawerState(false);
       }).on('hidden.bs.collapse', function () {
+        syncTocDrawerState(false);
         // 内容导航隐藏时的处理
         adjustContentWidth();
       });
+
+      $('.bd-toc-toggle').on('click', function () {
+        if (!window.matchMedia('(max-width: 991px)').matches) {
+          return;
+        }
+
+        window.setTimeout(function () {
+          const tocPanel = $('#contentMenuCollapse');
+          syncTocDrawerState(tocPanel.hasClass('show') || tocPanel.hasClass('collapsing'));
+        }, 20);
+      });
+
+      $('#tocDrawerClose, #tocDrawerBackdrop').on('click', function () {
+        closeTocDrawer();
+      });
+
+      const handleTocDrawerEscape = function (event) {
+        if (event.key === 'Escape' || event.key === 'Esc' || event.keyCode === 27) {
+          closeTocDrawer();
+        }
+      };
+
+      $(document).on('keydown', handleTocDrawerEscape);
+      $(window).on('keydown', handleTocDrawerEscape);
       
       // 初始化工具提示
       $('[data-toggle="tooltip"]').tooltip();
@@ -905,19 +939,51 @@
     bindCommentInputEvent()
     initGroupToggle()
 
+    function syncTocDrawerState(open) {
+      const tocLayoutSide = $('.toc-container.column.layout-side');
+      const tocDrawerBackdrop = $('#tocDrawerBackdrop');
+      if (!tocLayoutSide.length || window.matchMedia('(min-width: 992px)').matches) {
+        tocLayoutSide.css('display', '');
+        tocDrawerBackdrop.css('display', 'none');
+        return;
+      }
+
+      tocLayoutSide.toggleClass('show', !!open);
+      tocLayoutSide.css('display', open ? 'block' : 'none');
+      tocDrawerBackdrop.css('display', open ? 'block' : 'none');
+    }
+
+    function closeTocDrawer() {
+      if (!window.matchMedia('(max-width: 991px)').matches) {
+        return;
+      }
+
+      const tocPanel = $('#contentMenuCollapse');
+      if (tocPanel.hasClass('show') || tocPanel.hasClass('collapsing')) {
+        tocPanel.collapse('hide');
+      } else {
+        syncTocDrawerState(false);
+      }
+    }
+
     // 检查屏幕尺寸并处理内容导航显示状态
     function checkTocMediaQuery() {
       const tocContainer = $('.toc-container');
+      const tocLayoutSide = $('.toc-container.column.layout-side');
+      const tocPanel = $('#contentMenuCollapse');
       if (window.matchMedia('(min-width: 992px)').matches) {
         // 大屏幕设备，显示内容导航
-        tocContainer.addClass('d-md-block').removeClass('collapse');
+        tocContainer.addClass('d-lg-block').removeClass('collapse');
         tocContainer.css('display', ''); // 清除可能的display: none
+        tocLayoutSide.addClass('show');
+        tocPanel.addClass('show');
       } else {
         // 小屏幕设备，确保内容导航是折叠的
-        tocContainer.removeClass('d-md-block').addClass('collapse');
+        tocContainer.removeClass('d-lg-block').addClass('collapse');
+        syncTocDrawerState(tocPanel.hasClass('show'));
         // 如果之前是展开状态，需要隐藏
-        if (tocContainer.hasClass('show')) {
-          tocContainer.collapse('hide');
+        if (tocPanel.hasClass('show')) {
+          tocPanel.collapse('hide');
         }
       }
       // 调整内容宽度

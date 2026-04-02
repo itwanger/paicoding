@@ -968,9 +968,16 @@ button:focus {
 
 .article-suspended-panel {
   position: fixed;
-  margin-left: -80px;
+  left: calc((100vw - 1200px) / 2 + 16px);
+  margin-left: 0;
   top: 140px;
   z-index: 2;
+}
+
+@media screen and (max-width: 1199px) {
+  .article-suspended-panel {
+    left: 16px;
+  }
 }
 
 .article-suspended-panel-md {

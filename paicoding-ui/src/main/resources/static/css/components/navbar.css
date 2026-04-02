@@ -229,6 +229,62 @@
 
 
 /* home 适配 */
+@media screen and (max-width: 991px) {
+  .navbar {
+    padding-left: 18px;
+    padding-right: 24px;
+  }
+
+  .nav-body {
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-logo-wrap-lg {
+    padding-right: 12px;
+  }
+
+  .navbar-collapse {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .navbar-nav {
+    flex-wrap: nowrap;
+  }
+
+  .nav-item {
+    padding: 5px 8px;
+    font-size: 1rem;
+  }
+
+  .nav-link {
+    font-size: 16px;
+  }
+
+  .nav-right {
+    flex-shrink: 0;
+    gap: 10px;
+  }
+
+  .nav-article {
+    justify-content: center;
+    padding: 0 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .vip span {
+    display: none;
+  }
+
+  .vip img {
+    margin-left: 0;
+    top: 0;
+    height: 20px;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .nav-article {
     display: none;
