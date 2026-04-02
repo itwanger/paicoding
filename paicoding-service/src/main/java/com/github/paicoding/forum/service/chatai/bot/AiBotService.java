@@ -55,7 +55,7 @@ public class AiBotService {
         String ossPrefix = SpringUtil.getConfig("view.site.oss", "");
         for (AiBotEnum bot : AiBotEnum.values()) {
             BaseUserInfoDTO user = userService.queryUserByLoginName(bot.getUserName());
-            String avatarUrl = ossPrefix + bot.getAvatar();
+            String avatarUrl = buildAvatarUrl(ossPrefix, bot.getAvatar());
             
             if (user == null) {
                 Long userId = registerService.registerSystemUser(bot.getUserName(), bot.getNickName(), avatarUrl);
@@ -70,6 +70,25 @@ public class AiBotService {
             }
             botUsers.put(bot, user);
         }
+    }
+
+    private String buildAvatarUrl(String ossPrefix, String avatarPath) {
+        if (avatarPath == null || avatarPath.isEmpty() || avatarPath.startsWith("http://") || avatarPath.startsWith("https://")) {
+            return avatarPath;
+        }
+        if (ossPrefix == null || ossPrefix.isEmpty()) {
+            return avatarPath;
+        }
+
+        boolean prefixEndsWithSlash = ossPrefix.endsWith("/");
+        boolean pathStartsWithSlash = avatarPath.startsWith("/");
+        if (prefixEndsWithSlash && pathStartsWithSlash) {
+            return ossPrefix.substring(0, ossPrefix.length() - 1) + avatarPath;
+        }
+        if (!prefixEndsWithSlash && !pathStartsWithSlash) {
+            return ossPrefix + "/" + avatarPath;
+        }
+        return ossPrefix + avatarPath;
     }
 
     /**
