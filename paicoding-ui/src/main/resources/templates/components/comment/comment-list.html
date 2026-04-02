@@ -22,76 +22,69 @@
 
     <style>
 
-      .expand-replies-btn {
+      .comment-load-trigger,
+      .expand-replies-btn,
+      .load-more-sub-comments a,
+      .load-more-top-comments-btn {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
+        gap: 8px;
         cursor: pointer;
-        padding: 7px 14px;
+        min-height: 42px;
+        padding: 0 18px;
         border: 1px solid #ffd8bf;
         border-radius: 999px;
         background: #fff5ec;
         color: #ff6b35;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 500;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
         transition: all 0.2s ease;
       }
-      .expand-replies-btn:hover {
+
+      .comment-load-trigger:hover,
+      .expand-replies-btn:hover,
+      .load-more-sub-comments a:hover,
+      .load-more-top-comments-btn:hover {
         background: #ffefe2;
         border-color: #ffbe94;
+        color: #ff6b35;
+        text-decoration: none;
       }
+
+      .comment-load-icon,
       .expand-replies-btn .expand-icon {
         flex: 0 0 auto;
         transition: transform 0.2s ease;
       }
+
       .expand-replies-btn.expanded .expand-icon {
         transform: rotate(-90deg);
       }
+
       .sub-comments-container {
         margin-top: 12px;
         border-left: 2px solid #f2f3f5;
       }
+
       .sub-comment-item-highlight {
         background: #fff8e8;
         border-radius: 12px;
         transition: background 1.2s ease;
       }
+
       .load-more-sub-comments {
-        padding: 10px 0 0 14px;
-        font-size: 13px;
+        display: flex;
+        justify-content: flex-start;
+        padding: 12px 0 0 0;
       }
-      .load-more-sub-comments a {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: #f7f8fa;
-        color: #4e5969;
-      }
-      .load-more-sub-comments a:hover {
-        background: #eef1f5;
-        color: #1d2129;
-      }
+
       .load-more-top-comments {
-        padding: 8px 0 0 56px;
-      }
-      .load-more-top-comments-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 8px 14px;
-        border: 1px solid #ffd7bf;
-        border-radius: 999px;
-        background: #fff4eb;
-        color: #ff6b35;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 8px 20px rgba(255, 107, 53, 0.08);
-      }
-      .load-more-top-comments-btn:hover {
-        border-color: #ffbe94;
-        background: #ffefe2;
-        color: #ff6b35;
-        box-shadow: 0 10px 24px rgba(255, 107, 53, 0.14);
+        display: flex;
+        justify-content: flex-start;
       }
     </style>
     <div class="comment-write-wrap">
@@ -167,9 +160,12 @@
         </div>
         <div class="load-more-top-comments" th:if="${topCommentTotal != null && topCommentTotal > #lists.size(comments)}">
           <button type="button"
-                  class="load-more-top-comments-btn"
+                  class="comment-load-trigger load-more-top-comments-btn"
                   th:attr="data-article-id=${article.articleId},data-page-num=2,data-page-size=10"
                   onclick="loadMoreTopComments(this)">
+            <svg class="comment-load-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             展开更多评论
           </button>
         </div>
@@ -282,55 +278,20 @@
         var loginAttrs = commentListIsLogin ? '' : ' data-target="#loginModal" data-toggle="modal"';
         var replyLabel = String(reply.parentCommentId) === String(topCommentId) ? '回复主评论' : '回复上一条评论';
         var parentHtml = reply.parentContent ? '<div class="comment-reply-context"><div class="comment-reply-path">' + replyLabel + '</div><div class="comment-parent-preview">' + escapeHtml(reply.parentContent) + '</div></div>' : '';
-
-        if (isHighlightThread) {
-          return '<div class="comment-item-wrap-second sub-comment-item" data-comment-id="' + reply.commentId + '">' +
-                  '<div class="comment-item-top">' +
-                  '<div class="comment-item-meta">' +
-                  '<a href="/user/' + reply.userId + '" target="_blank">' +
-                  '<img src="' + reply.userPhoto + '" class="comment-item-img" />' +
-                  '</a>' +
-                  '<div class="common-item-content-head">' +
-                  '<span><a href="/user/' + reply.userId + '" target="_blank" class="comment-name">' + escapeHtml(reply.userName) + authorTag + '</a></span>' +
-                  '<span class="comment-time">' + reply.commentTimeStr + '</span>' +
-                  '</div>' +
-                  '</div>' +
-                  '<div class="common-item-content">' +
-                  '<div class="common-item-content-value comment-content-markdown" data-comment-id="' + reply.commentId + '">' + escapeHtml(reply.commentContent) + '</div>' +
-                  parentHtml +
-                  '<div class="action-box">' +
-                  '<div class="item dig-item"' + loginAttrs +
-                  ' data-comment-id="' + reply.commentId + '"' +
-                  ' data-praise-count="' + reply.praiseCount + '"' +
-                  ' data-praised="' + !!reply.praised + '"' +
-                  ' onclick="praiseComment(this, ' + commentListIsLogin + ')">' +
-                  '<svg width="16" height="16"><use xlink:href="#icon-zan"></use></svg>' +
-                  '<span>' + (reply.praiseCount > 0 ? reply.praiseCount : '点赞') + '</span>' +
-                  '</div>' +
-                  '<div class="item reply-comment hf-con-block"' + loginAttrs +
-                  ' data-reply-top="' + topCommentId + '"' +
-                  ' data-reply-id="' + reply.commentId + '"' +
-                  ' data-reply-nickname="' + escapeHtml(reply.userName) + '"' +
-                  ' data-reply-content="' + escapeHtml(reply.commentContent) + '">' +
-                  '<svg width="16" height="16"><use xlink:href="#icon-comment"></use></svg>' +
-                  '<span class="reply-comment-text">回复</span>' +
-                  '<span class="reply-comment-text-none">取消回复</span>' +
-                  '</div>' +
-                  '</div>' +
-                  '</div>' +
-                  '</div>';
-        }
-
+        var headerClass = isHighlightThread ? 'sub-comment-header comment-item-meta' : 'sub-comment-header';
         return '<div class="comment-item-wrap-second sub-comment-item" data-comment-id="' + reply.commentId + '">' +
                 '<div class="comment-item-top">' +
+                '<div class="common-item-content sub-comment-content">' +
+                '<div class="' + headerClass + '">' +
                 '<a href="/user/' + reply.userId + '" target="_blank">' +
                 '<img src="' + reply.userPhoto + '" class="comment-item-img" />' +
                 '</a>' +
-                '<div class="common-item-content">' +
                 '<div class="common-item-content-head">' +
                 '<span><a href="/user/' + reply.userId + '" target="_blank" class="comment-name">' + escapeHtml(reply.userName) + authorTag + '</a></span>' +
                 '<span class="comment-time">' + reply.commentTimeStr + '</span>' +
                 '</div>' +
+                '</div>' +
+                '<div class="sub-comment-body">' +
                 '<div class="common-item-content-value comment-content-markdown" data-comment-id="' + reply.commentId + '">' + escapeHtml(reply.commentContent) + '</div>' +
                 parentHtml +
                 '<div class="action-box">' +
@@ -350,6 +311,7 @@
                 '<svg width="16" height="16"><use xlink:href="#icon-comment"></use></svg>' +
                 '<span class="reply-comment-text">回复</span>' +
                 '<span class="reply-comment-text-none">取消回复</span>' +
+                '</div>' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
