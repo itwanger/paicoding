@@ -299,11 +299,89 @@
 
     // 内容渲染
     const articleId = [[${ vo.article.articleId }]];
+    const FLOAT_ACTION_COLLAPSED_KEY = "column-float-actions-collapsed"
+    let commented = [[${ vo.article.commented }]]
+    let commentCount = [[${ vo.article.count.commentCount }]]
+
+    function syncCommentFloatBtn() {
+      const commentFloatItem = $("#commentFloatBtn .article-change-item")
+      if (!commentFloatItem.length) {
+        return
+      }
+
+      commentFloatItem.toggleClass("active", !!commented)
+
+      if (commentCount > 0) {
+        commentFloatItem.addClass("with-badge")
+        commentFloatItem.attr("badge", commentCount)
+      } else {
+        commentFloatItem.removeClass("with-badge")
+        commentFloatItem.removeAttr("badge")
+      }
+    }
 
     // 跳转到评论的地方
     $("#commentFloatBtn").click(function () {
       document.getElementById("commentList").scrollIntoView(true);
     })
+
+    const articleScrollContainer = document.querySelector(".article-content-wrap")
+    const backTopFloatItem = document.querySelector("#backTopFloatBtn .article-change-item")
+    const floatActionPanel = document.querySelector(".article-change")
+    const floatActionToggleBtn = document.getElementById("floatActionToggleBtn")
+
+    function applyFloatActionPanelState(collapsed) {
+      if (!floatActionPanel || !floatActionToggleBtn) {
+        return
+      }
+
+      floatActionPanel.classList.toggle("is-collapsed", !!collapsed)
+      floatActionToggleBtn.setAttribute("aria-label", collapsed ? "展开快捷操作" : "收起快捷操作")
+    }
+
+    function syncBackTopFloatBtn() {
+      if (!backTopFloatItem) {
+        return
+      }
+      const scrollTop = articleScrollContainer ? articleScrollContainer.scrollTop : window.scrollY
+      const shouldShowBackTop = scrollTop > 320
+      backTopFloatItem.classList.toggle("is-visible", shouldShowBackTop)
+      if (floatActionPanel) {
+        floatActionPanel.classList.toggle("with-back-top", shouldShowBackTop)
+      }
+    }
+
+    $("#backTopFloatBtn").click(function () {
+      if (articleScrollContainer) {
+        articleScrollContainer.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        })
+        return
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
+    })
+
+    if (articleScrollContainer) {
+      articleScrollContainer.addEventListener("scroll", syncBackTopFloatBtn)
+    } else {
+      window.addEventListener("scroll", syncBackTopFloatBtn)
+    }
+    if (floatActionToggleBtn) {
+      const savedCollapsed = localStorage.getItem(FLOAT_ACTION_COLLAPSED_KEY) === "true"
+      applyFloatActionPanelState(savedCollapsed)
+      floatActionToggleBtn.addEventListener("click", function () {
+        const nextCollapsed = !floatActionPanel.classList.contains("is-collapsed")
+        applyFloatActionPanelState(nextCollapsed)
+        localStorage.setItem(FLOAT_ACTION_COLLAPSED_KEY, String(nextCollapsed))
+      })
+    }
+    syncBackTopFloatBtn()
+    syncCommentFloatBtn()
 
     // 点赞
     let praisedCount = [[${ vo.article.count.praiseCount }]]
@@ -322,17 +400,19 @@
     }
 
 
-    $("#praiseBtn").on('click', function () {
+    function praiseFunc() {
       if (!isLogin) {
         // 未登录，不执行相关操作
         return;
       }
+      const praiseFloatItem = $("#praiseFloatBtn .article-change-item")
       praised = !praised;
       praiseArticle(articleId, praised, function (data) {
         let avatarList = $('#praiseUsers')
         if (praised) {
           // 点赞
           praisedCount += 1;
+          praiseFloatItem.addClass("active")
           $("#praiseBtn").addClass("active")
 
           // 添加当前点赞用户的头像
@@ -343,6 +423,7 @@
         } else {
           // 取消点赞
           praisedCount -= 1;
+          praiseFloatItem.removeClass("active")
           $("#praiseBtn").removeClass("active")
 
           // 移除当前点赞用户的头像
@@ -357,11 +438,19 @@
           }
         }
         if (praisedCount > 0) {
+          praiseFloatItem.addClass("with-badge")
+          praiseFloatItem.attr("badge", praisedCount)
           $('#praiseDesc').text(String(praisedCount) + '人已点赞');
         } else {
+          praiseFloatItem.removeClass("with-badge")
+          praiseFloatItem.removeAttr("badge")
           $('#praiseDesc').text('真诚点赞，诚不我欺');
         }
       });
+    }
+
+    $("#praiseFloatBtn, #praiseBtn").on('click', function () {
+      praiseFunc();
     });
 
     // 收藏
@@ -449,6 +538,9 @@
           commentContent: content,
         }
         post("/comment/api/post", params, function (data) {
+          commented = true
+          commentCount += 1
+          syncCommentFloatBtn()
           // 使用 Ajax 的方式，直接更新评论列表
           document.getElementById("commentDiv").innerHTML = data
           bindCommentInputEvent()
@@ -558,6 +650,9 @@
         topCommentId: replyBtn.attr("data-reply-top"),
       }
       post("/comment/api/post", params, function (data) {
+        commented = true
+        commentCount += 1
+        syncCommentFloatBtn()
         // 对于侧边栏的评论回复
         if (replyBtn.attr("data-reply-top")) {
           // 刷新侧边的引用评论内容

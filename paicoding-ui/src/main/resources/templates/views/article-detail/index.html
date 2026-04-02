@@ -170,6 +170,25 @@
       /*<![CDATA[*/
       // 内容渲染
       const articleId = [[${vo.article.articleId}]];
+      let commented = [[${vo.article.commented}]]
+      let commentCount = [[${vo.article.count.commentCount}]]
+
+      function syncCommentFloatBtn() {
+        const commentFloatBtn = $("#commentFloatBtn, #commentFloatBtnMd")
+        if (!commentFloatBtn.length) {
+          return
+        }
+
+        commentFloatBtn.toggleClass("active", !!commented)
+
+        if (commentCount > 0) {
+          commentFloatBtn.addClass("with-badge")
+          commentFloatBtn.attr("badge", commentCount)
+        } else {
+          commentFloatBtn.removeClass("with-badge")
+          commentFloatBtn.removeAttr("badge")
+        }
+      }
 
       // 生成菜单
       genTocMenu('#articleContent', '#contentMenu');
@@ -178,6 +197,7 @@
       $("#commentFloatBtn,#commentFloatBtnMd").click(function () {
           document.getElementById("commentList").scrollIntoView(true);
       })
+      syncCommentFloatBtn();
 
       if (window.location.href.indexOf("#commentList") >= 0) {
           document.getElementById("commentList").scrollIntoView(true);
@@ -354,6 +374,9 @@
             commentContent: content,
           }
           post("/comment/api/post", params, function (data) {
+            commented = true
+            commentCount += 1
+            syncCommentFloatBtn()
             // 使用 Ajax 的方式，直接更新评论列表
             document.getElementById("commentDiv").innerHTML = data
             bindCommentInputEvent()
@@ -463,6 +486,9 @@
           topCommentId: replyBtn.attr("data-reply-top"),
         }
         post("/comment/api/post", params, function (data) {
+          commented = true
+          commentCount += 1
+          syncCommentFloatBtn()
           // 对于侧边栏的评论回复
           if (replyBtn.attr("data-reply-top")) {
             // 刷新侧边的引用评论内容
