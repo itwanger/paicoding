@@ -286,6 +286,37 @@
   padding: 12px;
 }
 
+.sub-comment-item .comment-item-top {
+  display: block;
+}
+
+.sub-comment-item .sub-comment-content {
+  margin-left: 0;
+  padding-top: 0;
+}
+
+.sub-comment-item .sub-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub-comment-item .sub-comment-header .common-item-content-head {
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sub-comment-item .sub-comment-body {
+}
+
+.sub-comment-item .sub-comment-body .common-item-content-value {
+  margin-top: 8px;
+}
+
 .comment-item-img {
   width: 24px;
   height: 24px;

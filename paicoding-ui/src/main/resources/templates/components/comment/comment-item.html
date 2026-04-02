@@ -4,78 +4,84 @@
        class="comment-item-wrap-second sub-comment-item"
        th:attr="data-comment-id=${reply.commentId},data-preloaded=${preloaded}">
     <div class="comment-item-top" th:if="${pos == 'side'}">
-      <div class="comment-item-meta">
-        <a th:href="${'/user/' + reply.userId}" target="_blank">
-          <img th:src="${reply.userPhoto}" class="comment-item-img" />
-        </a>
-        <div class="common-item-content-head">
-          <span>
-            <a
-              th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
-              th:href="${'/user/' + reply.userId}"
-              target="_blank"
-              class="comment-name"
-            >
-              作者
-            </a>
-          </span>
-          <span class="comment-time" th:text="${reply.commentTimeStr}">时间</span>
-        </div>
-      </div>
-      <div class="common-item-content">
-        <div
-          class="common-item-content-value comment-content-markdown"
-          th:attr="data-comment-id=${reply.commentId}"
-          th:text="${reply.commentContent}"
-        >
-          内容
-        </div>
-        <div class="comment-reply-context"
-             th:if="${reply.parentContent != null && !#strings.isEmpty(reply.parentContent)}">
-          <div class="comment-reply-path"
-               th:text="${reply.parentCommentId == comment.commentId ? '回复主评论' : '回复上一条评论'}">
-            回复主评论
+      <div class="common-item-content sub-comment-content">
+        <div class="sub-comment-header comment-item-meta">
+          <a th:href="${'/user/' + reply.userId}" target="_blank">
+            <img th:src="${reply.userPhoto}" class="comment-item-img" />
+          </a>
+          <div class="common-item-content-head">
+            <span>
+              <a
+                th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
+                th:href="${'/user/' + reply.userId}"
+                target="_blank"
+                class="comment-name"
+              >
+                作者
+              </a>
+            </span>
+            <span class="comment-time" th:text="${reply.commentTimeStr}">时间</span>
           </div>
-          <div class="comment-parent-preview" th:text="${reply.parentContent}">引用内容</div>
         </div>
-        <div th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
+        <div class="sub-comment-body">
+          <div
+            class="common-item-content-value comment-content-markdown"
+            th:attr="data-comment-id=${reply.commentId}"
+            th:text="${reply.commentContent}"
+          >
+            内容
+          </div>
+          <div class="comment-reply-context"
+               th:if="${reply.parentContent != null && !#strings.isEmpty(reply.parentContent)}">
+            <div class="comment-reply-path"
+                 th:text="${reply.parentCommentId == comment.commentId ? '回复主评论' : '回复上一条评论'}">
+              回复主评论
+            </div>
+            <div class="comment-parent-preview" th:text="${reply.parentContent}">引用内容</div>
+          </div>
+          <div th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
+        </div>
       </div>
     </div>
 
     <div class="comment-item-top" th:unless="${pos == 'side'}">
-      <a th:href="${'/user/' + reply.userId}" target="_blank">
-        <img th:src="${reply.userPhoto}" class="comment-item-img" />
-      </a>
-      <div class="common-item-content">
-        <div class="common-item-content-head">
-          <span>
-            <a
-              th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
-              th:href="${'/user/' + reply.userId}"
-              target="_blank"
-              class="comment-name"
-            >
-              作者
-            </a>
-          </span>
-          <span class="comment-time" th:text="${reply.commentTimeStr}">时间</span>
-        </div>
-        <div
-          class="common-item-content-value comment-content-markdown"
-          th:attr="data-comment-id=${reply.commentId}"
-          th:text="${reply.commentContent}"
-        >
-          内容
-        </div>
-        <div class="comment-reply-context"
-             th:if="${reply.parentContent != null && !#strings.isEmpty(reply.parentContent)}">
-          <div class="comment-reply-path"
-               th:text="${reply.parentCommentId == comment.commentId ? '回复主评论' : '回复上一条评论'}">
-            回复主评论
+      <div class="common-item-content sub-comment-content">
+        <div class="sub-comment-header">
+          <a th:href="${'/user/' + reply.userId}" target="_blank">
+            <img th:src="${reply.userPhoto}" class="comment-item-img" />
+          </a>
+          <div class="common-item-content-head">
+            <span>
+              <a
+                th:text="${reply.userName} + ${reply.userId == (article != null ? article.author: null) ? '（作者）': ''}"
+                th:href="${'/user/' + reply.userId}"
+                target="_blank"
+                class="comment-name"
+              >
+                作者
+              </a>
+            </span>
+            <span class="comment-time" th:text="${reply.commentTimeStr}">时间</span>
           </div>
-          <div class="comment-parent-preview" th:text="${reply.parentContent}">引用内容</div>
         </div>
-        <div th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
+        <div class="sub-comment-body">
+          <div
+            class="common-item-content-value comment-content-markdown"
+            th:attr="data-comment-id=${reply.commentId}"
+            th:text="${reply.commentContent}"
+          >
+            内容
+          </div>
+          <div class="comment-reply-context"
+               th:if="${reply.parentContent != null && !#strings.isEmpty(reply.parentContent)}">
+            <div class="comment-reply-path"
+                 th:text="${reply.parentCommentId == comment.commentId ? '回复主评论' : '回复上一条评论'}">
+              回复主评论
+            </div>
+            <div class="comment-parent-preview" th:text="${reply.parentContent}">引用内容</div>
+          </div>
+          <div th:replace="components/comment/comment-action :: sub_comment_action(${comment}, ${reply})"></div>
+        </div>
       </div>
     </div>
   </div>
