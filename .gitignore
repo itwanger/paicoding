@@ -47,6 +47,7 @@ pid.log
 ### .DS_Store
 
 **/.DS_Store
+.dev-port
 
 
 # 支付证书相关移除

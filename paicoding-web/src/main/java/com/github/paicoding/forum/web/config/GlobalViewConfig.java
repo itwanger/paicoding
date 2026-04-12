@@ -90,13 +90,13 @@ public class GlobalViewConfig {
      */
     private String oss;
 
-    // 知识星球文章可阅读数
+    // 星球专享内容未解锁时的试看字数
     private String zsxqArticleReadCount;
 
-    // 需要登录文章可阅读数
+    // 需要登录内容未登录时的试看字数
     private String needLoginArticleReadCount;
 
-    // 需要支付的可阅读数
+    // 付费内容未支付时的试看字数
     private String needPayArticleReadCount;
 
     // 专栏首页跑马灯公告

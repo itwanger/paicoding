@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.core.util.StrUtil;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class ArticleReadViewServiceExtend {
         return article.getContent();
     }
 
-    private String mark(ArticleDTO article, Supplier<Boolean> condition, Supplier<String> percent) {
+    private String mark(ArticleDTO article, Supplier<Boolean> condition, Supplier<String> previewLength) {
         if (condition.get()) {
             // 可以阅读
             article.setCanRead(true);
@@ -59,8 +60,7 @@ public class ArticleReadViewServiceExtend {
         } else {
             // 不能阅读
             article.setCanRead(false);
-            return article.getContent()
-                    .substring(0, (int) (article.getContent().length() * Float.parseFloat(percent.get()) / 100));
+            return StrUtil.safeSubstringHtml(article.getContent(), previewLength.get());
         }
     }
 }

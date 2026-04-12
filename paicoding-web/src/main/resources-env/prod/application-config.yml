@@ -1,9 +1,9 @@
 view:
   site:
     wxPayEnable: ${wx.pay.enable}
-    needLoginArticleReadCount: 30 # 需要登录才能阅读的文章阅读次数
-    zsxqArticleReadCount: 20 # 知识星球用户才能阅读的文章阅读次数统计间隔，单位：分钟
-    needPayArticleReadCount: 20 # 付费文章，未付费可以看到的文章内容
+    needLoginArticleReadCount: 500 # 需要登录的文章，未登录时可试看字数
+    zsxqArticleReadCount: 300 # 星球专享文章/专栏，未解锁时可试看字数
+    needPayArticleReadCount: 300 # 付费文章，未支付时可试看字数
     websiteName: 技术派
     websiteLogoUrl: https://paicoding.com/img/logo.svg
     websiteFaviconIconUrl: https://paicoding.com/img/icon.png

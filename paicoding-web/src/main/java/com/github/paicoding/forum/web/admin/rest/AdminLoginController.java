@@ -12,6 +12,7 @@ import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,7 +72,20 @@ public class AdminLoginController {
      */
     @RequestMapping(path = "isLogined")
     public ResVo<Boolean> isLogined() {
+        
         return ResVo.ok(ReqInfoContext.getReqInfo().getUserId() != null);
+    }
+
+    @ApiOperation("后台服务探测接口")
+    @GetMapping("probe")
+    public ResVo<AdminProbeRes> probe(HttpServletRequest request) {
+        AdminProbeRes result = new AdminProbeRes();
+        result.setApp("paicoding");
+        result.setModule("admin");
+        result.setSignature("paicoding-port-for-admin");
+        result.setApiPrefix("/api/admin");
+        result.setHost(buildRequestOrigin(request));
+        return ResVo.ok(result);
     }
 
     @ApiOperation("获取当前登录用户信息")
@@ -97,5 +111,26 @@ public class AdminLoginController {
         // 移除cookie
         SessionUtil.delCookies(LoginService.SESSION_KEY);
         return ResVo.ok(true);
+    }
+
+    private String buildRequestOrigin(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+
+        if (("http".equalsIgnoreCase(scheme) && serverPort == 80)
+                || ("https".equalsIgnoreCase(scheme) && serverPort == 443)) {
+            return scheme + "://" + serverName;
+        }
+        return scheme + "://" + serverName + ":" + serverPort;
+    }
+
+    @Data
+    private static class AdminProbeRes {
+        private String app;
+        private String module;
+        private String signature;
+        private String apiPrefix;
+        private String host;
     }
 }

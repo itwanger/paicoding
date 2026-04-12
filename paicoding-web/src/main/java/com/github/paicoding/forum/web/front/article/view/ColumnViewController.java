@@ -28,7 +28,6 @@ import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
 import com.github.paicoding.forum.web.global.SeoInjectService;
-import liquibase.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -238,15 +237,13 @@ public class ColumnViewController {
                 return content;
             }
 
-            // 如果没有绑定星球，则返回 10% 的内容
-            int count = Integer.parseInt(globalViewConfig.getZsxqArticleReadCount());
-            return StrUtil.safeSubstringHtml(content, content.length() * count / 100);
+            // 如果没有绑定星球，则按配置字数返回试看内容
+            return StrUtil.safeSubstringHtml(content, globalViewConfig.getZsxqArticleReadCount());
         }
 
         if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
-            // 如果是登录阅读，但是用户没有登录，则返回 20% 的内容
-            int count = Integer.parseInt(globalViewConfig.getNeedLoginArticleReadCount());
-            return StrUtil.safeSubstringHtml(content, content.length() * count / 100);
+            // 如果是登录阅读，但是用户没有登录，则按配置字数返回试看内容
+            return StrUtil.safeSubstringHtml(content, globalViewConfig.getNeedLoginArticleReadCount());
         }
 
         return content;
