@@ -72,7 +72,7 @@ public class AdminLoginController {
      */
     @RequestMapping(path = "isLogined")
     public ResVo<Boolean> isLogined() {
-        
+
         return ResVo.ok(ReqInfoContext.getReqInfo().getUserId() != null);
     }
 
