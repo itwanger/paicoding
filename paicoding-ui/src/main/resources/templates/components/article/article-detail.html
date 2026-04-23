@@ -18,7 +18,7 @@
   </div>
   <div>
     <div class="detail-content-title-other-wrap relative" th:if="${author != null}">
-      <img th:src="${author.photo}" class="detail-content-title-other-img" />
+      <img th:src="${author.photo}" class="detail-content-title-other-img" width="22" height="22" />
       <a
               th:href="${'/user/' + author.userId}"
               th:text="${author.userName}"
@@ -270,7 +270,7 @@
             <div class="approval-box" id="praiseUsers">
               <a class="g-user-popover approval-img" th:href="'/user/' + ${item.userId}"
                  th:each="item: ${payUsers}">
-                <img th:src="${item.avatar}" style="width: 120px;padding: 10px">
+                <img th:src="${item.avatar}" style="width: 120px;padding: 10px" width="120" height="120">
               </a>
               <span th:if="${payUsers == null || payUsers.size() == 0}"> 暂无打赏用户哦，快来做第一个慧眼识珠的人吧~ </span>
             </div>

@@ -29,7 +29,7 @@
         <div class="approval-box" id="praiseUsers">
             <a class="g-user-popover approval-img" th:href="'/user/' + ${item.userId}"
                   th:each="item: ${vo.article.praisedUsers}">
-                <img th:src="${item.avatar}">
+                <img th:src="${item.avatar}" width="25" height="25">
             </a>
         </div>
     </div>

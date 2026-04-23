@@ -7,7 +7,7 @@
       <div class="common-item-content sub-comment-content">
         <div class="sub-comment-header comment-item-meta">
           <a th:href="${'/user/' + reply.userId}" target="_blank">
-            <img th:src="${reply.userPhoto}" class="comment-item-img" />
+            <img th:src="${reply.userPhoto}" class="comment-item-img" width="24" height="24" />
           </a>
           <div class="common-item-content-head">
             <span>
@@ -48,7 +48,7 @@
       <div class="common-item-content sub-comment-content">
         <div class="sub-comment-header">
           <a th:href="${'/user/' + reply.userId}" target="_blank">
-            <img th:src="${reply.userPhoto}" class="comment-item-img" />
+            <img th:src="${reply.userPhoto}" class="comment-item-img" width="24" height="24" />
           </a>
           <div class="common-item-content-head">
             <span>
@@ -92,7 +92,7 @@
       <div class="comment-item-top" th:if="${pos == 'side'}">
         <div class="comment-item-meta">
           <a th:href="${'/user/' + comment.userId}" target="_blank">
-            <img th:src="${comment.userPhoto}" class="comment-item-img" />
+            <img th:src="${comment.userPhoto}" class="comment-item-img" width="24" height="24" />
           </a>
           <div class="common-item-content-head">
             <span>
@@ -131,7 +131,7 @@
 
       <div class="comment-item-top" th:unless="${pos == 'side'}">
         <a th:href="${'/user/' + comment.userId}" target="_blank">
-          <img th:src="${comment.userPhoto}" class="comment-item-img" />
+          <img th:src="${comment.userPhoto}" class="comment-item-img" width="24" height="24" />
         </a>
         <div class="common-item-content">
           <div class="common-item-content-head">

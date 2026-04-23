@@ -161,7 +161,7 @@
           </div>
           <div class="modal-body text-center">
             <div class="qrcode-container mb-3">
-              <img id="shareQrCode" src="" alt="分享二维码">
+              <img id="shareQrCode" src="" alt="分享二维码" width="200" height="200">
             </div>
             <div class="short-url-container">
               <div class="input-group" style="max-width: 500px; margin: 0 auto;">
@@ -422,7 +422,7 @@
           // 添加当前点赞用户的头像
           avatarList.prepend('' +
             '            <a class="g-user-popover approval-img" href="/user/' + currentUserId + '">\n' +
-            '                <img src="' + currentUserAvatar + '">\n' +
+            '                <img src="' + currentUserAvatar + '" width="25" height="25">\n' +
             '            </a>')
         } else {
           // 取消点赞
