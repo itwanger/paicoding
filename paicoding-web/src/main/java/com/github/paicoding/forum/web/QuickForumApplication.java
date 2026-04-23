@@ -30,6 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
+import java.net.URI;
 
 /**
  * 入口，直接运行即可
@@ -116,12 +117,40 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
     }
 
     private void syncLocalHost() {
+        if (!shouldSyncLocalHost()) {
+            return;
+        }
         Integer actualPort = environment.getProperty("local.server.port", Integer.class);
         if (actualPort == null) {
             actualPort = webPort;
         }
         if (actualPort != null) {
             globalViewConfig.setHost("http://127.0.0.1:" + actualPort);
+        }
+    }
+
+    private boolean shouldSyncLocalHost() {
+        String configuredHost = globalViewConfig.getHost();
+        if (configuredHost == null || configuredHost.trim().isEmpty()) {
+            return true;
+        }
+
+        String normalizedHost = configuredHost.trim();
+        if (!normalizedHost.contains("://")) {
+            normalizedHost = "http://" + normalizedHost;
+        }
+
+        try {
+            String host = URI.create(normalizedHost).getHost();
+            if (host == null || host.trim().isEmpty()) {
+                return false;
+            }
+            return "127.0.0.1".equals(host)
+                    || "localhost".equalsIgnoreCase(host)
+                    || "0.0.0.0".equals(host);
+        } catch (Exception e) {
+            log.warn("解析站点 host 失败，跳过本地 host 同步: {}", configuredHost, e);
+            return false;
         }
     }
 }
