@@ -109,6 +109,12 @@ public class GlobalViewConfig {
         return this.oss;
     }
 
+    public GlobalViewConfig setOss(String oss) {
+        this.oss = oss;
+        CdnUtil.setSiteOssPrefix(oss);
+        return this;
+    }
+
     public String getPaiChatName() {
         return paiChatName == null || paiChatName.trim().isEmpty() ? "PaiChat" : paiChatName;
     }

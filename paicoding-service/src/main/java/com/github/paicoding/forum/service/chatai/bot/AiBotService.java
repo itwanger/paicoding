@@ -7,7 +7,6 @@ import com.github.paicoding.forum.api.model.enums.ai.AiBotEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.async.AsyncUtil;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
@@ -52,10 +51,9 @@ public class AiBotService {
      */
     @EventListener(ApplicationReadyEvent.class)
     public void initBotUser() {
-        String ossPrefix = SpringUtil.getConfig("view.site.oss", "");
         for (AiBotEnum bot : AiBotEnum.values()) {
             BaseUserInfoDTO user = userService.queryUserByLoginName(bot.getUserName());
-            String avatarUrl = buildAvatarUrl(ossPrefix, bot.getAvatar());
+            String avatarUrl = buildAvatarUrl(bot.getAvatar());
             
             if (user == null) {
                 Long userId = registerService.registerSystemUser(bot.getUserName(), bot.getNickName(), avatarUrl);
@@ -72,23 +70,11 @@ public class AiBotService {
         }
     }
 
-    private String buildAvatarUrl(String ossPrefix, String avatarPath) {
+    private String buildAvatarUrl(String avatarPath) {
         if (avatarPath == null || avatarPath.isEmpty() || avatarPath.startsWith("http://") || avatarPath.startsWith("https://")) {
             return avatarPath;
         }
-        if (ossPrefix == null || ossPrefix.isEmpty()) {
-            return avatarPath;
-        }
-
-        boolean prefixEndsWithSlash = ossPrefix.endsWith("/");
-        boolean pathStartsWithSlash = avatarPath.startsWith("/");
-        if (prefixEndsWithSlash && pathStartsWithSlash) {
-            return ossPrefix.substring(0, ossPrefix.length() - 1) + avatarPath;
-        }
-        if (!prefixEndsWithSlash && !pathStartsWithSlash) {
-            return ossPrefix + "/" + avatarPath;
-        }
-        return ossPrefix + avatarPath;
+        return avatarPath;
     }
 
     /**

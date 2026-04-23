@@ -674,19 +674,126 @@
 .needlock {
   width: 100%;
   text-align: center;
-  font-size: xx-large;
-  font-weight: 400;
-  background-image: -webkit-gradient(linear,left top, left bottom,from(rgba(255,255,255,0)),color-stop(70%, #fff));
-  background-image: linear-gradient(-180deg,rgba(255,255,255,0) 0%,#fff 70%);
-  padding-bottom: 24px; position: relative;
+  background-image: linear-gradient(-180deg, rgba(255, 255, 255, 0) 0%, #fff 70%);
+  padding-bottom: 24px;
+  position: relative;
   padding-top: 160px;
   margin-top: -220px;
-  z-index: 996;
+  z-index: 2;
   bottom: -1px;
 }
 
-.needlock h2 {
-  font-size: 1.5rem;
+.needlock.needlock--star {
+  background-image: none;
+  padding-top: 24px;
+  padding-bottom: 0;
+  margin-top: 24px;
+  bottom: auto;
+}
+
+.star-access-card {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 20px 24px 24px;
+  border: 1px solid rgba(255, 123, 0, 0.14);
+  border-radius: 0;
+  background:
+    radial-gradient(circle at top right, rgba(255, 123, 0, 0.1), transparent 32%),
+    linear-gradient(180deg, #fffaf4 0%, #ffffff 32%);
+  box-shadow: 0 18px 40px rgba(31, 35, 41, 0.08);
+  text-align: left;
+}
+
+.star-access-card__banner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.star-access-card__banner {
+  display: block;
+  margin-bottom: 0;
+  padding: 0;
+  border-radius: 0;
+  color: var(--pai-brand-2-hover);
+  font-size: 28px;
+  line-height: 1.45;
+  font-weight: 700;
+  flex: 1 1 auto;
+}
+
+.star-access-card__banner:hover {
+  color: #ff6b00;
+}
+
+.star-access-card__banner-action {
+  flex: 0 0 auto;
+  min-width: 220px;
+  white-space: nowrap;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.star-access-card__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.star-access-card__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 14px;
+}
+
+.star-access-card__summary {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--pai-color-222-normal);
+  padding: 14px 16px;
+  border-radius: 0;
+  background: linear-gradient(135deg, rgba(255, 123, 0, 0.08), rgba(255, 123, 0, 0.02));
+}
+
+.star-access-card__steps {
+  padding: 14px 16px;
+  background: rgba(255, 123, 0, 0.03);
+  border: 1px solid rgba(255, 123, 0, 0.08);
+  border-radius: 0;
+}
+
+.star-access-card__steps p {
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.star-access-card__steps p:last-child {
+  margin-bottom: 0;
+}
+
+.star-access-card__steps strong {
+  display: inline-block;
+  min-width: 22px;
+  color: var(--pai-brand-2-hover);
+}
+
+.star-access-card__qrcode {
+  width: 100%;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.star-access-card .c-btn {
+  border-radius: 0;
 }
 
 .join-star {
@@ -694,11 +801,19 @@
 }
 
 .join-star p {
-    margin-bottom: 8px;
+  margin-bottom: 8px;
 }
-.join-star .category {
-  color: var(--pai-brand-1-normal);
-  font-weight: bold;
+
+.join-star img {
+  cursor: zoom-in;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
 
 .bd-search {
@@ -813,6 +928,51 @@
 }
 
 @media (max-width: 991px) {
+  .needlock {
+    padding-top: 88px;
+    margin-top: -150px;
+  }
+
+  .needlock.needlock--star {
+    padding-top: 16px;
+    margin-top: 16px;
+  }
+
+  .star-access-card {
+    padding: 16px;
+  }
+
+  .star-access-card__banner-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .star-access-card__banner {
+    font-size: 16px;
+  }
+
+  .star-access-card__banner-action {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .star-access-card__layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .star-access-card__qrcode {
+    width: 100%;
+  }
+
+  .join-star img {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+  }
+
   .book-directory-comp {
     overflow-y: auto;
     overflow-x: hidden;
