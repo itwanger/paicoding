@@ -170,10 +170,43 @@
   </div>
 
   <div th:if="${other.readType == 3 && !(global.user != null && global.user.starStatus.code == 2)}">
-    <div class="needlock">
-      <a class="btn-readmore no-login underline" href="#" target="_blank" data-target="#registerModal" data-toggle="modal">
-        <span style="font-size: 36px;">更多内容请加入二哥编程星球解锁，已绑定的球友可直接登录或授权解锁🔐</span>
-      </a>
+    <div class="needlock needlock--star">
+      <div class="star-access-card">
+        <div class="star-access-card__banner-row">
+          <a href="#" class="star-access-card__banner underline" data-target="#registerModal" data-toggle="modal">
+            以下内容需要加入二哥编程星球解锁，即刻绑定星球编号解锁🔐
+          </a>
+
+        </div>
+        
+        <div class="star-access-card__layout">
+          <div class="star-access-card__main">
+            <a href="/login/zsxq" class="c-btn c-btn-hole star-access-card__banner-action">
+              已加入星球，可直接知识星球授权登录
+            </a>
+            <div class="star-access-card__summary">
+              二哥编程星球目前包含：<br>
+              <a class="underline" href="https://javabetter.cn/zhishixingqiu/paiflow.html">企业级Agent工作流编排项目PaiFlow</a><br>
+              <a class="underline" href="https://javabetter.cn/zhishixingqiu/paiaagent.html">Vibe Coding版本的PaiAgent</a><br>
+              <a class="underline" href="https://javabetter.cn/zhishixingqiu/paizhongqing.html">派聪明RAG AI知识库Java版本+Go版本</a><br>
+              <a class="underline" href="https://javabetter.cn/zhishixingqiu/pmhub.html">微服务 PmHub</a>、<a class="underline" href="https://javabetter.cn/zhishixingqiu/technology.html" target="_blank">技术派</a>、MYDB<br>
+              求职派JobClaw（OpenClaw/Hermes架构<br>
+              PaiCLI（类似Claude Code的Agent<br>
+              派简历（代码已完成）<br>
+              等实战项目。
+            </div>
+            <div class="star-access-card__steps">
+              <p><strong>1.</strong> 微信扫右侧的优惠券加入知识星球</p>
+              <p><strong>2.</strong> 解锁星球的实战项目教程和源码：
+                <a class="underline" href="https://paicoding.com/article/detail/2602100040108033" target="_blank">项目源码+教程获取</a></p>
+            </div>
+
+          </div>
+          <div class="star-access-card__qrcode join-star">
+            <img src="https://cdn.tobebetterjavaer.com/paicoding/image-22f38916e1fc4b33b05f70493f317fd6.png" alt="二哥的星球">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -253,45 +286,6 @@
       </div>
     </div>
   </div>
-
-  <!-- 星球详情  -->
-  <div class="modal fade"
-       id="starModel"
-       data-backdrop="static"
-       data-keyboard="false"
-       tabindex="-1"
-       role="dialog"
-       aria-labelledby="deleteModalDropLabel"
-       aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <a href="https://t.zsxq.com/11YwgyGmC" target="_blank">
-            <h5 class="modal-title" id="startModel">该文档仅「二哥编程星球」的VIP用户可见</h5>
-          </a>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div  class="content join-star">
-            <p>二哥编程星球目前有7大实战项目: 派聪明RAG、微服务PmHub、技术派、MYDB、校招派Agent+MCP、派派工作流PaiFlow等</p>
-            <img src="https://cdn.paicoding.com/paicoding/image-fdae281151294c18a14563846393465d.jpg" alt="二哥的星球"> <br >
-            <p>》步骤①：微信扫描上方二维码，点击「加入知识星球」按钮</p>
-            <p>》步骤②：解锁星球实战项目教程+源码：
-              <a class="underline" href="https://paicoding.com/article/detail/2602100040108033" target="_blank">项目源码+教程获取</a></p>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" id="openRegisterFromStarModal" type="button" class="btn btn-primary">
-            已加入星球，绑定星球编号
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
   <!-- 删除文章再次确认 Modal -->
   <div class="modal fade"
@@ -382,22 +376,7 @@
     console.log("实体内容:", [[${article}]])
     let loginRead = [[${other.readType}]];
     let user = [[${global.user}]];
-    if (loginRead == 3) {
-      console.log(loginRead, user)
-      if (user == null) {
-        // 未加入星球，展示弹窗
-        console.log('显示星球弹窗')
-        $('#starModel').modal('show');
-      } else {
-        if (user.starStatus == "FORMAL") {
-
-        } else if(user.starStatus == "TRYING"){
-
-        } else {
-          $('#starModel').modal('show');
-        }
-      }
-    } else if (loginRead == 4) {
+    if (loginRead == 4) {
       // 对于付费阅读场景
       if (![[${article.canRead}]]) {
         if (user == null) {
@@ -406,15 +385,6 @@
         }
       }
     }
-
-    $('#openRegisterFromStarModal').on('click', function (event) {
-      event.preventDefault();
-      $('#starModel').one('hidden.bs.modal', function () {
-        $('#registerModal').modal('show');
-      });
-      $('#starModel').modal('hide');
-    });
-
 
     // -------------------------------------- 下面是打赏支付、解锁全文的逻辑 -------------------------------------------
 
