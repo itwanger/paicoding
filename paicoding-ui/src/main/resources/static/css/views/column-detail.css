@@ -423,10 +423,13 @@
 
 .book-summary__footer .qr-tips .qr-img {
   margin-top: 5px;
+  aspect-ratio: 1 / 1;
 }
 
 .book-summary__footer .qr-tips .qr-img img {
   width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .book-summary__footer .qr-tips:after {

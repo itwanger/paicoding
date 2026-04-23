@@ -16,6 +16,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.StrUtil;
 import com.github.paicoding.forum.service.article.conveter.PayConverter;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticlePayService;
@@ -210,7 +211,7 @@ public class ArticleViewController extends BaseViewController {
         // 根据文章类型，来自动处理文章内容
         String content = articleReadViewServiceExtend.formatArticleReadType(articleDTO);
         // 返回给前端页面时，转换为html格式
-        articleDTO.setContent(MarkdownConverter.markdownToHtml(content));
+        articleDTO.setContent(StrUtil.stabilizeHtmlImages(MarkdownConverter.markdownToHtml(content)));
         vo.setArticle(articleDTO);
 
         // 评论信息

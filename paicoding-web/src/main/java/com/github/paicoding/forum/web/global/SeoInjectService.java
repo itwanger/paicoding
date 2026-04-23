@@ -260,8 +260,21 @@ public class SeoInjectService {
 
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String url = globalViewConfig.getHost() + request.getRequestURI();
+        String requestUri = request.getRequestURI();
+        if (StringUtils.isBlank(requestUri)) {
+            requestUri = "/";
+        }
 
+        int sessionIdIndex = StringUtils.indexOfIgnoreCase(requestUri, ";jsessionid=");
+        if (sessionIdIndex >= 0) {
+            requestUri = requestUri.substring(0, sessionIdIndex);
+        }
+
+        String host = StringUtils.removeEnd(StringUtils.defaultString(globalViewConfig.getHost()), "/");
+        String normalizedPath = StringUtils.startsWith(requestUri, "/") ? requestUri : "/" + requestUri;
+        String url = host + normalizedPath;
+
+        list.add(new SeoTagVo("canonical", url));
         list.add(new SeoTagVo("og:url", url));
         map.put("url", url);
 

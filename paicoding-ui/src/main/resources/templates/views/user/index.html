@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
   <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+    <title th:text="${vo.userHome.userName + ' 的主页 - ' + global.siteInfo.websiteName}">技术派</title>
   </div>
 
   <link href="/css/views/user.css" th:href="${global.siteInfo.oss + '/css/views/user.css'}"  rel="stylesheet" />
@@ -12,6 +12,8 @@
 
     <!-- 正文内容 -->
     <div class="user">
+      <h1 style="position: absolute; left: -9999px; top: -9999px;"
+          th:text="${vo.userHome.userName + ' 的主页'}">用户主页</h1>
       <div th:replace="views/user/info/index :: user_info(${vo.userHome})"></div>
       <div class="user-wrap">
         <div class="user-content">

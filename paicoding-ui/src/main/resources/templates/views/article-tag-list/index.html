@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+    <title th:text="${vo.archives + ' - ' + global.siteInfo.websiteName}">技术派</title>
 </div>
 
 <link rel="stylesheet" href="/css/views/article-tag.css" th:href="${global.siteInfo.oss + '/css/views/article-tag.css'}">
@@ -13,6 +13,8 @@
 <!-- 正文内容 -->
 <div class="tag-wrap-out">
     <div class="tag-wrap">
+        <h1 style="position: absolute; left: -9999px; top: -9999px;"
+            th:text="${vo.archives + ' 标签文章'}">标签文章列表</h1>
         <!-- 文章列表 -->
         <div class="tag-list">
             <div id="articleList">

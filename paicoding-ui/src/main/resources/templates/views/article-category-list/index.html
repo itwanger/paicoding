@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${global.siteInfo.websiteName}">技术派</title>
+    <title th:text="${vo.archives + ' - ' + global.siteInfo.websiteName}">技术派</title>
 </div>
 
 <style>
@@ -29,6 +29,8 @@
 <!-- 正文内容 -->
 <div class="category-wrap-out">
     <div class="category-wrap">
+        <h1 style="position: absolute; left: -9999px; top: -9999px;"
+            th:text="${vo.archives + ' 相关文章'}">分类文章列表</h1>
         <!-- 文章列表 -->
         <div class="category-list">
             <div id="articleList">
@@ -50,4 +52,3 @@
 </body>
 
 </html>
-

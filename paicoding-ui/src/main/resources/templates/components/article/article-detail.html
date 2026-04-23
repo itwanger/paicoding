@@ -172,7 +172,7 @@
   <div th:if="${other.readType == 3 && !(global.user != null && global.user.starStatus.code == 2)}">
     <div class="needlock">
       <a class="btn-readmore no-login underline" href="#" target="_blank" data-target="#registerModal" data-toggle="modal">
-        <span style="font-size: 36px;">更多内容请加入二哥编程星球解锁，即刻绑定星球编号解锁🔐</span>
+        <span style="font-size: 36px;">更多内容请加入二哥编程星球解锁，已绑定的球友可直接登录或授权解锁🔐</span>
       </a>
     </div>
   </div>
@@ -284,7 +284,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <a href="#" data-target="#registerModal" data-toggle="modal" type="button" class="btn btn-primary" data-dismiss="modal">
+          <a href="#" id="openRegisterFromStarModal" type="button" class="btn btn-primary">
             已加入星球，绑定星球编号
           </a>
         </div>
@@ -406,6 +406,14 @@
         }
       }
     }
+
+    $('#openRegisterFromStarModal').on('click', function (event) {
+      event.preventDefault();
+      $('#starModel').one('hidden.bs.modal', function () {
+        $('#registerModal').modal('show');
+      });
+      $('#starModel').modal('hide');
+    });
 
 
     // -------------------------------------- 下面是打赏支付、解锁全文的逻辑 -------------------------------------------

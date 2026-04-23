@@ -13,6 +13,7 @@ import com.github.paicoding.forum.service.shortlink.repository.mapper.ShortLinkR
 import com.github.paicoding.forum.service.shortlink.service.ShortLinkService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -39,6 +40,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
 
     @Value("${view.site.host:https://paicoding.com}")
     private String host;
+
+    @Resource
+    private Environment environment;
 
     public ShortLinkServiceImpl(ShortLinkMapper shortLinkMapper, ShortLinkRecordMapper shortLinkRecordMapper) {
         this.shortLinkMapper = shortLinkMapper;
@@ -127,9 +131,17 @@ public class ShortLinkServiceImpl implements ShortLinkService {
      */
     private ShortLinkVO createShortLinkVO(ShortLinkDO shortLinkDO) {
         ShortLinkVO shortLinkVO = new ShortLinkVO();
-        shortLinkVO.setShortUrl(host + "/sol/" + shortLinkDO.getShortCode());
+        shortLinkVO.setShortUrl(resolveHost() + "/sol/" + shortLinkDO.getShortCode());
         shortLinkVO.setOriginalUrl(shortLinkDO.getOriginalUrl());
         return shortLinkVO;
+    }
+
+    private String resolveHost() {
+        Integer localPort = environment.getProperty("local.server.port", Integer.class);
+        if (localPort != null && (host.contains("127.0.0.1") || host.contains("localhost"))) {
+            return "http://127.0.0.1:" + localPort;
+        }
+        return host;
     }
 
 

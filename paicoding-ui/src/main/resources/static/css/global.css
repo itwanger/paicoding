@@ -853,11 +853,20 @@ button:focus {
 }
 
 .article-content img {
+  width: auto;
+  height: auto;
   max-width: 100%;
   box-sizing: content-box;
   background-color: #fff;
   margin: 0 auto;
   display: block;
+}
+
+.article-content img.article-content-img--pending-size {
+  width: min(100%, 720px);
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background-color: #f7f8fa;
 }
 
 .article-content h1 {
@@ -1333,11 +1342,20 @@ button:focus {
 
 /* 所有图片的通用样式 */
 .article-content img {
+  width: auto;
+  height: auto;
   border: 1px solid var(--pai-color-5-gray);
   padding: 5px;
   border-radius: 4px;
   display: block;
   margin: 0 auto;
+}
+
+.article-content img.article-content-img--pending-size {
+  width: min(100%, 720px);
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background-color: #f7f8fa;
 }
 
 .article-content figcaption {

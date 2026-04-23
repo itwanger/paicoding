@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -53,6 +54,9 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
     @Value("${view.site.host:https://paicoding.com}")
     private String host;
+
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private PayServiceFactory payServiceFactory;
@@ -289,7 +293,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
 
         PayConfirmDTO confirm = new PayConfirmDTO();
         confirm.setTitle(article.getTitle());
-        confirm.setArticleUrl(String.format("%s/article/detail/%s", host, article.getId()));
+        confirm.setArticleUrl(String.format("%s/article/detail/%s", resolveHost(), article.getId()));
         confirm.setNotifyCnt(record.getNotifyCnt());
         confirm.setPayTime(record.getNotifyTime() == null ? "-" : DateUtil.format(DateUtil.DB_FORMAT, record.getNotifyTime().getTime()));
         confirm.setPayUser(pay.getUserName());
@@ -297,7 +301,7 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         confirm.setReceiveUserId(record.getReceiveUserId());
         confirm.setPayWay(record.getPayWay());
         confirm.setPayAmount(Objects.equals(record.getPayWay(), ThirdPayWayEnum.EMAIL.getPay()) ? "" : PriceUtil.toYuanPrice(record.getPayAmount()));
-        confirm.setCallback(host + "/article/api/pay/callback?payId=" + record.getId() + "&verifyCode=" + record.getVerifyCode());
+        confirm.setCallback(resolveHost() + "/article/api/pay/callback?payId=" + record.getId() + "&verifyCode=" + record.getVerifyCode());
         return confirm;
     }
 
@@ -317,5 +321,12 @@ public class ArticlePayServiceImpl implements ArticlePayService {
         return userService.batchQuerySimpleUserInfo(users);
     }
 
+    private String resolveHost() {
+        Integer localPort = environment.getProperty("local.server.port", Integer.class);
+        if (localPort != null && (host.contains("127.0.0.1") || host.contains("localhost"))) {
+            return "http://127.0.0.1:" + localPort;
+        }
+        return host;
+    }
 
 }

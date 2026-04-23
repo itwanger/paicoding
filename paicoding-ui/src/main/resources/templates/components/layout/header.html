@@ -19,6 +19,14 @@
             th:if="${tag.key == 'description'}" 
             name="description" 
             th:content="${tag.val}" />
+      <meta th:each="tag: ${global.ogp}"
+            th:if="${tag.key == 'author'}"
+            name="author"
+            th:content="${tag.val}" />
+      <link th:each="tag: ${global.ogp}"
+            th:if="${tag.key == 'canonical'}"
+            rel="canonical"
+            th:href="${tag.val}" />
     </th:block>
     
     <!-- 默认 keywords 和 description（当 SEO 未设置时） -->
@@ -39,7 +47,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta th:each="tag: ${global.ogp}" th:attr="content=${tag.val}" th:property="${tag.key}"/>
+    <meta th:each="tag: ${global.ogp}"
+          th:if="${tag.key.startsWith('og:') or tag.key.startsWith('article:')}"
+          th:attr="content=${tag.val}"
+          th:property="${tag.key}"/>
 
     <script type="application/ld+json" th:utext="${global.jsonLd}"></script>
 

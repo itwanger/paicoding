@@ -5,7 +5,7 @@
       <div class="d-flex align-content-start w-full category-list">
         <a th:each="category : ${list}"
                 th:text="${category.category}"
-                th:href="${'?category=' + category.category}"
+                th:href="${category.category == '全部' ? '/' : '/article/category/' + category.category}"
                 th:class="'category--item pt-2 pr-5 ' + ${(category.selected ? 'category--active' : '')}">
           全部
         </a>
@@ -165,4 +165,3 @@
 
 
 </html>
-

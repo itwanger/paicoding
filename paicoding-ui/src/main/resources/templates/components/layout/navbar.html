@@ -382,6 +382,19 @@
     // 是否自动刷新验证码
     let autoRefresh;
     const stateTag = $('#state'), codeTag = $('#code');
+    const navbarIsLogin = [[${global.isLogin}]];
+    let pendingOpenLoginAfterRegisterClose = false;
+
+    function isStarAlreadyBound(status) {
+      return !!(status && status.msg && status.msg.indexOf("已经绑定") !== -1);
+    }
+
+    $('#registerModal').on('hidden.bs.modal', function () {
+      if (pendingOpenLoginAfterRegisterClose) {
+        pendingOpenLoginAfterRegisterClose = false;
+        $('#loginModal').modal('show');
+      }
+    });
 
     // 登录
     $("#login-form").on("submit", function(event) {
@@ -442,6 +455,17 @@
             setTimeout(function() {
               window.location.href = "/user/home?userId=" + response.result;
             }, 1500);
+          } else if (isStarAlreadyBound(response.status)) {
+            if (navbarIsLogin) {
+              toastr.warning("该星球编号已绑定其他账号，请直接使用知识星球授权绑定。");
+              setTimeout(function() {
+                window.location.href = "/zsxq/bind";
+              }, 1200);
+            } else {
+              pendingOpenLoginAfterRegisterClose = true;
+              $('#registerModal').modal('hide');
+              toastr.warning("该星球编号已绑定过账号，请直接登录原账号，或在 PC 端使用知识星球授权登录。");
+            }
           } else {
             // 绑定失败
             toastr.error(response.status.msg);

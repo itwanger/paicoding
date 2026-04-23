@@ -1,14 +1,31 @@
 package com.github.paicoding.forum.core.util;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author YiHui
  * @date 2024/12/5
  */
 public class StrUtil {
+    private static final Cache<String, ImageDimension> IMAGE_DIMENSION_CACHE = Caffeine.newBuilder()
+            .maximumSize(2048)
+            .expireAfterWrite(7, TimeUnit.DAYS)
+            .build();
+    private static final int IMAGE_DIMENSION_PROBE_LIMIT = 3;
+    private static final int IMAGE_DIMENSION_TIMEOUT_MS = 1500;
 
     /**
      * 微信支付的提示信息，不支持表情包，因此我们只保留中文 + 数字 + 英文字母 + 符号 '《》【】-_.'
@@ -120,6 +137,110 @@ public class StrUtil {
         return safeSubstringHtml(html, resolvePreviewLength(html, lengthConfig));
     }
 
+    /**
+     * 为缺少宽高的正文图片增加稳定占位，降低首屏图片加载导致的布局偏移。
+     */
+    public static String stabilizeHtmlImages(String html) {
+        if (StringUtils.isBlank(html)) {
+            return html;
+        }
+
+        try {
+            org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parseBodyFragment(html);
+            org.jsoup.select.Elements images = doc.select("img");
+            int remainingProbeCount = IMAGE_DIMENSION_PROBE_LIMIT;
+            for (org.jsoup.nodes.Element img : images) {
+                String src = normalizeImageSrc(img.attr("src"));
+                ImageDimension dimension = null;
+                if (StringUtils.isNotBlank(src)) {
+                    dimension = IMAGE_DIMENSION_CACHE.getIfPresent(src);
+                    if (dimension == null && remainingProbeCount > 0) {
+                        remainingProbeCount--;
+                        dimension = loadImageDimension(src);
+                        if (dimension != null) {
+                            IMAGE_DIMENSION_CACHE.put(src, dimension);
+                        }
+                    }
+                }
+
+                if (dimension != null) {
+                    img.attr("width", String.valueOf(dimension.width));
+                    img.attr("height", String.valueOf(dimension.height));
+                    img.removeClass("article-content-img--pending-size");
+                    continue;
+                }
+
+                boolean missingWidth = !img.hasAttr("width");
+                boolean missingHeight = !img.hasAttr("height");
+                if (missingWidth || missingHeight) {
+                    if (!img.classNames().contains("article-content-img--pending-size")) {
+                        img.addClass("article-content-img--pending-size");
+                    }
+                }
+            }
+            return doc.body().html();
+        } catch (Exception e) {
+            return html;
+        }
+    }
+
+    private static String normalizeImageSrc(String src) {
+        if (StringUtils.isBlank(src)) {
+            return null;
+        }
+
+        String target = src.trim();
+        if (target.startsWith("//")) {
+            return "https:" + target;
+        }
+        if (target.startsWith("http://") || target.startsWith("https://")) {
+            return target;
+        }
+        return null;
+    }
+
+    private static ImageDimension loadImageDimension(String src) {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) new URL(src).openConnection();
+            connection.setConnectTimeout(IMAGE_DIMENSION_TIMEOUT_MS);
+            connection.setReadTimeout(IMAGE_DIMENSION_TIMEOUT_MS);
+            connection.setInstanceFollowRedirects(true);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 PaiCoding-SEO-ImageProbe");
+
+            try (InputStream inputStream = connection.getInputStream();
+                 ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+                if (imageInputStream == null) {
+                    return null;
+                }
+
+                Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
+                if (!readers.hasNext()) {
+                    return null;
+                }
+
+                ImageReader reader = readers.next();
+                try {
+                    reader.setInput(imageInputStream, true, true);
+                    int width = reader.getWidth(0);
+                    int height = reader.getHeight(0);
+                    if (width > 0 && height > 0) {
+                        return new ImageDimension(width, height);
+                    }
+                    return null;
+                } finally {
+                    reader.dispose();
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
     private static int resolvePreviewLength(String html, String lengthConfig) {
         if (StringUtils.isBlank(html)) {
             return 0;
@@ -200,6 +321,16 @@ public class StrUtil {
 
         private HtmlTruncateState(int remainingLength) {
             this.remainingLength = remainingLength;
+        }
+    }
+
+    private static class ImageDimension {
+        private final int width;
+        private final int height;
+
+        private ImageDimension(int width, int height) {
+            this.width = width;
+            this.height = height;
         }
     }
 

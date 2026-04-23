@@ -3,6 +3,8 @@ package com.github.paicoding.forum.web.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -18,7 +20,9 @@ import org.thymeleaf.standard.serializer.IStandardJavaScriptSerializer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.servlet.SessionTrackingMode;
 import java.lang.reflect.Field;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,6 +73,11 @@ public class PaiWebConfig implements WebMvcConfigurer {
             objectMapper.registerModule(JsonUtil.bigIntToStrsimpleModule());
             log.info("WebConfig init 设置jackson序列化long为字符串成功!!!");
         }
+    }
+
+    @Bean
+    public ServletContextInitializer sessionTrackingModeInitializer() {
+        return servletContext -> servletContext.setSessionTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE));
     }
 
     /**

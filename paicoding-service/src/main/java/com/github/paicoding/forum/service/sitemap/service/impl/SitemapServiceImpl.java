@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,8 @@ public class SitemapServiceImpl implements SitemapService {
     private CountService countService;
     @Resource
     private ColumnArticleDao columnArticleDao;
+    @Resource
+    private Environment environment;
 
     /**
      * 查询站点地图
@@ -91,7 +94,7 @@ public class SitemapServiceImpl implements SitemapService {
             if (StringUtils.isNotBlank(article.getShortTitle())) {
                 ColumnArticleDO columnArticle = columnArticleDao.selectColumnArticleByArticleId(articleId);
                 if (columnArticle != null) {
-                    url = host + "/column/" + columnArticle.getColumnId() + "/" + columnArticle.getSection();
+                    url = host() + "/column/" + columnArticle.getColumnId() + "/" + columnArticle.getSection();
                 } else {
                     url = buildArticleUrl(article, articleId);
                 }
@@ -125,9 +128,9 @@ public class SitemapServiceImpl implements SitemapService {
 
     private String buildArticleUrl(ArticleDO article, Long articleId) {
         if (StringUtils.isNotBlank(article.getUrlSlug())) {
-            return host + "/article/detail/" + articleId + "/" + article.getUrlSlug();
+            return host() + "/article/detail/" + articleId + "/" + article.getUrlSlug();
         } else {
-            return host + "/article/detail/" + articleId;
+            return host() + "/article/detail/" + articleId;
         }
     }
 
@@ -157,13 +160,10 @@ public class SitemapServiceImpl implements SitemapService {
         String time = DateUtil.time2sitemapDate(System.currentTimeMillis());
         
         // 首页：最高优先级，每日更新
-        vo.addUrl(new SiteUrlVo(host + "/", time, "daily", "1.0"));
+        vo.addUrl(new SiteUrlVo(host() + "/", time, "daily", "1.0"));
         
         // 专栏列表：高优先级，每周更新
-        vo.addUrl(new SiteUrlVo(host + "/column", time, "weekly", "0.8"));
-        
-        // 管理后台：低优先级，很少更新
-        vo.addUrl(new SiteUrlVo(host + "/admin-view", time, "yearly", "0.3"));
+        vo.addUrl(new SiteUrlVo(host() + "/column", time, "weekly", "0.8"));
         
         return vo;
     }
@@ -187,7 +187,7 @@ public class SitemapServiceImpl implements SitemapService {
         sb.append("\n");
         sb.append("# 禁止抓取管理后台\n");
         sb.append("Disallow: /admin/\n");
-        sb.append("Disallow: /admin-view/\n");
+        sb.append("Disallow: /admin-view\n");
         sb.append("\n");
         sb.append("# 禁止抓取API接口\n");
         sb.append("Disallow: /api/\n");
@@ -197,7 +197,7 @@ public class SitemapServiceImpl implements SitemapService {
         sb.append("Disallow: /user/register\n");
         sb.append("\n");
         sb.append("# Sitemap 位置\n");
-        sb.append("Sitemap: ").append(host).append("/sitemap.xml\n");
+        sb.append("Sitemap: ").append(host()).append("/sitemap.xml\n");
         return sb.toString();
     }
 
@@ -360,5 +360,14 @@ public class SitemapServiceImpl implements SitemapService {
         siteInfo.setPv(map.getOrDefault(pvField, 0));
         siteInfo.setUv(map.getOrDefault(uvField, 0));
         return siteInfo;
+    }
+
+    private String host() {
+        String configuredHost = StringUtils.removeEnd(StringUtils.defaultString(host, "https://paicoding.com"), "/");
+        Integer localPort = environment.getProperty("local.server.port", Integer.class);
+        if (localPort != null && (StringUtils.contains(configuredHost, "127.0.0.1") || StringUtils.contains(configuredHost, "localhost"))) {
+            return "http://127.0.0.1:" + localPort;
+        }
+        return configuredHost;
     }
 }

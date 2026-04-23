@@ -9,7 +9,7 @@ import com.github.paicoding.forum.core.util.EnvUtil;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
-import com.github.paicoding.forum.service.sitemap.service.impl.SitemapServiceImpl;
+import com.github.paicoding.forum.service.sitemap.service.SitemapService;
 import com.github.paicoding.forum.service.statistics.service.StatisticsSettingService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.web.global.GlobalInitService;
@@ -153,7 +153,7 @@ public class ReqRecordFilter implements Filter {
             ReqInfoContext.addReqInfo(reqInfo);
             stopWatch.start("pv/uv站点统计");
             // 更新uv/pv计数
-            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapServiceImpl.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath()));
+            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapService.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath()));
             stopWatch.stop();
 
             stopWatch.start("回写traceId");

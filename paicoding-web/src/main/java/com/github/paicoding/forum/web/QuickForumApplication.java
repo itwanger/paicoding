@@ -2,9 +2,9 @@ package com.github.paicoding.forum.web;
 
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.paicoding.forum.core.autoconf.DynamicConfigContainer;
 import com.github.paicoding.forum.core.util.DotenvUtil;
 import com.github.paicoding.forum.core.util.SocketUtil;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.global.ForumExceptionHandler;
 import com.github.paicoding.forum.web.hook.interceptor.GlobalViewInterceptor;
@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.core.env.Environment;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -47,6 +49,15 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
 
     @Resource
     private GlobalViewInterceptor globalViewInterceptor;
+
+    @Resource
+    private Environment environment;
+
+    @Resource
+    private GlobalViewConfig globalViewConfig;
+
+    @Resource
+    private DynamicConfigContainer dynamicConfigContainer;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -90,15 +101,27 @@ public class QuickForumApplication implements WebMvcConfigurer, ApplicationRunne
         return connector -> connector.setPort(port);
     }
 
+    @PostConstruct
+    public void registerLocalHostRefresh() {
+        dynamicConfigContainer.registerRefreshCallback(globalViewConfig, this::syncLocalHost);
+    }
+
     @Override
     public void run(ApplicationArguments args) {
         // 设置类型转换, 主要用于mybatis读取varchar/json类型数据据，并写入到json格式的实体Entity中
         JacksonTypeHandler.setObjectMapper(new ObjectMapper());
         // 应用启动之后执行
-        GlobalViewConfig config = SpringUtil.getBean(GlobalViewConfig.class);
-        if (webPort != null) {
-            config.setHost("http://127.0.0.1:" + webPort);
+        syncLocalHost();
+        log.info("启动成功，点击进入首页: {}", globalViewConfig.getHost());
+    }
+
+    private void syncLocalHost() {
+        Integer actualPort = environment.getProperty("local.server.port", Integer.class);
+        if (actualPort == null) {
+            actualPort = webPort;
         }
-        log.info("启动成功，点击进入首页: {}", config.getHost());
+        if (actualPort != null) {
+            globalViewConfig.setHost("http://127.0.0.1:" + actualPort);
+        }
     }
 }
