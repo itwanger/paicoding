@@ -57,6 +57,10 @@ security:
   salt-index: 3 # 盐插入的位置
 
 paicoding:
+  login:
+    risk:
+      maxActiveDevices: 2
+      touchSyncSeconds: 300
   sensitive: # 敏感词校验相关配置
     enable: true
     deny: # 自定义的敏感词，英文逗号分割

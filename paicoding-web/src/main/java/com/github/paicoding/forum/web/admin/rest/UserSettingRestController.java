@@ -1,18 +1,26 @@
 package com.github.paicoding.forum.web.admin.rest;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.user.SearchUserLoginAuditReq;
+import com.github.paicoding.forum.api.model.vo.user.SearchUserSessionReq;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserActiveSessionDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserLoginAuditDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
+import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.front.search.vo.SearchUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,6 +40,8 @@ public class UserSettingRestController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private LoginAuditService loginAuditService;
 
     @ApiOperation("用户搜索")
     @GetMapping(path = "query")
@@ -49,5 +59,17 @@ public class UserSettingRestController {
     public ResVo<BaseUserInfoDTO> info() {
         BaseUserInfoDTO user = ReqInfoContext.getReqInfo().getUser();
         return ResVo.ok(user);
+    }
+
+    @ApiOperation("分页获取用户登录审计")
+    @PostMapping(path = "login-audit")
+    public ResVo<PageVo<UserLoginAuditDTO>> loginAudit(@RequestBody(required = false) SearchUserLoginAuditReq req) {
+        return ResVo.ok(loginAuditService.getLoginAuditPage(req));
+    }
+
+    @ApiOperation("分页获取用户登录会话")
+    @PostMapping(path = "session")
+    public ResVo<PageVo<UserActiveSessionDTO>> session(@RequestBody(required = false) SearchUserSessionReq req) {
+        return ResVo.ok(loginAuditService.getSessionPage(req));
     }
 }

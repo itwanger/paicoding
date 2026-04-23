@@ -111,12 +111,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp) {
+    public BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp, String deviceId, String userAgent) {
         if (StringUtils.isBlank(session)) {
             return null;
         }
 
-        Long userId = userSessionHelper.getUserIdBySession(session);
+        Long userId = userSessionHelper.getUserIdBySession(session, clientIp, deviceId, userAgent);
         if (userId == null) {
             return null;
         }
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
         UserInfoDO user = userDao.getByUserId(userId);
         if (user == null) {
             // 常见于：session中记录的用户被删除了，直接移除缓存中的session，走重新登录流程
-            userSessionHelper.removeSession(session);
+            userSessionHelper.removeSession(session, "USER_NOT_EXISTS");
             return null;
         }
 

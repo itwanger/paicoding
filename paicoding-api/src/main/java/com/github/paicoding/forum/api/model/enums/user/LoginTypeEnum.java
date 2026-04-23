@@ -24,4 +24,16 @@ public enum LoginTypeEnum {
     ZSXQ(2),
     ;
     private int type;
+
+    public static LoginTypeEnum fromType(Integer type) {
+        if (type == null) {
+            return null;
+        }
+        for (LoginTypeEnum value : values()) {
+            if (value.type == type) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

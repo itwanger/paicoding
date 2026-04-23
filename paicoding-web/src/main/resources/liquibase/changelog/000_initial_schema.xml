@@ -170,4 +170,9 @@
     <changeSet id="20260228_1" author="Qoder">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260228.sql"/>
     </changeSet>
+
+    <!-- 登录审计与活跃会话 -->
+    <changeSet id="20260423_1" author="Codex">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260423.sql"/>
+    </changeSet>
 </databaseChangeLog>

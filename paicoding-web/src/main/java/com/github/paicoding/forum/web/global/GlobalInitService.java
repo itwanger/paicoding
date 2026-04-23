@@ -132,7 +132,7 @@ public class GlobalInitService {
     }
 
     public boolean initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {
-        BaseUserInfoDTO user = userService.getAndUpdateUserIpInfoBySessionId(session, null);
+        BaseUserInfoDTO user = userService.getAndUpdateUserIpInfoBySessionId(session, reqInfo.getClientIp(), reqInfo.getDeviceId(), reqInfo.getUserAgent());
         if (user != null) {
             reqInfo.setSession(session);
             reqInfo.setUserId(user.getUserId());

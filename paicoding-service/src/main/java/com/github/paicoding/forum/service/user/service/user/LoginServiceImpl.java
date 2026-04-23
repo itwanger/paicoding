@@ -15,6 +15,7 @@ import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
@@ -63,6 +64,8 @@ public class LoginServiceImpl implements LoginService {
     private UserAiService userAiService;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private LoginAuditService loginAuditService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -88,7 +91,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public void logout(String session) {
-        userSessionHelper.removeSession(session);
+        userSessionHelper.logout(session);
     }
 
     /**
@@ -99,7 +102,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     public String loginByWx(Long userId) {
-        return userSessionHelper.genSession(userId);
+        return userSessionHelper.genSession(userId, null, LoginTypeEnum.WECHAT.getType());
     }
 
     /**
@@ -113,10 +116,14 @@ public class LoginServiceImpl implements LoginService {
     public String loginByUserPwd(String username, String password) {
         UserDO user = userDao.getUserByUserName(username);
         if (user == null) {
+            loginAuditService.recordLoginFail(username, LoginTypeEnum.USER_PWD.getType(), "用户不存在", buildCurrentSessionMeta());
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userName=" + username);
         }
 
         if (!userPwdEncoder.match(password, user.getPassword())) {
+            UserSessionHelper.SessionDeviceMeta sessionMeta = buildCurrentSessionMeta();
+            sessionMeta.setUserId(user.getId());
+            loginAuditService.recordLoginFail(username, LoginTypeEnum.USER_PWD.getType(), "密码错误", sessionMeta);
             throw ExceptionUtil.of(StatusEnum.USER_PWD_ERROR);
         }
 
@@ -126,7 +133,7 @@ public class LoginServiceImpl implements LoginService {
 
         // 登录成功，返回对应的session
         ReqInfoContext.getReqInfo().setUserId(userId);
-        return userSessionHelper.genSession(userId);
+        return userSessionHelper.genSession(userId, username, LoginTypeEnum.USER_PWD.getType());
     }
 
 
@@ -169,7 +176,8 @@ public class LoginServiceImpl implements LoginService {
             userId = registerService.registerByUserNameAndPassword(loginReq);
         }
         ReqInfoContext.getReqInfo().setUserId(userId);
-        return userSessionHelper.genSession(userId);
+        Integer loginType = loginReq.getLoginType() == null ? LoginTypeEnum.USER_PWD.getType() : loginReq.getLoginType();
+        return userSessionHelper.genSession(userId, loginReq.getUsername(), loginType);
     }
 
 
@@ -276,6 +284,18 @@ public class LoginServiceImpl implements LoginService {
         }
 
         ReqInfoContext.getReqInfo().setUserId(userId);
-        return userSessionHelper.genSession(userId);
+        UserDO user = userDao.getUserByUserId(userId);
+        return userSessionHelper.genSession(userId, user == null ? null : user.getUserName(), LoginTypeEnum.ZSXQ.getType());
+    }
+
+    private UserSessionHelper.SessionDeviceMeta buildCurrentSessionMeta() {
+        UserSessionHelper.SessionDeviceMeta sessionMeta = new UserSessionHelper.SessionDeviceMeta();
+        if (ReqInfoContext.getReqInfo() == null) {
+            return sessionMeta;
+        }
+        sessionMeta.setDeviceId(ReqInfoContext.getReqInfo().getDeviceId());
+        sessionMeta.setIp(ReqInfoContext.getReqInfo().getClientIp());
+        sessionMeta.setUserAgent(ReqInfoContext.getReqInfo().getUserAgent());
+        return sessionMeta;
     }
 }

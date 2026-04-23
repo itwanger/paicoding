@@ -50,7 +50,7 @@ public interface UserService {
      * @param clientIp 用户最新的登录ip
      * @return 返回用户基本信息
      */
-    BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp);
+    BaseUserInfoDTO getAndUpdateUserIpInfoBySessionId(String session, String clientIp, String deviceId, String userAgent);
 
     /**
      * 查询极简的用户信息
