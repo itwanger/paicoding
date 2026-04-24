@@ -526,7 +526,7 @@
           }
 
           let videoId = url;
-          let videoHtml = '';
+          let videoMarkdown = '';
 
           // 解析不同平台的视频ID并生成HTML
           if (platform === 'bilibili') {
@@ -534,29 +534,28 @@
             if (bvMatch) {
               videoId = bvMatch[0];
             }
-            // 直接插入B站iframe HTML代码，这样编辑器也能预览
-            videoHtml = `\n<iframe src="//player.bilibili.com/player.html?bvid=${videoId}&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" style="width: 100%; height: 500px;"></iframe>\n\n`;
+            videoMarkdown = `\n@[bilibili](${videoId})\n\n`;
           } else if (platform === 'youtube') {
             const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
             if (ytMatch) {
               videoId = ytMatch[1];
             }
-            videoHtml = `\n<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 500px;"></iframe>\n\n`;
+            videoMarkdown = `\n@[youtube](${videoId})\n\n`;
           } else if (platform === 'tencent') {
             const tencentMatch = url.match(/\/([a-z0-9]+)\.html/);
             if (tencentMatch) {
               videoId = tencentMatch[1];
             }
-            videoHtml = `\n<iframe src="https://v.qq.com/txp/iframe/player.html?vid=${videoId}" frameborder="0" allowfullscreen style="width: 100%; height: 500px;"></iframe>\n\n`;
+            videoMarkdown = `\n@[tencent](${videoId})\n\n`;
           }
 
           // 插入到编辑器
-          cm.replaceSelection(videoHtml);
+          cm.replaceSelection(videoMarkdown);
 
           // 关闭弹窗
           $('.video-dialog-overlay').remove();
 
-          toastr.success('视频插入成功！可在预览面板查看');
+          toastr.success('视频插入成功！发布后可在阅读页查看');
         });
 
         // 取消按钮

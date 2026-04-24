@@ -863,10 +863,14 @@ button:focus {
 }
 
 .article-content img.article-content-img--pending-size {
-  width: min(100%, 720px);
-  aspect-ratio: 16 / 9;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
   background-color: #f7f8fa;
+}
+
+.article-content img.article-content-img--text-shot {
+  max-width: min(100%, var(--article-img-max-width, 880px));
 }
 
 .article-content h1 {
@@ -1352,10 +1356,14 @@ button:focus {
 }
 
 .article-content img.article-content-img--pending-size {
-  width: min(100%, 720px);
-  aspect-ratio: 16 / 9;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
   background-color: #f7f8fa;
+}
+
+.article-content img.article-content-img--text-shot {
+  max-width: min(100%, var(--article-img-max-width, 880px));
 }
 
 .article-content figcaption {
@@ -1365,6 +1373,35 @@ button:focus {
   font-style: italic;
   line-height: 1.6;
   text-align: center;
+}
+
+.article-content .video-container {
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  aspect-ratio: 16 / 9;
+  margin: 24px auto;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.article-content .video-container iframe {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+}
+
+@supports not (aspect-ratio: 16 / 9) {
+  .article-content .video-container {
+    height: 0;
+    padding-bottom: 56.25%;
+  }
 }
 
 .selected-text-highlight {
