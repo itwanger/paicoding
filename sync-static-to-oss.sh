@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="${ROOT_DIR}/paicoding-ui/src/main/resources/static"
 TARGET_DIR="paicodingui$(date +%m%d)"
-DELETE_OLD_DIRS=false
+DELETE_OLD_DIRS=true
 DRY_RUN=false
 OSSUTIL_BIN=""
 
@@ -15,8 +15,8 @@ Usage: ./sync-static-to-oss.sh [options]
 Options:
   --target-dir <dir>     Upload into oss://bucket/<dir>/static/. Default: paicodinguiMMDD
   --source-dir <dir>     Local static dir. Default: paicoding-ui/src/main/resources/static
-  --delete-old-dirs      Delete previous paicodingui* dirs after upload
-  --keep-old-dirs        Keep previous paicodingui* dirs. This is the default.
+  --delete-old-dirs      Delete previous paicodingui* dirs after upload. This is the default.
+  --keep-old-dirs        Keep previous paicodingui* dirs instead of deleting them
   --dry-run              Print commands without executing upload/delete
   -h, --help             Show this help
 
