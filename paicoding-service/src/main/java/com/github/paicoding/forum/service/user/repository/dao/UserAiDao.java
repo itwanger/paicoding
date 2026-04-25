@@ -19,7 +19,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author YiHui
@@ -59,12 +61,25 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
 
     public List<UserAiDO> getByUserIds(Collection<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
         queryUserAi.in(UserAiDO::getUserId, userIds)
                 .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
         return userAiMapper.selectList(queryUserAi);
+    }
+
+    public List<Long> listUserIdsByStarNumber(String starNumber) {
+        if (StringUtils.isBlank(starNumber)) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
+        queryUserAi.select(UserAiDO::getUserId)
+                .like(UserAiDO::getStarNumber, starNumber)
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userAiMapper.selectList(queryUserAi).stream()
+                .map(UserAiDO::getUserId)
+                .collect(Collectors.toList());
     }
 
 

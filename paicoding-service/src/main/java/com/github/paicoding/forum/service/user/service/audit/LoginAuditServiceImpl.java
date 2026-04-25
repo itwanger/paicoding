@@ -190,9 +190,14 @@ public class LoginAuditServiceImpl implements LoginAuditService {
     public PageVo<UserLoginAuditDTO> getLoginAuditPage(SearchUserLoginAuditReq req) {
         long pageNum = normalizePageNumber(req == null ? null : req.getPageNumber());
         long pageSize = normalizePageSize(req == null ? null : req.getPageSize());
+        List<Long> starMatchedUserIds = resolveAuditUserIdsByStarNumber(req);
+        if (req != null && StringUtils.isNotBlank(req.getStarNumber()) && starMatchedUserIds.isEmpty()) {
+            return PageVo.build(java.util.Collections.emptyList(), pageSize, pageNum, 0);
+        }
 
         LambdaQueryWrapper<UserLoginAuditDO> query = new LambdaQueryWrapper<>();
         query.eq(req != null && req.getUserId() != null, UserLoginAuditDO::getUserId, req.getUserId())
+                .in(req != null && StringUtils.isNotBlank(req.getStarNumber()), UserLoginAuditDO::getUserId, starMatchedUserIds)
                 .like(req != null && StringUtils.isNotBlank(req.getLoginName()), UserLoginAuditDO::getLoginName, req.getLoginName())
                 .like(req != null && StringUtils.isNotBlank(req.getDeviceId()), UserLoginAuditDO::getDeviceId, req.getDeviceId())
                 .like(req != null && StringUtils.isNotBlank(req.getIp()), UserLoginAuditDO::getIp, req.getIp())
@@ -356,6 +361,13 @@ public class LoginAuditServiceImpl implements LoginAuditService {
             target.setMinIpCount(DEFAULT_MIN_IP_COUNT);
         }
         return target;
+    }
+
+    private List<Long> resolveAuditUserIdsByStarNumber(SearchUserLoginAuditReq req) {
+        if (req == null || StringUtils.isBlank(req.getStarNumber())) {
+            return java.util.Collections.emptyList();
+        }
+        return userAiDao.listUserIdsByStarNumber(req.getStarNumber());
     }
 
     private UserSessionStateEnum resolveState(UserActiveSessionDO session) {

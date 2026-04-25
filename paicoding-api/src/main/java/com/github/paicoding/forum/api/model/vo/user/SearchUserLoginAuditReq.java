@@ -12,6 +12,7 @@ import lombok.Data;
 public class SearchUserLoginAuditReq {
     private Long userId;
     private String loginName;
+    private String starNumber;
     private String deviceId;
     private String ip;
     private String eventType;
