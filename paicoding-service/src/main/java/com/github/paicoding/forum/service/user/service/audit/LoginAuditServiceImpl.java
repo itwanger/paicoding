@@ -8,12 +8,17 @@ import com.github.paicoding.forum.api.model.enums.user.UserSessionStateEnum;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserLoginAuditReq;
+import com.github.paicoding.forum.api.model.vo.user.SearchUserShareRiskReq;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserSessionReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserActiveSessionDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserLoginAuditDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserShareRiskDTO;
+import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserActiveSessionDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserLoginAuditDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserActiveSessionDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserLoginAuditDO;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
@@ -22,8 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,9 +45,16 @@ import java.util.stream.Collectors;
 @Service
 public class LoginAuditServiceImpl implements LoginAuditService {
     private static final long MAX_PAGE_SIZE = 100L;
+    private static final int DEFAULT_RISK_DAYS = 7;
+    private static final int DEFAULT_MIN_KICKOUT_COUNT = 2;
+    private static final int DEFAULT_MIN_DEVICE_COUNT = 2;
+    private static final int DEFAULT_MIN_IP_COUNT = 2;
 
     @Autowired
     private UserLoginAuditDao userLoginAuditDao;
+
+    @Autowired
+    private UserAiDao userAiDao;
 
     @Autowired
     private UserActiveSessionDao userActiveSessionDao;
@@ -160,6 +177,16 @@ public class LoginAuditServiceImpl implements LoginAuditService {
     }
 
     @Override
+    public void recordAccountForbid(UserDO user, String reason) {
+        recordAccountEvent(user, LoginAuditEventEnum.ACCOUNT_FORBID.getCode(), reason);
+    }
+
+    @Override
+    public void recordAccountUnforbid(UserDO user, String reason) {
+        recordAccountEvent(user, LoginAuditEventEnum.ACCOUNT_UNFORBID.getCode(), reason);
+    }
+
+    @Override
     public PageVo<UserLoginAuditDTO> getLoginAuditPage(SearchUserLoginAuditReq req) {
         long pageNum = normalizePageNumber(req == null ? null : req.getPageNumber());
         long pageSize = normalizePageSize(req == null ? null : req.getPageSize());
@@ -174,6 +201,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
 
         Page<UserLoginAuditDO> page = userLoginAuditDao.page(new Page<>(pageNum, pageSize), query);
         List<UserLoginAuditDTO> list = page.getRecords().stream().map(this::toAuditDto).collect(Collectors.toList());
+        fillStarNumber(list, UserLoginAuditDTO::getUserId, UserLoginAuditDTO::setStarNumber);
         return PageVo.build(list, pageSize, pageNum, page.getTotal());
     }
 
@@ -198,6 +226,26 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         return PageVo.build(list, pageSize, pageNum, page.getTotal());
     }
 
+    @Override
+    public PageVo<UserShareRiskDTO> getShareRiskPage(SearchUserShareRiskReq req) {
+        SearchUserShareRiskReq searchReq = normalizeShareRiskReq(req);
+        long pageNum = normalizePageNumber(searchReq.getPageNumber());
+        long pageSize = normalizePageSize(searchReq.getPageSize());
+        long offset = (pageNum - 1) * pageSize;
+
+        Long total = userLoginAuditDao.countUserShareRisk(searchReq);
+        if (total == null || total <= 0) {
+            return PageVo.build(java.util.Collections.emptyList(), pageSize, pageNum, 0);
+        }
+
+        List<UserShareRiskDTO> list = userLoginAuditDao.listUserShareRisk(searchReq, offset, pageSize)
+                .stream()
+                .map(dto -> fillShareRiskDesc(dto, searchReq.getRecentDays()))
+                .collect(Collectors.toList());
+        fillStarNumber(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::setStarNumber);
+        return PageVo.build(list, pageSize, pageNum, total);
+    }
+
     private UserLoginAuditDO buildAudit(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash) {
         UserLoginAuditDO audit = new UserLoginAuditDO();
         audit.setSessionHash(sessionHash);
@@ -214,6 +262,19 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         audit.setIp(sessionMeta.getIp());
         audit.setRegion(sessionMeta.getRegion());
         return audit;
+    }
+
+    private void recordAccountEvent(UserDO user, String eventType, String reason) {
+        if (user == null) {
+            return;
+        }
+        UserLoginAuditDO audit = new UserLoginAuditDO();
+        audit.setUserId(user.getId());
+        audit.setLoginName(user.getUserName());
+        audit.setLoginType(user.getLoginType());
+        audit.setEventType(eventType);
+        audit.setReason(reason);
+        userLoginAuditDao.save(audit);
     }
 
     private UserLoginAuditDTO toAuditDto(UserLoginAuditDO audit) {
@@ -259,6 +320,44 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         return dto;
     }
 
+    private UserShareRiskDTO fillShareRiskDesc(UserShareRiskDTO dto, int recentDays) {
+        long kickoutCount = Optional.ofNullable(dto.getKickoutCount()).orElse(0L);
+        long deviceCount = Optional.ofNullable(dto.getDeviceCount()).orElse(0L);
+        long ipCount = Optional.ofNullable(dto.getIpCount()).orElse(0L);
+        String level;
+        if (kickoutCount >= 5 && deviceCount >= 3 && ipCount >= 2) {
+            level = "HIGH";
+        } else if (kickoutCount >= 3 && (deviceCount >= 2 || ipCount >= 2)) {
+            level = "MEDIUM";
+        } else {
+            level = "LOW";
+        }
+        dto.setRiskLevel(level);
+        dto.setRiskReason(String.format("近%d天被踢下线%d次，涉及%d台设备、%d个IP",
+                recentDays,
+                kickoutCount,
+                deviceCount,
+                ipCount));
+        return dto;
+    }
+
+    private SearchUserShareRiskReq normalizeShareRiskReq(SearchUserShareRiskReq req) {
+        SearchUserShareRiskReq target = Optional.ofNullable(req).orElseGet(SearchUserShareRiskReq::new);
+        if (target.getRecentDays() == null || target.getRecentDays() <= 0) {
+            target.setRecentDays(DEFAULT_RISK_DAYS);
+        }
+        if (target.getMinKickoutCount() == null || target.getMinKickoutCount() <= 0) {
+            target.setMinKickoutCount(DEFAULT_MIN_KICKOUT_COUNT);
+        }
+        if (target.getMinDeviceCount() == null || target.getMinDeviceCount() <= 0) {
+            target.setMinDeviceCount(DEFAULT_MIN_DEVICE_COUNT);
+        }
+        if (target.getMinIpCount() == null || target.getMinIpCount() <= 0) {
+            target.setMinIpCount(DEFAULT_MIN_IP_COUNT);
+        }
+        return target;
+    }
+
     private UserSessionStateEnum resolveState(UserActiveSessionDO session) {
         if (session.getOfflineTime() != null) {
             return UserSessionStateEnum.OFFLINE;
@@ -297,5 +396,24 @@ public class LoginAuditServiceImpl implements LoginAuditService {
 
     private Date toDate(Long val, Date fallback) {
         return val == null ? fallback : new Date(val);
+    }
+
+    private <T> void fillStarNumber(List<T> list,
+                                    Function<T, Long> userIdGetter,
+                                    BiConsumer<T, String> starNumberSetter) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        Set<Long> userIds = list.stream()
+                .map(userIdGetter)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (userIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, String> starNumberMap = userAiDao.getByUserIds(userIds).stream()
+                .collect(Collectors.toMap(UserAiDO::getUserId, UserAiDO::getStarNumber, (left, right) -> left));
+        list.forEach(item -> starNumberSetter.accept(item, starNumberMap.get(userIdGetter.apply(item))));
     }
 }

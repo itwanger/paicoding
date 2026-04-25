@@ -18,6 +18,7 @@ import com.github.paicoding.forum.service.user.repository.params.SearchZsxqWhite
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -54,6 +55,16 @@ public class UserAiDao extends ServiceImpl<UserAiMapper, UserAiDO> {
         queryUserAi.eq(UserAiDO::getUserId, userId)
                 .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
         return userAiMapper.selectOne(queryUserAi);
+    }
+
+    public List<UserAiDO> getByUserIds(Collection<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        LambdaQueryWrapper<UserAiDO> queryUserAi = Wrappers.lambdaQuery();
+        queryUserAi.in(UserAiDO::getUserId, userIds)
+                .eq(UserAiDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userAiMapper.selectList(queryUserAi);
     }
 
 

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.paicoding.forum.service.user.repository.mapper.UserLoginAuditMapper">
+
+    <sql id="shareRiskAggSql">
+        select
+            a.user_id as userId,
+            max(a.login_name) as loginName,
+            sum(case when a.event_type = 'SESSION_KICKOUT' then 1 else 0 end) as kickoutCount,
+            sum(case when a.event_type = 'LOGIN_SUCCESS' then 1 else 0 end) as loginSuccessCount,
+            count(distinct case when a.device_id is not null and a.device_id != '' then a.device_id end) as deviceCount,
+            count(distinct case when a.ip is not null and a.ip != '' and a.ip != '0.0.0.0' then a.ip end) as ipCount,
+            max(case when a.event_type = 'SESSION_KICKOUT' then a.create_time end) as lastKickoutTime,
+            max(case when a.event_type in ('LOGIN_SUCCESS', 'LOGIN_FAIL', 'SESSION_KICKOUT', 'LOGOUT') then a.create_time end) as lastActiveTime,
+            max(case when u.forbid_until is not null and u.forbid_until > now() then 1 else 0 end) as forbidden,
+            max(u.forbid_until) as forbidUntil,
+            max(u.forbid_reason) as forbidReason
+        from user_login_audit a
+        left join user u on u.id = a.user_id
+        where a.create_time >= date_sub(now(), interval #{req.recentDays} day)
+        <if test="req.loginName != null and req.loginName != ''">
+            and a.login_name like concat('%', #{req.loginName}, '%')
+        </if>
+        group by a.user_id, a.login_name
+    </sql>
+
+    <select id="listUserShareRisk" resultType="com.github.paicoding.forum.api.model.vo.user.dto.UserShareRiskDTO">
+        select *
+        from (
+            <include refid="shareRiskAggSql"/>
+        ) t
+        where t.kickoutCount &gt;= #{req.minKickoutCount}
+          and (t.deviceCount &gt;= #{req.minDeviceCount} or t.ipCount &gt;= #{req.minIpCount})
+        order by t.kickoutCount desc, t.deviceCount desc, t.ipCount desc, t.lastKickoutTime desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="countUserShareRisk" resultType="java.lang.Long">
+        select count(*)
+        from (
+            select 1
+            from (
+                <include refid="shareRiskAggSql"/>
+            ) t
+            where t.kickoutCount &gt;= #{req.minKickoutCount}
+              and (t.deviceCount &gt;= #{req.minDeviceCount} or t.ipCount &gt;= #{req.minIpCount})
+        ) c
+    </select>
+
+</mapper>

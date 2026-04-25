@@ -175,4 +175,9 @@
     <changeSet id="20260423_1" author="Codex">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260423.sql"/>
     </changeSet>
+
+    <!-- 用户禁用能力 -->
+    <changeSet id="20260425_1" author="Codex">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260425.sql"/>
+    </changeSet>
 </databaseChangeLog>

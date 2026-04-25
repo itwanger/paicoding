@@ -5,6 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
+import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.IpUtil;
@@ -15,6 +17,8 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.conf.LoginRiskProperties;
+import com.github.paicoding.forum.service.user.repository.dao.UserDao;
+import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +33,8 @@ import org.springframework.util.Base64Utils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -54,6 +60,8 @@ public class UserSessionHelper {
     private static final String USER_LOGOUT_REASON = "USER_LOGOUT";
     private static final String DEVICE_LIMIT_KICKOUT_REASON = "DEVICE_LIMIT_KICKOUT";
     private static final String FORCE_KICKOUT_REASON = "FORCE_KICKOUT";
+    private static final String ACCOUNT_SUSPENDED_REASON = "ACCOUNT_SUSPENDED";
+    private static final DateTimeFormatter FORBID_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Component
     @Data
@@ -93,6 +101,7 @@ public class UserSessionHelper {
     private final RedisTemplate<String, String> redisTemplate;
     private final LoginRiskProperties loginRiskProperties;
     private final LoginAuditService loginAuditService;
+    private final UserDao userDao;
 
     private Algorithm algorithm;
     private JWTVerifier verifier;
@@ -100,11 +109,13 @@ public class UserSessionHelper {
     public UserSessionHelper(JwtProperties jwtProperties,
                              RedisTemplate<String, String> redisTemplate,
                              LoginRiskProperties loginRiskProperties,
-                             LoginAuditService loginAuditService) {
+                             LoginAuditService loginAuditService,
+                             UserDao userDao) {
         this.jwtProperties = jwtProperties;
         this.redisTemplate = redisTemplate;
         this.loginRiskProperties = loginRiskProperties;
         this.loginAuditService = loginAuditService;
+        this.userDao = userDao;
         algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
         verifier = JWT.require(algorithm).withIssuer(jwtProperties.getIssuer()).build();
     }
@@ -123,6 +134,7 @@ public class UserSessionHelper {
                 .sign(algorithm);
 
         SessionDeviceMeta sessionMeta = buildSessionMeta(userId, loginName, loginType, now, expireTime);
+        assertUserLoginAllowed(userId, loginName, loginType, sessionMeta);
         String riskTag = enforceDeviceLimit(userId, sessionMeta);
 
         // 2.使用jwt生成的token时，后端可以不存储这个session信息, 完全依赖jwt的信息
@@ -180,6 +192,10 @@ public class UserSessionHelper {
      * @param userId 用户ID
      */
     public void removeAllSessionsByUserId(Long userId) {
+        removeAllSessionsByUserId(userId, FORCE_KICKOUT_REASON);
+    }
+
+    public void removeAllSessionsByUserId(Long userId, String reason) {
         if (userId == null) {
             return;
         }
@@ -194,7 +210,7 @@ public class UserSessionHelper {
         // 兼容旧版本：如果索引不存在，回退到 SCAN 方式
         if (sessions == null || sessions.isEmpty()) {
             log.warn("用户 {} 的 session 索引不存在，使用 SCAN 方式兜底（可能是旧版本创建的 session）", userId);
-            removeAllSessionsByUserIdLegacy(userId);
+            removeAllSessionsByUserIdLegacy(userId, reason);
             return;
         }
 
@@ -202,7 +218,7 @@ public class UserSessionHelper {
 
         // 删除所有 session token
         for (String session : sessions) {
-            removeSession(session, FORCE_KICKOUT_REASON);
+            removeSession(session, reason);
             log.info("踢掉用户 {} 的 session，key: {}", userId, session);
         }
 
@@ -221,7 +237,7 @@ public class UserSessionHelper {
      * @deprecated 仅为兼容旧版本 session，新版本使用索引查询
      */
     @Deprecated
-    private void removeAllSessionsByUserIdLegacy(Long userId) {
+    private void removeAllSessionsByUserIdLegacy(Long userId, String reason) {
         String targetUserId = String.valueOf(userId);
         List<String> sessions = redisTemplate.execute((RedisCallback<List<String>>) connection -> {
             ScanOptions options = ScanOptions.scanOptions()
@@ -257,7 +273,7 @@ public class UserSessionHelper {
             return;
         }
         for (String session : sessions) {
-            removeSession(session, FORCE_KICKOUT_REASON);
+            removeSession(session, reason);
             log.info("踢掉用户 {} 的 session（旧版本），key: {}", userId, session);
         }
         log.info("用户 {} 通过 SCAN 方式踢掉了 {} 个 session", userId, sessions.size());
@@ -284,6 +300,10 @@ public class UserSessionHelper {
             // 从redis中获取userId，解决用户登出，后台失效jwt token的问题
             String user = RedisClient.getStr(session);
             if (user == null || !Objects.equals(userId, user)) {
+                return null;
+            }
+            if (isUserForbidden(Long.valueOf(userId))) {
+                removeSession(session, ACCOUNT_SUSPENDED_REASON);
                 return null;
             }
             refreshSessionMeta(session, Long.valueOf(userId), clientIp, deviceId, userAgent);
@@ -499,5 +519,36 @@ public class UserSessionHelper {
 
     private String buildSessionHash(String session) {
         return Md5Util.encode(session);
+    }
+
+    private void assertUserLoginAllowed(Long userId, String loginName, Integer loginType, SessionDeviceMeta sessionMeta) {
+        UserDO user = userDao.getUserByUserId(userId);
+        if (user == null) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
+        }
+        if (!isForbidden(user)) {
+            return;
+        }
+
+        String untilText = formatForbidUntil(user.getForbidUntil());
+        String msg = untilText + (StringUtils.isBlank(user.getForbidReason()) ? "" : "，原因：" + user.getForbidReason());
+        loginAuditService.recordLoginFail(StringUtils.defaultIfBlank(loginName, user.getUserName()), loginType, "账号已禁用:" + msg, sessionMeta);
+        throw ExceptionUtil.of(StatusEnum.USER_FORBID_LOGIN, msg);
+    }
+
+    private boolean isUserForbidden(Long userId) {
+        UserDO user = userDao.getUserByUserId(userId);
+        return isForbidden(user);
+    }
+
+    private boolean isForbidden(UserDO user) {
+        return user != null && user.getForbidUntil() != null && user.getForbidUntil().after(new Date());
+    }
+
+    private String formatForbidUntil(Date forbidUntil) {
+        if (forbidUntil == null) {
+            return "禁用中";
+        }
+        return "截止至 " + FORBID_TIME_FORMATTER.format(forbidUntil.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
     }
 }

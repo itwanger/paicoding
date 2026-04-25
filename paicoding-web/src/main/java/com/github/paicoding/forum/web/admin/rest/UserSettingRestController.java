@@ -4,10 +4,14 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserLoginAuditReq;
+import com.github.paicoding.forum.api.model.vo.user.SearchUserShareRiskReq;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserSessionReq;
+import com.github.paicoding.forum.api.model.vo.user.UserForbidReq;
+import com.github.paicoding.forum.api.model.vo.user.UserUnforbidReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserActiveSessionDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserLoginAuditDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.UserShareRiskDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
@@ -71,5 +75,25 @@ public class UserSettingRestController {
     @PostMapping(path = "session")
     public ResVo<PageVo<UserActiveSessionDTO>> session(@RequestBody(required = false) SearchUserSessionReq req) {
         return ResVo.ok(loginAuditService.getSessionPage(req));
+    }
+
+    @ApiOperation("分页获取疑似共享账号")
+    @PostMapping(path = "share-risk")
+    public ResVo<PageVo<UserShareRiskDTO>> shareRisk(@RequestBody(required = false) SearchUserShareRiskReq req) {
+        return ResVo.ok(loginAuditService.getShareRiskPage(req));
+    }
+
+    @ApiOperation("禁用用户")
+    @PostMapping(path = "forbid")
+    public ResVo<String> forbid(@RequestBody UserForbidReq req) {
+        userService.forbidUser(req.getUserId(), req.getDays(), req.getReason(), ReqInfoContext.getReqInfo().getUserId());
+        return ResVo.ok("ok");
+    }
+
+    @ApiOperation("解除用户禁用")
+    @PostMapping(path = "unforbid")
+    public ResVo<String> unforbid(@RequestBody UserUnforbidReq req) {
+        userService.unforbidUser(req.getUserId(), ReqInfoContext.getReqInfo().getUserId());
+        return ResVo.ok("ok");
     }
 }

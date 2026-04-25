@@ -15,7 +15,9 @@ public enum LoginAuditEventEnum {
     LOGIN_SUCCESS("LOGIN_SUCCESS", "登录成功"),
     LOGIN_FAIL("LOGIN_FAIL", "登录失败"),
     LOGOUT("LOGOUT", "主动退出"),
-    SESSION_KICKOUT("SESSION_KICKOUT", "会话被踢下线");
+    SESSION_KICKOUT("SESSION_KICKOUT", "会话被踢下线"),
+    ACCOUNT_FORBID("ACCOUNT_FORBID", "账号禁用"),
+    ACCOUNT_UNFORBID("ACCOUNT_UNFORBID", "解除禁用");
 
     private final String code;
     private final String desc;

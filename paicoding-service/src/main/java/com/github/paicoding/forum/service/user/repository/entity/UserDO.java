@@ -5,6 +5,8 @@ import com.github.paicoding.forum.api.model.entity.BaseDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
+
 /**
  * 用户登录表
  *
@@ -42,5 +44,25 @@ public class UserDO extends BaseDO {
      * 登录密码，密文存储
      */
     private String password;
+
+    /**
+     * 禁用开始时间
+     */
+    private Date forbidTime;
+
+    /**
+     * 禁用截止时间
+     */
+    private Date forbidUntil;
+
+    /**
+     * 禁用原因
+     */
+    private String forbidReason;
+
+    /**
+     * 操作人ID
+     */
+    private Long forbidOperatorId;
 
 }

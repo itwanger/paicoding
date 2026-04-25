@@ -1,6 +1,7 @@
 package com.github.paicoding.forum.service.user.repository.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -121,5 +123,25 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
 
     public void updateUser(UserDO userDO) {
         userMapper.updateById(userDO);
+    }
+
+    public void updateUserForbidden(Long userId, Date forbidTime, Date forbidUntil, String forbidReason, Long forbidOperatorId) {
+        LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate();
+        updateWrapper.eq(UserDO::getId, userId)
+                .set(UserDO::getForbidTime, forbidTime)
+                .set(UserDO::getForbidUntil, forbidUntil)
+                .set(UserDO::getForbidReason, forbidReason)
+                .set(UserDO::getForbidOperatorId, forbidOperatorId);
+        userMapper.update(null, updateWrapper);
+    }
+
+    public void clearUserForbidden(Long userId, Long forbidOperatorId) {
+        LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate();
+        updateWrapper.eq(UserDO::getId, userId)
+                .set(UserDO::getForbidTime, null)
+                .set(UserDO::getForbidUntil, null)
+                .set(UserDO::getForbidReason, null)
+                .set(UserDO::getForbidOperatorId, forbidOperatorId);
+        userMapper.update(null, updateWrapper);
     }
 }

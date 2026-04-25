@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
+import com.github.paicoding.forum.core.util.DateUtil;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
@@ -27,6 +28,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.UserAiService;
+import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
@@ -80,6 +82,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ImageService imageService;
+
+    @Autowired
+    private LoginAuditService loginAuditService;
 
     @Resource
     private AiConfig aiConfig;
@@ -404,5 +409,57 @@ public class UserServiceImpl implements UserService {
 
     public UserAiDO getUserAiDO(Long userId) {
         return userAiDao.getByUserId(userId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void forbidUser(Long userId, Integer days, String reason, Long operatorId) {
+        if (userId == null) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "用户ID不能为空");
+        }
+
+        UserDO user = userDao.getUserByUserId(userId);
+        if (user == null || Objects.equals(user.getDeleted(), 1)) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
+        }
+
+        int forbidDays = days == null || days <= 0 ? 30 : days;
+        String forbidReason = StringUtils.defaultIfBlank(reason, "疑似共享账号，已临时禁用");
+        Date now = new Date();
+        Date forbidUntil = new Date(now.getTime() + forbidDays * 24L * 60 * 60 * 1000);
+
+        user.setForbidTime(now);
+        user.setForbidUntil(forbidUntil);
+        user.setForbidReason(forbidReason);
+        user.setForbidOperatorId(operatorId);
+        userDao.updateUserForbidden(userId, now, forbidUntil, forbidReason, operatorId);
+
+        userSessionHelper.removeAllSessionsByUserId(userId, "ACCOUNT_SUSPENDED");
+        loginAuditService.recordAccountForbid(user, String.format("禁用%d天，截止至%s；原因：%s",
+                forbidDays,
+                DateUtil.format(DateUtil.DB_FORMAT, forbidUntil.getTime()),
+                forbidReason));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void unforbidUser(Long userId, Long operatorId) {
+        if (userId == null) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "用户ID不能为空");
+        }
+
+        UserDO user = userDao.getUserByUserId(userId);
+        if (user == null || Objects.equals(user.getDeleted(), 1)) {
+            throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
+        }
+
+        String beforeReason = StringUtils.defaultIfBlank(user.getForbidReason(), "管理员解除禁用");
+        user.setForbidTime(null);
+        user.setForbidUntil(null);
+        user.setForbidReason(null);
+        user.setForbidOperatorId(operatorId);
+        userDao.clearUserForbidden(userId, operatorId);
+
+        loginAuditService.recordAccountUnforbid(user, "解除禁用；原禁用原因：" + beforeReason);
     }
 }

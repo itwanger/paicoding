@@ -130,4 +130,8 @@ public interface UserService {
     UserInfoDO getUserInfo(Long userId);
 
     UserAiDO getUserAiDO(Long userId);
+
+    void forbidUser(Long userId, Integer days, String reason, Long operatorId);
+
+    void unforbidUser(Long userId, Long operatorId);
 }
