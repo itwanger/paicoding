@@ -80,6 +80,7 @@ public class AiConfigAdminDTO implements Serializable {
         private static final long serialVersionUID = 1L;
         private String apiKey;
         private String apiHost;
+        private String model;
         private Long timeout;
     }
 

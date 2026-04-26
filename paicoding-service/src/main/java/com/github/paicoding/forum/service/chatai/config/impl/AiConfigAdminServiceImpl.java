@@ -75,6 +75,7 @@ public class AiConfigAdminServiceImpl implements AiConfigAdminService {
 
     private static final String KEY_DEEPSEEK_API_KEY = "deepseek.apiKey";
     private static final String KEY_DEEPSEEK_API_HOST = "deepseek.apiHost";
+    private static final String KEY_DEEPSEEK_MODEL = "deepseek.model";
     private static final String KEY_DEEPSEEK_TIMEOUT = "deepseek.timeout";
 
     private static final String KEY_DOUBAO_API_KEY = "doubao.api-key";
@@ -296,6 +297,9 @@ public class AiConfigAdminServiceImpl implements AiConfigAdminService {
         if (deepSeek.getApiHost() != null) {
             upsertConfig(KEY_DEEPSEEK_API_HOST, deepSeek.getApiHost(), "DeepSeek API Host");
         }
+        if (deepSeek.getModel() != null) {
+            upsertConfig(KEY_DEEPSEEK_MODEL, deepSeek.getModel(), "DeepSeek 模型");
+        }
         if (deepSeek.getTimeout() != null) {
             upsertConfig(KEY_DEEPSEEK_TIMEOUT, String.valueOf(deepSeek.getTimeout()), "DeepSeek 超时时间");
         }
@@ -397,6 +401,7 @@ public class AiConfigAdminServiceImpl implements AiConfigAdminService {
         AiConfigAdminDTO.DeepSeekConfig dto = new AiConfigAdminDTO.DeepSeekConfig();
         dto.setApiKey(deepSeekConfig.getApiKey());
         dto.setApiHost(deepSeekConfig.getApiHost());
+        dto.setModel(deepSeekConfig.getModel());
         dto.setTimeout(deepSeekConfig.getTimeout());
         return dto;
     }

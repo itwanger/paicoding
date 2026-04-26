@@ -168,7 +168,7 @@ public class SlugGeneratorService {
 
         OkHttpClient client = buildClient();
         JSONObject req = new JSONObject();
-        req.put("model", "deepseek-chat");
+        req.put("model", StringUtils.defaultIfBlank(deepSeekConf.getModel(), "deepseek-chat"));
         req.put("stream", false);
         JSONArray messages = new JSONArray();
         JSONObject message = new JSONObject();

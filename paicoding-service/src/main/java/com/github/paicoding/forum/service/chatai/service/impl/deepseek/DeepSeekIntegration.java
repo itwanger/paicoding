@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class DeepSeekIntegration {
+    private static final String DEFAULT_MODEL = "deepseek-chat";
+
     @Autowired
     private DeepSeekConf deepSeekConf;
     @Autowired
@@ -67,7 +69,7 @@ public class DeepSeekIntegration {
     public boolean directReturn(List<ChatItemVo> items, ChatItemVo answerTarget) {
         List<ChatMsg> msg = ChatConstants.toMsgList(items, this::toMsg);
         ChatReq req = new ChatReq();
-        req.setModel("deepseek-chat");
+        req.setModel(getModel());
         req.setMessages(msg);
         req.setStream(false);
         
@@ -166,9 +168,13 @@ public class DeepSeekIntegration {
 
     private void executeStreamChat(List<ChatMsg> list, EventSourceListener listener) {
         ChatReq req = new ChatReq();
-        req.setModel("deepseek-chat");
+        req.setModel(getModel());
         req.setMessages(list);
         this.executeStreamChat(req, listener);
+    }
+
+    private String getModel() {
+        return StringUtils.defaultIfBlank(deepSeekConf.getModel(), DEFAULT_MODEL);
     }
 
     @Data
@@ -177,6 +183,7 @@ public class DeepSeekIntegration {
     public static class DeepSeekConf {
         private String apiKey;
         private String apiHost;
+        private String model;
         private Long timeout;
     }
 

@@ -71,6 +71,7 @@ public class AiConfigAdminReq {
     public static class DeepSeekConfig {
         private String apiKey;
         private String apiHost;
+        private String model;
         private Long timeout;
     }
 
