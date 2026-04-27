@@ -24,11 +24,7 @@
                 <li class="ais-Hits-item">
                   <a class="my-0 border-b py-1 px-2 border-gray-400 hover:bg-gray-400 block"
                      href="/article/detail/">
-                    <span class="text-white text-sm hover:text-primary-200">
-                      <span class="title pre">技术派</span>
-                      <mark class="text-primary-300 bg-transparent">关键字</mark>
-                      <span class="title last">就是牛</span>
-                    </span>
+                    <span class="text-white text-sm hover:text-primary-200"><span class="title pre">技术派</span><mark class="text-primary-300 bg-transparent">关键字</mark><span class="title last">就是牛</span></span>
                   </a>
                 </li>
               </ul>
@@ -76,6 +72,9 @@
           searchBtn.addClass("hidden");
           categoryList.removeClass("w-full").addClass("hidden invisible w-0");
           categorySearchInput.removeClass("hidden invisible w-0").addClass("w-full");
+          setTimeout(function () {
+            searchInput.focus();
+          }, 20);
         });
         cancelBtn.click(() => {
           searchBtn.removeClass("hidden");
