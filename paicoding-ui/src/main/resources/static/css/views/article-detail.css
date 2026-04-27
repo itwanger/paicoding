@@ -157,11 +157,15 @@
 }
 
 .article-detail .star-access-card__banner-action {
-  flex: 0 0 auto;
-  min-width: 220px;
-  white-space: nowrap;
+  align-self: flex-start;
+  flex: 0 1 auto;
+  min-width: min(100%, 260px);
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.5;
   justify-content: center;
   text-decoration: none;
+  text-align: center;
 }
 
 .article-detail .star-access-card__header h2 {
@@ -179,15 +183,16 @@
 }
 
 .article-detail .star-access-card__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 20px;
-  align-items: start;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  align-items: flex-start;
 }
 
 .article-detail .star-access-card__main {
   display: flex;
   flex-direction: column;
+  flex: 1 1 0;
   min-width: 0;
   gap: 14px;
 }
@@ -199,6 +204,7 @@
   padding: 14px 16px;
   border-radius: 0;
   background: linear-gradient(135deg, rgba(255, 123, 0, 0.08), rgba(255, 123, 0, 0.02));
+  overflow-wrap: anywhere;
 }
 
 .article-detail .star-access-card__steps {
@@ -206,6 +212,7 @@
   background: rgba(255, 123, 0, 0.03);
   border: 1px solid rgba(255, 123, 0, 0.08);
   border-radius: 0;
+  overflow-wrap: anywhere;
 }
 
 .article-detail .star-access-card__steps p {
@@ -225,7 +232,9 @@
 }
 
 .article-detail .star-access-card__qrcode {
-  width: 100%;
+  flex: 0 0 260px;
+  width: 260px;
+  margin: 0;
   padding: 0;
   border-radius: 0;
   background: transparent;
@@ -257,7 +266,7 @@
 .article-detail .join-star img {
   cursor: zoom-in;
   width: 100%;
-  max-width: 280px;
+  max-width: 100%;
   height: auto;
   display: block;
   margin: 0 auto;
@@ -320,12 +329,16 @@
   }
 
   .article-detail .star-access-card__layout {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
+    flex-direction: column;
     gap: 16px;
   }
 
   .article-detail .star-access-card__qrcode {
+    flex: 1 1 100%;
     width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
   }
 
   .article-detail .star-access-card__actions .c-btn {
@@ -335,7 +348,7 @@
 
   .article-detail .join-star img {
     width: 100%;
-    max-width: 280px;
+    max-width: 260px;
     height: auto;
   }
 }

@@ -5,8 +5,9 @@
       <a
         th:each="selectTag : ${list}"
         th:text="${selectTag.selectDesc}"
-        th:href="${'?' + 'userId=' + userId + '&homeSelectType=follow&followSelectType=' + selectTag.selectType}"
+        th:href="${'/user/' + userId + '?homeSelectType=follow&followSelectType=' + selectTag.selectType}"
         th:class="${'follow-select-tag ' + (selectTag.selected ? 'follow-select-tag-active' : '')}"
+        rel="nofollow"
       >
         关注用户/粉丝
       </a>

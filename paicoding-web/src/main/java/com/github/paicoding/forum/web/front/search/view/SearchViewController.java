@@ -27,12 +27,25 @@ public class SearchViewController {
      * @param model
      */
     @GetMapping(path = "search")
-    public String searchArticleList(@RequestParam(name = "key") String key, Model model) {
-        if (!StringUtils.isBlank(key)) {
-            IndexVo vo = indexRecommendHelper.buildSearchVo(key);
+    public String searchArticleList(@RequestParam(name = "key", required = false) String key,
+                                    @RequestParam(name = "q", required = false) String q,
+                                    Model model) {
+        String searchKey = StringUtils.defaultIfBlank(key, q);
+        if (isSearchTemplate(searchKey)) {
+            searchKey = null;
+        }
+        if (StringUtils.isBlank(searchKey)) {
+            return "redirect:/";
+        }
+        if (!StringUtils.isBlank(searchKey)) {
+            IndexVo vo = indexRecommendHelper.buildSearchVo(searchKey);
             model.addAttribute("vo", vo);
         }
         return "views/article-search-list/index";
+    }
+
+    private boolean isSearchTemplate(String key) {
+        return StringUtils.equals(key, "{search_term_string}");
     }
 
 }

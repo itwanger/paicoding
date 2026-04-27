@@ -240,7 +240,7 @@ public class SeoInjectService {
         // 添加搜索功能
         Map<String, Object> potentialAction = new HashMap<>();
         potentialAction.put("@type", "SearchAction");
-        potentialAction.put("target", globalViewConfig.getHost() + "/search?q={search_term_string}");
+        potentialAction.put("target", globalViewConfig.getHost() + "/search?key={search_term_string}");
         potentialAction.put("query-input", "required name=search_term_string");
         jsonLd.put("potentialAction", potentialAction);
 

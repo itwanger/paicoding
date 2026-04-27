@@ -5,8 +5,9 @@
       <a
         th:each="selectTag : ${list}"
         th:text="${selectTag.selectDesc}"
-        th:href="${'?' + 'userId=' + userId + '&homeSelectType=' + selectTag.selectType}"
+        th:href="${'/user/' + userId + '?homeSelectType=' + selectTag.selectType}"
         th:class="${'tag-select ' + (selectTag.selected ? 'tag-select-active' : ' ')}"
+        rel="nofollow"
       >
         用户文章/浏览记录/关注/收藏
       </a>
