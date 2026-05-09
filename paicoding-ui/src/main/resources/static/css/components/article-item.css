@@ -113,6 +113,11 @@
   line-height: 20px;
 }
 
+/* 有封面图时 info 区上间距加大；用 :has() 在 CSS 里就位，避免 JS 后置 css() 调用引发首屏 CLS */
+.cdc-article-panel__main:has(+ .cdc-article-panel__object) .cdc-article-panel__infos {
+  margin-top: 20px;
+}
+
 /*作者*/
 .cdc-article-panel__user {
   position: relative;

@@ -169,12 +169,6 @@
           th:style="'background-image: url(' + ${article.cover} + ');'"
         ></span>
       </div>
-      <script type="text/javascript" th:inline="javascript">
-        // 有图的时候加一点 margin
-        $(
-          ".cdc-article-panel__main:has(+ .cdc-article-panel__object) .cdc-article-panel__infos"
-        ).css("margin-top", "20px")
-      </script>
     </div>
   </div>
 </html>
