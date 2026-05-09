@@ -192,6 +192,14 @@ public class SeoInjectService {
         List<SeoTagVo> list = seo.getOgp();
         Map<String, Object> jsonLd = seo.getJsonLd();
 
+        // 用户主页带 homeSelectType/followSelectType/userId 等 query 参数时，
+        // 是同一份页面的不同视图，统一指向无 query 的 canonical 并屏蔽索引
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        if (isUserStateQuery(request.getQueryString())) {
+            replaceOgpTag(list, "robots", "noindex, follow");
+        }
+
         String title = "技术派 | " + user.getUserHome().getUserName() + " 的主页";
         list.add(new SeoTagVo("og:title", title));
         list.add(new SeoTagVo("og:description", user.getUserHome().getProfile()));
@@ -276,9 +284,26 @@ public class SeoInjectService {
 
         list.add(new SeoTagVo("canonical", url));
         list.add(new SeoTagVo("og:url", url));
+        list.add(new SeoTagVo("robots", "all"));
         map.put("url", url);
 
         return Seo.builder().jsonLd(map).ogp(list).build();
+    }
+
+    private boolean isUserStateQuery(String query) {
+        return StringUtils.contains(query, "homeSelectType=")
+                || StringUtils.contains(query, "followSelectType=")
+                || StringUtils.contains(query, "userId=");
+    }
+
+    private void replaceOgpTag(List<SeoTagVo> list, String key, String val) {
+        for (SeoTagVo tag : list) {
+            if (StringUtils.equals(tag.getKey(), key)) {
+                tag.setVal(val);
+                return;
+            }
+        }
+        list.add(new SeoTagVo(key, val));
     }
 
 }

@@ -6,6 +6,10 @@
         select
             a.user_id as userId,
             max(a.login_name) as loginName,
+            coalesce(
+                max(case when a.star_number is not null and a.star_number != '' then a.star_number end),
+                max(case when a.login_name like 'zsxq_%' then substring(a.login_name, 6) end)
+            ) as starNumber,
             sum(case when a.event_type = 'SESSION_KICKOUT' then 1 else 0 end) as kickoutCount,
             sum(case when a.event_type = 'LOGIN_SUCCESS' then 1 else 0 end) as loginSuccessCount,
             count(distinct case when a.device_id is not null and a.device_id != '' then a.device_id end) as deviceCount,

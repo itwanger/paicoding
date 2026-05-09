@@ -59,7 +59,7 @@ public class StrUtil {
                 }
             },
             new ThreadPoolExecutor.DiscardPolicy());
-    private static final int IMAGE_DIMENSION_PROBE_LIMIT = 3;
+    private static final int IMAGE_DIMENSION_PROBE_LIMIT = 15;
     private static final int IMAGE_DIMENSION_TIMEOUT_MS = 1500;
     private static final int TEXT_SCREENSHOT_TARGET_TEXT_HEIGHT = 24;
     private static final int TEXT_SCREENSHOT_MIN_TEXT_HEIGHT = 28;

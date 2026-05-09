@@ -27,6 +27,10 @@
             th:if="${tag.key == 'canonical'}"
             rel="canonical"
             th:href="${tag.val}" />
+      <meta th:each="tag: ${global.ogp}"
+            th:if="${tag.key == 'robots'}"
+            name="robots"
+            th:content="${tag.val}" />
     </th:block>
     
     <!-- 默认 keywords 和 description（当 SEO 未设置时） -->
@@ -41,7 +45,7 @@
     />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <meta name="robots" content="all">
+    <meta name="robots" content="all" th:if="${global.ogp == null}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">

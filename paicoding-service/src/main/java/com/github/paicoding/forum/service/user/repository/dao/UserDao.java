@@ -125,6 +125,13 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         userMapper.updateById(userDO);
     }
 
+    public void updateLastLoginTime(Long userId, Date lastLoginTime) {
+        LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate();
+        updateWrapper.eq(UserDO::getId, userId)
+                .set(UserDO::getLastLoginTime, lastLoginTime);
+        userMapper.update(null, updateWrapper);
+    }
+
     public void updateUserForbidden(Long userId, Date forbidTime, Date forbidUntil, String forbidReason, Long forbidOperatorId) {
         LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate();
         updateWrapper.eq(UserDO::getId, userId)

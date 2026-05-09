@@ -180,4 +180,9 @@
     <changeSet id="20260425_1" author="Codex">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260425.sql"/>
     </changeSet>
+
+    <!-- 优化星球用户上次登录时间查询 -->
+    <changeSet id="20260506_1" author="Codex">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260506.sql"/>
+    </changeSet>
 </databaseChangeLog>

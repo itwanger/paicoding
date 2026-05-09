@@ -17,7 +17,9 @@ import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.conf.LoginRiskProperties;
+import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
+import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +87,7 @@ public class UserSessionHelper {
     public static class SessionDeviceMeta {
         private Long userId;
         private String loginName;
+        private String starNumber;
         private Integer loginType;
         private String deviceId;
         private String deviceName;
@@ -102,6 +105,7 @@ public class UserSessionHelper {
     private final LoginRiskProperties loginRiskProperties;
     private final LoginAuditService loginAuditService;
     private final UserDao userDao;
+    private final UserAiDao userAiDao;
 
     private Algorithm algorithm;
     private JWTVerifier verifier;
@@ -110,12 +114,14 @@ public class UserSessionHelper {
                              RedisTemplate<String, String> redisTemplate,
                              LoginRiskProperties loginRiskProperties,
                              LoginAuditService loginAuditService,
-                             UserDao userDao) {
+                             UserDao userDao,
+                             UserAiDao userAiDao) {
         this.jwtProperties = jwtProperties;
         this.redisTemplate = redisTemplate;
         this.loginRiskProperties = loginRiskProperties;
         this.loginAuditService = loginAuditService;
         this.userDao = userDao;
+        this.userAiDao = userAiDao;
         algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
         verifier = JWT.require(algorithm).withIssuer(jwtProperties.getIssuer()).build();
     }
@@ -151,6 +157,7 @@ public class UserSessionHelper {
         String sessionHash = buildSessionHash(token);
         loginAuditService.upsertActiveSession(sessionMeta, sessionHash);
         loginAuditService.recordLoginSuccess(sessionMeta, sessionHash, riskTag);
+        userDao.updateLastLoginTime(userId, new Date(now));
 
         return token;
     }
@@ -409,6 +416,7 @@ public class UserSessionHelper {
         SessionDeviceMeta meta = new SessionDeviceMeta();
         meta.setUserId(userId);
         meta.setLoginName(loginName);
+        meta.setStarNumber(resolveStarNumber(userId, loginName));
         meta.setLoginType(loginType);
         meta.setLoginTime(loginTime);
         meta.setLatestSeenTime(loginTime);
@@ -519,6 +527,23 @@ public class UserSessionHelper {
 
     private String buildSessionHash(String session) {
         return Md5Util.encode(session);
+    }
+
+    private String resolveStarNumber(Long userId, String loginName) {
+        if (userId != null) {
+            UserAiDO userAi = userAiDao.getByUserId(userId);
+            if (userAi != null && StringUtils.isNotBlank(userAi.getStarNumber())) {
+                return userAi.getStarNumber();
+            }
+            UserDO user = userDao.getUserByUserId(userId);
+            if (user != null && StringUtils.startsWith(user.getUserName(), "zsxq_")) {
+                return StringUtils.substringAfter(user.getUserName(), "zsxq_");
+            }
+        }
+        if (StringUtils.startsWith(loginName, "zsxq_")) {
+            return StringUtils.substringAfter(loginName, "zsxq_");
+        }
+        return null;
     }
 
     private void assertUserLoginAllowed(Long userId, String loginName, Integer loginType, SessionDeviceMeta sessionMeta) {

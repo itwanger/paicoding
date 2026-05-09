@@ -46,6 +46,11 @@ public class UserDO extends BaseDO {
     private String password;
 
     /**
+     * 最近一次成功登录时间
+     */
+    private Date lastLoginTime;
+
+    /**
      * 禁用开始时间
      */
     private Date forbidTime;

@@ -865,6 +865,7 @@ button:focus {
 .article-content img.article-content-img--pending-size {
   width: auto;
   max-width: 100%;
+  aspect-ratio: 4 / 3;
   object-fit: contain;
   background-color: #f7f8fa;
 }
@@ -1358,6 +1359,7 @@ button:focus {
 .article-content img.article-content-img--pending-size {
   width: auto;
   max-width: 100%;
+  aspect-ratio: 4 / 3;
   object-fit: contain;
   background-color: #f7f8fa;
 }

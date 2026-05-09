@@ -17,6 +17,7 @@ import lombok.EqualsAndHashCode;
 public class UserLoginAuditDO extends BaseDO {
     private Long userId;
     private String loginName;
+    private String starNumber;
     private Integer loginType;
     private String eventType;
     private String deviceId;

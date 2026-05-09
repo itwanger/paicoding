@@ -191,22 +191,25 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         long pageNum = normalizePageNumber(req == null ? null : req.getPageNumber());
         long pageSize = normalizePageSize(req == null ? null : req.getPageSize());
         List<Long> starMatchedUserIds = resolveAuditUserIdsByStarNumber(req);
-        if (req != null && StringUtils.isNotBlank(req.getStarNumber()) && starMatchedUserIds.isEmpty()) {
-            return PageVo.build(java.util.Collections.emptyList(), pageSize, pageNum, 0);
-        }
+        String starNumber = req == null ? null : req.getStarNumber();
 
         LambdaQueryWrapper<UserLoginAuditDO> query = new LambdaQueryWrapper<>();
         query.eq(req != null && req.getUserId() != null, UserLoginAuditDO::getUserId, req.getUserId())
-                .in(req != null && StringUtils.isNotBlank(req.getStarNumber()), UserLoginAuditDO::getUserId, starMatchedUserIds)
                 .like(req != null && StringUtils.isNotBlank(req.getLoginName()), UserLoginAuditDO::getLoginName, req.getLoginName())
                 .like(req != null && StringUtils.isNotBlank(req.getDeviceId()), UserLoginAuditDO::getDeviceId, req.getDeviceId())
                 .like(req != null && StringUtils.isNotBlank(req.getIp()), UserLoginAuditDO::getIp, req.getIp())
                 .eq(req != null && StringUtils.isNotBlank(req.getEventType()), UserLoginAuditDO::getEventType, req.getEventType())
                 .orderByDesc(UserLoginAuditDO::getId);
+        query.and(StringUtils.isNotBlank(starNumber), wrapper -> {
+            wrapper.like(UserLoginAuditDO::getStarNumber, starNumber);
+            if (!starMatchedUserIds.isEmpty()) {
+                wrapper.or().in(UserLoginAuditDO::getUserId, starMatchedUserIds);
+            }
+        });
 
         Page<UserLoginAuditDO> page = userLoginAuditDao.page(new Page<>(pageNum, pageSize), query);
         List<UserLoginAuditDTO> list = page.getRecords().stream().map(this::toAuditDto).collect(Collectors.toList());
-        fillStarNumber(list, UserLoginAuditDTO::getUserId, UserLoginAuditDTO::setStarNumber);
+        fillStarNumber(list, UserLoginAuditDTO::getUserId, UserLoginAuditDTO::getStarNumber, UserLoginAuditDTO::setStarNumber);
         return PageVo.build(list, pageSize, pageNum, page.getTotal());
     }
 
@@ -247,7 +250,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
                 .stream()
                 .map(dto -> fillShareRiskDesc(dto, searchReq.getRecentDays()))
                 .collect(Collectors.toList());
-        fillStarNumber(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::setStarNumber);
+        fillStarNumber(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::getStarNumber, UserShareRiskDTO::setStarNumber);
         return PageVo.build(list, pageSize, pageNum, total);
     }
 
@@ -259,6 +262,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         }
         audit.setUserId(sessionMeta.getUserId());
         audit.setLoginName(sessionMeta.getLoginName());
+        audit.setStarNumber(sessionMeta.getStarNumber());
         audit.setLoginType(sessionMeta.getLoginType());
         audit.setDeviceId(sessionMeta.getDeviceId());
         audit.setDeviceName(sessionMeta.getDeviceName());
@@ -276,6 +280,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         UserLoginAuditDO audit = new UserLoginAuditDO();
         audit.setUserId(user.getId());
         audit.setLoginName(user.getUserName());
+        audit.setStarNumber(resolveStarNumber(user.getId(), user.getUserName()));
         audit.setLoginType(user.getLoginType());
         audit.setEventType(eventType);
         audit.setReason(reason);
@@ -287,6 +292,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         dto.setId(audit.getId());
         dto.setUserId(audit.getUserId());
         dto.setLoginName(audit.getLoginName());
+        dto.setStarNumber(audit.getStarNumber());
         dto.setLoginType(audit.getLoginType());
         dto.setLoginTypeDesc(descOfLoginType(audit.getLoginType()));
         dto.setEventType(audit.getEventType());
@@ -412,6 +418,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
 
     private <T> void fillStarNumber(List<T> list,
                                     Function<T, Long> userIdGetter,
+                                    Function<T, String> starNumberGetter,
                                     BiConsumer<T, String> starNumberSetter) {
         if (list == null || list.isEmpty()) {
             return;
@@ -426,6 +433,27 @@ public class LoginAuditServiceImpl implements LoginAuditService {
 
         Map<Long, String> starNumberMap = userAiDao.getByUserIds(userIds).stream()
                 .collect(Collectors.toMap(UserAiDO::getUserId, UserAiDO::getStarNumber, (left, right) -> left));
-        list.forEach(item -> starNumberSetter.accept(item, starNumberMap.get(userIdGetter.apply(item))));
+        list.forEach(item -> {
+            if (StringUtils.isNotBlank(starNumberGetter.apply(item))) {
+                return;
+            }
+            String starNumber = starNumberMap.get(userIdGetter.apply(item));
+            if (StringUtils.isNotBlank(starNumber)) {
+                starNumberSetter.accept(item, starNumber);
+            }
+        });
+    }
+
+    private String resolveStarNumber(Long userId, String loginName) {
+        if (userId != null) {
+            UserAiDO userAi = userAiDao.getByUserId(userId);
+            if (userAi != null && StringUtils.isNotBlank(userAi.getStarNumber())) {
+                return userAi.getStarNumber();
+            }
+        }
+        if (StringUtils.startsWith(loginName, "zsxq_")) {
+            return StringUtils.substringAfter(loginName, "zsxq_");
+        }
+        return null;
     }
 }
