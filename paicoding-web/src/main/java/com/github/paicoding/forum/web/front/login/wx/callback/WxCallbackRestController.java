@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web.front.login.wx.callback;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import cn.hutool.core.util.NumberUtil;
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.pay.ThirdPayWayEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.ResVo;
@@ -19,6 +20,7 @@ import com.github.paicoding.forum.service.notify.service.NotifyService;
 import com.github.paicoding.forum.service.pay.PayServiceFactory;
 import com.github.paicoding.forum.service.pay.model.PayCallbackBo;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
@@ -66,6 +68,8 @@ public class WxCallbackRestController {
     private WxLoginHelper qrLoginHelper;
     @Autowired
     private WxAckHelper wxHelper;
+    @Autowired
+    private UserShareRiskControlService userShareRiskControlService;
     @Autowired
     private ArticlePayService articlePayService;
     @Autowired
@@ -171,7 +175,12 @@ public class WxCallbackRestController {
         }
 
         response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
-        return ResVo.ok(true);
+        ResVo<Boolean> vo = ResVo.ok(true);
+        String riskTip = userShareRiskControlService.getHighRiskLoginTip(ReqInfoContext.getReqInfo().getUserId());
+        if (StringUtils.isNotBlank(riskTip)) {
+            vo.getStatus().setMsg(riskTip);
+        }
+        return vo;
     }
 
 

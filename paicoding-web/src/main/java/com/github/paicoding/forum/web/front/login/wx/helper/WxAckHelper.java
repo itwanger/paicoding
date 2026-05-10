@@ -7,11 +7,13 @@ import com.github.paicoding.forum.api.model.vo.user.wx.WxTxtMsgResVo;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuPreviewAiReq;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuReplyArticleDTO;
 import com.github.paicoding.forum.api.model.vo.wx.menu.WxMenuReplyDTO;
+import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.service.chatai.service.ChatgptService;
 import com.github.paicoding.forum.service.config.service.WxMenuService;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,8 @@ public class WxAckHelper {
     private LoginService sessionService;
     @Autowired
     private WxLoginHelper qrLoginHelper;
+    @Autowired
+    private UserShareRiskControlService userShareRiskControlService;
 
     @Autowired
     private ChatgptService chatgptService;
@@ -107,6 +111,10 @@ public class WxAckHelper {
                         "• 发布技术文章，分享你的经验\n" +
                         "• 学习优质内容，提升技术能力\n" +
                         "• 与技术爱好者交流互动";
+                String riskTip = userShareRiskControlService.getHighRiskLoginTip(ReqInfoContext.getReqInfo().getUserId());
+                if (StringUtils.isNotBlank(riskTip)) {
+                    textRes += "\n\n风险提醒：" + riskTip;
+                }
             } else {
                 textRes = "验证码过期了，刷新登录页面重试一下吧";
             }

@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class SearchUserShareRiskReq {
     private String loginName;
+    private String starNumber;
     private Integer recentDays;
     private Integer minKickoutCount;
     private Integer minDeviceCount;

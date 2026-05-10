@@ -59,6 +59,9 @@ public class LoginAuditServiceImpl implements LoginAuditService {
     @Autowired
     private UserActiveSessionDao userActiveSessionDao;
 
+    @Autowired
+    private UserShareRiskPolicy userShareRiskPolicy;
+
     @Override
     public void recordLoginSuccess(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash, String riskTag) {
         UserLoginAuditDO audit = buildAudit(sessionMeta, sessionHash);
@@ -335,20 +338,8 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         long kickoutCount = Optional.ofNullable(dto.getKickoutCount()).orElse(0L);
         long deviceCount = Optional.ofNullable(dto.getDeviceCount()).orElse(0L);
         long ipCount = Optional.ofNullable(dto.getIpCount()).orElse(0L);
-        String level;
-        if (kickoutCount >= 5 && deviceCount >= 3 && ipCount >= 2) {
-            level = "HIGH";
-        } else if (kickoutCount >= 3 && (deviceCount >= 2 || ipCount >= 2)) {
-            level = "MEDIUM";
-        } else {
-            level = "LOW";
-        }
-        dto.setRiskLevel(level);
-        dto.setRiskReason(String.format("近%d天被踢下线%d次，涉及%d台设备、%d个IP",
-                recentDays,
-                kickoutCount,
-                deviceCount,
-                ipCount));
+        dto.setRiskLevel(userShareRiskPolicy.resolveRiskLevel(kickoutCount, deviceCount, ipCount));
+        dto.setRiskReason(userShareRiskPolicy.buildRiskReason(recentDays, kickoutCount, deviceCount, ipCount));
         return dto;
     }
 

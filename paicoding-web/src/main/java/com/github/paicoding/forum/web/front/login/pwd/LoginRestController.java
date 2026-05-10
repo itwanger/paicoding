@@ -8,6 +8,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
 import com.github.paicoding.forum.web.front.login.zsxq.helper.ZsxqHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class LoginRestController {
     private LoginService loginService;
     @Autowired
     private ZsxqHelper zsxqHelper;
+    @Autowired
+    private UserShareRiskControlService userShareRiskControlService;
 
     /**
      * 用户名和密码登录
@@ -47,7 +50,12 @@ public class LoginRestController {
         if (StringUtils.isNotBlank(session)) {
             // cookie中写入用户登录信息，用于身份识别
             response.addCookie(SessionUtil.newCookie(LoginService.SESSION_KEY, session));
-            return ResVo.ok(true);
+            ResVo<Boolean> vo = ResVo.ok(true);
+            String riskTip = userShareRiskControlService.getHighRiskLoginTip(ReqInfoContext.getReqInfo().getUserId());
+            if (StringUtils.isNotBlank(riskTip)) {
+                vo.getStatus().setMsg(riskTip);
+            }
+            return vo;
         } else {
             return ResVo.fail(StatusEnum.LOGIN_FAILED_MIXED, "用户名和密码登录异常，请稍后重试");
         }

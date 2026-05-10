@@ -151,4 +151,11 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
                 .set(UserDO::getForbidOperatorId, forbidOperatorId);
         userMapper.update(null, updateWrapper);
     }
+
+    public List<UserDO> listUsersByForbidReason(String forbidReason) {
+        LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
+        query.eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(UserDO::getForbidReason, forbidReason);
+        return userMapper.selectList(query);
+    }
 }

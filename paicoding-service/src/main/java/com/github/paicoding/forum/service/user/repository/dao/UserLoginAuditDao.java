@@ -24,4 +24,12 @@ public class UserLoginAuditDao extends ServiceImpl<UserLoginAuditMapper, UserLog
     public Long countUserShareRisk(SearchUserShareRiskReq req) {
         return baseMapper.countUserShareRisk(req);
     }
+
+    public List<UserShareRiskDTO> listHighRiskUsers(int recentDays) {
+        return baseMapper.listHighRiskUsers(recentDays);
+    }
+
+    public UserShareRiskDTO getUserShareRisk(Long userId, int recentDays) {
+        return baseMapper.getUserShareRisk(userId, recentDays);
+    }
 }

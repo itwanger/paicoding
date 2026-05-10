@@ -414,8 +414,13 @@
         success: function(response) {
           console.log(response);
           if(response.status.code === 0) {
-            // 登录成功
-            refreshPage();
+            if (response.status.msg && response.status.msg !== 'ok') {
+              toastr.warning(response.status.msg);
+              setTimeout(refreshPage, 1200);
+            } else {
+              // 登录成功
+              refreshPage();
+            }
           } else {
             // 登录失败
             toastr.error(response.status.msg);
@@ -499,6 +504,31 @@
       }
     }
 
+    const loginRiskTip = "账号近期存在频繁切换IP/设备的风险记录，请尽量固定常用设备和网络登录";
+
+    function showLoginRiskTipThenRefresh(tip) {
+      toastr.warning(tip || loginRiskTip);
+      setTimeout(refreshPage, 1200);
+    }
+
+    function showLoginRiskTipFromQuery() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('loginRisk') !== '1') {
+          return;
+        }
+        toastr.warning(loginRiskTip);
+        params.delete('loginRisk');
+        const query = params.toString();
+        const nextUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+        window.history.replaceState({}, document.title, nextUrl);
+      } catch (e) {
+        console.log("处理登录风险提示失败", e);
+      }
+    }
+
+    showLoginRiskTipFromQuery();
+
     /**
      * 记录长连接
      * @type {null}
@@ -529,6 +559,7 @@
       const subscribeUrl = "/subscribe?deviceId=" + deviceId;
       const source = new EventSource(subscribeUrl);
       sseSource = source;
+      let pendingLoginRiskTip = null;
 
       source.onmessage = function (event) {
         let text = event.data.replaceAll("\"", "").trim();
@@ -551,7 +582,13 @@
           console.log("登录成功,保存cookie", text)
           document.cookie = text.substring(6);
           source.close();
-          refreshPage();
+          if (pendingLoginRiskTip) {
+            showLoginRiskTipThenRefresh(pendingLoginRiskTip);
+          } else {
+            refreshPage();
+          }
+        } else if (text.startsWith('risk#')) {
+          pendingLoginRiskTip = text.substring(5).trim();
         } else if (text.startsWith("init#")) {
           newCode = text.substring(5).trim();
           codeTag.text(newCode);
@@ -864,7 +901,11 @@
             // 登录成功，刷新页面
             console.log("检测到登录成功，正在刷新页面...");
             cleanupMobileLoginCheck();
-            refreshPage();
+            if (data.result.riskTip) {
+              showLoginRiskTipThenRefresh(data.result.riskTip);
+            } else {
+              refreshPage();
+            }
           } else {
             // 未登录，继续等待
             console.log("尚未登录，继续等待...");

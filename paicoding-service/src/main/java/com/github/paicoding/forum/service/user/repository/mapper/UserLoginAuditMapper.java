@@ -20,4 +20,8 @@ public interface UserLoginAuditMapper extends BaseMapper<UserLoginAuditDO> {
                                              @Param("limit") long limit);
 
     Long countUserShareRisk(@Param("req") SearchUserShareRiskReq req);
+
+    List<UserShareRiskDTO> listHighRiskUsers(@Param("recentDays") int recentDays);
+
+    UserShareRiskDTO getUserShareRisk(@Param("userId") Long userId, @Param("recentDays") int recentDays);
 }

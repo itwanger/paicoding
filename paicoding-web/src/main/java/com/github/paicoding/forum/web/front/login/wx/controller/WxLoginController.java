@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web.front.login.wx.controller;
 
 import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.core.mdc.MdcDot;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
 import com.github.paicoding.forum.web.front.login.wx.vo.WxLoginVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
@@ -32,6 +33,8 @@ import java.util.Map;
 public class WxLoginController extends BaseViewController {
     @Autowired
     private WxLoginHelper qrLoginHelper;
+    @Autowired
+    private UserShareRiskControlService userShareRiskControlService;
 
     /**
      * 客户端与后端建立扫描二维码的长连接
@@ -97,6 +100,10 @@ public class WxLoginController extends BaseViewController {
             result.put("userId", ReqInfoContext.getReqInfo().getUserId());
             result.put("username", ReqInfoContext.getReqInfo().getUser().getUserName());
             result.put("photo", ReqInfoContext.getReqInfo().getUser().getPhoto());
+            String riskTip = userShareRiskControlService.getHighRiskLoginTip(ReqInfoContext.getReqInfo().getUserId());
+            if (StringUtils.isNotBlank(riskTip)) {
+                result.put("riskTip", riskTip);
+            }
         }
 
         return ResVo.ok(result);

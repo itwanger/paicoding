@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.exception.NoVlaInGuavaException;
 import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -31,6 +32,7 @@ public class WxLoginHelper {
      */
     private final static Long SSE_EXPIRE_TIME = 15 * 60 * 1000L;
     private final LoginService sessionService;
+    private final UserShareRiskControlService userShareRiskControlService;
 
     /**
      * key = 验证码, value = 长连接
@@ -43,9 +45,12 @@ public class WxLoginHelper {
 
     private final WxLoginQrGenIntegration wxLoginQrGenIntegration;
 
-    public WxLoginHelper(LoginService loginService, WxLoginQrGenIntegration wxLoginQrGenIntegration) {
+    public WxLoginHelper(LoginService loginService,
+                         WxLoginQrGenIntegration wxLoginQrGenIntegration,
+                         UserShareRiskControlService userShareRiskControlService) {
         this.sessionService = loginService;
         this.wxLoginQrGenIntegration = wxLoginQrGenIntegration;
+        this.userShareRiskControlService = userShareRiskControlService;
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
             public SseEmitter load(String s) throws Exception {
@@ -196,6 +201,10 @@ public class WxLoginHelper {
             if (notifyClient) {
                 // 3. 将登录凭证发送给客户端，用于前端写入Cookie
                 sseEmitter.send(session);
+                String riskTip = userShareRiskControlService.getHighRiskLoginTip(ReqInfoContext.getReqInfo().getUserId());
+                if (StringUtils.isNotBlank(riskTip)) {
+                    sseEmitter.send("risk#" + riskTip);
+                }
                 Cookie cookie = SessionUtil.newCookie(LoginService.SESSION_KEY, session);
                 String setCookieStr = SessionUtil.buildSetCookieString(cookie);
                 sseEmitter.send("login#" + setCookieStr);
