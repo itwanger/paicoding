@@ -14,6 +14,7 @@ import java.util.Date;
 public class UserShareRiskDTO {
     private Long userId;
     private String loginName;
+    private String userNickname;
     private String starNumber;
     private Long kickoutCount;
     private Long loginSuccessCount;

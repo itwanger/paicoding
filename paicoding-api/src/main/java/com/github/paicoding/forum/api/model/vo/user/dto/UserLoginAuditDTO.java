@@ -15,6 +15,7 @@ public class UserLoginAuditDTO {
     private Long id;
     private Long userId;
     private String loginName;
+    private String userNickname;
     private String starNumber;
     private Integer loginType;
     private String loginTypeDesc;

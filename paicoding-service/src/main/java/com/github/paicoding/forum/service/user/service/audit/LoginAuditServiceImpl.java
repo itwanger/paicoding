@@ -15,10 +15,12 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserLoginAuditDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserShareRiskDTO;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserActiveSessionDao;
+import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserLoginAuditDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserActiveSessionDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserLoginAuditDO;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
@@ -61,6 +63,9 @@ public class LoginAuditServiceImpl implements LoginAuditService {
 
     @Autowired
     private UserShareRiskPolicy userShareRiskPolicy;
+
+    @Autowired
+    private UserDao userDao;
 
     @Override
     public void recordLoginSuccess(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash, String riskTag) {
@@ -213,6 +218,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         Page<UserLoginAuditDO> page = userLoginAuditDao.page(new Page<>(pageNum, pageSize), query);
         List<UserLoginAuditDTO> list = page.getRecords().stream().map(this::toAuditDto).collect(Collectors.toList());
         fillStarNumber(list, UserLoginAuditDTO::getUserId, UserLoginAuditDTO::getStarNumber, UserLoginAuditDTO::setStarNumber);
+        fillUserNickname(list, UserLoginAuditDTO::getUserId, UserLoginAuditDTO::setUserNickname);
         return PageVo.build(list, pageSize, pageNum, page.getTotal());
     }
 
@@ -254,6 +260,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
                 .map(dto -> fillShareRiskDesc(dto, searchReq.getRecentDays()))
                 .collect(Collectors.toList());
         fillStarNumber(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::getStarNumber, UserShareRiskDTO::setStarNumber);
+        fillUserNickname(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::setUserNickname);
         return PageVo.build(list, pageSize, pageNum, total);
     }
 
@@ -431,6 +438,31 @@ public class LoginAuditServiceImpl implements LoginAuditService {
             String starNumber = starNumberMap.get(userIdGetter.apply(item));
             if (StringUtils.isNotBlank(starNumber)) {
                 starNumberSetter.accept(item, starNumber);
+            }
+        });
+    }
+
+    private <T> void fillUserNickname(List<T> list,
+                                      Function<T, Long> userIdGetter,
+                                      BiConsumer<T, String> userNicknameSetter) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        Set<Long> userIds = list.stream()
+                .map(userIdGetter)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (userIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, String> nicknameMap = userDao.getByUserIds(userIds).stream()
+                .filter(userInfo -> StringUtils.isNotBlank(userInfo.getUserName()))
+                .collect(Collectors.toMap(UserInfoDO::getUserId, UserInfoDO::getUserName, (left, right) -> left));
+        list.forEach(item -> {
+            String nickname = nicknameMap.get(userIdGetter.apply(item));
+            if (StringUtils.isNotBlank(nickname)) {
+                userNicknameSetter.accept(item, nickname);
             }
         });
     }
