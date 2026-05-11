@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 文章信息
@@ -47,6 +48,16 @@ public class ArticleAdminDTO implements Serializable {
      * 短标题
      */
     private String shortTitle;
+
+    /**
+     * 全文搜索命中的摘要片段
+     */
+    private String searchHit;
+
+    /**
+     * 全文搜索命中的结构化片段
+     */
+    private List<ArticleSearchSnippetDTO> searchSnippets;
 
     /**
      * URL slug,用于SEO友好URL

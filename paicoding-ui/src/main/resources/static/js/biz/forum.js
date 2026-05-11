@@ -116,11 +116,8 @@ const doGetNextPageText = function (
     console.log("response: ", data)
     const result = data.result
     $(`#${listId}`).append(result.html)
-    if (!result.hasMore) {
-      callback(false)
-    }
     if (callback) {
-      callback(true)
+      callback(result.hasMore)
     }
   }).fail(errorCallBack)
 }

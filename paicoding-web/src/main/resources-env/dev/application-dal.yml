@@ -37,13 +37,23 @@ spring:
 # elasticsearch配置
 elasticsearch:
   # 是否开启ES？本地启动如果没有安装ES，可以设置为false关闭ES
-  open: false
+  open: ${PAICODING_ES_OPEN:false}
+  # 文章全文搜索索引，避免和其他项目共用索引名
+  article-index: paicoding_article_v1
   # es集群名称
   clusterName: elasticsearch
   # es节点地址
-  hosts: 127.0.0.1:9200
+  hosts: ${PAICODING_ES_HOSTS:127.0.0.1:9200}
+  # es用户名
+  userName: ${PAICODING_ES_USERNAME:}
+  # es密码
+  password: ${PAICODING_ES_PASSWORD:}
   # es请求方式
-  scheme: http
+  scheme: ${PAICODING_ES_SCHEME:https}
+  # 连接 Elasticsearch 8.x 时开启 7.x REST API 兼容模式
+  apiCompatibilityMode: ${PAICODING_ES_API_COMPATIBILITY_MODE:true}
+  # 本地 https 自签名证书调试开关，生产环境不要打开
+  insecureTrustAllCertificates: ${PAICODING_ES_INSECURE_TRUST_ALL_CERTIFICATES:true}
   # es连接超时时间（毫秒）
   connectTimeOut: 1000
   # es socket连接超时时间（毫秒）

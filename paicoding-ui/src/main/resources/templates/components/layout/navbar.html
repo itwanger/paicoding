@@ -371,11 +371,16 @@
   <!--  账号迁移弹窗    -->
   <div th:replace="views/user/info/transfer" th:if="${global.isLogin}"></div>
 
-  <script src="/js/sockjs.min.js" th:src="${global.siteInfo.oss + '/js/sockjs.min.js'}"></script>
-  <script src="/js/stomp.min.js" th:src="${global.siteInfo.oss + '/js/stomp.min.js'}"></script>
+  <script src="/js/sockjs.min.js"
+          th:if="${global.isLogin}"
+          th:src="${global.siteInfo.oss + '/js/sockjs.min.js'}"></script>
+  <script src="/js/stomp.min.js"
+          th:if="${global.isLogin}"
+          th:src="${global.siteInfo.oss + '/js/stomp.min.js'}"></script>
   <script
           src="/js/mock.js"
           th:if="${!#strings.equals(global.env, 'prod')}"
+          defer
   ></script>
 
   <script th:inline="javascript">

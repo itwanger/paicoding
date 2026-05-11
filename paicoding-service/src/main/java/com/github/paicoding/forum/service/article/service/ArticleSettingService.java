@@ -39,6 +39,11 @@ public interface ArticleSettingService {
     PageVo<ArticleAdminDTO> getArticleList(SearchArticleReq req);
 
     /**
+     * 重建文章全文搜索索引
+     */
+    void rebuildArticleSearchIndex();
+
+    /**
      * 删除文章
      *
      * @param articleId

@@ -103,6 +103,68 @@
   color: var(--pai-brand-2-hover);
 }
 
+.home-search-form {
+  gap: 4px;
+}
+
+.home-search-submit {
+  flex: 0 0 auto;
+  min-width: 52px;
+  border: 1px solid var(--pai-brand-6-mq);
+  border-radius: 4px;
+  background: var(--pai-brand-6-mq);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.home-search-submit:hover {
+  border-color: var(--pai-brand-2-hover);
+  background: var(--pai-brand-2-hover);
+}
+
+.home-search-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.search-result-block {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #fff;
+  background: rgba(75, 85, 99, 0.98);
+  border: 1px solid rgba(127, 125, 131, 1);
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.search-result-block.hidden,
+.search-result-block .hidden {
+  display: none;
+}
+
+.search-result-block .ais-Hits-item a {
+  display: block;
+  padding: 6px 10px;
+  color: #fff;
+}
+
+.search-result-block .ais-Hits-item a:hover {
+  color: #fff;
+  background-color: rgba(127, 125, 131, 1);
+}
+
+.search-result-block .search-no-result {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 .svg-inline--fa,
 svg:not(:root).svg-inline--fa {
   overflow: visible;

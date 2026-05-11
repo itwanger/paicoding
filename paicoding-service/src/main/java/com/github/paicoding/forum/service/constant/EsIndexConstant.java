@@ -13,6 +13,6 @@ public class EsIndexConstant {
     /**
      * article索引
      */
-    public static final String ES_INDEX_ARTICLE = "article";
+    public static final String ES_INDEX_ARTICLE = "paicoding_article_v1";
 
 }

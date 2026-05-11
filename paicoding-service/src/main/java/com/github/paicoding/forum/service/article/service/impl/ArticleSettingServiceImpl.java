@@ -11,27 +11,35 @@ import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ArticleSearchSnippetDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
+import com.github.paicoding.forum.service.article.service.search.ArticleSearchResult;
+import com.github.paicoding.forum.service.article.service.search.ArticleSearchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * 文章后台
@@ -53,6 +61,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Autowired
     private SlugGeneratorService slugGeneratorService;
+
+    @Autowired
+    private ArticleSearchService articleSearchService;
 
     @Override
     @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
@@ -109,13 +120,162 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     public PageVo<ArticleAdminDTO> getArticleList(SearchArticleReq req) {
         // 转换参数，从前端获取的参数转换为数据库查询参数
         SearchArticleParams searchArticleParams = ArticleStructMapper.INSTANCE.toSearchParams(req);
+        boolean pureKeywordSearch = false;
+        if (StringUtils.isNotBlank(searchArticleParams.getKeyword())) {
+            searchArticleParams.setStatus(PushStatusEnum.ONLINE.getCode());
+            pureKeywordSearch = isPureKeywordSearch(searchArticleParams);
+            if (pureKeywordSearch) {
+                PageVo<ArticleAdminDTO> searchResult = queryArticleListBySearchIndex(searchArticleParams);
+                if (searchResult != null) {
+                    return searchResult;
+                }
+                PageVo<ArticleAdminDTO> fallbackResult = queryArticleListByKeywordFallback(searchArticleParams);
+                articleSearchService.syncAdminKeyword(searchArticleParams);
+                return fallbackResult;
+            }
+            if (StringUtils.isBlank(searchArticleParams.getTitle())) {
+                searchArticleParams.setTitle(searchArticleParams.getKeyword().trim());
+            }
+        }
 
         // 查询文章列表，分页
         List<ArticleAdminDTO> articleDTOS = articleDao.listArticlesByParams(searchArticleParams);
 
         // 查询文章总数
         Long totalCount = articleDao.countArticleByParams(searchArticleParams);
-        return PageVo.build(articleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
+        PageVo<ArticleAdminDTO> result = PageVo.build(articleDTOS, req.getPageSize(), req.getPageNumber(), totalCount);
+        return result;
+    }
+
+    @Override
+    public void rebuildArticleSearchIndex() {
+        articleSearchService.rebuildArticleIndex();
+    }
+
+    private PageVo<ArticleAdminDTO> queryArticleListBySearchIndex(SearchArticleParams searchArticleParams) {
+        ArticleSearchResult searchResult = articleSearchService.searchAdminArticleIds(searchArticleParams);
+        if (searchResult == null) {
+            return null;
+        }
+
+        long pageSize = searchArticleParams.getPageSize() <= 0 ? 10 : searchArticleParams.getPageSize();
+        long pageNum = searchArticleParams.getPageNum() <= 0 ? 1 : searchArticleParams.getPageNum();
+        if (searchResult.getArticleIds().isEmpty()) {
+            return PageVo.build(Collections.emptyList(), pageSize, pageNum, searchResult.getTotal());
+        }
+
+        List<ArticleAdminDTO> articleDTOS = articleDao.listAdminArticlesByIds(searchResult.getArticleIds());
+        Map<Long, ArticleAdminDTO> articleMap = articleDTOS.stream()
+                .collect(Collectors.toMap(ArticleAdminDTO::getArticleId, item -> item));
+        List<ArticleAdminDTO> orderedList = searchResult.getArticleIds().stream()
+                .map(articleMap::get)
+                .filter(Objects::nonNull)
+                .peek(item -> {
+                    item.setSearchHit(searchResult.getHighlights().get(item.getArticleId()));
+                    item.setSearchSnippets(searchResult.getSnippets().get(item.getArticleId()));
+                })
+                .collect(Collectors.toList());
+        return PageVo.build(orderedList, pageSize, pageNum, searchResult.getTotal());
+    }
+
+    private PageVo<ArticleAdminDTO> queryArticleListByKeywordFallback(SearchArticleParams searchArticleParams) {
+        long pageSize = searchArticleParams.getPageSize() <= 0 ? 10 : searchArticleParams.getPageSize();
+        long pageNum = searchArticleParams.getPageNum() <= 0 ? 1 : searchArticleParams.getPageNum();
+        long offset = (pageNum - 1) * pageSize;
+        int limit = keywordBootstrapSize(offset, pageSize);
+        List<ArticleSearchDocumentDTO> documents = articleDao.listArticleSearchDocumentsByKeyword(searchArticleParams.getKeyword(), true, true, limit);
+        if (CollectionUtils.isEmpty(documents)) {
+            return PageVo.build(Collections.emptyList(), pageSize, pageNum, 0);
+        }
+        List<Long> articleIds = documents.stream()
+                .map(ArticleSearchDocumentDTO::getArticleId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<Long> pageArticleIds = sliceIds(articleIds, offset, pageSize);
+        if (CollectionUtils.isEmpty(pageArticleIds)) {
+            return PageVo.build(Collections.emptyList(), pageSize, pageNum, articleIds.size());
+        }
+        Map<Long, ArticleSearchDocumentDTO> documentMap = documents.stream()
+                .filter(item -> item.getArticleId() != null)
+                .collect(Collectors.toMap(ArticleSearchDocumentDTO::getArticleId, item -> item, (a, b) -> a));
+        List<ArticleAdminDTO> articleDTOS = articleDao.listAdminArticlesByIds(pageArticleIds);
+        Map<Long, ArticleAdminDTO> articleMap = articleDTOS.stream()
+                .collect(Collectors.toMap(ArticleAdminDTO::getArticleId, item -> item));
+        List<ArticleAdminDTO> orderedList = pageArticleIds.stream()
+                .map(articleMap::get)
+                .filter(Objects::nonNull)
+                .peek(item -> {
+                    ArticleSearchSnippetDTO snippet = buildFallbackSnippet(searchArticleParams.getKeyword(), documentMap.get(item.getArticleId()));
+                    if (snippet != null) {
+                        item.setSearchHit(snippet.getFragment());
+                        item.setSearchSnippets(Collections.singletonList(snippet));
+                    }
+                })
+                .collect(Collectors.toList());
+        return PageVo.build(orderedList, pageSize, pageNum, articleIds.size());
+    }
+
+    private ArticleSearchSnippetDTO buildFallbackSnippet(String keyword, ArticleSearchDocumentDTO document) {
+        if (StringUtils.isBlank(keyword) || document == null) {
+            return null;
+        }
+        ArticleSearchSnippetDTO snippet = firstFallbackSnippet(keyword.trim(), "title", "标题", document.getTitle());
+        if (snippet != null) {
+            return snippet;
+        }
+        snippet = firstFallbackSnippet(keyword.trim(), "shortTitle", "教程名", document.getShortTitle());
+        if (snippet != null) {
+            return snippet;
+        }
+        snippet = firstFallbackSnippet(keyword.trim(), "summary", "摘要", document.getSummary());
+        if (snippet != null) {
+            return snippet;
+        }
+        return firstFallbackSnippet(keyword.trim(), "content", "正文", document.getContent());
+    }
+
+    private ArticleSearchSnippetDTO firstFallbackSnippet(String keyword, String field, String fieldName, String text) {
+        if (StringUtils.isBlank(keyword) || StringUtils.isBlank(text)) {
+            return null;
+        }
+        String normalizedText = text.replaceAll("\\s+", " ").trim();
+        int index = normalizedText.indexOf(keyword);
+        if (index < 0) {
+            return null;
+        }
+        int start = Math.max(0, index - 24);
+        int end = Math.min(normalizedText.length(), index + keyword.length() + 72);
+        ArticleSearchSnippetDTO snippet = new ArticleSearchSnippetDTO();
+        snippet.setField(field);
+        snippet.setFieldName(fieldName);
+        snippet.setFragment((start > 0 ? "..." : "") + normalizedText.substring(start, end) + (end < normalizedText.length() ? "..." : ""));
+        return snippet;
+    }
+
+    private List<Long> sliceIds(List<Long> articleIds, long offset, long pageSize) {
+        if (CollectionUtils.isEmpty(articleIds) || offset >= articleIds.size()) {
+            return Collections.emptyList();
+        }
+        int from = (int) Math.max(0, offset);
+        int to = (int) Math.min(articleIds.size(), offset + pageSize);
+        return articleIds.subList(from, to);
+    }
+
+    private int keywordBootstrapSize(long offset, long pageSize) {
+        long normalizedPageSize = pageSize <= 0 ? 10 : Math.min(pageSize, 100);
+        long targetSize = Math.max(normalizedPageSize, offset + normalizedPageSize);
+        return (int) Math.min(targetSize, 50);
+    }
+
+    private boolean isPureKeywordSearch(SearchArticleParams params) {
+        return params.getArticleId() == null
+                && params.getUserId() == null
+                && StringUtils.isBlank(params.getUserName())
+                && StringUtils.isBlank(params.getTitle())
+                && StringUtils.isBlank(params.getUrlSlug())
+                && (params.getOfficalStat() == null || params.getOfficalStat() == -1)
+                && (params.getToppingStat() == null || params.getToppingStat() == -1)
+                && (params.getColumnId() == null || params.getColumnId() == -1);
     }
 
     @Override

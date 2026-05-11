@@ -59,7 +59,6 @@ public class StrUtil {
                 }
             },
             new ThreadPoolExecutor.DiscardPolicy());
-    private static final int IMAGE_DIMENSION_PROBE_LIMIT = 15;
     private static final int IMAGE_DIMENSION_TIMEOUT_MS = 1500;
     private static final int TEXT_SCREENSHOT_TARGET_TEXT_HEIGHT = 24;
     private static final int TEXT_SCREENSHOT_MIN_TEXT_HEIGHT = 28;
@@ -190,7 +189,6 @@ public class StrUtil {
         try {
             org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parseBodyFragment(html);
             org.jsoup.select.Elements images = doc.select("img");
-            int remainingProbeCount = IMAGE_DIMENSION_PROBE_LIMIT;
             int imageIndex = 0;
             for (org.jsoup.nodes.Element img : images) {
                 stabilizeImageLoadingAttrs(img, imageIndex++);
@@ -200,15 +198,7 @@ public class StrUtil {
                 if (StringUtils.isNotBlank(src)) {
                     String cacheKey = buildImageDimensionCacheKey(src);
                     dimension = IMAGE_DIMENSION_CACHE.getIfPresent(cacheKey);
-                    if (dimension == null && IMAGE_DIMENSION_MISS_CACHE.getIfPresent(cacheKey) == null && remainingProbeCount > 0) {
-                        remainingProbeCount--;
-                        dimension = loadImageDimension(src);
-                        if (dimension != null) {
-                            IMAGE_DIMENSION_CACHE.put(cacheKey, dimension);
-                        } else {
-                            IMAGE_DIMENSION_MISS_CACHE.put(cacheKey, Boolean.TRUE);
-                        }
-                    } else if (dimension == null) {
+                    if (dimension == null) {
                         warmImageDimension(src, cacheKey);
                     }
                 }

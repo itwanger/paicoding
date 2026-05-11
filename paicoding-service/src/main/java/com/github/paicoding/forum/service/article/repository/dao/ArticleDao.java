@@ -22,6 +22,7 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDetailDO;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleDetailMapper;
 import com.github.paicoding.forum.service.article.repository.mapper.ArticleMapper;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -225,6 +227,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                                 .or()
                                 .like(ArticleDO::getSummary, key));
         query.last(PageParam.getLimitSql(pageParam))
+                .orderByDesc(ArticleDO::getUpdateTime)
                 .orderByDesc(ArticleDO::getId);
         return baseMapper.selectList(query);
     }
@@ -246,6 +249,7 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
                 );
         query.select(ArticleDO::getId, ArticleDO::getTitle, ArticleDO::getShortTitle)
                 .last("limit 10")
+                .orderByDesc(ArticleDO::getUpdateTime)
                 .orderByDesc(ArticleDO::getId);
         return baseMapper.selectList(query);
     }
@@ -370,6 +374,24 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
      */
     public Long countArticleByParams(SearchArticleParams searchArticleParams) {
         return articleMapper.countArticlesByParams(searchArticleParams);
+    }
+
+    public List<ArticleAdminDTO> listAdminArticlesByIds(List<Long> articleIds) {
+        if (CollectionUtils.isEmpty(articleIds)) {
+            return Collections.emptyList();
+        }
+        return articleMapper.listAdminArticlesByIds(articleIds);
+    }
+
+    public ArticleSearchDocumentDTO queryArticleSearchDocument(Long articleId) {
+        return articleMapper.queryArticleSearchDocument(articleId);
+    }
+
+    public List<ArticleSearchDocumentDTO> listArticleSearchDocumentsByKeyword(String keyword, boolean includeBody, boolean onlineOnly, Integer size) {
+        if (StringUtils.isEmpty(keyword)) {
+            return Collections.emptyList();
+        }
+        return articleMapper.listArticleSearchDocumentsByKeyword(keyword.trim(), includeBody, onlineOnly, size);
     }
 
     /**

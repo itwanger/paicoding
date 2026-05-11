@@ -18,38 +18,26 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.ArticleUtil;
-import com.github.paicoding.forum.core.util.SpringUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.CategoryService;
-import com.github.paicoding.forum.service.constant.EsFieldConstant;
-import com.github.paicoding.forum.service.constant.EsIndexConstant;
+import com.github.paicoding.forum.service.article.service.search.ArticleSearchResult;
+import com.github.paicoding.forum.service.article.service.search.ArticleSearchService;
 import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.statistics.service.CountService;
 import com.github.paicoding.forum.service.user.repository.entity.UserFootDO;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,9 +83,8 @@ public class ArticleReadServiceImpl implements ArticleReadService {
     @Autowired
     private SensitiveBypassService sensitiveBypassService;
 
-    // 是否开启ES
-    @Value("${elasticsearch.open:false}")
-    private Boolean openES;
+    @Autowired
+    private ArticleSearchService articleSearchService;
 
     @Override
     public ArticleDO queryBasicArticle(Long articleId) {
@@ -228,48 +215,39 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             return Collections.emptyList();
         }
         key = key.trim();
-        if (!openES) {
-            List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
-            return records.stream()
-                    .map(s -> new SimpleArticleDTO().setId(s.getId()).setAuthorId(s.getUserId()).setTitle(s.getTitle()))
-                    .map(this::sanitizeSimpleArticleForDisplay)
-                    .collect(Collectors.toList());
+        ArticleSearchResult searchResult = articleSearchService.searchHintArticleIds(key, 10);
+        if (searchResult != null && !CollectionUtils.isEmpty(searchResult.getArticleIds())) {
+            return buildSimpleArticleList(searchResult.getArticleIds());
         }
-        // TODO ES整合
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery(key,
-                EsFieldConstant.ES_FIELD_TITLE,
-                EsFieldConstant.ES_FIELD_SHORT_TITLE);
-        searchSourceBuilder.query(multiMatchQueryBuilder);
 
-        SearchRequest searchRequest = new SearchRequest(new String[]{EsIndexConstant.ES_INDEX_ARTICLE},
-                searchSourceBuilder);
-        SearchResponse searchResponse = null;
-        try {
-            searchResponse = SpringUtil.getBean(RestHighLevelClient.class).search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            log.error("failed to query from es: key", e);
-        }
-        SearchHits hits = searchResponse.getHits();
-        SearchHit[] hitsList = hits.getHits();
-        List<Integer> ids = new ArrayList<>();
-        for (SearchHit documentFields : hitsList) {
-            ids.add(Integer.parseInt(documentFields.getId()));
-        }
-        if (ObjectUtils.isEmpty(ids)) {
-            return null;
-        }
-        List<ArticleDO> records = articleDao.selectByIds(ids);
-        return records.stream()
+        List<ArticleDO> records = articleDao.listSimpleArticlesByBySearchKey(key);
+        List<SimpleArticleDTO> result = records.stream()
                 .map(s -> new SimpleArticleDTO().setId(s.getId()).setAuthorId(s.getUserId()).setTitle(s.getTitle()))
                 .map(this::sanitizeSimpleArticleForDisplay)
                 .collect(Collectors.toList());
+        articleSearchService.syncHintKeyword(key, 10);
+        return result;
     }
 
     @Override
     public PageListVo<ArticleDTO> queryArticlesBySearchKey(String key, PageParam page) {
-        List<ArticleDO> records = articleDao.listArticlesByBySearchKey(key, page);
-        return buildArticleListVo(records, page.getPageSize());
+        if (StringUtils.isNotBlank(key)) {
+            ArticleSearchResult searchResult = articleSearchService.searchOnlineArticleIds(key.trim(), page);
+            if (searchResult != null && !CollectionUtils.isEmpty(searchResult.getArticleIds())) {
+                return buildArticleListVo(searchResult.getArticleIds(), searchResult.getHighlights(), page.getPageSize());
+            }
+        }
+        PageListVo<ArticleDTO> result;
+        if (StringUtils.isNotBlank(key)) {
+            result = buildArticleSearchFallbackVo(key.trim(), page);
+        } else {
+            List<ArticleDO> records = articleDao.listArticlesByBySearchKey(key, page);
+            result = buildArticleListVo(records, page.getPageSize());
+        }
+        if (StringUtils.isNotBlank(key)) {
+            articleSearchService.syncOnlineKeyword(key.trim(), page);
+        }
+        return result;
     }
 
 
@@ -313,6 +291,60 @@ public class ArticleReadServiceImpl implements ArticleReadService {
             }
         });
         return articleDOS;
+    }
+
+    private List<SimpleArticleDTO> buildSimpleArticleList(List<Long> articleIds) {
+        if (CollectionUtils.isEmpty(articleIds)) {
+            return Collections.emptyList();
+        }
+        List<ArticleDO> records = sortByIds(articleIds, articleDao.listByIds(articleIds));
+        return records.stream()
+                .map(s -> new SimpleArticleDTO().setId(s.getId()).setAuthorId(s.getUserId()).setTitle(s.getTitle()))
+                .map(this::sanitizeSimpleArticleForDisplay)
+                .collect(Collectors.toList());
+    }
+
+    private PageListVo<ArticleDTO> buildArticleListVo(List<Long> articleIds, Map<Long, String> highlights, long pageSize) {
+        if (CollectionUtils.isEmpty(articleIds)) {
+            return PageListVo.emptyVo();
+        }
+        List<ArticleDO> records = sortByIds(articleIds, articleDao.listByIds(articleIds));
+        List<ArticleDTO> result = records.stream()
+                .map(this::fillArticleRelatedInfo)
+                .peek(article -> article.setSearchHit(highlights.get(article.getArticleId())))
+                .collect(Collectors.toList());
+        return PageListVo.newVo(result, pageSize);
+    }
+
+    private PageListVo<ArticleDTO> buildArticleSearchFallbackVo(String key, PageParam page) {
+        long offset = page == null ? 0 : page.getOffset();
+        long pageSize = page == null ? PageParam.DEFAULT_PAGE_SIZE : page.getPageSize();
+        int limit = keywordBootstrapSize(offset, pageSize);
+        List<ArticleSearchDocumentDTO> documents = articleDao.listArticleSearchDocumentsByKeyword(key, true, true, limit);
+        if (CollectionUtils.isEmpty(documents)) {
+            return PageListVo.emptyVo();
+        }
+        List<Long> articleIds = documents.stream()
+                .map(ArticleSearchDocumentDTO::getArticleId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<Long> pageArticleIds = sliceIds(articleIds, offset, pageSize);
+        return buildArticleListVo(pageArticleIds, Collections.emptyMap(), pageSize);
+    }
+
+    private List<Long> sliceIds(List<Long> articleIds, long offset, long pageSize) {
+        if (CollectionUtils.isEmpty(articleIds) || offset >= articleIds.size()) {
+            return Collections.emptyList();
+        }
+        int from = (int) Math.max(0, offset);
+        int to = (int) Math.min(articleIds.size(), offset + pageSize);
+        return articleIds.subList(from, to);
+    }
+
+    private int keywordBootstrapSize(long offset, long pageSize) {
+        long normalizedPageSize = pageSize <= 0 ? PageParam.DEFAULT_PAGE_SIZE : Math.min(pageSize, 100);
+        long targetSize = Math.max(normalizedPageSize, offset + normalizedPageSize);
+        return (int) Math.min(targetSize, 50);
     }
 
     @Override

@@ -39,6 +39,7 @@ build/
 ### ignore logs
 logs/
 pid.log
+.runtime/
 *.jar
 *.jar.bak
 *.jar.tmp

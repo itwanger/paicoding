@@ -59,6 +59,16 @@ public class ArticleDTO implements Serializable {
     private String shortTitle;
 
     /**
+     * 全文搜索命中的摘要片段
+     */
+    private String searchHit;
+
+    /**
+     * 全文搜索命中的结构化片段
+     */
+    private List<ArticleSearchSnippetDTO> searchSnippets;
+
+    /**
      * URL友好的文章标识,用于SEO优化
      */
     private String urlSlug;

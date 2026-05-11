@@ -17,6 +17,11 @@ public class SearchArticleParams extends PageParam {
     private String title;
 
     /**
+     * 全文搜索关键词
+     */
+    private String keyword;
+
+    /**
      * 文章ID
      */
     private Long articleId;

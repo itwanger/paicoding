@@ -6,6 +6,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ReadCountDO;
 import com.github.paicoding.forum.service.article.repository.params.SearchArticleParams;
 import org.apache.ibatis.annotations.Param;
@@ -70,4 +71,13 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
                                                @Param("pageParam") PageParam pageParam);
 
     Long countArticlesByParams(@Param("searchParams") SearchArticleParams searchArticleParams);
+
+    List<ArticleAdminDTO> listAdminArticlesByIds(@Param("articleIds") List<Long> articleIds);
+
+    ArticleSearchDocumentDTO queryArticleSearchDocument(@Param("articleId") Long articleId);
+
+    List<ArticleSearchDocumentDTO> listArticleSearchDocumentsByKeyword(@Param("keyword") String keyword,
+                                                                        @Param("includeBody") Boolean includeBody,
+                                                                        @Param("onlineOnly") Boolean onlineOnly,
+                                                                        @Param("size") Integer size);
 }

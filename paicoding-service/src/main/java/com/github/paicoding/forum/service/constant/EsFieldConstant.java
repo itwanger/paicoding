@@ -14,11 +14,25 @@ public class EsFieldConstant {
      * title字段
      */
     public static final String ES_FIELD_TITLE = "title";
+    public static final String ES_FIELD_TITLE_EXACT = "titleExact";
 
     /**
      * short_title字段
      */
-    public static final String ES_FIELD_SHORT_TITLE = "short_title";
+    public static final String ES_FIELD_SHORT_TITLE = "shortTitle";
+    public static final String ES_FIELD_SHORT_TITLE_EXACT = "shortTitleExact";
+
+    /**
+     * summary字段
+     */
+    public static final String ES_FIELD_SUMMARY = "summary";
+    public static final String ES_FIELD_SUMMARY_EXACT = "summaryExact";
+
+    /**
+     * content字段
+     */
+    public static final String ES_FIELD_CONTENT = "content";
+    public static final String ES_FIELD_CONTENT_EXACT = "contentExact";
 
 
 }

@@ -42,6 +42,7 @@
         <sensitive.version>0.8.0</sensitive.version>
         <jwt.version>4.4.0</jwt.version>
         <fastexcel.version>1.0.0</fastexcel.version>
+        <elasticsearch.version>7.17.4</elasticsearch.version>
     </properties>
 
     <dependencyManagement>

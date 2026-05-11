@@ -151,11 +151,14 @@ public class ArticleConverter {
         }
         SearchArticleParams searchArticleParams = new SearchArticleParams();
         searchArticleParams.setTitle(req.getTitle());
+        searchArticleParams.setKeyword(req.getKeyword());
         searchArticleParams.setArticleId(req.getArticleId());
         searchArticleParams.setUserId(req.getUserId());
+        searchArticleParams.setUserName(req.getUserName());
         searchArticleParams.setStatus(req.getStatus());
         searchArticleParams.setOfficalStat(req.getOfficalStat());
         searchArticleParams.setToppingStat(req.getToppingStat());
+        searchArticleParams.setUrlSlug(req.getUrlSlug());
         searchArticleParams.setColumnId(req.getColumnId());
         searchArticleParams.setPageNum(req.getPageNumber());
         searchArticleParams.setPageSize(req.getPageSize());

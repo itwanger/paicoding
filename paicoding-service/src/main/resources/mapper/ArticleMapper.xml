@@ -105,13 +105,89 @@
         from article a
         left join user_info u on a.user_id = u.user_id
         <include refid="articlesByParams"/>
-        order by a.update_time desc
+        order by a.update_time desc, a.id desc
         <include refid="limit"/>
     </select>
     <select id="countArticlesByParams" resultType="java.lang.Long">
         select count(*) from article a
         left join user_info u on a.user_id = u.user_id
         <include refid="articlesByParams"/>
+    </select>
+
+    <select id="listAdminArticlesByIds"
+            resultType="com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO">
+        select a.id as article_id, a.title, a.short_title, a.url_slug, a.offical_stat,
+               a.topping_stat, a.status, a.cream_stat, a.picture as cover,
+               a.update_time,
+               u.user_id as author, u.user_name as author_name, u.photo as author_avatar
+        from article a
+        left join user_info u on a.user_id = u.user_id
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+          and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+          and a.id in
+        <foreach collection="articleIds" item="articleId" open="(" close=")" separator=",">
+            #{articleId}
+        </foreach>
+    </select>
+
+    <sql id="articleSearchDocumentSelect">
+        select a.id as article_id,
+               a.user_id as author_id,
+               u.user_name as author_name,
+               a.title,
+               a.short_title,
+               a.url_slug,
+               a.summary,
+               ad.content,
+               a.status,
+               a.offical_stat,
+               a.topping_stat,
+               a.deleted,
+               ca.column_ids,
+               a.update_time
+        from article a
+        left join user_info u on a.user_id = u.user_id
+        left join (
+            select d.article_id, d.content
+            from article_detail d
+            inner join (
+                select article_id, max(version) as version
+                from article_detail
+                where deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+                group by article_id
+            ) latest on latest.article_id = d.article_id and latest.version = d.version
+            where d.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        ) ad on ad.article_id = a.id
+        left join (
+            select article_id, group_concat(column_id) as column_ids
+            from column_article
+            group by article_id
+        ) ca on ca.article_id = a.id
+    </sql>
+
+    <select id="queryArticleSearchDocument"
+            resultType="com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO">
+        <include refid="articleSearchDocumentSelect"/>
+        where a.id = #{articleId}
+    </select>
+
+    <select id="listArticleSearchDocumentsByKeyword"
+            resultType="com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO">
+        <include refid="articleSearchDocumentSelect"/>
+        where a.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+          <if test="onlineOnly != null and onlineOnly">
+              and a.status = ${@com.github.paicoding.forum.api.model.enums.PushStatusEnum@ONLINE.code}
+          </if>
+          and (
+              a.title like concat('%', #{keyword}, '%')
+              or a.short_title like concat('%', #{keyword}, '%')
+              <if test="includeBody != null and includeBody">
+                  or a.summary like concat('%', #{keyword}, '%')
+                  or ad.content like concat('%', #{keyword}, '%')
+              </if>
+          )
+        order by a.update_time desc, a.id desc
+        limit #{size}
     </select>
 
 </mapper>

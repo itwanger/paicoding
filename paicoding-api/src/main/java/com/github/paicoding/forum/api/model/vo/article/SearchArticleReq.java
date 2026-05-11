@@ -12,6 +12,9 @@ public class SearchArticleReq {
     @ApiModelProperty("文章标题")
     private String title;
 
+    @ApiModelProperty("全文搜索关键词")
+    private String keyword;
+
     @ApiModelProperty("文章ID")
     private Long articleId;
 

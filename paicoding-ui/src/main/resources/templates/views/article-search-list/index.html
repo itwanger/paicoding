@@ -41,11 +41,12 @@
 
 <script src="/js/biz/loadMore.js" th:src="${global.siteInfo.oss + '/js/biz/loadMore.js'}"></script>
 <script th:inline="javascript">
-    const archiveId = [[${ vo.archiveId }]]
+    const searchKey = new URLSearchParams(window.location.search).get("key") || ""
     const params = {
+        "key": searchKey,
         "page": 2
     }
-    loadMore("#articleList", '/article/api/list/tag/' + archiveId, params, "articleList");
+    loadMore("#articleList", "/search/api/list", params, "articleList");
 </script>
 </body>
 

@@ -12,6 +12,8 @@ spring:
 elasticsearch:
   # 是否开启ES？本地启动如果没有安装ES，可以设置为false关闭ES
   open: false
+  # 文章全文搜索索引，避免和其他项目共用索引名
+  article-index: paicoding_article_v1
   # es集群名称
   clusterName: elasticsearch
   hosts: 127.0.0.1:9200

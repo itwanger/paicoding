@@ -110,6 +110,14 @@ public class ArticleSettingRestController {
         return ResVo.ok(articleDTOPageVo);
     }
 
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("重建文章全文搜索索引")
+    @PostMapping(path = "search/rebuild")
+    public ResVo<String> rebuildArticleSearchIndex() {
+        articleSettingService.rebuildArticleSearchIndex();
+        return ResVo.ok();
+    }
+
     @ApiOperation("文章搜索，按照文章标题关键字")
     @GetMapping(path = "query")
     public ResVo<SearchArticleVo> queryArticleList(@RequestParam(name = "key", required = false) String key) {
