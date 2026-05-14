@@ -185,4 +185,20 @@
     <changeSet id="20260506_1" author="Codex">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260506.sql"/>
     </changeSet>
+
+    <!-- 疑似共享账号状态，避免清空登录明细后丢失处理对象 -->
+    <changeSet id="20260512_1" author="Codex">
+        <validCheckSum>8:c14f474ef971473c0bf0a2d54ab7c251</validCheckSum>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260512.sql"/>
+    </changeSet>
+
+    <!-- 兼容已经执行过快照版本的本地库，确保长期状态表存在 -->
+    <changeSet id="20260512_2" author="Codex">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260512_2.sql"/>
+    </changeSet>
+
+    <!-- 疑似共享账号表追加 last_release_at / last_handle_reason，并把 user_id 改为 NOT NULL -->
+    <changeSet id="20260513_1" author="Codex">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260513.sql"/>
+    </changeSet>
 </databaseChangeLog>

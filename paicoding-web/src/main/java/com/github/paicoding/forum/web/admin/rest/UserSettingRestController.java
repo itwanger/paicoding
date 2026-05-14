@@ -71,6 +71,13 @@ public class UserSettingRestController {
         return ResVo.ok(loginAuditService.getLoginAuditPage(req));
     }
 
+    @ApiOperation("清空登录审计数据")
+    @PostMapping(path = "login-audit/clear")
+    public ResVo<String> clearLoginAudit() {
+        loginAuditService.clearAllAuditData();
+        return ResVo.ok("ok");
+    }
+
     @ApiOperation("分页获取用户登录会话")
     @PostMapping(path = "session")
     public ResVo<PageVo<UserActiveSessionDTO>> session(@RequestBody(required = false) SearchUserSessionReq req) {

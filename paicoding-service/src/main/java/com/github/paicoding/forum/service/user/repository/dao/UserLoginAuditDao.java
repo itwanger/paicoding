@@ -7,6 +7,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserLoginAuditD
 import com.github.paicoding.forum.service.user.repository.mapper.UserLoginAuditMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,5 +32,13 @@ public class UserLoginAuditDao extends ServiceImpl<UserLoginAuditMapper, UserLog
 
     public UserShareRiskDTO getUserShareRisk(Long userId, int recentDays) {
         return baseMapper.getUserShareRisk(userId, recentDays);
+    }
+
+    public UserShareRiskDTO getUserShareRiskAfter(Long userId, Date startTime) {
+        return baseMapper.getUserShareRiskAfter(userId, startTime);
+    }
+
+    public int deleteOldestBatch(int limit) {
+        return baseMapper.deleteOldestBatch(limit);
     }
 }

@@ -17,21 +17,28 @@ import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserActiveSessionDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserLoginAuditDao;
+import com.github.paicoding.forum.service.user.repository.dao.UserShareRiskAccountDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserActiveSessionDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserLoginAuditDO;
+import com.github.paicoding.forum.service.user.repository.entity.UserShareRiskAccountDO;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskPolicy.HandleAction;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -39,18 +46,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 登录审计服务
+ * 登录审计与疑似共享账号视图。
+ *
+ * 写入路径（forbid/unforbid 时实时更新 user_share_risk_account）+ 读路径（getShareRiskPage 只读）；
+ * 全量扫描下沉到 {@link UserShareRiskControlService} 的定时任务，列表请求不再做 ETL。
  *
  * @author Codex
  * @date 2026/4/23
  */
+@Slf4j
 @Service
 public class LoginAuditServiceImpl implements LoginAuditService {
     private static final long MAX_PAGE_SIZE = 100L;
-    private static final int DEFAULT_RISK_DAYS = 7;
-    private static final int DEFAULT_MIN_KICKOUT_COUNT = 2;
-    private static final int DEFAULT_MIN_DEVICE_COUNT = 2;
-    private static final int DEFAULT_MIN_IP_COUNT = 2;
+    private static final int CLEAR_BATCH_SIZE = 5000;
+    private static final int CLEAR_MAX_BATCHES = 1000;
 
     @Autowired
     private UserLoginAuditDao userLoginAuditDao;
@@ -66,6 +75,9 @@ public class LoginAuditServiceImpl implements LoginAuditService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private UserShareRiskAccountDao userShareRiskAccountDao;
 
     @Override
     public void recordLoginSuccess(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash, String riskTag) {
@@ -185,13 +197,15 @@ public class LoginAuditServiceImpl implements LoginAuditService {
     }
 
     @Override
-    public void recordAccountForbid(UserDO user, String reason) {
+    public void recordAccountForbid(UserDO user, String reason, HandleAction action) {
         recordAccountEvent(user, LoginAuditEventEnum.ACCOUNT_FORBID.getCode(), reason);
+        syncShareRiskAccountOnForbid(user, action);
     }
 
     @Override
-    public void recordAccountUnforbid(UserDO user, String reason) {
+    public void recordAccountUnforbid(UserDO user, String reason, HandleAction action) {
         recordAccountEvent(user, LoginAuditEventEnum.ACCOUNT_UNFORBID.getCode(), reason);
+        syncShareRiskAccountOnUnforbid(user, action);
     }
 
     @Override
@@ -248,20 +262,50 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         SearchUserShareRiskReq searchReq = normalizeShareRiskReq(req);
         long pageNum = normalizePageNumber(searchReq.getPageNumber());
         long pageSize = normalizePageSize(searchReq.getPageSize());
-        long offset = (pageNum - 1) * pageSize;
 
-        Long total = userLoginAuditDao.countUserShareRisk(searchReq);
-        if (total == null || total <= 0) {
-            return PageVo.build(java.util.Collections.emptyList(), pageSize, pageNum, 0);
-        }
+        LambdaQueryWrapper<UserShareRiskAccountDO> query = new LambdaQueryWrapper<>();
+        query.like(StringUtils.isNotBlank(searchReq.getLoginName()), UserShareRiskAccountDO::getLoginName, searchReq.getLoginName())
+                .like(StringUtils.isNotBlank(searchReq.getStarNumber()), UserShareRiskAccountDO::getStarNumber, searchReq.getStarNumber())
+                .eq(searchReq.getRecentDays() != null, UserShareRiskAccountDO::getRecentDays, searchReq.getRecentDays())
+                .ge(searchReq.getMinKickoutCount() != null, UserShareRiskAccountDO::getKickoutCount, searchReq.getMinKickoutCount())
+                .and(searchReq.getMinDeviceCount() != null || searchReq.getMinIpCount() != null, wrapper -> wrapper
+                        .ge(searchReq.getMinDeviceCount() != null, UserShareRiskAccountDO::getDeviceCount, searchReq.getMinDeviceCount())
+                        .or()
+                        .ge(searchReq.getMinIpCount() != null, UserShareRiskAccountDO::getIpCount, searchReq.getMinIpCount()))
+                .orderByDesc(UserShareRiskAccountDO::getForbidden)
+                .orderByDesc(UserShareRiskAccountDO::getKickoutCount)
+                .orderByDesc(UserShareRiskAccountDO::getDeviceCount)
+                .orderByDesc(UserShareRiskAccountDO::getIpCount)
+                .orderByDesc(UserShareRiskAccountDO::getLastKickoutTime);
 
-        List<UserShareRiskDTO> list = userLoginAuditDao.listUserShareRisk(searchReq, offset, pageSize)
-                .stream()
-                .map(dto -> fillShareRiskDesc(dto, searchReq.getRecentDays()))
-                .collect(Collectors.toList());
+        Page<UserShareRiskAccountDO> page = userShareRiskAccountDao.page(new Page<>(pageNum, pageSize), query);
+        List<UserShareRiskDTO> list = page.getRecords().stream().map(this::toShareRiskDto).collect(Collectors.toList());
+        reconcileForbiddenStateForDisplay(list);
         fillStarNumber(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::getStarNumber, UserShareRiskDTO::setStarNumber);
         fillUserNickname(list, UserShareRiskDTO::getUserId, UserShareRiskDTO::setUserNickname);
-        return PageVo.build(list, pageSize, pageNum, total);
+        return PageVo.build(list, pageSize, pageNum, page.getTotal());
+    }
+
+    @Override
+    public int clearAllAuditData() {
+        long beforeCount = userLoginAuditDao.count();
+        if (beforeCount <= 0) {
+            log.warn("clearAllAuditData triggered but table is empty");
+            return 0;
+        }
+
+        long start = System.currentTimeMillis();
+        int totalDeleted = 0;
+        for (int i = 0; i < CLEAR_MAX_BATCHES; i++) {
+            int deleted = userLoginAuditDao.deleteOldestBatch(CLEAR_BATCH_SIZE);
+            if (deleted <= 0) {
+                break;
+            }
+            totalDeleted += deleted;
+        }
+        log.warn("clearAllAuditData done, before={}, deleted={}, costMs={}",
+                beforeCount, totalDeleted, System.currentTimeMillis() - start);
+        return totalDeleted;
     }
 
     private UserLoginAuditDO buildAudit(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash) {
@@ -295,6 +339,121 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         audit.setEventType(eventType);
         audit.setReason(reason);
         userLoginAuditDao.save(audit);
+    }
+
+    private void syncShareRiskAccountOnForbid(UserDO user, HandleAction action) {
+        if (user == null || user.getId() == null) {
+            return;
+        }
+        UserShareRiskAccountDO existed = userShareRiskAccountDao.getByUserId(user.getId());
+        UserShareRiskAccountDO target = existed != null ? existed : newRiskAccount(user);
+        target.setUserId(user.getId());
+        target.setLoginName(user.getUserName());
+        target.setStarNumber(resolveStarNumber(user.getId(), user.getUserName()));
+        target.setForbidden(true);
+        target.setForbidUntil(user.getForbidUntil());
+        target.setForbidReason(user.getForbidReason());
+        target.setForbidOperatorId(user.getForbidOperatorId());
+        if (action != null) {
+            target.setLastHandleReason(action.text());
+        }
+        // 仅 forbid 不写 last_release_at；mapper 用 coalesce 保留旧值
+        target.setLastReleaseAt(null);
+        if (isZeroMetrics(target)) {
+            target.setRiskLevel(UserShareRiskPolicy.LOW);
+            target.setRiskReason(UserShareRiskPolicy.FORBIDDEN_ONLY_RISK_REASON);
+        }
+        userShareRiskAccountDao.upsert(target);
+    }
+
+    private void syncShareRiskAccountOnUnforbid(UserDO user, HandleAction action) {
+        if (user == null || user.getId() == null) {
+            return;
+        }
+        UserShareRiskAccountDO existed = userShareRiskAccountDao.getByUserId(user.getId());
+        if (existed == null) {
+            // 用户从未进过疑似名单，解禁动作不需要创建一条 placeholder
+            return;
+        }
+        existed.setLoginName(user.getUserName());
+        existed.setStarNumber(resolveStarNumber(user.getId(), user.getUserName()));
+        existed.setForbidden(false);
+        existed.setForbidUntil(null);
+        existed.setForbidReason(null);
+        existed.setForbidOperatorId(user.getForbidOperatorId());
+        if (action != null) {
+            existed.setLastHandleReason(action.text());
+            if (action.isRelease()) {
+                existed.setLastReleaseAt(new Date());
+            }
+        }
+        if (isZeroMetrics(existed)) {
+            existed.setRiskLevel(UserShareRiskPolicy.LOW);
+            existed.setRiskReason(null);
+        }
+        userShareRiskAccountDao.upsert(existed);
+    }
+
+    private UserShareRiskAccountDO newRiskAccount(UserDO user) {
+        UserShareRiskAccountDO account = new UserShareRiskAccountDO();
+        account.setUserId(user.getId());
+        account.setKickoutCount(0L);
+        account.setLoginSuccessCount(0L);
+        account.setDeviceCount(0L);
+        account.setIpCount(0L);
+        return account;
+    }
+
+    private void reconcileForbiddenStateForDisplay(List<UserShareRiskDTO> list) {
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        Set<Long> userIds = list.stream()
+                .map(UserShareRiskDTO::getUserId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (userIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, UserDO> userMap = userDao.listUsersByIds(userIds).stream()
+                .collect(Collectors.toMap(UserDO::getId, Function.identity(), (left, right) -> left));
+        Date now = new Date();
+        list.forEach(item -> {
+            UserDO user = userMap.get(item.getUserId());
+            if (user == null) {
+                return;
+            }
+            boolean forbidden = user.getForbidUntil() != null && user.getForbidUntil().after(now);
+            item.setForbidden(forbidden);
+            item.setForbidUntil(forbidden ? user.getForbidUntil() : null);
+            item.setForbidReason(forbidden ? user.getForbidReason() : null);
+            if (!forbidden && UserShareRiskPolicy.FORBIDDEN_ONLY_RISK_REASON.equals(item.getRiskReason())) {
+                item.setRiskReason(null);
+            }
+        });
+    }
+
+    private UserShareRiskDTO toShareRiskDto(UserShareRiskAccountDO account) {
+        UserShareRiskDTO dto = new UserShareRiskDTO();
+        dto.setUserId(account.getUserId());
+        dto.setLoginName(account.getLoginName());
+        dto.setStarNumber(account.getStarNumber());
+        dto.setKickoutCount(account.getKickoutCount());
+        dto.setLoginSuccessCount(account.getLoginSuccessCount());
+        dto.setDeviceCount(account.getDeviceCount());
+        dto.setIpCount(account.getIpCount());
+        dto.setLastKickoutTime(account.getLastKickoutTime());
+        dto.setLastActiveTime(account.getLastActiveTime());
+        dto.setRiskLevel(account.getRiskLevel());
+        dto.setRiskReason(account.getRiskReason());
+        dto.setForbidden(account.getForbidden());
+        dto.setForbidUntil(account.getForbidUntil());
+        dto.setForbidReason(account.getForbidReason());
+        dto.setRecentDays(account.getRecentDays());
+        dto.setLastReleaseAt(account.getLastReleaseAt());
+        dto.setLastHandleReason(account.getLastHandleReason());
+        return dto;
     }
 
     private UserLoginAuditDTO toAuditDto(UserLoginAuditDO audit) {
@@ -341,35 +500,26 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         return dto;
     }
 
-    private UserShareRiskDTO fillShareRiskDesc(UserShareRiskDTO dto, int recentDays) {
-        long kickoutCount = Optional.ofNullable(dto.getKickoutCount()).orElse(0L);
-        long deviceCount = Optional.ofNullable(dto.getDeviceCount()).orElse(0L);
-        long ipCount = Optional.ofNullable(dto.getIpCount()).orElse(0L);
-        dto.setRiskLevel(userShareRiskPolicy.resolveRiskLevel(kickoutCount, deviceCount, ipCount));
-        dto.setRiskReason(userShareRiskPolicy.buildRiskReason(recentDays, kickoutCount, deviceCount, ipCount));
-        return dto;
-    }
-
     private SearchUserShareRiskReq normalizeShareRiskReq(SearchUserShareRiskReq req) {
         SearchUserShareRiskReq target = Optional.ofNullable(req).orElseGet(SearchUserShareRiskReq::new);
-        if (target.getRecentDays() == null || target.getRecentDays() <= 0) {
-            target.setRecentDays(DEFAULT_RISK_DAYS);
+        if (target.getRecentDays() != null && target.getRecentDays() <= 0) {
+            target.setRecentDays(null);
         }
-        if (target.getMinKickoutCount() == null || target.getMinKickoutCount() <= 0) {
-            target.setMinKickoutCount(DEFAULT_MIN_KICKOUT_COUNT);
+        if (target.getMinKickoutCount() != null && target.getMinKickoutCount() <= 0) {
+            target.setMinKickoutCount(null);
         }
-        if (target.getMinDeviceCount() == null || target.getMinDeviceCount() <= 0) {
-            target.setMinDeviceCount(DEFAULT_MIN_DEVICE_COUNT);
+        if (target.getMinDeviceCount() != null && target.getMinDeviceCount() <= 0) {
+            target.setMinDeviceCount(null);
         }
-        if (target.getMinIpCount() == null || target.getMinIpCount() <= 0) {
-            target.setMinIpCount(DEFAULT_MIN_IP_COUNT);
+        if (target.getMinIpCount() != null && target.getMinIpCount() <= 0) {
+            target.setMinIpCount(null);
         }
         return target;
     }
 
     private List<Long> resolveAuditUserIdsByStarNumber(SearchUserLoginAuditReq req) {
         if (req == null || StringUtils.isBlank(req.getStarNumber())) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         return userAiDao.listUserIdsByStarNumber(req.getStarNumber());
     }
@@ -414,6 +564,16 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         return val == null ? fallback : new Date(val);
     }
 
+    private boolean isZeroMetrics(UserShareRiskAccountDO account) {
+        return zero(account.getKickoutCount())
+                && zero(account.getDeviceCount())
+                && zero(account.getIpCount());
+    }
+
+    private boolean zero(Long val) {
+        return val == null || val == 0L;
+    }
+
     private <T> void fillStarNumber(List<T> list,
                                     Function<T, Long> userIdGetter,
                                     Function<T, String> starNumberGetter,
@@ -423,7 +583,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         }
         Set<Long> userIds = list.stream()
                 .map(userIdGetter)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (userIds.isEmpty()) {
             return;
@@ -450,7 +610,7 @@ public class LoginAuditServiceImpl implements LoginAuditService {
         }
         Set<Long> userIds = list.stream()
                 .map(userIdGetter)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (userIds.isEmpty()) {
             return;

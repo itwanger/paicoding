@@ -19,6 +19,7 @@ import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
 import com.github.paicoding.forum.service.user.service.help.StarNumberHelper;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
@@ -27,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Date;
 import java.util.Objects;
@@ -66,6 +69,8 @@ public class LoginServiceImpl implements LoginService {
     private ImageService imageService;
     @Autowired
     private LoginAuditService loginAuditService;
+    @Autowired
+    private UserShareRiskControlService userShareRiskControlService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -284,8 +289,30 @@ public class LoginServiceImpl implements LoginService {
         }
 
         ReqInfoContext.getReqInfo().setUserId(userId);
+        // 解禁动作要写另一组表 + Redis 事件，放在事务提交后执行，避免 session 生成失败时把解禁/审计一起回滚导致状态分裂
+        scheduleZsxqReleaseAfterCommit(userId);
         UserDO user = userDao.getUserByUserId(userId);
         return userSessionHelper.genSession(userId, user == null ? null : user.getUserName(), LoginTypeEnum.ZSXQ.getType());
+    }
+
+    private void scheduleZsxqReleaseAfterCommit(Long userId) {
+        if (userId == null) {
+            return;
+        }
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            userShareRiskControlService.releaseForbiddenByZsxqAuth(userId);
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    userShareRiskControlService.releaseForbiddenByZsxqAuth(userId);
+                } catch (Exception e) {
+                    log.warn("releaseForbiddenByZsxqAuth after commit failed, userId={}", userId, e);
+                }
+            }
+        });
     }
 
     private UserSessionHelper.SessionDeviceMeta buildCurrentSessionMeta() {

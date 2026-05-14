@@ -30,6 +30,7 @@ import com.github.paicoding.forum.service.user.repository.entity.UserRelationDO;
 import com.github.paicoding.forum.service.user.service.UserAiService;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskPolicy;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
@@ -411,6 +412,10 @@ public class UserServiceImpl implements UserService {
         return userAiDao.getByUserId(userId);
     }
 
+    private static final int FORBID_DAYS_MIN = 1;
+    private static final int FORBID_DAYS_MAX = 365;
+    private static final int FORBID_DAYS_DEFAULT = 30;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void forbidUser(Long userId, Integer days, String reason, Long operatorId) {
@@ -423,7 +428,7 @@ public class UserServiceImpl implements UserService {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
         }
 
-        int forbidDays = days == null || days <= 0 ? 30 : days;
+        int forbidDays = clampForbidDays(days);
         String forbidReason = StringUtils.defaultIfBlank(reason, "疑似共享账号，已临时禁用");
         Date now = new Date();
         Date forbidUntil = new Date(now.getTime() + forbidDays * 24L * 60 * 60 * 1000);
@@ -438,7 +443,7 @@ public class UserServiceImpl implements UserService {
         loginAuditService.recordAccountForbid(user, String.format("禁用%d天，截止至%s；原因：%s",
                 forbidDays,
                 DateUtil.format(DateUtil.DB_FORMAT, forbidUntil.getTime()),
-                forbidReason));
+                forbidReason), UserShareRiskPolicy.HandleAction.MANUAL_FORBID);
     }
 
     @Override
@@ -460,6 +465,20 @@ public class UserServiceImpl implements UserService {
         user.setForbidOperatorId(operatorId);
         userDao.clearUserForbidden(userId, operatorId);
 
-        loginAuditService.recordAccountUnforbid(user, "解除禁用；原禁用原因：" + beforeReason);
+        loginAuditService.recordAccountUnforbid(user, "解除禁用；原禁用原因：" + beforeReason,
+                UserShareRiskPolicy.HandleAction.MANUAL_UNFORBID);
+    }
+
+    private int clampForbidDays(Integer days) {
+        if (days == null || days <= 0) {
+            return FORBID_DAYS_DEFAULT;
+        }
+        if (days < FORBID_DAYS_MIN) {
+            return FORBID_DAYS_MIN;
+        }
+        if (days > FORBID_DAYS_MAX) {
+            return FORBID_DAYS_MAX;
+        }
+        return days;
     }
 }

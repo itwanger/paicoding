@@ -655,6 +655,55 @@ function getCookie(name){<!-- -->
   return "";
 }
 
+function hashDeviceText(text) {
+  var h1 = 0xdeadbeef ^ text.length;
+  var h2 = 0x41c6ce57 ^ text.length;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return ((h2 >>> 0).toString(16).padStart(8, "0") + (h1 >>> 0).toString(16).padStart(8, "0"));
+}
+
+function buildBrowserDeviceFingerprint() {
+  try {
+    var nav = window.navigator || {};
+    var scr = window.screen || {};
+    var timezone = "";
+    try {
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    } catch (ignore) {
+      timezone = "";
+    }
+
+    return [
+      "lang=" + (nav.language || ""),
+      "langs=" + (nav.languages ? Array.prototype.slice.call(nav.languages, 0, 3).join(",") : ""),
+      "platform=" + (nav.platform || ""),
+      "tz=" + timezone,
+      "screen=" + [scr.width || "", scr.height || "", scr.colorDepth || "", window.devicePixelRatio || ""].join("x"),
+      "cpu=" + (nav.hardwareConcurrency || ""),
+      "touch=" + (nav.maxTouchPoints || 0)
+    ].join("|");
+  } catch (e) {
+    console.log("构建设备指纹失败", e);
+    return "";
+  }
+}
+
+// 仅用于把浏览器侧的弱指纹作为 "hint" 提交给服务端混合；服务端会基于自己写入的 cookie 锚点 + 网络/UA 重新哈希。
+// 不再直接写 f-device cookie：那个 cookie 由服务端 ReqRecordFilter 写入并维护，前端只读不改。
+function getRiskDeviceId() {
+  var fingerprint = buildBrowserDeviceFingerprint();
+  if (fingerprint) {
+    return "fp-" + hashDeviceText(fingerprint);
+  }
+  return decodeURIComponent(getCookie("f-device") || "");
+}
+
 // 放在 thymeleaf 页面中正则表达式会报错，直接移动到 js 文件中就好了。
 function prettyCode(content) {
   // 处理 Markdown 图片标签

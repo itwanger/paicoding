@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.user.dto.UserActiveSessionDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserLoginAuditDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserShareRiskDTO;
 import com.github.paicoding.forum.service.user.repository.entity.UserDO;
+import com.github.paicoding.forum.service.user.service.audit.UserShareRiskPolicy.HandleAction;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 
 /**
@@ -27,13 +28,15 @@ public interface LoginAuditService {
 
     void touchActiveSession(String sessionHash, UserSessionHelper.SessionDeviceMeta sessionMeta);
 
-    void recordAccountForbid(UserDO user, String reason);
+    void recordAccountForbid(UserDO user, String reason, HandleAction action);
 
-    void recordAccountUnforbid(UserDO user, String reason);
+    void recordAccountUnforbid(UserDO user, String reason, HandleAction action);
 
     PageVo<UserLoginAuditDTO> getLoginAuditPage(SearchUserLoginAuditReq req);
 
     PageVo<UserActiveSessionDTO> getSessionPage(SearchUserSessionReq req);
 
     PageVo<UserShareRiskDTO> getShareRiskPage(SearchUserShareRiskReq req);
+
+    int clearAllAuditData();
 }

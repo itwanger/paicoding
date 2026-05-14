@@ -414,21 +414,21 @@
         type: "POST",
         data: {
           username: username,
-          password: password
+          password: password,
+          deviceId: getRiskDeviceId()
         },
         success: function(response) {
           console.log(response);
-          if(response.status.code === 0) {
-            if (response.status.msg && response.status.msg !== 'ok') {
-              toastr.warning(response.status.msg);
-              setTimeout(refreshPage, 1200);
-            } else {
-              // 登录成功
-              refreshPage();
-            }
-          } else {
-            // 登录失败
+          if (response.status.code !== 0) {
             toastr.error(response.status.msg);
+            return;
+          }
+          // code=0 表示登录成功，但 msg 可能带额外风险提示
+          if (response.status.msg && response.status.msg.toLowerCase() !== 'ok') {
+            toastr.warning(response.status.msg);
+            setTimeout(refreshPage, 1200);
+          } else {
+            refreshPage();
           }
         },
         error: function(error) {
@@ -455,7 +455,8 @@
           username: registerUser,
           starNumber: starNumber, // 移除padStart格式化，由后端处理
           password: password,
-          invitationCode: ''
+          invitationCode: '',
+          deviceId: getRiskDeviceId()
         },
         success: function(response) {
           console.log(response);
@@ -559,9 +560,9 @@
       }
 
       if(!deviceId) {
-        deviceId = getCookie("f-device");
+        deviceId = getRiskDeviceId();
       }
-      const subscribeUrl = "/subscribe?deviceId=" + deviceId;
+      const subscribeUrl = "/subscribe?deviceId=" + encodeURIComponent(deviceId);
       const source = new EventSource(subscribeUrl);
       sseSource = source;
       let pendingLoginRiskTip = null;
@@ -616,7 +617,7 @@
       };
 
       source.onopen = function (evt) {
-        deviceId = getCookie("f-device");
+        deviceId = getRiskDeviceId();
         console.log("开始订阅, 设备id=", deviceId, evt);
       }
       source.onerror = function (e, evt) {
@@ -645,7 +646,7 @@
         }
 
         $.ajax({
-          url: "/login/fetch?deviceId=" + deviceId, type: "get", dataType: "text", success: function (data) {
+          url: "/login/fetch?deviceId=" + encodeURIComponent(getRiskDeviceId()), type: "get", dataType: "text", success: function (data) {
             console.log("data>>>>>>>>: ", data);
             if (data != 'fail') {
               codeTag.text(data);
@@ -669,7 +670,7 @@
 
     function refreshCode() {
       $.ajax({
-        url: "/login/refresh?deviceId=" + deviceId, dataType: "json", type: "get", success: function (data) {
+        url: "/login/refresh?deviceId=" + encodeURIComponent(getRiskDeviceId()), dataType: "json", type: "get", success: function (data) {
           const code = data['result']['code'];
           const reconnect = data['result']['reconnect']
           console.log("验证码刷新完成: ", data);

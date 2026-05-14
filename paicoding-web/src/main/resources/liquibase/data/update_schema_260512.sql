@@ -1,0 +1,28 @@
+CREATE TABLE IF NOT EXISTS `user_share_risk_account`
+(
+    `id`                  bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `user_id`             bigint(20)          DEFAULT NULL COMMENT '用户ID',
+    `login_name`          varchar(128)        DEFAULT NULL COMMENT '登录用户名',
+    `star_number`         varchar(64)         DEFAULT NULL COMMENT '星球编号',
+    `kickout_count`       bigint(20)          DEFAULT 0 COMMENT '被踢下线次数',
+    `login_success_count` bigint(20)          DEFAULT 0 COMMENT '登录成功次数',
+    `device_count`        bigint(20)          DEFAULT 0 COMMENT '设备数',
+    `ip_count`            bigint(20)          DEFAULT 0 COMMENT 'IP数',
+    `last_kickout_time`   datetime            DEFAULT NULL COMMENT '最后被踢下线时间',
+    `last_active_time`    datetime            DEFAULT NULL COMMENT '最后活跃时间',
+    `risk_level`          varchar(32)         DEFAULT NULL COMMENT '风险等级',
+    `risk_reason`         varchar(128)        DEFAULT NULL COMMENT '风险依据',
+    `forbidden`           tinyint(1)          DEFAULT 0 COMMENT '当前是否禁用',
+    `forbid_until`        datetime            DEFAULT NULL COMMENT '禁用截止时间',
+    `forbid_reason`       varchar(255)        DEFAULT NULL COMMENT '禁用原因',
+    `forbid_operator_id`  bigint(20)          DEFAULT NULL COMMENT '禁用操作人ID',
+    `recent_days`         int(11)             DEFAULT NULL COMMENT '统计周期，空表示全部时间',
+    `create_time`         datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`         datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_id` (`user_id`),
+    KEY `idx_star_number` (`star_number`),
+    KEY `idx_forbidden` (`forbidden`),
+    KEY `idx_risk_level` (`risk_level`),
+    KEY `idx_last_kickout_time` (`last_kickout_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='疑似共享账号状态';

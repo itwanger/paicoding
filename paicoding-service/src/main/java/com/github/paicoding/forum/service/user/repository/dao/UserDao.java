@@ -158,4 +158,14 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
                 .eq(UserDO::getForbidReason, forbidReason);
         return userMapper.selectList(query);
     }
+
+    public List<UserDO> listUsersByIds(Collection<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        LambdaQueryWrapper<UserDO> query = Wrappers.lambdaQuery();
+        query.in(UserDO::getId, userIds)
+                .eq(UserDO::getDeleted, YesOrNoEnum.NO.getCode());
+        return userMapper.selectList(query);
+    }
 }
