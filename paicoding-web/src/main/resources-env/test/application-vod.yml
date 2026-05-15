@@ -1,0 +1,11 @@
+vod:
+  ali:
+    enabled: ${PAICODING_VOD_ENABLED:false}
+    region-id: ${PAICODING_VOD_REGION_ID:cn-shanghai}
+    user-id: ${PAICODING_VOD_USER_ID:paicoding}
+    access-key-id: ${PAICODING_VOD_AK:}
+    access-key-secret: ${PAICODING_VOD_SK:}
+    storage-location: ${PAICODING_VOD_STORAGE_LOCATION:}
+    cate-id: ${PAICODING_VOD_CATE_ID:}
+    template-group-id: ${PAICODING_VOD_TEMPLATE_GROUP_ID:}
+    workflow-id: ${PAICODING_VOD_WORKFLOW_ID:}

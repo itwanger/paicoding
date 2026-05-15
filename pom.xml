@@ -28,6 +28,8 @@
         <guava.version>31.1-jre</guava.version>
         <mybaits-plus.version>3.5.2</mybaits-plus.version>
         <aliyun-sdk-oss.version>3.17.2</aliyun-sdk-oss.version>
+        <aliyun-java-sdk-core.version>4.6.1</aliyun-java-sdk-core.version>
+        <aliyun-java-sdk-vod.version>2.16.32</aliyun-java-sdk-vod.version>
         <qrcode-plugin.version>3.0.0</qrcode-plugin.version>
         <commons-io.version>2.16.1</commons-io.version>
         <hutool-all.version>5.8.15</hutool-all.version>
@@ -87,6 +89,18 @@
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>
                 <version>${aliyun-sdk-oss.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-core</artifactId>
+                <version>${aliyun-java-sdk-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-vod</artifactId>
+                <version>${aliyun-java-sdk-vod.version}</version>
             </dependency>
 
             <dependency>

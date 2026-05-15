@@ -118,6 +118,15 @@ public class MarkdownConverter {
             }
         }
 
+        if (line.startsWith("@[aliyun-vod](") && line.endsWith(")")) {
+            String videoId = line.substring("@[aliyun-vod](".length(), line.length() - 1);
+            if (videoId.matches("[a-zA-Z0-9_-]+")) {
+                return "<div class=\"video-container video-container--aliyun-vod\">\n"
+                        + "<video src=\"/video/play/proxy?videoId=" + videoId + "\" controls preload=\"metadata\"></video>\n"
+                        + "</div>";
+            }
+        }
+
         return null;
     }
 }

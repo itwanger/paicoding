@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="/editormd/css/editormd.css" th:href="${global.siteInfo.oss + '/editormd/css/editormd.css'}" />
 <link rel="stylesheet" href="/css/views/article-edit.css" th:href="${global.siteInfo.oss + '/css/views/article-edit.css'}" />
 <script src="/editormd/editormd.js" th:src="${global.siteInfo.oss + '/editormd/editormd.js'}"></script>
+<script src="/aliyun-vod/lib/es6-promise.min.js" th:src="${global.siteInfo.oss + '/aliyun-vod/lib/es6-promise.min.js'}"></script>
+<script src="/aliyun-vod/lib/aliyun-oss-sdk-6.17.1.min.js" th:src="${global.siteInfo.oss + '/aliyun-vod/lib/aliyun-oss-sdk-6.17.1.min.js'}"></script>
+<script src="/aliyun-vod/aliyun-upload-sdk-1.5.7.min.js" th:src="${global.siteInfo.oss + '/aliyun-vod/aliyun-upload-sdk-1.5.7.min.js'}"></script>
 <!-- 🔥 Moveable 库（图片缩放功能依赖） -->
 <script src="/js/lib/moveable.min.js" th:src="${global.siteInfo.oss + '/js/lib/moveable.min.js'}"></script>
 <!-- 🔥 图片拖拽缩放模块 -->
@@ -351,6 +354,110 @@
     return markdown.replace(regex, (match, p1, p2) => `${p1} ${p2}`);
   };
 
+  const renderVodPreview = (editor) => {
+    if (!editor || !editor.previewContainer) {
+      return;
+    }
+    editor.previewContainer.find('a[href]').each(function() {
+      const link = this;
+      if ($(link).text().trim() !== 'aliyun-vod' || link.dataset.vodRendered === 'true') {
+        return;
+      }
+      const videoId = $(link).attr('href');
+      if (!/^[a-zA-Z0-9_-]+$/.test(videoId || '')) {
+        return;
+      }
+
+      const prev = link.previousSibling;
+      if (!prev || prev.nodeType !== Node.TEXT_NODE || !prev.textContent.endsWith('@')) {
+        return;
+      }
+      const paragraph = link.parentElement && link.parentElement.tagName === 'P' ? link.parentElement : null;
+      const standalone = paragraph && paragraph.textContent.trim() === '@aliyun-vod';
+      prev.textContent = prev.textContent.slice(0, -1);
+
+      const container = document.createElement('div');
+      container.className = 'video-container video-container--aliyun-vod';
+      const video = document.createElement('video');
+      video.src = '/video/play/proxy?videoId=' + encodeURIComponent(videoId);
+      video.controls = true;
+      video.preload = 'metadata';
+      container.appendChild(video);
+
+      if (standalone) {
+        paragraph.parentNode.replaceChild(container, paragraph);
+      } else {
+        link.parentNode.replaceChild(container, link);
+      }
+    });
+  };
+
+  const buildAliVodUploader = (file, onProgress, onSuccess, onError) => {
+    if (!window.AliyunUpload || !window.OSS) {
+      onError("阿里云上传SDK未加载，请刷新页面后重试");
+      return null;
+    }
+
+    let resolvedVideoId = "";
+    const uploader = new AliyunUpload.Vod({
+      userId: "paicoding",
+      region: "cn-shanghai",
+      partSize: 1048576,
+      parallel: 5,
+      retryCount: 3,
+      retryDuration: 2,
+      onUploadstarted: function(uploadInfo) {
+        const hasCheckpointVideoId = !!uploadInfo.videoId;
+        $.ajax({
+          url: hasCheckpointVideoId ? "/video/upload/refresh" : "/video/upload/auth",
+          type: "post",
+          data: hasCheckpointVideoId ? { videoId: uploadInfo.videoId } : { fileName: file.name, title: file.name },
+          success: function(data) {
+            if (data.status && data.status.code === 0 && data.result) {
+              resolvedVideoId = data.result.videoId;
+              uploader.setUploadAuthAndAddress(uploadInfo, data.result.uploadAuth, data.result.uploadAddress, data.result.videoId);
+            } else {
+              onError(data.status ? data.status.msg : "获取视频上传凭证失败");
+            }
+          },
+          error: function() {
+            onError("获取视频上传凭证失败");
+          }
+        });
+      },
+      onUploadSucceed: function(uploadInfo) {
+        onSuccess(resolvedVideoId || uploadInfo.videoId);
+      },
+      onUploadFailed: function(uploadInfo, code, message) {
+        onError(message || code || "视频上传失败");
+      },
+      onUploadProgress: function(uploadInfo, totalSize, progress) {
+        onProgress(Math.ceil(progress * 100));
+      },
+      onUploadTokenExpired: function(uploadInfo) {
+        $.ajax({
+          url: "/video/upload/refresh",
+          type: "post",
+          data: { videoId: resolvedVideoId || uploadInfo.videoId },
+          success: function(data) {
+            if (data.status && data.status.code === 0 && data.result) {
+              resolvedVideoId = data.result.videoId;
+              uploader.resumeUploadWithAuth(data.result.uploadAuth);
+            } else {
+              onError(data.status ? data.status.msg : "刷新视频上传凭证失败");
+            }
+          },
+          error: function() {
+            onError("刷新视频上传凭证失败");
+          }
+        });
+      }
+    });
+
+    uploader.addFile(file, null, null, null, JSON.stringify({ Vod: { Title: file.name } }));
+    return uploader;
+  };
+
   // 编辑器
   // oss 路径
   const oss = [[${global.siteInfo.oss}]];
@@ -479,6 +586,15 @@
           <div class="video-dialog-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
             <div class="video-dialog-content" style="background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
               <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">插入视频</h3>
+              <div style="margin-bottom: 20px; padding: 14px; border: 1px solid #eee; border-radius: 6px; background: #fafafa;">
+                <div style="font-size: 14px; color: #333; margin-bottom: 10px;">上传本地视频到阿里云 VOD</div>
+                <input type="file" id="aliyunVodFile" accept="video/*,audio/*" style="display: none;" />
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button id="aliyunVodSelectBtn" style="padding: 8px 16px; border: 1px solid #ff6b81; background: #fff; color: #ff6b81; border-radius: 4px; cursor: pointer; font-size: 14px;">选择并上传</button>
+                  <span id="aliyunVodProgress" style="font-size: 13px; color: #666;"></span>
+                </div>
+              </div>
+              <div style="height: 1px; background: #eee; margin-bottom: 18px;"></div>
               <div style="margin-bottom: 16px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #666;">视频平台：</label>
                 <select id="videoPlatform" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
@@ -503,6 +619,45 @@
         `;
 
         $('body').append(dialogHtml);
+
+        $('#aliyunVodSelectBtn').on('click', function(e) {
+          e.preventDefault();
+          $('#aliyunVodFile').click();
+        });
+
+        $('#aliyunVodFile').on('change', function() {
+          const file = this.files && this.files[0];
+          if (!file) {
+            return;
+          }
+          if (!/^video\/|^audio\//.test(file.type)) {
+            toastr.warning('请选择视频或音频文件');
+            return;
+          }
+
+          $('#aliyunVodSelectBtn').prop('disabled', true).text('上传中...');
+          $('#aliyunVodProgress').text('准备上传...');
+          NProgress.start();
+
+          const uploader = buildAliVodUploader(file, function(percent) {
+            $('#aliyunVodProgress').text('上传进度 ' + percent + '%');
+          }, function(videoId) {
+            cm.replaceSelection('\n@[aliyun-vod](' + videoId + ')\n\n');
+            setTimeout(() => renderVodPreview(simplemde), 0);
+            toastr.success('视频上传成功，已插入文章');
+            $('.video-dialog-overlay').remove();
+            NProgress.done();
+          }, function(errorMsg) {
+            toastr.error(errorMsg);
+            $('#aliyunVodSelectBtn').prop('disabled', false).text('选择并上传');
+            $('#aliyunVodProgress').text('');
+            NProgress.done();
+          });
+
+          if (uploader) {
+            uploader.startUpload();
+          }
+        });
 
         // 平台切换提示
         $('#videoPlatform').on('change', function() {
@@ -606,6 +761,10 @@
         EditorImageResize.init(this);
         console.log('[Editor] 图片缩放功能已启用');
       }
+      renderVodPreview(this);
+    },
+    onpreviewed: function() {
+      renderVodPreview(this);
     },
     onchange: function () {
       let newVal = this.getMarkdown();
@@ -673,6 +832,7 @@
       } finally {
         // 关闭遮罩
         console.log('onchange，关闭遮罩层');
+        setTimeout(() => renderVodPreview(simplemde), 0);
         hideMask();
         NProgress.done();
       }
