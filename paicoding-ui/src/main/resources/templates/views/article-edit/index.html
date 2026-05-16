@@ -379,7 +379,7 @@
       const container = document.createElement('div');
       container.className = 'video-container video-container--aliyun-vod';
       const video = document.createElement('video');
-      video.src = '/video/play/proxy?videoId=' + encodeURIComponent(videoId);
+      video.src = '/video/play/redirect?videoId=' + encodeURIComponent(videoId);
       video.controls = true;
       video.preload = 'metadata';
       container.appendChild(video);

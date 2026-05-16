@@ -486,3 +486,46 @@ blockquote {
   height: auto;
   cursor: pointer;
 }
+
+.editormd-preview-container .video-container,
+.editormd-html-preview .video-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 18px 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: #0b0d12;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+}
+
+.editormd-preview-container .video-container video,
+.editormd-html-preview .video-container video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: #0b0d12;
+  object-fit: contain;
+}
+
+@supports not (aspect-ratio: 16 / 9) {
+  .editormd-preview-container .video-container,
+  .editormd-html-preview .video-container {
+    height: 0;
+    padding-bottom: 56.25%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .editormd-preview-container .video-container,
+  .editormd-html-preview .video-container {
+    margin: 14px 0;
+    border-radius: 6px;
+  }
+}

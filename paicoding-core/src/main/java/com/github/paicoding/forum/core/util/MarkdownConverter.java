@@ -14,6 +14,7 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 
+import java.text.Normalizer;
 import java.util.Arrays;
 
 /**
@@ -119,14 +120,18 @@ public class MarkdownConverter {
         }
 
         if (line.startsWith("@[aliyun-vod](") && line.endsWith(")")) {
-            String videoId = line.substring("@[aliyun-vod](".length(), line.length() - 1);
+            String videoId = normalizeVideoId(line.substring("@[aliyun-vod](".length(), line.length() - 1));
             if (videoId.matches("[a-zA-Z0-9_-]+")) {
                 return "<div class=\"video-container video-container--aliyun-vod\">\n"
-                        + "<video src=\"/video/play/proxy?videoId=" + videoId + "\" controls preload=\"metadata\"></video>\n"
+                        + "<video src=\"/video/play/redirect?videoId=" + videoId + "\" controls preload=\"metadata\"></video>\n"
                         + "</div>";
             }
         }
 
         return null;
+    }
+
+    private static String normalizeVideoId(String videoId) {
+        return Normalizer.normalize(videoId, Normalizer.Form.NFKC).trim();
     }
 }
