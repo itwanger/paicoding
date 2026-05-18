@@ -22,6 +22,7 @@
         from user_login_audit a
         left join user u on u.id = a.user_id
         where a.user_id is not null
+          and (a.login_type is null or a.login_type != 2)
         <if test="req.recentDays != null and req.recentDays &gt; 0">
             and a.create_time >= date_sub(now(), interval #{req.recentDays} day)
         </if>
@@ -105,6 +106,7 @@
         left join user u on u.id = a.user_id
         where a.create_time >= date_sub(now(), interval #{recentDays} day)
           and a.user_id is not null
+          and (a.login_type is null or a.login_type != 2)
         group by a.user_id, a.login_name
         having kickoutCount &gt;= 5
            and deviceCount &gt;= 3
@@ -128,6 +130,7 @@
         from user_login_audit a
         where a.create_time >= date_sub(now(), interval #{recentDays} day)
           and a.user_id = #{userId}
+          and (a.login_type is null or a.login_type != 2)
         group by a.user_id
     </select>
 
@@ -148,6 +151,7 @@
         from user_login_audit a
         where a.user_id = #{userId}
           and a.create_time > #{startTime}
+          and (a.login_type is null or a.login_type != 2)
         group by a.user_id
     </select>
 
