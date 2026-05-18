@@ -110,6 +110,11 @@ public class LoginServiceImpl implements LoginService {
         return userSessionHelper.genSession(userId, null, LoginTypeEnum.WECHAT.getType());
     }
 
+    @Override
+    public String loginByWx(Long userId, UserSessionHelper.SessionDeviceMeta sessionMeta) {
+        return userSessionHelper.genSession(userId, null, LoginTypeEnum.WECHAT.getType(), sessionMeta);
+    }
+
     /**
      * 用户名密码方式登录
      *

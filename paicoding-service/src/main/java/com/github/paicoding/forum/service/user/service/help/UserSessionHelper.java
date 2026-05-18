@@ -131,6 +131,10 @@ public class UserSessionHelper {
     }
 
     public String genSession(Long userId, String loginName, Integer loginType) {
+        return genSession(userId, loginName, loginType, null);
+    }
+
+    public String genSession(Long userId, String loginName, Integer loginType, SessionDeviceMeta sourceMeta) {
         // 1.生成jwt格式的会话，内部持有有效期，用户信息
         long now = System.currentTimeMillis();
         long expireTime = now + jwtProperties.getExpire();
@@ -140,6 +144,7 @@ public class UserSessionHelper {
                 .sign(algorithm);
 
         SessionDeviceMeta sessionMeta = buildSessionMeta(userId, loginName, loginType, now, expireTime);
+        mergeSessionDeviceMeta(sessionMeta, sourceMeta);
         assertUserLoginAllowed(userId, loginName, loginType, sessionMeta);
         String riskTag = enforceDeviceLimit(userId, sessionMeta);
 
@@ -160,6 +165,24 @@ public class UserSessionHelper {
         userDao.updateLastLoginTime(userId, new Date(now));
 
         return token;
+    }
+
+    private void mergeSessionDeviceMeta(SessionDeviceMeta target, SessionDeviceMeta source) {
+        if (target == null || source == null) {
+            return;
+        }
+        if (StringUtils.isNotBlank(source.getDeviceId())) {
+            target.setDeviceId(source.getDeviceId());
+        }
+        if (StringUtils.isNotBlank(source.getUserAgent())) {
+            target.setUserAgent(source.getUserAgent());
+            target.setUaHash(Md5Util.encode(source.getUserAgent()));
+            target.setDeviceName(buildDeviceName(source.getUserAgent()));
+        }
+        if (StringUtils.isNotBlank(source.getIp())) {
+            target.setIp(source.getIp());
+            target.setRegion(resolveRegion(source.getIp()));
+        }
     }
 
     public void removeSession(String session) {

@@ -240,8 +240,9 @@ public class ReqRecordFilter implements Filter {
 
     /**
      * 设备指纹策略：服务端 cookie 是稳定锚点（仅服务端写入的随机 UUID），
-     * 再叠加服务端可观察到的 UA/语言/网段/Client Hints；客户端传入的 deviceId 只作为提示参与混合，
+     * 再叠加服务端可观察到的 UA/语言/Client Hints；客户端传入的 deviceId 只作为提示参与混合，
      * 不能直接覆盖最终值——以此防止前端任意伪造设备 id 绕过共享账号检测。
+     * 注意：IP 不能参与设备指纹，否则同一手机/电脑换网络会同时抬高设备数和 IP 数。
      */
     private String resolveRiskDeviceId(HttpServletRequest request, HttpServletResponse response) {
         String anchor = getOrInitDeviceAnchorCookie(request, response);
@@ -304,7 +305,6 @@ public class ReqRecordFilter implements Filter {
         addFactor(factors, "lang", normalizeAcceptLanguage(request.getHeader("Accept-Language")));
         addFactor(factors, "platform", request.getHeader("Sec-CH-UA-Platform"));
         addFactor(factors, "mobile", request.getHeader("Sec-CH-UA-Mobile"));
-        addFactor(factors, "net", normalizeClientNetwork(IpUtil.getClientIp(request)));
         if (factors.isEmpty()) {
             return null;
         }
@@ -356,18 +356,4 @@ public class ReqRecordFilter implements Filter {
         return os + "/" + deviceClass;
     }
 
-    /**
-     * 取客户端 IP 的 /24 网段，避免同一办公网络下每次拨号重连导致设备 id 漂移；
-     * 同一 NAT 出口下被认为是同一台设备的可能性更高一点，符合共享账号场景。
-     */
-    private String normalizeClientNetwork(String clientIp) {
-        if (StringUtils.isBlank(clientIp)) {
-            return null;
-        }
-        int lastDot = clientIp.lastIndexOf('.');
-        if (lastDot <= 0) {
-            return clientIp;
-        }
-        return clientIp.substring(0, lastDot) + ".0/24";
-    }
 }

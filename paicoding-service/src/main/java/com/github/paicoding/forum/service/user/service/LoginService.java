@@ -2,6 +2,7 @@ package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
+import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 
 /**
  * @author YiHui
@@ -34,6 +35,8 @@ public interface LoginService {
      * @return
      */
     String loginByWx(Long userId);
+
+    String loginByWx(Long userId, UserSessionHelper.SessionDeviceMeta sessionMeta);
 
     /**
      * 用户名密码方式登录

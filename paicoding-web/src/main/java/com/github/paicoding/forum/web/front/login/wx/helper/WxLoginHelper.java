@@ -7,6 +7,7 @@ import com.github.paicoding.forum.core.util.CodeGenerateUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginService;
 import com.github.paicoding.forum.service.user.service.audit.UserShareRiskControlService;
+import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -39,6 +40,10 @@ public class WxLoginHelper {
      */
     private LoadingCache<String, SseEmitter> verifyCodeCache;
     /**
+     * key = 验证码, value = 打开扫码页的浏览器设备上下文
+     */
+    private LoadingCache<String, UserSessionHelper.SessionDeviceMeta> verifyCodeDeviceMetaCache;
+    /**
      * key = 设备 value = 验证码
      */
     private LoadingCache<String, String> deviceCodeCache;
@@ -54,6 +59,12 @@ public class WxLoginHelper {
         verifyCodeCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, SseEmitter>() {
             @Override
             public SseEmitter load(String s) throws Exception {
+                throw new NoVlaInGuavaException("no val: " + s);
+            }
+        });
+        verifyCodeDeviceMetaCache = CacheBuilder.newBuilder().maximumSize(300).expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<String, UserSessionHelper.SessionDeviceMeta>() {
+            @Override
+            public UserSessionHelper.SessionDeviceMeta load(String s) throws Exception {
                 throw new NoVlaInGuavaException("no val: " + s);
             }
         });
@@ -98,14 +109,17 @@ public class WxLoginHelper {
             oldSse.complete();
         }
         verifyCodeCache.put(realCode, sseEmitter);
+        verifyCodeDeviceMetaCache.put(realCode, buildCurrentBrowserMeta());
         sseEmitter.onTimeout(() -> {
             log.info("sse 超时中断 --> {}", realCode);
             verifyCodeCache.invalidate(realCode);
+            verifyCodeDeviceMetaCache.invalidate(realCode);
             sseEmitter.complete();
         });
         sseEmitter.onError((e) -> {
             log.warn("sse error! --> {}", realCode, e);
             verifyCodeCache.invalidate(realCode);
+            verifyCodeDeviceMetaCache.invalidate(realCode);
             sseEmitter.complete();
         });
         // 若实际的验证码与前端显示的不同，则通知前端更新
@@ -162,8 +176,13 @@ public class WxLoginHelper {
 
             lastSse.send("updateCode!");
             lastSse.send("refresh#" + newCode);
+            UserSessionHelper.SessionDeviceMeta browserMeta = verifyCodeDeviceMetaCache.getIfPresent(oldCode);
             verifyCodeCache.invalidate(oldCode);
+            verifyCodeDeviceMetaCache.invalidate(oldCode);
             verifyCodeCache.put(newCode, lastSse);
+            if (browserMeta != null) {
+                verifyCodeDeviceMetaCache.put(newCode, browserMeta);
+            }
             return newCode;
         }
     }
@@ -196,7 +215,8 @@ public class WxLoginHelper {
         }
 
         // 2. 生成登录凭证
-        String session = sessionService.loginByWx(ReqInfoContext.getReqInfo().getUserId());
+        UserSessionHelper.SessionDeviceMeta browserMeta = verifyCodeDeviceMetaCache.getIfPresent(verifyCode);
+        String session = sessionService.loginByWx(ReqInfoContext.getReqInfo().getUserId(), browserMeta);
         try {
             if (notifyClient) {
                 // 3. 将登录凭证发送给客户端，用于前端写入Cookie
@@ -216,7 +236,19 @@ public class WxLoginHelper {
             // 4. 登录完成，关闭SSE连接；清空验证码与SseEmitter的绑定关系
             sseEmitter.complete();
             verifyCodeCache.invalidate(verifyCode);
+            verifyCodeDeviceMetaCache.invalidate(verifyCode);
         }
         return null;
+    }
+
+    private UserSessionHelper.SessionDeviceMeta buildCurrentBrowserMeta() {
+        UserSessionHelper.SessionDeviceMeta meta = new UserSessionHelper.SessionDeviceMeta();
+        if (ReqInfoContext.getReqInfo() == null) {
+            return meta;
+        }
+        meta.setDeviceId(ReqInfoContext.getReqInfo().getDeviceId());
+        meta.setIp(ReqInfoContext.getReqInfo().getClientIp());
+        meta.setUserAgent(ReqInfoContext.getReqInfo().getUserAgent());
+        return meta;
     }
 }
