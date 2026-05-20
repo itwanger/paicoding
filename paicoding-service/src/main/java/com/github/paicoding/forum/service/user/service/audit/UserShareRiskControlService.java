@@ -10,20 +10,17 @@ import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.repository.entity.UserShareRiskAccountDO;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
 import com.github.paicoding.forum.service.user.service.audit.UserShareRiskPolicy.HandleAction;
-import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
- * 疑似共享账号自动管控
+ * 疑似共享账号统计
  * <p>
  * 写入路径：定时任务 {@link #scanAndUpsertRiskAccountsBySchedule()} 每日把 audit 聚合后的疑似账号
  * upsert 到 {@code user_share_risk_account}；admin 列表只读这张表。
@@ -46,29 +43,27 @@ public class UserShareRiskControlService {
 
     private final UserLoginAuditDao userLoginAuditDao;
     private final UserDao userDao;
-    private final UserSessionHelper userSessionHelper;
     private final LoginAuditService loginAuditService;
     private final UserShareRiskPolicy userShareRiskPolicy;
     private final UserShareRiskAccountDao userShareRiskAccountDao;
 
     public UserShareRiskControlService(UserLoginAuditDao userLoginAuditDao,
                                        UserDao userDao,
-                                       UserSessionHelper userSessionHelper,
                                        LoginAuditService loginAuditService,
                                        UserShareRiskPolicy userShareRiskPolicy,
                                        UserShareRiskAccountDao userShareRiskAccountDao) {
         this.userLoginAuditDao = userLoginAuditDao;
         this.userDao = userDao;
-        this.userSessionHelper = userSessionHelper;
         this.loginAuditService = loginAuditService;
         this.userShareRiskPolicy = userShareRiskPolicy;
         this.userShareRiskAccountDao = userShareRiskAccountDao;
     }
 
     /**
-     * 每天凌晨：扫描 audit → 刷新 user_share_risk_account → 决定自动禁/解禁。
+     * 每天凌晨：扫描 audit → 刷新 user_share_risk_account。
      * <p>
      * 设计意图：admin 列表只读这张表；audit 表只是滚动日志，可以独立按周期清理。
+     * 账号禁用只允许管理员手动处理；这里不自动写 user.forbid_until。
      */
     @Scheduled(cron = "0 0 0 * * ?")
     public void scanAndUpsertRiskAccountsBySchedule() {
@@ -79,7 +74,7 @@ public class UserShareRiskControlService {
         long start = System.currentTimeMillis();
         SearchUserShareRiskReq scanReq = buildScanReq();
         Long total = userLoginAuditDao.countUserShareRisk(scanReq);
-        Set<Long> highRiskUserIds = new HashSet<>();
+        int highRiskCount = 0;
 
         if (total != null && total > 0) {
             for (long offset = 0; offset < total; offset += SCAN_BATCH_SIZE) {
@@ -95,20 +90,19 @@ public class UserShareRiskControlService {
                     }
                     upsertScanRow(effective, existed);
                     if (isHighRisk(effective)) {
-                        highRiskUserIds.add(raw.getUserId());
+                        highRiskCount++;
                     }
                 }
             }
         }
 
         reconcileExpiredForbiddenAccounts();
-        applyAutoForbidden(highRiskUserIds);
         log.info("scanAndUpsertRiskAccounts done, candidateTotal={}, highRiskCount={}, costMs={}",
-                total == null ? 0 : total, highRiskUserIds.size(), System.currentTimeMillis() - start);
+                total == null ? 0 : total, highRiskCount, System.currentTimeMillis() - start);
     }
 
     /**
-     * 兼容旧调用入口：现在内部走完整扫描 + 自动管控。
+     * 兼容旧调用入口：现在只刷新疑似账号统计，不做自动禁用。
      */
     public void syncAutoForbiddenStatus() {
         scanAndUpsertRiskAccounts();
@@ -220,59 +214,6 @@ public class UserShareRiskControlService {
         return release.after(expiredForbid) ? release : expiredForbid;
     }
 
-    private void applyAutoForbidden(Set<Long> highRiskUserIds) {
-        highRiskUserIds.forEach(this::handleHighRiskUser);
-
-        List<UserDO> autoForbiddenUsers = userDao.listUsersByForbidReason(UserShareRiskPolicy.AUTO_FORBID_REASON);
-        for (UserDO user : autoForbiddenUsers) {
-            if (user == null || user.getId() == null) {
-                continue;
-            }
-            if (highRiskUserIds.contains(user.getId())) {
-                continue;
-            }
-            releaseAutoForbidden(user);
-        }
-    }
-
-    private void handleHighRiskUser(Long userId) {
-        if (userId == null) {
-            return;
-        }
-        UserDO user = userDao.getUserByUserId(userId);
-        if (user == null) {
-            return;
-        }
-        if (isManualForbidden(user)) {
-            return;
-        }
-        if (isAutoForbiddenAndEffective(user)) {
-            return;
-        }
-
-        Date now = new Date();
-        Date forbidUntil = new Date(now.getTime() + UserShareRiskPolicy.AUTO_FORBID_DAYS * 24L * 60 * 60 * 1000);
-        user.setForbidTime(now);
-        user.setForbidUntil(forbidUntil);
-        user.setForbidReason(UserShareRiskPolicy.AUTO_FORBID_REASON);
-        user.setForbidOperatorId(SYSTEM_OPERATOR_ID);
-        userDao.updateUserForbidden(userId, now, forbidUntil, UserShareRiskPolicy.AUTO_FORBID_REASON, SYSTEM_OPERATOR_ID);
-        userSessionHelper.removeAllSessionsByUserId(userId, "ACCOUNT_SUSPENDED");
-
-        UserShareRiskAccountDO existed = userShareRiskAccountDao.getByUserId(userId);
-        Date cutoff = effectiveCountCutoff(existed);
-        UserShareRiskDTO risk = cutoff == null
-                ? userLoginAuditDao.getUserShareRisk(userId, AUTO_CHECK_RECENT_DAYS)
-                : userLoginAuditDao.getUserShareRiskAfter(userId, cutoff);
-        String riskDetail = risk == null ? "" : userShareRiskPolicy.buildRiskDetail(
-                AUTO_CHECK_RECENT_DAYS,
-                nz(risk.getKickoutCount()),
-                nz(risk.getDeviceCount()),
-                nz(risk.getIpCount()));
-        loginAuditService.recordAccountForbid(user, UserShareRiskPolicy.AUTO_FORBID_REASON + "；" + riskDetail, HandleAction.AUTO_FORBID);
-        log.info("Auto forbid shared-risk user, userId={}, loginName={}", userId, user.getUserName());
-    }
-
     /**
      * 巡检发现 user_share_risk_account.forbidden=true 但 user.forbid_until 已过期 → 同步成"未禁用"。
      */
@@ -298,13 +239,6 @@ public class UserShareRiskControlService {
             }
             userShareRiskAccountDao.upsert(account);
         }
-    }
-
-    private void releaseAutoForbidden(UserDO user) {
-        if (!userShareRiskPolicy.isAutoForbiddenReason(user.getForbidReason())) {
-            return;
-        }
-        releaseForbidden(user, UserShareRiskPolicy.AUTO_UNFORBID_REASON, HandleAction.AUTO_UNFORBID);
     }
 
     private void releaseForbidden(UserDO user, String reason, HandleAction action) {
@@ -347,20 +281,6 @@ public class UserShareRiskControlService {
             return false;
         }
         return userShareRiskPolicy.isHighRisk(nz(dto.getKickoutCount()), nz(dto.getDeviceCount()), nz(dto.getIpCount()));
-    }
-
-    private boolean isManualForbidden(UserDO user) {
-        return user != null
-                && user.getForbidUntil() != null
-                && user.getForbidUntil().after(new Date())
-                && !userShareRiskPolicy.isAutoForbiddenReason(user.getForbidReason());
-    }
-
-    private boolean isAutoForbiddenAndEffective(UserDO user) {
-        return user != null
-                && userShareRiskPolicy.isAutoForbiddenReason(user.getForbidReason())
-                && user.getForbidUntil() != null
-                && user.getForbidUntil().after(new Date());
     }
 
     private boolean isForbidden(UserDO user) {
