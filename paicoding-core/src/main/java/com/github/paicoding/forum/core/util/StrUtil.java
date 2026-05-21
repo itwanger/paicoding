@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2024/12/5
  */
 public class StrUtil {
-    private static final String IMAGE_DIMENSION_CACHE_VERSION = "text-size-v3:";
+    private static final String IMAGE_DIMENSION_CACHE_VERSION = "text-size-v11:";
     private static final Cache<String, ImageDimension> IMAGE_DIMENSION_CACHE = Caffeine.newBuilder()
             .maximumSize(2048)
             .expireAfterWrite(7, TimeUnit.DAYS)
@@ -60,13 +60,18 @@ public class StrUtil {
             },
             new ThreadPoolExecutor.DiscardPolicy());
     private static final int IMAGE_DIMENSION_TIMEOUT_MS = 1500;
-    private static final int TEXT_SCREENSHOT_TARGET_TEXT_HEIGHT = 24;
-    private static final int TEXT_SCREENSHOT_MIN_TEXT_HEIGHT = 28;
-    private static final int TEXT_SCREENSHOT_MIN_RENDER_WIDTH = 560;
+    private static final int TEXT_SCREENSHOT_TARGET_TEXT_HEIGHT = 18;
+    private static final int TEXT_SCREENSHOT_CONTEXT_TARGET_TEXT_HEIGHT = 20;
+    private static final int TEXT_SCREENSHOT_MIN_TEXT_HEIGHT = 24;
+    private static final int TEXT_SCREENSHOT_MIN_RENDER_WIDTH = 400;
     private static final int TEXT_SCREENSHOT_MAX_RENDER_WIDTH = 960;
     private static final int TEXT_SCREENSHOT_DOCUMENT_RENDER_WIDTH = 960;
     private static final int TEXT_SCREENSHOT_COMPACT_POSTER_WIDTH = 420;
     private static final int TEXT_SCREENSHOT_MAX_ANALYSIS_PIXELS = 4_000_000;
+    private static final double TEXT_SCREENSHOT_WIDE_ASPECT_RATIO = 1.55D;
+    private static final int TEXT_SCREENSHOT_SPARSE_TEXT_ROW_COVERAGE = 48;
+    private static final double TEXT_SCREENSHOT_COLD_TALL_ASPECT_RATIO = 1.75D;
+    private static final int TEXT_SCREENSHOT_COLD_TALL_MAX_RENDER_WIDTH = 620;
 
     /**
      * 微信支付的提示信息，不支持表情包，因此我们只保留中文 + 数字 + 英文字母 + 符号 '《》【】-_.'
@@ -211,6 +216,11 @@ public class StrUtil {
                     continue;
                 }
 
+                ImageDimension attrDimension = resolveAttrImageDimension(img);
+                if (attrDimension != null) {
+                    markReadableImageClass(img, attrDimension);
+                }
+
                 boolean missingWidth = !img.hasAttr("width");
                 boolean missingHeight = !img.hasAttr("height");
                 if (missingWidth || missingHeight) {
@@ -246,6 +256,28 @@ public class StrUtil {
             img.addClass("article-content-img--text-shot");
             appendStyle(img, "--article-img-max-width: " + maxDisplayWidth + "px");
         }
+    }
+
+    private static ImageDimension resolveAttrImageDimension(org.jsoup.nodes.Element img) {
+        int width = NumberUtils.toInt(img.attr("width"), 0);
+        int height = NumberUtils.toInt(img.attr("height"), 0);
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+
+        return new ImageDimension(width, height, inferColdReadableImageMaxWidth(width, height));
+    }
+
+    private static int inferColdReadableImageMaxWidth(int width, int height) {
+        if (width > 1200 || height < width * TEXT_SCREENSHOT_COLD_TALL_ASPECT_RATIO) {
+            return 0;
+        }
+
+        int maxDisplayWidth = width * 3 / 5;
+        maxDisplayWidth = Math.max(TEXT_SCREENSHOT_MIN_RENDER_WIDTH, maxDisplayWidth);
+        maxDisplayWidth = Math.min(TEXT_SCREENSHOT_COLD_TALL_MAX_RENDER_WIDTH, maxDisplayWidth);
+        maxDisplayWidth = Math.min(width, maxDisplayWidth);
+        return maxDisplayWidth < width * 0.92D ? maxDisplayWidth : 0;
     }
 
     private static boolean looksLikeCompactPoster(org.jsoup.nodes.Element img, ImageDimension dimension) {
@@ -368,16 +400,21 @@ public class StrUtil {
         try {
             BufferedImage image = reader.read(0);
             ImageTextProfile textProfile = estimateImageTextProfile(image);
+            if (looksLikeReadableWideScreenshot(width, height, textProfile)) {
+                return 0;
+            }
+
             if (looksLikeDocumentScreenshot(width, height, textProfile)) {
                 return Math.min(width, TEXT_SCREENSHOT_DOCUMENT_RENDER_WIDTH);
             }
 
-            int estimatedTextHeight = textProfile.maxTextHeight;
-            if (estimatedTextHeight < TEXT_SCREENSHOT_MIN_TEXT_HEIGHT) {
+            int estimatedTextHeight = estimateReadableTextHeight(width, height, textProfile);
+            if (estimatedTextHeight <= 0) {
                 return 0;
             }
 
-            int maxDisplayWidth = width * TEXT_SCREENSHOT_TARGET_TEXT_HEIGHT / estimatedTextHeight;
+            int targetTextHeight = resolveTargetTextHeight(width, height, textProfile);
+            int maxDisplayWidth = width * targetTextHeight / estimatedTextHeight;
             maxDisplayWidth = Math.max(TEXT_SCREENSHOT_MIN_RENDER_WIDTH, maxDisplayWidth);
             maxDisplayWidth = Math.min(TEXT_SCREENSHOT_MAX_RENDER_WIDTH, maxDisplayWidth);
             maxDisplayWidth = Math.min(width, maxDisplayWidth);
@@ -387,6 +424,14 @@ public class StrUtil {
         }
     }
 
+    private static boolean looksLikeReadableWideScreenshot(int width, int height, ImageTextProfile textProfile) {
+        return height > 0
+                && width >= height * TEXT_SCREENSHOT_WIDE_ASPECT_RATIO
+                && textProfile.textGroupCount >= 4
+                && textProfile.medianTextHeight > 0
+                && textProfile.medianTextHeight < TEXT_SCREENSHOT_MIN_TEXT_HEIGHT;
+    }
+
     private static boolean looksLikeDocumentScreenshot(int width, int height, ImageTextProfile textProfile) {
         return width >= 1600
                 && height >= 1000
@@ -394,6 +439,31 @@ public class StrUtil {
                 && textProfile.medianTextHeight > 0
                 && textProfile.medianTextHeight <= TEXT_SCREENSHOT_MIN_TEXT_HEIGHT
                 && textProfile.maxTextHeight >= textProfile.medianTextHeight * 3;
+    }
+
+    private static int resolveTargetTextHeight(int width, int height, ImageTextProfile textProfile) {
+        if (height > width
+                && textProfile.textGroupCount >= 10
+                && textProfile.textRowCoveragePercent > 0
+                && textProfile.textRowCoveragePercent <= TEXT_SCREENSHOT_SPARSE_TEXT_ROW_COVERAGE) {
+            return TEXT_SCREENSHOT_CONTEXT_TARGET_TEXT_HEIGHT;
+        }
+        return TEXT_SCREENSHOT_TARGET_TEXT_HEIGHT;
+    }
+
+    private static int estimateReadableTextHeight(int width, int height, ImageTextProfile textProfile) {
+        if (textProfile.maxTextHeight < TEXT_SCREENSHOT_MIN_TEXT_HEIGHT) {
+            return 0;
+        }
+
+        int estimatedTextHeight = textProfile.textGroupCount >= 4 && textProfile.medianTextHeight > 0
+                ? textProfile.medianTextHeight
+                : textProfile.maxTextHeight;
+        if (estimatedTextHeight < TEXT_SCREENSHOT_MIN_TEXT_HEIGHT) {
+            return 0;
+        }
+
+        return estimatedTextHeight;
     }
 
     private static ImageTextProfile estimateImageTextProfile(BufferedImage image) {
@@ -409,11 +479,13 @@ public class StrUtil {
         int maxInkPerRow = Math.max(minInkPerRow + 1, sampleWidth * 65 / 100);
         List<Integer> textHeights = new ArrayList<>();
         int start = -1;
+        int textRowCount = 0;
 
         for (int y = 0; y < height; y++) {
             int inkCount = countDarkPixelsInRow(image, y, sampleStep);
             boolean looksLikeTextRow = inkCount >= minInkPerRow && inkCount <= maxInkPerRow;
             if (looksLikeTextRow) {
+                textRowCount++;
                 if (start < 0) {
                     start = y;
                 }
@@ -434,7 +506,8 @@ public class StrUtil {
         return new ImageTextProfile(
                 textHeights.get(textHeights.size() - 1),
                 textHeights.get(textHeights.size() / 2),
-                textHeights.size());
+                textHeights.size(),
+                height <= 0 ? 0 : textRowCount * 100 / height);
     }
 
     private static void collectTextHeight(List<Integer> textHeights, int height) {
@@ -580,15 +653,17 @@ public class StrUtil {
         private final int maxTextHeight;
         private final int medianTextHeight;
         private final int textGroupCount;
+        private final int textRowCoveragePercent;
 
-        private ImageTextProfile(int maxTextHeight, int medianTextHeight, int textGroupCount) {
+        private ImageTextProfile(int maxTextHeight, int medianTextHeight, int textGroupCount, int textRowCoveragePercent) {
             this.maxTextHeight = maxTextHeight;
             this.medianTextHeight = medianTextHeight;
             this.textGroupCount = textGroupCount;
+            this.textRowCoveragePercent = textRowCoveragePercent;
         }
 
         private static ImageTextProfile empty() {
-            return new ImageTextProfile(0, 0, 0);
+            return new ImageTextProfile(0, 0, 0, 0);
         }
     }
 

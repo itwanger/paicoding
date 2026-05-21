@@ -440,8 +440,54 @@
     (function() {
       // 为所有文章图片添加 cursor 样式提示可点击
       const images = document.querySelectorAll('.article-content img');
+
+      function applyColdReadableImageSize(img) {
+        if (img.classList.contains('article-content-img--text-shot')) {
+          return;
+        }
+
+        if (img.naturalWidth > 1200 || img.naturalHeight < img.naturalWidth * 1.75) {
+          return;
+        }
+
+        const maxWidth = Math.min(
+          img.naturalWidth,
+          Math.min(620, Math.max(400, Math.floor(img.naturalWidth * 0.6)))
+        );
+        if (maxWidth >= img.naturalWidth * 0.92) {
+          return;
+        }
+
+        img.classList.add('article-content-img--text-shot');
+        img.style.setProperty('--article-img-max-width', maxWidth + 'px');
+      }
+
+      function syncLoadedImageSize(img) {
+        if (img.naturalWidth <= 0 || img.naturalHeight <= 0) {
+          return;
+        }
+
+        if (img.classList.contains('article-content-img--pending-size')) {
+          if (!img.hasAttribute('width')) {
+            img.setAttribute('width', img.naturalWidth);
+          }
+          if (!img.hasAttribute('height')) {
+            img.setAttribute('height', img.naturalHeight);
+          }
+          img.classList.remove('article-content-img--pending-size');
+        }
+        applyColdReadableImageSize(img);
+      }
+
       images.forEach(function(img) {
         img.style.cursor = 'zoom-in';
+        if (img.complete) {
+          syncLoadedImageSize(img);
+        } else {
+          img.addEventListener('load', function() {
+            syncLoadedImageSize(img);
+          }, { once: true });
+        }
       });
 
       // 初始化 Fancybox

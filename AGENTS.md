@@ -9,9 +9,11 @@ PaiCoding is a Spring Boot-based community platform for technical content sharin
 ## Build and Test Commands
 
 ### Important Notes
-- **Project JDK**: This project uses Java 8
-- **Local Environment**: Current local JDK is Java 21
-- **Build Commands**: DO NOT use `mvn clean` commands due to JDK version mismatch (Java 21 vs Java 8). This will cause compilation errors with Lombok and other annotation processors.
+- **Project JDK**: This project must be built and tested with Java 8.
+- **Local Environment**: Current default local JDK is Java 21, which is incompatible with this project's Lombok/Javac setup.
+- **Build Commands**: Always force Java 8 explicitly and put the Java 8 `bin` directory first in `PATH`. On this machine, the Homebrew `mvn` launcher can still report Java 21 through jenv, so prefer the Maven libexec entry point:
+  `bash -lc 'JAVA8_HOME=$(/usr/libexec/java_home -v 1.8); export JAVA_HOME="$JAVA8_HOME"; export PATH="$JAVA8_HOME/bin:$PATH"; /opt/homebrew/Cellar/maven/3.9.9/libexec/bin/mvn -pl paicoding-core -DskipTests compile'`.
+- **Do not use `mvn clean`** unless explicitly requested. Java 21 + clean rebuild can trigger Lombok annotation-processor failures; prefer targeted module commands with Java 8.
 
 
 ## Architecture
