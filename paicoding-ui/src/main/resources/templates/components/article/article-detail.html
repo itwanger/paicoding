@@ -8,14 +8,14 @@
     <span class="com-2-mark-triangle article-mark">
       <span class="mark-cnt">原创</span>
     </span>
-  <div
+  <h1
           id="postsTitle"
           class="article-info-title"
           th:data-id="${article.articleId}"
           th:text="${article.title}"
   >
     标题
-  </div>
+  </h1>
   <div>
     <div class="detail-content-title-other-wrap relative" th:if="${author != null}">
       <img th:src="${author.photo}" class="detail-content-title-other-img" width="22" height="22" />

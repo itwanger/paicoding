@@ -19,8 +19,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +41,11 @@ import java.util.stream.Collectors;
 public class SeoInjectService {
     private static final String KEYWORDS = "技术派,开源社区,java,springboot,IT,程序员,开发者,mysql,redis,Java基础,多线程,JVM,虚拟机,数据库,MySQL,Spring,Redis,MyBatis,系统设计,分布式,RPC,高可用,高并发,沉默王二";
     private static final String DES = "技术派,一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目。学编程，就上技术派";
+    private static final int DESCRIPTION_MAX_LENGTH = 180;
+    private static final String[] SEO_ENTITY_KEYWORDS = {
+            "派聪明", "PaiSmart", "PaiFlow", "派派工作流", "PaiCLI", "MCP", "RAG", "Agent",
+            "Dify", "Coze", "n8n", "Spring AI", "LangGraph4J", "DeepSeek", "GLM"
+    };
 
     @Resource
     private GlobalViewConfig globalViewConfig;
@@ -54,28 +61,30 @@ public class SeoInjectService {
         Map<String, Object> jsonLd = seo.getJsonLd();
 
         String title = detail.getArticle().getTitle();
-        String description = detail.getArticle().getSummary();
+        String description = buildSeoDescription(title, detail.getArticle().getSummary());
         String authorName = detail.getAuthor().getUserName();
         String updateTime = DateUtil.time2LocalTime(detail.getArticle().getLastUpdateTime()).toString();
         String publishedTime = DateUtil.time2LocalTime(detail.getArticle().getCreateTime()).toString();
         String image = detail.getArticle().getCover();
+        String tagKeywords = buildTagKeywords(detail.getArticle().getTags());
+        String keywords = buildArticleKeywords(title, detail.getArticle().getCategory().getCategory(), tagKeywords, null);
 
         list.add(new SeoTagVo("og:title", title));
-        list.add(new SeoTagVo("og:description", detail.getArticle().getSummary()));
+        list.add(new SeoTagVo("og:description", description));
         list.add(new SeoTagVo("og:type", "article"));
         list.add(new SeoTagVo("og:locale", "zh-CN"));
         list.add(new SeoTagVo("og:updated_time", updateTime));
 
         list.add(new SeoTagVo("article:modified_time", updateTime));
         list.add(new SeoTagVo("article:published_time", publishedTime));
-        list.add(new SeoTagVo("article:tag", detail.getArticle().getTags().stream().map(TagDTO::getTag).collect(Collectors.joining(","))));
+        list.add(new SeoTagVo("article:tag", tagKeywords));
         list.add(new SeoTagVo("article:section", detail.getArticle().getCategory().getCategory()));
         list.add(new SeoTagVo("article:author", authorName));
 
         list.add(new SeoTagVo("author", authorName));
         list.add(new SeoTagVo("title", title));
         list.add(new SeoTagVo("description", description));
-        list.add(new SeoTagVo("keywords", detail.getArticle().getCategory().getCategory() + "," + detail.getArticle().getTags().stream().map(TagDTO::getTag).collect(Collectors.joining(","))));
+        list.add(new SeoTagVo("keywords", keywords));
 
         if (StringUtils.isNotBlank(image)) {
             list.add(new SeoTagVo("og:image", image));
@@ -85,6 +94,7 @@ public class SeoInjectService {
         // 优化 JSON-LD 为 TechArticle 类型
         jsonLd.put("@type", "TechArticle");
         jsonLd.put("headline", title);
+        putAlternativeHeadline(jsonLd, title);
         jsonLd.put("description", description);
         
         Map<String, Object> author = new HashMap<>();
@@ -121,11 +131,13 @@ public class SeoInjectService {
         Map<String, Object> jsonLd = seo.getJsonLd();
 
         String title = detail.getArticle().getTitle();
-        String description = detail.getArticle().getSummary();
+        String description = buildSeoDescription(title, detail.getArticle().getSummary());
         String authorName = column.getAuthorName();
         String updateTime = DateUtil.time2LocalTime(detail.getArticle().getLastUpdateTime()).toString();
         String publishedTime = DateUtil.time2LocalTime(detail.getArticle().getCreateTime()).toString();
         String image = column.getCover();
+        String tagKeywords = buildTagKeywords(detail.getArticle().getTags());
+        String keywords = buildArticleKeywords(title, detail.getArticle().getCategory().getCategory(), tagKeywords, column.getColumn());
 
         list.add(new SeoTagVo("og:title", title));
         list.add(new SeoTagVo("og:description", description));
@@ -137,18 +149,19 @@ public class SeoInjectService {
 
         list.add(new SeoTagVo("article:modified_time", updateTime));
         list.add(new SeoTagVo("article:published_time", publishedTime));
-        list.add(new SeoTagVo("article:tag", detail.getArticle().getTags().stream().map(TagDTO::getTag).collect(Collectors.joining(","))));
+        list.add(new SeoTagVo("article:tag", tagKeywords));
         list.add(new SeoTagVo("article:section", column.getColumn()));
         list.add(new SeoTagVo("article:author", authorName));
 
         list.add(new SeoTagVo("author", authorName));
         list.add(new SeoTagVo("title", title));
-        list.add(new SeoTagVo("description", detail.getArticle().getSummary()));
-        list.add(new SeoTagVo("keywords", detail.getArticle().getCategory().getCategory() + "," + detail.getArticle().getTags().stream().map(TagDTO::getTag).collect(Collectors.joining(","))));
+        list.add(new SeoTagVo("description", description));
+        list.add(new SeoTagVo("keywords", keywords));
 
         // 优化 JSON-LD 为 TechArticle 类型（教程也是技术文章）
         jsonLd.put("@type", "TechArticle");
         jsonLd.put("headline", title);
+        putAlternativeHeadline(jsonLd, title);
         jsonLd.put("description", description);
         
         Map<String, Object> author = new HashMap<>();
@@ -304,6 +317,112 @@ public class SeoInjectService {
             }
         }
         list.add(new SeoTagVo(key, val));
+    }
+
+    private String buildArticleKeywords(String title, String category, String tagKeywords, String columnName) {
+        Set<String> keywords = new LinkedHashSet<>();
+        addEntityKeywords(keywords, title);
+        addEntityKeywords(keywords, columnName);
+        if (StringUtils.isNotBlank(tagKeywords)) {
+            for (String tag : tagKeywords.split(",")) {
+                addKeyword(keywords, tag);
+            }
+        }
+        if (keywords.isEmpty()) {
+            addKeyword(keywords, leadingHeadline(title));
+        }
+        return keywords.stream().collect(Collectors.joining(","));
+    }
+
+    private void addEntityKeywords(Set<String> keywords, String text) {
+        String val = StringUtils.defaultString(text);
+        for (String entity : SEO_ENTITY_KEYWORDS) {
+            if (StringUtils.containsIgnoreCase(val, entity)) {
+                addKeyword(keywords, entity);
+            }
+        }
+    }
+
+    private String buildTagKeywords(List<TagDTO> tags) {
+        if (tags == null) {
+            return "";
+        }
+        return tags.stream()
+                .map(TagDTO::getTag)
+                .filter(this::isValidSeoText)
+                .map(this::cleanSeoKeyword)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.joining(","));
+    }
+
+    private String buildSeoDescription(String title, String summary) {
+        String description = cleanSeoText(summary);
+        String leadingHeadline = leadingHeadline(title);
+        if (StringUtils.isBlank(leadingHeadline) || StringUtils.contains(description, leadingHeadline)) {
+            return abbreviateDescription(description);
+        }
+        if (StringUtils.isBlank(description)) {
+            return leadingHeadline;
+        }
+        return abbreviateDescription(leadingHeadline + "：" + description);
+    }
+
+    private void putAlternativeHeadline(Map<String, Object> jsonLd, String title) {
+        String alternativeHeadline = leadingHeadline(title);
+        if (StringUtils.isNotBlank(alternativeHeadline) && !StringUtils.equals(alternativeHeadline, title)) {
+            jsonLd.put("alternativeHeadline", alternativeHeadline);
+        }
+    }
+
+    private String leadingHeadline(String title) {
+        String normalized = normalizeHeadline(title);
+        if (StringUtils.isBlank(normalized)) {
+            return normalized;
+        }
+        String[] parts = normalized.split("[，,。；;：:！？!?]", 2);
+        return StringUtils.trim(parts[0]);
+    }
+
+    private String normalizeHeadline(String title) {
+        return cleanSeoKeyword(StringUtils.stripEnd(title, "，,。；;：:！？!? "));
+    }
+
+    private String cleanSeoText(String text) {
+        String val = StringUtils.defaultString(text);
+        val = val.replaceAll("<[^>]+>", " ");
+        val = val.replaceAll("!\\[[^\\]]*]\\([^)]*\\)", " ");
+        val = val.replaceAll("\\[([^\\]]+)]\\([^)]*\\)", "$1");
+        val = val.replaceAll("[*_`#>~]+", "");
+        val = val.replaceAll("\\s+", " ");
+        return StringUtils.trim(val);
+    }
+
+    private String abbreviateDescription(String description) {
+        String val = StringUtils.trim(description);
+        if (StringUtils.length(val) <= DESCRIPTION_MAX_LENGTH) {
+            return val;
+        }
+        return StringUtils.substring(val, 0, DESCRIPTION_MAX_LENGTH) + "...";
+    }
+
+    private void addKeyword(Set<String> keywords, String keyword) {
+        String val = cleanSeoKeyword(keyword);
+        if (isValidSeoText(val)) {
+            keywords.add(val);
+        }
+    }
+
+    private boolean isValidSeoText(String text) {
+        String val = StringUtils.trim(text);
+        return StringUtils.isNotBlank(val) && !"null".equalsIgnoreCase(val);
+    }
+
+    private String cleanSeoKeyword(String text) {
+        String val = StringUtils.trim(StringUtils.defaultString(text));
+        val = StringUtils.stripEnd(val, "，,。；;：:！？!? ");
+        val = val.replaceAll("^[\\s\\p{P}\\p{S}]+", "");
+        val = val.replaceAll("\\s+", " ");
+        return StringUtils.trim(val);
     }
 
 }
