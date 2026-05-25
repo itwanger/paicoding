@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ArticleTypeEnum;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.enums.SourceTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -34,6 +35,7 @@ public class ArticlePostReq implements Serializable {
     /**
      * URL slug,用于SEO友好URL
      */
+    @ApiModelProperty("文章URL标识，如 resume；留空则根据标题自动生成")
     private String urlSlug;
 
     /**

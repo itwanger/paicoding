@@ -70,11 +70,22 @@ public class SlugGeneratorService {
      * @return URL友好的slug
      */
     public String generateSlugWithAI(String title) {
+        return generateSlugWithAI(title, null);
+    }
+
+    /**
+     * 使用AI生成URL slug
+     *
+     * @param title         文章标题
+     * @param columnUrlSlug 所属专栏URL标识
+     * @return URL友好的slug
+     */
+    public String generateSlugWithAI(String title, String columnUrlSlug) {
         if (StringUtils.isBlank(title)) {
             return "";
         }
 
-        String prompt = buildPrompt(title);
+        String prompt = buildPrompt(title, columnUrlSlug);
         List<AISourceEnum> sources = resolveSlugSources();
         for (AISourceEnum source : sources) {
             String slug = tryGenerateWithSource(source, prompt, title);
@@ -235,13 +246,25 @@ public class SlugGeneratorService {
      * 构建AI提示词
      */
     private String buildPrompt(String title) {
-        return "任务：提取文章标题的核心关键词（1-2个），转为简短英文slug\n" +
+        return buildPrompt(title, null);
+    }
+
+    private String buildPrompt(String title, String columnUrlSlug) {
+        String columnContext = StringUtils.isBlank(columnUrlSlug) ? "" :
+                "专栏URL标识：" + columnUrlSlug.trim().toLowerCase() + "\n" +
+                        "这是该专栏下的教程文章。生成的是文章URL Slug，不是专栏URL Slug。\n" +
+                        "当前系统的文章短链会直接使用文章URL Slug，所以必须让文章URL Slug包含专栏/项目关键词，避免脱离专栏上下文。\n" +
+                        "如果标题是“什么是/是什么”介绍类，使用 what-is-{专栏URL标识}。\n" +
+                        "其他教程类标题，使用 {专栏URL标识}-{对象或主题}-{动作或章节}。\n\n";
+        return "任务：根据文章标题和专栏上下文生成英文 URL Slug\n" +
                 "要求：\n" +
-                "- 只保留最核心的技术词汇或动作词\n" +
-                "- 人名、修饰词全部忽略\n" +
-                "- 翻译成英文，小写，用-连接\n" +
-                "- 总长度控制在2-3个单词内\n" +
+                "- 输出小写英文、数字和连字符，不能包含中文、空格、解释或标点\n" +
+                "- 优先保留专栏/项目关键词，例如 paismart、paiagent、paicoding\n" +
+                "- 不要输出过于泛化的 slug，例如 resume-writing、rag-guide、introduction\n" +
+                "- 不要把标题逐字拼音化，要翻译成 SEO 友好的英文短语\n" +
+                "- 总长度控制在 2-4 个英文词内\n" +
                 "- 只返回slug，无任何解释\n\n" +
+                columnContext +
                 "特殊词汇映射：\n" +
                 "- 技术派 => paicoding\n" +
                 "- 派聪明 => paismart\n\n" +
@@ -252,7 +275,12 @@ public class SlugGeneratorService {
                 "Redis性能优化技巧分享 => redis-optimization\n" +
                 "沉默王二很牛逼，我要引流了 => traffic-guide\n" +
                 "技术派社区使用指南 => paicoding-guide\n" +
-                "派聪明AI助手介绍 => paismart-intro\n\n" +
+                "派聪明AI助手介绍 => paismart-intro\n" +
+                "派聪明RAG项目是什么 => what-is-paismart\n" +
+                "派聪明如何写简历 => paismart-resume-write\n" +
+                "PaiAgent 工作流入门 => paiagent-workflow-start\n" +
+                "如何搭建知识库 => paismart-knowledge-base-build\n" +
+                "什么是PaiAgent => what-is-paiagent\n\n" +
                 "标题：" + title + "\n" +
                 "Slug：";
     }

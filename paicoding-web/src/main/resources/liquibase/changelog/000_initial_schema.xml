@@ -201,4 +201,34 @@
     <changeSet id="20260513_1" author="Codex">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260513.sql"/>
     </changeSet>
+
+    <!-- 教程添加URL友好的独立标识，避免前台路径暴露数据库ID -->
+    <changeSet id="20260524_1" author="Codex">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="column_info" columnName="url_slug"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260524.sql"/>
+    </changeSet>
+
+    <!-- 教程URL独立标识增加查询索引 -->
+    <changeSet id="20260524_2" author="Codex">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="column_info" indexName="idx_url_slug"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260524_2.sql"/>
+    </changeSet>
+
+    <!-- 教程说明页文章，用于让 /{columnSlug} 渲染指定教程文章 -->
+    <changeSet id="20260524_3" author="Codex">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="column_info" columnName="readme_article_id"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260524_3.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -16,8 +16,8 @@
             <div class="group-name" th:text="${menu.groupName}">分组</div>
           </div>
           <a
-            th:href="'/column/' + ${vo.column} + '/' + ${itemStat.index + 1}"
-            th:class="${vo.section eq itemStat.index + 1} ? 'active section' : ' section'"
+            th:href="'/' + ${menu.urlSlug != null && menu.urlSlug != '' ? menu.urlSlug : 'article'}"
+            th:class="${vo.article.articleId eq menu.id} ? 'active section' : ' section'"
             th:attr="data-group=${menu.groupName},data-column=${menu.column}">
             <div class="left">
               <div class="index" th:text="${itemStat.index + 1}">1</div>

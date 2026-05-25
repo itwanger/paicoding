@@ -81,6 +81,14 @@ public class ColumnArticleDao extends ServiceImpl<ColumnArticleMapper, ColumnArt
                 .one();
     }
 
+    public ColumnArticleDO selectColumnArticleByArticleSlug(Long columnId, String articleSlug) {
+        return columnArticleMapper.getColumnArticleByArticleSlug(columnId, articleSlug);
+    }
+
+    public boolean existsArticleSlug(Long columnId, String articleSlug, Long excludeArticleId) {
+        return columnArticleMapper.countColumnArticleByArticleSlug(columnId, articleSlug, excludeArticleId) > 0;
+    }
+
     public void updateColumnArticleSection(Long id, Integer section) {
         lambdaUpdate().eq(ColumnArticleDO::getId, id)
                 .set(ColumnArticleDO::getSection, section)

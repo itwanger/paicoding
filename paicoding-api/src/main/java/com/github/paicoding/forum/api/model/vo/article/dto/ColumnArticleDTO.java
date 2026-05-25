@@ -36,6 +36,11 @@ public class ColumnArticleDTO implements Serializable {
     private String title;
 
     /**
+     * 文章URL标识
+     */
+    private String urlSlug;
+
+    /**
      * 教程名称
      */
     private String shortTitle;

@@ -1,6 +1,6 @@
 <div th:each="column : ${vo.columns.list}" th:if="${column.count.articleCount != 0}">
     <a
-      th:href="'/column/' + ${column.columnId} + '/1'"
+      th:href="'/column/' + ${column.urlSlug}"
       class="item"
     >
       <div class="poster">

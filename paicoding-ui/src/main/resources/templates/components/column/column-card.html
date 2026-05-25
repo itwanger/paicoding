@@ -3,7 +3,7 @@
   <!-- 专栏详情 -->
   <div th:fragment="column_card(column)">
     <a
-      th:href="'/column/' + ${column.columnId} + '/1'"
+      th:href="'/column/' + ${column.urlSlug}"
       class="item"
     >
       <div class="poster">

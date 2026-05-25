@@ -2,14 +2,19 @@ package com.github.paicoding.forum.service.sitemap.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.github.paicoding.forum.api.model.enums.ArticleEventEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.DateUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
+import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
@@ -51,6 +56,10 @@ public class SitemapServiceImpl implements SitemapService {
     @Resource
     private ColumnArticleDao columnArticleDao;
     @Resource
+    private ColumnDao columnDao;
+    @Resource
+    private ColumnService columnService;
+    @Resource
     private Environment environment;
 
     /**
@@ -90,16 +99,10 @@ public class SitemapServiceImpl implements SitemapService {
                 continue;
             }
 
-            String url;
-            if (StringUtils.isNotBlank(article.getShortTitle())) {
-                ColumnArticleDO columnArticle = columnArticleDao.selectColumnArticleByArticleId(articleId);
-                if (columnArticle != null) {
-                    url = host() + "/column/" + columnArticle.getColumnId() + "/" + columnArticle.getSection();
-                } else {
-                    url = buildArticleUrl(article, articleId);
-                }
-            } else {
-                url = buildArticleUrl(article, articleId);
+            ColumnArticleDO columnArticle = columnArticleDao.selectColumnArticleByArticleId(articleId);
+            String url = buildArticleUrl(article, articleId, columnArticle);
+            if (StringUtils.isBlank(url)) {
+                continue;
             }
 
             // 根据文章更新时间决定 changefreq 和 priority
@@ -126,12 +129,44 @@ public class SitemapServiceImpl implements SitemapService {
         return vo;
     }
 
-    private String buildArticleUrl(ArticleDO article, Long articleId) {
-        if (StringUtils.isNotBlank(article.getUrlSlug())) {
-            return host() + "/article/detail/" + articleId + "/" + article.getUrlSlug();
-        } else {
-            return host() + "/article/detail/" + articleId;
+    private String buildArticleUrl(ArticleDO article, Long articleId, ColumnArticleDO columnArticle) {
+        if (columnArticle != null) {
+            ColumnInfoDO column = columnDao.getById(columnArticle.getColumnId());
+            if (column != null && isReadmeArticle(column, articleId) && isValidUrlSlug(column.getUrlSlug())) {
+                return null;
+            }
+            String articleSlug = columnService.ensureColumnArticleUrlSlug(columnArticle.getColumnId(), articleId,
+                    article.getShortTitle(), article.getUrlSlug());
+            if (isValidUrlSlug(articleSlug)) {
+                return host() + "/" + articleSlug;
+            }
+            return host() + "/column/" + columnArticle.getColumnId() + "/" + columnArticle.getSection();
         }
+        if (isValidUrlSlug(article.getUrlSlug())) {
+            return host() + "/" + article.getUrlSlug();
+        }
+        return host() + "/article/detail/" + articleId;
+    }
+
+    private String buildColumnUrl(ColumnInfoDO column) {
+        if (isValidUrlSlug(column.getUrlSlug())) {
+            if (isReadmeArticle(column, column.getReadmeArticleId())) {
+                return host() + "/" + column.getUrlSlug() + "/readme";
+            }
+            return host() + "/column/" + column.getUrlSlug();
+        }
+        return host() + "/column/" + column.getId();
+    }
+
+    private boolean isValidUrlSlug(String urlSlug) {
+        return UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
+    }
+
+    private boolean isReadmeArticle(ColumnInfoDO column, Long articleId) {
+        return column != null
+                && column.getReadmeArticleId() != null
+                && column.getReadmeArticleId() > 0
+                && column.getReadmeArticleId().equals(articleId);
     }
 
     /**
@@ -164,6 +199,12 @@ public class SitemapServiceImpl implements SitemapService {
         
         // 专栏列表：高优先级，每周更新
         vo.addUrl(new SiteUrlVo(host() + "/column", time, "weekly", "0.8"));
+
+        // 教程详情：有 urlSlug 时输出固定语义路径，未设置时保留 ID 兜底路径
+        List<ColumnInfoDO> columns = columnDao.lambdaQuery()
+                .gt(ColumnInfoDO::getState, ColumnStatusEnum.OFFLINE.getCode())
+                .list();
+        columns.forEach(column -> vo.addUrl(new SiteUrlVo(buildColumnUrl(column), time, "weekly", "0.7")));
         
         return vo;
     }

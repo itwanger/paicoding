@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
+import com.github.paicoding.forum.api.model.vo.article.ArticleUrlSlugReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 
@@ -29,6 +30,14 @@ public interface ArticleSettingService {
      * @return
      */
     String generateUrlSlug(AiSlugGenerateReq req);
+
+    /**
+     * 更新文章URL Slug
+     *
+     * @param req
+     * @return 最终保存的URL Slug
+     */
+    String updateArticleUrlSlug(ArticleUrlSlugReq req);
 
     /**
      * 获取文章列表

@@ -83,6 +83,24 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         return dto;
     }
 
+    public ArticleDO getByUrlSlug(String urlSlug) {
+        return lambdaQuery()
+                .eq(ArticleDO::getUrlSlug, urlSlug)
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .last("limit 1")
+                .one();
+    }
+
+    public boolean existsUrlSlug(String urlSlug, Long excludeArticleId) {
+        LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
+        query.eq(ArticleDO::getUrlSlug, urlSlug)
+                .eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode());
+        if (excludeArticleId != null && excludeArticleId > 0) {
+            query.ne(ArticleDO::getId, excludeArticleId);
+        }
+        return baseMapper.selectCount(query) > 0;
+    }
+
     /**
      * 判断展示审核中的字样，还是展示原文
      *

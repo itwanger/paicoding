@@ -14,6 +14,7 @@
             a.user_id as authorId,
             (case ca.read_type when 0 then ci.type else ca.read_type end) as `readType`,
             (case LENGTH(a.short_title) when 0 then a.title else a.short_title end) as title,
+            a.url_slug as `urlSlug`,
             ci.column_name as `column`,
             ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`, g.title as `groupName`, g.`section` as `groupLevel`
         from
@@ -30,6 +31,26 @@
         select article_id, `read_type` from column_article where column_id = #{columnId} and `section` = #{section} limit 1
     </select>
 
+    <select id="getColumnArticleByArticleSlug" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
+        select ca.*
+        from column_article ca
+            left join article a on ca.article_id = a.id
+        where ca.column_id = #{columnId}
+            and a.url_slug = #{articleSlug}
+        limit 1
+    </select>
+
+    <select id="countColumnArticleByArticleSlug" resultType="java.lang.Long">
+        select count(1)
+        from column_article ca
+            left join article a on ca.article_id = a.id
+        where ca.column_id = #{columnId}
+            and a.url_slug = #{articleSlug}
+            <if test="excludeArticleId != null and excludeArticleId > 0">
+                and ca.article_id != #{excludeArticleId}
+            </if>
+    </select>
+
     <select id="countColumnReadUserNums" resultType="java.lang.Long">
         select count(distinct u.user_id) from column_article as a left join user_foot as u on a.article_id = u.document_id
         where u.document_type = 1 and u.read_stat = 1 and a.column_id = #{columnId}
@@ -37,7 +58,7 @@
 
     <select id="listColumnArticlesByColumnIdArticleName"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO">
-        select c.id, c.article_id, a.title, a.short_title, c.column_id,
+        select c.id, c.article_id, a.title, a.url_slug as urlSlug, a.short_title, c.column_id,
                col.column_name as `column`, col.cover as column_cover,
                c.`section` as sort, c.create_time, g.id as groupId, g.title as groupName
         from column_article as c

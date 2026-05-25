@@ -99,6 +99,22 @@ public class ColumnDao extends ServiceImpl<ColumnInfoMapper, ColumnInfoDO> {
         return columnArticleMapper.getColumnArticle(columnId, section);
     }
 
+    public ColumnInfoDO getByUrlSlug(String urlSlug) {
+        return lambdaQuery()
+                .eq(ColumnInfoDO::getUrlSlug, urlSlug)
+                .last("limit 1")
+                .one();
+    }
+
+    public boolean existsUrlSlug(String urlSlug, Long excludeColumnId) {
+        LambdaQueryWrapper<ColumnInfoDO> query = Wrappers.lambdaQuery();
+        query.eq(ColumnInfoDO::getUrlSlug, urlSlug);
+        if (excludeColumnId != null && excludeColumnId > 0) {
+            query.ne(ColumnInfoDO::getId, excludeColumnId);
+        }
+        return baseMapper.selectCount(query) > 0;
+    }
+
     /**
      * 删除专栏
      *

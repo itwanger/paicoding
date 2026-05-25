@@ -3,8 +3,10 @@ package com.github.paicoding.forum.web.admin.rest;
 import com.github.paicoding.forum.api.model.enums.PushStatusEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReadmeReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
@@ -20,6 +22,7 @@ import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
+import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.web.front.search.vo.SearchColumnVo;
@@ -53,6 +56,9 @@ public class ColumnSettingRestController {
     private ColumnSettingService columnSettingService;
 
     @Autowired
+    private ColumnService columnService;
+
+    @Autowired
     private ArticleReadService articleReadService;
 
     @Autowired
@@ -63,6 +69,21 @@ public class ColumnSettingRestController {
     public ResVo<String> saveColumn(@RequestBody ColumnReq req) {
         columnSettingService.saveColumn(req);
         return ResVo.ok();
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("设置教程说明页文章")
+    @PostMapping(path = "setReadmeArticle")
+    public ResVo<String> setReadmeArticle(@RequestBody ColumnReadmeReq req) {
+        columnSettingService.setColumnReadmeArticle(req);
+        return ResVo.ok();
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("生成教程语义URL")
+    @PostMapping(path = "generate/slug")
+    public ResVo<String> generateSlug(@RequestBody AiSlugGenerateReq req) {
+        return ResVo.ok(columnSettingService.generateUrlSlug(req));
     }
 
     /**
@@ -151,6 +172,13 @@ public class ColumnSettingRestController {
     public ResVo<PageVo<ColumnDTO>> list(@RequestBody SearchColumnReq req) {
         PageVo<ColumnDTO> columnDTOPageVo = columnSettingService.getColumnList(req);
         return ResVo.ok(columnDTOPageVo);
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("获取教程详情")
+    @GetMapping(path = "detail")
+    public ResVo<ColumnDTO> detail(@RequestParam("columnId") Long columnId) {
+        return ResVo.ok(columnService.queryBasicColumnInfo(columnId));
     }
 
 

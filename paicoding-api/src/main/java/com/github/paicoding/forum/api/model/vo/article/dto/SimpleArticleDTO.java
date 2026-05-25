@@ -28,6 +28,9 @@ public class SimpleArticleDTO implements Serializable {
     @ApiModelProperty("文章标题")
     private String title;
 
+    @ApiModelProperty("URL友好的文章标识")
+    private String urlSlug;
+
     @ApiModelProperty("专栏ID")
     private Long columnId;
 

@@ -21,6 +21,9 @@ public class SimpleColumnDTO implements Serializable {
     @ApiModelProperty("专栏名")
     private String column;
 
+    @ApiModelProperty("URL友好的教程标识")
+    private String urlSlug;
+
     // 封面
     @ApiModelProperty("封面")
     @JsonSerialize(using = CdnImgSerializer.class)

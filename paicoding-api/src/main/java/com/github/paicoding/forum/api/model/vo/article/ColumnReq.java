@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.api.model.vo.article;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -22,6 +23,18 @@ public class ColumnReq implements Serializable {
      * 专栏名
      */
     private String column;
+
+    /**
+     * URL友好的教程标识
+     */
+    @ApiModelProperty("专栏URL标识，如 paiagent；留空则根据专栏名自动生成")
+    private String urlSlug;
+
+    /**
+     * 教程说明页文章ID
+     */
+    @ApiModelProperty("教程说明页文章ID，0表示未设置")
+    private Long readmeArticleId;
 
     /**
      * 作者

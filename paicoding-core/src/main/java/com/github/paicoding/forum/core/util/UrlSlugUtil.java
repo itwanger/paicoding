@@ -23,6 +23,7 @@ public class UrlSlugUtil {
     private static final Pattern NON_LATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern DUPLICATE_DASH = Pattern.compile("-+");
+    private static final Pattern ASCII_SEO_TOKEN = Pattern.compile("[a-z0-9]{2,}");
     private static final int MAX_SLUG_LENGTH = 100;
 
     /**
@@ -40,8 +41,14 @@ public class UrlSlugUtil {
         // 1. 转小写
         String slug = text.toLowerCase(Locale.ENGLISH);
 
+        slug = replaceKnownSeoTerms(slug);
+
         // 2. 移除特殊字符,保留中文、英文、数字、空格、连字符
         slug = slug.replaceAll("[^a-z0-9\\s\\-\\u4e00-\\u9fa5]", "");
+
+        if (containsAsciiSeoToken(slug)) {
+            slug = slug.replaceAll("[\\u4e00-\\u9fa5]+", " ");
+        }
 
         // 3. 将中文转换为拼音
         slug = chineseToPinyin(slug);
@@ -77,6 +84,18 @@ public class UrlSlugUtil {
         }
 
         return slug;
+    }
+
+    private static String replaceKnownSeoTerms(String text) {
+        return text
+                .replace("派聪明", " paismart ")
+                .replace("技术派", " paicoding ")
+                .replace("派派工作流", " paiflow ")
+                .replace("派派", " paiflow ");
+    }
+
+    private static boolean containsAsciiSeoToken(String text) {
+        return ASCII_SEO_TOKEN.matcher(text).find();
     }
 
     /**

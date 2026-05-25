@@ -1,8 +1,10 @@
 package com.github.paicoding.forum.service.article.service;
 
 import com.github.paicoding.forum.api.model.vo.PageVo;
+import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReadmeReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
@@ -38,6 +40,21 @@ public interface ColumnSettingService {
      * @param columnReq
      */
     void saveColumn(ColumnReq columnReq);
+
+    /**
+     * 设置教程说明页文章
+     *
+     * @param req
+     */
+    void setColumnReadmeArticle(ColumnReadmeReq req);
+
+    /**
+     * 生成教程语义URL
+     *
+     * @param req
+     * @return
+     */
+    String generateUrlSlug(AiSlugGenerateReq req);
 
     /**
      * 保存专栏文章分组

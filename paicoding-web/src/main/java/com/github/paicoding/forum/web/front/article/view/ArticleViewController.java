@@ -34,14 +34,16 @@ import com.github.paicoding.forum.web.global.BaseViewController;
 import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -132,31 +134,24 @@ public class ArticleViewController extends BaseViewController {
      * @param articleId 文章ID
      * @param urlSlug   URL友好的文章标识
      * @param model     视图模型
-     * @param response  HTTP响应,用于设置301状态码
      * @return 视图名称或重定向URL
      */
     @GetMapping("detail/{articleId}/{urlSlug}")
-    public String detailWithSlug(@PathVariable(name = "articleId") Long articleId,
-                                 @PathVariable(name = "urlSlug") String urlSlug,
-                                 Model model,
-                                 HttpServletResponse response) throws IOException {
+    public ModelAndView detailWithSlug(@PathVariable(name = "articleId") Long articleId,
+                                       @PathVariable(name = "urlSlug") String urlSlug,
+                                       Model model) throws IOException {
+        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+
         // 针对专栏文章，做一个重定向
         ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
         if (columnArticle != null) {
-            return String.format("redirect:/column/%d/%d", columnArticle.getColumnId(), columnArticle.getSection());
+            return redirectToArticleSlug(columnArticle, articleDTO, model);
         }
 
-        // 获取文章基本信息以验证slug
-        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-
-        // 检查slug是否正确,如果不正确则301永久重定向到正确的URL
-        if (StringUtils.isNotBlank(articleDTO.getUrlSlug()) && !articleDTO.getUrlSlug().equals(urlSlug)) {
-            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-            return "redirect:/article/detail/" + articleId + "/" + articleDTO.getUrlSlug();
+        if (StringUtils.isNotBlank(articleDTO.getUrlSlug())) {
+            return new ModelAndView(permanentRedirect(buildArticleUrl(articleDTO.getUrlSlug())));
         }
-
-        // 构建详情页视图
-        return buildDetailView(articleId, model);
+        return new ModelAndView(permanentRedirect("/article/detail/" + articleId));
     }
 
     /**
@@ -166,13 +161,11 @@ public class ArticleViewController extends BaseViewController {
      *
      * @param articleId 文章ID
      * @param model     视图模型
-     * @param response  HTTP响应
      * @return 视图名称
      */
     @GetMapping("detail/{articleId}")
-    public String detail(@PathVariable(name = "articleId") Long articleId,
-                        Model model,
-                        HttpServletResponse response) throws IOException {
+    public ModelAndView detail(@PathVariable(name = "articleId") Long articleId,
+                              Model model) throws IOException {
         // 针对专栏文章，做一个重定向
         ColumnArticleDO columnArticle = columnService.getColumnArticleRelation(articleId);
         if (columnArticle != null) {
@@ -184,16 +177,53 @@ public class ArticleViewController extends BaseViewController {
             if (column.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
                 if (loginUserId == null || !loginUserId.equals(column.getAuthor())) {
                     model.addAttribute("toast", "教程未发布，暂时无法访问");
-                    return "views/error/403";
+                    return new ModelAndView("views/error/403");
                 }
                 // 作者本人可以预览未发布的教程
             }
             
-            return String.format("redirect:/column/%d/%d", columnArticle.getColumnId(), columnArticle.getSection());
+            ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+            return redirectToArticleSlug(columnArticle, articleDTO, model);
         }
 
-        // 直接显示内容,不重定向(保持向后兼容,避免影响已有的SEO)
-        return buildDetailView(articleId, model);
+        ArticleDTO articleDTO = articleService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
+        if (StringUtils.isNotBlank(articleDTO.getUrlSlug())) {
+            return new ModelAndView(permanentRedirect(buildArticleUrl(articleDTO.getUrlSlug())));
+        }
+        return new ModelAndView(buildDetailView(articleId, model));
+    }
+
+    public ModelAndView detailByArticleId(Long articleId, Model model) throws IOException {
+        return new ModelAndView(buildDetailView(articleId, model));
+    }
+
+    private ModelAndView redirectToArticleSlug(ColumnArticleDO columnArticle, ArticleDTO articleDTO, Model model) {
+        ColumnDTO column = columnService.queryBasicColumnInfo(columnArticle.getColumnId());
+        Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
+
+        // 教程未发布 && 不是作者本人 → 拒绝访问
+        if (column.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
+            if (loginUserId == null || !loginUserId.equals(column.getAuthor())) {
+                model.addAttribute("toast", "教程未发布，暂时无法访问");
+                return new ModelAndView("views/error/403");
+            }
+        }
+
+        String articleSlug = columnService.ensureColumnArticleUrlSlug(column.getColumnId(), articleDTO.getArticleId(),
+                articleDTO.getShortTitle(), articleDTO.getUrlSlug());
+        articleDTO.setUrlSlug(articleSlug);
+        return new ModelAndView(permanentRedirect(buildArticleUrl(articleDTO.getUrlSlug())));
+    }
+
+    private String buildArticleUrl(String urlSlug) {
+        return "/" + urlSlug;
+    }
+
+    private RedirectView permanentRedirect(String url) {
+        RedirectView redirectView = new RedirectView(url);
+        redirectView.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
+        redirectView.setContextRelative(true);
+        return redirectView;
     }
 
     /**

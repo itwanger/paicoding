@@ -25,6 +25,16 @@ public class ColumnInfoDO extends BaseDO {
     private String columnName;
 
     /**
+     * URL友好的教程标识
+     */
+    private String urlSlug;
+
+    /**
+     * 教程说明页文章ID
+     */
+    private Long readmeArticleId;
+
+    /**
      * 作者
      */
     private Long userId;

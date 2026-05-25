@@ -39,6 +39,35 @@ public interface ColumnService {
     ColumnArticleDO queryColumnArticle(long columnId, Integer order);
 
     /**
+     * 获取专栏中的指定文章
+     *
+     * @param columnId
+     * @param articleId
+     * @return
+     */
+    ColumnArticleDO queryColumnArticle(long columnId, Long articleId);
+
+    /**
+     * 获取专栏中的指定文章
+     *
+     * @param columnId
+     * @param articleSlug
+     * @return
+     */
+    ColumnArticleDO queryColumnArticle(long columnId, String articleSlug);
+
+    /**
+     * 确保教程文章有稳定的URL标识
+     *
+     * @param columnId
+     * @param articleId
+     * @param title
+     * @param currentSlug
+     * @return
+     */
+    String ensureColumnArticleUrlSlug(long columnId, Long articleId, String title, String currentSlug);
+
+    /**
      * 只查询基本的专栏信息，不需要统计、作者等信息
      *
      * @param columnId
@@ -47,12 +76,28 @@ public interface ColumnService {
     ColumnDTO queryBasicColumnInfo(Long columnId);
 
     /**
+     * 根据专栏ID或URL标识查询基础信息
+     *
+     * @param columnKey 专栏ID或URL友好的教程标识
+     * @return
+     */
+    ColumnDTO queryBasicColumnInfo(String columnKey);
+
+    /**
      * 专栏详情
      *
      * @param columnId
      * @return
      */
     ColumnDTO queryColumnInfo(Long columnId);
+
+    /**
+     * 专栏详情
+     *
+     * @param columnKey 专栏ID或URL友好的教程标识
+     * @return
+     */
+    ColumnDTO queryColumnInfo(String columnKey);
 
     /**
      * 专栏 + 文章列表详情

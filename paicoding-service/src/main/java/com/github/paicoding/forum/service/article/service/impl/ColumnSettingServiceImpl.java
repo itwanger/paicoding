@@ -3,7 +3,6 @@ package com.github.paicoding.forum.service.article.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.paicoding.forum.api.model.enums.YesOrNoEnum;
 import com.github.paicoding.forum.api.model.enums.column.MovePositionEnum;
@@ -18,6 +17,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.service.article.conveter.ColumnArticleStructMapper;
 import com.github.paicoding.forum.service.article.conveter.ColumnStructMapper;
 import com.github.paicoding.forum.service.article.helper.TreeBuilder;
@@ -32,7 +32,9 @@ import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnArticleParams;
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
+import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,9 +72,19 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Autowired
     private ColumnStructMapper columnStructMapper;
 
+    @Autowired
+    private SlugGeneratorService slugGeneratorService;
+
     @Override
     public void saveColumn(ColumnReq req) {
         ColumnInfoDO columnInfoDO = columnStructMapper.toDo(req);
+        boolean isNewColumn = NumUtil.nullOrZero(req.getColumnId());
+        ColumnInfoDO oldColumn = isNewColumn ? null : columnDao.getById(req.getColumnId());
+        columnInfoDO.setUrlSlug(resolveColumnUrlSlug(req, oldColumn));
+        if (oldColumn != null && req.getReadmeArticleId() == null) {
+            columnInfoDO.setReadmeArticleId(oldColumn.getReadmeArticleId());
+        }
+        renameReadmeArticleSlugIfConflicting(columnInfoDO.getReadmeArticleId(), columnInfoDO.getUrlSlug());
         if (req.getFreeStartTime() <= 0) {
             // 兼容日期数据
             columnInfoDO.setFreeStartTime(new Date(1000));
@@ -81,13 +93,12 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
             columnInfoDO.setFreeEndTime(new Date(1000));
         }
 
-        if (NumUtil.nullOrZero(req.getColumnId())) {
+        if (isNewColumn) {
             columnDao.save(columnInfoDO);
         } else {
             columnInfoDO.setId(req.getColumnId());
-            
+
             // 查询修改前的专栏状态
-            ColumnInfoDO oldColumn = columnDao.getById(req.getColumnId());
             boolean wasOffline = oldColumn != null && oldColumn.getState() == 0;
             boolean isNowOnline = columnInfoDO.getState() != null && columnInfoDO.getState() != 0;
             
@@ -98,6 +109,107 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 batchPublishColumnArticles(req.getColumnId());
             }
         }
+    }
+
+    @Override
+    public void setColumnReadmeArticle(ColumnReadmeReq req) {
+        if (req == null || NumUtil.nullOrZero(req.getColumnId())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程ID不能为空!");
+        }
+        ColumnInfoDO column = columnDao.getById(req.getColumnId());
+        if (column == null) {
+            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, req.getColumnId());
+        }
+
+        Long articleId = req.getArticleId();
+        ArticleDO article = null;
+        if (!NumUtil.nullOrZero(articleId)) {
+            article = articleDao.getById(articleId);
+            if (article == null) {
+                throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
+            }
+            ColumnArticleDO relation = columnArticleDao.selectColumnArticle(req.getColumnId(), articleId);
+            if (relation == null) {
+                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "说明页文章必须先加入当前教程!");
+            }
+        } else {
+            articleId = 0L;
+        }
+
+        ColumnInfoDO update = new ColumnInfoDO();
+        update.setId(req.getColumnId());
+        update.setReadmeArticleId(articleId);
+        if (shouldRenameReadmeArticleSlug(column, article)) {
+            ArticleDO articleUpdate = new ArticleDO();
+            articleUpdate.setId(article.getId());
+            articleUpdate.setUrlSlug("readme");
+            articleDao.updateById(articleUpdate);
+        }
+        columnDao.updateById(update);
+    }
+
+    @Override
+    public String generateUrlSlug(AiSlugGenerateReq req) {
+        String titleForSlug = StringUtils.defaultIfBlank(req.getShortTitle(), req.getTitle());
+        if (StringUtils.isBlank(titleForSlug)) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程名不能为空!");
+        }
+        String slug = slugGeneratorService.generateSlugWithAI(titleForSlug);
+        if (StringUtils.isNumeric(slug)) {
+            return "column-" + slug;
+        }
+        return slug;
+    }
+
+    private String resolveColumnUrlSlug(ColumnReq req, ColumnInfoDO oldColumn) {
+        String inputSlug = StringUtils.isNotBlank(req.getUrlSlug()) ? UrlSlugUtil.generateSlug(req.getUrlSlug()) : null;
+        if (isValidColumnSlug(inputSlug)) {
+            return generateUniqueColumnSlug(inputSlug, req.getColumnId(), true);
+        }
+        if (oldColumn != null && isValidColumnSlug(oldColumn.getUrlSlug())) {
+            return oldColumn.getUrlSlug();
+        }
+        return generateUniqueColumnSlug(UrlSlugUtil.generateSlug(req.getColumn()), req.getColumnId(), false);
+    }
+
+    private String generateUniqueColumnSlug(String baseSlug, Long columnId, boolean allowArticleConflict) {
+        if (StringUtils.isBlank(baseSlug)) {
+            baseSlug = UrlSlugUtil.generateSlug("column");
+        }
+        if (StringUtils.isNumeric(baseSlug)) {
+            baseSlug = "column-" + baseSlug;
+        }
+        String slug = baseSlug;
+        int suffix = 2;
+        while (columnDao.existsUrlSlug(slug, columnId) || (!allowArticleConflict && articleDao.existsUrlSlug(slug, null))) {
+            slug = baseSlug + "-" + suffix++;
+        }
+        return slug;
+    }
+
+    private boolean isValidColumnSlug(String urlSlug) {
+        return StringUtils.isNotBlank(urlSlug) && UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
+    }
+
+    private boolean shouldRenameReadmeArticleSlug(ColumnInfoDO column, ArticleDO article) {
+        if (column == null || article == null || !isValidColumnSlug(article.getUrlSlug())) {
+            return false;
+        }
+        return StringUtils.equals(column.getUrlSlug(), article.getUrlSlug());
+    }
+
+    private void renameReadmeArticleSlugIfConflicting(Long readmeArticleId, String columnSlug) {
+        if (NumUtil.nullOrZero(readmeArticleId) || !isValidColumnSlug(columnSlug)) {
+            return;
+        }
+        ArticleDO article = articleDao.getById(readmeArticleId);
+        if (article == null || !StringUtils.equals(columnSlug, article.getUrlSlug())) {
+            return;
+        }
+        ArticleDO update = new ArticleDO();
+        update.setId(article.getId());
+        update.setUrlSlug("readme");
+        articleDao.updateById(update);
     }
     
     /**
@@ -349,6 +461,13 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         ColumnArticleDO columnArticleDO = columnArticleDao.getById(id);
         if (columnArticleDO != null) {
             columnArticleDao.removeById(id);
+            ColumnInfoDO column = columnDao.getById(columnArticleDO.getColumnId());
+            if (column != null && Objects.equals(column.getReadmeArticleId(), columnArticleDO.getArticleId())) {
+                ColumnInfoDO update = new ColumnInfoDO();
+                update.setId(column.getId());
+                update.setReadmeArticleId(0L);
+                columnDao.updateById(update);
+            }
             // 删除的时候，批量更新 section，比如说原来是 1,2,3,4,5,6,7,8,9,10，删除 5，那么 6-10 的 section 都要减 1
             columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1")
                     .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())

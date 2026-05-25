@@ -32,6 +32,12 @@ public interface ColumnArticleMapper extends BaseMapper<ColumnArticleDO> {
      */
     ColumnArticleDO getColumnArticle(@Param("columnId") Long columnId, @Param("section") Integer section);
 
+    ColumnArticleDO getColumnArticleByArticleSlug(@Param("columnId") Long columnId, @Param("articleSlug") String articleSlug);
+
+    Long countColumnArticleByArticleSlug(@Param("columnId") Long columnId,
+                                         @Param("articleSlug") String articleSlug,
+                                         @Param("excludeArticleId") Long excludeArticleId);
+
 
     /**
      * 统计专栏的阅读人数

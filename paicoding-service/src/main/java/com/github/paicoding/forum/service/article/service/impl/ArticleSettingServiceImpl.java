@@ -9,14 +9,18 @@ import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
+import com.github.paicoding.forum.api.model.vo.article.ArticleUrlSlugReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleSearchSnippetDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleStructMapper;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleSearchDocumentDTO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
@@ -26,6 +30,7 @@ import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
 import com.github.paicoding.forum.service.article.service.search.ArticleSearchResult;
 import com.github.paicoding.forum.service.article.service.search.ArticleSearchService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -48,6 +54,7 @@ import java.util.stream.Collectors;
  * @date 2022-09-19
  */
 @Service
+@Slf4j
 public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Autowired
@@ -55,6 +62,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Autowired
     private ColumnArticleDao columnArticleDao;
+
+    @Autowired
+    private ColumnDao columnDao;
 
     @Autowired
     private ColumnSettingService columnSettingService;
@@ -85,7 +95,7 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
             article.setShortTitle(req.getShortTitle());
         }
         if (req.getUrlSlug() != null) {
-            article.setUrlSlug(StringUtils.trim(req.getUrlSlug()));
+            article.setUrlSlug(resolveArticleUrlSlug(req, article));
         }
 
         ArticleEventEnum operateEvent = null;
@@ -113,7 +123,77 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (StringUtils.isBlank(titleForSlug)) {
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "标题不能为空!");
         }
-        return slugGeneratorService.generateSlugWithAI(titleForSlug);
+        String baseSlug;
+        try {
+            baseSlug = slugGeneratorService.generateSlugWithAI(titleForSlug, req.getColumnUrlSlug());
+        } catch (Exception e) {
+            log.warn("AI生成文章slug失败，使用本地规则兜底: title={}", titleForSlug, e);
+            baseSlug = UrlSlugUtil.generateSlug(titleForSlug);
+        }
+        return generateUniqueArticleSlug(baseSlug, req.getArticleId());
+    }
+
+    @Override
+    public String updateArticleUrlSlug(ArticleUrlSlugReq req) {
+        if (req == null || NumUtil.nullOrZero(req.getArticleId())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章ID不能为空!");
+        }
+        ArticleDO article = articleDao.getById(req.getArticleId());
+        if (article == null) {
+            throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在!");
+        }
+        if (!NumUtil.nullOrZero(req.getColumnId())) {
+            ColumnArticleDO relation = columnArticleDao.selectColumnArticle(req.getColumnId(), req.getArticleId());
+            if (relation == null) {
+                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章不属于当前教程!");
+            }
+        }
+
+        String normalizedSlug = UrlSlugUtil.generateSlug(req.getUrlSlug());
+        if (!isValidArticleSlug(normalizedSlug)) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章slug只能包含小写字母、数字和连字符，且不能是纯数字!");
+        }
+        String finalSlug = generateUniqueArticleSlug(normalizedSlug, req.getArticleId());
+        ArticleDO update = new ArticleDO();
+        update.setId(req.getArticleId());
+        update.setUrlSlug(finalSlug);
+        articleDao.updateById(update);
+        articleSearchService.syncArticle(req.getArticleId());
+        return finalSlug;
+    }
+
+    private String resolveArticleUrlSlug(ArticlePostReq req, ArticleDO article) {
+        String inputSlug = StringUtils.trimToNull(req.getUrlSlug());
+        if (inputSlug != null) {
+            String normalizedSlug = inputSlug.toLowerCase(Locale.ENGLISH);
+            if (!isValidArticleSlug(normalizedSlug)) {
+                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章slug只能包含小写字母、数字和连字符，且不能是纯数字!");
+            }
+            return generateUniqueArticleSlug(normalizedSlug, req.getArticleId());
+        }
+
+        String titleForSlug = StringUtils.defaultIfBlank(req.getShortTitle(), req.getTitle());
+        titleForSlug = StringUtils.defaultIfBlank(titleForSlug, StringUtils.defaultIfBlank(article.getShortTitle(), article.getTitle()));
+        return generateUniqueArticleSlug(UrlSlugUtil.generateSlug(titleForSlug), req.getArticleId());
+    }
+
+    private String generateUniqueArticleSlug(String baseSlug, Long articleId) {
+        if (StringUtils.isBlank(baseSlug)) {
+            baseSlug = "article";
+        }
+        if (StringUtils.isNumeric(baseSlug)) {
+            baseSlug = "article-" + baseSlug;
+        }
+        String slug = baseSlug;
+        int suffix = 2;
+        while (articleDao.existsUrlSlug(slug, articleId) || columnDao.existsUrlSlug(slug, null)) {
+            slug = baseSlug + "-" + suffix++;
+        }
+        return slug;
+    }
+
+    private boolean isValidArticleSlug(String urlSlug) {
+        return StringUtils.isNotBlank(urlSlug) && UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
     }
 
     @Override

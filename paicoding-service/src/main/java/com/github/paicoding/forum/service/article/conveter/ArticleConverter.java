@@ -38,6 +38,7 @@ public class ArticleConverter {
         article.setId(req.getArticleId());
         article.setTitle(req.getTitle());
         article.setShortTitle(req.getShortTitle());
+        article.setUrlSlug(StringUtils.trim(req.getUrlSlug()));
 
         article.setArticleType(ArticleTypeEnum.valueOf(req.getArticleType().toUpperCase()).getCode());
         article.setPicture(req.getCover() == null ? "" : req.getCover());

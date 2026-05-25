@@ -11,17 +11,22 @@ import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.core.util.id.IdUtil;
 import com.github.paicoding.forum.service.article.conveter.ArticleConverter;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleTagDao;
+import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
+import com.github.paicoding.forum.service.article.service.ColumnService;
+import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
 import com.github.paicoding.forum.service.image.service.ImageService;
 import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -30,6 +35,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -49,6 +55,15 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
 
     @Autowired
     private ColumnSettingService columnSettingService;
+
+    @Autowired
+    private ColumnService columnService;
+
+    @Autowired
+    private ColumnDao columnDao;
+
+    @Autowired
+    private SlugGeneratorService slugGeneratorService;
 
     @Autowired
     private UserFootService userFootService;
@@ -80,6 +95,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     @Override
     public Long saveArticle(ArticlePostReq req, Long author) {
         ArticleDO article = ArticleConverter.toArticleDo(req, author);
+        article.setUrlSlug(resolveArticleUrlSlug(req));
         String content = imageService.mdImgReplace(req.getContent());
         if (!canBypassArticlePublishModeration(author)) {
             recordSensitiveHits(req.getTitle(), req.getSummary(), content);
@@ -98,10 +114,70 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
                 if (req.getColumnId() != null) {
                     // 更新文章对应的专栏信息
                     columnSettingService.saveColumnArticle(articleId, req.getColumnId());
+                    article.setUrlSlug(columnService.ensureColumnArticleUrlSlug(req.getColumnId(), articleId, article.getTitle(), article.getUrlSlug()));
                 }
                 return articleId;
             }
         });
+    }
+
+    private String resolveArticleUrlSlug(ArticlePostReq req) {
+        String inputSlug = StringUtils.trimToNull(req.getUrlSlug());
+        if (inputSlug != null) {
+            String normalizedSlug = inputSlug.toLowerCase(Locale.ENGLISH);
+            if (!isValidArticleSlug(normalizedSlug)) {
+                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章slug只能包含小写字母、数字和连字符，且不能是纯数字!");
+            }
+            return generateUniqueArticleSlug(normalizedSlug, req.getArticleId());
+        }
+
+        if (!NumUtil.nullOrZero(req.getArticleId())) {
+            ArticleDO oldArticle = articleDao.getById(req.getArticleId());
+            if (oldArticle != null) {
+                return oldArticle.getUrlSlug();
+            }
+        }
+
+        String titleForSlug = StringUtils.defaultIfBlank(req.getShortTitle(), req.getTitle());
+        return generateUniqueArticleSlug(generateArticleSlug(titleForSlug), req.getArticleId());
+    }
+
+    private String generateArticleSlug(String title) {
+        String slug = generateSeoSlug(title);
+        if (StringUtils.isBlank(slug)) {
+            slug = "article";
+        } else if (StringUtils.isNumeric(slug)) {
+            slug = "article-" + slug;
+        }
+        return slug;
+    }
+
+    private String generateSeoSlug(String title) {
+        try {
+            return slugGeneratorService.generateSlugWithAI(title);
+        } catch (Exception e) {
+            log.warn("AI生成文章slug失败，使用本地规则兜底: title={}", title, e);
+            return UrlSlugUtil.generateSlug(title);
+        }
+    }
+
+    private String generateUniqueArticleSlug(String baseSlug, Long articleId) {
+        if (StringUtils.isBlank(baseSlug)) {
+            baseSlug = "article";
+        }
+        if (StringUtils.isNumeric(baseSlug)) {
+            baseSlug = "article-" + baseSlug;
+        }
+        String slug = baseSlug;
+        int suffix = 2;
+        while (articleDao.existsUrlSlug(slug, articleId) || columnDao.existsUrlSlug(slug, null)) {
+            slug = baseSlug + "-" + suffix++;
+        }
+        return slug;
+    }
+
+    private boolean isValidArticleSlug(String urlSlug) {
+        return StringUtils.isNotBlank(urlSlug) && UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
     }
 
     /**

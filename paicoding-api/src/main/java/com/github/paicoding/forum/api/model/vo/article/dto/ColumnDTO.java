@@ -26,6 +26,16 @@ public class ColumnDTO {
     private String column;
 
     /**
+     * URL友好的教程标识
+     */
+    private String urlSlug;
+
+    /**
+     * 教程说明页文章ID
+     */
+    private Long readmeArticleId;
+
+    /**
      * 说明
      */
     private String introduction;

@@ -19,6 +19,11 @@ public class ColumnArticlesDTO {
     private Long column;
 
     /**
+     * URL友好的教程标识
+     */
+    private String columnSlug;
+
+    /**
      * 当前查看的文章
      */
     private Integer section;

@@ -8,6 +8,7 @@ import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateRes;
 import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ArticlePostReq;
+import com.github.paicoding.forum.api.model.vo.article.ArticleUrlSlugReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleAdminDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
@@ -139,6 +140,13 @@ public class ArticleSettingRestController {
     @PostMapping(path = "generate/slug")
     public ResVo<String> generateSlug(@RequestBody AiSlugGenerateReq req) {
         return ResVo.ok(articleSettingService.generateUrlSlug(req));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("更新文章URL Slug")
+    @PostMapping(path = "update/slug")
+    public ResVo<String> updateSlug(@RequestBody ArticleUrlSlugReq req) {
+        return ResVo.ok(articleSettingService.updateArticleUrlSlug(req));
     }
 
 }
