@@ -95,7 +95,7 @@ public class ColumnViewController {
      */
     @GetMapping(path = "{columnKey}")
     public ModelAndView column(@PathVariable("columnKey") String columnKey, Model model) {
-        return columnLanding(columnKey, model, false);
+        return firstColumnArticle(columnKey, model);
     }
 
     /**
@@ -280,6 +280,24 @@ public class ColumnViewController {
 
         model.addAttribute("vo", dto);
         return new ModelAndView("/views/column-index/index");
+    }
+
+    private ModelAndView firstColumnArticle(String columnKey, Model model) {
+        ColumnDTO column = columnService.queryBasicColumnInfo(columnKey);
+        if (isColumnForbidden(column, model)) {
+            return new ModelAndView("views/error/403");
+        }
+
+        List<SimpleArticleDTO> articles = columnService.queryColumnArticles(column.getColumnId());
+        if (articles.isEmpty()) {
+            return new ModelAndView("error/404");
+        }
+
+        SimpleArticleDTO firstArticle = articles.get(0);
+        if (isReadmeArticle(column, firstArticle.getId())) {
+            return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(column)));
+        }
+        return new ModelAndView(permanentRedirect(buildArticleUrl(firstArticle.getUrlSlug())));
     }
 
     private ModelAndView buildColumnArticleView(ColumnDTO column,
