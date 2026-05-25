@@ -422,6 +422,9 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     public void saveColumnArticle(ColumnArticleReq req) {
         // 转换参数
         ColumnArticleDO columnArticleDO = ColumnArticleStructMapper.INSTANCE.reqToDO(req);
+        columnArticleDO.setSection(req.getSort());
+        columnArticleDO.setReadType(req.getRead());
+        columnArticleDO.setPreviewPercent(normalizePreviewPercent(req.getPreviewPercent()));
         if (NumUtil.nullOrZero(columnArticleDO.getId())) {
             // 插入的时候，需要判断是否已经存在
             ColumnArticleDO exist = columnArticleDao.getOne(Wrappers.<ColumnArticleDO>lambdaQuery()
@@ -448,6 +451,16 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         }
 
         this.autoUpdateColumnArticleSections(columnArticleDO.getColumnId());
+    }
+
+    private Integer normalizePreviewPercent(Integer previewPercent) {
+        if (previewPercent == null || previewPercent <= 0) {
+            return 0;
+        }
+        if (previewPercent > 100) {
+            return 100;
+        }
+        return previewPercent;
     }
 
     @Override

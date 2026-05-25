@@ -17,7 +17,7 @@ import java.util.Map;
 public enum ColumnArticleReadEnum {
     COLUMN_TYPE(0, "沿用专栏的类型"),
     LOGIN(1, "登录阅读"),
-    TIME_FREE(2, "免费"),
+    TIME_FREE(2, "试读"),
     STAR_READ(3, "星球阅读"),
     ;
 

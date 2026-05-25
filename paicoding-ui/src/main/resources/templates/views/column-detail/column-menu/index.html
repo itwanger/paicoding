@@ -41,7 +41,7 @@
             <div class="right" th:switch="${menu.readType}">
               <div class="label label-free" th:case="0" th:text="'免费'">Free</div>
               <div class="label label-free" th:case="1" th:text="'登录'" th:if="${ !global.isLogin }">Login</div>
-              <div class="label" th:case="2" th:text="'限免'">Login</div>
+              <div class="label label-free" th:case="2" th:text="'试读'">Trial</div>
               <div class="label label-star" th:case="3" th:text="'星球'">Star</div>
               <div class="label" th:case="*" th:text="'限免'">other</div>
             </div>

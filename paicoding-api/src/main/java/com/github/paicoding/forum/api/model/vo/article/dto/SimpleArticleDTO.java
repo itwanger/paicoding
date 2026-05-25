@@ -49,6 +49,9 @@ public class SimpleArticleDTO implements Serializable {
     @ApiModelProperty("阅读模式")
     private Integer readType;
 
+    @ApiModelProperty("未解锁试看比例；0 表示使用全局试看字数配置")
+    private Integer previewPercent;
+
     @ApiModelProperty("教程分组")
     private String groupName;
 

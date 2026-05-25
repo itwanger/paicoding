@@ -44,4 +44,9 @@ public class ColumnArticleDO extends BaseDO {
      * @see ColumnArticleReadEnum#getRead()
      */
     private Integer readType;
+
+    /**
+     * 未解锁试看比例；0 表示使用全局试看字数配置
+     */
+    private Integer previewPercent;
 }

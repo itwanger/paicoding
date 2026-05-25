@@ -1,6 +1,8 @@
 package com.github.paicoding.forum.web.global;
 
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
+import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticlesDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
@@ -42,6 +44,7 @@ public class SeoInjectService {
     private static final String KEYWORDS = "技术派,开源社区,java,springboot,IT,程序员,开发者,mysql,redis,Java基础,多线程,JVM,虚拟机,数据库,MySQL,Spring,Redis,MyBatis,系统设计,分布式,RPC,高可用,高并发,沉默王二";
     private static final String DES = "技术派,一个基于 Spring Boot、MyBatis-Plus、MySQL、Redis、ElasticSearch、MongoDB、Docker、RabbitMQ 等技术栈实现的社区系统，采用主流的互联网技术架构、全新的UI设计、支持一键源码部署，拥有完整的文章&教程发布/搜索/评论/统计流程等，代码完全开源，没有任何二次封装，是一个非常适合二次开发/实战的现代化社区项目。学编程，就上技术派";
     private static final int DESCRIPTION_MAX_LENGTH = 180;
+    private static final String PAYWALL_SELECTOR = ".paywall";
     private static final String[] SEO_ENTITY_KEYWORDS = {
             "派聪明", "PaiSmart", "PaiFlow", "派派工作流", "PaiCLI", "MCP", "RAG", "Agent",
             "Dify", "Coze", "n8n", "Spring AI", "LangGraph4J", "DeepSeek", "GLM"
@@ -114,8 +117,11 @@ public class SeoInjectService {
         logo.put("@type", "ImageObject");
         logo.put("url", globalViewConfig.getHost() + "/img/logo.svg");
         publisher.put("logo", logo);
-        
+
         jsonLd.put("publisher", publisher);
+        if (isPaywalledArticle(detail)) {
+            markPaywalledContent(jsonLd);
+        }
 
         ReqInfoContext.getReqInfo().setSeo(seo);
     }
@@ -191,6 +197,9 @@ public class SeoInjectService {
         isPartOf.put("name", column.getColumn());
         isPartOf.put("description", column.getIntroduction());
         jsonLd.put("isPartOf", isPartOf);
+        if (isPaywalledColumnArticle(detail)) {
+            markPaywalledContent(jsonLd);
+        }
 
         if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeo(seo);
     }
@@ -372,6 +381,33 @@ public class SeoInjectService {
         if (StringUtils.isNotBlank(alternativeHeadline) && !StringUtils.equals(alternativeHeadline, title)) {
             jsonLd.put("alternativeHeadline", alternativeHeadline);
         }
+    }
+
+    private boolean isPaywalledArticle(ArticleDetailVo detail) {
+        if (detail == null || detail.getArticle() == null) {
+            return false;
+        }
+        Integer readType = detail.getArticle().getReadType();
+        boolean paywallReadType = ArticleReadTypeEnum.PAY_READ.getType().equals(readType)
+                || ArticleReadTypeEnum.STAR_READ.getType().equals(readType);
+        return paywallReadType && !Boolean.TRUE.equals(detail.getArticle().getCanRead());
+    }
+
+    private boolean isPaywalledColumnArticle(ColumnArticlesDTO detail) {
+        if (detail == null || detail.getOther() == null) {
+            return false;
+        }
+        return Integer.valueOf(ColumnTypeEnum.STAR_READ.getType()).equals(detail.getOther().getReadType());
+    }
+
+    private void markPaywalledContent(Map<String, Object> jsonLd) {
+        jsonLd.put("isAccessibleForFree", false);
+
+        Map<String, Object> paywalledPart = new HashMap<>();
+        paywalledPart.put("@type", "WebPageElement");
+        paywalledPart.put("isAccessibleForFree", false);
+        paywalledPart.put("cssSelector", PAYWALL_SELECTOR);
+        jsonLd.put("hasPart", paywalledPart);
     }
 
     private String leadingHeadline(String title) {

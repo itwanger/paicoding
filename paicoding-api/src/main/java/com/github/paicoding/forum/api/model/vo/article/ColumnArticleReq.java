@@ -49,4 +49,9 @@ public class ColumnArticleReq implements Serializable {
      * 阅读方式
      */
     private Integer read;
+
+    /**
+     * 未解锁试看比例；0 表示使用全局试看字数配置
+     */
+    private Integer previewPercent;
 }

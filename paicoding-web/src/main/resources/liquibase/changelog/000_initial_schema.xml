@@ -231,4 +231,14 @@
         </preConditions>
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260524_3.sql"/>
     </changeSet>
+
+    <!-- 教程文章未解锁试看比例，0 表示沿用全局试看字数配置 -->
+    <changeSet id="20260525_1" author="Codex">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="column_article" columnName="preview_percent"/>
+            </not>
+        </preConditions>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260525.sql"/>
+    </changeSet>
 </databaseChangeLog>

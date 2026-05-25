@@ -15,6 +15,7 @@
             (case ca.read_type when 0 then ci.type else ca.read_type end) as `readType`,
             (case LENGTH(a.short_title) when 0 then a.title else a.short_title end) as title,
             a.url_slug as `urlSlug`,
+            ca.preview_percent as `previewPercent`,
             ci.column_name as `column`,
             ca.column_id as `columnId`, ca.`section` as `sort`, a.create_time as `createTime`, g.title as `groupName`, g.`section` as `groupLevel`
         from
@@ -28,7 +29,7 @@
     </select>
 
     <select id="getColumnArticle" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
-        select article_id, `read_type` from column_article where column_id = #{columnId} and `section` = #{section} limit 1
+        select article_id, `read_type`, preview_percent from column_article where column_id = #{columnId} and `section` = #{section} limit 1
     </select>
 
     <select id="getColumnArticleByArticleSlug" resultType="com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO">
@@ -58,7 +59,7 @@
 
     <select id="listColumnArticlesByColumnIdArticleName"
             resultType="com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO">
-        select c.id, c.article_id, a.title, a.url_slug as urlSlug, a.short_title, c.column_id,
+        select c.id, c.article_id, a.title, a.url_slug as urlSlug, c.read_type as readType, c.preview_percent as previewPercent, a.short_title, c.column_id,
                col.column_name as `column`, col.cover as column_cover,
                c.`section` as sort, c.create_time, g.id as groupId, g.title as groupName
         from column_article as c

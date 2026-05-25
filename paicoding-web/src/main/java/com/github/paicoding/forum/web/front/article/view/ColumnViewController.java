@@ -339,7 +339,7 @@ public class ColumnViewController {
         ArticleOtherDTO other = new ArticleOtherDTO();
 
         // 教程类型
-        updateReadType(other, column, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getReadType()));
+        updateReadType(other, column, columnArticle, articleDTO, ColumnArticleReadEnum.valueOf(columnArticle.getReadType()));
 
 
         // 把是文章翻页的参数封装到这里
@@ -447,7 +447,11 @@ public class ColumnViewController {
      * @param column
      * @param articleDTO
      */
-    private void updateReadType(ArticleOtherDTO vo, ColumnDTO column, ArticleDTO articleDTO, ColumnArticleReadEnum articleReadEnum) {
+    private void updateReadType(ArticleOtherDTO vo,
+                                ColumnDTO column,
+                                ColumnArticleDO columnArticle,
+                                ArticleDTO articleDTO,
+                                ColumnArticleReadEnum articleReadEnum) {
         Long loginUser = ReqInfoContext.getReqInfo().getUserId();
         if (loginUser != null && loginUser.equals(articleDTO.getAuthor())) {
             vo.setReadType(ColumnTypeEnum.FREE.getType());
@@ -471,7 +475,7 @@ public class ColumnViewController {
             vo.setReadType(articleReadEnum.getRead());
         }
         // 如果是星球 or 登录阅读时，不返回全量的文章内容
-        articleDTO.setContent(trimContent(vo.getReadType(), articleDTO.getContent()));
+        articleDTO.setContent(trimContent(vo.getReadType(), articleDTO.getContent(), columnArticle.getPreviewPercent()));
         // fix 关于 cover 封面，文章详情的前端已经不显示了，这里直接删除
     }
 
@@ -482,7 +486,7 @@ public class ColumnViewController {
      * @param content
      * @return
      */
-    private String trimContent(int readType, String content) {
+    private String trimContent(int readType, String content, Integer previewPercent) {
         if (readType == ColumnTypeEnum.STAR_READ.getType()) {
             // 判断登录用户是否绑定了星球，如果是，则直接阅读完整的专栏内容
             if (ReqInfoContext.getReqInfo().getUser() != null && ReqInfoContext.getReqInfo().getUser().getStarStatus() == UserAIStatEnum.FORMAL) {
@@ -490,14 +494,21 @@ public class ColumnViewController {
             }
 
             // 如果没有绑定星球，则按配置字数返回试看内容
-            return StrUtil.safeSubstringHtml(content, globalViewConfig.getZsxqArticleReadCount());
+            return StrUtil.safeSubstringHtml(content, previewLengthConfig(previewPercent, globalViewConfig.getZsxqArticleReadCount()));
         }
 
         if ((readType == ColumnTypeEnum.LOGIN.getType() && ReqInfoContext.getReqInfo().getUserId() == null)) {
             // 如果是登录阅读，但是用户没有登录，则按配置字数返回试看内容
-            return StrUtil.safeSubstringHtml(content, globalViewConfig.getNeedLoginArticleReadCount());
+            return StrUtil.safeSubstringHtml(content, previewLengthConfig(previewPercent, globalViewConfig.getNeedLoginArticleReadCount()));
         }
 
         return content;
+    }
+
+    private String previewLengthConfig(Integer previewPercent, String fallbackConfig) {
+        if (previewPercent == null || previewPercent <= 0) {
+            return fallbackConfig;
+        }
+        return Math.min(previewPercent, 100) + "%";
     }
 }

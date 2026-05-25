@@ -41,6 +41,18 @@ public class ColumnArticleDTO implements Serializable {
     private String urlSlug;
 
     /**
+     * 阅读模式
+     *
+     * @see com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum#getRead()
+     */
+    private Integer readType;
+
+    /**
+     * 未解锁试看比例；0 表示使用全局试看字数配置
+     */
+    private Integer previewPercent;
+
+    /**
      * 教程名称
      */
     private String shortTitle;
