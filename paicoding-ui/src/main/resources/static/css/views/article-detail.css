@@ -111,6 +111,22 @@
   bottom: -1px;
 }
 
+.article-detail .login-readmore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 0 28px;
+  color: var(--pai-brand-2-hover);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.article-detail .login-readmore:hover {
+  color: #ff6b00;
+}
+
 .article-detail .needlock.needlock--star {
   background-image: none;
   padding-top: 24px;
@@ -298,6 +314,12 @@
   .article-detail .needlock {
     padding-top: 88px;
     margin-top: -150px;
+  }
+
+  .article-detail .login-readmore {
+    min-height: 52px;
+    padding: 0 18px;
+    font-size: 22px;
   }
 
   .article-detail .needlock.needlock--star {

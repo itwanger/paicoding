@@ -683,6 +683,22 @@
   bottom: -1px;
 }
 
+.login-readmore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 0 28px;
+  color: var(--pai-brand-2-hover);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.login-readmore:hover {
+  color: #ff6b00;
+}
+
 .needlock.needlock--star {
   background-image: none;
   padding-top: 24px;
@@ -940,6 +956,12 @@
   .needlock {
     padding-top: 88px;
     margin-top: -150px;
+  }
+
+  .login-readmore {
+    min-height: 52px;
+    padding: 0 18px;
+    font-size: 22px;
   }
 
   .needlock.needlock--star {
