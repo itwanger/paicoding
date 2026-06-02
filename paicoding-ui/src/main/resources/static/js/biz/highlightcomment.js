@@ -691,10 +691,31 @@ function resetHighlightAiPanel(botType) {
         status.textContent = highlightAiBotName(botType) + ' 正在回复...';
     }
     if (reply) {
+        delete reply.dataset.rawMarkdown;
+        delete reply.dataset.rendered;
+        reply.classList.remove('comment-content-markdown');
+        reply.classList.remove('markdown-rendered');
         reply.textContent = '';
     }
     highlightAiCompleted = false;
     setHighlightCommentSubmitting(true);
+}
+
+function renderHighlightAiReply(markdownText) {
+    const reply = document.getElementById('highlightAiReply');
+    if (!reply) {
+        return;
+    }
+
+    const rawMarkdown = markdownText || '';
+    reply.dataset.rawMarkdown = rawMarkdown;
+    reply.classList.add('comment-content-markdown');
+
+    if (window.renderCommentMarkdownText) {
+        window.renderCommentMarkdownText(reply, rawMarkdown);
+    } else {
+        reply.textContent = rawMarkdown;
+    }
 }
 
 function finishHighlightAiPanel(message) {
@@ -734,7 +755,7 @@ function handleHighlightAiEvent(event) {
 
     if (event.type === 'delta') {
         if (reply) {
-            reply.textContent = event.content || ((reply.textContent || '') + (event.delta || ''));
+            renderHighlightAiReply(event.content || ((reply.dataset.rawMarkdown || '') + (event.delta || '')));
         }
         return;
     }

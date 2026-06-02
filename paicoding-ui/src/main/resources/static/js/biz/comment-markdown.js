@@ -24,6 +24,15 @@
         }
     }
 
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     // 基础 Markdown 渲染 (降级方案)
     function basicMarkdownRender(text) {
         if (!text) return '';
@@ -118,18 +127,23 @@
     }
 
     // 渲染单个评论内容
-    function renderCommentContent(element) {
-        if (!element || element.dataset.rendered === 'true') {
+    function renderCommentContent(element, options) {
+        const renderOptions = options || {};
+        if (!element || (!renderOptions.force && element.dataset.rendered === 'true')) {
             return; // 已经渲染过,跳过
         }
 
         // 获取原始内容，如果是 HTML 实体，需要解码
-        let rawContent = element.textContent || element.innerText;
+        let rawContent = typeof renderOptions.rawContent === 'string'
+            ? renderOptions.rawContent
+            : (element.textContent || element.innerText);
 
-        // 解码 HTML 实体（如 &lt; 转换为 <）
-        const textarea = document.createElement('textarea');
-        textarea.innerHTML = rawContent;
-        rawContent = textarea.value;
+        if (typeof renderOptions.rawContent !== 'string') {
+            // 解码 HTML 实体（如 &lt; 转换为 <）
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = rawContent;
+            rawContent = textarea.value;
+        }
 
         // 清理 **`code`** 模式，转换为 `code`
         rawContent = rawContent.replace(/\*\*`([^`]+)`\*\*/g, '`$1`');
@@ -144,7 +158,8 @@
 
         if (hasMarkdown) {
             // 渲染 Markdown
-            const renderedHtml = markedRender(rawContent);
+            const markdownSource = renderOptions.escapeHtml ? escapeHtml(rawContent) : rawContent;
+            const renderedHtml = markedRender(markdownSource);
             element.innerHTML = renderedHtml;
 
             // 添加样式类
@@ -155,9 +170,26 @@
 
             console.log('Rendered markdown for comment:', commentId);
         } else {
+            if (renderOptions.force && typeof renderOptions.rawContent === 'string') {
+                element.textContent = rawContent;
+            }
             // 纯文本,保持原样但标记已处理
             element.dataset.rendered = 'true';
         }
+    }
+
+    function renderCommentMarkdownText(element, rawContent) {
+        if (!element) {
+            return;
+        }
+        element.classList.add('comment-content-markdown');
+        element.classList.remove('markdown-rendered');
+        element.dataset.rendered = 'false';
+        renderCommentContent(element, {
+            force: true,
+            rawContent: rawContent || '',
+            escapeHtml: true
+        });
     }
 
     // 渲染所有评论内容
@@ -181,6 +213,7 @@
     // 导出到全局,供其他脚本调用
     window.renderCommentMarkdown = renderAllComments;
     window.renderSingleComment = renderCommentContent;
+    window.renderCommentMarkdownText = renderCommentMarkdownText;
 
     // DOM 加载完成后自动初始化
     if (document.readyState === 'loading') {
