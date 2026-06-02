@@ -82,8 +82,13 @@ public class ZhipuCodingAiServiceImpl extends AbsChatService {
 
             @Override
             public void onError(Throwable throwable, String res) {
-                item.appendAnswer("Error:" + (StringUtils.isBlank(res) ? throwable.getMessage() : res))
-                        .setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                String errorMsg = StringUtils.defaultIfBlank(res, throwable == null ? null : throwable.getMessage());
+                if (StringUtils.isNotBlank(errorMsg)) {
+                    item.appendAnswer("Error:" + errorMsg);
+                } else if (StringUtils.isBlank(item.getAnswer())) {
+                    item.appendAnswer("AI 回复生成失败，请稍后再试");
+                }
+                item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
                 consumer.accept(AiChatStatEnum.ERROR, response);
             }
         };

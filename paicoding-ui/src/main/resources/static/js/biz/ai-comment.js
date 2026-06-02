@@ -13,91 +13,16 @@ $(document).ready(function () {
 // AI机器人评论功能
 
 $(document).ready(function () {
-    // AI机器人选择器相关元素
-    const $aiBotBtn = $('#aiBotBtn');
-    const $aiBotDropdown = $('#aiBotDropdown');
-    const $aiBotOptions = $('.ai-bot-option');
-    const $commentTextarea = $('#commentContent');
-    const $commentCount = $('#commentCount');
-    const $commentBtn = $('#commentBtn');
-    const $commentContainer = $('.comment-input-container');
+    const mainCommentSelector = '#commentDiv #aiBotSelector';
 
-    // 点击机器人按钮显示/隐藏下拉菜单
-    $aiBotBtn.on('click', function (e) {
-        e.stopPropagation();
-        $aiBotDropdown.toggleClass('show');
-
-        // 确保下拉菜单在视窗内显示
-        if ($aiBotDropdown.hasClass('show')) {
-            const buttonRect = $aiBotBtn[0].getBoundingClientRect();
-            const dropdownRect = $aiBotDropdown[0].getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-
-            // 重置位置样式
-            $aiBotDropdown.css({
-                'top': '100%',
-                'bottom': 'auto'
-            });
-
-            // 如果下拉菜单超出视窗底部，则向上显示
-            if (buttonRect.bottom + dropdownRect.height > viewportHeight) {
-                $aiBotDropdown.css({
-                    'top': 'auto',
-                    'bottom': '100%'
-                });
-            }
-        }
-    });
-
-    // 点击页面其他地方隐藏下拉菜单
-    $(document).on('click', function (e) {
-        if (!$(e.target).closest('#aiBotSelector').length) {
-            $aiBotDropdown.removeClass('show');
-        }
-    });
-
-    // 选择AI机器人选项
-    $aiBotOptions.on('click', function () {
-        const botType = $(this).data('bot');
-        const botName = botType === 'hater' ? '杠精派' : '派聪明';
-
-        // 在文本框中添加@机器人标签
-        const currentText = $commentTextarea.val();
-        const tag = `@${botName} `;
-
-        if (!currentText.includes(tag)) {
-            $commentTextarea.val(tag + currentText);
-            updateCommentCount();
-        }
-
-        // 隐藏下拉菜单
-        $aiBotDropdown.removeClass('show');
-
-        // 聚焦到文本框
-        $commentTextarea.focus();
-    });
-
-    // 实时更新字符计数
-    $commentTextarea.on('input', function () {
-        updateCommentCount();
-    });
-
-    // 当输入框获得焦点时，更新容器样式
-    $commentTextarea.on('focus', function () {
-        $commentContainer.addClass('focus');
-    });
-
-    // 当输入框失去焦点时，更新容器样式
-    $commentTextarea.on('blur', function () {
-        $commentContainer.removeClass('focus');
-    });
-
-    // 更新字符计数函数
     function updateCommentCount() {
-        const currentLength = $commentTextarea.val().length;
+        const $commentTextarea = $('#commentContent');
+        const $commentCount = $('#commentCount');
+        const $commentBtn = $('#commentBtn');
+        const currentLength = $commentTextarea.val() ? $commentTextarea.val().length : 0;
+
         $commentCount.text(currentLength);
 
-        // 根据是否有内容启用/禁用评论按钮
         if (currentLength > 0) {
             $commentBtn.removeClass('c-btn-disabled').prop('disabled', false);
         } else {
@@ -105,6 +30,214 @@ $(document).ready(function () {
         }
     }
 
-    // 初始化字符计数
+    function placeDropdown($button, $dropdown) {
+        if (!$dropdown.hasClass('show')) {
+            return;
+        }
+
+        const buttonRect = $button[0].getBoundingClientRect();
+        const dropdownRect = $dropdown[0].getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        $dropdown.css({
+            top: '100%',
+            bottom: 'auto'
+        });
+
+        if (buttonRect.bottom + dropdownRect.height > viewportHeight) {
+            $dropdown.css({
+                top: 'auto',
+                bottom: '100%'
+            });
+        }
+    }
+
+    $(document).off('click.aiCommentBot', '#commentDiv #aiBotBtn')
+        .on('click.aiCommentBot', '#commentDiv #aiBotBtn', function (e) {
+            e.stopPropagation();
+            const $button = $(this);
+            const $selector = $button.closest(mainCommentSelector);
+            const $dropdown = $selector.find('#aiBotDropdown');
+
+            $('.ai-bot-dropdown').not($dropdown).removeClass('show');
+            $dropdown.toggleClass('show');
+            placeDropdown($button, $dropdown);
+        });
+
+    $(document).off('click.aiCommentBotClose')
+        .on('click.aiCommentBotClose', function (e) {
+            if (!$(e.target).closest(mainCommentSelector).length) {
+                $('#commentDiv #aiBotDropdown').removeClass('show');
+            }
+        });
+
+    $(document).off('click.aiCommentBotOption', '#commentDiv #aiBotSelector .ai-bot-option')
+        .on('click.aiCommentBotOption', '#commentDiv #aiBotSelector .ai-bot-option', function (e) {
+            e.stopPropagation();
+            const botType = $(this).data('bot');
+            const botName = botType === 'hater' ? '杠精派' : '派聪明';
+            const tag = `@${botName} `;
+            const $commentTextarea = $('#commentContent');
+            const currentText = $commentTextarea.val() || '';
+
+            if (!currentText.includes(tag)) {
+                $commentTextarea.val(tag + currentText);
+            }
+
+            $('#commentDiv #aiBotDropdown').removeClass('show');
+            $commentTextarea.focus().trigger('input');
+        });
+
+    $(document).off('input.aiCommentBot propertychange.aiCommentBot', '#commentContent')
+        .on('input.aiCommentBot propertychange.aiCommentBot', '#commentContent', function () {
+            updateCommentCount();
+        });
+
+    $(document).off('focus.aiCommentBot', '#commentContent')
+        .on('focus.aiCommentBot', '#commentContent', function () {
+            $(this).closest('.comment-input-container').addClass('focus');
+        });
+
+    $(document).off('blur.aiCommentBot', '#commentContent')
+        .on('blur.aiCommentBot', '#commentContent', function () {
+            $(this).closest('.comment-input-container').removeClass('focus');
+        });
+
     updateCommentCount();
 });
+
+window.aiCommentBot = (function () {
+    function enumName(botType) {
+        return botType === 'hater' ? 'HATER_BOT' : 'QA_BOT';
+    }
+
+    function botName(botType) {
+        return botType === 'hater' ? '杠精派' : '派聪明';
+    }
+
+    function detect(commentContent) {
+        if (!commentContent) {
+            return null;
+        }
+        if (commentContent.indexOf('@杠精派') >= 0) {
+            return 'hater';
+        }
+        if (commentContent.indexOf('@派聪明') >= 0) {
+            return 'smart';
+        }
+        return null;
+    }
+
+    function stripMention(commentContent) {
+        return (commentContent || '').replace(/@(杠精派|派聪明)\s*/g, '').trim();
+    }
+
+    function parseSseChunk(chunk, handleEvent) {
+        const data = chunk.split('\n')
+            .filter(line => line.indexOf('data:') === 0)
+            .map(line => line.substring(5).trim())
+            .join('\n');
+
+        if (!data) {
+            return;
+        }
+
+        try {
+            handleEvent(JSON.parse(data));
+        } catch (e) {
+            console.debug('解析评论区 AI SSE 事件失败:', data, e);
+        }
+    }
+
+    function readStream(reader, decoder, buffer, handleEvent) {
+        return reader.read().then(function process(result) {
+            if (result.done) {
+                if (buffer.trim()) {
+                    parseSseChunk(buffer.trim(), handleEvent);
+                }
+                return;
+            }
+
+            buffer += decoder.decode(result.value, { stream: true }).replace(/\r\n/g, '\n');
+            let splitIndex = buffer.indexOf('\n\n');
+            while (splitIndex >= 0) {
+                const chunk = buffer.substring(0, splitIndex);
+                buffer = buffer.substring(splitIndex + 2);
+                parseSseChunk(chunk, handleEvent);
+                splitIndex = buffer.indexOf('\n\n');
+            }
+
+            return reader.read().then(process);
+        });
+    }
+
+    function startStream(params, callbacks) {
+        const botType = detect(params.commentContent);
+        if (!botType) {
+            return false;
+        }
+
+        const requestId = String(Date.now()) + String(Math.floor(Math.random() * 1000));
+        const options = callbacks || {};
+
+        fetch('/comment/api/commentAiStream', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                articleId: params.articleId,
+                bot: enumName(botType),
+                commentContent: params.commentContent,
+                parentCommentId: params.parentCommentId,
+                topCommentId: params.topCommentId,
+                question: stripMention(params.commentContent),
+                requestId: requestId
+            })
+        }).then(function (response) {
+            if (!response.ok || !response.body) {
+                throw new Error('AI 评论请求失败');
+            }
+
+            function handleEvent(event) {
+                if (!event || event.requestId !== requestId) {
+                    return;
+                }
+                if (event.type === 'comment' && event.html && options.onComment) {
+                    options.onComment(event);
+                } else if (event.type === 'delta' && options.onDelta) {
+                    options.onDelta(event);
+                } else if (event.type === 'done') {
+                    if (options.onDone) {
+                        options.onDone(event);
+                    }
+                    toastr.success(botName(botType) + ' 回复已生成');
+                } else if (event.type === 'error') {
+                    if (event.html && options.onErrorHtml) {
+                        options.onErrorHtml(event);
+                    }
+                    toastr.error(event.message || 'AI 回复生成失败');
+                }
+            }
+
+            return readStream(response.body.getReader(), new TextDecoder('utf-8'), '', handleEvent);
+        }).catch(function () {
+            toastr.error('AI 回复生成失败，请稍后再试');
+        }).finally(function () {
+            if (options.onFinish) {
+                options.onFinish();
+            }
+        });
+
+        return true;
+    }
+
+    return {
+        detect: detect,
+        enumName: enumName,
+        botName: botName,
+        stripMention: stripMention,
+        startStream: startStream
+    };
+})();

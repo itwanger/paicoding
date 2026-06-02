@@ -86,7 +86,9 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         userFootWriteService.saveCommentFoot(commentDO, article.getUserId(), parentUser);
 
         // 3. 触发杠精机器人
-        this.aiBotTrigger(commentDO, parentComment);
+        if (!Boolean.TRUE.equals(commentSaveReq.getSkipAiTrigger())) {
+            this.aiBotTrigger(commentDO, parentComment);
+        }
 
         // 4. 发布添加/回复评论事件
         SpringUtil.publishEvent(new NotifyMsgEvent<>(this, NotifyTypeEnum.COMMENT, commentDO));
@@ -230,6 +232,11 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     }
 
     private void aiReply(AiBotEnum aiBot, String replyContent, CommentDO parentComment) {
+        replyContent = sanitizeAiReplyContent(replyContent);
+        if (StringUtils.isBlank(replyContent)) {
+            log.warn("AI机器人回复为空或仅包含错误信息，跳过保存, bot={}, parentCommentId={}", aiBot, parentComment.getId());
+            return;
+        }
         CommentSaveReq save = new CommentSaveReq();
         save.setArticleId(parentComment.getArticleId());
         save.setCommentContent(replyContent);
@@ -237,5 +244,15 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         save.setParentCommentId(parentComment.getId());
         save.setTopCommentId(NumUtil.upZero(parentComment.getTopCommentId()) ? parentComment.getTopCommentId() : parentComment.getId());
         SpringUtil.getBean(CommentWriteService.class).saveComment(save);
+    }
+
+    private String sanitizeAiReplyContent(String replyContent) {
+        String content = StringUtils.trimToEmpty(replyContent);
+        content = content.replaceAll("(?s)(?:\\r?\\n)?Error\\s*:\\s*null\\s*$", "");
+        content = content.replaceAll("(?s)(?:\\r?\\n)?Error\\s*:\\s*$", "");
+        if (StringUtils.startsWith(content, "Error:")) {
+            return "";
+        }
+        return StringUtils.trimToEmpty(content);
     }
 }

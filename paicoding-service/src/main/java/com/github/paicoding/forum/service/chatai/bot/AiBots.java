@@ -96,4 +96,18 @@ public class AiBots {
         // 触发AI机器人的交互
         botService.trigger(bot, question, sourceBizId, consumer);
     }
+
+    public void triggerSync(AiBotEnum bot, String question, String sourceBizId, Consumer<String> consumer, Supplier<String> systemPromptGenerator) {
+        // 支持自定义的ai机器人系统提示词注入
+        systemPromptCache.put(ImmutablePair.of(bot, sourceBizId), systemPromptGenerator);
+        // 触发AI机器人的同步交互，并通过异步任务回调给调用方
+        botService.triggerSync(bot, question, sourceBizId, consumer);
+    }
+
+    public void triggerStream(AiBotEnum bot, String question, String sourceBizId, Consumer<ChatItemVo> consumer, Supplier<String> systemPromptGenerator) {
+        // 支持自定义的ai机器人系统提示词注入
+        systemPromptCache.put(ImmutablePair.of(bot, sourceBizId), systemPromptGenerator);
+        // 触发AI机器人的流式交互
+        botService.triggerStream(bot, question, sourceBizId, consumer);
+    }
 }

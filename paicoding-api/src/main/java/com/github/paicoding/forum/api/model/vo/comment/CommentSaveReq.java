@@ -46,4 +46,9 @@ public class CommentSaveReq {
      * 引用的正文内容
      */
     private HighlightDto highlight;
+
+    /**
+     * 是否跳过 AI 机器人触发；用于调用方自行接管实时回复流程。
+     */
+    private Boolean skipAiTrigger;
 }

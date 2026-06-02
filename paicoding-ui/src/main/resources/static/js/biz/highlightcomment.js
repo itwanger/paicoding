@@ -7,6 +7,9 @@ let hiddenSidebars = [];
 // 标记是否正在处理评论图标点击
 let isHandlingCommentIcon = false;
 let quoteSidebarGlobalEventsBound = false;
+let highlightAiAbortController = null;
+let highlightAiRequestId = null;
+let highlightAiCompleted = false;
 
 function getHighlightSidebar() {
     return document.getElementById('quoteCommentSidebar');
@@ -563,7 +566,7 @@ function showQuoteCommentForm(text) {
                 </div>
                 <div class="quote-content">
                   <div class="highlight-comment-thread__quote-label">划线片段</div>
-                  <div class="quote-text" id="quotedText">${text}</div>
+                  <div class="quote-text" id="quotedText"></div>
                   <div class="quote-comment-form comment-input-container">
                     <textarea id="quoteCommentInput" placeholder="写下您的评论，可选择@派聪明或者@杠精派..." class="form-control"></textarea>
 
@@ -584,12 +587,20 @@ function showQuoteCommentForm(text) {
                         <button id="submitQuoteComment" class="c-btn c-btn-primary mt-2" disabled>提交评论</button>
                       </div>
                     </div>
+                    <div class="highlight-ai-panel" id="highlightAiPanel">
+                      <div class="highlight-ai-status" id="highlightAiStatus"></div>
+                      <div class="highlight-ai-reply" id="highlightAiReply"></div>
+                    </div>
                   </div>
                 </div>
               </div>`
 
         // 重新绑定监听事件
         initQuoteEvent();
+        const quotedTextNode = document.getElementById('quotedText');
+        if (quotedTextNode) {
+            quotedTextNode.textContent = text;
+        }
         if (sidebar) {
             toggleHighlightSidebarMode(true);
 
@@ -631,6 +642,242 @@ function hideOtherSidebars() {
 // 恢复其他侧边栏
 function showOtherSidebars() {
     hiddenSidebars = [];
+}
+
+function highlightAiBotEnum(botType) {
+    return botType === 'hater' ? 'HATER_BOT' : 'QA_BOT';
+}
+
+function highlightAiBotName(botType) {
+    return botType === 'hater' ? '杠精派' : '派聪明';
+}
+
+function detectHighlightAiBot(commentContent) {
+    if (commentContent.indexOf('@杠精派') >= 0) {
+        return 'hater';
+    }
+    if (commentContent.indexOf('@派聪明') >= 0) {
+        return 'smart';
+    }
+    return null;
+}
+
+function stripHighlightAiMention(commentContent) {
+    return commentContent.replace(/@(杠精派|派聪明)\s*/g, '').trim();
+}
+
+function setHighlightCommentSubmitting(submitting) {
+    const commentInput = document.getElementById('quoteCommentInput');
+    const submitBtn = document.getElementById('submitQuoteComment');
+
+    if (commentInput) {
+        commentInput.disabled = submitting;
+    }
+    if (submitBtn) {
+        submitBtn.disabled = submitting || !commentInput || commentInput.value.trim() === '';
+    }
+}
+
+function resetHighlightAiPanel(botType) {
+    const panel = document.getElementById('highlightAiPanel');
+    const status = document.getElementById('highlightAiStatus');
+    const reply = document.getElementById('highlightAiReply');
+
+    if (panel) {
+        panel.style.display = 'block';
+        panel.classList.add('highlight-ai-panel--streaming');
+    }
+    if (status) {
+        status.textContent = highlightAiBotName(botType) + ' 正在回复...';
+    }
+    if (reply) {
+        reply.textContent = '';
+    }
+    highlightAiCompleted = false;
+    setHighlightCommentSubmitting(true);
+}
+
+function finishHighlightAiPanel(message) {
+    const panel = document.getElementById('highlightAiPanel');
+    const status = document.getElementById('highlightAiStatus');
+
+    if (panel) {
+        panel.classList.remove('highlight-ai-panel--streaming');
+    }
+    if (status && message) {
+        status.textContent = message;
+    }
+    setHighlightCommentSubmitting(false);
+}
+
+function bindGeneratedHighlightComment(commentId) {
+    if (!commentId || !window.highlightedElements || window.highlightedElements.length === 0) {
+        return;
+    }
+
+    const lastHighlight = window.highlightedElements[window.highlightedElements.length - 1];
+    lastHighlight.setAttribute('data-comment-id', commentId);
+    lastHighlight.classList.add('new-highlight');
+    lastHighlight.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showQuoteCommentWithComments(commentId);
+    });
+}
+
+function handleHighlightAiEvent(event) {
+    if (!event || event.requestId !== highlightAiRequestId) {
+        return;
+    }
+
+    const reply = document.getElementById('highlightAiReply');
+    const status = document.getElementById('highlightAiStatus');
+
+    if (event.type === 'delta') {
+        if (reply) {
+            reply.textContent = event.content || ((reply.textContent || '') + (event.delta || ''));
+        }
+        return;
+    }
+
+    if (event.type === 'comment') {
+        bindGeneratedHighlightComment(event.commentId);
+        if (status) {
+            status.textContent = event.bot + ' 正在回复...';
+        }
+        return;
+    }
+
+    if (event.type === 'done') {
+        if (highlightAiCompleted) {
+            return;
+        }
+        highlightAiCompleted = true;
+        bindGeneratedHighlightComment(event.commentId);
+        toggleHighlightSidebarMode(true);
+        normalizeHighlightSidebarState();
+        finishHighlightAiPanel('回复已生成');
+        toastr.success('AI 回复已生成');
+        return;
+    }
+
+    if (event.type === 'error') {
+        if (highlightAiCompleted) {
+            return;
+        }
+        highlightAiCompleted = true;
+        if (event.commentId) {
+            bindGeneratedHighlightComment(event.commentId);
+        }
+        if (event.html) {
+            const sidebar = getHighlightSidebar();
+            if (sidebar) {
+                sidebar.innerHTML = event.html;
+                decorateHighlightThread(sidebar);
+                normalizeHighlightSidebarState();
+                if (window.autoExpandSingleReplyWraps) {
+                    window.autoExpandSingleReplyWraps(sidebar);
+                }
+            }
+        }
+        if (status) {
+            status.textContent = event.message || 'AI 回复生成失败';
+        }
+        finishHighlightAiPanel();
+        toastr.error(event.message || 'AI 回复生成失败');
+    }
+}
+
+function parseHighlightAiSseChunk(chunk) {
+    const data = chunk.split('\n')
+        .filter(line => line.indexOf('data:') === 0)
+        .map(line => line.substring(5).trim())
+        .join('\n');
+
+    if (!data) {
+        return;
+    }
+
+    try {
+        handleHighlightAiEvent(JSON.parse(data));
+    } catch (e) {
+        console.debug('解析划线 AI SSE 事件失败:', data, e);
+    }
+}
+
+function readHighlightAiStream(reader, decoder, buffer) {
+    return reader.read().then(function process(result) {
+        if (result.done) {
+            if (buffer.trim()) {
+                parseHighlightAiSseChunk(buffer.trim());
+            }
+            return;
+        }
+
+        buffer += decoder.decode(result.value, { stream: true }).replace(/\r\n/g, '\n');
+        let splitIndex = buffer.indexOf('\n\n');
+        while (splitIndex >= 0) {
+            const chunk = buffer.substring(0, splitIndex);
+            buffer = buffer.substring(splitIndex + 2);
+            parseHighlightAiSseChunk(chunk);
+            splitIndex = buffer.indexOf('\n\n');
+        }
+
+        return reader.read().then(process);
+    });
+}
+
+function startHighlightAiReply(botType, commentContent) {
+    if (!toSaveSelection) {
+        toastr.error('请先选择一段文章内容');
+        return;
+    }
+
+    if (highlightAiAbortController) {
+        highlightAiAbortController.abort();
+    }
+
+    const question = stripHighlightAiMention(commentContent);
+    highlightAiRequestId = String(Date.now()) + String(Math.floor(Math.random() * 1000));
+    highlightAiAbortController = new AbortController();
+    resetHighlightAiPanel(botType);
+
+    fetch('/comment/api/highlightAiStream', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            articleId: articleId,
+            highlight: toSaveSelection,
+            bot: highlightAiBotEnum(botType),
+            commentContent: commentContent,
+            question: question,
+            requestId: highlightAiRequestId
+        }),
+        signal: highlightAiAbortController.signal
+    }).then(function (response) {
+        if (!response.ok || !response.body) {
+            throw new Error('AI 回复请求失败');
+        }
+
+        return readHighlightAiStream(response.body.getReader(), new TextDecoder('utf-8'), '');
+    }).catch(function (e) {
+        if (e.name === 'AbortError') {
+            finishHighlightAiPanel('已停止生成');
+            return;
+        }
+
+        finishHighlightAiPanel('AI 回复生成失败');
+        toastr.error('AI 回复生成失败，请稍后再试');
+    });
+}
+
+function stopHighlightAiReply() {
+    if (highlightAiAbortController) {
+        highlightAiAbortController.abort();
+        highlightAiAbortController = null;
+    }
 }
 
 // 初始化弹窗事件
@@ -708,9 +955,8 @@ function initQuoteEvent() {
                 return;
             }
 
-            if (e.target.classList.contains('ai-bot-option')) {
+            if (e.target.classList.contains('ai-bot-option') && e.target.closest('#sideAiBotSelector')) {
                 const botType = e.target.getAttribute('data-bot');
-
                 if (commentInput && aiBotDropdown) {
                     let prefix = '';
                     if (botType === 'hater') {
@@ -757,6 +1003,12 @@ function initQuoteEvent() {
 
         if (commentContent === '') {
             toastr.error("评论内容不能为空");
+            return;
+        }
+
+        const aiBotType = detectHighlightAiBot(commentContent);
+        if (aiBotType) {
+            startHighlightAiReply(aiBotType, commentContent);
             return;
         }
 
