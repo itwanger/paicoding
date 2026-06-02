@@ -2,15 +2,20 @@ package com.github.paicoding.forum.service.user.service.user;
 
 import com.beust.ah.A;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
+import com.github.paicoding.forum.api.model.enums.RoleEnum;
+import com.github.paicoding.forum.api.model.enums.user.LoginTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.api.model.exception.ExceptionUtil;
 import com.github.paicoding.forum.api.model.vo.article.dto.YearArticleDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.DateUtil;
+import com.github.paicoding.forum.core.util.RandUtil;
+import com.github.paicoding.forum.api.model.vo.user.OperatorAccountCreateReq;
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.OperatorAccountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.core.util.IpUtil;
@@ -33,6 +38,7 @@ import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.service.user.service.audit.UserShareRiskPolicy;
 import com.github.paicoding.forum.service.user.service.conf.AiConfig;
 import com.github.paicoding.forum.service.user.service.help.UserPwdEncoder;
+import com.github.paicoding.forum.service.user.service.help.UserRandomGenHelper;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -56,6 +63,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class UserServiceImpl implements UserService {
+    private static final SecureRandom PASSWORD_RANDOM = new SecureRandom();
+    private static final String OPERATOR_PASSWORD_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
 
     @Resource
     private UserDao userDao;
@@ -410,6 +419,58 @@ public class UserServiceImpl implements UserService {
 
     public UserAiDO getUserAiDO(Long userId) {
         return userAiDao.getByUserId(userId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OperatorAccountDTO createOperatorAccount(OperatorAccountCreateReq req) {
+        if (req == null || StringUtils.isBlank(req.getUsername())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "运营账号用户名不能为空");
+        }
+        String username = req.getUsername().trim();
+        if (!username.matches("[A-Za-z0-9_-]{4,32}")) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "运营账号用户名仅支持4-32位字母、数字、下划线或短横线");
+        }
+        if (userDao.getUserByUserName(username) != null) {
+            throw ExceptionUtil.of(StatusEnum.USER_LOGIN_NAME_REPEAT, username);
+        }
+
+        String password = StringUtils.defaultIfBlank(req.getPassword(), genOperatorPassword());
+        if (password.length() < 8) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "运营账号密码长度不能少于8位");
+        }
+        String displayName = StringUtils.defaultIfBlank(req.getDisplayName(), username).trim();
+
+        UserDO user = new UserDO();
+        user.setUserName(username);
+        user.setPassword(userPwdEncoder.encPwd(password));
+        user.setThirdAccountId("operator_" + RandUtil.random(16));
+        user.setLoginType(LoginTypeEnum.USER_PWD.getType());
+        userDao.saveUser(user);
+
+        UserInfoDO userInfo = new UserInfoDO();
+        userInfo.setUserId(user.getId());
+        userInfo.setUserName(displayName);
+        userInfo.setPhoto(UserRandomGenHelper.genAvatar());
+        userInfo.setProfile("运营账号");
+        userInfo.setUserRole(RoleEnum.OPERATOR.getRole());
+        userDao.save(userInfo);
+
+        userAiDao.saveOrUpdateAiBindInfo(UserAiConverter.initAi(user.getId()));
+        return new OperatorAccountDTO()
+                .setUserId(user.getId())
+                .setUsername(username)
+                .setPassword(password)
+                .setDisplayName(displayName)
+                .setRole(RoleEnum.OPERATOR.name());
+    }
+
+    private String genOperatorPassword() {
+        StringBuilder builder = new StringBuilder("Pai");
+        for (int i = 0; i < 10; i++) {
+            builder.append(OPERATOR_PASSWORD_CHARS.charAt(PASSWORD_RANDOM.nextInt(OPERATOR_PASSWORD_CHARS.length())));
+        }
+        return builder.toString();
     }
 
     private static final int FORBID_DAYS_MIN = 1;

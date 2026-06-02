@@ -1,9 +1,11 @@
 package com.github.paicoding.forum.service.user.service;
 
 import com.github.paicoding.forum.api.model.vo.user.UserInfoSaveReq;
+import com.github.paicoding.forum.api.model.vo.user.OperatorAccountCreateReq;
 import com.github.paicoding.forum.api.model.vo.user.UserPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.UserZsxqLoginReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.OperatorAccountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserStatisticInfoDTO;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
@@ -134,4 +136,6 @@ public interface UserService {
     void forbidUser(Long userId, Integer days, String reason, Long operatorId);
 
     void unforbidUser(Long userId, Long operatorId);
+
+    OperatorAccountDTO createOperatorAccount(OperatorAccountCreateReq req);
 }

@@ -241,4 +241,9 @@
         </preConditions>
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260525.sql"/>
     </changeSet>
+
+    <!-- user_info.user_role 增加运营角色说明：0 普通用户 1 超管 2 运营 -->
+    <changeSet id="20260530_1" author="Codex">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260530.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -314,7 +314,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     }
 
     /**
-     * 管理员和文章发布白名单作者，统一豁免发布审核与敏感词拦截。
+     * 管理员、运营和文章发布白名单作者，统一豁免发布审核与敏感词拦截。
      *
      * @param authorId 作者id
      * @return true 表示可直接发布
@@ -322,7 +322,7 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
     private boolean canBypassArticlePublishModeration(Long authorId) {
         ReqInfoContext.ReqInfo reqInfo = ReqInfoContext.getReqInfo();
         BaseUserInfoDTO user = reqInfo == null ? null : reqInfo.getUser();
-        if (user != null && user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name())) {
+        if (user != null && UserRole.hasAdminPermission(user.getRole())) {
             return true;
         }
         return authorId != null && articleWhiteListService.authorInArticleWhiteList(authorId);

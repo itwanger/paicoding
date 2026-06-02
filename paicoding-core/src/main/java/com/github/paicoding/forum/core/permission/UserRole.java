@@ -10,6 +10,10 @@ public enum UserRole {
      */
     ADMIN,
     /**
+     * 运营
+     */
+    OPERATOR,
+    /**
      * 登录用户
      */
     LOGIN,
@@ -17,4 +21,18 @@ public enum UserRole {
      * 所有用户
      */
     ALL;
+
+    public boolean isAllowed(String role) {
+        if (this == ALL || this == LOGIN) {
+            return true;
+        }
+        if (this == ADMIN || this == OPERATOR) {
+            return hasAdminPermission(role);
+        }
+        return false;
+    }
+
+    public static boolean hasAdminPermission(String role) {
+        return ADMIN.name().equalsIgnoreCase(role) || OPERATOR.name().equalsIgnoreCase(role);
+    }
 }

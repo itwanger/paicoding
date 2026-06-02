@@ -151,7 +151,7 @@
                     管理后台
                   </a>
                   <div
-                          th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+                          th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin') || #strings.equalsIgnoreCase(global.user.role, 'operator')}"
                           class="dropdown-divider"
                   ></div>
                   <a

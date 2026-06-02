@@ -117,8 +117,8 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
             return false;
         }
 
-        // 作者本人和admin超管可以看到审核内容
-        return user.getUserId().equals(article.getUserId()) || (user.getRole() != null && user.getRole().equalsIgnoreCase(UserRole.ADMIN.name()));
+        // 作者本人、管理员和运营可以看到审核内容
+        return user.getUserId().equals(article.getUserId()) || UserRole.hasAdminPermission(user.getRole());
     }
 
 

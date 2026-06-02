@@ -33,9 +33,9 @@ public class BaseUserInfoDTO extends BaseDTO {
     private String userName;
 
     /**
-     * 用户角色 admin, normal
+     * 用户角色 ADMIN, OPERATOR, NORMAL
      */
-    @ApiModelProperty(value = "角色", example = "ADMIN|NORMAL")
+    @ApiModelProperty(value = "角色", example = "ADMIN|OPERATOR|NORMAL")
     private String role;
 
     /**

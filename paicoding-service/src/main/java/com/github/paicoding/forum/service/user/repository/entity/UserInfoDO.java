@@ -64,6 +64,7 @@ public class UserInfoDO extends BaseDO {
     /**
      * 0 普通用户
      * 1 超级管理员
+     * 2 运营
      */
     private Integer userRole;
 

@@ -6,7 +6,6 @@ import com.github.paicoding.forum.service.chatai.bot.AiBots;
 import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.user.service.AuthorWhiteListService;
 import com.github.paicoding.forum.service.user.service.UserService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +39,6 @@ public class SensitiveBypassServiceImpl implements SensitiveBypassService {
             return true;
         }
         BaseUserInfoDTO user = userService.queryBasicUserInfo(userId);
-        return user != null && StringUtils.equalsIgnoreCase(user.getRole(), UserRole.ADMIN.name());
+        return user != null && UserRole.hasAdminPermission(user.getRole());
     }
 }

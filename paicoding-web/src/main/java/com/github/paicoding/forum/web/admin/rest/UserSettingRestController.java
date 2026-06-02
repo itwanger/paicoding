@@ -3,6 +3,7 @@ package com.github.paicoding.forum.web.admin.rest;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.user.OperatorAccountCreateReq;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserLoginAuditReq;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserShareRiskReq;
 import com.github.paicoding.forum.api.model.vo.user.SearchUserSessionReq;
@@ -11,6 +12,7 @@ import com.github.paicoding.forum.api.model.vo.user.UserUnforbidReq;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserActiveSessionDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserLoginAuditDTO;
+import com.github.paicoding.forum.api.model.vo.user.dto.OperatorAccountDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.UserShareRiskDTO;
 import com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO;
 import com.github.paicoding.forum.core.permission.Permission;
@@ -55,6 +57,12 @@ public class UserSettingRestController {
         vo.setKey(key);
         vo.setItems(list);
         return ResVo.ok(vo);
+    }
+
+    @ApiOperation("创建运营账号")
+    @PostMapping(path = "operator/create")
+    public ResVo<OperatorAccountDTO> createOperator(@RequestBody OperatorAccountCreateReq req) {
+        return ResVo.ok(userService.createOperatorAccount(req));
     }
 
     @Permission(role = UserRole.LOGIN)

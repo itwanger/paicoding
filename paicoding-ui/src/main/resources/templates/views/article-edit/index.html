@@ -37,10 +37,10 @@
             data-toggle="dropdown"
             th:src="${global.user.photo}"
     />
-    <!-- 下拉框 -->
+      <!-- 下拉框 -->
     <div class="dropdown-menu nav-login-menu">
       <div
-              th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin')}"
+              th:if="${#strings.equalsIgnoreCase(global.user.role, 'admin') || #strings.equalsIgnoreCase(global.user.role, 'operator')}"
               class="dropdown-divider"
       ></div>
       <a
