@@ -35,6 +35,8 @@ import java.util.List;
 @Slf4j
 @Service
 public class GlobalInitService {
+    public static final String CURRENT_DOMAIN_ATTRIBUTE = "globalCurrentDomain";
+
     @Value("${env.name}")
     private String env;
     @Autowired
@@ -91,7 +93,10 @@ public class GlobalInitService {
 
             HttpServletRequest request =
                     ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            if (request.getRequestURI().startsWith("/column")) {
+            Object currentDomain = request.getAttribute(CURRENT_DOMAIN_ATTRIBUTE);
+            if (currentDomain instanceof String && !((String) currentDomain).isEmpty()) {
+                vo.setCurrentDomain((String) currentDomain);
+            } else if (request.getRequestURI().startsWith("/column")) {
                 vo.setCurrentDomain("column");
             } else if (request.getRequestURI().startsWith("/chat")) {
                 vo.setCurrentDomain("chat");

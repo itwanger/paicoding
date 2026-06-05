@@ -177,6 +177,11 @@
             <artifactId>oapi-java-sdk</artifactId>
             <version>release-V4-2.4.3</version>
         </dependency>
+        <dependency>
+            <groupId>ai.z.openapi</groupId>
+            <artifactId>zai-sdk</artifactId>
+            <version>0.3.4</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>

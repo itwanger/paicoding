@@ -421,7 +421,8 @@ public class CommentRestController {
 
     private String buildHighlightAiSystemPrompt(AiBotEnum bot, Long articleId) {
         if (bot == AiBotEnum.QA_BOT) {
-            return bot.getPrompt() + "\n\n" + articleReadService.queryArticleContentForAI(articleId);
+            String article = articleReadService.queryArticleContentForAI(articleId);
+            return bot.getPrompt() + "\n\n" + article;
         }
         return bot.getPrompt() + "\n请直接围绕用户给出的划线内容回复，不要解释自己的角色设定。";
     }
@@ -438,6 +439,7 @@ public class CommentRestController {
                 || StringUtils.contains(content, "AI 回复生成失败")
                 || StringUtils.startsWith(content, "Error:")
                 || StringUtils.contains(content, "调用失败")
+                || StringUtils.contains(content, "未配置")
                 || StringUtils.contains(content, "未返回")
                 || StringUtils.contains(content, "大模型超时未返回结果");
     }
@@ -508,7 +510,8 @@ public class CommentRestController {
 
     private String buildCommentAiSystemPrompt(AiBotEnum bot, Long articleId) {
         if (bot == AiBotEnum.QA_BOT) {
-            return bot.getPrompt() + "\n\n" + articleReadService.queryArticleContentForAI(articleId);
+            String article = articleReadService.queryArticleContentForAI(articleId);
+            return bot.getPrompt() + "\n\n" + article;
         }
         return bot.getPrompt();
     }

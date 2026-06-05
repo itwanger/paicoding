@@ -28,6 +28,7 @@ import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
+import com.github.paicoding.forum.web.global.GlobalInitService;
 import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -279,6 +283,7 @@ public class ColumnViewController {
         }
 
         model.addAttribute("vo", dto);
+        markColumnDomain();
         return new ModelAndView("/views/column-index/index");
     }
 
@@ -370,7 +375,18 @@ public class ColumnViewController {
         model.addAttribute("vo", vo);
 
         SpringUtil.getBean(SeoInjectService.class).initColumnSeo(vo, column);
+        markColumnDomain();
         return new ModelAndView("views/column-detail/index");
+    }
+
+    private void markColumnDomain() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return;
+        }
+
+        HttpServletRequest request = attributes.getRequest();
+        request.setAttribute(GlobalInitService.CURRENT_DOMAIN_ATTRIBUTE, "column");
     }
 
     private boolean isColumnForbidden(ColumnDTO column, Model model) {

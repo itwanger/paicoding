@@ -52,6 +52,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     private AiBots aiBots;
     @Autowired
     private SensitiveService sensitiveService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveComment(CommentSaveReq commentSaveReq) {
@@ -251,6 +252,9 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         content = content.replaceAll("(?s)(?:\\r?\\n)?Error\\s*:\\s*null\\s*$", "");
         content = content.replaceAll("(?s)(?:\\r?\\n)?Error\\s*:\\s*$", "");
         if (StringUtils.startsWith(content, "Error:")) {
+            return "";
+        }
+        if (StringUtils.contains(content, "未配置")) {
             return "";
         }
         return StringUtils.trimToEmpty(content);

@@ -7,6 +7,18 @@ net:
 
 
 
+ai:
+  web-search:
+    search-engine: ${PAICODING_AI_WEB_SEARCH_ENGINE:search_pro}
+    count: ${PAICODING_AI_WEB_SEARCH_COUNT:5}
+    search-recency-filter: ${PAICODING_AI_WEB_SEARCH_RECENCY:noLimit}
+    content-size: ${PAICODING_AI_WEB_SEARCH_CONTENT_SIZE:high}
+    coding-mcp-url: ${PAICODING_AI_WEB_SEARCH_CODING_MCP_URL:https://open.bigmodel.cn/api/mcp/web_search_prime/mcp}
+
+zhipu:
+  coding:
+    apiKey: ${PAICODING_ZHIPU_CODING_API_KEY:}
+
 # chatgpt
 chatgpt:
   main: CHAT_GPT_3_5
