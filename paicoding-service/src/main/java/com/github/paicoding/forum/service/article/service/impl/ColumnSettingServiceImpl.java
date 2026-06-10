@@ -13,7 +13,9 @@ import com.github.paicoding.forum.api.model.vo.article.*;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnReadmeDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
+import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
@@ -26,6 +28,7 @@ import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDa
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleGroupDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
+import com.github.paicoding.forum.service.article.repository.entity.ArticleDetailDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleGroupDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
@@ -33,6 +36,8 @@ import com.github.paicoding.forum.service.article.repository.params.SearchColumn
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
+import com.github.paicoding.forum.service.chatai.service.impl.deepseek.DeepSeekIntegration;
+import com.github.paicoding.forum.service.chatai.service.impl.zhipu.ZhipuIntegration;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.Asserts;
@@ -53,6 +58,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ColumnSettingServiceImpl implements ColumnSettingService {
+    private static final int README_INIT_SOURCE_MAX_LENGTH = 5000;
 
     @Autowired
     private UserService userService;
@@ -75,16 +81,18 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     @Autowired
     private SlugGeneratorService slugGeneratorService;
 
+    @Autowired(required = false)
+    private ZhipuIntegration zhipuIntegration;
+
+    @Autowired(required = false)
+    private DeepSeekIntegration deepSeekIntegration;
+
     @Override
     public void saveColumn(ColumnReq req) {
         ColumnInfoDO columnInfoDO = columnStructMapper.toDo(req);
         boolean isNewColumn = NumUtil.nullOrZero(req.getColumnId());
         ColumnInfoDO oldColumn = isNewColumn ? null : columnDao.getById(req.getColumnId());
         columnInfoDO.setUrlSlug(resolveColumnUrlSlug(req, oldColumn));
-        if (oldColumn != null && req.getReadmeArticleId() == null) {
-            columnInfoDO.setReadmeArticleId(oldColumn.getReadmeArticleId());
-        }
-        renameReadmeArticleSlugIfConflicting(columnInfoDO.getReadmeArticleId(), columnInfoDO.getUrlSlug());
         if (req.getFreeStartTime() <= 0) {
             // 兼容日期数据
             columnInfoDO.setFreeStartTime(new Date(1000));
@@ -112,40 +120,215 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
     }
 
     @Override
-    public void setColumnReadmeArticle(ColumnReadmeReq req) {
+    @Transactional(rollbackFor = Exception.class)
+    public ColumnReadmeDTO getOrCreateColumnReadme(Long columnId) {
+        ColumnInfoDO column = queryColumnForReadme(columnId);
+        boolean created = StringUtils.isBlank(column.getReadmeContent());
+        return buildReadmeDTO(column, created);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ColumnReadmeDTO saveColumnReadme(ColumnReadmeContentReq req) {
         if (req == null || NumUtil.nullOrZero(req.getColumnId())) {
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程ID不能为空!");
-        }
-        ColumnInfoDO column = columnDao.getById(req.getColumnId());
-        if (column == null) {
-            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, req.getColumnId());
-        }
-
-        Long articleId = req.getArticleId();
-        ArticleDO article = null;
-        if (!NumUtil.nullOrZero(articleId)) {
-            article = articleDao.getById(articleId);
-            if (article == null) {
-                throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
-            }
-            ColumnArticleDO relation = columnArticleDao.selectColumnArticle(req.getColumnId(), articleId);
-            if (relation == null) {
-                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "说明页文章必须先加入当前教程!");
-            }
-        } else {
-            articleId = 0L;
         }
 
         ColumnInfoDO update = new ColumnInfoDO();
         update.setId(req.getColumnId());
-        update.setReadmeArticleId(articleId);
-        if (shouldRenameReadmeArticleSlug(column, article)) {
-            ArticleDO articleUpdate = new ArticleDO();
-            articleUpdate.setId(article.getId());
-            articleUpdate.setUrlSlug("readme");
-            articleDao.updateById(articleUpdate);
-        }
+        update.setReadmeContent(StringUtils.defaultString(req.getContent()));
         columnDao.updateById(update);
+
+        return getOrCreateColumnReadme(req.getColumnId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ColumnReadmeDTO initColumnReadmeDraft(Long columnId) {
+        ColumnInfoDO column = queryColumnForReadme(columnId);
+
+        ColumnArticleDO firstArticle = columnArticleDao.lambdaQuery()
+                .eq(ColumnArticleDO::getColumnId, columnId)
+                .orderByAsc(ColumnArticleDO::getSection)
+                .last("limit 1")
+                .one();
+        if (firstArticle == null) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "当前教程还没有文章，无法初始化说明页!");
+        }
+
+        ArticleDO article = articleDao.getById(firstArticle.getArticleId());
+        if (article == null) {
+            throw ExceptionUtil.of(StatusEnum.ARTICLE_NOT_EXISTS, firstArticle.getArticleId());
+        }
+
+        String source = readArticleContent(firstArticle.getArticleId());
+        String draft = generateReadmeDraft(column, article, source);
+        ColumnReadmeDTO dto = buildReadmeDTO(column, false);
+        dto.setContent(draft);
+        return dto;
+    }
+
+    private ColumnInfoDO queryColumnForReadme(Long columnId) {
+        if (NumUtil.nullOrZero(columnId)) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程ID不能为空!");
+        }
+        ColumnInfoDO column = columnDao.getById(columnId);
+        if (column == null) {
+            throw ExceptionUtil.of(StatusEnum.COLUMN_NOT_EXISTS, columnId);
+        }
+        return column;
+    }
+
+    private String buildDefaultReadmeContent(ColumnInfoDO column) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("# ").append(column.getColumnName()).append("项目介绍\n\n");
+        if (StringUtils.isNotBlank(column.getIntroduction())) {
+            builder.append(column.getIntroduction()).append("\n\n");
+        }
+        builder.append("## 你能学到什么\n\n");
+        builder.append("这套教程围绕真实项目展开，覆盖项目背景、业务拆解、架构设计、核心技术实现、部署运行、简历写法和面试复盘。");
+        return builder.toString();
+    }
+
+    private ColumnReadmeDTO buildReadmeDTO(ColumnInfoDO column, boolean created) {
+        ColumnReadmeDTO dto = new ColumnReadmeDTO();
+        dto.setColumnId(column.getId());
+        dto.setTitle(column.getColumnName() + "项目介绍");
+        dto.setContent(StringUtils.defaultIfBlank(column.getReadmeContent(), buildDefaultReadmeContent(column)));
+        dto.setCreated(created);
+        return dto;
+    }
+
+    private String readArticleContent(Long articleId) {
+        try {
+            ArticleDetailDO detail = articleDao.findLatestDetail(articleId);
+            return detail == null ? "" : StringUtils.defaultString(detail.getContent());
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String generateReadmeDraft(ColumnInfoDO column, ArticleDO firstArticle, String sourceContent) {
+        String fallback = buildReadmeDraftFallback(column, firstArticle, sourceContent);
+        String prompt = buildReadmeInitPrompt(column, firstArticle, sourceContent);
+        String answer = callReadmeDraftLLM(prompt);
+        if (StringUtils.isBlank(answer)) {
+            return fallback;
+        }
+        String markdown = cleanMarkdownAnswer(answer);
+        return StringUtils.isBlank(markdown) ? fallback : markdown;
+    }
+
+    private String buildReadmeInitPrompt(ColumnInfoDO column, ArticleDO firstArticle, String sourceContent) {
+        String content = StringUtils.defaultString(sourceContent);
+        if (content.length() > README_INIT_SOURCE_MAX_LENGTH) {
+            content = content.substring(0, README_INIT_SOURCE_MAX_LENGTH);
+        }
+        return "你是技术教程运营编辑。请根据教程第一篇文章，为教程落地页生成一份可直接编辑的 README Markdown 草稿。\n"
+                + "教程名：" + column.getColumnName() + "\n"
+                + "教程简介：" + StringUtils.defaultString(column.getIntroduction()) + "\n"
+                + "第一篇文章标题：" + StringUtils.defaultString(firstArticle.getTitle()) + "\n"
+                + "第一篇文章正文：\n" + content + "\n\n"
+                + "要求：\n"
+                + "1. 输出 Markdown，不要代码块包裹，不要解释说明。\n"
+                + "2. 包含项目介绍、适合人群、技术栈、能学到什么、学习建议这几个部分。\n"
+                + "3. 可以保留正文中的 1 张与项目界面或架构相关的图片 Markdown。\n"
+                + "4. 不要输出二维码、联系方式、优惠、版权、推荐阅读等营销信息。\n"
+                + "5. 控制在 600 到 1000 字，适合 SEO 收录。";
+    }
+
+    private String callReadmeDraftLLM(String prompt) {
+        try {
+            if (zhipuIntegration != null) {
+                ChatItemVo item = new ChatItemVo().initQuestion(prompt);
+                if (zhipuIntegration.directReturn(0L, item) && StringUtils.isNotBlank(item.getAnswer())) {
+                    return item.getAnswer();
+                }
+            }
+        } catch (Exception e) {
+            // 降级到下一个模型或本地摘要。
+        }
+
+        try {
+            if (deepSeekIntegration != null) {
+                ChatItemVo item = new ChatItemVo().initQuestion(prompt);
+                if (deepSeekIntegration.directReturn(item) && StringUtils.isNotBlank(item.getAnswer())) {
+                    return item.getAnswer();
+                }
+            }
+        } catch (Exception e) {
+            // 降级到本地摘要。
+        }
+        return "";
+    }
+
+    private String cleanMarkdownAnswer(String answer) {
+        String markdown = StringUtils.defaultString(answer).trim();
+        if (markdown.startsWith("```")) {
+            markdown = markdown.replaceFirst("^```[a-zA-Z]*\\s*", "");
+            markdown = markdown.replaceFirst("\\s*```$", "");
+        }
+        return markdown.trim();
+    }
+
+    private String buildReadmeDraftFallback(ColumnInfoDO column, ArticleDO firstArticle, String sourceContent) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("# ").append(column.getColumnName()).append("项目介绍\n\n");
+        if (StringUtils.isNotBlank(column.getIntroduction())) {
+            builder.append(column.getIntroduction()).append("\n\n");
+        }
+        appendFirstImage(builder, sourceContent);
+        builder.append("## 项目背景\n\n");
+        builder.append(pickFirstParagraph(sourceContent, "这套教程围绕真实项目展开，帮助你从项目背景、业务拆解、技术方案到核心实现完整学习。")).append("\n\n");
+        builder.append("## 你能学到什么\n\n");
+        builder.append("- 项目的业务场景、核心功能和整体架构\n");
+        builder.append("- 关键技术栈的选型原因和落地方式\n");
+        builder.append("- 从第一篇「").append(StringUtils.defaultString(firstArticle.getShortTitle(), firstArticle.getTitle())).append("」开始建立项目全局认知\n");
+        builder.append("- 可写进简历、可用于面试表达的项目经验\n\n");
+        builder.append("## 学习建议\n\n");
+        builder.append("建议先阅读项目介绍和环境准备，再按目录顺序完成核心模块学习，最后结合简历写法和面试题进行复盘。");
+        return builder.toString();
+    }
+
+    private void appendFirstImage(StringBuilder builder, String sourceContent) {
+        if (StringUtils.isBlank(sourceContent)) {
+            return;
+        }
+        String[] lines = sourceContent.split("\\r?\\n");
+        for (String line : lines) {
+            String trim = StringUtils.trimToEmpty(line);
+            if (trim.startsWith("![") && !containsLowValueMediaKeyword(trim)) {
+                builder.append(trim).append("\n\n");
+                return;
+            }
+        }
+    }
+
+    private boolean containsLowValueMediaKeyword(String line) {
+        String compact = line.replaceAll("\\s+", "");
+        return compact.contains("二维码")
+                || compact.contains("扫码")
+                || compact.contains("公众号")
+                || compact.contains("知识星球")
+                || compact.contains("喜报");
+    }
+
+    private String pickFirstParagraph(String sourceContent, String fallback) {
+        if (StringUtils.isBlank(sourceContent)) {
+            return fallback;
+        }
+        String[] lines = sourceContent.split("\\r?\\n");
+        for (String line : lines) {
+            String text = StringUtils.trimToEmpty(line)
+                    .replaceAll("!\\[[^]]*]\\([^)]*\\)", "")
+                    .replaceAll("\\[([^]]+)]\\([^)]*\\)", "$1")
+                    .replaceAll("[`*_#>~-]", "")
+                    .trim();
+            if (text.length() >= 30 && !containsLowValueMediaKeyword(text)) {
+                return text.length() > 220 ? text.substring(0, 220) + "…" : text;
+            }
+        }
+        return fallback;
     }
 
     @Override
@@ -191,27 +374,6 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         return StringUtils.isNotBlank(urlSlug) && UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
     }
 
-    private boolean shouldRenameReadmeArticleSlug(ColumnInfoDO column, ArticleDO article) {
-        if (column == null || article == null || !isValidColumnSlug(article.getUrlSlug())) {
-            return false;
-        }
-        return StringUtils.equals(column.getUrlSlug(), article.getUrlSlug());
-    }
-
-    private void renameReadmeArticleSlugIfConflicting(Long readmeArticleId, String columnSlug) {
-        if (NumUtil.nullOrZero(readmeArticleId) || !isValidColumnSlug(columnSlug)) {
-            return;
-        }
-        ArticleDO article = articleDao.getById(readmeArticleId);
-        if (article == null || !StringUtils.equals(columnSlug, article.getUrlSlug())) {
-            return;
-        }
-        ArticleDO update = new ArticleDO();
-        update.setId(article.getId());
-        update.setUrlSlug("readme");
-        articleDao.updateById(update);
-    }
-    
     /**
      * 批量发布专栏内所有未发布的文章
      * 
@@ -474,13 +636,6 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
         ColumnArticleDO columnArticleDO = columnArticleDao.getById(id);
         if (columnArticleDO != null) {
             columnArticleDao.removeById(id);
-            ColumnInfoDO column = columnDao.getById(columnArticleDO.getColumnId());
-            if (column != null && Objects.equals(column.getReadmeArticleId(), columnArticleDO.getArticleId())) {
-                ColumnInfoDO update = new ColumnInfoDO();
-                update.setId(column.getId());
-                update.setReadmeArticleId(0L);
-                columnDao.updateById(update);
-            }
             // 删除的时候，批量更新 section，比如说原来是 1,2,3,4,5,6,7,8,9,10，删除 5，那么 6-10 的 section 都要减 1
             columnArticleDao.update(null, Wrappers.<ColumnArticleDO>lambdaUpdate().setSql("section = section - 1")
                     .eq(ColumnArticleDO::getColumnId, columnArticleDO.getColumnId())

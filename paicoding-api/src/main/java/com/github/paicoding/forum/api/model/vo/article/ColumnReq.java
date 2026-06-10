@@ -31,12 +31,6 @@ public class ColumnReq implements Serializable {
     private String urlSlug;
 
     /**
-     * 教程说明页文章ID
-     */
-    @ApiModelProperty("教程说明页文章ID，0表示未设置")
-    private Long readmeArticleId;
-
-    /**
      * 作者
      */
     private Long author;

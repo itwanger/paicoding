@@ -14,7 +14,6 @@ import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
-import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.sitemap.constants.SitemapConstants;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
 import com.github.paicoding.forum.service.sitemap.model.SiteMapVo;
@@ -57,8 +56,6 @@ public class SitemapServiceImpl implements SitemapService {
     private ColumnArticleDao columnArticleDao;
     @Resource
     private ColumnDao columnDao;
-    @Resource
-    private ColumnService columnService;
     @Resource
     private Environment environment;
 
@@ -131,14 +128,8 @@ public class SitemapServiceImpl implements SitemapService {
 
     private String buildArticleUrl(ArticleDO article, Long articleId, ColumnArticleDO columnArticle) {
         if (columnArticle != null) {
-            ColumnInfoDO column = columnDao.getById(columnArticle.getColumnId());
-            if (column != null && isReadmeArticle(column, articleId) && isValidUrlSlug(column.getUrlSlug())) {
-                return null;
-            }
-            String articleSlug = columnService.ensureColumnArticleUrlSlug(columnArticle.getColumnId(), articleId,
-                    article.getShortTitle(), article.getUrlSlug());
-            if (isValidUrlSlug(articleSlug)) {
-                return host() + "/" + articleSlug;
+            if (isValidUrlSlug(article.getUrlSlug())) {
+                return host() + "/" + article.getUrlSlug();
             }
             return host() + "/column/" + columnArticle.getColumnId() + "/" + columnArticle.getSection();
         }
@@ -150,9 +141,6 @@ public class SitemapServiceImpl implements SitemapService {
 
     private String buildColumnUrl(ColumnInfoDO column) {
         if (isValidUrlSlug(column.getUrlSlug())) {
-            if (isReadmeArticle(column, column.getReadmeArticleId())) {
-                return host() + "/" + column.getUrlSlug() + "/readme";
-            }
             return host() + "/column/" + column.getUrlSlug();
         }
         return host() + "/column/" + column.getId();
@@ -160,13 +148,6 @@ public class SitemapServiceImpl implements SitemapService {
 
     private boolean isValidUrlSlug(String urlSlug) {
         return UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
-    }
-
-    private boolean isReadmeArticle(ColumnInfoDO column, Long articleId) {
-        return column != null
-                && column.getReadmeArticleId() != null
-                && column.getReadmeArticleId() > 0
-                && column.getReadmeArticleId().equals(articleId);
     }
 
     /**

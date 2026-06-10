@@ -4,7 +4,7 @@ import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnReadmeReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReadmeContentReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
@@ -13,6 +13,7 @@ import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleByIDReq;
 import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnReadmeDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 
@@ -42,11 +43,28 @@ public interface ColumnSettingService {
     void saveColumn(ColumnReq columnReq);
 
     /**
-     * 设置教程说明页文章
+     * 获取或创建教程默认说明页。
      *
-     * @param req
+     * @param columnId 教程ID
+     * @return 说明页内容
      */
-    void setColumnReadmeArticle(ColumnReadmeReq req);
+    ColumnReadmeDTO getOrCreateColumnReadme(Long columnId);
+
+    /**
+     * 保存教程说明页 Markdown 内容。
+     *
+     * @param req 保存请求
+     * @return 最新说明页内容
+     */
+    ColumnReadmeDTO saveColumnReadme(ColumnReadmeContentReq req);
+
+    /**
+     * 根据第一篇教程文章生成说明页草稿。
+     *
+     * @param columnId 教程ID
+     * @return 草稿内容
+     */
+    ColumnReadmeDTO initColumnReadmeDraft(Long columnId);
 
     /**
      * 生成教程语义URL

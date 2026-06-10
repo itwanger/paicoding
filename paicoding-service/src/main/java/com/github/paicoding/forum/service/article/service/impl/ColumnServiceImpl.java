@@ -14,11 +14,9 @@ import com.github.paicoding.forum.service.article.conveter.ColumnConvert;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnArticleDao;
 import com.github.paicoding.forum.service.article.repository.dao.ColumnDao;
-import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnArticleDO;
 import com.github.paicoding.forum.service.article.repository.entity.ColumnInfoDO;
 import com.github.paicoding.forum.service.article.service.ColumnService;
-import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
 import com.github.paicoding.forum.service.sensitive.service.SensitiveBypassService;
 import com.github.paicoding.forum.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +50,6 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Autowired
     private SensitiveBypassService sensitiveBypassService;
-
-    @Autowired
-    private SlugGeneratorService slugGeneratorService;
 
     @Override
     public ColumnArticleDO getColumnArticleRelation(Long articleId) {
@@ -184,7 +178,6 @@ public class ColumnServiceImpl implements ColumnService {
                 article.setColumn(sanitizeText(article.getColumn()));
                 article.setGroupName(sanitizeText(article.getGroupName()));
             }
-            article.setUrlSlug(ensureColumnArticleUrlSlug(columnId, article.getId(), article.getTitle(), article.getUrlSlug()));
             if (preGroup != article.getGroupLevel()) {
                 preGroup = article.getGroupLevel();
                 article.setGroupLevel(groupSectionToLevel(article.getGroupLevel()));
@@ -222,43 +215,6 @@ public class ColumnServiceImpl implements ColumnService {
         return text == null ? null : sensitiveService.replace(text);
     }
 
-    @Override
-    public String ensureColumnArticleUrlSlug(long columnId, Long articleId, String title, String currentSlug) {
-        if (isOwnReadmeArticle(columnId, articleId) && StringUtils.equals(currentSlug, "readme")) {
-            return currentSlug;
-        }
-        if (isValidArticleSlug(currentSlug)
-                && !articleDao.existsUrlSlug(currentSlug, articleId)
-                && !columnDao.existsUrlSlug(currentSlug, null)) {
-            return currentSlug;
-        }
-        String baseSlug = generateArticleSlug(title);
-        if (StringUtils.isBlank(baseSlug)) {
-            baseSlug = "article";
-        } else if (StringUtils.isNumeric(baseSlug)) {
-            baseSlug = "article-" + baseSlug;
-        }
-        String slug = baseSlug;
-        int suffix = 2;
-        while (articleDao.existsUrlSlug(slug, articleId) || columnDao.existsUrlSlug(slug, null)) {
-            slug = baseSlug + "-" + suffix++;
-        }
-        ArticleDO update = new ArticleDO();
-        update.setId(articleId);
-        update.setUrlSlug(slug);
-        articleDao.updateById(update);
-        return slug;
-    }
-
-    private String generateArticleSlug(String title) {
-        try {
-            return slugGeneratorService.generateSlugWithAI(title);
-        } catch (Exception e) {
-            log.warn("AI生成教程文章slug失败，使用本地规则兜底: title={}", title, e);
-            return UrlSlugUtil.generateSlug(title);
-        }
-    }
-
     private ColumnInfoDO ensureColumnUrlSlug(ColumnInfoDO column) {
         if (column == null || isValidColumnSlug(column.getUrlSlug())) {
             return column;
@@ -289,16 +245,6 @@ public class ColumnServiceImpl implements ColumnService {
 
     private boolean isValidColumnSlug(String urlSlug) {
         return UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
-    }
-
-    private boolean isValidArticleSlug(String urlSlug) {
-        return UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
-    }
-
-    private boolean isOwnReadmeArticle(long columnId, Long articleId) {
-        ColumnInfoDO column = columnDao.getById(columnId);
-        return column != null
-                && Objects.equals(column.getReadmeArticleId(), articleId);
     }
 
 }

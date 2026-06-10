@@ -21,7 +21,7 @@ public class ColumnConvert {
         dto.setColumnId(info.getId());
         dto.setColumn(info.getColumnName());
         dto.setUrlSlug(info.getUrlSlug());
-        dto.setReadmeArticleId(info.getReadmeArticleId());
+        dto.setReadmeContent(info.getReadmeContent());
         dto.setCover(info.getCover());
         dto.setIntroduction(info.getIntroduction());
         dto.setState(info.getState());
@@ -48,7 +48,6 @@ public class ColumnConvert {
         ColumnInfoDO columnInfoDO = new ColumnInfoDO();
         columnInfoDO.setColumnName(columnReq.getColumn());
         columnInfoDO.setUrlSlug(columnReq.getUrlSlug());
-        columnInfoDO.setReadmeArticleId(columnReq.getReadmeArticleId());
         columnInfoDO.setUserId(columnReq.getAuthor());
         columnInfoDO.setIntroduction(columnReq.getIntroduction());
         columnInfoDO.setCover(columnReq.getCover());

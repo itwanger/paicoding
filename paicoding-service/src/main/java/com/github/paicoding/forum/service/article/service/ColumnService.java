@@ -57,17 +57,6 @@ public interface ColumnService {
     ColumnArticleDO queryColumnArticle(long columnId, String articleSlug);
 
     /**
-     * 确保教程文章有稳定的URL标识
-     *
-     * @param columnId
-     * @param articleId
-     * @param title
-     * @param currentSlug
-     * @return
-     */
-    String ensureColumnArticleUrlSlug(long columnId, Long articleId, String title, String currentSlug);
-
-    /**
      * 只查询基本的专栏信息，不需要统计、作者等信息
      *
      * @param columnId

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
+    <title th:text="${vo.column + '：项目介绍、源码教程、学习路线和面试指南 - ' + global.siteInfo.websiteName}">
+        项目教程 | 技术派
+    </title>
+</div>
+
+<link rel="stylesheet" href="/css/views/column-home.css" th:href="${global.siteInfo.oss + '/css/views/column-home.css'}">
+<style>
+    .course-landing-card {
+        padding: 26px 30px;
+    }
+
+    .course-page-wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 20px;
+        align-items: start;
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto 20px;
+    }
+
+    .course-page-wrap .custom-home-body,
+    .course-page-wrap .custom-home-right {
+        width: auto;
+        margin-right: 0;
+    }
+
+    .course-hero-card {
+        grid-column: 1 / -1;
+        border-radius: 8px;
+    }
+
+    .course-content-card {
+        border-radius: 8px;
+    }
+
+    .course-hero {
+        display: grid;
+        grid-template-columns: 160px minmax(0, 1fr);
+        gap: 24px;
+        align-items: stretch;
+        position: relative;
+    }
+
+    .course-hero-main {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .course-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 50px;
+        height: 28px;
+        margin-right: 14px;
+        padding: 0 9px;
+        border-radius: 4px;
+        background: var(--pai-brand-6-mq);
+        color: var(--pai-color-fff-normal);
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 30px;
+    }
+
+    .course-title {
+        display: flex;
+        align-items: center;
+        margin: 0 0 12px;
+        font-size: 32px;
+        line-height: 1.32;
+        color: #1f2328;
+    }
+
+    .course-summary {
+        margin: 0;
+        color: var(--pai-color-4-gray);
+        line-height: 1.7;
+        font-size: 16px;
+    }
+
+    .course-author {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 16px;
+        color: var(--pai-color-4-gray);
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .course-author img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--pai-bg-light-2);
+    }
+
+    .course-author-profile {
+        color: var(--pai-color-4-gray);
+        font-weight: 500;
+    }
+
+    .course-hero-bottom {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 24px;
+    }
+
+    .course-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .course-primary-btn,
+    .course-secondary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 18px;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .course-primary-btn {
+        background: var(--pai-brand-1-normal);
+        color: var(--pai-color-fff-normal);
+        box-shadow: 0 8px 18px rgba(255, 105, 0, 0.2);
+    }
+
+    .course-primary-btn:hover {
+        color: var(--pai-color-fff-normal);
+        background: var(--pai-brand-2-hover);
+        text-decoration: none;
+    }
+
+    .course-secondary-btn {
+        border: 1px solid var(--pai-border-color-1);
+        color: var(--pai-color-3-black);
+        background: var(--pai-color-fff-normal);
+    }
+
+    .course-secondary-btn:hover {
+        color: var(--pai-brand-1-normal);
+        border-color: var(--pai-brand-1-normal);
+        text-decoration: none;
+    }
+
+    .course-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: var(--pai-color-3-gray);
+        font-size: 16px;
+        white-space: nowrap;
+    }
+
+    .course-stat {
+        color: var(--pai-color-4-gray);
+    }
+
+    .course-stat + .course-stat:before {
+        content: "|";
+        margin-right: 10px;
+        color: var(--pai-color-3-gray);
+    }
+
+    .course-stat strong {
+        color: var(--pai-color-3-black);
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .course-cover {
+        width: 160px;
+        max-width: 100%;
+        justify-self: start;
+        height: auto;
+        border-radius: 8px;
+        object-fit: contain;
+        box-shadow: 0 10px 22px rgba(31, 35, 40, 0.12);
+    }
+
+    .course-tabs {
+        display: flex;
+        gap: 20px;
+        margin: 0 0 24px;
+        border-bottom: 1px solid var(--pai-hr-color-1);
+    }
+
+    .course-tabs a {
+        padding: 0 0 12px;
+        color: var(--pai-color-3-gray);
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .course-tabs a:hover,
+    .course-tabs a.active {
+        color: var(--pai-brand-1-normal);
+        text-decoration: none;
+        border-bottom: 2px solid var(--pai-brand-1-normal);
+    }
+
+    .course-section {
+        margin-top: 30px;
+    }
+
+    .course-tabs + .course-section {
+        margin-top: 0;
+    }
+
+    .course-section h2,
+    .course-recommend-card h2 {
+        margin: 0 0 14px;
+        font-size: 22px;
+        color: #1f2328;
+    }
+
+    .course-copy {
+        margin: 0;
+        color: var(--pai-color-4-gray);
+        line-height: 1.8;
+    }
+
+    .course-catalog-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .course-catalog-head p {
+        margin: 0;
+        color: var(--pai-color-3-gray);
+        font-size: 14px;
+    }
+
+    .course-section-list {
+        display: grid;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border: 1px solid var(--pai-hr-color-1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .course-section-link {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        padding: 15px 18px;
+        color: var(--pai-color-3-black);
+        background: var(--pai-color-fff-normal);
+        border-bottom: 1px solid var(--pai-hr-color-1);
+    }
+
+    .course-section-list li:last-child .course-section-link {
+        border-bottom: 0;
+    }
+
+    .course-section-link:hover {
+        color: var(--pai-brand-1-normal);
+        background: var(--pai-bg-light-2);
+        text-decoration: none;
+    }
+
+    .course-section-index {
+        color: var(--pai-color-3-gray);
+        font-size: 15px;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .course-section-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .course-section-group {
+        display: inline-flex;
+        margin-left: 8px;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: var(--pai-bg-light-2);
+        color: var(--pai-color-3-gray);
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .course-section-action {
+        color: var(--pai-brand-1-normal);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .course-recommend-card {
+        position: sticky;
+        top: 78px;
+        padding: 18px;
+    }
+
+    .course-recommend-card h2 {
+        font-size: 18px;
+    }
+
+    .course-recommend-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .course-recommend-item {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+        color: var(--pai-color-3-black);
+    }
+
+    .course-recommend-item:hover {
+        color: var(--pai-brand-1-normal);
+        text-decoration: none;
+    }
+
+    .course-recommend-cover {
+        width: 72px;
+        aspect-ratio: 3 / 4;
+        border-radius: 6px;
+        object-fit: cover;
+        background: var(--pai-bg-light-2);
+    }
+
+    .course-recommend-title {
+        display: block;
+        min-width: 0;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
+    .course-recommend-desc {
+        display: -webkit-box;
+        margin-top: 4px;
+        overflow: hidden;
+        color: var(--pai-color-3-gray);
+        font-size: 13px;
+        line-height: 1.5;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .course-recommend-meta {
+        display: block;
+        margin-top: 6px;
+        color: var(--pai-color-3-gray);
+        font-size: 12px;
+    }
+
+    .course-more-link {
+        display: block;
+        margin-top: 18px;
+        color: var(--pai-brand-1-normal);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .course-recommend-empty {
+        margin: 0;
+        color: var(--pai-color-3-gray);
+        font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .course-page-wrap {
+            display: block;
+            width: 100%;
+            margin: 0;
+        }
+
+        .course-page-wrap .custom-home-right {
+            display: block;
+            margin-top: 20px;
+        }
+
+        .course-landing-card {
+            padding: 20px;
+        }
+
+        .course-hero-card {
+            padding: 24px 20px;
+        }
+
+        .course-hero {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 24px;
+        }
+
+        .course-title {
+            display: block;
+            font-size: 24px;
+        }
+
+        .course-badge {
+            margin: 0 0 12px;
+        }
+
+        .course-hero-bottom {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .course-stats {
+            white-space: normal;
+        }
+
+        .course-cover {
+            width: 170px;
+            justify-self: center;
+        }
+
+        .course-section-link {
+            grid-template-columns: 34px minmax(0, 1fr);
+            gap: 10px;
+            padding: 14px 12px;
+        }
+
+        .course-section-action {
+            display: none;
+        }
+
+        .course-section-title {
+            white-space: normal;
+        }
+
+        .course-recommend-card {
+            position: static;
+        }
+    }
+</style>
+
+<body id="body" class="bg-color">
+<div th:replace="components/layout/navbar :: navbar"></div>
+
+<main class="custom-home">
+    <div class="custom-home-wrap course-page-wrap">
+        <section class="bg-color-white course-landing-card course-hero-card">
+            <div class="course-hero">
+                <img th:if="${vo.cover != null && !#strings.isEmpty(vo.cover)}"
+                     th:src="${vo.cover}"
+                     th:alt="${vo.column + '封面'}"
+                     class="course-cover"
+                     loading="eager">
+                <div class="course-hero-main">
+                    <h1 class="course-title">
+                        <span class="course-badge">新品</span>
+                        <span th:text="${vo.column}">项目教程</span>
+                    </h1>
+                    <p class="course-summary" th:text="${vo.introduction}">
+                        项目介绍
+                    </p>
+                    <div class="course-author">
+                        <img th:if="${vo.authorAvatar != null && !#strings.isEmpty(vo.authorAvatar)}"
+                             th:src="${vo.authorAvatar}"
+                             th:alt="${vo.authorName + '头像'}"
+                             loading="lazy">
+                        <span th:text="${vo.authorName}">作者</span>
+                        <span class="course-author-profile" th:if="${vo.authorProfile != null && !#strings.isEmpty(vo.authorProfile)}"
+                              th:text="${vo.authorProfile}">作者简介</span>
+                    </div>
+                    <div class="course-hero-bottom">
+                        <div class="course-actions">
+                            <a class="course-primary-btn" th:href="${startArticleUrl}">开始学习</a>
+                            <a class="course-secondary-btn" href="#course-catalog">查看完整目录</a>
+                            <a class="course-secondary-btn" th:if="${showReadmeAction}" th:href="${readmeUrl}">项目说明</a>
+                        </div>
+                        <div class="course-stats">
+                            <span class="course-stat" th:if="${vo.count != null}">
+                                <strong th:text="${vo.count.readCount}">0</strong> 人在学习
+                            </span>
+                            <span class="course-stat" th:if="${vo.count != null}">
+                                <strong th:text="${vo.count.articleCount}">0</strong> 小节
+                            </span>
+                            <span class="course-stat" th:if="${vo.count != null}">
+                                约 <strong th:text="${vo.count.totalNums}">0</strong> 节
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <article class="custom-home-body bg-color-white course-landing-card course-content-card">
+            <nav class="course-tabs" aria-label="教程页导航">
+                <a href="#course-intro" class="active">介绍</a>
+                <a href="#course-catalog">目录</a>
+            </nav>
+
+            <section id="course-intro" class="course-section">
+                <div class="article-content course-intro-rich" th:if="${!#strings.isEmpty(courseIntroHtml)}" th:utext="${courseIntroHtml}">
+                    <p>项目介绍</p>
+                </div>
+                <p class="course-copy" th:if="${#strings.isEmpty(courseIntroHtml)}">
+                    这套教程围绕真实项目展开，覆盖项目背景、业务拆解、架构设计、核心技术实现、部署运行、简历写法和面试复盘。适合想用真实项目补齐工程经验、AI 应用经验和面试表达的同学系统学习。
+                </p>
+            </section>
+
+            <section id="course-catalog" class="course-section">
+                <div class="course-catalog-head">
+                    <div>
+                        <h2>课程内容</h2>
+                        <p th:if="${vo.count != null}" th:text="'已更新 ' + ${vo.count.articleCount} + ' 小节'">已更新 0 小节</p>
+                    </div>
+                    <a class="course-primary-btn" th:href="${startArticleUrl}">从第一讲开始</a>
+                </div>
+                <ol class="course-section-list">
+                    <li th:each="article, stat : ${articleList}">
+                        <a th:href="${article.urlSlug != null && !#strings.isEmpty(article.urlSlug) ? '/' + article.urlSlug : '/column/' + (vo.urlSlug != null && !#strings.isEmpty(vo.urlSlug) ? vo.urlSlug : vo.columnId) + '/' + article.sort}"
+                           class="course-section-link">
+                            <span class="course-section-index" th:text="${stat.count < 10 ? '0' + stat.count : stat.count}">01</span>
+                            <span class="course-section-title">
+                                <span th:text="${article.title}">章节标题</span>
+                                <span th:if="${article.groupName != null && !#strings.isEmpty(article.groupName)}"
+                                      th:text="${article.groupName}"
+                                      class="course-section-group">
+                                    分组
+                                </span>
+                            </span>
+                            <span class="course-section-action">去学习</span>
+                        </a>
+                    </li>
+                </ol>
+            </section>
+        </article>
+
+        <aside class="custom-home-right">
+            <div class="bg-color-white course-recommend-card">
+                <h2>其他教程推荐</h2>
+                <p class="course-recommend-empty" th:if="${#lists.isEmpty(recommendColumns)}">暂无更多教程推荐</p>
+                <div class="course-recommend-list" th:if="${!#lists.isEmpty(recommendColumns)}">
+                    <a th:each="column : ${recommendColumns}"
+                       th:href="${column.urlSlug != null && !#strings.isEmpty(column.urlSlug) ? '/column/' + column.urlSlug : '/column/' + column.columnId}"
+                       class="course-recommend-item">
+                        <img th:if="${column.cover != null && !#strings.isEmpty(column.cover)}"
+                             th:src="${column.cover}"
+                             th:alt="${column.column + '封面'}"
+                             class="course-recommend-cover"
+                             loading="lazy">
+                        <span>
+                            <span class="course-recommend-title" th:text="${column.column}">项目教程</span>
+                            <span class="course-recommend-desc" th:text="${column.introduction}">教程简介</span>
+                            <span class="course-recommend-meta"
+                                  th:if="${column.count != null}"
+                                  th:text="'已更新 ' + ${column.count.articleCount} + ' 小节'">已更新 0 小节</span>
+                        </span>
+                    </a>
+                </div>
+                <a class="course-more-link" href="/column">查看全部教程</a>
+            </div>
+        </aside>
+    </div>
+    <div th:replace="components/layout/footer :: footer"></div>
+</main>
+</body>
+</html>

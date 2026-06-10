@@ -209,10 +209,11 @@ public class ArticleViewController extends BaseViewController {
             }
         }
 
-        String articleSlug = columnService.ensureColumnArticleUrlSlug(column.getColumnId(), articleDTO.getArticleId(),
-                articleDTO.getShortTitle(), articleDTO.getUrlSlug());
-        articleDTO.setUrlSlug(articleSlug);
-        return new ModelAndView(permanentRedirect(buildArticleUrl(articleDTO.getUrlSlug())));
+        if (StringUtils.isNotBlank(articleDTO.getUrlSlug())) {
+            return new ModelAndView(permanentRedirect(buildArticleUrl(articleDTO.getUrlSlug())));
+        }
+        String columnKey = StringUtils.isNotBlank(column.getUrlSlug()) ? column.getUrlSlug() : String.valueOf(column.getColumnId());
+        return new ModelAndView(permanentRedirect("/column/" + columnKey + "/" + columnArticle.getSection()));
     }
 
     private String buildArticleUrl(String urlSlug) {

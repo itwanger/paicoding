@@ -53,8 +53,7 @@
                       aria-label="Toggle docs navigation"
                       th:data-toggle-tooltip="tooltip"
                       title="展开/收起专栏目录">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false">
-                  <title>专栏目录</title>
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" aria-hidden="true" focusable="false">
                   <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"/>
                 </svg>
                 <span class="d-lg-none ml-1" style="font-size: 12px;">专栏</span>
@@ -69,8 +68,7 @@
                       aria-label="Toggle table of contents"
                       th:data-toggle-tooltip="tooltip"
                       title="展开/收起文章目录">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <title>文章目录</title>
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
                 <span class="d-lg-none ml-1" style="font-size: 12px;">目录</span>
@@ -149,7 +147,7 @@
       </div>
 
     <!--   文章分享模态框   -->
-    <div class="modal fade" id="shareModal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="shareModal" data-nosnippet tabindex="-1" role="dialog">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -176,7 +174,7 @@
     </div>
 
     <!-- 引用评论弹窗 (移动端) -->
-    <div class="modal fade" id="quoteCommentModal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="quoteCommentModal" data-nosnippet tabindex="-1" role="dialog">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">

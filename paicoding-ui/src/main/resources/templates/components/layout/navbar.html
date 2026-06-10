@@ -181,6 +181,7 @@
           id="loginModal"
           data-backdrop="static"
           data-keyboard="false"
+          data-nosnippet
           tabindex="-1"
           role="dialog"
           aria-hidden="true"
@@ -293,7 +294,7 @@
   </div>
 
   <!-- 绑定星球用户 -->
-  <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+  <div class="modal fade" id="registerModal" data-nosnippet tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -369,7 +370,7 @@
   </div>
 
   <!--  账号迁移弹窗    -->
-  <div th:replace="views/user/info/transfer" th:if="${global.isLogin}"></div>
+  <div data-nosnippet th:replace="views/user/info/transfer" th:if="${global.isLogin}"></div>
 
   <script src="/js/sockjs.min.js"
           th:if="${global.isLogin}"

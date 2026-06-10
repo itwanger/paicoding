@@ -6,7 +6,7 @@ import com.github.paicoding.forum.api.model.vo.ResVo;
 import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnArticleReq;
-import com.github.paicoding.forum.api.model.vo.article.ColumnReadmeReq;
+import com.github.paicoding.forum.api.model.vo.article.ColumnReadmeContentReq;
 import com.github.paicoding.forum.api.model.vo.article.ColumnReq;
 import com.github.paicoding.forum.api.model.vo.article.MoveColumnArticleOrGroupReq;
 import com.github.paicoding.forum.api.model.vo.article.SearchColumnArticleReq;
@@ -16,6 +16,7 @@ import com.github.paicoding.forum.api.model.vo.article.SortColumnArticleReq;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticleGroupDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.ColumnReadmeDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.SimpleColumnDTO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
@@ -72,11 +73,24 @@ public class ColumnSettingRestController {
     }
 
     @Permission(role = UserRole.ADMIN)
-    @ApiOperation("设置教程说明页文章")
-    @PostMapping(path = "setReadmeArticle")
-    public ResVo<String> setReadmeArticle(@RequestBody ColumnReadmeReq req) {
-        columnSettingService.setColumnReadmeArticle(req);
-        return ResVo.ok();
+    @ApiOperation("获取教程介绍页 README")
+    @GetMapping(path = "readme")
+    public ResVo<ColumnReadmeDTO> getReadme(@RequestParam("columnId") Long columnId) {
+        return ResVo.ok(columnSettingService.getOrCreateColumnReadme(columnId));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("保存教程说明页 README")
+    @PostMapping(path = "readme/save")
+    public ResVo<ColumnReadmeDTO> saveReadme(@RequestBody ColumnReadmeContentReq req) {
+        return ResVo.ok(columnSettingService.saveColumnReadme(req));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @ApiOperation("根据第一篇教程初始化说明页 README 草稿")
+    @PostMapping(path = "readme/init")
+    public ResVo<ColumnReadmeDTO> initReadme(@RequestBody ColumnReadmeContentReq req) {
+        return ResVo.ok(columnSettingService.initColumnReadmeDraft(req.getColumnId()));
     }
 
     @Permission(role = UserRole.ADMIN)

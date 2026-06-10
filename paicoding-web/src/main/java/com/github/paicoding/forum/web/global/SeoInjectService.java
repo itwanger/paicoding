@@ -5,6 +5,7 @@ import com.github.paicoding.forum.api.model.enums.ArticleReadTypeEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnArticlesDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.ColumnDTO;
+import com.github.paicoding.forum.api.model.vo.article.dto.SimpleArticleDTO;
 import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
@@ -52,6 +53,10 @@ public class SeoInjectService {
 
     @Resource
     private GlobalViewConfig globalViewConfig;
+
+    private static final String COLUMN_HOME_TITLE = "AI 实战项目教程：派聪明 RAG、PaiFlow、PaiCLI、技术派";
+    private static final String COLUMN_HOME_DESCRIPTION = "技术派 AI 实战项目教程集合，覆盖派聪明 RAG 知识库、PaiFlow 企业级 Agent 工作流、PaiCLI Java Agent CLI、技术派社区、PmHub 微服务等项目，提供源码、架构设计、部署、简历和面试教程。";
+    private static final String COLUMN_HOME_KEYWORDS = "AI实战项目,派聪明,RAG,PaiFlow,PaiCLI,Agent,技术派,PmHub,Java项目教程";
 
     /**
      * 文章详情页的seo标签
@@ -202,6 +207,131 @@ public class SeoInjectService {
         }
 
         if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeo(seo);
+    }
+
+    /**
+     * 教程聚合页 SEO：让 /column 明确成为 AI/RAG/Agent 项目集合入口。
+     *
+     * @param columns 首屏服务端渲染的教程列表
+     */
+    public void initColumnHomeSeo(List<ColumnDTO> columns) {
+        Seo seo = initBasicSeoTag();
+        List<SeoTagVo> list = seo.getOgp();
+        Map<String, Object> jsonLd = seo.getJsonLd();
+
+        list.add(new SeoTagVo("og:title", COLUMN_HOME_TITLE));
+        list.add(new SeoTagVo("og:description", COLUMN_HOME_DESCRIPTION));
+        list.add(new SeoTagVo("og:type", "website"));
+        list.add(new SeoTagVo("og:locale", "zh-CN"));
+        list.add(new SeoTagVo("title", COLUMN_HOME_TITLE));
+        list.add(new SeoTagVo("description", COLUMN_HOME_DESCRIPTION));
+        list.add(new SeoTagVo("keywords", COLUMN_HOME_KEYWORDS));
+
+        jsonLd.put("@type", "CollectionPage");
+        jsonLd.put("name", COLUMN_HOME_TITLE);
+        jsonLd.put("headline", COLUMN_HOME_TITLE);
+        jsonLd.put("description", COLUMN_HOME_DESCRIPTION);
+
+        List<Map<String, Object>> itemList = new ArrayList<>();
+        if (columns != null) {
+            int position = 1;
+            for (ColumnDTO column : columns) {
+                if (column == null || StringUtils.isBlank(column.getColumn())) {
+                    continue;
+                }
+                Map<String, Object> item = new HashMap<>();
+                item.put("@type", "Course");
+                item.put("position", position++);
+                item.put("name", column.getColumn());
+                item.put("description", cleanSeoText(column.getIntroduction()));
+                if (StringUtils.isNotBlank(column.getUrlSlug())) {
+                    item.put("url", globalViewConfig.getHost() + "/column/" + column.getUrlSlug());
+                }
+                itemList.add(item);
+            }
+        }
+        if (!itemList.isEmpty()) {
+            jsonLd.put("mainEntity", itemList);
+        }
+
+        if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeo(seo);
+    }
+
+    /**
+     * 单个教程落地页 SEO：让 /column/{slug} 成为稳定的项目目录页。
+     *
+     * @param column 教程信息
+     * @param articles 教程章节列表
+     */
+    public void initColumnLandingSeo(ColumnDTO column, List<SimpleArticleDTO> articles) {
+        Seo seo = initBasicSeoTag();
+        List<SeoTagVo> list = seo.getOgp();
+        Map<String, Object> jsonLd = seo.getJsonLd();
+
+        String columnName = StringUtils.defaultIfBlank(column.getColumn(), "技术派项目教程");
+        String title = columnName + "：项目介绍、源码教程、学习路线和面试指南";
+        String description = buildColumnLandingDescription(column);
+        String keywords = buildArticleKeywords(columnName, null, null, columnName);
+
+        list.add(new SeoTagVo("og:title", title));
+        list.add(new SeoTagVo("og:description", description));
+        list.add(new SeoTagVo("og:type", "website"));
+        list.add(new SeoTagVo("og:locale", "zh-CN"));
+        if (StringUtils.isNotBlank(column.getCover())) {
+            list.add(new SeoTagVo("og:image", column.getCover()));
+            jsonLd.put("image", column.getCover());
+        }
+        list.add(new SeoTagVo("title", title));
+        list.add(new SeoTagVo("description", description));
+        list.add(new SeoTagVo("keywords", keywords));
+
+        jsonLd.put("@type", "Course");
+        jsonLd.put("name", columnName);
+        jsonLd.put("headline", title);
+        jsonLd.put("description", description);
+        Map<String, Object> provider = new HashMap<>();
+        provider.put("@type", "Organization");
+        provider.put("name", "技术派");
+        provider.put("url", globalViewConfig.getHost());
+        jsonLd.put("provider", provider);
+
+        List<Map<String, Object>> parts = new ArrayList<>();
+        if (articles != null) {
+            int position = 1;
+            for (SimpleArticleDTO article : articles) {
+                if (article == null || StringUtils.isBlank(article.getTitle())) {
+                    continue;
+                }
+                Map<String, Object> part = new HashMap<>();
+                part.put("@type", "CreativeWork");
+                part.put("position", position++);
+                part.put("name", article.getTitle());
+                String articleUrl = buildColumnArticleUrl(column, article);
+                if (StringUtils.isNotBlank(articleUrl)) {
+                    part.put("url", globalViewConfig.getHost() + articleUrl);
+                }
+                parts.add(part);
+            }
+        }
+        if (!parts.isEmpty()) {
+            jsonLd.put("hasPart", parts);
+        }
+
+        if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeo(seo);
+    }
+
+    private String buildColumnArticleUrl(ColumnDTO column, SimpleArticleDTO article) {
+        if (column == null || article == null) {
+            return "";
+        }
+        if (StringUtils.isNotBlank(article.getUrlSlug())) {
+            return "/" + article.getUrlSlug();
+        }
+        if (article.getSort() == null) {
+            return "";
+        }
+        String columnKey = StringUtils.defaultIfBlank(column.getUrlSlug(), String.valueOf(column.getColumnId()));
+        return "/column/" + columnKey + "/" + article.getSort();
     }
 
     /**
@@ -374,6 +504,15 @@ public class SeoInjectService {
             return leadingHeadline;
         }
         return abbreviateDescription(leadingHeadline + "：" + description);
+    }
+
+    private String buildColumnLandingDescription(ColumnDTO column) {
+        String name = StringUtils.defaultIfBlank(column.getColumn(), "技术派项目教程");
+        String intro = cleanSeoText(column.getIntroduction());
+        if (StringUtils.isBlank(intro)) {
+            return abbreviateDescription(name + "项目教程，包含项目介绍、技术栈、源码学习路线、部署实践、简历写法和面试指南。");
+        }
+        return abbreviateDescription(name + "：" + intro);
     }
 
     private void putAlternativeHeadline(Map<String, Object> jsonLd, String title) {

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <div th:replace="components/layout/header :: head(~{::title}, ~{}, ~{})">
-    <title th:text="${global.siteInfo.websiteName}">专栏首页</title>
+    <title th:text="'AI 实战项目教程：派聪明 RAG、PaiFlow、PaiCLI、技术派 - ' + ${global.siteInfo.websiteName}">
+        AI 实战项目教程 | 技术派
+    </title>
 </div>
 
 <link rel="stylesheet" href="/css/views/column-home.css" th:href="${global.siteInfo.oss + '/css/views/column-home.css'}">
@@ -65,7 +67,7 @@
 </div>
 <script th:inline="javascript">
     console.log("脚本已加载");
-    const COLUMN_PAGE_SIZE = 6;
+    const COLUMN_PAGE_SIZE = [[${columnPageSize}]];
     
     // 视图切换功能
     (function() {
@@ -119,7 +121,7 @@
     
     const params = {
         "page": 2,
-        // 首屏固定渲染 6 条，后续翻页也必须保持一致，否则会出现重复数据
+        // 首屏服务端渲染数量和后续翻页保持一致，否则会出现重复数据
         "size": COLUMN_PAGE_SIZE
     }
     

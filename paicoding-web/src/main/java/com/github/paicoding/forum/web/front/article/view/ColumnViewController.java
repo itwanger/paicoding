@@ -6,7 +6,6 @@ import com.github.paicoding.forum.api.model.enums.column.ColumnArticleReadEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnStatusEnum;
 import com.github.paicoding.forum.api.model.enums.column.ColumnTypeEnum;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
-import com.github.paicoding.forum.api.model.exception.ForumException;
 import com.github.paicoding.forum.api.model.vo.PageListVo;
 import com.github.paicoding.forum.api.model.vo.PageParam;
 import com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO;
@@ -45,6 +44,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -74,6 +74,7 @@ public class ColumnViewController {
     @Autowired
     private ArticlePayService articlePayService;
 
+    private static final long COLUMN_HOME_PAGE_SIZE = 100L;
     /**
      * 专栏主页，展示专栏列表
      *
@@ -82,12 +83,14 @@ public class ColumnViewController {
      */
     @GetMapping(path = {"list", "/", "", "home"})
     public String list(Model model) {
-        PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance(1L, 6L));
+        PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance(1L, COLUMN_HOME_PAGE_SIZE));
         List<SideBarDTO> sidebars = sidebarService.queryColumnSidebarList();
         ColumnVo vo = new ColumnVo();
         vo.setColumns(columns);
         vo.setSideBarItems(sidebars);
         model.addAttribute("vo", vo);
+        model.addAttribute("columnPageSize", COLUMN_HOME_PAGE_SIZE);
+        SpringUtil.getBean(SeoInjectService.class).initColumnHomeSeo(columns.getList());
         return "views/column-home/index";
     }
 
@@ -99,29 +102,37 @@ public class ColumnViewController {
      */
     @GetMapping(path = "{columnKey}")
     public ModelAndView column(@PathVariable("columnKey") String columnKey, Model model) {
-        return firstColumnArticle(columnKey, model);
+        return columnLanding(columnKey, model);
     }
 
     /**
-     * 根路径教程落地页。配置说明页文章后，/{columnSlug} 直接渲染这篇文章。
+     * 根路径教程 slug 兼容入口。统一跳转到 /column/{columnSlug}，避免重复收录。
      *
      * @param columnKey
      * @param model
      * @return
      */
     public ModelAndView columnByRootSlug(String columnKey, Model model) {
-        return columnLanding(columnKey, model, true, false);
+        ColumnDTO column = columnService.queryColumnInfo(columnKey);
+        if (isColumnForbidden(column, model)) {
+            return new ModelAndView("views/error/403");
+        }
+        return new ModelAndView(permanentRedirect(buildColumnRootUrl(column)));
     }
 
     /**
-     * 根路径教程说明页。用于处理教程 slug 与说明页文章 slug 同名时的稳定地址：/{columnSlug}/readme。
+     * 兼容历史说明页入口，统一跳转到教程介绍页。
      *
      * @param columnKey
      * @param model
      * @return
      */
     public ModelAndView columnReadmeByRootSlug(String columnKey, Model model) {
-        return columnLanding(columnKey, model, true, true);
+        ColumnDTO column = columnService.queryColumnInfo(columnKey);
+        if (isColumnForbidden(column, model)) {
+            return new ModelAndView("views/error/403");
+        }
+        return new ModelAndView(permanentRedirect(buildColumnRootUrl(column)));
     }
 
     /**
@@ -145,17 +156,14 @@ public class ColumnViewController {
         ColumnArticleDO columnArticle = columnService.queryColumnArticle(column.getColumnId(), section);
         Long articleId = columnArticle.getArticleId();
         ArticleDTO articleDTO = articleReadService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        String articleSlug = columnService.ensureColumnArticleUrlSlug(column.getColumnId(), articleId,
-                articleDTO.getShortTitle(), articleDTO.getUrlSlug());
-        articleDTO.setUrlSlug(articleSlug);
-        if (isReadmeArticle(column, articleId)) {
-            return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(column)));
+        if (StringUtils.isNotBlank(articleDTO.getUrlSlug())) {
+            return new ModelAndView(permanentRedirect(buildColumnArticleUrl(column, columnArticle, articleDTO)));
         }
-        return new ModelAndView(permanentRedirect(buildArticleUrl(articleDTO.getUrlSlug())));
+        return buildColumnArticleView(column, columnArticle, articleDTO, model);
     }
 
     /**
-     * 兼容 /column/{columnSlug}/{articleSlug}，永久跳转到根路径短地址。
+     * 兼容 /column/{columnSlug}/{articleSlug}。
      *
      * @param columnKey
      * @param articleSlug
@@ -170,8 +178,7 @@ public class ColumnViewController {
     }
 
     /**
-     * 专栏文章稳定阅读地址。
-     * 兼容上一版包含文章ID的URL，永久跳转到根路径短地址。
+     * 兼容上一版包含文章ID的URL，永久跳转到旧教程章节地址。
      *
      * @param columnKey 专栏ID或URL友好的教程标识
      * @param articleId 文章id
@@ -191,18 +198,11 @@ public class ColumnViewController {
 
         ColumnArticleDO columnArticle = columnService.queryColumnArticle(column.getColumnId(), articleId);
         ArticleDTO articleDTO = articleReadService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        String articleSlug = columnService.ensureColumnArticleUrlSlug(column.getColumnId(), articleId,
-                articleDTO.getShortTitle(), articleDTO.getUrlSlug());
-        articleDTO.setUrlSlug(articleSlug);
-        if (isReadmeArticle(column, articleId)) {
-            return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(column)));
-        }
-        String canonicalSlug = canonicalColumnArticleSlug(articleDTO);
-        return new ModelAndView(permanentRedirect(buildArticleUrl(canonicalSlug)));
+        return new ModelAndView(permanentRedirect(buildColumnArticleUrl(column, columnArticle, articleDTO)));
     }
 
     /**
-     * 兼容教程文章短地址，永久跳转到文章本身的固定地址。
+     * 兼容教程文章短地址。
      *
      * @param columnSlug 教程URL友好标识
      * @param articleSlug 文章URL友好标识
@@ -217,13 +217,10 @@ public class ColumnViewController {
 
         ColumnArticleDO columnArticle = columnService.queryColumnArticle(column.getColumnId(), articleSlug);
         ArticleDTO articleDTO = articleReadService.queryFullArticleInfo(columnArticle.getArticleId(), ReqInfoContext.getReqInfo().getUserId());
-        String canonicalSlug = columnService.ensureColumnArticleUrlSlug(column.getColumnId(), articleDTO.getArticleId(),
-                articleDTO.getShortTitle(), articleDTO.getUrlSlug());
-        articleDTO.setUrlSlug(canonicalSlug);
-        if (isReadmeArticle(column, articleDTO.getArticleId())) {
-            return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(column)));
+        if (StringUtils.isNotBlank(articleDTO.getUrlSlug())) {
+            return new ModelAndView(permanentRedirect(buildColumnArticleUrl(column, columnArticle, articleDTO)));
         }
-        return new ModelAndView(permanentRedirect(buildArticleUrl(canonicalSlug)));
+        return buildColumnArticleView(column, columnArticle, articleDTO, model);
     }
 
     /**
@@ -244,65 +241,95 @@ public class ColumnViewController {
         }
 
         ArticleDTO articleDTO = articleReadService.queryFullArticleInfo(articleId, ReqInfoContext.getReqInfo().getUserId());
-        String canonicalSlug = columnService.ensureColumnArticleUrlSlug(column.getColumnId(), articleDTO.getArticleId(),
-                articleDTO.getShortTitle(), articleDTO.getUrlSlug());
-        articleDTO.setUrlSlug(canonicalSlug);
-        if (isReadmeArticle(column, articleId)) {
-            return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(column)));
-        }
         return buildColumnArticleView(column, columnArticle, articleDTO, model);
     }
 
-    private ModelAndView columnLanding(String columnKey, Model model, boolean rootPath) {
-        return columnLanding(columnKey, model, rootPath, false);
-    }
-
-    private ModelAndView columnLanding(String columnKey, Model model, boolean rootPath, boolean readmePath) {
+    private ModelAndView columnLanding(String columnKey, Model model) {
         ColumnDTO dto = columnService.queryColumnInfo(columnKey);
         if (isColumnForbidden(dto, model)) {
             return new ModelAndView("views/error/403");
         }
 
-        if (isReadmeArticle(dto, dto.getReadmeArticleId())) {
-            if (!rootPath) {
-                return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(dto)));
-            }
-            try {
-                ColumnArticleDO columnArticle = columnService.queryColumnArticle(dto.getColumnId(), dto.getReadmeArticleId());
-                ArticleDTO articleDTO = articleReadService.queryFullArticleInfo(dto.getReadmeArticleId(), ReqInfoContext.getReqInfo().getUserId());
-                String canonicalSlug = columnService.ensureColumnArticleUrlSlug(dto.getColumnId(), articleDTO.getArticleId(),
-                        articleDTO.getShortTitle(), articleDTO.getUrlSlug());
-                articleDTO.setUrlSlug(canonicalSlug);
-                if (!readmePath) {
-                    return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(dto)));
-                }
-                return buildColumnArticleView(dto, columnArticle, articleDTO, model);
-            } catch (ForumException e) {
-                // 配置异常时降级展示教程首页，避免教程入口不可访问。
-            }
-        }
-
+        List<SimpleArticleDTO> articles = columnService.queryColumnArticles(dto.getColumnId());
+        String startArticleUrl = articles.isEmpty()
+                ? "#course-catalog"
+                : buildColumnArticleUrl(dto, articles.get(0));
+        String readmeUrl = buildColumnRootUrl(dto);
+        List<ColumnDTO> recommendColumns = recommendColumns(dto);
+        String courseIntroHtml = buildCourseIntroHtml(dto);
         model.addAttribute("vo", dto);
+        model.addAttribute("articleList", articles);
+        model.addAttribute("recommendColumns", recommendColumns);
+        model.addAttribute("courseIntroHtml", courseIntroHtml);
+        model.addAttribute("startArticleUrl", startArticleUrl);
+        model.addAttribute("readmeUrl", readmeUrl);
+        model.addAttribute("showReadmeAction", false);
+        SpringUtil.getBean(SeoInjectService.class).initColumnLandingSeo(dto, articles);
         markColumnDomain();
         return new ModelAndView("/views/column-index/index");
     }
 
-    private ModelAndView firstColumnArticle(String columnKey, Model model) {
-        ColumnDTO column = columnService.queryBasicColumnInfo(columnKey);
-        if (isColumnForbidden(column, model)) {
-            return new ModelAndView("views/error/403");
+    private String buildCourseIntroHtml(ColumnDTO column) {
+        if (StringUtils.isNotBlank(column.getReadmeContent())) {
+            String introMarkdown = normalizeReadmeMarkdown(column.getReadmeContent());
+            if (StringUtils.isNotBlank(introMarkdown)) {
+                return StrUtil.stabilizeHtmlImages(MarkdownConverter.markdownToHtml(introMarkdown));
+            }
         }
 
-        List<SimpleArticleDTO> articles = columnService.queryColumnArticles(column.getColumnId());
-        if (articles.isEmpty()) {
-            return new ModelAndView("error/404");
+        if (StringUtils.isNotBlank(column.getIntroduction())) {
+            return MarkdownConverter.markdownToHtml(column.getIntroduction());
         }
 
-        SimpleArticleDTO firstArticle = articles.get(0);
-        if (isReadmeArticle(column, firstArticle.getId())) {
-            return new ModelAndView(permanentRedirect(buildColumnReadmeUrl(column)));
+        return "<p>这套教程围绕真实项目展开，覆盖项目背景、业务拆解、架构设计、核心技术实现、部署运行、简历写法和面试复盘。适合想用真实项目补齐工程经验、AI 应用经验和面试表达的同学系统学习。</p>";
+    }
+
+    private String normalizeReadmeMarkdown(String markdown) {
+        if (StringUtils.isBlank(markdown)) {
+            return "";
         }
-        return new ModelAndView(permanentRedirect(buildArticleUrl(firstArticle.getUrlSlug())));
+
+        StringBuilder builder = new StringBuilder();
+        String[] lines = markdown.split("\\r?\\n");
+        boolean inFrontMatter = false;
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i] == null ? "" : lines[i];
+            if (i == 0 && line.equals("---")) {
+                inFrontMatter = true;
+                continue;
+            }
+            if (inFrontMatter) {
+                if (line.equals("---")) {
+                    inFrontMatter = false;
+                }
+                continue;
+            }
+            if (line.startsWith("# ")) {
+                line = "#" + line;
+            }
+            builder.append(line).append('\n');
+        }
+
+        return builder.toString().trim();
+    }
+
+    private List<ColumnDTO> recommendColumns(ColumnDTO current) {
+        PageListVo<ColumnDTO> columns = columnService.listColumn(PageParam.newPageInstance(1L, 8L));
+        List<ColumnDTO> recommendations = new ArrayList<>();
+        for (ColumnDTO column : columns.getList()) {
+            if (column == null || Objects.equals(column.getColumnId(), current.getColumnId())) {
+                continue;
+            }
+            if (column.getCount() == null || Objects.equals(column.getCount().getArticleCount(), 0)) {
+                continue;
+            }
+            recommendations.add(column);
+            if (recommendations.size() >= 3) {
+                break;
+            }
+        }
+        return recommendations;
     }
 
     private ModelAndView buildColumnArticleView(ColumnDTO column,
@@ -323,11 +350,6 @@ public class ColumnViewController {
 
         // 文章列表
         List<SimpleArticleDTO> articles = columnService.queryColumnArticles(column.getColumnId());
-        articles.forEach(article -> {
-            if (isReadmeArticle(column, article.getId()) && StringUtils.isNotBlank(canonicalColumnSlug(column))) {
-                article.setUrlSlug(canonicalColumnSlug(column) + "/readme");
-            }
-        });
 
         ColumnArticlesDTO vo = new ColumnArticlesDTO();
         vo.setArticle(articleDTO);
@@ -353,13 +375,13 @@ public class ColumnViewController {
         flip.setPrevShow(currentIndex > 0);
         if (Boolean.TRUE.equals(flip.getPrevShow())) {
             SimpleArticleDTO prev = articles.get(currentIndex - 1);
-            flip.setPrevHref(buildArticleUrl(prev.getUrlSlug()));
+            flip.setPrevHref(buildColumnArticleUrl(column, prev));
         }
         // next 的 href 和 是否显示的 flag
         flip.setNextShow(currentIndex >= 0 && currentIndex < articles.size() - 1);
         if (Boolean.TRUE.equals(flip.getNextShow())) {
             SimpleArticleDTO next = articles.get(currentIndex + 1);
-            flip.setNextHref(buildArticleUrl(next.getUrlSlug()));
+            flip.setNextHref(buildColumnArticleUrl(column, next));
         }
         other.setFlip(flip);
 
@@ -410,24 +432,41 @@ public class ColumnViewController {
         return -1;
     }
 
-    private String buildArticleUrl(String urlSlug) {
-        return "/" + canonicalColumnArticleSlug(urlSlug);
-    }
-
     private String buildColumnRootUrl(ColumnDTO column) {
         String columnSlug = canonicalColumnSlug(column);
         if (StringUtils.isNotBlank(columnSlug)) {
-            return "/" + columnSlug;
+            return "/column/" + columnSlug;
         }
         return "/column/" + column.getColumnId();
     }
 
-    private String buildColumnReadmeUrl(ColumnDTO column) {
-        String columnSlug = canonicalColumnSlug(column);
-        if (StringUtils.isNotBlank(columnSlug)) {
-            return "/" + columnSlug + "/readme";
+    private String buildColumnArticleUrl(ColumnDTO column, SimpleArticleDTO article) {
+        if (article == null) {
+            return "#course-catalog";
         }
-        return "/column/" + column.getColumnId();
+        if (StringUtils.isNotBlank(article.getUrlSlug())) {
+            return "/" + article.getUrlSlug();
+        }
+        if (article.getSort() == null) {
+            return "#course-catalog";
+        }
+        return buildColumnArticleUrl(column, article.getSort());
+    }
+
+    private String buildColumnArticleUrl(ColumnDTO column, ColumnArticleDO article, ArticleDTO articleDTO) {
+        if (articleDTO != null && StringUtils.isNotBlank(articleDTO.getUrlSlug())) {
+            return "/" + articleDTO.getUrlSlug();
+        }
+        if (article == null || article.getSection() == null) {
+            return "#course-catalog";
+        }
+        return buildColumnArticleUrl(column, article.getSection().intValue());
+    }
+
+    private String buildColumnArticleUrl(ColumnDTO column, Integer section) {
+        String columnSlug = canonicalColumnSlug(column);
+        String columnKey = StringUtils.isNotBlank(columnSlug) ? columnSlug : String.valueOf(column.getColumnId());
+        return "/column/" + columnKey + "/" + section;
     }
 
     private RedirectView permanentRedirect(String url) {
@@ -437,23 +476,8 @@ public class ColumnViewController {
         return redirectView;
     }
 
-    private String canonicalColumnArticleSlug(String urlSlug) {
-        return StringUtils.isNotBlank(urlSlug) ? urlSlug : "article";
-    }
-
-    private String canonicalColumnArticleSlug(ArticleDTO articleDTO) {
-        return canonicalColumnArticleSlug(articleDTO.getUrlSlug());
-    }
-
     private String canonicalColumnSlug(ColumnDTO column) {
         return StringUtils.isNotBlank(column.getUrlSlug()) ? column.getUrlSlug() : null;
-    }
-
-    private boolean isReadmeArticle(ColumnDTO column, Long articleId) {
-        return column != null
-                && column.getReadmeArticleId() != null
-                && column.getReadmeArticleId() > 0
-                && Objects.equals(column.getReadmeArticleId(), articleId);
     }
 
     /**
@@ -527,4 +551,5 @@ public class ColumnViewController {
         }
         return Math.min(previewPercent, 100) + "%";
     }
+
 }

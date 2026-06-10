@@ -31,9 +31,9 @@ public class ColumnDTO {
     private String urlSlug;
 
     /**
-     * 教程说明页文章ID
+     * 教程介绍页 README 内容
      */
-    private Long readmeArticleId;
+    private String readmeContent;
 
     /**
      * 说明

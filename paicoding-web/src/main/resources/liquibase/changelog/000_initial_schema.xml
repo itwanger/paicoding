@@ -222,14 +222,14 @@
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260524_2.sql"/>
     </changeSet>
 
-    <!-- 教程说明页文章，用于让 /{columnSlug} 渲染指定教程文章 -->
-    <changeSet id="20260524_3" author="Codex">
+    <!-- 教程介绍页 README 内容，用于增强 /column/{slug} 教程页 SEO 主体内容 -->
+    <changeSet id="20260610_1" author="Codex">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists tableName="column_info" columnName="readme_article_id"/>
+                <columnExists tableName="column_info" columnName="readme_content"/>
             </not>
         </preConditions>
-        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260524_3.sql"/>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260610.sql"/>
     </changeSet>
 
     <!-- 教程文章未解锁试看比例，0 表示沿用全局试看字数配置 -->
