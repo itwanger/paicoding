@@ -266,7 +266,7 @@ public class ColumnViewController {
         model.addAttribute("showReadmeAction", false);
         SpringUtil.getBean(SeoInjectService.class).initColumnLandingSeo(dto, articles);
         markColumnDomain();
-        return new ModelAndView("/views/column-index/index");
+        return new ModelAndView("views/column-index/index");
     }
 
     private String buildCourseIntroHtml(ColumnDTO column) {
