@@ -240,8 +240,12 @@ public class StrUtil {
             img.attr("decoding", "async");
         }
 
-        if (imageIndex > 0 && !img.hasAttr("loading")) {
+        if (!img.hasAttr("loading")) {
             img.attr("loading", "lazy");
+        }
+
+        if (imageIndex > 0 && !img.hasAttr("fetchpriority")) {
+            img.attr("fetchpriority", "low");
         }
     }
 

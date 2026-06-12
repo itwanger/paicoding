@@ -59,10 +59,10 @@ function run() {
   load_env
   mkdir -p "${LOG_DIR}"
   echo "启动脚本：==========="
-  echo "nohup java -server -Xms1g -Xmx1g -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} >> ${STARTUP_LOG_FILE} 2>&1 &"
+  echo "nohup java -server -Xms2048m -Xmx4096m -Xmn1024m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} >> ${STARTUP_LOG_FILE} 2>&1 &"
   echo "==========="
   # ms 堆大小  mx 最大堆大小  mn 新生代大小
-  nohup java -server -Dspring.devtools.restart.enabled=false -Xms1g -Xmx1g -Xmn256m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} >> "${STARTUP_LOG_FILE}" 2>&1 &
+  nohup java -server -Dspring.devtools.restart.enabled=false -Xms2048m -Xmx4096m -Xmn1024m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${JAR_NAME} >> "${STARTUP_LOG_FILE}" 2>&1 &
   echo $! 1> pid.log
 }
 

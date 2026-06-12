@@ -80,9 +80,9 @@ function restart() {
 function run() {
   load_env
   mkdir -p logs
-  echo "nohup java -server -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} >> ${STARTUP_LOG_FILE} 2>&1 &"
+  echo "nohup java -server -Xms2048m -Xmx4096m -Xmn1024m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} >> ${STARTUP_LOG_FILE} 2>&1 &"
   echo "==================="
-  nohup java -server -Dspring.devtools.restart.enabled=false -Xms512m -Xmx512m -Xmn512m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} "$@" >> "${STARTUP_LOG_FILE}" 2>&1 &
+  nohup java -server -Dspring.devtools.restart.enabled=false -Xms2048m -Xmx4096m -Xmn1024m -XX:NativeMemoryTracking=detail -XX:-OmitStackTraceInFastThrow -jar ${EXECUTABLE_JAR_NAME} "$@" >> "${STARTUP_LOG_FILE}" 2>&1 &
   echo $! > ${PID_FILE_NAME}
 }
 
