@@ -201,6 +201,11 @@ public class UserFootServiceImpl implements UserFootService {
     }
 
     @Override
+    public List<Long> queryUserReadArticleListByColumnId(Long userId, Long columnId) {
+        return userFootDao.listReadArticleByUserIdAndColumnId(userId, columnId);
+    }
+
+    @Override
     public List<Long> queryUserCollectionArticleList(Long userId, PageParam pageParam) {
         return userFootDao.listCollectedArticlesByUserId(userId, pageParam);
     }

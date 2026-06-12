@@ -25,6 +25,7 @@ import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ColumnService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
+import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ColumnVo;
 import com.github.paicoding.forum.web.global.GlobalInitService;
@@ -46,7 +47,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -73,6 +76,8 @@ public class ColumnViewController {
     private GlobalViewConfig globalViewConfig;
     @Autowired
     private ArticlePayService articlePayService;
+    @Autowired
+    private UserFootService userFootService;
 
     private static final long COLUMN_HOME_PAGE_SIZE = 100L;
     /**
@@ -254,11 +259,24 @@ public class ColumnViewController {
         String startArticleUrl = articles.isEmpty()
                 ? "#course-catalog"
                 : buildColumnArticleUrl(dto, articles.get(0));
+        Long loginUserId = ReqInfoContext.getReqInfo().getUserId();
+        List<Long> learnedArticleIds = Collections.emptyList();
+        boolean serverProgressEnabled = false;
+        if (loginUserId != null) {
+            learnedArticleIds = userFootService.queryUserReadArticleListByColumnId(loginUserId, dto.getColumnId());
+            SimpleArticleDTO latestArticle = findLatestReadArticle(articles, learnedArticleIds);
+            if (latestArticle != null) {
+                startArticleUrl = buildColumnArticleUrl(dto, latestArticle);
+            }
+            serverProgressEnabled = true;
+        }
         String readmeUrl = buildColumnRootUrl(dto);
         List<ColumnDTO> recommendColumns = recommendColumns(dto);
         String courseIntroHtml = buildCourseIntroHtml(dto);
         model.addAttribute("vo", dto);
         model.addAttribute("articleList", articles);
+        model.addAttribute("learnedArticleIds", learnedArticleIds);
+        model.addAttribute("serverProgressEnabled", serverProgressEnabled);
         model.addAttribute("recommendColumns", recommendColumns);
         model.addAttribute("courseIntroHtml", courseIntroHtml);
         model.addAttribute("startArticleUrl", startArticleUrl);
@@ -267,6 +285,25 @@ public class ColumnViewController {
         SpringUtil.getBean(SeoInjectService.class).initColumnLandingSeo(dto, articles);
         markColumnDomain();
         return new ModelAndView("views/column-index/index");
+    }
+
+    private SimpleArticleDTO findLatestReadArticle(List<SimpleArticleDTO> articles, List<Long> learnedArticleIds) {
+        if (articles == null || articles.isEmpty() || learnedArticleIds == null || learnedArticleIds.isEmpty()) {
+            return null;
+        }
+        Map<Long, SimpleArticleDTO> articleMap = new HashMap<>(articles.size());
+        for (SimpleArticleDTO article : articles) {
+            if (article != null && article.getId() != null) {
+                articleMap.put(article.getId(), article);
+            }
+        }
+        for (Long articleId : learnedArticleIds) {
+            SimpleArticleDTO article = articleMap.get(articleId);
+            if (article != null) {
+                return article;
+            }
+        }
+        return null;
     }
 
     private String buildCourseIntroHtml(ColumnDTO column) {

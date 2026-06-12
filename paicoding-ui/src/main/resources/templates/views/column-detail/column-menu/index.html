@@ -18,7 +18,7 @@
           <a
             th:href="${menu.urlSlug != null && menu.urlSlug != '' ? '/' + menu.urlSlug : '/column/' + (vo.columnSlug != null && vo.columnSlug != '' ? vo.columnSlug : vo.column) + '/' + menu.sort}"
             th:class="${vo.article.articleId eq menu.id} ? 'active section' : ' section'"
-            th:attr="data-group=${menu.groupName},data-column=${menu.column}">
+            th:attr="data-group=${menu.groupName},data-column=${menu.column},data-article-id=${menu.id}">
             <div class="left">
               <div class="index" th:text="${itemStat.index + 1}">1</div>
             </div>

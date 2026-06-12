@@ -313,6 +313,29 @@
         font-weight: 600;
     }
 
+    .course-section-status {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        min-width: 54px;
+        height: 24px;
+        padding: 0 8px;
+        border-radius: 12px;
+        background: #f2f3f5;
+        color: #17bb98;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .course-section-link.is-learned .course-section-action {
+        display: none;
+    }
+
+    .course-section-link.is-learned .course-section-status {
+        display: inline-flex;
+    }
+
     .course-recommend-card {
         position: sticky;
         top: 78px;
@@ -443,6 +466,10 @@
             padding: 14px 12px;
         }
 
+        .course-section-link.is-learned {
+            grid-template-columns: 34px minmax(0, 1fr) auto;
+        }
+
         .course-section-action {
             display: none;
         }
@@ -488,7 +515,7 @@
                     </div>
                     <div class="course-hero-bottom">
                         <div class="course-actions">
-                            <a class="course-primary-btn" th:href="${startArticleUrl}">开始学习</a>
+                            <a class="course-primary-btn js-course-start" th:href="${startArticleUrl}">开始学习</a>
                             <a class="course-secondary-btn" href="#course-catalog">查看完整目录</a>
                             <a class="course-secondary-btn" th:if="${showReadmeAction}" th:href="${readmeUrl}">项目说明</a>
                         </div>
@@ -529,11 +556,13 @@
                         <h2>课程内容</h2>
                         <p th:if="${vo.count != null}" th:text="'已更新 ' + ${vo.count.articleCount} + ' 小节'">已更新 0 小节</p>
                     </div>
-                    <a class="course-primary-btn" th:href="${startArticleUrl}">从第一讲开始</a>
+                    <a class="course-primary-btn js-course-start" th:href="${startArticleUrl}">开始学习</a>
                 </div>
                 <ol class="course-section-list">
                     <li th:each="article, stat : ${articleList}">
                         <a th:href="${article.urlSlug != null && !#strings.isEmpty(article.urlSlug) ? '/' + article.urlSlug : '/column/' + (vo.urlSlug != null && !#strings.isEmpty(vo.urlSlug) ? vo.urlSlug : vo.columnId) + '/' + article.sort}"
+                           th:attr="data-article-id=${article.id},data-article-url=${article.urlSlug != null && !#strings.isEmpty(article.urlSlug) ? '/' + article.urlSlug : '/column/' + (vo.urlSlug != null && !#strings.isEmpty(vo.urlSlug) ? vo.urlSlug : vo.columnId) + '/' + article.sort}"
+                           th:classappend="${learnedArticleIds != null and #lists.contains(learnedArticleIds, article.id)} ? ' is-learned' : ''"
                            class="course-section-link">
                             <span class="course-section-index" th:text="${stat.count < 10 ? '0' + stat.count : stat.count}">01</span>
                             <span class="course-section-title">
@@ -545,6 +574,7 @@
                                 </span>
                             </span>
                             <span class="course-section-action">去学习</span>
+                            <span class="course-section-status">已学习</span>
                         </a>
                     </li>
                 </ol>
@@ -579,8 +609,69 @@
     </div>
     <div th:replace="components/layout/footer :: footer"></div>
 </main>
-<script>
+<script th:inline="javascript">
     (function() {
+        const courseKey = String([[${vo.urlSlug != null && !#strings.isEmpty(vo.urlSlug) ? vo.urlSlug : vo.columnId}]]);
+        const serverProgressEnabled = [[${serverProgressEnabled == true}]];
+        const progressKey = 'paicoding:course-progress:' + courseKey;
+        const startButtons = document.querySelectorAll('.js-course-start');
+        const catalogLinks = Array.prototype.slice.call(document.querySelectorAll('.course-section-link'));
+        const knownUrls = catalogLinks.map(function(link) {
+            return normalizePath(link.getAttribute('data-article-url') || link.getAttribute('href'));
+        }).filter(Boolean);
+
+        function readProgress() {
+            try {
+                const raw = localStorage.getItem(progressKey);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function normalizePath(url) {
+            if (!url || url.indexOf('#') === 0) {
+                return '';
+            }
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (parsed.origin !== window.location.origin) {
+                    return '';
+                }
+                return parsed.pathname + parsed.search + parsed.hash;
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function applyLearningProgress() {
+            if (serverProgressEnabled) {
+                return;
+            }
+
+            const progress = readProgress();
+            if (!progress) {
+                return;
+            }
+
+            const readMap = new Set(Array.isArray(progress.readArticles) ? progress.readArticles.map(String) : []);
+            catalogLinks.forEach(function(link) {
+                const articleId = link.getAttribute('data-article-id');
+                if (articleId && readMap.has(String(articleId))) {
+                    link.classList.add('is-learned');
+                }
+            });
+
+            const lastUrl = normalizePath(progress.lastUrl);
+            if (lastUrl && knownUrls.indexOf(lastUrl) !== -1) {
+                startButtons.forEach(function(button) {
+                    button.setAttribute('href', lastUrl);
+                });
+            }
+        }
+
+        applyLearningProgress();
+
         const images = document.querySelectorAll('.course-intro-rich img');
 
         function syncLoadedImageSize(img) {

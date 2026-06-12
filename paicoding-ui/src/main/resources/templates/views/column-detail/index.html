@@ -300,6 +300,56 @@
 
     // 内容渲染
     const articleId = [[${ vo.article.articleId }]];
+    const localCourseProgressEnabled = [[${!global.isLogin}]];
+    const columnProgressKey = 'paicoding:course-progress:' + String([[${vo.columnSlug != null && vo.columnSlug != '' ? vo.columnSlug : vo.column}]]);
+
+    function normalizeCourseArticleUrl(url) {
+      if (!url || url.indexOf('#') === 0) {
+        return ''
+      }
+      try {
+        const parsed = new URL(url, window.location.origin)
+        if (parsed.origin !== window.location.origin) {
+          return ''
+        }
+        return parsed.pathname + parsed.search + parsed.hash
+      } catch (e) {
+        return ''
+      }
+    }
+
+    function rememberCourseArticleProgress() {
+      if (!localCourseProgressEnabled) {
+        return
+      }
+
+      const activeSection = document.querySelector('.section.active')
+      const currentArticleUrl = normalizeCourseArticleUrl(activeSection ? activeSection.getAttribute('href') : window.location.href)
+      if (!currentArticleUrl || !articleId) {
+        return
+      }
+
+      try {
+        const rawProgress = localStorage.getItem(columnProgressKey)
+        const progress = rawProgress ? JSON.parse(rawProgress) : {}
+        const readArticles = Array.isArray(progress.readArticles) ? progress.readArticles.map(String) : []
+        const currentArticleId = String(articleId)
+        if (readArticles.indexOf(currentArticleId) === -1) {
+          readArticles.push(currentArticleId)
+        }
+        localStorage.setItem(columnProgressKey, JSON.stringify({
+          lastArticleId: currentArticleId,
+          lastUrl: currentArticleUrl,
+          readArticles: readArticles,
+          updatedAt: Date.now()
+        }))
+      } catch (e) {
+        // localStorage may be unavailable in private modes; reading should still work normally.
+      }
+    }
+
+    rememberCourseArticleProgress()
+
     const FLOAT_ACTION_COLLAPSED_KEY = "column-float-actions-collapsed"
     let commented = [[${ vo.article.commented }]]
     let commentCount = [[${ vo.article.count.commentCount }]]

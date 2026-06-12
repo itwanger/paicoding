@@ -67,6 +67,19 @@
 
     </select>
 
+    <select id="listReadArticleByUserIdAndColumnId" resultType="java.lang.Long">
+        SELECT
+            f.`document_id`
+        FROM user_foot f
+                 INNER JOIN column_article ca ON ca.article_id = f.document_id
+        WHERE
+            f.user_id = #{userId}
+          AND f.document_type = ${@com.github.paicoding.forum.api.model.enums.DocumentTypeEnum@ARTICLE.code}
+          AND f.read_stat = ${@com.github.paicoding.forum.api.model.enums.ReadStatEnum@READ.code}
+          AND ca.column_id = #{columnId}
+        ORDER BY f.update_time DESC
+    </select>
+
     <select id="listSimpleUserInfosByArticleId"
             resultType="com.github.paicoding.forum.api.model.vo.user.dto.SimpleUserInfoDTO">
         SELECT ui.user_id as userId,

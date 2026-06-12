@@ -58,6 +58,17 @@ public class UserFootDao extends ServiceImpl<UserFootMapper, UserFootDO> {
     }
 
     /**
+     * 查询用户在指定教程中的已读文章列表，按最近阅读倒序
+     *
+     * @param userId
+     * @param columnId
+     * @return
+     */
+    public List<Long> listReadArticleByUserIdAndColumnId(Long userId, Long columnId) {
+        return baseMapper.listReadArticleByUserIdAndColumnId(userId, columnId);
+    }
+
+    /**
      * 查询文章计数信息
      *
      * @param articleId

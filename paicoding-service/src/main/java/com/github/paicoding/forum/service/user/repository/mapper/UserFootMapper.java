@@ -62,6 +62,15 @@ public interface UserFootMapper extends BaseMapper<UserFootDO> {
     List<Long> listReadArticleByUserId(@Param("userId") Long userId, @Param("pageParam") PageParam pageParam);
 
     /**
+     * 查询用户在指定教程中的已读文章列表，按最近阅读倒序
+     *
+     * @param userId
+     * @param columnId
+     * @return
+     */
+    List<Long> listReadArticleByUserIdAndColumnId(@Param("userId") Long userId, @Param("columnId") Long columnId);
+
+    /**
      * 查询文章的点赞列表
      *
      * @param documentId

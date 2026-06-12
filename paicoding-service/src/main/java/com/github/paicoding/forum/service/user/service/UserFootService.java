@@ -72,6 +72,15 @@ public interface UserFootService {
     List<Long> queryUserReadArticleList(Long userId, PageParam pageParam);
 
     /**
+     * 查询用户在指定教程中的已读文章列表，按最近阅读倒序
+     *
+     * @param userId
+     * @param columnId
+     * @return
+     */
+    List<Long> queryUserReadArticleListByColumnId(Long userId, Long columnId);
+
+    /**
      * 查询收藏文章列表
      *
      * @param userId
