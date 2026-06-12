@@ -7,6 +7,7 @@ spring:
     host: ${PAICODING_REDIS_HOST:localhost}
     port: ${PAICODING_REDIS_PORT:6379}
     password: ${PAICODING_REDIS_PASSWORD:}
+    timeout: ${PAICODING_REDIS_TIMEOUT:2s}
 
 # elasticsearch配置
 elasticsearch:

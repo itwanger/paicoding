@@ -231,6 +231,12 @@ public class RedisClient {
         });
     }
 
+    public static Long pfAdd(String key, String... values) {
+        byte[][] bytes = new byte[values.length][];
+        IntStream.range(0, values.length).forEach(i -> bytes[i] = valBytes(values[i]));
+        return template.execute((RedisCallback<Long>) connection -> connection.pfAdd(keyBytes(key), bytes));
+    }
+
     public static <T> void hMSet(String key, Map<String, T> fields) {
         Map<byte[], byte[]> val = Maps.newHashMapWithExpectedSize(fields.size());
         for (Map.Entry<String, T> entry : fields.entrySet()) {

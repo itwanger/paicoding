@@ -2,7 +2,6 @@ package com.github.paicoding.forum.web.hook.filter;
 
 import cn.hutool.core.date.StopWatch;
 import com.github.paicoding.forum.api.model.context.ReqInfoContext;
-import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.core.mdc.MdcUtil;
 import com.github.paicoding.forum.core.util.CrossUtil;
 import com.github.paicoding.forum.core.util.EnvUtil;
@@ -39,7 +38,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 1. 请求参数日志输出过滤器
@@ -61,6 +64,14 @@ public class ReqRecordFilter implements Filter {
      */
     private static final String CLIENT_HINT_PREFIX = "fp-";
     private static final String DEVICE_ID_PREFIX = "sf-";
+    private static final ThreadPoolExecutor REQUEST_STAT_EXECUTOR = new ThreadPoolExecutor(
+            1,
+            4,
+            60,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(2048),
+            new NamedDaemonThreadFactory("paicoding-req-stat-"),
+            new ThreadPoolExecutor.DiscardPolicy());
 
     @Autowired
     private GlobalInitService globalInitService;
@@ -163,10 +174,11 @@ public class ReqRecordFilter implements Filter {
             stopWatch.stop();
 
             ReqInfoContext.addReqInfo(reqInfo);
-            stopWatch.start("pv/uv站点统计");
-            // 更新uv/pv计数
-            AsyncUtil.execute(() -> SpringUtil.getBean(SitemapService.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath()));
-            stopWatch.stop();
+            if (shouldRecordVisit(request, reqInfo)) {
+                stopWatch.start("pv/uv站点统计");
+                recordVisitAsync(reqInfo);
+                stopWatch.stop();
+            }
 
             stopWatch.start("回写traceId");
             // 返回头中记录traceId
@@ -211,7 +223,42 @@ public class ReqRecordFilter implements Filter {
         REQ_LOG.info("{}", msg);
 
         // 保存请求计数
-        statisticsSettingService.saveRequestCount(req.getClientIp());
+        recordRequestCountAsync(req.getClientIp());
+    }
+
+    private void recordVisitAsync(ReqInfoContext.ReqInfo reqInfo) {
+        REQUEST_STAT_EXECUTOR.execute(() -> {
+            try {
+                SpringUtil.getBean(SitemapService.class).saveVisitInfo(reqInfo.getClientIp(), reqInfo.getPath());
+            } catch (Throwable e) {
+                log.warn("record visit stat failed, ip={}, path={}", reqInfo.getClientIp(), reqInfo.getPath(), e);
+            }
+        });
+    }
+
+    private void recordRequestCountAsync(String clientIp) {
+        REQUEST_STAT_EXECUTOR.execute(() -> {
+            try {
+                statisticsSettingService.saveRequestCount(clientIp);
+            } catch (Throwable e) {
+                log.warn("record request count failed, ip={}", clientIp, e);
+            }
+        });
+    }
+
+    private boolean shouldRecordVisit(HttpServletRequest request, ReqInfoContext.ReqInfo reqInfo) {
+        if (request == null || reqInfo == null || StringUtils.isBlank(reqInfo.getPath())) {
+            return false;
+        }
+        if (!HttpMethod.GET.name().equalsIgnoreCase(request.getMethod())) {
+            return false;
+        }
+        if (StringUtils.isNotBlank(request.getHeader("Upgrade"))) {
+            return false;
+        }
+        String path = reqInfo.getPath();
+        return !StringUtils.equalsAny(path, "/notify", "/gpt", "/subscribe")
+                && !StringUtils.startsWithAny(path, "/actuator", "/admin", "/admin-view", "/api/admin");
     }
 
 
@@ -235,6 +282,22 @@ public class ReqRecordFilter implements Filter {
                 || request.getRequestURI().endsWith("svg")
                 || request.getRequestURI().endsWith("min.js.map")
                 || request.getRequestURI().endsWith("min.css.map");
+    }
+
+    private static class NamedDaemonThreadFactory implements ThreadFactory {
+        private final AtomicInteger index = new AtomicInteger(1);
+        private final String prefix;
+
+        private NamedDaemonThreadFactory(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r, prefix + index.getAndIncrement());
+            thread.setDaemon(true);
+            return thread;
+        }
     }
 
 
