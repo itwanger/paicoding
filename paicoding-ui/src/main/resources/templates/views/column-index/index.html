@@ -579,5 +579,34 @@
     </div>
     <div th:replace="components/layout/footer :: footer"></div>
 </main>
+<script>
+    (function() {
+        const images = document.querySelectorAll('.course-intro-rich img');
+
+        function syncLoadedImageSize(img) {
+            if (img.naturalWidth <= 0 || img.naturalHeight <= 0) {
+                return;
+            }
+
+            if (!img.hasAttribute('width')) {
+                img.setAttribute('width', img.naturalWidth);
+            }
+            if (!img.hasAttribute('height')) {
+                img.setAttribute('height', img.naturalHeight);
+            }
+            img.classList.remove('article-content-img--pending-size');
+        }
+
+        images.forEach(function(img) {
+            if (img.complete) {
+                syncLoadedImageSize(img);
+            } else {
+                img.addEventListener('load', function() {
+                    syncLoadedImageSize(img);
+                }, { once: true });
+            }
+        });
+    })();
+</script>
 </body>
 </html>

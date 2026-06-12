@@ -1349,7 +1349,6 @@ button:focus {
 .article-content img {
   width: auto;
   height: auto;
-  border: 1px solid var(--pai-color-5-gray);
   padding: 5px;
   border-radius: 4px;
   display: block;
