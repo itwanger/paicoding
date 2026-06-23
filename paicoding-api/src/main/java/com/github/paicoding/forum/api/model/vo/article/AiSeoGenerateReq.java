@@ -19,4 +19,7 @@ public class AiSeoGenerateReq {
     
     @ApiModelProperty(value = "正文前400字", required = true)
     private String content;
+
+    @ApiModelProperty(value = "文章ID，更新文章时用于排除自身")
+    private Long articleId;
 }

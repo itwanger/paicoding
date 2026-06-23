@@ -36,7 +36,6 @@ import com.github.paicoding.forum.service.article.repository.params.SearchColumn
 import com.github.paicoding.forum.service.article.repository.params.SearchColumnParams;
 import com.github.paicoding.forum.service.article.service.ColumnSettingService;
 import com.github.paicoding.forum.service.article.service.SlugGeneratorService;
-import com.github.paicoding.forum.service.chatai.service.impl.deepseek.DeepSeekIntegration;
 import com.github.paicoding.forum.service.chatai.service.impl.zhipu.ZhipuIntegration;
 import com.github.paicoding.forum.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -83,9 +82,6 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
     @Autowired(required = false)
     private ZhipuIntegration zhipuIntegration;
-
-    @Autowired(required = false)
-    private DeepSeekIntegration deepSeekIntegration;
 
     @Override
     public void saveColumn(ColumnReq req) {
@@ -246,18 +242,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
                 }
             }
         } catch (Exception e) {
-            // 降级到下一个模型或本地摘要。
-        }
-
-        try {
-            if (deepSeekIntegration != null) {
-                ChatItemVo item = new ChatItemVo().initQuestion(prompt);
-                if (deepSeekIntegration.directReturn(item) && StringUtils.isNotBlank(item.getAnswer())) {
-                    return item.getAnswer();
-                }
-            }
-        } catch (Exception e) {
-            // 降级到本地摘要。
+            return "";
         }
         return "";
     }

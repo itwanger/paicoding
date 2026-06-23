@@ -151,8 +151,8 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         try {
             return slugGeneratorService.generateSlugWithAI(title);
         } catch (Exception e) {
-            log.warn("AI生成文章slug失败，使用本地规则兜底: title={}", title, e);
-            return UrlSlugUtil.generateSlug(title);
+            log.warn("AI生成文章slug失败: title={}", title, e);
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "AI生成文章slug失败: " + e.getMessage());
         }
     }
 

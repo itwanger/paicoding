@@ -19,4 +19,7 @@ public class AiSeoGenerateRes {
     
     @ApiModelProperty("描述")
     private String description;
+
+    @ApiModelProperty("语义URL")
+    private String urlSlug;
 }

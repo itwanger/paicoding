@@ -62,7 +62,7 @@ public class SensitiveAiOptimizeService {
     }
 
     public String buildChatBlockMessage(String question) {
-        SensitiveAdvice advice = analyze(question, SensitiveScene.CHAT);
+        SensitiveAdvice advice = analyze(null, question, SensitiveScene.CHAT);
         if (advice.isPass()) {
             return null;
         }
@@ -70,10 +70,14 @@ public class SensitiveAiOptimizeService {
     }
 
     public String buildChatBlockMessage(AISourceEnum source, String question) {
-        return buildChatBlockMessage(question);
+        SensitiveAdvice advice = analyze(source, question, SensitiveScene.CHAT);
+        if (advice.isPass()) {
+            return null;
+        }
+        return advice.getUserMessage();
     }
 
-    private SensitiveAdvice analyze(String text, SensitiveScene scene) {
+    private SensitiveAdvice analyze(AISourceEnum source, String text, SensitiveScene scene) {
         if (StringUtils.isBlank(text)) {
             return SensitiveAdvice.pass();
         }
@@ -83,7 +87,7 @@ public class SensitiveAiOptimizeService {
             return SensitiveAdvice.pass();
         }
 
-        String optimized = optimizeWithAi(text, hitWords, scene);
+        String optimized = optimizeWithAi(source, text, hitWords, scene);
         if (StringUtils.isBlank(optimized)) {
             optimized = fallbackSuggestion(text, hitWords, scene);
         }
@@ -93,26 +97,30 @@ public class SensitiveAiOptimizeService {
         return SensitiveAdvice.blocked(hitWords, suggestion, userMessage);
     }
 
-    private String optimizeWithAi(String text, List<String> hitWords, SensitiveScene scene) {
+    private String optimizeWithAi(AISourceEnum source, String text, List<String> hitWords, SensitiveScene scene) {
         String preview = trimToLimit(text, CONTENT_PREVIEW_LIMIT);
         String prompt = String.format(OPTIMIZE_PROMPT, SUGGESTION_LIMIT, scene.getDesc(), joinHitWords(hitWords), preview);
 
+        AISourceEnum targetSource = source == null ? AISourceEnum.DEEP_SEEK : source;
         try {
             ChatItemVo chatItem = new ChatItemVo().initQuestion(prompt);
-            if (deepSeekIntegration.directReturn(chatItem) && StringUtils.isNotBlank(chatItem.getAnswer())) {
-                return chatItem.getAnswer();
+            switch (targetSource) {
+                case ZHI_PU_AI:
+                    if (zhipuIntegration.directReturn(0L, chatItem) && StringUtils.isNotBlank(chatItem.getAnswer())) {
+                        return chatItem.getAnswer();
+                    }
+                    break;
+                case DEEP_SEEK:
+                    if (deepSeekIntegration.directReturn(chatItem) && StringUtils.isNotBlank(chatItem.getAnswer())) {
+                        return chatItem.getAnswer();
+                    }
+                    break;
+                default:
+                    log.warn("敏感词改写暂不支持该模型, source={}, scene={}", targetSource, scene);
+                    return "";
             }
         } catch (Exception e) {
-            log.warn("DeepSeek 敏感词改写建议生成失败, scene={}", scene, e);
-        }
-
-        try {
-            ChatItemVo chatItem = new ChatItemVo().initQuestion(prompt);
-            if (zhipuIntegration.directReturn(0L, chatItem) && StringUtils.isNotBlank(chatItem.getAnswer())) {
-                return chatItem.getAnswer();
-            }
-        } catch (Exception e) {
-            log.warn("智谱 敏感词改写建议生成失败, scene={}", scene, e);
+            log.warn("{} 敏感词改写建议生成失败, scene={}", targetSource, scene, e);
         }
 
         return "";

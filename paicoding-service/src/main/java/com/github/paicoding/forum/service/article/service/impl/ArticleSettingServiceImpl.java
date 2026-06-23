@@ -127,8 +127,8 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         try {
             baseSlug = slugGeneratorService.generateSlugWithAI(titleForSlug, req.getColumnUrlSlug());
         } catch (Exception e) {
-            log.warn("AI生成文章slug失败，使用本地规则兜底: title={}", titleForSlug, e);
-            baseSlug = UrlSlugUtil.generateSlug(titleForSlug);
+            log.warn("AI生成文章slug失败: title={}", titleForSlug, e);
+            throw ExceptionUtil.of(StatusEnum.UNEXPECT_ERROR, "AI生成文章slug失败: " + e.getMessage());
         }
         return generateUniqueArticleSlug(baseSlug, req.getArticleId());
     }

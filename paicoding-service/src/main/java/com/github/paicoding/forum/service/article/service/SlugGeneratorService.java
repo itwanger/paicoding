@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -86,32 +85,29 @@ public class SlugGeneratorService {
         }
 
         String prompt = buildPrompt(title, columnUrlSlug);
-        List<AISourceEnum> sources = resolveSlugSources();
-        for (AISourceEnum source : sources) {
-            String slug = tryGenerateWithSource(source, prompt, title);
-            if (StringUtils.isNotBlank(slug)) {
-                return slug;
-            }
-        }
-
-        throw new IllegalStateException("大模型生成语义 URL 失败，请稍后重试");
+        AISourceEnum source = resolveSlugSource();
+        return generateWithSource(source, prompt, title);
     }
 
-    private List<AISourceEnum> resolveSlugSources() {
+    private AISourceEnum resolveSlugSource() {
         if (aiConfig == null || aiConfig.getSource() == null || aiConfig.getSource().isEmpty()) {
-            return Arrays.asList(AISourceEnum.ZHIPU_CODING, AISourceEnum.DEEP_SEEK, AISourceEnum.ZHI_PU_AI);
+            return AISourceEnum.ZHIPU_CODING;
         }
 
         List<AISourceEnum> configured = aiConfig.getSource();
-        if (configured.contains(AISourceEnum.ZHIPU_CODING)
-                || configured.contains(AISourceEnum.DEEP_SEEK)
-                || configured.contains(AISourceEnum.ZHI_PU_AI)) {
-            return configured;
+        for (AISourceEnum source : configured) {
+            if (isSupportedSlugSource(source)) {
+                return source;
+            }
         }
-        return Collections.singletonList(AISourceEnum.ZHI_PU_AI);
+        return AISourceEnum.ZHIPU_CODING;
     }
 
-    private String tryGenerateWithSource(AISourceEnum source, String prompt, String title) {
+    private boolean isSupportedSlugSource(AISourceEnum source) {
+        return source == AISourceEnum.ZHIPU_CODING || source == AISourceEnum.DEEP_SEEK || source == AISourceEnum.ZHI_PU_AI;
+    }
+
+    private String generateWithSource(AISourceEnum source, String prompt, String title) {
         try {
             String answer;
             switch (source) {
@@ -125,7 +121,7 @@ public class SlugGeneratorService {
                     answer = callZhipu(prompt);
                     break;
                 default:
-                    return null;
+                    throw new IllegalStateException("URL slug 生成暂不支持该模型: " + source);
             }
 
             String slug = cleanAIResponse(answer);
@@ -133,11 +129,14 @@ public class SlugGeneratorService {
                 log.info("Generated slug with {} for title '{}': {}", source, title, slug);
                 return slug;
             }
-            log.warn("AI slug invalid, source={}, title='{}', answer='{}'", source, title, answer);
+            throw new IllegalStateException(source + " 返回的 slug 无效: " + answer);
+        } catch (RuntimeException e) {
+            log.warn("AI slug generation failed, source={}, title='{}', reason={}", source, title, e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             log.warn("AI slug generation failed, source={}, title='{}', reason={}", source, title, e.getMessage(), e);
+            throw new IllegalStateException(source + " 生成语义 URL 失败: " + e.getMessage(), e);
         }
-        return null;
     }
 
     private String callZhipuCoding(String prompt) throws IOException {
