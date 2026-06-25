@@ -1,0 +1,96 @@
+.index-page {
+  padding-bottom: 0;
+}
+
+.category-row {
+  width: 100%;
+  white-space: nowrap;
+  margin-bottom: 20rpx;
+}
+
+.category-pill {
+  display: inline-block;
+  min-width: 96rpx;
+  height: 60rpx;
+  padding: 0 24rpx;
+  margin-right: 12rpx;
+  border: 1rpx solid #d1d5db;
+  border-radius: 8rpx;
+  color: #334155;
+  line-height: 58rpx;
+  text-align: center;
+  background: #ffffff;
+}
+
+.category-pill--active {
+  border-color: #0f766e;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.article-scroll {
+  height: calc(100vh - 120rpx);
+}
+
+.article-card {
+  display: flex;
+  min-height: 212rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+
+.cover {
+  width: 220rpx;
+  height: 212rpx;
+  flex-shrink: 0;
+  background: #e5e7eb;
+}
+
+.article-body {
+  flex: 1;
+  min-width: 0;
+  padding: 22rpx;
+}
+
+.title {
+  color: #111827;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 42rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.summary {
+  margin-top: 12rpx;
+  color: #475569;
+  font-size: 26rpx;
+  line-height: 36rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.empty {
+  padding: 80rpx 0;
+  color: #64748b;
+  text-align: center;
+}
+
+.load-state {
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+}

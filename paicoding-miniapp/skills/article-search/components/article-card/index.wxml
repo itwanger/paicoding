@@ -1,0 +1,34 @@
+<view class="article-card-list">
+  <block wx:if="{{articles.length > 0}}">
+    <view
+      wx:for="{{articles}}"
+      wx:key="articleId"
+      class="article-card"
+      bindtap="openDetail"
+      data-id="{{item.articleId}}"
+    >
+      <image wx:if="{{item.cover}}" class="article-cover" src="{{item.cover}}" mode="aspectFill"></image>
+      <view class="article-title">{{item.title}}</view>
+      <view wx:if="{{item.summary}}" class="article-summary">{{item.summary}}</view>
+      <view class="article-meta">
+        <text>{{item.authorName || '技术派'}}</text>
+        <text>{{item.readCount || 0}} 阅读</text>
+        <text>{{item.praiseCount || 0}} 赞</text>
+        <text>{{item.commentCount || 0}} 评论</text>
+      </view>
+    </view>
+  </block>
+  <view wx:elif="{{article.articleId}}" class="article-card" bindtap="openDetail" data-id="{{article.articleId}}">
+    <image wx:if="{{article.cover}}" class="article-cover" src="{{article.cover}}" mode="aspectFill"></image>
+    <view class="article-title">{{article.title}}</view>
+    <view wx:if="{{article.summary}}" class="article-summary">{{article.summary}}</view>
+    <view class="article-meta">
+      <text>{{article.authorName || '技术派'}}</text>
+      <text>{{article.readCount || 0}} 阅读</text>
+      <text>{{article.praiseCount || 0}} 赞</text>
+      <text>{{article.commentCount || 0}} 评论</text>
+    </view>
+    <view wx:if="{{article.canRead === false}}" class="article-notice">当前账号可能没有完整阅读权限</view>
+  </view>
+  <view wx:else class="article-empty">{{emptyText}}</view>
+</view>

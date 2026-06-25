@@ -13,3 +13,7 @@ paicoding:
       qrCodeImg: ${view.site.contactMeWxQrCode}
       qrCodeLogo: ${view.site.websiteLogoUrl}
       securityCheckToken: # 为空，表示不对微信回调的接口进行校验
+    wx-mini:
+      appId: ${PAICODING_WX_MINI_APP_ID:}
+      appSecret: ${PAICODING_WX_MINI_APP_SECRET:}
+      mockEnabled: ${PAICODING_WX_MINI_MOCK_ENABLED:false}

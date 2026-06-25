@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -129,11 +130,11 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
         if (!isContextAvailable()) {
             return;
         }
-        String before = JsonUtil.toStr(cache);
+        String before = toSafeLogJson(cache);
         boolean toRefresh = loadAllConfigFromDb();
         if (toRefresh) {
             refreshConfig();
-            log.info("配置刷新! 旧:{}, 新:{}", before, JsonUtil.toStr(cache));
+            log.info("配置刷新! 旧:{}, 新:{}", before, toSafeLogJson(cache));
         }
     }
 
@@ -146,7 +147,44 @@ public class DynamicConfigContainer implements EnvironmentAware, ApplicationCont
         }
         loadAllConfigFromDb();
         refreshConfig();
-        log.info("db配置强制刷新! {}", JsonUtil.toStr(cache));
+        log.info("db配置强制刷新! {}", toSafeLogJson(cache));
+    }
+
+    static String toSafeLogJson(Map<String, Object> source) {
+        if (source == null) {
+            return JsonUtil.toStr(null);
+        }
+        Map<String, Object> safe = Maps.newHashMapWithExpectedSize(source.size());
+        source.forEach((key, value) -> safe.put(key, isSensitiveConfigKey(key) ? maskConfigValue(value) : value));
+        return JsonUtil.toStr(safe);
+    }
+
+    private static boolean isSensitiveConfigKey(String key) {
+        if (key == null) {
+            return false;
+        }
+        String lower = key.toLowerCase(Locale.ROOT);
+        String normalized = lower.replace(".", "").replace("-", "").replace("_", "");
+        return normalized.contains("secret")
+                || normalized.contains("password")
+                || normalized.contains("token")
+                || normalized.contains("credential")
+                || normalized.contains("authorization")
+                || normalized.contains("privatekey")
+                || normalized.contains("apikey")
+                || normalized.contains("sessionkey")
+                || lower.endsWith(".ak")
+                || lower.endsWith(".sk");
+    }
+
+    private static Object maskConfigValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof CharSequence && ((CharSequence) value).length() == 0) {
+            return "";
+        }
+        return "******";
     }
 
     /**

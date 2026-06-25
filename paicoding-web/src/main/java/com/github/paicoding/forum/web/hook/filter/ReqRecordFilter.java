@@ -63,6 +63,8 @@ public class ReqRecordFilter implements Filter {
      * 客户端提示前缀，仅用于参与指纹混合；不允许直接作为设备 id 落库。
      */
     private static final String CLIENT_HINT_PREFIX = "fp-";
+    private static final String MINI_CLIENT_DEVICE_HEADER = "X-Pai-Device-Id";
+    private static final int CLIENT_HINT_MAX_LENGTH = 80;
     private static final String DEVICE_ID_PREFIX = "sf-";
     private static final ThreadPoolExecutor REQUEST_STAT_EXECUTOR = new ThreadPoolExecutor(
             1,
@@ -310,19 +312,41 @@ public class ReqRecordFilter implements Filter {
     private String resolveRiskDeviceId(HttpServletRequest request, HttpServletResponse response) {
         String anchor = getOrInitDeviceAnchorCookie(request, response);
         String serverFingerprint = buildServerDeviceFingerprint(request);
-        String clientHint = request.getParameter("deviceId");
-        boolean validHint = StringUtils.isNotBlank(clientHint)
-                && !"null".equalsIgnoreCase(clientHint)
-                && StringUtils.startsWith(clientHint, CLIENT_HINT_PREFIX);
+        String clientHint = resolveClientDeviceHint(request);
 
         StringBuilder mix = new StringBuilder("anchor=").append(StringUtils.defaultString(anchor));
         if (StringUtils.isNotBlank(serverFingerprint)) {
             mix.append('|').append(serverFingerprint);
         }
-        if (validHint) {
+        if (StringUtils.isNotBlank(clientHint)) {
             mix.append("|hint=").append(clientHint);
         }
         return DEVICE_ID_PREFIX + Md5Util.encode(mix.toString());
+    }
+
+    private String resolveClientDeviceHint(HttpServletRequest request) {
+        String headerHint = StringUtils.trimToEmpty(request.getHeader(MINI_CLIENT_DEVICE_HEADER));
+        String paramHint = StringUtils.trimToEmpty(request.getParameter("deviceId"));
+        String clientHint = StringUtils.defaultIfBlank(headerHint, paramHint);
+        if (StringUtils.isBlank(clientHint)
+                || "null".equalsIgnoreCase(clientHint)
+                || clientHint.length() > CLIENT_HINT_MAX_LENGTH
+                || !StringUtils.startsWith(clientHint, CLIENT_HINT_PREFIX)) {
+            return "";
+        }
+        for (int i = 0; i < clientHint.length(); i++) {
+            char ch = clientHint.charAt(i);
+            boolean valid = (ch >= 'a' && ch <= 'z')
+                    || (ch >= 'A' && ch <= 'Z')
+                    || (ch >= '0' && ch <= '9')
+                    || ch == '-'
+                    || ch == '_'
+                    || ch == ':';
+            if (!valid) {
+                return "";
+            }
+        }
+        return clientHint;
     }
 
     private String getOrInitDeviceAnchorCookie(HttpServletRequest request, HttpServletResponse response) {

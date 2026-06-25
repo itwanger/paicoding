@@ -7,15 +7,11 @@ import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
-import com.github.paicoding.forum.service.notify.service.NotifyService;
-import com.github.paicoding.forum.service.sitemap.service.SitemapService;
-import com.github.paicoding.forum.service.statistics.service.UserStatisticService;
-import com.github.paicoding.forum.service.user.service.LoginService;
-import com.github.paicoding.forum.service.user.service.UserService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,22 +36,22 @@ public class GlobalInitService {
     @Value("${env.name}")
     private String env;
     @Autowired
-    private UserService userService;
+    private com.github.paicoding.forum.service.user.service.UserService userService;
 
     @Resource
     private GlobalViewConfig globalViewConfig;
 
     @Resource
-    private NotifyService notifyService;
+    private com.github.paicoding.forum.service.notify.service.NotifyService notifyService;
 
     @Resource
     private SeoInjectService seoInjectService;
 
     @Resource
-    private UserStatisticService userStatisticService;
+    private com.github.paicoding.forum.service.statistics.service.UserStatisticService userStatisticService;
 
     @Resource
-    private SitemapService sitemapService;
+    private com.github.paicoding.forum.service.sitemap.service.SitemapService sitemapService;
 
     @Resource
     private WxLoginProperties wxLoginProperties;
@@ -117,11 +113,15 @@ public class GlobalInitService {
     public void initLoginUser(ReqInfoContext.ReqInfo reqInfo) {
         HttpServletRequest request =
                 ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String headerSession = findSessionFromHeader(request);
+        if (StringUtils.isNotBlank(headerSession) && initLoginUser(headerSession, reqInfo)) {
+            return;
+        }
         if (request.getCookies() == null) {
             return;
         }
 
-        List<Cookie> list = SessionUtil.findCookiesByName(request, LoginService.SESSION_KEY);
+        List<Cookie> list = SessionUtil.findCookiesByName(request, com.github.paicoding.forum.service.user.service.LoginService.SESSION_KEY);
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
@@ -134,6 +134,29 @@ public class GlobalInitService {
                 SessionUtil.delCookie(ck);
             }
         }
+    }
+
+    private String findSessionFromHeader(HttpServletRequest request) {
+        if (!isMiniApiRequest(request)) {
+            return null;
+        }
+        String authorization = request.getHeader("Authorization");
+        if (StringUtils.startsWithIgnoreCase(authorization, "Bearer ")) {
+            return StringUtils.trim(authorization.substring("Bearer ".length()));
+        }
+
+        String token = request.getHeader(com.github.paicoding.forum.service.user.service.LoginService.SESSION_KEY);
+        if (StringUtils.isNotBlank(token)) {
+            return StringUtils.trim(token);
+        }
+
+        token = request.getHeader("X-Pai-Token");
+        return StringUtils.isBlank(token) ? null : StringUtils.trim(token);
+    }
+
+    private boolean isMiniApiRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return StringUtils.equals(uri, "/mini/api") || StringUtils.startsWith(uri, "/mini/api/");
     }
 
     public boolean initLoginUser(String session, ReqInfoContext.ReqInfo reqInfo) {

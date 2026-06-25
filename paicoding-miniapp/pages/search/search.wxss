@@ -1,0 +1,136 @@
+.search-box {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  height: 68rpx;
+  padding: 0 16rpx;
+  font-size: 28rpx;
+}
+
+.search-button {
+  width: 104rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 26rpx;
+  line-height: 64rpx;
+}
+
+.clear-button {
+  width: 96rpx;
+  height: 64rpx;
+  margin-right: 10rpx;
+  border: 1rpx solid #cbd5e1;
+  border-radius: 8rpx;
+  color: #475569;
+  font-size: 24rpx;
+  line-height: 62rpx;
+}
+
+.hint-list {
+  margin-bottom: 18rpx;
+  overflow: hidden;
+}
+
+.hint-item {
+  min-height: 84rpx;
+  padding: 22rpx;
+  border-bottom: 1rpx solid #eef2f7;
+  color: #1f2937;
+  line-height: 38rpx;
+}
+
+.hint-item:last-child {
+  border-bottom: 0;
+}
+
+.history-panel {
+  margin-bottom: 18rpx;
+  padding: 22rpx;
+}
+
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.history-title {
+  color: #334155;
+  font-size: 27rpx;
+  font-weight: 700;
+  line-height: 38rpx;
+}
+
+.history-clear {
+  width: 88rpx;
+  height: 52rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 52rpx;
+}
+
+.history-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.history-tag {
+  max-width: 220rpx;
+  height: 56rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid #cbd5e1;
+  border-radius: 8rpx;
+  color: #334155;
+  font-size: 25rpx;
+  line-height: 54rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-scroll {
+  height: calc(100vh - 160rpx);
+}
+
+.result-card {
+  padding: 24rpx;
+  margin-bottom: 18rpx;
+}
+
+.title {
+  font-size: 31rpx;
+  font-weight: 700;
+  line-height: 42rpx;
+}
+
+.summary {
+  margin-top: 12rpx;
+  color: #475569;
+  font-size: 26rpx;
+  line-height: 36rpx;
+}
+
+.meta {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 14rpx;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.load-state {
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+}

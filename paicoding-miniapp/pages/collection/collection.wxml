@@ -1,0 +1,24 @@
+<view class="page collection-page">
+  <scroll-view class="collection-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
+    <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
+      <view class="state-title">加载失败</view>
+      <view class="state-desc muted">{{error}}</view>
+      <button class="primary-button retry-button" bindtap="retry">重试</button>
+    </view>
+    <view wx:elif="{{articles.length === 0 && !loading}}" class="empty panel">暂无收藏文章</view>
+    <view wx:for="{{articles}}" wx:key="articleId" class="collection-card panel" bindtap="openDetail" data-id="{{item.articleId}}">
+      <image wx:if="{{item.cover}}" class="cover" src="{{item.cover}}" mode="aspectFill"></image>
+      <view class="article-body">
+        <view class="title">{{item.shortTitle || item.title}}</view>
+        <view class="summary">{{item.summary}}</view>
+        <view class="meta">
+          <text>{{item.authorName || '技术派'}}</text>
+          <text>{{item.readCount || 0}} 阅读</text>
+          <text>{{item.praiseCount || 0}} 赞</text>
+        </view>
+        <button class="remove-button" catchtap="removeCollection" data-id="{{item.articleId}}" disabled="{{removingId === item.articleId}}" loading="{{removingId === item.articleId}}">取消收藏</button>
+      </view>
+    </view>
+    <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}</view>
+  </scroll-view>
+</view>

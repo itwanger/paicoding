@@ -14,7 +14,9 @@ public class WxMiniLoginRes implements Serializable {
     private static final long serialVersionUID = -1015857548785083078L;
 
     private String token;
+    private String tokenType;
     private String tokenHeader;
+    private String authorizationValue;
     private WxMiniUserDTO user;
     private Boolean needProfile;
 }

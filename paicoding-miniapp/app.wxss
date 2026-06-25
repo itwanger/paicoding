@@ -1,0 +1,75 @@
+page {
+  min-height: 100%;
+  background: #f6f7fb;
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 28rpx;
+}
+
+view,
+text,
+button,
+input,
+scroll-view {
+  box-sizing: border-box;
+}
+
+button {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: inherit;
+}
+
+button::after {
+  border: 0;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 8rpx;
+}
+
+.primary-button {
+  height: 88rpx;
+  border-radius: 8rpx;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 88rpx;
+  text-align: center;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.state-card {
+  padding: 64rpx 28rpx;
+  text-align: center;
+}
+
+.state-title {
+  color: #111827;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 44rpx;
+}
+
+.state-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  line-height: 38rpx;
+}
+
+.retry-button {
+  width: 220rpx;
+  margin: 28rpx auto 0;
+}

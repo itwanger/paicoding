@@ -1,0 +1,74 @@
+.history-page {
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.history-scroll {
+  height: 100vh;
+}
+
+.empty {
+  margin: 24rpx;
+  padding: 48rpx 24rpx;
+  color: #64748b;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.history-card {
+  display: flex;
+  gap: 20rpx;
+  margin: 20rpx 24rpx;
+  padding: 22rpx;
+}
+
+.cover {
+  flex: 0 0 164rpx;
+  width: 164rpx;
+  height: 124rpx;
+  border-radius: 8rpx;
+  background: #e5e7eb;
+}
+
+.article-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  color: #111827;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 42rpx;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.summary {
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 34rpx;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 12rpx;
+  color: #94a3b8;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.load-state {
+  padding: 20rpx 0 36rpx;
+  font-size: 24rpx;
+  text-align: center;
+}

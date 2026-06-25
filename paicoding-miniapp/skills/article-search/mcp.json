@@ -1,0 +1,118 @@
+{
+  "name": "article-search",
+  "description": "搜索和阅读技术派技术文章。只提供文章检索和详情查看，不处理登录、头像、点赞、收藏、评论或管理操作。",
+  "apis": [
+    {
+      "name": "searchArticles",
+      "description": "搜索技术派文章。根据用户给出的技术关键词检索文章卡片列表；用户未提供关键词时，应先追问具体技术主题，不要调用本接口。",
+      "path": "apis/searchArticles.js",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "搜索关键词，例如 Java、Spring、面试、AI。必须来自用户明确表达的技术主题，不要填写空字符串。"
+          },
+          "page": {
+            "type": "integer",
+            "description": "页码，从 1 开始",
+            "minimum": 1
+          },
+          "size": {
+            "type": "integer",
+            "description": "每页数量，最多 10 条",
+            "minimum": 1,
+            "maximum": 10
+          }
+        },
+        "required": ["keyword"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "articles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "articleId": { "type": "integer", "description": "文章 ID" },
+                "title": { "type": "string", "description": "文章标题" },
+                "summary": { "type": "string", "description": "文章摘要" },
+                "authorName": { "type": "string", "description": "作者昵称" },
+                "readCount": { "type": "integer", "description": "阅读数" },
+                "praiseCount": { "type": "integer", "description": "点赞数" },
+                "collectionCount": { "type": "integer", "description": "收藏数" },
+                "commentCount": { "type": "integer", "description": "评论数" },
+                "cover": { "type": "string", "description": "文章封面图 URL，可能为空" }
+              },
+              "required": ["articleId", "title"]
+            }
+          },
+          "hasMore": { "type": "boolean", "description": "是否还有下一页" }
+        },
+        "required": ["articles", "hasMore"]
+      },
+      "_meta": {
+        "ui": {
+          "componentPath": "components/article-card/index"
+        }
+      }
+    },
+    {
+      "name": "getArticleDetail",
+      "description": "获取技术派文章详情。articleId 必须取自 searchArticles 返回的真实 articleId，或用户明确给出的文章 ID；不要根据标题或自然语言自行编造 ID。",
+      "path": "apis/getArticleDetail.js",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "articleId": {
+            "type": "integer",
+            "description": "文章唯一 ID，取自 searchArticles 返回的 articleId 原值，或用户明确给出的数字 ID。上下文没有可用 ID 时，应先调用 searchArticles。"
+          }
+        },
+        "required": ["articleId"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "article": {
+            "type": "object",
+            "properties": {
+              "articleId": { "type": "integer", "description": "文章 ID" },
+              "title": { "type": "string", "description": "文章标题" },
+              "summary": { "type": "string", "description": "文章摘要" },
+              "authorName": { "type": "string", "description": "作者昵称" },
+              "readCount": { "type": "integer", "description": "阅读数" },
+              "praiseCount": { "type": "integer", "description": "点赞数" },
+              "collectionCount": { "type": "integer", "description": "收藏数" },
+              "commentCount": { "type": "integer", "description": "评论数" },
+              "canRead": { "type": "boolean", "description": "当前用户是否具备完整阅读权限" },
+              "cover": { "type": "string", "description": "文章封面图 URL，可能为空" },
+              "tags": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "文章标签"
+              }
+            },
+            "required": ["articleId", "title"]
+          }
+        },
+        "required": ["article"]
+      },
+      "_meta": {
+        "ui": {
+          "componentPath": "components/article-card/index"
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "name": "article-card",
+      "path": "components/article-card/index",
+      "relatedPage": "/pages/detail/detail"
+    }
+  ]
+}

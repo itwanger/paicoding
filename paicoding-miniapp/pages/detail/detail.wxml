@@ -1,0 +1,153 @@
+<view class="detail-page">
+  <view wx:if="{{loading}}" class="state-card muted">加载中</view>
+  <view wx:elif="{{error && !article}}" class="state-card">
+    <view class="state-title">加载失败</view>
+    <view class="state-desc muted">{{error}}</view>
+    <button class="primary-button retry-button" bindtap="loadDetail">重试</button>
+  </view>
+
+  <view wx:elif="{{article}}" class="article-head">
+    <view class="title">{{article.title}}</view>
+    <view class="meta">
+      <image wx:if="{{article.authorAvatar}}" class="avatar" src="{{article.authorAvatar}}" mode="aspectFill"></image>
+      <view wx:else class="avatar avatar-placeholder">{{article.authorInitial}}</view>
+      <text>{{article.authorName}}</text>
+      <text>{{article.readCount}} 阅读</text>
+    </view>
+    <view class="stats">
+      <text>{{article.praiseCount || 0}} 赞</text>
+      <text>{{article.collectionCount || 0}} 收藏</text>
+      <text>{{article.commentCount || 0}} 评论</text>
+    </view>
+    <view class="tags">
+      <text wx:for="{{article.tags}}" wx:key="*this" class="tag">{{item}}</text>
+    </view>
+    <view wx:if="{{article.sourceUrl}}" class="source-row" bindtap="copySourceUrl">
+      <text>原文：{{article.sourceHost || article.sourceType || '复制链接'}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{article && !article.canRead}}" class="read-notice">
+    当前账号可能没有完整阅读权限，已展示可访问内容。
+  </view>
+
+  <view wx:if="{{article}}" class="content-wrap">
+    <rich-text nodes="{{article.contentHtml}}"></rich-text>
+  </view>
+
+  <view wx:if="{{article && article.imageUrls.length > 0}}" class="image-gallery">
+    <view class="gallery-title">文中图片</view>
+    <view class="gallery-grid">
+      <image
+        wx:for="{{article.imageUrls}}"
+        wx:key="*this"
+        class="gallery-image"
+        src="{{item}}"
+        mode="aspectFill"
+        data-url="{{item}}"
+        bindtap="previewImage"
+      ></image>
+    </view>
+  </view>
+
+  <view wx:if="{{article}}" class="comment-section">
+    <view class="comment-head">
+      <text class="comment-title">评论 {{article.commentCount || 0}}</text>
+      <text wx:if="{{commentsLoading}}" class="comment-loading">加载中</text>
+    </view>
+
+    <view class="comment-editor">
+      <view wx:if="{{commentReplyTarget}}" class="reply-target">
+        <text>回复 {{commentReplyTarget.userName}}</text>
+        <text class="reply-cancel" bindtap="cancelReply">取消</text>
+      </view>
+      <textarea
+        class="comment-input"
+        value="{{commentDraft}}"
+        maxlength="1000"
+        auto-height
+        placeholder="{{commentReplyTarget ? '写下你的回复' : '写下你的评论'}}"
+        bindinput="onCommentInput"
+      ></textarea>
+      <button class="comment-submit" disabled="{{commentSubmitting}}" bindtap="submitComment">{{commentSubmitting ? '发布中' : '发布'}}</button>
+    </view>
+
+    <view wx:if="{{commentError}}" class="comment-error">{{commentError}}</view>
+    <view wx:elif="{{!commentsLoading && comments.length === 0}}" class="comment-empty">还没有评论</view>
+
+    <view wx:for="{{comments}}" wx:key="commentId" class="comment-item">
+      <image wx:if="{{item.userPhoto}}" class="comment-avatar" src="{{item.userPhoto}}" mode="aspectFill"></image>
+      <view wx:else class="comment-avatar comment-avatar-placeholder">{{item.userInitial}}</view>
+      <view class="comment-body">
+        <view class="comment-meta">
+          <text class="comment-user">{{item.userName || '技术派用户'}}</text>
+          <text class="comment-time">{{item.commentTimeStr}}</text>
+        </view>
+        <view class="comment-content">{{item.commentContent}}</view>
+        <view class="comment-actions">
+          <text
+            class="comment-action {{item.praised ? 'comment-action--active' : ''}}"
+            data-id="{{item.commentId}}"
+            data-praised="{{item.praised}}"
+            bindtap="toggleCommentPraise"
+          >{{item.praised ? '已赞' : '赞'}} {{item.praiseCount || 0}}</text>
+          <text
+            class="comment-action"
+            data-id="{{item.commentId}}"
+            data-top="{{item.commentId}}"
+            data-name="{{item.userName || '技术派用户'}}"
+            bindtap="startReply"
+          >回复</text>
+          <text
+            wx:if="{{item.canDelete}}"
+            class="comment-action comment-action--danger"
+            data-id="{{item.commentId}}"
+            bindtap="deleteComment"
+          >删除</text>
+        </view>
+        <view wx:if="{{item.childComments.length > 0 || item.hasMoreChild}}" class="reply-list">
+          <view wx:for="{{item.childComments}}" wx:for-item="child" wx:key="commentId" class="reply-item">
+            <text class="reply-user">{{child.userName || '技术派用户'}}：</text>
+            <text>{{child.commentContent}}</text>
+            <text
+              class="reply-action {{child.praised ? 'reply-action--active' : ''}}"
+              data-id="{{child.commentId}}"
+              data-praised="{{child.praised}}"
+              bindtap="toggleCommentPraise"
+            >{{child.praised ? '已赞' : '赞'}} {{child.praiseCount || 0}}</text>
+            <text
+              class="reply-action"
+              data-id="{{child.commentId}}"
+              data-top="{{item.commentId}}"
+              data-name="{{child.userName || '技术派用户'}}"
+              bindtap="startReply"
+            >回复</text>
+            <text
+              wx:if="{{child.canDelete}}"
+              class="reply-action reply-action--danger"
+              data-id="{{child.commentId}}"
+              bindtap="deleteComment"
+            >删除</text>
+          </view>
+          <view
+            wx:if="{{item.hasMoreChild}}"
+            class="reply-more {{replyLoadingTopId === item.commentId ? 'reply-more--loading' : ''}}"
+            data-top="{{item.commentId}}"
+            bindtap="loadMoreReplies"
+          >{{replyLoadingTopId === item.commentId ? '加载中' : '展开更多回复'}}</view>
+        </view>
+      </view>
+    </view>
+
+    <button wx:if="{{commentsHasMore}}" class="comment-more" disabled="{{commentsLoading}}" bindtap="loadMoreComments">加载更多评论</button>
+  </view>
+
+  <button wx:if="{{showBackTop}}" class="back-top" bindtap="backTop">顶部</button>
+
+  <view wx:if="{{article}}" class="action-bar">
+    <button class="action {{article.praised ? 'action--active' : ''}}" disabled="{{praiseSubmitting}}" bindtap="togglePraise">{{article.praised ? '已赞' : '点赞'}} {{article.praiseCount || 0}}</button>
+    <button class="action {{article.collected ? 'action--active' : ''}}" disabled="{{collectSubmitting}}" bindtap="toggleCollect">{{article.collected ? '已收藏' : '收藏'}} {{article.collectionCount || 0}}</button>
+    <button class="action" open-type="share">分享</button>
+    <button class="action action--plain" bindtap="goHome">首页</button>
+  </view>
+</view>

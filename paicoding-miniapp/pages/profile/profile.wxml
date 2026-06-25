@@ -1,0 +1,60 @@
+<view class="page profile-page">
+  <view wx:if="{{loading}}" class="state-card panel muted">登录中</view>
+  <view wx:elif="{{!loggedIn}}" class="state-card panel">
+    <view class="state-title">未登录</view>
+    <view class="state-desc muted">{{error || '登录后可以同步头像昵称和互动状态'}}</view>
+    <button class="primary-button retry-button" bindtap="loginUser">登录</button>
+  </view>
+
+  <view wx:elif="{{needPrivacyAuthorization}}" class="state-card panel">
+    <view class="state-title">隐私授权</view>
+    <view class="state-desc muted">授权后可继续使用头像和昵称能力</view>
+    <button id="profile-privacy-agree" class="primary-button retry-button" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="onAgreePrivacyAuthorization">同意</button>
+    <button class="privacy-link" bindtap="openPrivacyContract">查看协议</button>
+  </view>
+
+  <view wx:else class="profile-panel panel">
+    <view wx:if="{{profileIncomplete}}" class="profile-alert">
+      <view class="profile-alert-title">头像昵称未完善</view>
+      <view class="profile-alert-desc">选择微信头像并保存昵称后，互动状态会同步到社区账号。</view>
+    </view>
+    <button class="avatar-button" open-type="chooseAvatar" disabled="{{uploading}}" loading="{{uploading}}" bindchooseavatar="onChooseAvatar">
+      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="avatar avatar-placeholder">头像</view>
+    </button>
+    <view class="field">
+      <text class="label">昵称</text>
+      <input class="nickname-input" type="nickname" value="{{nickName}}" placeholder="填写微信昵称" bindinput="onNickNameInput" />
+    </view>
+    <view class="field field--textarea">
+      <text class="label">简介</text>
+      <textarea class="profile-input" maxlength="225" value="{{profile}}" placeholder="一句话介绍自己" bindinput="onProfileInput"></textarea>
+    </view>
+    <button class="primary-button save-button" disabled="{{saving || uploading}}" loading="{{saving}}" bindtap="saveProfile">保存资料</button>
+  </view>
+
+  <view wx:if="{{loggedIn}}" class="info-panel panel">
+    <view class="info-action" bindtap="openCollections">
+      <text class="label">我的收藏</text>
+      <text class="action-text">查看收藏文章</text>
+    </view>
+    <view class="info-action" bindtap="openHistory">
+      <text class="label">浏览历史</text>
+      <text class="action-text">查看读过的文章</text>
+    </view>
+    <view class="info-row">
+      <text class="label">用户 ID</text>
+      <text>{{user.userId || '-'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">角色</text>
+      <text>{{user.role || '-'}}</text>
+    </view>
+    <view class="info-row info-row--profile">
+      <text class="label">简介</text>
+      <text class="profile-text">{{user.profile || '-'}}</text>
+    </view>
+  </view>
+
+  <button wx:if="{{loggedIn}}" class="logout" disabled="{{loggingOut}}" loading="{{loggingOut}}" bindtap="logout">退出登录</button>
+</view>

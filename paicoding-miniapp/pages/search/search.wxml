@@ -1,0 +1,44 @@
+<view class="page search-page">
+  <view class="search-box panel">
+    <input class="search-input" value="{{key}}" maxlength="64" placeholder="搜索 Java、Spring、面试、AI" confirm-type="search" bindinput="onInput" bindconfirm="doSearch" />
+    <button wx:if="{{key}}" class="clear-button" bindtap="clearSearch">清空</button>
+    <button class="search-button" bindtap="doSearch">搜索</button>
+  </view>
+
+  <view wx:if="{{hints.length > 0}}" class="hint-list panel">
+    <view wx:for="{{hints}}" wx:key="articleId" class="hint-item" bindtap="chooseHint" data-id="{{item.articleId}}" data-title="{{item.title}}">{{item.title}}</view>
+  </view>
+
+  <view wx:if="{{!searched && !key && history.length > 0}}" class="history-panel panel">
+    <view class="history-head">
+      <text class="history-title">最近搜索</text>
+      <button class="history-clear" bindtap="clearHistory">清空</button>
+    </view>
+    <view class="history-tags">
+      <button
+        wx:for="{{history}}"
+        wx:key="*this"
+        class="history-tag"
+        data-key="{{item}}"
+        bindtap="chooseHistory"
+      >{{item}}</button>
+    </view>
+  </view>
+
+  <scroll-view class="result-scroll" scroll-y bindscrolltolower="loadMore">
+    <view wx:if="{{error && searched && articles.length === 0 && !loading}}" class="state-card panel">
+      <view class="state-title">搜索失败</view>
+      <view class="state-desc muted">{{error}}</view>
+      <button class="primary-button retry-button" bindtap="retry">重试</button>
+    </view>
+    <view wx:for="{{articles}}" wx:key="articleId" class="result-card panel" bindtap="openDetail" data-id="{{item.articleId}}">
+      <view class="title">{{item.shortTitle || item.title}}</view>
+      <view class="summary">{{item.searchHit || item.summary}}</view>
+      <view class="meta">
+        <text>{{item.authorName}}</text>
+        <text>{{item.readCount}} 阅读</text>
+      </view>
+    </view>
+    <view wx:if="{{searched && !error}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : (articles.length > 0 ? '没有更多了' : '暂无结果'))}}</view>
+  </scroll-view>
+</view>

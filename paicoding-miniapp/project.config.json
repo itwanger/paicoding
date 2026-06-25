@@ -1,0 +1,34 @@
+{
+  "appid": "touristappid",
+  "projectname": "paicoding-miniapp",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true
+  },
+  "libVersion": "3.8.0",
+  "packOptions": {
+    "include": [
+      {
+        "type": "folder",
+        "value": "skills"
+      }
+    ],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "cli-agent-run"
+      }
+    ]
+  },
+  "condition": {},
+  "watchOptions": {
+    "ignore": [
+      "cli-agent-run/**/*"
+    ]
+  }
+}

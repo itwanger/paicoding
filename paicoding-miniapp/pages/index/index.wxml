@@ -1,0 +1,33 @@
+<view class="page index-page">
+  <scroll-view class="category-row" scroll-x>
+    <view
+      wx:for="{{categories}}"
+      wx:key="categoryId"
+      class="category-pill {{item.categoryId === activeCategoryId ? 'category-pill--active' : ''}}"
+      bindtap="onCategoryTap"
+      data-id="{{item.categoryId}}"
+    >{{item.category}}</view>
+  </scroll-view>
+
+  <scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
+    <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
+      <view class="state-title">加载失败</view>
+      <view class="state-desc muted">{{error}}</view>
+      <button class="primary-button retry-button" bindtap="retry">重试</button>
+    </view>
+    <view wx:elif="{{articles.length === 0 && !loading}}" class="empty panel">暂无文章</view>
+    <view wx:for="{{articles}}" wx:key="articleId" class="article-card panel" bindtap="openDetail" data-id="{{item.articleId}}">
+      <image wx:if="{{item.cover}}" class="cover" src="{{item.cover}}" mode="aspectFill"></image>
+      <view class="article-body">
+        <view class="title">{{item.shortTitle || item.title}}</view>
+        <view class="summary">{{item.summary}}</view>
+        <view class="meta">
+          <text>{{item.authorName}}</text>
+          <text>{{item.category}}</text>
+          <text>{{item.readCount}} 阅读</text>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}</view>
+  </scroll-view>
+</view>
