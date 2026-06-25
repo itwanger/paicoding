@@ -10,6 +10,7 @@ import com.github.paicoding.forum.api.model.vo.article.dto.TagDTO;
 import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
 import com.github.paicoding.forum.core.util.DateUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.user.vo.UserHomeVo;
@@ -128,6 +129,14 @@ public class SeoInjectService {
             markPaywalledContent(jsonLd);
         }
 
+        // 统一 canonical 到唯一规范页（slug 优先，否则 /article/detail/{id}），与 sitemap 一致，
+        // 避免同一篇文章经多种 URL 形式访问时各自指向请求路径、被谷歌判为重复内容。
+        applyCanonicalUrl(seo, isCanonicalSlug(detail.getArticle().getUrlSlug())
+                ? "/" + detail.getArticle().getUrlSlug()
+                : detail.getArticle().getArticleId() != null
+                        ? "/article/detail/" + detail.getArticle().getArticleId()
+                        : null);
+
         ReqInfoContext.getReqInfo().setSeo(seo);
     }
 
@@ -205,6 +214,16 @@ public class SeoInjectService {
         if (isPaywalledColumnArticle(detail)) {
             markPaywalledContent(jsonLd);
         }
+
+        // 统一 canonical 到唯一规范页（slug 优先，否则 /column/{columnId}/{section}），与 sitemap 一致，
+        // 避免教程章节经 /column/{columnId}/.. 与 /column/{columnSlug}/.. 两种路径产生重复内容。
+        String columnCanonical = null;
+        if (isCanonicalSlug(detail.getArticle().getUrlSlug())) {
+            columnCanonical = "/" + detail.getArticle().getUrlSlug();
+        } else if (column != null && column.getColumnId() != null && detail.getSection() != null) {
+            columnCanonical = "/column/" + column.getColumnId() + "/" + detail.getSection();
+        }
+        applyCanonicalUrl(seo, columnCanonical);
 
         if (ReqInfoContext.getReqInfo() != null) ReqInfoContext.getReqInfo().setSeo(seo);
     }
@@ -344,13 +363,10 @@ public class SeoInjectService {
         List<SeoTagVo> list = seo.getOgp();
         Map<String, Object> jsonLd = seo.getJsonLd();
 
-        // 用户主页带 homeSelectType/followSelectType/userId 等 query 参数时，
-        // 是同一份页面的不同视图，统一指向无 query 的 canonical 并屏蔽索引
-        HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        if (isUserStateQuery(request.getQueryString())) {
-            replaceOgpTag(list, "robots", "noindex, follow");
-        }
+        // 用户主页对搜索引擎无价值（内容单薄、数量庞大，含 homeSelectType/followSelectType 等多视图变体），
+        // 统一 noindex,follow：既避免成千上万的用户页被谷歌判为低质量页、拖累整站质量评分，
+        // 也把抓取预算让给真正的文章内容。follow 保留页面内链的权重传递。
+        replaceOgpTag(list, "robots", "noindex, follow");
 
         String title = "技术派 | " + user.getUserHome().getUserName() + " 的主页";
         list.add(new SeoTagVo("og:title", title));
@@ -410,6 +426,18 @@ public class SeoInjectService {
         return seo;
     }
 
+    /**
+     * 站内搜索结果等低价值、易重复的列表页：统一 noindex,follow，
+     * 避免被谷歌当作低质量页索引拖累整站质量评分。页面标题由模板单独渲染，不受影响。
+     */
+    public void initNoindexSeo() {
+        Seo seo = initBasicSeoTag();
+        replaceOgpTag(seo.getOgp(), "robots", "noindex, follow");
+        if (ReqInfoContext.getReqInfo() != null) {
+            ReqInfoContext.getReqInfo().setSeo(seo);
+        }
+    }
+
     private Seo initBasicSeoTag() {
 
         List<SeoTagVo> list = new ArrayList<>();
@@ -442,12 +470,6 @@ public class SeoInjectService {
         return Seo.builder().jsonLd(map).ogp(list).build();
     }
 
-    private boolean isUserStateQuery(String query) {
-        return StringUtils.contains(query, "homeSelectType=")
-                || StringUtils.contains(query, "followSelectType=")
-                || StringUtils.contains(query, "userId=");
-    }
-
     private void replaceOgpTag(List<SeoTagVo> list, String key, String val) {
         for (SeoTagVo tag : list) {
             if (StringUtils.equals(tag.getKey(), key)) {
@@ -456,6 +478,36 @@ public class SeoInjectService {
             }
         }
         list.add(new SeoTagVo(key, val));
+    }
+
+    /**
+     * 把 canonical / og:url / JSON-LD url 统一覆盖为唯一规范 URL（与 sitemap 保持一致），
+     * 替代 initBasicSeoTag() 中“跟随当前请求路径”的默认行为，消除同一内容多 URL 的重复问题。
+     *
+     * @param seo          已初始化的 seo
+     * @param relativePath 规范路径（以 / 开头），为空则保持默认自指
+     */
+    private void applyCanonicalUrl(Seo seo, String relativePath) {
+        if (StringUtils.isBlank(relativePath)) {
+            return;
+        }
+        String host = StringUtils.removeEnd(StringUtils.defaultString(globalViewConfig.getHost()), "/");
+        String path = StringUtils.startsWith(relativePath, "/") ? relativePath : "/" + relativePath;
+        String url = host + path;
+        replaceOgpTag(seo.getOgp(), "canonical", url);
+        replaceOgpTag(seo.getOgp(), "og:url", url);
+        if (seo.getJsonLd() != null) {
+            seo.getJsonLd().put("url", url);
+        }
+    }
+
+    /**
+     * 与 SitemapServiceImpl.isValidUrlSlug 一致：合法 slug 且非纯数字，才作为规范 URL 使用。
+     */
+    private boolean isCanonicalSlug(String slug) {
+        return StringUtils.isNotBlank(slug)
+                && UrlSlugUtil.isValidSlug(slug)
+                && !StringUtils.isNumeric(slug);
     }
 
     private String buildArticleKeywords(String title, String category, String tagKeywords, String columnName) {
