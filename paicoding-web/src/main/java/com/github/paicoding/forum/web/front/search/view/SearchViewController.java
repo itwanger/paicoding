@@ -2,6 +2,7 @@ package com.github.paicoding.forum.web.front.search.view;
 
 import com.github.paicoding.forum.web.front.home.helper.IndexRecommendHelper;
 import com.github.paicoding.forum.web.front.home.vo.IndexVo;
+import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SearchViewController {
     @Autowired
     private IndexRecommendHelper indexRecommendHelper;
+    @Autowired
+    private SeoInjectService seoInjectService;
 
 
     /**
@@ -41,6 +44,8 @@ public class SearchViewController {
             IndexVo vo = indexRecommendHelper.buildSearchVo(searchKey);
             model.addAttribute("vo", vo);
         }
+        // 站内搜索结果页 noindex，避免无限的搜索 URL 被谷歌索引为低质量页
+        seoInjectService.initNoindexSeo();
         return "views/article-search-list/index";
     }
 

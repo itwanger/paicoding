@@ -1,7 +1,7 @@
 <div class="home-carouse-wrap" id="carouseWrap">
   <div class="home-carouse-inter-wrap">
     <div class="home-carouse-item" th:each="article,iter : ${vo.topArticles}">
-      <a th:href="${'/article/detail/' + article.articleId}">
+      <a th:href="${article.urlSlug != null && article.urlSlug != '' ? '/' + article.urlSlug : '/article/detail/' + article.articleId}">
         <img
           th:src="${article.cover}"
           th:id="'cover' + ${iter.index}"

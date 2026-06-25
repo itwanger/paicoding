@@ -1103,8 +1103,8 @@
       console.log("返回结果:", data)
       // data现在是一个对象,包含articleId和urlSlug
       if (data.urlSlug && data.urlSlug.length > 0) {
-        // 使用新的SEO友好URL
-        window.location.href = "/article/detail/" + data.articleId + "/" + data.urlSlug
+        // 直接跳到规范的 slug 短地址，避免经 /article/detail/{id}/{slug} 多一次 301
+        window.location.href = "/" + data.urlSlug
       } else {
         // 兼容没有slug的情况(理论上不应该发生)
         window.location.href = "/article/detail/" + data.articleId

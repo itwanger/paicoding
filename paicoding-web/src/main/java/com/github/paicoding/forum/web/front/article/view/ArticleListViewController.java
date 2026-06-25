@@ -8,6 +8,7 @@ import com.github.paicoding.forum.service.article.service.CategoryService;
 import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.web.front.article.vo.ArticleListVo;
 import com.github.paicoding.forum.web.global.BaseViewController;
+import com.github.paicoding.forum.web.global.SeoInjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +30,8 @@ public class ArticleListViewController extends BaseViewController {
     private CategoryService categoryService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private SeoInjectService seoInjectService;
 
     /**
      * 查询某个分类下的文章列表
@@ -64,6 +67,8 @@ public class ArticleListViewController extends BaseViewController {
         vo.setArchiveId(tagId);
         vo.setArticles(list);
         model.addAttribute("vo", vo);
+        // 标签页数量多、内容单薄、与分类页重叠，noindex 避免拖累整站质量（分类页保留索引）
+        seoInjectService.initNoindexSeo();
         return "views/article-tag-list/index";
     }
 }
