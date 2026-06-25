@@ -85,11 +85,14 @@ public class CommentReadServiceImpl implements CommentReadService {
         sanitizeCommentContents(previewSubComments, bypassCache);
         buildCommentRelation(previewSubComments, topComments);
 
+        // 批量预加载所有评论用户，避免逐条 queryBasicUserInfo 造成 N+1
+        Map<Long, BaseUserInfoDTO> userMap = batchLoadCommentUsers(comments, previewSubComments);
+
         // 4.挑出需要返回的数据，排序，并补齐对应的用户信息，最后排序返回
         List<TopCommentDTO> result = new ArrayList<>();
         comments.forEach(comment -> {
             TopCommentDTO dto = topComments.get(comment.getId());
-            fillTopCommentPreviewInfo(dto, subCommentCountMap.getOrDefault(comment.getId(), 0));
+            fillTopCommentPreviewInfo(dto, subCommentCountMap.getOrDefault(comment.getId(), 0), userMap);
             result.add(dto);
         });
 
@@ -138,8 +141,34 @@ public class CommentReadServiceImpl implements CommentReadService {
      *
      * @param comment
      */
+    /**
+     * 批量预加载评论用户，避免逐条 queryBasicUserInfo 的 N+1。
+     * 任意异常（如全部用户缺失）优雅降级为空 map，填充时回退到逐条查询。
+     */
+    private Map<Long, BaseUserInfoDTO> batchLoadCommentUsers(List<CommentDO> tops, List<CommentDO> subs) {
+        List<Long> userIds = new ArrayList<>(tops.size() + subs.size());
+        tops.forEach(c -> userIds.add(c.getUserId()));
+        subs.forEach(c -> userIds.add(c.getUserId()));
+        if (userIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        try {
+            return userService.batchQueryBasicUserInfo(userIds).stream()
+                    .collect(Collectors.toMap(BaseUserInfoDTO::getUserId, u -> u, (a, b) -> a));
+        } catch (Exception e) {
+            return Collections.emptyMap();
+        }
+    }
+
     private void fillCommentInfo(BaseCommentDTO comment) {
-        BaseUserInfoDTO userInfoDO = userService.queryBasicUserInfo(comment.getUserId());
+        fillCommentInfo(comment, null);
+    }
+
+    private void fillCommentInfo(BaseCommentDTO comment, Map<Long, BaseUserInfoDTO> userMap) {
+        // map 命中即用（批量已查），未命中回退逐条查询，完整保留原有行为
+        BaseUserInfoDTO userInfoDO = (userMap != null && userMap.containsKey(comment.getUserId()))
+                ? userMap.get(comment.getUserId())
+                : userService.queryBasicUserInfo(comment.getUserId());
         if (userInfoDO == null) {
             // 如果用户注销，给一个默认的用户
             comment.setUserName("默认用户");
@@ -209,8 +238,12 @@ public class CommentReadServiceImpl implements CommentReadService {
      * 懒加载模式：填充一级评论信息（不包含子评论详情）
      */
     private void fillTopCommentPreviewInfo(TopCommentDTO comment, int childCount) {
-        fillCommentInfo(comment);
-        comment.getChildComments().forEach(this::fillCommentInfo);
+        fillTopCommentPreviewInfo(comment, childCount, null);
+    }
+
+    private void fillTopCommentPreviewInfo(TopCommentDTO comment, int childCount, Map<Long, BaseUserInfoDTO> userMap) {
+        fillCommentInfo(comment, userMap);
+        comment.getChildComments().forEach(c -> fillCommentInfo(c, userMap));
         Collections.sort(comment.getChildComments());
         comment.setCommentCount(childCount);
         comment.setChildCommentCount(childCount);
