@@ -9,31 +9,30 @@
   ],
   "window": {
     "navigationBarTitleText": "技术派",
-    "navigationBarBackgroundColor": "#111827",
-    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTextStyle": "black",
     "backgroundColor": "#f6f7fb"
   },
   "tabBar": {
-    "color": "#64748b",
-    "selectedColor": "#0f766e",
+    "color": "#999",
+    "selectedColor": "#333",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
+        "iconPath": "static/tabbar/article.png",
+        "selectedIconPath": "static/tabbar/article-active.png",
         "text": "文章"
       },
       {
-        "pagePath": "pages/search/search",
-        "text": "搜索"
-      },
-      {
         "pagePath": "pages/profile/profile",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png",
         "text": "我的"
       }
     ]
   },
-  "style": "v2",
   "lazyCodeLoading": "requiredComponents",
   "sitemapLocation": "sitemap.json",
   "agent": {
