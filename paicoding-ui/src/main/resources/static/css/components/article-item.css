@@ -256,6 +256,12 @@
   margin-right: 24px;
 }
 
+.article-show-wrap a {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
 /*文章标签*/
 .cdc-article-panel__tags {
   position: absolute;
@@ -325,8 +331,73 @@
     display: none;
   }
 
-  .cdc-article-panel__title {
-
+  .cdc-article-panel__infos {
+    flex-wrap: nowrap;
   }
 
+  .cdc-icon__list {
+    margin-right: 0;
+  }
+
+  .cdc-article-panel__operate {
+    flex: 0 0 auto;
+  }
+
+  .article-show-wrap {
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+
+  .article-show-wrap:last-child {
+    margin-right: 0;
+  }
+
+  .cdc-article-panel__tags {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: 12px;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
+
+  .cdc-tag-links__icon {
+    flex-shrink: 0;
+    margin-right: 6px;
+  }
+
+  .cdc-tag-links__items {
+    min-width: 0;
+    margin: 0;
+    column-gap: 12px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .cdc-tag-links__item {
+    flex: 0 1 auto;
+    max-width: 5em;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .cdc-tag-links__item:nth-child(n + 3) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .cdc-article-panel__tags {
+    margin-left: 8px;
+  }
+
+  .cdc-tag-links__icon {
+    margin-right: 4px;
+  }
+
+  .cdc-tag-links__item:nth-child(n + 2) {
+    display: none;
+  }
 }
