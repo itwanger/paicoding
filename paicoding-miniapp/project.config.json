@@ -1,5 +1,5 @@
 {
-  "appid": "touristappid",
+  "appid": "wxb10cff3911e6a690",
   "projectname": "paicoding-miniapp",
   "miniprogramRoot": "./",
   "compileType": "miniprogram",
@@ -8,20 +8,38 @@
     "es6": true,
     "postcss": true,
     "minified": true,
-    "enhance": true
+    "enhance": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
   "libVersion": "3.8.0",
   "packOptions": {
     "include": [
       {
-        "type": "folder",
-        "value": "skills"
+        "value": "skills",
+        "type": "folder"
       }
     ],
     "ignore": [
       {
-        "type": "folder",
-        "value": "cli-agent-run"
+        "value": "cli-agent-run",
+        "type": "folder"
       }
     ]
   },
@@ -30,5 +48,7 @@
     "ignore": [
       "cli-agent-run/**/*"
     ]
-  }
+  },
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
 }
