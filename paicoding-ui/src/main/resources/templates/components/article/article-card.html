@@ -4,6 +4,7 @@
   <div
     class="cdc-article-panel user-article-item"
     th:fragment="article_card(article)"
+    th:attr="data-article-id=${article.articleId},data-create-time=${article.createTime},data-topping-stat=${article.toppingStat == null ? 0 : article.toppingStat}"
   >
     <a
       class="cdc-article-panel__link"

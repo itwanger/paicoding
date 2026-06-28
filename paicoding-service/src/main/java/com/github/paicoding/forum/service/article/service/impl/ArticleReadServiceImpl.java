@@ -179,6 +179,16 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         return buildArticleListVo(records, page.getPageSize());
     }
 
+    @Override
+    public PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page,
+                                                          Integer cursorToppingStat,
+                                                          Long cursorCreateTime,
+                                                          Long cursorArticleId) {
+        List<ArticleDO> records = articleDao.listArticlesByCategoryId(categoryId, page,
+                cursorToppingStat, cursorCreateTime, cursorArticleId);
+        return buildArticleListVo(records, page.getPageSize());
+    }
+
     /**
      * 查询置顶的文章列表
      *

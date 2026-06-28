@@ -21,6 +21,8 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   padding: 20px 0;
   position: relative; /* 创建定位上下文 */
 }
@@ -48,7 +50,44 @@
   right: 0; /* 紧贴右边缘 */
   max-height: calc(100vh - 80px); /* 设置最大高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   z-index: 5; /* 在页面内容之上 */
+}
+
+.article-content-wrap::-webkit-scrollbar,
+#contentMenuCollapse::-webkit-scrollbar,
+.toc-container.column .toc::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.article-content-wrap::-webkit-scrollbar-track,
+#contentMenuCollapse::-webkit-scrollbar-track,
+.toc-container.column .toc::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.article-content-wrap::-webkit-scrollbar-thumb,
+#contentMenuCollapse::-webkit-scrollbar-thumb,
+.toc-container.column .toc::-webkit-scrollbar-thumb {
+  min-height: 40px;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgba(31, 35, 41, 0.32);
+  background-clip: padding-box;
+}
+
+.article-content-wrap::-webkit-scrollbar-thumb:hover,
+#contentMenuCollapse::-webkit-scrollbar-thumb:hover,
+.toc-container.column .toc::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 35, 41, 0.5);
+  background-clip: padding-box;
+}
+
+#contentMenuCollapse {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .column.toc-container.underline {

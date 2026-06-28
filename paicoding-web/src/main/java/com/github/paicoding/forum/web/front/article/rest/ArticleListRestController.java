@@ -40,9 +40,13 @@ public class ArticleListRestController extends BaseViewController {
     @GetMapping(path = "data/category/{category}")
     public ResVo<PageListVo<ArticleDTO>> categoryDataList(@PathVariable("category") Long categoryId,
                                                           @RequestParam(name = "page") Long page,
-                                                          @RequestParam(name = "size", required = false) Long size) {
+                                                          @RequestParam(name = "size", required = false) Long size,
+                                                          @RequestParam(name = "cursorToppingStat", required = false) Integer cursorToppingStat,
+                                                          @RequestParam(name = "cursorCreateTime", required = false) Long cursorCreateTime,
+                                                          @RequestParam(name = "cursorArticleId", required = false) Long cursorArticleId) {
         PageParam pageParam = buildPageParam(page, size);
-        PageListVo<ArticleDTO> list = articleService.queryArticlesByCategory(categoryId, pageParam);
+        PageListVo<ArticleDTO> list = articleService.queryArticlesByCategory(categoryId, pageParam,
+                cursorToppingStat, cursorCreateTime, cursorArticleId);
         return ResVo.ok(list);
     }
 
@@ -56,9 +60,13 @@ public class ArticleListRestController extends BaseViewController {
     @GetMapping(path = "category/{category}")
     public ResVo<NextPageHtmlVo> categoryList(@PathVariable("category") Long categoryId,
                                               @RequestParam(name = "page") Long page,
-                                              @RequestParam(name = "size", required = false) Long size) {
+                                              @RequestParam(name = "size", required = false) Long size,
+                                              @RequestParam(name = "cursorToppingStat", required = false) Integer cursorToppingStat,
+                                              @RequestParam(name = "cursorCreateTime", required = false) Long cursorCreateTime,
+                                              @RequestParam(name = "cursorArticleId", required = false) Long cursorArticleId) {
         PageParam pageParam = buildPageParam(page, size);
-        PageListVo<ArticleDTO> list = articleService.queryArticlesByCategory(categoryId, pageParam);
+        PageListVo<ArticleDTO> list = articleService.queryArticlesByCategory(categoryId, pageParam,
+                cursorToppingStat, cursorCreateTime, cursorArticleId);
         String html = templateEngineHelper.renderToVo("views/article-category-list/article/list", "articles", list);
         return ResVo.ok(new NextPageHtmlVo(html, list.getHasMore()));
     }

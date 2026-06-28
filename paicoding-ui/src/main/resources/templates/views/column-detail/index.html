@@ -302,6 +302,15 @@
     const articleId = [[${ vo.article.articleId }]];
     const localCourseProgressEnabled = [[${!global.isLogin}]];
     const columnProgressKey = 'paicoding:course-progress:' + String([[${vo.columnSlug != null && vo.columnSlug != '' ? vo.columnSlug : vo.column}]]);
+    const articleScrollContainer = document.querySelector(".article-content-wrap")
+    const articleScrollProgressKey = columnProgressKey + ':scroll:' + String(articleId)
+    const ARTICLE_SCROLL_PROGRESS_MAX_AGE = 1000 * 60 * 60 * 24 * 30
+    let articleScrollSaveTimer = null
+    let articleScrollResizeTimer = null
+    let suppressArticleScrollSave = false
+    let articleScrollRestored = false
+    let tocActiveUpdatePending = false
+    let lastKnownArticleScrollSnapshot = null
 
     function normalizeCourseArticleUrl(url) {
       if (!url || url.indexOf('#') === 0) {
@@ -371,12 +380,209 @@
       }
     }
 
+    function getArticleScrollSnapshot() {
+      const scroller = articleScrollContainer || document.scrollingElement || document.documentElement
+      const scrollTop = articleScrollContainer ? articleScrollContainer.scrollTop : (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)
+      const maxScroll = Math.max(0, scroller.scrollHeight - scroller.clientHeight)
+      return {
+        scrollTop: Math.max(0, scrollTop),
+        scrollRatio: maxScroll > 0 ? Math.max(0, Math.min(1, scrollTop / maxScroll)) : 0,
+        scrollHeight: scroller.scrollHeight,
+        clientHeight: scroller.clientHeight,
+        maxScroll: maxScroll
+      }
+    }
+
+    function saveArticleScrollProgress(snapshot) {
+      if (!articleId) {
+        return
+      }
+
+      const currentSnapshot = snapshot || getArticleScrollSnapshot()
+      lastKnownArticleScrollSnapshot = currentSnapshot
+
+      try {
+        localStorage.setItem(articleScrollProgressKey, JSON.stringify({
+          scrollTop: Math.round(currentSnapshot.scrollTop),
+          scrollRatio: currentSnapshot.scrollRatio,
+          scrollHeight: currentSnapshot.scrollHeight,
+          clientHeight: currentSnapshot.clientHeight,
+          path: window.location.pathname + window.location.search,
+          updatedAt: Date.now()
+        }))
+      } catch (e) {
+        // localStorage may be unavailable in private modes; reading should still work normally.
+      }
+    }
+
+    function scheduleArticleScrollProgressSave() {
+      if (suppressArticleScrollSave) {
+        return
+      }
+      window.clearTimeout(articleScrollSaveTimer)
+      articleScrollSaveTimer = window.setTimeout(function () {
+        saveArticleScrollProgress()
+      }, 120)
+    }
+
+    function readArticleScrollProgress() {
+      try {
+        const rawProgress = localStorage.getItem(articleScrollProgressKey)
+        if (!rawProgress) {
+          return null
+        }
+        const progress = JSON.parse(rawProgress)
+        if (!progress || Date.now() - Number(progress.updatedAt || 0) > ARTICLE_SCROLL_PROGRESS_MAX_AGE) {
+          return null
+        }
+        return progress
+      } catch (e) {
+        return null
+      }
+    }
+
+    function scrollArticleTo(top, behavior) {
+      const targetTop = Math.max(0, top || 0)
+      if (articleScrollContainer) {
+        articleScrollContainer.scrollTo({
+          top: targetTop,
+          behavior: behavior || "auto"
+        })
+        return
+      }
+
+      window.scrollTo({
+        top: targetTop,
+        behavior: behavior || "auto"
+      })
+    }
+
+    function restoreArticleScrollProgress(force) {
+      if (!articleId || (!force && window.location.hash)) {
+        return
+      }
+
+      const savedProgress = readArticleScrollProgress()
+      if (!savedProgress) {
+        return
+      }
+
+      const snapshot = getArticleScrollSnapshot()
+      if (!snapshot.maxScroll) {
+        return
+      }
+
+      const savedTop = Number(savedProgress.scrollTop) || 0
+      const savedRatio = Number(savedProgress.scrollRatio)
+      const savedMaxScroll = Math.max(0, (Number(savedProgress.scrollHeight) || 0) - (Number(savedProgress.clientHeight) || 0))
+      const shouldUseRatio = Number.isFinite(savedRatio) && savedMaxScroll > 0 && Math.abs(snapshot.maxScroll - savedMaxScroll) > 120
+      const targetTop = Math.min(snapshot.maxScroll, Math.max(0, shouldUseRatio ? snapshot.maxScroll * savedRatio : savedTop))
+
+      if (targetTop > 0 || force) {
+        scrollArticleTo(targetTop, "auto")
+        articleScrollRestored = true
+        lastKnownArticleScrollSnapshot = getArticleScrollSnapshot()
+        syncBackTopFloatBtn()
+        scheduleTocActiveStateUpdate()
+      }
+    }
+
+    function restoreArticleHashScrollIfNeeded() {
+      if (!window.location.hash) {
+        return false
+      }
+
+      let targetId = window.location.hash.substring(1)
+      try {
+        targetId = decodeURIComponent(targetId)
+      } catch (e) {
+        return false
+      }
+      const targetElement = document.getElementById(targetId)
+      if (!targetElement) {
+        return false
+      }
+
+      window.requestAnimationFrame(function () {
+        scrollElementIntoArticleView(targetElement, "auto", 16)
+      })
+      return true
+    }
+
+    function restoreArticleScrollProgressWhenReady() {
+      if (restoreArticleHashScrollIfNeeded()) {
+        return
+      }
+
+      window.requestAnimationFrame(function () {
+        restoreArticleScrollProgress(false)
+        window.requestAnimationFrame(function () {
+          restoreArticleScrollProgress(false)
+        })
+      })
+
+      window.addEventListener("load", function () {
+        window.setTimeout(function () {
+          if (!articleScrollRestored || getArticleScrollSnapshot().scrollTop < 40) {
+            restoreArticleScrollProgress(false)
+          }
+        }, 80)
+      }, { once: true })
+    }
+
+    function scheduleArticleScrollRestoreAfterResize() {
+      if (!articleScrollContainer) {
+        return
+      }
+
+      const snapshot = getArticleScrollSnapshot()
+      if (snapshot.scrollTop > 0) {
+        lastKnownArticleScrollSnapshot = snapshot
+      }
+
+      suppressArticleScrollSave = true
+      window.clearTimeout(articleScrollResizeTimer)
+      articleScrollResizeTimer = window.setTimeout(function () {
+        if (lastKnownArticleScrollSnapshot && lastKnownArticleScrollSnapshot.scrollTop > 0) {
+          const currentSnapshot = getArticleScrollSnapshot()
+          const targetTop = lastKnownArticleScrollSnapshot.scrollRatio > 0
+            ? currentSnapshot.maxScroll * lastKnownArticleScrollSnapshot.scrollRatio
+            : lastKnownArticleScrollSnapshot.scrollTop
+          scrollArticleTo(Math.min(currentSnapshot.maxScroll, targetTop), "auto")
+        } else {
+          restoreArticleScrollProgress(true)
+        }
+        suppressArticleScrollSave = false
+        saveArticleScrollProgress()
+        syncBackTopFloatBtn()
+        scheduleTocActiveStateUpdate()
+      }, 180)
+    }
+
+    function scrollElementIntoArticleView(targetElement, behavior, topOffset) {
+      if (!targetElement) {
+        return
+      }
+
+      if (articleScrollContainer && articleScrollContainer.contains(targetElement)) {
+        const containerRect = articleScrollContainer.getBoundingClientRect()
+        const targetRect = targetElement.getBoundingClientRect()
+        const targetTop = articleScrollContainer.scrollTop + targetRect.top - containerRect.top - (topOffset || 0)
+        scrollArticleTo(targetTop, behavior || "smooth")
+        return
+      }
+
+      targetElement.scrollIntoView({
+        behavior: behavior || "smooth",
+        block: "start"
+      })
+    }
+
     // 跳转到评论的地方
     $("#commentFloatBtn").click(function () {
-      document.getElementById("commentList").scrollIntoView(true);
+      scrollElementIntoArticleView(document.getElementById("commentList"), "smooth", 16);
     })
 
-    const articleScrollContainer = document.querySelector(".article-content-wrap")
     const backTopFloatItem = document.querySelector("#backTopFloatBtn .article-change-item")
     const floatActionPanel = document.querySelector(".article-change")
     const floatActionToggleBtn = document.getElementById("floatActionToggleBtn")
@@ -403,24 +609,19 @@
     }
 
     $("#backTopFloatBtn").click(function () {
-      if (articleScrollContainer) {
-        articleScrollContainer.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        })
-        return
-      }
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      })
+      scrollArticleTo(0, "smooth")
     })
 
+    function handleArticleContentScroll() {
+      syncBackTopFloatBtn()
+      scheduleArticleScrollProgressSave()
+      scheduleTocActiveStateUpdate()
+    }
+
     if (articleScrollContainer) {
-      articleScrollContainer.addEventListener("scroll", syncBackTopFloatBtn)
+      articleScrollContainer.addEventListener("scroll", handleArticleContentScroll, { passive: true })
     } else {
-      window.addEventListener("scroll", syncBackTopFloatBtn)
+      window.addEventListener("scroll", handleArticleContentScroll, { passive: true })
     }
     if (floatActionToggleBtn) {
       const savedCollapsed = localStorage.getItem(FLOAT_ACTION_COLLAPSED_KEY) === "true"
@@ -433,6 +634,16 @@
     }
     syncBackTopFloatBtn()
     syncCommentFloatBtn()
+    restoreArticleScrollProgressWhenReady()
+    window.addEventListener("beforeunload", function () {
+      saveArticleScrollProgress()
+    })
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") {
+        saveArticleScrollProgress()
+      }
+    })
+    $(window).on('resize.articleScrollProgress', scheduleArticleScrollRestoreAfterResize)
 
     // 点赞
     let praisedCount = [[${ vo.article.count.praiseCount }]]
@@ -566,7 +777,7 @@
       }
 
       if (targetComment && typeof targetComment.scrollIntoView === "function") {
-        targetComment.scrollIntoView({ behavior: "smooth", block: "center" })
+        scrollElementIntoArticleView(targetComment, "smooth", 80)
       }
     }
 
@@ -871,7 +1082,7 @@
     // 绑定滚动监听和点击事件以更新目录选中状态
     function bindTocScrollSpy() {
       // 为目录链接添加点击事件
-      $('#contentMenu a').on('click', function(e) {
+      $('#contentMenu a').off('click.columnToc').on('click.columnToc', function(e) {
         e.preventDefault();
         // 移除所有现有选中状态
         $('#contentMenu a').removeClass('active');
@@ -882,7 +1093,7 @@
         const targetId = $(this).attr('href').substring(1);
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth' });
+          scrollElementIntoArticleView(targetElement, 'smooth', 16);
         }
         
         // 在小屏幕设备上，点击目录项后自动折叠内容导航
@@ -893,42 +1104,68 @@
         }
       });
 
-      // 监听窗口滚动事件以自动更新选中状态
-      $(window).on('scroll', function() {
-        updateTocActiveState();
-      });
+      $(window).off('scroll.columnToc').on('scroll.columnToc', scheduleTocActiveStateUpdate);
 
       // 初始化时更新一次选中状态
       updateTocActiveState();
     }
+
+    function scheduleTocActiveStateUpdate() {
+      if (tocActiveUpdatePending) {
+        return
+      }
+
+      tocActiveUpdatePending = true
+      window.requestAnimationFrame(function() {
+        tocActiveUpdatePending = false
+        updateTocActiveState()
+      })
+    }
     
     // 更新目录的活动状态
     function updateTocActiveState() {
-      const scrollPosition = $(window).scrollTop() + 100; // 添加偏移量以更准确匹配
-
       // 移除所有现有选中状态
       $('#contentMenu a').removeClass('active');
 
       // 查找当前视口中的标题
       let currentHeadingId = '';
-      $('.article-info-wrap :header[id]').each(function() {
-        const headingTop = $(this).offset().top;
-        if (headingTop <= scrollPosition) {
-          currentHeadingId = $(this).attr('id');
+      const activeTop = articleScrollContainer ? articleScrollContainer.getBoundingClientRect().top + 100 : 100
+      const headings = Array.prototype.filter.call(
+        document.querySelectorAll('.article-info-wrap h1[id], .article-info-wrap h2[id], .article-info-wrap h3[id], .article-info-wrap h4[id], .article-info-wrap h5[id], .article-info-wrap h6[id]'),
+        function(heading) {
+          return !heading.closest('.modal')
+        }
+      )
+      headings.forEach(function(heading) {
+        if (heading.getBoundingClientRect().top <= activeTop) {
+          currentHeadingId = heading.getAttribute('id');
         }
       });
 
+      if (!currentHeadingId && headings.length > 0) {
+        currentHeadingId = headings[0].getAttribute('id');
+      }
+
       // 为对应的目录项添加选中状态
       if (currentHeadingId) {
-        $('#contentMenu a[href="#' + currentHeadingId + '"]').addClass('active');
+        const activeAnchor = Array.prototype.find.call(document.querySelectorAll('#contentMenu a'), function(anchor) {
+          return anchor.getAttribute('href') === '#' + currentHeadingId
+        })
+        if (activeAnchor) {
+          activeAnchor.classList.add('active');
+        }
       }
 
       // 更新目录容器滚动位置
-      const tocContainer = $('.toc-container');
-      const activeLink = $('#contentMenu a.active');
-      if (activeLink.length > 0) {
-        const activeLinkTop = activeLink.offset().top - tocContainer.offset().top + tocContainer.scrollTop();
-        tocContainer.scrollTop(activeLinkTop - tocContainer.height() / 2);
+      const tocPanel = document.getElementById('contentMenuCollapse');
+      const activeLink = document.querySelector('#contentMenu a.active');
+      if (tocPanel && activeLink) {
+        const panelRect = tocPanel.getBoundingClientRect();
+        const linkRect = activeLink.getBoundingClientRect();
+        const edgeBuffer = 48;
+        if (linkRect.top < panelRect.top + edgeBuffer || linkRect.bottom > panelRect.bottom - edgeBuffer) {
+          tocPanel.scrollTop += linkRect.top - panelRect.top - panelRect.height / 2 + linkRect.height / 2;
+        }
       }
     }
 

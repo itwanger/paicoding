@@ -44,8 +44,9 @@ const loadMore = function (loadMoreSelector, url, params, listId, callback) {
     if (!isNeedMore) return false // 如果不需要加载更多，直接返回
 
     if (scrollTop + windowHeight + params["triggerThreshold"] >= scrollHeight) {
+      syncArticleCursorParams(listId, params)
       // 生成本次请求的条件字符串
-      let newReqCondition = params["category"] + "_" + params["page"]
+      let newReqCondition = params["category"] + "_" + params["page"] + "_" + (params["cursorArticleId"] || "")
       if (newReqCondition === lastReqCondition) {
         // 如果本次请求条件与上次相同，则不重复请求
         return
@@ -89,6 +90,25 @@ const loadMore = function (loadMoreSelector, url, params, listId, callback) {
       }
     }, true)
   }
+}
+
+const syncArticleCursorParams = function (listId, params) {
+  const listEle = document.getElementById(listId)
+  if (!listEle || !params) {
+    return
+  }
+
+  const articleItems = listEle.querySelectorAll(
+      ".cdc-article-panel.user-article-item[data-article-id][data-create-time][data-topping-stat]"
+  )
+  if (!articleItems.length) {
+    return
+  }
+
+  const lastArticle = articleItems[articleItems.length - 1]
+  params["cursorArticleId"] = lastArticle.dataset.articleId
+  params["cursorCreateTime"] = lastArticle.dataset.createTime
+  params["cursorToppingStat"] = lastArticle.dataset.toppingStat
 }
 
 const buildLoadMoreStateKey = function (url, params, listId) {
