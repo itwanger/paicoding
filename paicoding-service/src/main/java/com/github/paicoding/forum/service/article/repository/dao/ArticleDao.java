@@ -34,6 +34,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -185,6 +186,13 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
 
 
     public List<ArticleDO> listArticlesByCategoryId(Long categoryId, PageParam pageParam) {
+        return listArticlesByCategoryId(categoryId, pageParam, null, null, null);
+    }
+
+    public List<ArticleDO> listArticlesByCategoryId(Long categoryId, PageParam pageParam,
+                                                    Integer cursorToppingStat,
+                                                    Long cursorCreateTime,
+                                                    Long cursorArticleId) {
         if (categoryId != null && categoryId <= 0) {
             // 分类不存在时，表示查所有
             categoryId = null;
@@ -192,16 +200,32 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         LambdaQueryWrapper<ArticleDO> query = Wrappers.lambdaQuery();
         query.eq(ArticleDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .eq(ArticleDO::getStatus, PushStatusEnum.ONLINE.getCode());
+        boolean useCursor = cursorToppingStat != null && cursorCreateTime != null && cursorArticleId != null;
 
         // 如果分页中置顶的四条数据，需要加上官方的查询条件
         // 说明是查询官方的文章，非置顶的文章，只限制全部分类
-        if (categoryId == null && pageParam.getPageSize() == PageParam.TOP_PAGE_SIZE) {
+        if (!useCursor && categoryId == null && pageParam.getPageSize() == PageParam.TOP_PAGE_SIZE) {
             query.eq(ArticleDO::getOfficalStat, OfficalStatEnum.OFFICAL.getCode());
         }
 
         Optional.ofNullable(categoryId).ifPresent(cid -> query.eq(ArticleDO::getCategoryId, cid));
-        query.last(PageParam.getLimitSql(pageParam))
-                .orderByDesc(ArticleDO::getToppingStat, ArticleDO::getCreateTime);
+
+        if (useCursor) {
+            Date cursorDate = new Date(cursorCreateTime);
+            query.and(cursor -> cursor.lt(ArticleDO::getToppingStat, cursorToppingStat)
+                    .or()
+                    .eq(ArticleDO::getToppingStat, cursorToppingStat)
+                    .lt(ArticleDO::getCreateTime, cursorDate)
+                    .or()
+                    .eq(ArticleDO::getToppingStat, cursorToppingStat)
+                    .eq(ArticleDO::getCreateTime, cursorDate)
+                    .lt(ArticleDO::getId, cursorArticleId));
+            query.last(PageParam.getLimitSizeSql(pageParam));
+        } else {
+            query.last(PageParam.getLimitSql(pageParam));
+        }
+
+        query.orderByDesc(ArticleDO::getToppingStat, ArticleDO::getCreateTime, ArticleDO::getId);
         return baseMapper.selectList(query);
     }
 

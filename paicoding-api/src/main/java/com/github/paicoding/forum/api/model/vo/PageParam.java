@@ -53,4 +53,8 @@ public class PageParam {
         return String.format("limit %s,%s", pageParam.offset, pageParam.limit);
     }
 
+    public static String getLimitSizeSql(PageParam pageParam) {
+        return String.format("limit %s", pageParam.limit);
+    }
+
 }

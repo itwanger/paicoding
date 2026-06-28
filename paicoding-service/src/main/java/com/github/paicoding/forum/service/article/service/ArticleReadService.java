@@ -72,6 +72,21 @@ public interface ArticleReadService {
      */
     PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page);
 
+    /**
+     * 查询某个分类下的文章，支持基于上一页最后一条文章的游标翻页
+     *
+     * @param categoryId
+     * @param page
+     * @param cursorToppingStat 上一页最后一条文章的置顶状态
+     * @param cursorCreateTime 上一页最后一条文章的创建时间戳
+     * @param cursorArticleId 上一页最后一条文章ID
+     * @return
+     */
+    PageListVo<ArticleDTO> queryArticlesByCategory(Long categoryId, PageParam page,
+                                                   Integer cursorToppingStat,
+                                                   Long cursorCreateTime,
+                                                   Long cursorArticleId);
+
 
     /**
      * 获取 Top 文章
