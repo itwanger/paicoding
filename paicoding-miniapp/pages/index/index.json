@@ -1,4 +1,8 @@
 {
   "navigationBarTitleText": "技术派文章",
-  "enablePullDownRefresh": true
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "t-image": "tdesign-miniprogram/image/image",
+    "t-input": "tdesign-miniprogram/input/input"
+  }
 }

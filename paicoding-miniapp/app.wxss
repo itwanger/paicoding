@@ -1,10 +1,26 @@
+@font-face {
+  font-family: 'DingTalk JinBuTi';
+  src: url('https://cdn.paicoding.com/stutymore/6-skills-recommend-DingTalk_JinBuTi.ttf') format('truetype');
+}
+
+.jinbuti {
+  font-family: 'DingTalk JinBuTi';
+}
+
 page {
   min-height: 100%;
   background: #f6f7fb;
   color: #111827;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
   font-size: 28rpx;
+  --td-input-prefix-icon-color: #c4c4c7;
+  caret-color: #0BC196;
 }
+
+.shadow {
+  box-shadow: 0px 9px 9px rgba(11, 193, 150, 0.1);
+}
+
 
 view,
 text,
@@ -27,7 +43,7 @@ button::after {
 
 .page {
   min-height: 100vh;
-  padding: 24rpx;
+  padding: 30rpx;
 }
 
 .panel {

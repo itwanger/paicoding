@@ -1,33 +1,55 @@
-<view class="page index-page">
-  <scroll-view class="category-row" scroll-x>
-    <view
-      wx:for="{{categories}}"
-      wx:key="categoryId"
-      class="category-pill {{item.categoryId === activeCategoryId ? 'category-pill--active' : ''}}"
-      bindtap="onCategoryTap"
-      data-id="{{item.categoryId}}"
-    >{{item.category}}</view>
-  </scroll-view>
+<view class="header">
+  <t-image src="https://cdn.paicoding.com/stutymore/6-skills-recommend-home-header.png" width="100vw" mode="widthFix" />
+  <text class="header-title jinbuti">技术派</text>
+  <text class="header-subtitle jinbuti">AI时代不迷路 就上技术派</text>
+  <view class="search-wrapper">
+    <t-input placeholder="搜索 Java、AI、面试" prefixIcon="search" class="search shadow" />
+  </view>
+</view>
 
-  <scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
-    <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
-      <view class="state-title">加载失败</view>
-      <view class="state-desc muted">{{error}}</view>
-      <button class="primary-button retry-button" bindtap="retry">重试</button>
-    </view>
-    <view wx:elif="{{articles.length === 0 && !loading}}" class="empty panel">暂无文章</view>
-    <view wx:for="{{articles}}" wx:key="articleId" class="article-card panel" bindtap="openDetail" data-id="{{item.articleId}}">
-      <image wx:if="{{item.cover}}" class="cover" src="{{item.cover}}" mode="aspectFill"></image>
-      <view class="article-body">
-        <view class="title">{{item.shortTitle || item.title}}</view>
-        <view class="summary">{{item.summary}}</view>
-        <view class="meta">
+<scroll-view class="category-row" scroll-x>
+  <view wx:for="{{categories}}" wx:key="categoryId"
+    class="category-pill {{item.categoryId === activeCategoryId ? 'category-pill--active' : ''}}"
+    bindtap="onCategoryTap" data-id="{{item.categoryId}}" id="category-{{item.categoryId}}">
+    {{item.category}}
+  </view>
+
+  <view class="active-bar" style="width: 16px; left: {{activeBarLeft}}px;"></view>
+</scroll-view>
+
+<scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled
+  bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
+  <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
+    <view class="state-title">加载失败</view>
+    <view class="state-desc muted">{{error}}</view>
+    <button class="primary-button retry-button" bindtap="retry">重试</button>
+  </view>
+  <view wx:elif="{{articles.length === 0 && !loading}}" class="empty panel">暂无文章</view>
+  <view wx:for="{{articles}}" wx:key="articleId" class="article-card" bindtap="openDetail" data-id="{{item.articleId}}">
+    <view class="title">{{item.title}}</view>
+    <view class="article-body">
+      <view class="summary-wrapper">
+        <view class="avatar-wrapper">
+          <image src="{{item.authorAvatar}}" class="avatar" />
           <text>{{item.authorName}}</text>
-          <text>{{item.category}}</text>
-          <text>{{item.readCount}} 阅读</text>
         </view>
+
+        <view class="summary">{{item.summary}}</view>
+      </view>
+
+      <image wx:if="{{item.cover}}" class="cover" src="{{item.cover}}" mode="aspectFill"></image>
+    </view>
+    <view class="footer">
+      <view class="meta">
+        <text>阅读 {{item.readCount}}</text>
+        <text>点赞 {{item.praiseCount}}</text>
+        <text>评论 {{item.commentCount}}</text>
+      </view>
+      <view class="tags">
+        <view wx:for="{{item.tags}}" wx:for-item="child" wx:key="child" class="tag">{{child}}</view>
       </view>
     </view>
-    <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}</view>
-  </scroll-view>
-</view>
+  </view>
+  <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}
+  </view>
+</scroll-view>

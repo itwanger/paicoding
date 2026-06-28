@@ -4,7 +4,7 @@ const auth = require('../../utils/auth');
 Page({
   data: {
     categories: [],
-    activeCategoryId: 0,
+    activeCategoryId: "0",
     articles: [],
     page: 1,
     size: 10,
@@ -12,7 +12,8 @@ Page({
     loading: false,
     articleRequestId: 0,
     refreshing: false,
-    error: ''
+    error: '',
+    activeBarLeft: 20
   },
 
   async onLoad() {
@@ -21,6 +22,10 @@ Page({
       auth.promptProfileIfNeeded();
       await this.loadCategories();
       await this.loadArticles(true);
+      // 延迟更新 active-bar 位置，确保 DOM 已渲染
+      setTimeout(() => {
+        this.updateActiveBar();
+      }, 100);
     } catch (err) {
       this.setData({ error: err.message || '加载失败' });
     }
@@ -30,6 +35,10 @@ Page({
     try {
       const categories = await request({ url: '/mini/api/categories' });
       this.setData({ categories });
+      if (categories?.length > 0)
+        this.setData({
+          activeCategoryId: categories[0].categoryId
+        })
     } catch (err) {
       this.setData({ error: err.message || '分类加载失败' });
     }
@@ -80,7 +89,8 @@ Page({
   },
 
   onCategoryTap(e) {
-    const id = Number(e.currentTarget.dataset.id);
+    console.log(e)
+    const id = e.currentTarget.dataset.id;
     const articleRequestId = this.data.articleRequestId + 1;
     this.setData({
       activeCategoryId: id,
@@ -92,6 +102,7 @@ Page({
       refreshing: false,
       error: ''
     });
+    this.updateActiveBar();
     this.loadArticles(true, articleRequestId, id);
   },
 
@@ -124,6 +135,20 @@ Page({
     if (this.data.hasMore) {
       this.loadArticles(false);
     }
+  },
+
+  updateActiveBar() {
+    const query = wx.createSelectorQuery();
+    query.select(`#category-${this.data.activeCategoryId}`).boundingClientRect();
+    query.exec((res) => {
+      console.log(res);
+      if (res && res.length > 0) {
+        const barLeft = res[0].left + ((res[0].width / 2) - 23);
+        this.setData({
+          activeBarLeft: barLeft
+        });
+      }
+    });
   },
 
   openDetail(e) {
