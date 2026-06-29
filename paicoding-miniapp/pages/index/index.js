@@ -13,7 +13,8 @@ Page({
     articleRequestId: 0,
     refreshing: false,
     error: '',
-    activeBarLeft: 20
+    activeBarLeft: 20,
+    canRefresh: true  // 控制是否可以下拉刷新
   },
 
   async onLoad() {
@@ -28,6 +29,13 @@ Page({
       }, 100);
     } catch (err) {
       this.setData({ error: err.message || '加载失败' });
+    }
+  },
+
+  onPageScroll(e) {
+    const canRefresh = e.scrollTop <= 0;
+    if (this.data.canRefresh !== canRefresh) {
+      this.setData({ canRefresh });
     }
   },
 

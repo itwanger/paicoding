@@ -17,7 +17,7 @@
   <view class="active-bar" style="width: 16px; left: {{activeBarLeft}}px;"></view>
 </scroll-view>
 
-<scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled
+<scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled="{{canRefresh}}"
   bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
   <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
     <view class="state-title">加载失败</view>
