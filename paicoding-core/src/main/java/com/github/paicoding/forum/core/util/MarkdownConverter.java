@@ -15,10 +15,15 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.text.Normalizer;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 微信搜索「沉默王二」，回复 Java
@@ -27,6 +32,9 @@ import java.util.Arrays;
  * @date 4/15/23
  */
 public class MarkdownConverter {
+    private static final Pattern BILIBILI_BVID_PATTERN = Pattern.compile("(?i)(?:[?&])bvid=(BV[a-zA-Z0-9]+)");
+    private static final String BILIBILI_PLAYER_PREFIX = "https://player.bilibili.com/player.html";
+    private static final String BILIBILI_PROTOCOL_RELATIVE_PREFIX = "//player.bilibili.com/player.html";
 
     /**
      * markdown→HTML 渲染结果缓存：渲染是纯函数（同 markdown 必出同 HTML），且文章正文几乎不变，
@@ -113,10 +121,13 @@ public class MarkdownConverter {
         if (line.startsWith("@[bilibili](") && line.endsWith(")")) {
             String bvid = line.substring("@[bilibili](".length(), line.length() - 1);
             if (bvid.matches("BV[a-zA-Z0-9]+")) {
-                return "<div class=\"video-container\">\n"
-                        + "<iframe src=\"https://player.bilibili.com/player.html?bvid=" + bvid + "&page=1&high_quality=1&danmaku=0\" scrolling=\"no\" border=\"0\" frameborder=\"0\" framespacing=\"0\" loading=\"lazy\" allowfullscreen=\"true\"></iframe>\n"
-                        + "</div>";
+                return buildBilibiliVideoHtml(BILIBILI_PLAYER_PREFIX + "?bvid=" + bvid + "&page=1&high_quality=1&danmaku=0");
             }
+        }
+
+        String rawBilibiliIframeHtml = buildRawBilibiliIframeHtml(line);
+        if (rawBilibiliIframeHtml != null) {
+            return rawBilibiliIframeHtml;
         }
 
         if (line.startsWith("@[youtube](") && line.endsWith(")")) {
@@ -147,6 +158,48 @@ public class MarkdownConverter {
         }
 
         return null;
+    }
+
+    private static String buildRawBilibiliIframeHtml(String line) {
+        if (!line.startsWith("<iframe") || !line.endsWith("</iframe>") || !line.contains("player.bilibili.com/player.html")) {
+            return null;
+        }
+
+        Document document = Jsoup.parseBodyFragment(line);
+        Element iframe = document.selectFirst("iframe[src]");
+        if (iframe == null) {
+            return null;
+        }
+
+        String playerSrc = normalizeBilibiliPlayerSrc(iframe.attr("src"));
+        if (playerSrc == null) {
+            return null;
+        }
+
+        Matcher matcher = BILIBILI_BVID_PATTERN.matcher(playerSrc);
+        if (matcher.find()) {
+            String bvid = matcher.group(1);
+            return buildBilibiliVideoHtml(BILIBILI_PLAYER_PREFIX + "?bvid=" + bvid + "&page=1&high_quality=1&danmaku=0");
+        }
+        return buildBilibiliVideoHtml(playerSrc);
+    }
+
+    private static String normalizeBilibiliPlayerSrc(String src) {
+        if (src == null) {
+            return null;
+        }
+        String trimmed = src.trim();
+        String normalized = trimmed.startsWith(BILIBILI_PROTOCOL_RELATIVE_PREFIX) ? "https:" + trimmed : trimmed;
+        if (!normalized.startsWith(BILIBILI_PLAYER_PREFIX) || !normalized.matches("[a-zA-Z0-9:/?&=._%#\\-]+")) {
+            return null;
+        }
+        return normalized;
+    }
+
+    private static String buildBilibiliVideoHtml(String playerSrc) {
+        return "<div class=\"video-container video-container--bilibili\">\n"
+                + "<div class=\"video-container__stage\"><iframe src=\"" + playerSrc + "\" scrolling=\"no\" border=\"0\" frameborder=\"0\" framespacing=\"0\" loading=\"lazy\" allowfullscreen=\"true\"></iframe></div>\n"
+                + "</div>";
     }
 
     private static String normalizeVideoId(String videoId) {
