@@ -1388,6 +1388,35 @@ button:focus {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
+.article-content .video-container.video-container--bilibili {
+  aspect-ratio: auto;
+  max-width: 860px;
+  margin: 30px auto 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.article-content .video-container.video-container--bilibili::before {
+  display: none;
+}
+
+.article-content .video-container__bar {
+  display: none;
+}
+
+.article-content .video-container__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+
 .article-content .video-container iframe {
   position: absolute;
   inset: 0;
@@ -1396,6 +1425,31 @@ button:focus {
   height: 100%;
   border: 0;
   border-radius: inherit;
+}
+
+.article-content .video-container.video-container--bilibili .video-container__stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: #000;
+}
+
+.article-content > iframe[src*="player.bilibili.com"],
+.article-content p > iframe[src*="player.bilibili.com"] {
+  display: block;
+  width: min(100%, 860px);
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  margin: 30px auto 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: border-box;
 }
 
 .article-content .video-container video {
@@ -1413,6 +1467,34 @@ button:focus {
   .article-content .video-container {
     height: 0;
     padding-bottom: 56.25%;
+  }
+
+  .article-content .video-container.video-container--bilibili {
+    height: auto;
+    padding: 0;
+  }
+
+  .article-content .video-container.video-container--bilibili .video-container__stage {
+    height: 0;
+    padding-bottom: 56.25%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .article-content .video-container.video-container--bilibili {
+    margin: 22px auto 26px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .article-content .video-container__stage {
+    border-radius: 7px;
+  }
+
+  .article-content > iframe[src*="player.bilibili.com"],
+  .article-content p > iframe[src*="player.bilibili.com"] {
+    margin: 22px auto 26px;
+    border-radius: 10px;
   }
 }
 
