@@ -14,17 +14,24 @@ Page({
     refreshing: false,
     error: '',
     activeBarLeft: 20,
+    categoryRowWidth: 375,
+    categoryStickyHeight: 64,
+    categoryOffsetTop: 0,
+    categoryStuck: false,
     canRefresh: true  // 控制是否可以下拉刷新
   },
 
   async onLoad() {
     try {
+      this.initCategoryStickyLayout();
       await auth.ensureLogin();
       auth.promptProfileIfNeeded();
       await this.loadCategories();
       await this.loadArticles(true);
       // 延迟更新 active-bar 位置，确保 DOM 已渲染
       setTimeout(() => {
+        this.updateCategoryStickyOffset();
+        this.observeCategorySticky();
         this.updateActiveBar();
       }, 100);
     } catch (err) {
@@ -32,10 +39,40 @@ Page({
     }
   },
 
+  initCategoryStickyLayout() {
+    let menuButtonRect = null;
+    let systemInfo = {};
+
+    try {
+      systemInfo = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {};
+      menuButtonRect = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+    } catch (err) {
+      menuButtonRect = null;
+    }
+
+    const windowWidth = systemInfo.windowWidth || 375;
+    const menuBottom = menuButtonRect?.bottom || ((systemInfo.statusBarHeight || 20) + 44);
+    const safeRight = menuButtonRect?.left ? (windowWidth - menuButtonRect.left + 12) : 0;
+
+    this.setData({
+      categoryRowWidth: Math.ceil(windowWidth - safeRight),
+      categoryStickyHeight: Math.ceil(menuBottom + 12),
+    });
+  },
+
   onPageScroll(e) {
     const canRefresh = e.scrollTop <= 0;
+    const categoryStuck = this.data.categoryOffsetTop > 0 && e.scrollTop >= this.data.categoryOffsetTop;
+    const nextData = {};
+
     if (this.data.canRefresh !== canRefresh) {
-      this.setData({ canRefresh });
+      nextData.canRefresh = canRefresh;
+    }
+    if (this.data.categoryStuck !== categoryStuck) {
+      nextData.categoryStuck = categoryStuck;
+    }
+    if (Object.keys(nextData).length > 0) {
+      this.setData(nextData);
     }
   },
 
@@ -109,8 +146,9 @@ Page({
       loading: false,
       refreshing: false,
       error: ''
+    }, () => {
+      this.updateActiveBar();
     });
-    this.updateActiveBar();
     this.loadArticles(true, articleRequestId, id);
   },
 
@@ -147,16 +185,55 @@ Page({
 
   updateActiveBar() {
     const query = wx.createSelectorQuery();
+    query.select('.category-track').boundingClientRect();
     query.select(`#category-${this.data.activeCategoryId}`).boundingClientRect();
     query.exec((res) => {
       console.log(res);
-      if (res && res.length > 0) {
-        const barLeft = res[0].left + ((res[0].width / 2) - 23);
+      const trackRect = res?.[0];
+      const pillRect = res?.[1];
+      if (trackRect && pillRect) {
+        const barLeft = pillRect.left - trackRect.left + ((pillRect.width / 2) - 8);
         this.setData({
           activeBarLeft: barLeft
         });
       }
     });
+  },
+
+  updateCategoryStickyOffset() {
+    const query = wx.createSelectorQuery();
+    query.select('.category-sticky').boundingClientRect();
+    query.selectViewport().scrollOffset();
+    query.exec((res) => {
+      const rect = res?.[0];
+      const scroll = res?.[1];
+      if (!rect) return;
+
+      this.setData({
+        categoryOffsetTop: Math.max(0, Math.round(rect.top + (scroll?.scrollTop || 0)))
+      });
+    });
+  },
+
+  observeCategorySticky() {
+    if (this.categoryStickyObserver) {
+      this.categoryStickyObserver.disconnect();
+    }
+
+    this.categoryStickyObserver = this.createIntersectionObserver();
+    this.categoryStickyObserver.relativeToViewport().observe('.category-sticky-sentinel', (res) => {
+      const categoryStuck = res.boundingClientRect.top <= 0;
+      if (this.data.categoryStuck !== categoryStuck) {
+        this.setData({ categoryStuck });
+      }
+    });
+  },
+
+  onUnload() {
+    if (this.categoryStickyObserver) {
+      this.categoryStickyObserver.disconnect();
+      this.categoryStickyObserver = null;
+    }
   },
 
   openDetail(e) {

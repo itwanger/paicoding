@@ -6,19 +6,19 @@
     <t-input placeholder="搜索 Java、AI、面试" prefixIcon="search" class="search shadow" />
   </view>
 </view>
+<!--<view wx:if="{{categories.length > 0}}" class="category-sticky-sentinel"></view>-->
 
-<scroll-view class="category-row" scroll-x>
-  <view wx:for="{{categories}}" wx:key="categoryId"
-    class="category-pill {{item.categoryId === activeCategoryId ? 'category-pill--active' : ''}}"
-    bindtap="onCategoryTap" data-id="{{item.categoryId}}" id="category-{{item.categoryId}}">
-    {{item.category}}
-  </view>
-
-  <view class="active-bar" style="width: 16px; left: {{activeBarLeft}}px;"></view>
-</scroll-view>
-
-<scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled="{{canRefresh}}"
-  bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
+<view wx:if="{{categories.length > 0}}" class="category-sticky {{categoryStuck ? 'category-sticky--stuck' : ''}}" style="height: {{categoryStickyHeight}}px;">
+  <scroll-view class="category-row" scroll-x style="width: {{categoryRowWidth}}px;">
+    <view class="category-track" style="padding-bottom: {{categoryTextBottomGap}}px;">
+      <view wx:for="{{categories}}" wx:key="categoryId" class="category-pill {{item.categoryId === activeCategoryId ? 'category-pill--active' : ''}}" bindtap="onCategoryTap" data-id="{{item.categoryId}}" id="category-{{item.categoryId}}">
+        {{item.category}}
+      </view>
+      <view class="active-bar" style="left: {{activeBarLeft}}px;"></view>
+    </view>
+  </scroll-view>
+</view>
+<scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled="{{canRefresh}}" bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
   <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
     <view class="state-title">加载失败</view>
     <view class="state-desc muted">{{error}}</view>
@@ -33,10 +33,8 @@
           <image src="{{item.authorAvatar}}" class="avatar" />
           <text>{{item.authorName}}</text>
         </view>
-
         <view class="summary">{{item.summary}}</view>
       </view>
-
       <image wx:if="{{item.cover}}" class="cover" src="{{item.cover}}" mode="aspectFill"></image>
     </view>
     <view class="footer">
@@ -50,6 +48,7 @@
       </view>
     </view>
   </view>
-  <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}
+  <view wx:if="{{articles.length > 0}}" class="load-state muted">
+    {{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}
   </view>
 </scroll-view>
