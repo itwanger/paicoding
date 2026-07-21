@@ -1,0 +1,64 @@
+{
+  "$schema": "https://vite.icebreaker.top/app.json",
+  "componentFramework": "glass-easel",
+  "pages": [
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/profile-edit/profile-edit",
+    "pages/search/search",
+    "pages/detail/detail",
+    "pages/following/following",
+    "pages/my-articles/my-articles",
+    "pages/collection/collection",
+    "pages/history/history"
+  ],
+  "usingComponents": {
+    "article-card": "/components/article-card/index",
+    "empty-state": "/components/empty-state/index"
+  },
+  "window": {
+    "navigationBarTitleText": "技术派",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f7fb"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#333",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "assets/tabbar/article.png",
+        "selectedIconPath": "assets/tabbar/article-active.png",
+        "text": "文章"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "iconPath": "assets/tabbar/profile.png",
+        "selectedIconPath": "assets/tabbar/profile-active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json",
+  "agent": {
+    "skills": [
+      {
+        "name": "article-search",
+        "description": "搜索和阅读技术派文章",
+        "path": "skills/article-search"
+      }
+    ]
+  },
+  "subPackages": [
+    {
+      "root": "skills",
+      "independent": true,
+      "entry": "article-search/index.js",
+      "pages": []
+    }
+  ]
+}

@@ -1,36 +1,6 @@
 {
-  "type": "module",
-  "scripts": {
-    "dev": "wv dev",
-    "dev:open": "wv dev -o",
-    "dev:ui": "wv dev --ui",
-    "dev:open:ui": "wv dev --ui -o",
-    "build": "wv build",
-    "test": "node --test test/*.test.cjs",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "open": "wv open",
-    "g": "wv generate",
-    "postinstall": "wv prepare"
-  },
   "dependencies": {
     "mp-html": "^2.5.2",
     "tdesign-miniprogram": "^1.15.2"
-  },
-  "devDependencies": {
-    "@icebreakers/eslint-config": "^6.0.0",
-    "@iconify-json/solar": "^1.2.3",
-    "@iconify/tailwind4": "^1.2.3",
-    "@types/node": "^26.0.1",
-    "@weapp-vite/dashboard": "^6.17.8",
-    "eslint": "^10.6.0",
-    "miniprogram-api-typings": "^5.2.1",
-    "postcss": "^8.5.16",
-    "sass": "^1.101.0",
-    "tailwindcss": "^4.3.1",
-    "typescript": "^6.0.3",
-    "weapp-tailwindcss": "^5.1.13",
-    "weapp-vite": "^6.17.8",
-    "wevu": "^6.17.8"
   }
 }

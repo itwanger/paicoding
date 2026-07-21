@@ -1,0 +1,168 @@
+<view class="detail-page">
+  <view wx:if="{{loading}}" class="state-card muted">加载中</view>
+  <view wx:elif="{{error && !article}}" class="state-card">
+    <view class="state-title">加载失败</view>
+    <view class="state-desc muted">{{error}}</view>
+    <button class="primary-button retry-button" bindtap="loadDetail">重试</button>
+  </view>
+  <view wx:elif="{{article}}" class="article-head">
+    <view class="title">{{article.title}}</view>
+    <view class="article-meta-row">
+      <view class="article-meta-info">
+        <text class="article-author-name">{{article.authorName}}</text>
+        <text class="article-meta-text">{{article.createTime}}</text>
+        <view class="article-read">
+          <image src="/assets/images/article-read-dark.png" class="article-read-icon" mode="widthFix" />
+          <text class="article-meta-text">{{article.readCount}}</text>
+        </view>
+      </view>
+      <t-button wx:if="{{article.authorId !== currentUserId}}" class="focus-btn"
+        theme="{{article.followed ? 'default' : 'primary'}}" size="extra-small" disabled="{{followSubmitting}}"
+        loading="{{followSubmitting}}" bindtap="toggleFollow">
+        {{article.followed ? '已关注' : '关注'}}
+      </t-button>
+    </view>
+  </view>
+  <view wx:if="{{article && !article.canRead}}" class="read-notice">当前账号可能没有完整阅读权限，已展示可访问内容。</view>
+  <mp-html wx:if="{{article}}" content="{{article.contentHtml}}" lazy-load
+    container-style="padding: 15px; font-size: 16px;line-height: 1.7; color: #4b5563;" />
+  <view wx:if="{{article}}" class="tags-row">
+    <image src="/assets/images/tag.png" class="tags-row-icon" mode="widthFix" />
+    <view wx:for="{{article.tags}}" wx:key="index" class="tag-chip">
+      <text class="tag-chip-text">{{item}}</text>
+    </view>
+  </view>
+  <view wx:if="{{article}}" id="comment-section" class="comment-section">
+    <view id="comment-composer" class="comment-composer">
+      <t-textarea class="comment-composer-input" value="{{commentDraft}}" maxlength="512" focus="{{commentInputFocus}}"
+        confirmType="done" style="{{'height: 132rpx'}}" show-confirm-bar="{{false}}" placeholder="写下你的评论"
+        bind:change="onCommentInput"></t-textarea>
+      <view class="comment-composer-footer">
+        <text class="comment-composer-counter">{{commentDraftLength}}/512</text>
+        <t-button theme="primary" size="small" shape="round" disabled="{{!commentCanSubmit || commentSubmitting}}"
+          loading="{{commentSubmitting}}"
+          custom-style="width: 116rpx; height: 64rpx; border-radius: 32rpx; background: #43CF7C; border-color: #43CF7C;"
+          bindtap="submitComment">
+          评论
+        </t-button>
+      </view>
+    </view>
+    <view class="comment-head">
+      <text class="comment-title">评论 {{article.commentCount || 0}}</text>
+      <text wx:if="{{commentsLoading}}" class="comment-loading">加载中</text>
+    </view>
+    <view wx:if="{{commentError}}" class="comment-error">{{commentError}}</view>
+    <view wx:elif="{{!commentsLoading && comments.length === 0}}" class="comment-empty">还没有评论</view>
+    <view wx:for="{{comments}}" wx:key="commentId" class="comment-item">
+      <image wx:if="{{item.userPhoto}}" class="comment-avatar" src="{{item.userPhoto}}" mode="aspectFill"></image>
+      <view wx:else class="comment-avatar comment-avatar-placeholder">{{item.userInitial}}</view>
+      <view class="comment-body">
+        <text class="comment-user">{{item.userName || '技术派用户'}}</text>
+        <view class="comment-content">{{item.commentContent}}</view>
+        <view class="comment-footer">
+          <view class="comment-footer-left">
+            <text class="comment-time">{{item.commentTimeStr}}</text>
+            <text class="comment-divider">·</text>
+            <text class="comment-action comment-action--reply" data-id="{{item.commentId}}" data-top="{{item.commentId}}"
+              data-name="{{item.userName || '技术派用户'}}" bindtap="startReply">回复</text>
+            <text class="comment-action comment-action--delete" data-id="{{item.commentId}}" bindtap="deleteComment">删除</text>
+          </view>
+          <view class="comment-praise {{item.praised ? 'comment-praise--active' : ''}}" data-id="{{item.commentId}}"
+            data-praised="{{item.praised}}" bindtap="toggleCommentPraise">
+            <image class="comment-praise-icon" src="/assets/images/article-praise.png" mode="aspectFit" />
+            <text>{{item.praiseCount || 0}}</text>
+          </view>
+        </view>
+        <view wx:if="{{commentReplyTarget && commentReplyTarget.parentCommentId == item.commentId}}"
+          class="inline-reply-composer">
+          <t-textarea class="inline-reply-input" value="{{replyDraft}}" maxlength="512" focus="{{replyInputFocus}}"
+            confirmType="done" show-confirm-bar="{{false}}" placeholder="{{'回复 ' + commentReplyTarget.userName}}"
+            bind:change="onReplyInput"></t-textarea>
+          <view class="inline-reply-footer">
+            <text class="inline-reply-counter">{{replyDraftLength}}/512</text>
+            <text class="inline-reply-cancel" bindtap="cancelReply">取消</text>
+            <t-button theme="primary" size="small" shape="round" disabled="{{!replyCanSubmit || commentSubmitting}}"
+              loading="{{commentSubmitting}}" bindtap="submitComment">
+              回复
+            </t-button>
+          </view>
+        </view>
+        <view wx:if="{{item.childComments.length > 0 || item.hasMoreChild}}" class="reply-list">
+          <view wx:for="{{item.childComments}}" wx:for-item="child" wx:key="commentId" class="reply-item">
+            <image wx:if="{{child.userPhoto}}" class="reply-avatar" src="{{child.userPhoto}}" mode="aspectFill"></image>
+            <view wx:else class="reply-avatar reply-avatar-placeholder">{{child.userInitial}}</view>
+            <view class="reply-body">
+              <text class="comment-user reply-user">{{child.userName || '技术派用户'}}</text>
+              <view class="comment-content reply-content">{{child.commentContent}}</view>
+              <view class="comment-footer">
+                <view class="comment-footer-left">
+                  <text class="comment-time">{{child.commentTimeStr}}</text>
+                  <text class="comment-divider">·</text>
+                  <text class="comment-action comment-action--reply" data-id="{{child.commentId}}"
+                    data-top="{{item.commentId}}" data-name="{{child.userName || '技术派用户'}}"
+                    bindtap="startReply">回复</text>
+                  <text wx:if="{{child.canDelete}}" class="comment-action comment-action--delete"
+                    data-id="{{child.commentId}}" bindtap="deleteComment">删除</text>
+                </view>
+                <view class="comment-praise {{child.praised ? 'comment-praise--active' : ''}}"
+                  data-id="{{child.commentId}}" data-praised="{{child.praised}}" bindtap="toggleCommentPraise">
+                  <image class="comment-praise-icon" src="/assets/images/article-praise.png" mode="aspectFit" />
+                  <text>{{child.praiseCount || 0}}</text>
+                </view>
+              </view>
+              <view wx:if="{{commentReplyTarget && commentReplyTarget.parentCommentId == child.commentId}}"
+                class="inline-reply-composer">
+                <t-textarea class="inline-reply-input" value="{{replyDraft}}" maxlength="512"
+                  focus="{{replyInputFocus}}" confirmType="done" show-confirm-bar="{{false}}"
+                  placeholder="{{'回复 ' + commentReplyTarget.userName}}" bind:change="onReplyInput"></t-textarea>
+                <view class="inline-reply-footer">
+                  <text class="inline-reply-counter">{{replyDraftLength}}/512</text>
+                  <text class="inline-reply-cancel" bindtap="cancelReply">取消</text>
+                  <t-button theme="primary" size="small" shape="round"
+                    disabled="{{!replyCanSubmit || commentSubmitting}}" loading="{{commentSubmitting}}"
+                    bindtap="submitComment">
+                    回复
+                  </t-button>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view wx:if="{{item.hasMoreChild}}"
+            class="reply-more {{replyLoadingTopId === item.commentId ? 'reply-more--loading' : ''}}"
+            data-top="{{item.commentId}}" bindtap="loadMoreReplies">
+            {{replyLoadingTopId === item.commentId ? '加载中' : '展开更多回复'}}
+          </view>
+        </view>
+      </view>
+    </view>
+    <button wx:if="{{commentsHasMore}}" class="comment-more" disabled="{{commentsLoading}}" bindtap="loadMoreComments">
+      加载更多评论
+    </button>
+  </view>
+  <view wx:if="{{article}}" class="action-bar">
+    <view class="bottom-author">
+      <image wx:if="{{article.authorAvatar}}" class="bottom-author-avatar" src="{{article.authorAvatar}}"
+        mode="aspectFill"></image>
+      <view wx:else class="bottom-author-avatar bottom-author-avatar-placeholder">{{article.authorInitial}}</view>
+      <text class="bottom-author-name">{{article.authorName}}</text>
+    </view>
+    <button wx:if="{{!commentSectionVisible}}" class="action-button" bindtap="scrollToComments">
+      <t-badge class="action-badge action-badge--comment" count="{{article.commentCount || 0}}" maxCount="99">
+        <image class="action-icon" src="/assets/images/article-comment-dark.png" mode="aspectFit" />
+      </t-badge>
+    </button>
+    <button wx:else class="action-button" bindtap="backTop">
+      <image class="action-icon" src="/assets/images/top.png" mode="aspectFit" />
+    </button>
+    <button class="action-button {{article.praised ? 'action-button--praised' : ''}}" disabled="{{praiseSubmitting}}"
+      bindtap="togglePraise">
+      <t-badge class="action-badge action-badge--praise" count="{{article.praiseCount || 0}}" maxCount="99">
+        <image class="action-icon" src="/assets/images/like{{article.praised ? '' : '-fill'}}.png" mode="aspectFit" />
+      </t-badge>
+    </button>
+    <button class="action-button {{article.collected ? 'action-button--collected' : ''}}"
+      disabled="{{collectSubmitting}}" bindtap="toggleCollect">
+      <image class="action-icon" src="/assets/images/star{{article.collected ? '' : '-fill'}}.png" mode="aspectFit" />
+    </button>
+  </view>
+</view>

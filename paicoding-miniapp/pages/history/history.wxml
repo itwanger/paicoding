@@ -1,0 +1,10 @@
+<scroll-view class="history-page" scroll-y bindscrolltolower="loadMore" refresher-enabled bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
+  <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card panel">
+    <view class="state-title">加载失败</view>
+    <view class="state-desc muted">{{error}}</view>
+    <button class="primary-button retry-button" bindtap="retry">重试</button>
+  </view>
+  <empty-state wx:elif="{{articles.length === 0 && !loading}}" text="暂无浏览历史" />
+  <article-card wx:for="{{articles}}" wx:key="articleId" article="{{item}}" />
+  <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}</view>
+</scroll-view>

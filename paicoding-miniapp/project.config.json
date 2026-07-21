@@ -1,10 +1,10 @@
 {
   "appid": "wx6b84c739c58813a6",
   "projectname": "paicoding-miniapp",
-  "miniprogramRoot": "dist/",
+  "miniprogramRoot": "./",
   "compileType": "miniprogram",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "es6": true,
     "postcss": true,
     "minified": true,
@@ -28,7 +28,7 @@
       "outputPath": ""
     }
   },
-  "libVersion": "3.8.0",
+  "libVersion": "3.15.0",
   "packOptions": {
     "include": [
       {

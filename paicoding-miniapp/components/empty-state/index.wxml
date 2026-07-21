@@ -1,0 +1,4 @@
+<view class="empty-state">
+  <image class="empty-state__image" src="/assets/images/empty-list.png" mode="aspectFit" />
+  <view wx:if="{{text}}" class="empty-state__text">{{text}}</view>
+</view>

@@ -1,0 +1,17 @@
+.collection-page {
+  padding: 30rpx 0 0;
+}
+
+.collection-scroll {
+  height: calc(100vh - 24rpx);
+}
+
+.state-card {
+  margin: 0 30rpx;
+}
+
+.load-state {
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+}

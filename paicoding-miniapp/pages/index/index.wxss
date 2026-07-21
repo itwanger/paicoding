@@ -1,0 +1,74 @@
+.t-input {
+  --td-input-vertical-padding: 24rpx;
+}
+
+.index-page {
+  padding-bottom: 0;
+}
+
+.header {
+  position: relative;
+  margin-bottom: 60rpx;
+}
+
+.header-title {
+  color: white;
+  font-size: 60rpx;
+  font-weight: bold;
+  position: absolute;
+  z-index: 1;
+  top: 36%;
+  left: 60rpx;
+}
+
+.header-subtitle {
+  color: white;
+  font-size: 28rpx;
+  position: absolute;
+  z-index: 1;
+  top: 55%;
+  left: 60rpx;
+}
+
+.search-wrapper {
+  position: absolute;
+  bottom: -48rpx;
+}
+
+.search {
+  border-radius: 100px;
+  width: calc(100vw - 60rpx);
+  margin-left: 30rpx;
+}
+
+.category-row {
+  padding: 30rpx;
+  white-space: nowrap;
+}
+
+.category-pill {
+  display: inline-block;
+  min-width: 96rpx;
+  height: 50rpx;
+  padding: 0 24rpx;
+  color: #334155;
+}
+
+.category-pill--active {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.active-bar {
+  height: 8rpx;
+  background: linear-gradient(to left, #0BC196, #1CE885);
+  border-radius: 10rpx;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.load-state {
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+}

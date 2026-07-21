@@ -1,0 +1,56 @@
+<view class="my-articles-page">
+  <t-tabs value="{{activeTab}}" bind:change="switchTab" theme="line" space-evenly>
+    <t-tab-panel value="article" label="文章">
+      <scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" data-type="article" refresher-enabled bindrefresherrefresh="refresh" refresher-triggered="{{article.refreshing}}">
+        <view class="list-content">
+          <view wx:if="{{article.error && article.articles.length === 0 && !article.loading}}" class="state-card panel">
+            <view class="state-title">加载失败</view>
+            <view class="state-desc muted">{{article.error}}</view>
+            <button class="primary-button retry-button" data-type="article" bindtap="retry">重试</button>
+          </view>
+          <empty-state wx:elif="{{article.articles.length === 0 && !article.loading}}" text="暂无文章" />
+          <view wx:for="{{article.articles}}" wx:key="articleId" class="owner-article-card panel" data-id="{{item.articleId}}" data-status="{{item.status}}" bindtap="openArticle">
+            <view class="card-head">
+              <view class="title">{{item.title}}</view>
+              <view class="status {{item.isReview ? 'status--review' : 'status--online'}}">{{item.statusText}}</view>
+            </view>
+            <view class="summary">{{item.summary || '暂未填写摘要'}}</view>
+            <view class="meta">
+              <text>{{item.category || '未分类'}}</text>
+              <text>{{item.readCount || 0}} 阅读</text>
+              <text>{{item.praiseCount || 0}} 赞</text>
+            </view>
+          </view>
+          <view wx:if="{{article.articles.length > 0}}" class="load-state muted">{{article.loading ? '加载中' : (article.hasMore ? '上拉加载更多' : '没有更多了')}}</view>
+        </view>
+      </scroll-view>
+    </t-tab-panel>
+
+    <t-tab-panel value="draft" label="草稿">
+      <scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" data-type="draft" refresher-enabled bindrefresherrefresh="refresh" refresher-triggered="{{draft.refreshing}}">
+        <view class="list-content">
+          <view wx:if="{{draft.error && draft.articles.length === 0 && !draft.loading}}" class="state-card panel">
+            <view class="state-title">加载失败</view>
+            <view class="state-desc muted">{{draft.error}}</view>
+            <button class="primary-button retry-button" data-type="draft" bindtap="retry">重试</button>
+          </view>
+          <empty-state wx:elif="{{draft.articles.length === 0 && !draft.loading}}" text="暂无草稿" />
+          <view wx:for="{{draft.articles}}" wx:key="articleId" class="owner-article-card panel">
+            <view class="card-head">
+              <view class="title">{{item.title}}</view>
+              <view class="status status--draft">{{item.statusText}}</view>
+            </view>
+            <view class="summary">{{item.summary || '暂未填写摘要'}}</view>
+            <view class="draft-footer">
+              <view class="meta">
+                <text>{{item.category || '未分类'}}</text>
+              </view>
+              <button class="publish-button" data-id="{{item.articleId}}" loading="{{item.publishing}}" disabled="{{item.publishing}}" catchtap="publishDraft">发布</button>
+            </view>
+          </view>
+          <view wx:if="{{draft.articles.length > 0}}" class="load-state muted">{{draft.loading ? '加载中' : (draft.hasMore ? '上拉加载更多' : '没有更多了')}}</view>
+        </view>
+      </scroll-view>
+    </t-tab-panel>
+  </t-tabs>
+</view>

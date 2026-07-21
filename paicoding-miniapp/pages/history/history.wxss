@@ -1,0 +1,15 @@
+.history-page {
+  height: 100vh;
+  padding: 30rpx 0 0;
+  background: #f6f7fb;
+}
+
+.state-card {
+  margin: 0 30rpx;
+}
+
+.load-state {
+  padding: 20rpx 0 36rpx;
+  font-size: 24rpx;
+  text-align: center;
+}

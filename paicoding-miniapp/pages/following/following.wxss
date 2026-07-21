@@ -1,0 +1,80 @@
+.following-page {
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.user-scroll {
+  height: calc(100vh - 96rpx);
+}
+
+.list-content {
+  padding: 24rpx 30rpx 0;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  min-height: 136rpx;
+  margin-bottom: 16rpx;
+  padding: 22rpx 24rpx;
+}
+
+.avatar {
+  flex: 0 0 88rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
+.avatar-placeholder {
+  color: #64748b;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 88rpx;
+  text-align: center;
+}
+
+.user-name {
+  flex: 1;
+  min-width: 0;
+  color: #111827;
+  font-size: 30rpx;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relationship-button {
+  flex: 0 0 136rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+  background: #0bc196;
+  color: #ffffff;
+  font-size: 26rpx;
+  line-height: 64rpx;
+}
+
+.relationship-button--followed {
+  border: 1rpx solid #cbd5e1;
+  background: #ffffff;
+  color: #64748b;
+  line-height: 62rpx;
+}
+
+.relationship-button[disabled] {
+  opacity: 0.58;
+}
+
+.state-card {
+  margin-top: 8rpx;
+}
+
+.load-state {
+  height: 88rpx;
+  font-size: 24rpx;
+  line-height: 88rpx;
+  text-align: center;
+}

@@ -1,0 +1,31 @@
+<view class="header">
+  <t-image src="https://cdn.paicoding.com/stutymore/pai-coding-home-header.png" width="100vw" mode="widthFix" />
+  <text class="header-title jinbuti">技术派</text>
+  <text class="header-subtitle jinbuti">AI时代不迷路 就上技术派</text>
+  <view class="search-wrapper">
+    <t-input placeholder="搜索 Java、AI、面试" prefixIcon="search" class="search shadow" />
+  </view>
+</view>
+
+<scroll-view wx:if="{{categories.length > 0}}" class="category-row" scroll-x>
+  <view wx:for="{{categories}}" wx:key="categoryId"
+    class="category-pill {{item.categoryId === activeCategoryId ? 'category-pill--active' : ''}}"
+    bindtap="onCategoryTap" data-id="{{item.categoryId}}" id="category-{{item.categoryId}}">
+    {{item.category}}
+  </view>
+
+  <view class="active-bar" style="width: 16px; left: {{activeBarLeft}}px;"></view>
+</scroll-view>
+
+<scroll-view class="article-scroll" scroll-y bindscrolltolower="loadMore" refresher-enabled="{{canRefresh}}"
+  bindrefresherrefresh="refresh" refresher-triggered="{{refreshing}}">
+  <view wx:if="{{error && articles.length === 0 && !loading}}" class="state-card">
+    <view class="state-title">加载失败</view>
+    <view class="state-desc muted">{{error}}</view>
+    <button class="primary-button retry-button" bindtap="retry">重试</button>
+  </view>
+  <empty-state wx:elif="{{articles.length === 0 && !loading}}" text="暂无文章" />
+  <article-card wx:for="{{articles}}" wx:key="articleId" article="{{item}}" />
+  <view wx:if="{{articles.length > 0}}" class="load-state muted">{{loading ? '加载中' : (hasMore ? '上拉加载更多' : '没有更多了')}}
+  </view>
+</scroll-view>
