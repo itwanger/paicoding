@@ -43,15 +43,22 @@ Page({
     }
     const fromAiSkill = options.from === 'ai-skill';
     this.setData({ id: articleId, fromAiSkill, currentUserId: this.getCurrentUserId() });
+    // 先加载内容，不阻塞于登录（未登录也能浏览文章详情）
     try {
-      if (!fromAiSkill) {
-        const user = await auth.ensureLogin();
-        this.setData({ currentUserId: user && user.userId });
-      }
       await this.loadDetail();
       await this.loadComments(true);
     } catch (err) {
       this.setData({ error: err.message || '加载失败' });
+    }
+    // 后台静默登录，仅刷新 currentUserId，不阻塞渲染
+    if (!fromAiSkill) {
+      auth.ensureLogin()
+        .then((user) => {
+          if (user && user.userId) {
+            this.setData({ currentUserId: Number(user.userId) });
+          }
+        })
+        .catch(() => {});
     }
   },
 
@@ -494,6 +501,23 @@ Page({
       wx.showToast({ title: err.message || '操作失败', icon: 'none' });
     } finally {
       this.setData({ followSubmitting: false });
+    }
+  },
+
+  async onUnlockTap() {
+    const article = this.data.article;
+    if (!article || article.canRead) return;
+    wx.showLoading({ title: '登录中', mask: true });
+    try {
+      const user = await auth.ensureLogin({ force: true });
+      if (user && user.userId) {
+        this.setData({ currentUserId: Number(user.userId) });
+      }
+      await this.loadDetail(false);
+    } catch (err) {
+      wx.showToast({ title: err.message || '登录失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
     }
   },
 

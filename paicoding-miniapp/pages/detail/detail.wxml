@@ -23,10 +23,13 @@
       </t-button>
     </view>
   </view>
-  <view wx:if="{{article && !article.canRead}}" class="read-notice">当前账号可能没有完整阅读权限，已展示可访问内容。</view>
-  <mp-html wx:if="{{article}}" content="{{article.contentHtml}}" lazy-load
-    container-style="padding: 15px; font-size: 16px;line-height: 1.7; color: #4b5563;" />
-  <view wx:if="{{article}}" class="tags-row">
+  <view wx:if="{{article && !article.canRead}}" class="read-notice" bindtap="onUnlockTap">
+    <text class="read-notice-text">当前账号可能没有完整阅读权限，已展示可访问内容。</text>
+    <text class="read-notice-action">登录后查看全文 ›</text>
+  </view>
+  <mp-html wx:if="{{article}}" content="{{article.contentHtml}}" lazy-load 
+    container-style="padding: 15px; font-size: 16px;line-height: 1.7; color: #4b5563;overflow:hidden;" />
+  <view wx:if="{{article && article.tags.length}}" class="tags-row">
     <image src="/assets/images/tag.png" class="tags-row-icon" mode="widthFix" />
     <view wx:for="{{article.tags}}" wx:key="index" class="tag-chip">
       <text class="tag-chip-text">{{item}}</text>
@@ -157,12 +160,12 @@
     <button class="action-button {{article.praised ? 'action-button--praised' : ''}}" disabled="{{praiseSubmitting}}"
       bindtap="togglePraise">
       <t-badge class="action-badge action-badge--praise" count="{{article.praiseCount || 0}}" maxCount="99">
-        <image class="action-icon" src="/assets/images/like{{article.praised ? '' : '-fill'}}.png" mode="aspectFit" />
+        <image class="action-icon" src="/assets/images/like{{article.praised ? '-fill' : ''}}.png" mode="aspectFit" />
       </t-badge>
     </button>
     <button class="action-button {{article.collected ? 'action-button--collected' : ''}}"
       disabled="{{collectSubmitting}}" bindtap="toggleCollect">
-      <image class="action-icon" src="/assets/images/star{{article.collected ? '' : '-fill'}}.png" mode="aspectFit" />
+      <image class="action-icon" src="/assets/images/star{{article.collected ? '-fill' : ''}}.png" mode="aspectFit" />
     </button>
   </view>
 </view>

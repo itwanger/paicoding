@@ -18,9 +18,8 @@ Page({
   },
 
   async onLoad() {
+    // 先加载内容，不阻塞于登录（未登录也能浏览文章列表）
     try {
-      await auth.ensureLogin();
-      auth.promptProfileIfNeeded();
       await this.loadCategories();
       await this.loadArticles(true);
       // 延迟更新 active-bar 位置，确保 DOM 已渲染
@@ -30,6 +29,8 @@ Page({
     } catch (err) {
       this.setData({ error: err.message || '加载失败' });
     }
+    // 后台静默登录（失败也不影响浏览），用于刷新本地用户态
+    auth.ensureLogin();
   },
 
   onPageScroll(e) {
@@ -39,14 +40,17 @@ Page({
     }
   },
 
-  async loadCategories() {
+  async loadCategories(preserveActive = false) {
     try {
       const categories = await request({ url: '/mini/api/categories' });
+      const stillExists = preserveActive
+        && categories?.some(c => String(c.categoryId) === String(this.data.activeCategoryId));
       this.setData({ categories });
-      if (categories?.length > 0)
+      if (categories?.length > 0 && !stillExists) {
         this.setData({
           activeCategoryId: categories[0].categoryId
-        })
+        });
+      }
     } catch (err) {
       this.setData({ error: err.message || '分类加载失败' });
     }
@@ -119,7 +123,7 @@ Page({
     const articleRequestId = this.data.articleRequestId + 1;
     this.setData({ refreshing: true, articleRequestId, loading: false });
     try {
-      await this.loadCategories();
+      await this.loadCategories(true);
       await this.loadArticles(true, articleRequestId, this.data.activeCategoryId);
     } finally {
       this.setData({ refreshing: false });

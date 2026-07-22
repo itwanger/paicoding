@@ -53,6 +53,7 @@ import com.github.paicoding.forum.service.comment.service.CommentWriteService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.web.front.article.extra.ArticleReadViewServiceExtend;
 import com.github.paicoding.forum.web.front.miniprogram.service.WxMiniProgramAuthService;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -95,6 +96,7 @@ public class WxMiniProgramRestController {
     private final UserFootService userFootService;
     private final UserRelationService userRelationService;
     private final UserService userService;
+    private final ArticleReadViewServiceExtend articleReadViewServiceExtend;
 
     public WxMiniProgramRestController(WxMiniProgramAuthService authService,
                                        ArticleReadService articleReadService,
@@ -104,7 +106,8 @@ public class WxMiniProgramRestController {
                                        CommentWriteService commentWriteService,
                                        UserFootService userFootService,
                                        UserRelationService userRelationService,
-                                       UserService userService) {
+                                       UserService userService,
+                                       ArticleReadViewServiceExtend articleReadViewServiceExtend) {
         this.authService = authService;
         this.articleReadService = articleReadService;
         this.articleWriteService = articleWriteService;
@@ -114,6 +117,7 @@ public class WxMiniProgramRestController {
         this.userFootService = userFootService;
         this.userRelationService = userRelationService;
         this.userService = userService;
+        this.articleReadViewServiceExtend = articleReadViewServiceExtend;
     }
 
     @PostMapping(path = "auth/login")
@@ -249,6 +253,9 @@ public class WxMiniProgramRestController {
             return ResVo.fail(StatusEnum.ARTICLE_NOT_EXISTS, articleId);
         }
         fillAuthorInfo(article);
+        // 根据文章阅读权限（登录/付费/星球）截断内容：未达权限时返回预览片段并置 canRead=false
+        String content = articleReadViewServiceExtend.formatArticleReadType(article);
+        article.setContent(content);
         WxMiniArticleDetailDTO detail = toMiniDetail(article);
         detail.setFollowed(isFollowedByCurrentUser(article.getAuthor(), currentUser));
         return ResVo.ok(detail);

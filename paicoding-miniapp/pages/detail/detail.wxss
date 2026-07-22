@@ -143,6 +143,20 @@
   color: #92400e;
   font-size: 25rpx;
   line-height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.read-notice-text {
+  flex: 1;
+}
+
+.read-notice-action {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  color: #43CF7C;
+  font-weight: 500;
 }
 
 .content-wrap {

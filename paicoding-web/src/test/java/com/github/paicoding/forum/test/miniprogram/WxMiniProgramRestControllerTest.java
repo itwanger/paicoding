@@ -35,6 +35,7 @@ import com.github.paicoding.forum.service.comment.service.CommentWriteService;
 import com.github.paicoding.forum.service.user.service.UserFootService;
 import com.github.paicoding.forum.service.user.service.UserRelationService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.web.front.article.extra.ArticleReadViewServiceExtend;
 import com.github.paicoding.forum.web.front.miniprogram.rest.WxMiniProgramRestController;
 import com.github.paicoding.forum.web.front.miniprogram.service.WxMiniProgramAuthService;
 import org.junit.jupiter.api.AfterEach;
@@ -1067,6 +1068,12 @@ public class WxMiniProgramRestControllerTest {
                                                        UserFootService userFootService,
                                                        UserRelationService userRelationService,
                                                        UserService userService) {
+        ArticleReadViewServiceExtend readViewServiceExtend = mock(ArticleReadViewServiceExtend.class);
+        // 默认普通文章可读：返回原文内容（与生产代码 formatArticleReadType 对 NORMAL 文章的行为一致）
+        when(readViewServiceExtend.formatArticleReadType(any())).thenAnswer(invocation -> {
+            ArticleDTO arg = invocation.getArgument(0);
+            return arg == null ? null : arg.getContent();
+        });
         return new WxMiniProgramRestController(
                 mock(WxMiniProgramAuthService.class),
                 articleReadService,
@@ -1076,6 +1083,7 @@ public class WxMiniProgramRestControllerTest {
                 commentWriteService,
                 userFootService,
                 userRelationService,
-                userService);
+                userService,
+                readViewServiceExtend);
     }
 }
