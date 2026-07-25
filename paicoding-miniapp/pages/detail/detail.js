@@ -1,5 +1,6 @@
 const { request } = require('../../utils/request');
 const auth = require('../../utils/auth');
+const config = require('../../utils/config');
 const { formatDate } = require('../../utils/date');
 
 Page({
@@ -7,6 +8,7 @@ Page({
     id: null,
     fromAiSkill: false,
     article: null,
+    readMask: null,
     currentUserId: null,
     sharePath: '',
     commentSectionVisible: false,
@@ -127,6 +129,7 @@ Page({
       const article = this.normalizeArticle(await request({ url: `/mini/api/articles/${this.data.id}` }));
       this.setData({
         article,
+        readMask: this.buildReadMask(article),
         sharePath: `/pages/detail/detail?id=${article.articleId || this.data.id}`
       });
     } catch (err) {
@@ -519,6 +522,56 @@ Page({
     } finally {
       wx.hideLoading();
     }
+  },
+
+  buildReadMask(article) {
+    if (!article || article.canRead) return null;
+    const readType = Number(article.readType);
+    if (readType === 4) {
+      // 付费阅读
+      return {
+        type: 'pay',
+        sub: '付费文章，前往技术派打赏解锁全文',
+        button: '复制文章链接'
+      };
+    }
+    if (readType === 3) {
+      // 星球专享
+      return {
+        type: 'star',
+        sub: '星球专享，绑定星球编号后可查看全文',
+        button: '即刻绑定'
+      };
+    }
+    // 登录阅读（及其他未识别的受限类型）
+    return {
+      type: 'login',
+      title: '本文为登录可读内容',
+      sub: '登录后即可查看全文',
+      button: '立即登录'
+    };
+  },
+
+  onReadMaskTap() {
+    const mask = this.data.readMask;
+    if (!mask) return;
+    if (mask.type === 'login') {
+      this.onUnlockTap();
+      return;
+    }
+    // 付费 / 星球：复制网页文章链接
+    const article = this.data.article;
+    if (!article) return;
+    const baseUrl = (config.getApiBaseUrl() || '').replace(/\/+$/, '');
+    const articleUrl = `${baseUrl}/article/detail/${article.articleId || this.data.id}`;
+    wx.setClipboardData({
+      data: articleUrl,
+      success: () => wx.showToast({
+        title: '链接已复制，请在浏览器打开',
+        icon: 'none',
+        duration: 3000
+      })
+    });
   },
 
   normalizeArticle(article) {

@@ -29,8 +29,8 @@
         <text class="value">{{article.commentCount}}</text>
       </view>
     </view>
-    <view class="tags">
-      <view wx:for="{{article.tags}}" wx:key="*this" class="tag">{{item}}</view>
+    <view wx:if="{{article.tags.length}}" class="tags">
+      <view class="tag">{{article.tags[0]}}</view>
     </view>
   </view>
 </view>

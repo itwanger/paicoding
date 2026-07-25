@@ -134,29 +134,58 @@
   line-height: 34rpx;
 }
 
-.read-notice {
-  margin: 22rpx 28rpx 0;
-  padding: 18rpx 22rpx;
-  border: 1rpx solid #fde68a;
-  border-radius: 8rpx;
-  background: #fffbeb;
-  color: #92400e;
-  font-size: 25rpx;
-  line-height: 36rpx;
+/* 阅读权限浮层：absolute 贴在正文末尾，渐变蒙层盖住正文底部 */
+.read-mask-wrap {
+  position: relative;
+}
+
+.read-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 40%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.read-mask-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  padding: 120rpx 40rpx 56rpx;
+  pointer-events: auto;
 }
 
-.read-notice-text {
-  flex: 1;
+.read-mask-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 44rpx;
 }
 
-.read-notice-action {
-  flex-shrink: 0;
-  margin-left: 16rpx;
-  color: #43CF7C;
-  font-weight: 500;
+.read-mask-sub {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #6b7280;
+  line-height: 36rpx;
+}
+
+.read-mask-button {
+  margin-top: 32rpx;
+  padding: 0 64rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  background: #0ac095;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.read-mask-button:active {
+  background: #3bb86c;
 }
 
 .content-wrap {

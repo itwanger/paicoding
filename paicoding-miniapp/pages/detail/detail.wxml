@@ -16,19 +16,23 @@
           <text class="article-meta-text">{{article.readCount}}</text>
         </view>
       </view>
-      <t-button wx:if="{{article.authorId !== currentUserId}}" class="focus-btn"
-        theme="{{article.followed ? 'default' : 'primary'}}" size="extra-small" disabled="{{followSubmitting}}"
+      <t-button wx:if="{{article.authorId !== currentUserId}}" class="focus-btn" shape="round"
+        theme="{{article.followed ? 'default' : 'primary'}}" size="small" disabled="{{followSubmitting}}"
         loading="{{followSubmitting}}" bindtap="toggleFollow">
         {{article.followed ? '已关注' : '关注'}}
       </t-button>
     </view>
   </view>
-  <view wx:if="{{article && !article.canRead}}" class="read-notice" bindtap="onUnlockTap">
-    <text class="read-notice-text">当前账号可能没有完整阅读权限，已展示可访问内容。</text>
-    <text class="read-notice-action">登录后查看全文 ›</text>
+  <view wx:if="{{article}}" class="read-mask-wrap">
+    <mp-html content="{{article.contentHtml}}" lazy-load
+      container-style="padding: 15px; font-size: 16px;line-height: 1.7; color: #4b5563;overflow:hidden;" />
+    <view wx:if="{{!article.canRead}}" class="read-mask">
+      <view class="read-mask-content">
+        <view class="read-mask-sub">{{readMask.sub}}</view>
+        <view class="read-mask-button" bindtap="onReadMaskTap">{{readMask.button}}</view>
+      </view>
+    </view>
   </view>
-  <mp-html wx:if="{{article}}" content="{{article.contentHtml}}" lazy-load 
-    container-style="padding: 15px; font-size: 16px;line-height: 1.7; color: #4b5563;overflow:hidden;" />
   <view wx:if="{{article && article.tags.length}}" class="tags-row">
     <image src="/assets/images/tag.png" class="tags-row-icon" mode="widthFix" />
     <view wx:for="{{article.tags}}" wx:key="index" class="tag-chip">
@@ -43,9 +47,7 @@
       <view class="comment-composer-footer">
         <text class="comment-composer-counter">{{commentDraftLength}}/512</text>
         <t-button theme="primary" size="small" shape="round" disabled="{{!commentCanSubmit || commentSubmitting}}"
-          loading="{{commentSubmitting}}"
-          custom-style="width: 116rpx; height: 64rpx; border-radius: 32rpx; background: #43CF7C; border-color: #43CF7C;"
-          bindtap="submitComment">
+          loading="{{commentSubmitting}}" bindtap="submitComment">
           评论
         </t-button>
       </view>
@@ -66,9 +68,10 @@
           <view class="comment-footer-left">
             <text class="comment-time">{{item.commentTimeStr}}</text>
             <text class="comment-divider">·</text>
-            <text class="comment-action comment-action--reply" data-id="{{item.commentId}}" data-top="{{item.commentId}}"
-              data-name="{{item.userName || '技术派用户'}}" bindtap="startReply">回复</text>
-            <text class="comment-action comment-action--delete" data-id="{{item.commentId}}" bindtap="deleteComment">删除</text>
+            <text class="comment-action comment-action--reply" data-id="{{item.commentId}}"
+              data-top="{{item.commentId}}" data-name="{{item.userName || '技术派用户'}}" bindtap="startReply">回复</text>
+            <text class="comment-action comment-action--delete" data-id="{{item.commentId}}"
+              bindtap="deleteComment">删除</text>
           </view>
           <view class="comment-praise {{item.praised ? 'comment-praise--active' : ''}}" data-id="{{item.commentId}}"
             data-praised="{{item.praised}}" bindtap="toggleCommentPraise">
