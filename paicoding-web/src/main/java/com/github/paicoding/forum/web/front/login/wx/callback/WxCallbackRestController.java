@@ -24,6 +24,7 @@ import com.github.paicoding.forum.service.user.service.audit.UserShareRiskContro
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
+import com.github.paicoding.forum.web.front.login.wx.pairesume.PaiResumeWechatBridgeClient;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -43,6 +44,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -74,6 +76,8 @@ public class WxCallbackRestController {
     private ArticlePayService articlePayService;
     @Autowired
     private PayServiceFactory payServiceFactory;
+    @Autowired
+    private PaiResumeWechatBridgeClient paiResumeWechatBridgeClient;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -83,6 +87,7 @@ public class WxCallbackRestController {
      */
     @GetMapping(path = "callback")
     public String check(HttpServletRequest request) {
+        this.wxCallbackSecurityCheck();
         String echoStr = request.getParameter("echostr");
         if (StringUtils.isNoneEmpty(echoStr)) {
             return echoStr;
@@ -131,7 +136,18 @@ public class WxCallbackRestController {
             }
 
             String responseBody;
-            if (directToLoginOcPai(code)) {
+            if (paiResumeWechatBridgeClient.isEnabled()
+                    && "unsubscribe".equalsIgnoreCase(msg.getEvent())) {
+                paiResumeWechatBridgeClient.forward("unsubscribe", msg.getFromUserName(), null);
+                responseBody = SUCCESS_ACK_BODY;
+            } else if (("subscribe".equalsIgnoreCase(msg.getEvent())
+                    || "scan".equalsIgnoreCase(msg.getEvent()))
+                    && paiResumeWechatBridgeClient.isPaiResumeScene(code)) {
+                paiResumeWechatBridgeClient.forward(msg.getEvent(), msg.getFromUserName(), code);
+                WxTxtMsgResVo response = new WxTxtMsgResVo();
+                response.setContent("派简历身份确认成功，请返回浏览器继续操作。");
+                responseBody = renderWxResponse(msg, response);
+            } else if (directToLoginOcPai(code)) {
                 // 命中校招派登录的场景
                 BaseWxMsgResVo res = loginOcPai(msg);
                 responseBody = renderWxResponse(msg, res);
@@ -190,7 +206,9 @@ public class WxCallbackRestController {
     private void wxCallbackSecurityCheck() {
         String securityToken = SpringUtil.getBean(WxLoginProperties.class).getSecurityCheckToken();
         if (StringUtils.isBlank(securityToken)) {
-            // 没有配置接口签名校验时，直接返回
+            if (paiResumeWechatBridgeClient.isEnabled()) {
+                throw new IllegalStateException("启用派简历桥接前必须配置微信回调校验 token");
+            }
             return;
         }
 
@@ -198,12 +216,17 @@ public class WxCallbackRestController {
         String sig = request.getParameter("signature");
         String timestamp = request.getParameter("timestamp");
         String nonce = request.getParameter("nonce");
-        // 验证签名
-        String toSign = timestamp + nonce + securityToken;
-        if (!DigestUtils.sha1Hex(toSign).equals(sig)) {
+        if (StringUtils.isAnyBlank(sig, timestamp, nonce)
+                || !computeWechatSignature(securityToken, timestamp, nonce).equals(sig)) {
             log.error("微信回调签名校验失败，请检查接口签名配置");
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS);
         }
+    }
+
+    static String computeWechatSignature(String securityToken, String timestamp, String nonce) {
+        String[] values = {securityToken, timestamp, nonce};
+        Arrays.sort(values);
+        return DigestUtils.sha1Hex(String.join("", values));
     }
 
 
@@ -241,7 +264,7 @@ public class WxCallbackRestController {
         try {
             return XML_MAPPER.writeValueAsString(res);
         } catch (Exception e) {
-            log.error("序列化微信被动回复XML失败, msg={}", msg, e);
+            log.error("序列化微信被动回复XML失败, errorType={}", e.getClass().getSimpleName());
             return SUCCESS_ACK_BODY;
         }
     }
@@ -251,14 +274,14 @@ public class WxCallbackRestController {
             return null;
         }
         if (StringUtils.isNotBlank(msg.getMsgId())) {
-            return "msgid:" + msg.getMsgId();
+            return DigestUtils.sha256Hex("msgid:" + msg.getMsgId());
         }
         if (StringUtils.isBlank(msg.getFromUserName()) || msg.getCreateTime() == null) {
             return null;
         }
-        return "event:" + msg.getFromUserName() + ":" + msg.getCreateTime()
+        return DigestUtils.sha256Hex("event:" + msg.getFromUserName() + ":" + msg.getCreateTime()
                 + ":" + StringUtils.defaultString(msg.getEvent())
-                + ":" + StringUtils.defaultString(msg.getEventKey());
+                + ":" + StringUtils.defaultString(msg.getEventKey()));
     }
 
     private String tryLockCallback(String dedupeId) {

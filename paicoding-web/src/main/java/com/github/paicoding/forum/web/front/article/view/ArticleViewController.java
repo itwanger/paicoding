@@ -27,6 +27,7 @@ import com.github.paicoding.forum.service.article.service.TagService;
 import com.github.paicoding.forum.service.comment.service.CommentReadService;
 import com.github.paicoding.forum.service.sidebar.service.SidebarService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import com.github.paicoding.forum.web.error.ErrorViewFactory;
 import com.github.paicoding.forum.web.front.article.extra.ArticleReadViewServiceExtend;
 import com.github.paicoding.forum.web.front.article.vo.ArticleDetailVo;
 import com.github.paicoding.forum.web.front.article.vo.ArticleEditVo;
@@ -66,6 +67,9 @@ import java.util.Objects;
 public class ArticleViewController extends BaseViewController {
     @Autowired
     private ArticleReadService articleService;
+
+    @Autowired
+    private ErrorViewFactory errorViewFactory;
 
     @Autowired
     private CategoryService categoryService;
@@ -136,7 +140,9 @@ public class ArticleViewController extends BaseViewController {
      * @param model     视图模型
      * @return 视图名称或重定向URL
      */
-    @GetMapping("detail/{articleId}/{urlSlug}")
+    // articleId 限定为数字：外站的相对链接会打出 /article/detail/forum-web 这类地址，
+    // 不加约束时会走到 Long 转换失败 → 500，对爬虫是"服务器错误"信号，限定后自然 404
+    @GetMapping("detail/{articleId:\\d+}/{urlSlug}")
     public ModelAndView detailWithSlug(@PathVariable(name = "articleId") Long articleId,
                                        @PathVariable(name = "urlSlug") String urlSlug,
                                        Model model) throws IOException {
@@ -163,7 +169,7 @@ public class ArticleViewController extends BaseViewController {
      * @param model     视图模型
      * @return 视图名称
      */
-    @GetMapping("detail/{articleId}")
+    @GetMapping("detail/{articleId:\\d+}")
     public ModelAndView detail(@PathVariable(name = "articleId") Long articleId,
                               Model model) throws IOException {
         // 针对专栏文章，做一个重定向
@@ -177,7 +183,7 @@ public class ArticleViewController extends BaseViewController {
             if (column.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
                 if (loginUserId == null || !loginUserId.equals(column.getAuthor())) {
                     model.addAttribute("toast", "教程未发布，暂时无法访问");
-                    return new ModelAndView("views/error/403");
+                    return errorViewFactory.forbidden();
                 }
                 // 作者本人可以预览未发布的教程
             }
@@ -205,7 +211,7 @@ public class ArticleViewController extends BaseViewController {
         if (column.getState() == ColumnStatusEnum.OFFLINE.getCode()) {
             if (loginUserId == null || !loginUserId.equals(column.getAuthor())) {
                 model.addAttribute("toast", "教程未发布，暂时无法访问");
-                return new ModelAndView("views/error/403");
+                return errorViewFactory.forbidden();
             }
         }
 

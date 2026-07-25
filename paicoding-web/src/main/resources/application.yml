@@ -61,6 +61,18 @@ paicoding:
     risk:
       maxActiveDevices: 2
       touchSyncSeconds: 300
+    wx:
+      # 派简历复用“派聪明”服务号的内部桥接，默认关闭；开启后必须同时配置
+      # 微信 callback token、32 字符以上共享密钥和派简历 HTTPS 回调地址。
+      pai-resume:
+        enabled: ${PAIRESUME_WECHAT_BRIDGE_ENABLED:false}
+        callback-url: ${PAIRESUME_WECHAT_BRIDGE_CALLBACK_URL:}
+        bridge-secret: ${PAIRESUME_WECHAT_BRIDGE_SECRET:}
+        scene-prefix: ${PAIRESUME_WECHAT_SCENE_PREFIX:pr_}
+        clock-skew-seconds: ${PAIRESUME_WECHAT_BRIDGE_CLOCK_SKEW_SECONDS:300}
+        replay-ttl-seconds: ${PAIRESUME_WECHAT_BRIDGE_REPLAY_TTL_SECONDS:600}
+        connect-timeout-millis: ${PAIRESUME_WECHAT_BRIDGE_CONNECT_TIMEOUT_MILLIS:3000}
+        read-timeout-millis: ${PAIRESUME_WECHAT_BRIDGE_READ_TIMEOUT_MILLIS:5000}
   sensitive: # 敏感词校验相关配置
     enable: true
     deny: # 自定义的敏感词，英文逗号分割
