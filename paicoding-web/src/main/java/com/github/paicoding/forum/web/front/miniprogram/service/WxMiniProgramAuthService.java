@@ -112,6 +112,38 @@ public class WxMiniProgramAuthService {
                 .setNeedProfile(needProfile(user));
     }
 
+    /**
+     * 小程序账号密码登录。
+     * <p>
+     * 复用 Web 端的密码校验逻辑（{@code loginService.loginByUserPwd}），校验通过后
+     * 重新生成带设备信息的 JWT token，返回结构与微信登录完全一致。
+     *
+     * @param username 用户名（或星球编号）
+     * @param password 明文密码
+     */
+    public WxMiniLoginRes loginByPassword(String username, String password) {
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "用户名和密码不能为空");
+        }
+        checkLoginRateLimit();
+
+        // 复用现有密码登录：内部完成用户查询 + 密码校验 + 设置 ReqInfoContext.userId
+        loginService.loginByUserPwd(username, password);
+        Long userId = ReqInfoContext.getReqInfo().getUserId();
+
+        // 重新生成带设备信息的 session（与微信登录保持一致，确保踢人下线等机制生效）
+        UserSessionHelper.SessionDeviceMeta meta = buildSessionMeta();
+        String token = loginService.loginByWx(userId, meta);
+        BaseUserInfoDTO user = userService.queryBasicUserInfo(userId);
+        return new WxMiniLoginRes()
+                .setToken(token)
+                .setTokenType(TOKEN_TYPE)
+                .setTokenHeader(TOKEN_HEADER)
+                .setAuthorizationValue(TOKEN_TYPE + " " + token)
+                .setUser(toMiniUser(user))
+                .setNeedProfile(needProfile(user));
+    }
+
     public WxMiniUserDTO currentUser() {
         Long userId = ReqInfoContext.getReqInfo().getUserId();
         return toMiniUser(userService.queryBasicUserInfo(userId));

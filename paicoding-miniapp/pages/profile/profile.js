@@ -97,31 +97,11 @@ Page({
     }
   },
 
-  async loginUser() {
-    if (this.data.loading) {
-      return
-    }
-    this.setData({ loading: true, error: '' })
-    try {
-      const result = await auth.login()
-      const user = result.user || {}
-      this.setData({
-        user,
-        nickName: user.nickName || '',
-        avatarUrl: user.avatarUrl || '',
-        profile: user.profile || '',
-        loggedIn: true,
-        profileIncomplete: auth.isProfileIncomplete(user),
-      })
-      await this.loadStatistics()
-      await this.checkPrivacy()
-    }
-    catch (err) {
-      this.setData({ loggedIn: false, profileIncomplete: false, statistics: createDefaultStatistics(), error: err.message || '登录失败' })
-    }
-    finally {
-      this.setData({ loading: false })
-    }
+  goToLogin() {
+    wx.navigateTo({
+      url: '/pages/login/login?redirect=' + encodeURIComponent('/pages/profile/profile'),
+      fail: () => wx.switchTab({ url: '/pages/profile/profile' })
+    });
   },
 
   async checkPrivacy() {

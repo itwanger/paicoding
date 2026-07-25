@@ -10,7 +10,8 @@
     "pages/following/following",
     "pages/my-articles/my-articles",
     "pages/collection/collection",
-    "pages/history/history"
+    "pages/history/history",
+    "pages/login/login"
   ],
   "usingComponents": {
     "article-card": "/components/article-card/index",

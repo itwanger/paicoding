@@ -4,7 +4,7 @@
   <t-navbar class="navbar" />
 
   <view class="base-info">
-    <t-avatar image="{{avatarUrl || '/assets/images/avatar.png'}}" class="avatar" size="80px" />
+    <t-avatar image="{{avatarUrl || '/assets/images/avatar.png'}}" class="avatar" size="66px" />
     <view wx:if="{{loggedIn}}" class="info">
       <view class="nick-name-wrapper">
         <text class="nick-name">{{nickName}}</text>
@@ -14,8 +14,8 @@
       </view>
       <text class="profile">{{profile||'上技术派 AI时代不迷路'}}</text>
     </view>
-    <view wx:else class="login-entry">
-      <text class="login-text" bindtap="loginUser">立即登录</text>
+    <view wx:else class="login-entry" bindtap="goToLogin">
+      <text class="login-text">立即登录</text>
     </view>
   </view>
 

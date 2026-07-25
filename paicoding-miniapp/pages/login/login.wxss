@@ -1,0 +1,148 @@
+.login-page {
+  min-height: 100vh;
+  position: relative;
+}
+
+.custom-navbar {
+  --td-navbar-bg-color: transparent;
+}
+
+.bg {
+  width: 100vw;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 100rpx 0 100rpx 60rpx;
+}
+
+.sub {
+  font-size: 30rpx;
+  color: #727A98;
+}
+
+.title {
+  font-size: 45rpx;
+  font-weight: bold;
+  color: #001c29;
+}
+
+.login-content {
+  padding: 60rpx 60rpx 0;
+  background-color: #FFF;
+  position: relative;
+  z-index: 1;
+  border-radius: 40rpx 40rpx 0 0;
+  height: 100vh;
+}
+
+.form-card {}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  min-height: 104rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 60rpx;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  width: 120rpx;
+  font-size: 32rpx;
+  color: #374151;
+  font-weight: bold;
+}
+
+.form-input {
+  flex: 1;
+  font-size: 30rpx;
+  color: #1f2937;
+  height: 104rpx;
+  line-height: 104rpx;
+}
+
+.form-placeholder {
+  color: #9ca3af;
+}
+
+.form-error {
+  margin: 24rpx 8rpx 0;
+  font-size: 26rpx;
+  color: #ef4444;
+  line-height: 36rpx;
+}
+
+.primary-button {
+  margin-top: 100rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  background: #43CF7C;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.primary-button[disabled] {
+  background: #a7e7c5;
+  color: #ffffff;
+  box-shadow: none !important;
+}
+
+.login-submit {
+  width: 100%;
+}
+
+.divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40rpx 0 30rpx;
+}
+
+
+.divider-text {
+  padding: 0 24rpx;
+  font-size: 26rpx;
+  color: #9ca3af;
+}
+
+.secondary-button {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.secondary-button[disabled] {
+  color: #9ca3af;
+}
+
+.register-tip {
+  margin-top: 56rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #6b7280;
+}
+
+.register-link {
+  color: #43CF7C;
+  font-weight: 500;
+}

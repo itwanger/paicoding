@@ -1,0 +1,33 @@
+<view class="login-page">
+  <t-navbar  class="custom-navbar" left-arrow placeholder />
+  <image src="/assets/images/bg.png" class="bg" mode="widthFix" />
+  <view class="welcome">
+    <text class="sub">Hi，很高兴见到你</text>
+    <text class="title">欢迎来到技术派</text>
+  </view>
+  <view class="login-content">
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">用户名</text>
+        <input class="form-input" type="text" value="{{username}}" maxlength="50" placeholder="请输入用户名"
+          placeholder-class="form-placeholder" bindinput="onUsernameInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">密码</text>
+        <input class="form-input" type="password" password value="{{password}}" maxlength="64" placeholder="请输入密码"
+          placeholder-class="form-placeholder" bindinput="onPasswordInput" />
+      </view>
+
+      <view wx:if="{{error}}" class="form-error">{{error}}</view>
+
+      <button class="primary-button login-submit" bindtap="submit" loading="{{loading}}"
+        disabled="{{loading}}">立即登录</button>
+
+      <view class="divider">
+        <text class="divider-text">OR</text>
+      </view>
+
+      <button class="secondary-button" bindtap="loginByWx" disabled="{{loading}}">微信一键登录</button>
+    </view>
+  </view>
+</view>

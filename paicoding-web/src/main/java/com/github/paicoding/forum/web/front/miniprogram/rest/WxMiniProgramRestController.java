@@ -35,6 +35,7 @@ import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniCommentPageDTO;
 import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniFollowReq;
 import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniLoginReq;
 import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniLoginRes;
+import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniPwdLoginReq;
 import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniProfileReq;
 import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniSearchHintDTO;
 import com.github.paicoding.forum.api.model.vo.wx.mini.WxMiniUserDTO;
@@ -123,6 +124,17 @@ public class WxMiniProgramRestController {
     @PostMapping(path = "auth/login")
     public ResVo<WxMiniLoginRes> login(@RequestBody WxMiniLoginReq req) {
         return ResVo.ok(authService.login(req));
+    }
+
+    /**
+     * 小程序账号密码登录。
+     * <p>
+     * 入参：{@link WxMiniPwdLoginReq}（username + password）。
+     * 返回结构与微信登录 {@link #login(WxMiniLoginReq)} 完全一致。
+     */
+    @PostMapping(path = "auth/login/pwd")
+    public ResVo<WxMiniLoginRes> loginByPassword(@RequestBody WxMiniPwdLoginReq req) {
+        return ResVo.ok(authService.loginByPassword(req.getUsername(), req.getPassword()));
     }
 
     @Permission(role = UserRole.LOGIN)

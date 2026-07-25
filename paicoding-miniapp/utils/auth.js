@@ -45,6 +45,19 @@ async function login(profile) {
   return result;
 }
 
+async function loginByPassword(username, password) {
+  const result = await request({
+    url: '/mini/api/auth/login/pwd',
+    method: 'POST',
+    data: { username, password }
+  });
+  // 返回结构与微信登录一致：{ token, user, needProfile }
+  clearLoggedOut();
+  wx.setStorageSync(TOKEN_KEY, result.token);
+  persistUser(result.user, result.needProfile);
+  return result;
+}
+
 function loginOnce() {
   if (!loginPromise) {
     loginPromise = login().finally(() => {
@@ -157,6 +170,7 @@ function promptProfileIfNeeded(options) {
 
 module.exports = {
   login,
+  loginByPassword,
   ensureLogin,
   requestWithLogin,
   uploadWithLogin,
