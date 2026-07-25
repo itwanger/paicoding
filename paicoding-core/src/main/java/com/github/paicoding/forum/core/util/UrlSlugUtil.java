@@ -167,4 +167,29 @@ public class UrlSlugUtil {
         // slug只能包含小写字母、数字和连字符
         return slug.matches("^[a-z0-9-]+$") && slug.length() <= MAX_SLUG_LENGTH;
     }
+
+    /**
+     * slug 能否作为文章的规范地址。纯数字会和 ID 形式的地址混淆，不采用。
+     *
+     * @param slug 文章的 urlSlug
+     * @return 是否可作为规范地址
+     */
+    public static boolean isCanonicalSlug(String slug) {
+        return isValidSlug(slug) && !StringUtils.isNumeric(slug);
+    }
+
+    /**
+     * 文章的规范站内路径：有合法 slug 就用短地址，否则回退 ID 地址。
+     *
+     * <p>站内链接、sitemap、canonical 必须统一走这里。任何地方直接拼
+     * {@code /article/detail/{id}}，都会让有 slug 的文章多吃一次 301，
+     * 持续给 GSC 的「网页会自动重定向」桶供货。</p>
+     *
+     * @param slug      文章的 urlSlug，可为空
+     * @param articleId 文章ID
+     * @return 以 / 开头的站内路径
+     */
+    public static String articlePath(String slug, Long articleId) {
+        return isCanonicalSlug(slug) ? "/" + slug : "/article/detail/" + articleId;
+    }
 }

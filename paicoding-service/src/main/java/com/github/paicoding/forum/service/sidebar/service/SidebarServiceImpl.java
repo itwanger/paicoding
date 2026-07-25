@@ -15,6 +15,7 @@ import com.github.paicoding.forum.api.model.vo.recommend.SideBarItemDTO;
 import com.github.paicoding.forum.core.senstive.SensitiveService;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.core.util.UrlSlugUtil;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.config.service.ConfigService;
@@ -135,7 +136,7 @@ public class SidebarServiceImpl implements SidebarService {
      */
     private SideBarDTO hotArticles() {
         PageListVo<SimpleArticleDTO> vo = articleReadService.queryHotArticlesForRecommend(PageParam.newPageInstance(1, 8));
-        List<SideBarItemDTO> items = vo.getList().stream().map(s -> new SideBarItemDTO().setTitle(s.getTitle()).setUrl("/article/detail/" + s.getId()).setTime(s.getCreateTime().getTime())).collect(Collectors.toList());
+        List<SideBarItemDTO> items = vo.getList().stream().map(s -> new SideBarItemDTO().setTitle(s.getTitle()).setUrl(UrlSlugUtil.articlePath(s.getUrlSlug(), s.getId())).setTime(s.getCreateTime().getTime())).collect(Collectors.toList());
         return new SideBarDTO().setTitle("热门文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
     }
 
@@ -200,7 +201,8 @@ public class SidebarServiceImpl implements SidebarService {
         List<SimpleArticleDTO> list = articleDao.listAuthorHotArticles(authorId, PageParam.newPageInstance(PageParam.DEFAULT_PAGE_NUM, size));
         List<SideBarItemDTO> items = list.stream().filter(s -> !s.getId().equals(articleId))
                 .map(s -> new SideBarItemDTO()
-                        .setTitle(sensitiveBypassService.shouldBypassByUserId(s.getAuthorId()) ? s.getTitle() : sanitizeText(s.getTitle())).setUrl("/article/detail/" + s.getId())
+                        .setTitle(sensitiveBypassService.shouldBypassByUserId(s.getAuthorId()) ? s.getTitle() : sanitizeText(s.getTitle()))
+                        .setUrl(UrlSlugUtil.articlePath(s.getUrlSlug(), s.getId()))
                         .setTime(s.getCreateTime().getTime()))
                 .collect(Collectors.toList());
         return new SideBarDTO().setTitle("相关文章").setItems(items).setStyle(SidebarStyleEnum.ARTICLES.getStyle());
