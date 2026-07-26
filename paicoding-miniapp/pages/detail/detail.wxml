@@ -70,8 +70,8 @@
             <text class="comment-divider">·</text>
             <text class="comment-action comment-action--reply" data-id="{{item.commentId}}"
               data-top="{{item.commentId}}" data-name="{{item.userName || '技术派用户'}}" bindtap="startReply">回复</text>
-            <text class="comment-action comment-action--delete" data-id="{{item.commentId}}"
-              bindtap="deleteComment">删除</text>
+            <text wx:if="{{item.canDelete}}" class="comment-action comment-action--delete"
+              data-id="{{item.commentId}}" bindtap="deleteComment">删除</text>
           </view>
           <view class="comment-praise {{item.praised ? 'comment-praise--active' : ''}}" data-id="{{item.commentId}}"
             data-praised="{{item.praised}}" bindtap="toggleCommentPraise">

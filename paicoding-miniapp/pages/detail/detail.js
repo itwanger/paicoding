@@ -52,16 +52,8 @@ Page({
     } catch (err) {
       this.setData({ error: err.message || '加载失败' });
     }
-    // 后台静默登录，仅刷新 currentUserId，不阻塞渲染
-    if (!fromAiSkill) {
-      auth.ensureLogin()
-        .then((user) => {
-          if (user && user.userId) {
-            this.setData({ currentUserId: Number(user.userId) });
-          }
-        })
-        .catch(() => {});
-    }
+    // 不再后台静默登录：currentUserId 仅从本地缓存读取，
+    // 评论/点赞/收藏/关注等互动操作在触发时再判断登录态，未登录则跳转登录页。
   },
 
   onUnload() {
@@ -290,6 +282,8 @@ Page({
     if (!parentCommentId || !topCommentId) {
       return;
     }
+    // 未登录不弹回复输入框,直接跳登录页(避免用户输入完内容才发现要登录)
+    if (!this.requireLogin()) return;
     this.setData({
       commentReplyTarget: {
         parentCommentId,
@@ -326,6 +320,7 @@ Page({
       wx.showToast({ title: '评论最多 512 字', icon: 'none' });
       return;
     }
+    if (!this.requireLogin()) return;
     this.setData({ commentSubmitting: true });
     try {
       const payload = { commentContent: content };
@@ -333,7 +328,7 @@ Page({
         payload.parentCommentId = replyTarget.parentCommentId;
         payload.topCommentId = replyTarget.topCommentId;
       }
-      const res = await auth.requestWithLogin({
+      const res = await request({
         url: `/mini/api/articles/${article.articleId}/comments`,
         method: 'POST',
         data: payload
@@ -375,9 +370,10 @@ Page({
     const article = this.data.article;
     const commentId = Number(e.currentTarget.dataset.id || 0);
     if (!article || !commentId || this.data.commentDeletingId) return;
+    if (!this.requireLogin()) return;
     this.setData({ commentDeletingId: commentId });
     try {
-      const res = await auth.requestWithLogin({
+      const res = await request({
         url: `/mini/api/articles/${article.articleId}/comments/${commentId}/delete`,
         method: 'POST'
       });
@@ -406,9 +402,10 @@ Page({
     const commentId = Number(e.currentTarget.dataset.id || 0);
     const praised = e.currentTarget.dataset.praised === true || e.currentTarget.dataset.praised === 'true';
     if (!article || !commentId || this.data.commentPraisingId) return;
+    if (!this.requireLogin()) return;
     this.setData({ commentPraisingId: commentId });
     try {
-      const res = await auth.requestWithLogin({
+      const res = await request({
         url: `/mini/api/articles/${article.articleId}/comments/${commentId}/favor?type=${praised ? 4 : 2}`,
         method: 'POST'
       });
@@ -434,11 +431,12 @@ Page({
   async togglePraise() {
     const article = this.data.article;
     if (!article || this.data.praiseSubmitting) return;
+    if (!this.requireLogin()) return;
     const nextPraised = !article.praised;
     const nextCount = Math.max(0, Number(article.praiseCount || 0) + (nextPraised ? 1 : -1));
     this.setData({ praiseSubmitting: true });
     try {
-      await auth.requestWithLogin({
+      await request({
         url: `/mini/api/articles/${article.articleId}/favor?type=${nextPraised ? 2 : 4}`,
         method: 'POST'
       });
@@ -457,11 +455,12 @@ Page({
   async toggleCollect() {
     const article = this.data.article;
     if (!article || this.data.collectSubmitting) return;
+    if (!this.requireLogin()) return;
     const nextCollected = !article.collected;
     const nextCount = Math.max(0, Number(article.collectionCount || 0) + (nextCollected ? 1 : -1));
     this.setData({ collectSubmitting: true });
     try {
-      await auth.requestWithLogin({
+      await request({
         url: `/mini/api/articles/${article.articleId}/favor?type=${nextCollected ? 3 : 5}`,
         method: 'POST'
       });
@@ -480,17 +479,17 @@ Page({
   async toggleFollow() {
     const article = this.data.article;
     if (!article || !article.authorId || this.data.followSubmitting) return;
+    if (!this.requireLogin()) return;
     this.setData({ followSubmitting: true });
     try {
-      const user = await auth.ensureLogin({ force: true });
-      const currentUserId = Number(user && user.userId || 0);
+      const currentUserId = this.getCurrentUserId() || 0;
       if (currentUserId === Number(article.authorId)) {
         this.setData({ currentUserId });
         wx.showToast({ title: '不能关注自己', icon: 'none' });
         return;
       }
       const followed = !article.followed;
-      await auth.requestWithLogin({
+      await request({
         url: `/mini/api/users/${article.authorId}/follow`,
         method: 'POST',
         data: { followed }
@@ -510,17 +509,13 @@ Page({
   async onUnlockTap() {
     const article = this.data.article;
     if (!article || article.canRead) return;
-    wx.showLoading({ title: '登录中', mask: true });
+    // 未登录则跳转登录页（不再静默自动登录）
+    if (!this.requireLogin()) return;
+    // 已登录：直接重新加载详情以刷新阅读权限
     try {
-      const user = await auth.ensureLogin({ force: true });
-      if (user && user.userId) {
-        this.setData({ currentUserId: Number(user.userId) });
-      }
       await this.loadDetail(false);
     } catch (err) {
-      wx.showToast({ title: err.message || '登录失败', icon: 'none' });
-    } finally {
-      wx.hideLoading();
+      wx.showToast({ title: err.message || '加载失败', icon: 'none' });
     }
   },
 
@@ -594,6 +589,16 @@ Page({
   getCurrentUserId() {
     const user = auth.getStoredUser();
     return user && user.userId ? Number(user.userId) : null;
+  },
+
+  // 互动操作前的登录态校验：未登录则跳转登录页（不自动登录），并返回 false 中断流程。
+  requireLogin() {
+    const token = wx.getStorageSync('PAICODING_TOKEN');
+    if (token) {
+      return true;
+    }
+    wx.navigateTo({ url: '/pages/login/login' });
+    return false;
   },
 
   normalizeComments(comments, currentUserId) {

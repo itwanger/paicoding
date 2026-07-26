@@ -50,8 +50,24 @@ Page({
 
   async loadUser() {
     this.setData({ loading: true, error: '' })
+    // 仅依据本地 token 判断登录态,不再自动登录(未登录则显示"立即登录"入口)
+    const token = wx.getStorageSync('PAICODING_TOKEN')
+    if (!token) {
+      this.setData({
+        user: {},
+        nickName: '',
+        avatarUrl: '',
+        profile: '',
+        loggedIn: false,
+        profileIncomplete: false,
+        statistics: createDefaultStatistics(),
+        error: '',
+      })
+      this.setData({ loading: false, refreshing: false })
+      return
+    }
     try {
-      const user = await auth.ensureLogin()
+      const user = await request({ url: '/mini/api/user/me' })
       this.setData({
         user,
         nickName: user.nickName || '',
@@ -64,11 +80,31 @@ Page({
       await this.checkPrivacy()
     }
     catch (err) {
-      this.setData({ loggedIn: false, profileIncomplete: false, statistics: createDefaultStatistics(), error: err.message || '登录失败' })
+      // token 失效:清掉本地登录态,显示"立即登录"(不自动重登)
+      markLoggedOut()
+      this.setData({
+        user: {},
+        nickName: '',
+        avatarUrl: '',
+        profile: '',
+        loggedIn: false,
+        profileIncomplete: false,
+        statistics: createDefaultStatistics(),
+        error: '',
+      })
     }
     finally {
       this.setData({ loading: false, refreshing: false })
     }
+  },
+
+  // 互动入口前的登录态校验:未登录则跳转登录页(不自动登录),并返回 false
+  requireLogin() {
+    if (wx.getStorageSync('PAICODING_TOKEN')) {
+      return true
+    }
+    wx.navigateTo({ url: '/pages/login/login' })
+    return false
   },
 
   async loadStatistics() {
@@ -119,7 +155,7 @@ Page({
   },
 
   showEdit() {
-    if (!this.data.loggedIn) {
+    if (!this.requireLogin()) {
       return
     }
     wx.navigateTo({ url: '/pages/profile-edit/profile-edit' })
@@ -150,19 +186,23 @@ Page({
   },
 
   openCollections() {
+    if (!this.requireLogin()) return
     wx.navigateTo({ url: '/pages/collection/collection' })
   },
 
   openMyArticles() {
+    if (!this.requireLogin()) return
     wx.navigateTo({ url: '/pages/my-articles/my-articles' })
   },
 
   openFollowing(event) {
+    if (!this.requireLogin()) return
     const tab = event && event.currentTarget.dataset.tab === 'fans' ? 'fans' : 'follow'
     wx.navigateTo({ url: `/pages/following/following?tab=${tab}` })
   },
 
   openHistory() {
+    if (!this.requireLogin()) return
     wx.navigateTo({ url: '/pages/history/history' })
   },
 
