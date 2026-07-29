@@ -1,5 +1,4 @@
 const { request } = require('../../utils/request');
-const auth = require('../../utils/auth');
 
 Page({
   data: {
@@ -29,8 +28,10 @@ Page({
     } catch (err) {
       this.setData({ error: err.message || '加载失败' });
     }
-    // 后台静默登录（失败也不影响浏览），用于刷新本地用户态
-    auth.ensureLogin();
+  },
+
+  goSearch() {
+    wx.navigateTo({ url: '/pages/search/search' });
   },
 
   onPageScroll(e) {

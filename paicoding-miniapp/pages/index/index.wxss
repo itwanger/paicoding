@@ -39,6 +39,11 @@
   border-radius: 100px;
   width: calc(100vw - 60rpx);
   margin-left: 30rpx;
+  background-color: #fff;
+  padding: 28rpx 40rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
 }
 
 .category-row {
@@ -71,4 +76,8 @@
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
+}
+
+.article-scroll {
+  padding: 0 30rpx;
 }

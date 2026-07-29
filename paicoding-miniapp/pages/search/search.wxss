@@ -1,136 +1,167 @@
+.search-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* 顶部搜索框 */
 .search-box {
   display: flex;
   align-items: center;
-  height: 88rpx;
-  padding: 0 16rpx;
+  padding: 16rpx 30rpx;
   margin-bottom: 18rpx;
+  gap: 16rpx;
 }
 
 .search-input {
   flex: 1;
   min-width: 0;
-  height: 68rpx;
-  padding: 0 16rpx;
+  font-size: 28rpx;
+}
+
+.search-input__inner {
+  height: 72rpx;
+  padding: 0 20rpx;
+  border-radius: 24rpx;
+  background: #f7f9fa !important;
+}
+
+.search-input__field {
   font-size: 28rpx;
 }
 
 .search-button {
-  width: 104rpx;
-  height: 64rpx;
-  border-radius: 8rpx;
-  background: #0f766e;
-  color: #ffffff;
-  font-size: 26rpx;
-  line-height: 64rpx;
+  flex-shrink: 0;
 }
 
-.clear-button {
-  width: 96rpx;
-  height: 64rpx;
-  margin-right: 10rpx;
-  border: 1rpx solid #cbd5e1;
-  border-radius: 8rpx;
-  color: #475569;
-  font-size: 24rpx;
-  line-height: 62rpx;
-}
-
-.hint-list {
-  margin-bottom: 18rpx;
-  overflow: hidden;
-}
-
-.hint-item {
-  min-height: 84rpx;
-  padding: 22rpx;
-  border-bottom: 1rpx solid #eef2f7;
-  color: #1f2937;
-  line-height: 38rpx;
-}
-
-.hint-item:last-child {
-  border-bottom: 0;
-}
-
+/* 通用分区(历史 / 热门) */
 .history-panel {
   margin-bottom: 18rpx;
-  padding: 22rpx;
+  padding: 24rpx 30rpx;
 }
 
-.history-head {
+.section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
-.history-title {
+.section-title {
+  color: #ABB6C2;
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 40rpx;
+}
+
+.section-action {
+  color: #ABB6C2;
+  font-size: 24rpx;
+  line-height: 34rpx;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  height: 64rpx;
+  padding: 0rpx 30rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  overflow: hidden;
+}
+
+.tag-chip--ghost {
+  background: #f7f9fa;
   color: #334155;
-  font-size: 27rpx;
+}
+
+.tag-chip--hover {
+  background: #f1f5f9;
+}
+
+/* 结果区 */
+.result-scroll {
+  flex: 1;
+  height: calc(100vh - 140rpx);
+  padding: 30rpx;
+}
+
+.result-scroll--has-data {
+  background-color: #f7f9fa;
+}
+
+.state-card {
+  padding: 80rpx 28rpx;
+  text-align: center;
+}
+
+.state-title {
+  color: #111827;
+  font-size: 32rpx;
   font-weight: 700;
+  line-height: 44rpx;
+}
+
+.state-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
   line-height: 38rpx;
 }
 
-.history-clear {
-  width: 88rpx;
-  height: 52rpx;
-  color: #64748b;
-  font-size: 24rpx;
-  line-height: 52rpx;
-}
-
-.history-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.history-tag {
-  max-width: 220rpx;
-  height: 56rpx;
-  padding: 0 18rpx;
-  border: 1rpx solid #cbd5e1;
-  border-radius: 8rpx;
-  color: #334155;
-  font-size: 25rpx;
-  line-height: 54rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.result-scroll {
-  height: calc(100vh - 160rpx);
-}
-
-.result-card {
-  padding: 24rpx;
-  margin-bottom: 18rpx;
-}
-
-.title {
-  font-size: 31rpx;
-  font-weight: 700;
-  line-height: 42rpx;
-}
-
-.summary {
-  margin-top: 12rpx;
-  color: #475569;
-  font-size: 26rpx;
-  line-height: 36rpx;
-}
-
-.meta {
-  display: flex;
-  gap: 18rpx;
-  margin-top: 14rpx;
-  color: #64748b;
-  font-size: 24rpx;
+.retry-button {
+  margin-top: 28rpx;
 }
 
 .load-state {
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
+}
+
+/* 加载动画 */
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.loading-dots .dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #0bc196;
+  animation: search-bounce 1s infinite ease-in-out;
+}
+
+.loading-dots .dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading-dots .dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes search-bounce {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

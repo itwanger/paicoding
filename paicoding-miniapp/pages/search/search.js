@@ -1,91 +1,78 @@
 const { request } = require('../../utils/request');
-const auth = require('../../utils/auth');
 
 const MAX_SEARCH_KEY_LENGTH = 64;
 const SEARCH_HISTORY_KEY = 'PAICODING_SEARCH_HISTORY';
-const MAX_SEARCH_HISTORY_SIZE = 8;
+const MAX_SEARCH_HISTORY_SIZE = 12;
 
 Page({
   data: {
     key: '',
-    hints: [],
+    focus: false,
     history: [],
     articles: [],
     page: 1,
     size: 10,
     hasMore: false,
     loading: false,
+    firstLoaded: false,
     searched: false,
-    hintTimer: null,
-    hintRequestId: 0,
     searchRequestId: 0,
     refreshing: false,
     error: ''
   },
 
   async onLoad(options = {}) {
-    try {
-      await auth.ensureLogin();
-      this.loadHistory();
-      if (options.key) {
+    // 搜索无需登录,匿名用户也可使用(不再自动登录)
+    this.loadHistory();
+    if (options.key) {
+      try {
         const key = this.normalizeKey(decodeURIComponent(options.key));
         this.setData({ key, searched: Boolean(key) });
         if (!key) {
+          this.setData({ focus: true });
           return;
         }
         this.saveHistory(key);
         await this.loadMore(true);
+      } catch (err) {
+        this.setData({ error: err.message || '搜索失败' });
       }
-    } catch (err) {
-      this.setData({ error: err.message || '登录失败' });
+    } else {
+      // 从首页点搜索入口进来时自动聚焦,方便用户直接输入
+      this.setData({ focus: true });
     }
   },
 
   onUnload() {
-    if (this.data.hintTimer) {
-      clearTimeout(this.data.hintTimer);
-    }
     this.setData({
-      hintTimer: null,
-      hintRequestId: this.data.hintRequestId + 1,
       searchRequestId: this.data.searchRequestId + 1
     });
   },
 
-  async onInput(e) {
-    const key = this.normalizeKey(e.detail.value);
-    if (this.data.hintTimer) {
-      clearTimeout(this.data.hintTimer);
+  onInputBlur() {
+    // t-input 的 focus 为受控属性,失焦后需主动回落,避免页面重渲染时反复弹起键盘
+    if (this.data.focus) {
+      this.setData({ focus: false });
     }
-    const hintRequestId = this.data.hintRequestId + 1;
-    this.setData({ key, error: '', hintTimer: null, hintRequestId });
-    if (!key) {
-      this.setData({ hints: [] });
-      return;
-    }
-    const hintTimer = setTimeout(async () => {
-      try {
-        const hints = await request({ url: '/mini/api/search/hint', data: { key } });
-        if (this.data.key === key && this.data.hintRequestId === hintRequestId) {
-          this.setData({ hints, hintTimer: null });
-        }
-      } catch (err) {
-        if (this.data.hintRequestId === hintRequestId) {
-          this.setData({ hints: [], hintTimer: null });
-        }
-      }
-    }, 250);
-    this.setData({ hintTimer });
+  },
+
+  onInput(e) {
+    // t-input 的 bind:change 在点击自带清空按钮时 e.detail.value 可能为 undefined,这里做兜底
+    // 仅同步输入内容,搜索统一由搜索按钮触发(doSearch)
+    this.setData({ key: this.normalizeKey(e.detail && e.detail.value), error: '' });
   },
 
   async doSearch() {
     const key = this.normalizeKey(this.data.key);
-    if (!key) return;
-    this.saveHistory(key);
-    if (this.data.hintTimer) {
-      clearTimeout(this.data.hintTimer);
+    if (!key) {
+      // 空关键词:聚焦输入框并轻提示,不发请求
+      this.setData({ focus: true });
+      wx.showToast({ title: '请输入搜索关键词', icon: 'none', duration: 1200 });
+      return;
     }
-    const hintRequestId = this.data.hintRequestId + 1;
+    this.saveHistory(key);
+    // 收起键盘,进入结果浏览
+    this.setData({ focus: false });
     const searchRequestId = this.data.searchRequestId + 1;
     if (key !== this.data.key) {
       this.setData({ key });
@@ -94,9 +81,6 @@ Page({
       page: 1,
       articles: [],
       searched: true,
-      hints: [],
-      hintTimer: null,
-      hintRequestId,
       searchRequestId,
       loading: false,
       error: ''
@@ -126,11 +110,12 @@ Page({
       if (this.data.searchRequestId !== activeRequestId || this.data.key !== activeKey) {
         return;
       }
-      const list = Array.isArray(result.list) ? result.list : [];
+      const list = (Array.isArray(result.list) ? result.list : []).map((item) => this.normalizeArticle(item));
       this.setData({
         articles: reset ? list : this.data.articles.concat(list),
         hasMore: Boolean(result.hasMore),
-        page: page + 1
+        page: page + 1,
+        firstLoaded: true
       });
     } catch (err) {
       if (this.data.searchRequestId === activeRequestId) {
@@ -151,6 +136,20 @@ Page({
 
   normalizeKey(value) {
     return String(value || '').trim().slice(0, MAX_SEARCH_KEY_LENGTH);
+  },
+
+  // 将搜索结果字段映射为 article-card 组件约定的字段
+  // 搜索接口会返回 shortTitle / searchHit 命中高亮字段,优先取用,回退到常规字段
+  normalizeArticle(item) {
+    if (!item || typeof item !== 'object') {
+      return item;
+    }
+    return {
+      ...item,
+      title: item.shortTitle || item.title,
+      summary: item.searchHit || item.summary,
+      tags: Array.isArray(item.tags) ? item.tags : []
+    };
   },
 
   loadHistory() {
@@ -216,41 +215,17 @@ Page({
   },
 
   clearSearch() {
-    if (this.data.hintTimer) {
-      clearTimeout(this.data.hintTimer);
-    }
     this.setData({
       key: '',
-      hints: [],
       articles: [],
       page: 1,
       hasMore: false,
       searched: false,
-      hintTimer: null,
-      hintRequestId: this.data.hintRequestId + 1,
+      firstLoaded: false,
+      focus: true,
       searchRequestId: this.data.searchRequestId + 1,
       loading: false,
       error: ''
-    });
-  },
-
-  chooseHint(e) {
-    const articleId = e.currentTarget.dataset.id;
-    if (articleId) {
-      this.setData({ hints: [] });
-      wx.navigateTo({
-        url: `/pages/detail/detail?id=${articleId}`
-      });
-      return;
-    }
-    const title = this.normalizeKey(e.currentTarget.dataset.title);
-    this.setData({ key: title, hints: [] });
-    return this.doSearch();
-  },
-
-  openDetail(e) {
-    wx.navigateTo({
-      url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}`
     });
   },
 

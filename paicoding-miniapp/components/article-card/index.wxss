@@ -3,7 +3,6 @@
   padding: 20rpx 30rpx;
   display: flex;
   flex-direction: column;
-  margin-left: 30rpx;
   margin-bottom: 30rpx;
   overflow: hidden;
   border-radius: 20rpx;

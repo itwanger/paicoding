@@ -3,6 +3,6 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "t-image": "tdesign-miniprogram/image/image",
-    "t-input": "tdesign-miniprogram/input/input"
+    "t-icon": "tdesign-miniprogram/icon/icon"
   }
 }

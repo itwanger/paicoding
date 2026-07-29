@@ -3,7 +3,10 @@
   <text class="header-title jinbuti">技术派</text>
   <text class="header-subtitle jinbuti">AI时代不迷路 就上技术派</text>
   <view class="search-wrapper">
-    <t-input placeholder="搜索 Java、AI、面试" prefixIcon="search" class="search shadow" />
+    <view class="search" bindtap="goSearch">
+      <t-icon name="search" class="search-icon" size="20" color="#999"/>
+      <text class="search-placeholder">搜索 Java、AI、面试</text>
+    </view>
   </view>
 </view>
 
