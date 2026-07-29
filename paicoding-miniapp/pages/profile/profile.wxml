@@ -56,7 +56,7 @@
     </view>
   </view>
 
-  <view class="list">
+  <view class="card list">
     <view class="row">
       <image src="/assets/images/published.png" class="icon" />
       <text class="label">已发布文章</text>
@@ -82,7 +82,7 @@
     </view>
   </view>
 
-  <view wx:if="{{loggedIn}}" class="logout-btn" bindtap="logout">
+  <view wx:if="{{loggedIn}}" class="card logout-btn" bindtap="logout">
     <image src="/assets/images/logout.png" class="icon" />
     <text>退出登录</text>
   </view>

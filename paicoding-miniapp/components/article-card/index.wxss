@@ -72,7 +72,7 @@
 .tag {
   font-size: 24rpx;
   color: #aaa;
-  background-color: #f6f7fb;
+  background-color: #fbfcfe;
   border-radius: 8rpx;
   padding: 4rpx 12rpx;
 }

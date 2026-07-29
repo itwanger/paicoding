@@ -152,11 +152,15 @@ Page({
 
   updateActiveBar() {
     const query = wx.createSelectorQuery();
+    query.select('.category-pill').boundingClientRect();
     query.select(`#category-${this.data.activeCategoryId}`).boundingClientRect();
     query.exec((res) => {
       console.log(res);
-      if (res && res.length > 0) {
-        const barLeft = res[0].left + ((res[0].width / 2) - 23);
+      const firstCategoryRect = res && res[0];
+      const activeCategoryRect = res && res[1];
+      if (firstCategoryRect && activeCategoryRect) {
+        const barLeft = activeCategoryRect.left - firstCategoryRect.left
+          + (activeCategoryRect.width / 2) - 8;
         this.setData({
           activeBarLeft: barLeft
         });

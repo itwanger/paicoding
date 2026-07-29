@@ -2,7 +2,7 @@
   min-height: 100vh;
   padding: 48rpx 30rpx;
   box-sizing: border-box;
-  background: #f6f7fb;
+  background: #fbfcfe;
 }
 
 .avatar-section {

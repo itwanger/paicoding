@@ -120,6 +120,7 @@
   justify-content: space-around;
   position: relative;
   z-index: 1;
+  box-shadow: 0 4px 8px #cccccc30;
 }
 
 .card .icon {

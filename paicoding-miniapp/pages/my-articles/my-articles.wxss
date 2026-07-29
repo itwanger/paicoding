@@ -1,6 +1,6 @@
 .my-articles-page {
   min-height: 100vh;
-  background: #f6f7fb;
+  background: #fbfcfe;
 }
 
 .article-scroll {

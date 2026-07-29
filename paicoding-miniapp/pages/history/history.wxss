@@ -1,7 +1,7 @@
 .history-page {
   height: 100vh;
   padding: 30rpx 0 0;
-  background: #f6f7fb;
+  background: #fbfcfe;
 }
 
 .state-card {

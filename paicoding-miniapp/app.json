@@ -21,7 +21,7 @@
     "navigationBarTitleText": "技术派",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f6f7fb"
+    "backgroundColor": "#fbfcfe"
   },
   "tabBar": {
     "color": "#999",
