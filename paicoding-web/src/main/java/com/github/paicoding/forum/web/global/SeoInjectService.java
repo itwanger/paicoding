@@ -505,9 +505,7 @@ public class SeoInjectService {
      * 与 SitemapServiceImpl.isValidUrlSlug 一致：合法 slug 且非纯数字，才作为规范 URL 使用。
      */
     private boolean isCanonicalSlug(String slug) {
-        return StringUtils.isNotBlank(slug)
-                && UrlSlugUtil.isValidSlug(slug)
-                && !StringUtils.isNumeric(slug);
+        return UrlSlugUtil.isCanonicalSlug(slug);
     }
 
     private String buildArticleKeywords(String title, String category, String tagKeywords, String columnName) {

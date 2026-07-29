@@ -153,7 +153,7 @@ public class SitemapServiceImpl implements SitemapService {
     }
 
     private boolean isValidUrlSlug(String urlSlug) {
-        return UrlSlugUtil.isValidSlug(urlSlug) && !StringUtils.isNumeric(urlSlug);
+        return UrlSlugUtil.isCanonicalSlug(urlSlug);
     }
 
     /**

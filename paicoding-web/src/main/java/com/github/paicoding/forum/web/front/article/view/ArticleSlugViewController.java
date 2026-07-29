@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.exception.ForumException;
 import com.github.paicoding.forum.service.article.repository.dao.ArticleDao;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ColumnService;
+import com.github.paicoding.forum.web.error.ErrorViewFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +29,8 @@ public class ArticleSlugViewController {
     private ArticleViewController articleViewController;
     @Autowired
     private ColumnViewController columnViewController;
+    @Autowired
+    private ErrorViewFactory errorViewFactory;
 
     @GetMapping(path = "/{urlSlug:[a-z0-9][a-z0-9-]*}")
     public ModelAndView article(@PathVariable("urlSlug") String urlSlug, Model model) throws IOException {
@@ -39,7 +42,8 @@ public class ArticleSlugViewController {
 
         ArticleDO article = articleDao.getByUrlSlug(urlSlug);
         if (article == null) {
-            return new ModelAndView("error/404");
+            // 短地址是全站最大的一类 URL，未命中必须返回真 404，否则会被当成可索引的重复页
+            return errorViewFactory.notFound();
         }
         if (columnService.getColumnArticleRelation(article.getId()) != null) {
             return columnViewController.articleByRootArticleSlug(article.getId(), model);
