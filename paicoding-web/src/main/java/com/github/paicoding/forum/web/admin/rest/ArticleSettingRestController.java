@@ -4,6 +4,8 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.OperateArticleEnum;
 import com.github.paicoding.forum.api.model.vo.PageVo;
 import com.github.paicoding.forum.api.model.vo.ResVo;
+import com.github.paicoding.forum.api.model.vo.article.AiIllustrationGenerateReq;
+import com.github.paicoding.forum.api.model.vo.article.AiIllustrationGenerateRes;
 import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateReq;
 import com.github.paicoding.forum.api.model.vo.article.AiSeoGenerateRes;
 import com.github.paicoding.forum.api.model.vo.article.AiSlugGenerateReq;
@@ -17,6 +19,7 @@ import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.NumUtil;
+import com.github.paicoding.forum.service.article.service.AiIllustrationService;
 import com.github.paicoding.forum.service.article.service.AiSeoService;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleSettingService;
@@ -52,6 +55,9 @@ public class ArticleSettingRestController {
 
     @Autowired
     private AiSeoService aiSeoService;
+
+    @Autowired
+    private AiIllustrationService aiIllustrationService;
 
     @Permission(role = UserRole.ADMIN)
     @PostMapping(path = "save")
@@ -147,6 +153,13 @@ public class ArticleSettingRestController {
     @PostMapping(path = "update/slug")
     public ResVo<String> updateSlug(@RequestBody ArticleUrlSlugReq req) {
         return ResVo.ok(articleSettingService.updateArticleUrlSlug(req));
+    }
+
+    @ApiOperation("AI生成文章配图")
+    @PostMapping(path = "generate/illustrations")
+    public ResVo<AiIllustrationGenerateRes> generateIllustrations(@RequestBody AiIllustrationGenerateReq req) {
+        AiIllustrationGenerateRes response = aiIllustrationService.generateIllustrations(req);
+        return ResVo.ok(response);
     }
 
 }
