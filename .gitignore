@@ -72,3 +72,6 @@ paicoding-miniapp/node_modules/
 paicoding-miniapp/miniprogram_npm/
 paicoding-miniapp/dist/
 paicoding-miniapp/docs/superpowers/specs/
+### local dev infrastructure (fork-only)
+# docker-compose.dev.yml 挂载的本地数据卷目录
+.docker-data/
