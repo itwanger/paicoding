@@ -28,6 +28,11 @@
   └─ PR 合并后任务才算完成（task.json 记录 pr_url）
 ```
 
+## 上游同步时的冲突处理
+
+- **`AGENTS.md`**：本 fork 已重写（上游版是 Qoder 工具 + 作者本机 macOS 环境的遗留）。merge upstream 冲突时**以我们的版本为基础**，人工甄别上游新增的有效信息后选择性合入，不整体接受上游版。
+- 其他文件默认正常 merge；与 `.trellis/spec/` 结论冲突的上游文档改动，合入后需同步更新对应 spec。
+
 ## Commit 规范
 
 - **Conventional Commits**：`<type>(<scope>): <subject>`
