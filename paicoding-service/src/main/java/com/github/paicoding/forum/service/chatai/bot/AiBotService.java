@@ -4,6 +4,7 @@ import com.github.paicoding.forum.api.model.context.ReqInfoContext;
 import com.github.paicoding.forum.api.model.enums.ChatAnswerTypeEnum;
 import com.github.paicoding.forum.api.model.enums.ai.AiBotEnum;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
+import com.github.paicoding.forum.api.model.vo.chat.ChatRecordsVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.async.AsyncUtil;
 import com.github.paicoding.forum.service.chatai.ChatFacade;
@@ -11,6 +12,7 @@ import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserInfoDO;
 import com.github.paicoding.forum.service.user.service.RegisterService;
 import com.github.paicoding.forum.service.user.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +32,10 @@ import java.util.function.Consumer;
  * @date 2025/2/24
  */
 @Component
+@Slf4j
 public class AiBotService {
+
+    private static final String STREAM_FAILURE_MESSAGE = "AI 回复生成失败，请稍后再试";
 
     @Autowired
     private ChatFacade chatFacade;
@@ -138,42 +144,85 @@ public class AiBotService {
      */
     public void triggerStream(AiBotEnum bot, String question, String sourceBizId, Consumer<ChatItemVo> consumer) {
         BaseUserInfoDTO user = botUsers.get(bot);
-        AsyncUtil.execute(() -> {
-            ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
-            reqInfo.setUser(user);
-            reqInfo.setUserId(user.getUserId());
-            reqInfo.setChatId(sourceBizId);
-            ReqInfoContext.addReqInfo(reqInfo);
+        AtomicBoolean terminalDelivered = new AtomicBoolean(false);
+        if (user == null || user.getUserId() == null) {
+            log.error("AI 机器人用户未初始化, bot={}, sourceBizId={}", bot, sourceBizId);
+            deliverStreamFailure(terminalDelivered, consumer);
+            return;
+        }
 
-            try {
-                chatFacade.autoChat(question, vo -> {
-                    if (vo == null || vo.getRecords() == null || vo.getRecords().isEmpty()) {
-                        return;
-                    }
-
-                    ChatItemVo item = vo.getRecords().get(0);
-                    if (item.getAnswerType() == null && StringUtils.isBlank(item.getAnswer())) {
-                        item.initAnswer("AI 回复生成失败，请稍后再试", ChatAnswerTypeEnum.STREAM_END);
-                    }
-                    try {
-                        consumer.accept(item);
-                    } finally {
-                        if (item.getAnswerType() == ChatAnswerTypeEnum.JSON
-                                || item.getAnswerType() == ChatAnswerTypeEnum.TEXT
-                                || item.getAnswerType() == ChatAnswerTypeEnum.STREAM_END) {
-                            ReqInfoContext.clear();
-                        }
-                    }
-                });
-            } catch (Exception e) {
+        try {
+            AsyncUtil.execute(() -> {
                 try {
-                    consumer.accept(new ChatItemVo()
-                            .initAnswer("AI 回复生成失败，请稍后再试", ChatAnswerTypeEnum.STREAM_END));
-                } finally {
-                    ReqInfoContext.clear();
+                    ReqInfoContext.ReqInfo reqInfo = new ReqInfoContext.ReqInfo();
+                    reqInfo.setUser(user);
+                    reqInfo.setUserId(user.getUserId());
+                    reqInfo.setChatId(sourceBizId);
+                    ReqInfoContext.addReqInfo(reqInfo);
+
+                    chatFacade.autoChat(question, vo -> {
+                        ChatItemVo item = firstStreamItem(vo);
+                        if (item == null) {
+                            item = streamFailureItem();
+                        } else if (item.getAnswerType() == null && StringUtils.isBlank(item.getAnswer())) {
+                            item.initAnswer(STREAM_FAILURE_MESSAGE, ChatAnswerTypeEnum.STREAM_END);
+                        }
+                        boolean terminal = isStreamTerminal(item);
+                        try {
+                            deliverStreamItem(terminalDelivered, consumer, item);
+                        } finally {
+                            if (terminal) {
+                                ReqInfoContext.clear();
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    log.error("AI 机器人流式回复失败, bot={}, sourceBizId={}", bot, sourceBizId, e);
+                    try {
+                        deliverStreamFailure(terminalDelivered, consumer);
+                    } finally {
+                        ReqInfoContext.clear();
+                    }
                 }
+            });
+        } catch (Exception e) {
+            log.error("提交 AI 机器人流式任务失败, bot={}, sourceBizId={}", bot, sourceBizId, e);
+            deliverStreamFailure(terminalDelivered, consumer);
+        }
+    }
+
+    private ChatItemVo firstStreamItem(ChatRecordsVo vo) {
+        if (vo == null || vo.getRecords() == null || vo.getRecords().isEmpty()) {
+            return null;
+        }
+        return vo.getRecords().get(0);
+    }
+
+    private ChatItemVo streamFailureItem() {
+        return new ChatItemVo().initAnswer(STREAM_FAILURE_MESSAGE, ChatAnswerTypeEnum.STREAM_END);
+    }
+
+    private void deliverStreamFailure(AtomicBoolean terminalDelivered, Consumer<ChatItemVo> consumer) {
+        deliverStreamItem(terminalDelivered, consumer, streamFailureItem());
+    }
+
+    private void deliverStreamItem(AtomicBoolean terminalDelivered, Consumer<ChatItemVo> consumer, ChatItemVo item) {
+        boolean terminal = isStreamTerminal(item);
+        synchronized (terminalDelivered) {
+            if (terminalDelivered.get()) {
+                return;
             }
-        });
+            if (terminal) {
+                terminalDelivered.set(true);
+            }
+            consumer.accept(item);
+        }
+    }
+
+    private boolean isStreamTerminal(ChatItemVo item) {
+        return item != null && (item.getAnswerType() == ChatAnswerTypeEnum.JSON
+                || item.getAnswerType() == ChatAnswerTypeEnum.TEXT
+                || item.getAnswerType() == ChatAnswerTypeEnum.STREAM_END);
     }
 
     /**

@@ -7,9 +7,9 @@ let hiddenSidebars = [];
 // 标记是否正在处理评论图标点击
 let isHandlingCommentIcon = false;
 let quoteSidebarGlobalEventsBound = false;
-let highlightAiAbortController = null;
-let highlightAiRequestId = null;
-let highlightAiCompleted = false;
+let highlightAiActiveRequest = null;
+const HIGHLIGHT_AI_REQUEST_TIMEOUT_MS = 185 * 1000;
+const FORBID_NOT_LOGIN_CODE = 100403003;
 
 function getHighlightSidebar() {
     return document.getElementById('quoteCommentSidebar');
@@ -420,6 +420,7 @@ function applyUnderlineToSelection(range) {
 
 // 显示引用的评论信息
 function showQuoteCommentWithComments(commentId) {
+    invalidateHighlightAiRequest('view-replaced');
     if (isMobileDevice()) {
         const modal = document.getElementById('quoteCommentModal');
 
@@ -502,6 +503,7 @@ function hideCommentIcon() {
 }
 
 function showQuoteCommentForm(text) {
+    invalidateHighlightAiRequest('view-replaced');
     // 首次划线，显示输入评论框
     if (isMobileDevice()) {
         // 移动端，使用弹窗的方式显示输入框
@@ -628,6 +630,7 @@ function showQuoteCommentForm(text) {
 
 // 隐藏引用评论侧边栏
 function hideQuoteCommentSidebar() {
+    invalidateHighlightAiRequest('view-hidden');
     const sidebar = getHighlightSidebar();
     if (sidebar) {
         toggleHighlightSidebarMode(false);
@@ -666,6 +669,103 @@ function stripHighlightAiMention(commentContent) {
     return commentContent.replace(/@(杠精派|派聪明)\s*/g, '').trim();
 }
 
+function isHighlightCommentLoggedIn() {
+    const navbar = document.querySelector('nav.navbar[data-islogin]');
+    if (navbar) {
+        return navbar.getAttribute('data-islogin') === 'true';
+    }
+
+    // 兼容未渲染新版 navbar 属性的页面；无法判断时交给服务端鉴权。
+    if (typeof navbarIsLogin !== 'undefined') {
+        return !!navbarIsLogin;
+    }
+    return true;
+}
+
+function showHighlightLoginRequired(message) {
+    const prompt = message || '请先登录后再提问';
+    toastr.error(prompt);
+    if (typeof window.jQuery === 'function' && document.getElementById('loginModal')) {
+        window.jQuery('#loginModal').modal('show');
+    }
+}
+
+function createHighlightAiRequestError(message, code, loginRequired) {
+    const error = new Error(message || 'AI 回复请求失败');
+    error.userMessage = message;
+    error.code = code;
+    error.loginRequired = !!loginRequired;
+    return error;
+}
+
+function validateHighlightAiResponse(response) {
+    const contentType = response && response.headers
+        ? (response.headers.get('content-type') || '').toLowerCase()
+        : '';
+
+    if (response && response.ok && response.body && contentType.indexOf('text/event-stream') >= 0) {
+        return Promise.resolve(response);
+    }
+
+    const readBody = response && typeof response.text === 'function'
+        ? response.text()
+        : Promise.resolve('');
+
+    return readBody.then(function (body) {
+        let payload = null;
+        try {
+            payload = body ? JSON.parse(body) : null;
+        } catch (ignore) {
+            // 非 JSON 响应会使用下面的协议错误提示。
+        }
+
+        const status = payload && payload.status ? payload.status : null;
+        const code = status ? status.code : null;
+        const loginRequired = code === FORBID_NOT_LOGIN_CODE
+            || (response && (response.status === 401 || response.status === 403));
+        let message = status && status.msg ? status.msg : '';
+        if (loginRequired) {
+            message = '请先登录后再提问';
+        } else if (!message && contentType.indexOf('text/event-stream') < 0) {
+            message = 'AI 回复服务返回格式异常';
+        } else if (!message) {
+            message = 'AI 回复请求失败';
+        }
+
+        throw createHighlightAiRequestError(message, code, loginRequired);
+    });
+}
+
+function isActiveHighlightAiRequest(request) {
+    return !!request && highlightAiActiveRequest === request;
+}
+
+function invalidateHighlightAiRequest(reason) {
+    const request = highlightAiActiveRequest;
+    if (!request) {
+        return;
+    }
+
+    // 先同步作废，再终止网络请求；旧请求的异步 catch/finally 不得改写新侧栏。
+    highlightAiActiveRequest = null;
+    request.abortReason = reason || 'invalidated';
+    if (request.timeoutId) {
+        clearTimeout(request.timeoutId);
+        request.timeoutId = null;
+    }
+    if (request.controller && !request.controller.signal.aborted) {
+        request.controller.abort();
+    }
+}
+
+function settleHighlightAiRequest(request, message) {
+    if (!isActiveHighlightAiRequest(request) || request.uiSettled) {
+        return;
+    }
+    request.uiSettled = true;
+    finishHighlightAiPanel(message);
+}
+
 function setHighlightCommentSubmitting(submitting) {
     const commentInput = document.getElementById('quoteCommentInput');
     const submitBtn = document.getElementById('submitQuoteComment');
@@ -697,7 +797,6 @@ function resetHighlightAiPanel(botType) {
         reply.classList.remove('markdown-rendered');
         reply.textContent = '';
     }
-    highlightAiCompleted = false;
     setHighlightCommentSubmitting(true);
 }
 
@@ -745,8 +844,11 @@ function bindGeneratedHighlightComment(commentId) {
     });
 }
 
-function handleHighlightAiEvent(event) {
-    if (!event || event.requestId !== highlightAiRequestId) {
+function handleHighlightAiEvent(request, event) {
+    if (!isActiveHighlightAiRequest(request)
+        || request.terminal
+        || !event
+        || event.requestId !== request.requestId) {
         return;
     }
 
@@ -769,23 +871,17 @@ function handleHighlightAiEvent(event) {
     }
 
     if (event.type === 'done') {
-        if (highlightAiCompleted) {
-            return;
-        }
-        highlightAiCompleted = true;
+        request.terminal = true;
         bindGeneratedHighlightComment(event.commentId);
         toggleHighlightSidebarMode(true);
         normalizeHighlightSidebarState();
-        finishHighlightAiPanel('回复已生成');
+        settleHighlightAiRequest(request, '回复已生成');
         toastr.success('AI 回复已生成');
         return;
     }
 
     if (event.type === 'error') {
-        if (highlightAiCompleted) {
-            return;
-        }
-        highlightAiCompleted = true;
+        request.terminal = true;
         if (event.commentId) {
             bindGeneratedHighlightComment(event.commentId);
         }
@@ -800,15 +896,13 @@ function handleHighlightAiEvent(event) {
                 }
             }
         }
-        if (status) {
-            status.textContent = event.message || 'AI 回复生成失败';
-        }
-        finishHighlightAiPanel();
-        toastr.error(event.message || 'AI 回复生成失败');
+        const message = event.message || 'AI 回复生成失败';
+        settleHighlightAiRequest(request, message);
+        toastr.error(message);
     }
 }
 
-function parseHighlightAiSseChunk(chunk) {
+function parseHighlightAiSseChunk(request, chunk) {
     const data = chunk.split('\n')
         .filter(line => line.indexOf('data:') === 0)
         .map(line => line.substring(5).trim())
@@ -818,18 +912,29 @@ function parseHighlightAiSseChunk(chunk) {
         return;
     }
 
+    let event;
     try {
-        handleHighlightAiEvent(JSON.parse(data));
+        event = JSON.parse(data);
     } catch (e) {
         console.debug('解析划线 AI SSE 事件失败:', data, e);
+        throw createHighlightAiRequestError('AI 回复数据解析失败');
     }
+    handleHighlightAiEvent(request, event);
 }
 
-function readHighlightAiStream(reader, decoder, buffer) {
-    return reader.read().then(function process(result) {
+function readHighlightAiStream(request, reader, decoder, buffer) {
+    function process(result) {
+        if (!isActiveHighlightAiRequest(request)) {
+            return;
+        }
+
         if (result.done) {
+            buffer += decoder.decode().replace(/\r\n/g, '\n');
             if (buffer.trim()) {
-                parseHighlightAiSseChunk(buffer.trim());
+                parseHighlightAiSseChunk(request, buffer.trim());
+            }
+            if (!request.terminal) {
+                throw createHighlightAiRequestError('AI 回复连接已中断，请稍后再试');
             }
             return;
         }
@@ -839,12 +944,23 @@ function readHighlightAiStream(reader, decoder, buffer) {
         while (splitIndex >= 0) {
             const chunk = buffer.substring(0, splitIndex);
             buffer = buffer.substring(splitIndex + 2);
-            parseHighlightAiSseChunk(chunk);
+            parseHighlightAiSseChunk(request, chunk);
             splitIndex = buffer.indexOf('\n\n');
         }
 
+        if (request.terminal) {
+            if (typeof reader.cancel === 'function') {
+                return reader.cancel().catch(function () {
+                    // 已收到终态，取消剩余响应失败不再影响界面结果。
+                });
+            }
+            return;
+        }
+
         return reader.read().then(process);
-    });
+    }
+
+    return reader.read().then(process);
 }
 
 function startHighlightAiReply(botType, commentContent) {
@@ -853,14 +969,34 @@ function startHighlightAiReply(botType, commentContent) {
         return;
     }
 
-    if (highlightAiAbortController) {
-        highlightAiAbortController.abort();
+    if (!isHighlightCommentLoggedIn()) {
+        showHighlightLoginRequired();
+        return;
     }
 
+    const previousRequest = highlightAiActiveRequest;
     const question = stripHighlightAiMention(commentContent);
-    highlightAiRequestId = String(Date.now()) + String(Math.floor(Math.random() * 1000));
-    highlightAiAbortController = new AbortController();
+    const request = {
+        requestId: String(Date.now()) + String(Math.floor(Math.random() * 1000)),
+        controller: new AbortController(),
+        terminal: false,
+        uiSettled: false,
+        abortReason: null,
+        timeoutId: null
+    };
+    highlightAiActiveRequest = request;
+    if (previousRequest && previousRequest.controller) {
+        previousRequest.abortReason = 'superseded';
+        previousRequest.controller.abort();
+    }
+
     resetHighlightAiPanel(botType);
+    request.timeoutId = setTimeout(function () {
+        if (isActiveHighlightAiRequest(request) && !request.terminal) {
+            request.abortReason = 'timeout';
+            request.controller.abort();
+        }
+    }, HIGHLIGHT_AI_REQUEST_TIMEOUT_MS);
 
     fetch('/comment/api/highlightAiStream', {
         method: 'POST',
@@ -874,30 +1010,55 @@ function startHighlightAiReply(botType, commentContent) {
             bot: highlightAiBotEnum(botType),
             commentContent: commentContent,
             question: question,
-            requestId: highlightAiRequestId
+            requestId: request.requestId
         }),
-        signal: highlightAiAbortController.signal
-    }).then(function (response) {
-        if (!response.ok || !response.body) {
-            throw new Error('AI 回复请求失败');
-        }
-
-        return readHighlightAiStream(response.body.getReader(), new TextDecoder('utf-8'), '');
+        signal: request.controller.signal
+    }).then(validateHighlightAiResponse).then(function (response) {
+        return readHighlightAiStream(request, response.body.getReader(), new TextDecoder('utf-8'), '');
     }).catch(function (e) {
-        if (e.name === 'AbortError') {
-            finishHighlightAiPanel('已停止生成');
+        if (!isActiveHighlightAiRequest(request)) {
             return;
         }
 
-        finishHighlightAiPanel('AI 回复生成失败');
-        toastr.error('AI 回复生成失败，请稍后再试');
+        if (e.name === 'AbortError') {
+            if (request.abortReason === 'timeout') {
+                settleHighlightAiRequest(request, 'AI 回复超时，请稍后再试');
+                toastr.error('AI 回复超时，请稍后再试');
+            } else if (request.abortReason === 'user') {
+                settleHighlightAiRequest(request, '已停止生成');
+            } else {
+                settleHighlightAiRequest(request, 'AI 回复生成失败');
+                toastr.error('AI 回复生成失败，请稍后再试');
+            }
+            return;
+        }
+
+        const message = e.userMessage || 'AI 回复生成失败，请稍后再试';
+        settleHighlightAiRequest(request, message);
+        if (e.loginRequired) {
+            showHighlightLoginRequired(message);
+        } else {
+            toastr.error(message);
+        }
+    }).finally(function () {
+        if (request.timeoutId) {
+            clearTimeout(request.timeoutId);
+        }
+        if (!isActiveHighlightAiRequest(request)) {
+            return;
+        }
+        if (!request.uiSettled) {
+            settleHighlightAiRequest(request, 'AI 回复生成失败');
+        }
+        highlightAiActiveRequest = null;
     });
 }
 
 function stopHighlightAiReply() {
-    if (highlightAiAbortController) {
-        highlightAiAbortController.abort();
-        highlightAiAbortController = null;
+    const request = highlightAiActiveRequest;
+    if (request && request.controller && !request.terminal) {
+        request.abortReason = 'user';
+        request.controller.abort();
     }
 }
 

@@ -173,16 +173,19 @@ public class CommentRestController {
     @PostMapping(path = "highlightAiStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResponseBody
     public SseEmitter highlightAiStream(@RequestBody HighlightAiStreamReq req) {
+        String requestId = req == null ? String.valueOf(System.currentTimeMillis()) : StringUtils.defaultIfBlank(req.getRequestId(), String.valueOf(System.currentTimeMillis()));
         SseEmitter emitter = new SseEmitter(3 * 60 * 1000L);
         AtomicBoolean closed = new AtomicBoolean(false);
         emitter.onCompletion(() -> closed.set(true));
         emitter.onTimeout(() -> {
-            closed.set(true);
+            if (closed.compareAndSet(false, true)) {
+                log.warn("划线 AI SSE 超时, requestId={}, articleId={}, bot={}", requestId,
+                        req == null ? null : req.getArticleId(), req == null ? null : req.getBot());
+            }
             emitter.complete();
         });
         emitter.onError(e -> closed.set(true));
 
-        String requestId = req == null ? String.valueOf(System.currentTimeMillis()) : StringUtils.defaultIfBlank(req.getRequestId(), String.valueOf(System.currentTimeMillis()));
         AiBotEnum bot = req == null ? null : parseAiBot(req.getBot());
         if (req == null) {
             sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, null, "划线 AI 请求参数不完整"));
@@ -220,41 +223,63 @@ public class CommentRestController {
         AtomicInteger sentLength = new AtomicInteger(0);
         String sourceBizId = "comment:" + commentId + "_" + ReqInfoContext.getReqInfo().getUserId();
         Long finalCommentId = commentId;
-        aiBots.triggerStream(finalBot, buildHighlightAiQuestion(finalBot, req), sourceBizId, item -> {
-            if (closed.get() || item == null) {
-                return;
-            }
-
-            String answer = sanitizeAiAnswer(item.getAnswer());
-            int lastLength = sentLength.get();
-            if (answer.length() > lastLength) {
-                String delta = answer.substring(lastLength);
-                sentLength.set(answer.length());
-                sendAiEvent(emitter, HighlightAiStreamEvent.delta(requestId, finalBot.getNickName(), delta, answer));
-            }
-
-            if (isAiAnswerFinished(item)) {
-                if (isAiAnswerFailed(answer)) {
-                    sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, finalBot.getNickName(), "AI 回复生成失败，请稍后再试")
-                            .setCommentId(finalCommentId));
-                    closed.set(true);
-                    emitter.complete();
+        try {
+            aiBots.triggerStream(finalBot, buildHighlightAiQuestion(finalBot, req), sourceBizId, item -> {
+                if (closed.get()) {
+                    return;
+                }
+                if (item == null) {
+                    if (closed.compareAndSet(false, true)) {
+                        sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, finalBot.getNickName(), "AI 回复生成失败，请稍后再试")
+                                .setCommentId(finalCommentId));
+                        emitter.complete();
+                    }
                     return;
                 }
 
-                try {
-                    saveAiHighlightReply(req, finalBot, answer, finalCommentId);
-                    sendAiEvent(emitter, HighlightAiStreamEvent.done(requestId, finalBot.getNickName(), finalCommentId, null));
-                } catch (Exception e) {
-                    log.error("保存划线 AI 回复失败, articleId={}, parentCommentId={}, bot={}", req.getArticleId(), finalCommentId, finalBot, e);
-                    sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, finalBot.getNickName(), "AI 回复保存失败，请稍后再试")
-                            .setCommentId(finalCommentId));
-                } finally {
-                    closed.set(true);
-                    emitter.complete();
+                String answer = sanitizeAiAnswer(item.getAnswer());
+                int lastLength = sentLength.get();
+                if (answer.length() > lastLength) {
+                    String delta = answer.substring(lastLength);
+                    sentLength.set(answer.length());
+                    sendAiEvent(emitter, HighlightAiStreamEvent.delta(requestId, finalBot.getNickName(), delta, answer));
                 }
+
+                if (isAiAnswerFinished(item)) {
+                    if (isAiAnswerFailed(answer)) {
+                        if (!closed.compareAndSet(false, true)) {
+                            return;
+                        }
+                        sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, finalBot.getNickName(), "AI 回复生成失败，请稍后再试")
+                                .setCommentId(finalCommentId));
+                        emitter.complete();
+                        return;
+                    }
+
+                    if (!closed.compareAndSet(false, true)) {
+                        return;
+                    }
+                    try {
+                        saveAiHighlightReply(req, finalBot, answer, finalCommentId);
+                        sendAiEvent(emitter, HighlightAiStreamEvent.done(requestId, finalBot.getNickName(), finalCommentId, null));
+                    } catch (Exception e) {
+                        log.error("保存划线 AI 回复失败, articleId={}, parentCommentId={}, bot={}", req.getArticleId(), finalCommentId, finalBot, e);
+                        sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, finalBot.getNickName(), "AI 回复保存失败，请稍后再试")
+                                .setCommentId(finalCommentId));
+                    } finally {
+                        emitter.complete();
+                    }
+                }
+            }, () -> buildHighlightAiSystemPrompt(finalBot, req.getArticleId()));
+        } catch (Exception e) {
+            log.error("启动划线 AI 回复失败, requestId={}, articleId={}, parentCommentId={}, bot={}",
+                    requestId, req.getArticleId(), finalCommentId, finalBot, e);
+            if (closed.compareAndSet(false, true)) {
+                sendAiEvent(emitter, HighlightAiStreamEvent.error(requestId, finalBot.getNickName(), "AI 回复生成失败，请稍后再试")
+                        .setCommentId(finalCommentId));
+                emitter.complete();
             }
-        }, () -> buildHighlightAiSystemPrompt(finalBot, req.getArticleId()));
+        }
         return emitter;
     }
 

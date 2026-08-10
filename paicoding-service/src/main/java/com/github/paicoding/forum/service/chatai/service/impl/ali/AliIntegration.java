@@ -7,7 +7,6 @@ import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.ResultCallback;
 import com.alibaba.dashscope.common.Role;
-import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 @Slf4j
@@ -41,10 +41,11 @@ public class AliIntegration {
     private AliConfig config;
 
     public void streamReturn(Long user, ChatRecordsVo chatRecord, BiConsumer<AiChatStatEnum, ChatRecordsVo> callback) {
+        ChatItemVo item = chatRecord.getRecords().get(0);
+        Semaphore semaphore = new Semaphore(0);
+        AtomicBoolean terminalDelivered = new AtomicBoolean(false);
         try {
-            ChatItemVo item = chatRecord.getRecords().get(0);
-
-            Generation gen = new Generation();
+            GenerationClient gen = newGenerationClient();
             // 支持上下文的多轮聊天
             List<Message> userMsgList = ChatConstants.toMsgList(chatRecord.getRecords(), this::toMsg);
             GenerationParam param = GenerationParam.builder()
@@ -53,40 +54,86 @@ public class AliIntegration {
                     .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                     .incrementalOutput(true)
                     .build();
-            Semaphore semaphore = new Semaphore(0);
             StringBuilder fullContent = new StringBuilder();
 
             gen.streamCall(param, new ResultCallback<GenerationResult>() {
                 @Override
                 public void onEvent(GenerationResult message) {
-                    String content = message.getOutput().getChoices().get(0).getMessage().getContent();
-                    fullContent.append(content);
-                    log.info("Received message: {}", JsonUtils.toJson(message));
-                    item.appendAnswer(content);
-                    callback.accept(AiChatStatEnum.MID, chatRecord);
+                    synchronized (terminalDelivered) {
+                        if (terminalDelivered.get()) {
+                            return;
+                        }
+                        String content = message.getOutput().getChoices().get(0).getMessage().getContent();
+                        fullContent.append(content);
+                        log.info("Received message: {}", JsonUtils.toJson(message));
+                        item.appendAnswer(content);
+                        callback.accept(AiChatStatEnum.MID, chatRecord);
+                    }
                 }
 
                 @Override
                 public void onError(Exception err) {
-                    callback.accept(AiChatStatEnum.ERROR, chatRecord);
-                    log.error("Exception occurred: {}", err.getMessage());
-                    semaphore.release();
+                    synchronized (terminalDelivered) {
+                        if (terminalDelivered.get()) {
+                            return;
+                        }
+                        terminalDelivered.set(true);
+                        try {
+                            failStream(item, chatRecord, callback);
+                            log.error("阿里 AI 流式调用失败", err);
+                        } finally {
+                            semaphore.release();
+                        }
+                    }
                 }
 
                 @Override
                 public void onComplete() {
-                    item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
-                    callback.accept(AiChatStatEnum.END, chatRecord);
-                    log.info("Completed");
-                    semaphore.release();
+                    synchronized (terminalDelivered) {
+                        if (terminalDelivered.get()) {
+                            return;
+                        }
+                        terminalDelivered.set(true);
+                        try {
+                            item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
+                            callback.accept(AiChatStatEnum.END, chatRecord);
+                            log.info("Completed");
+                        } finally {
+                            semaphore.release();
+                        }
+                    }
                 }
             });
 
             semaphore.acquire();
             log.info("Full content: \n{}", fullContent.toString());
-        } catch (ApiException | NoApiKeyException | InputRequiredException | InterruptedException e) {
-            log.error("An exception occurred: {}", e.getMessage());
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            synchronized (terminalDelivered) {
+                if (!terminalDelivered.get()) {
+                    terminalDelivered.set(true);
+                    failStream(item, chatRecord, callback);
+                }
+            }
+            log.error("阿里 AI 流式调用启动失败", e);
         }
+    }
+
+    GenerationClient newGenerationClient() {
+        Generation generation = new Generation();
+        return generation::streamCall;
+    }
+
+    @FunctionalInterface
+    interface GenerationClient {
+        void streamCall(GenerationParam param, ResultCallback<GenerationResult> callback) throws Exception;
+    }
+
+    private void failStream(ChatItemVo item, ChatRecordsVo chatRecord, BiConsumer<AiChatStatEnum, ChatRecordsVo> callback) {
+        item.initAnswer("AI 回复生成失败，请稍后再试", ChatAnswerTypeEnum.STREAM_END);
+        callback.accept(AiChatStatEnum.ERROR, chatRecord);
     }
 
     @Component

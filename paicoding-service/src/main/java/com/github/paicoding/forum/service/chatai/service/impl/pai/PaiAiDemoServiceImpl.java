@@ -65,7 +65,7 @@ public class PaiAiDemoServiceImpl extends AbsChatService {
             item.setAnswerType(ChatAnswerTypeEnum.STREAM_END);
             consumer.accept(AiChatStatEnum.END, response);
         });
-        return AiChatStatEnum.END;
+        return AiChatStatEnum.IGNORE;
     }
 
     private String qa(String q) {

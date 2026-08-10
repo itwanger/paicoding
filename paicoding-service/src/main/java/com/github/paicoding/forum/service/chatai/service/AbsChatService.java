@@ -257,15 +257,21 @@ public abstract class AbsChatService implements ChatService {
 
         final ChatRecordsVo newRes = res.clone();
         AiChatStatEnum needReturn = doAsyncAnswer(user, newRes, (ans, vo) -> {
-            if (ans == AiChatStatEnum.END) {
-                // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
-                processAfterSuccessedAnswered(user, newRes);
-            } else if (ans == AiChatStatEnum.ERROR) {
-                // 执行异常，更新AI模型
-                SpringUtil.getBean(ChatFacade.class).refreshAiSourceCache(Sets.newHashSet(source()));
+            try {
+                if (ans == AiChatStatEnum.END) {
+                    // 只有最后一个会话，即ai的回答结束，才需要进行持久化，并计数
+                    processAfterSuccessedAnswered(user, newRes);
+                } else if (ans == AiChatStatEnum.ERROR) {
+                    // 执行异常，更新AI模型
+                    SpringUtil.getBean(ChatFacade.class).refreshAiSourceCache(Sets.newHashSet(source()));
+                }
+            } catch (Exception e) {
+                // 历史记录、计数或模型刷新失败不能吞掉已经生成的流式终态。
+                log.error("AI 异步回答后处理失败, source={}, user={}, state={}", source(), user, ans, e);
+            } finally {
+                // ai异步返回结果之后，我们将结果推送给前端用户
+                consumer.accept(newRes);
             }
-            // ai异步返回结果之后，我们将结果推送给前端用户
-            consumer.accept(newRes);
         });
 
         if (needReturn.needResponse()) {
