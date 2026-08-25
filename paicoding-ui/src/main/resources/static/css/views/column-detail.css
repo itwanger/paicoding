@@ -47,7 +47,7 @@
   width: 280px;
   position: fixed;
   top: 80px; /* 从导航栏下方开始 */
-  right: 0; /* 紧贴右边缘 */
+  right: 10px; /* 紧贴右边缘 */
   max-height: calc(100vh - 80px); /* 设置最大高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
   overscroll-behavior: contain;
