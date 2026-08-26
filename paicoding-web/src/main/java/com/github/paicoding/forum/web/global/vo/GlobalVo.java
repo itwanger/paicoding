@@ -1,5 +1,6 @@
 package com.github.paicoding.forum.web.global.vo;
 
+import com.github.paicoding.forum.api.model.vo.config.NavbarItemDTO;
 import com.github.paicoding.forum.api.model.vo.seo.SeoTagVo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.service.sitemap.model.SiteCntVo;
@@ -54,6 +55,11 @@ public class GlobalVo {
     private Integer onlineCnt;
 
     private String currentDomain;
+
+    /**
+     * 首页、教程之外由 Admin 维护的顶部导航入口。
+     */
+    private List<NavbarItemDTO> navbarItems;
 
     private List<SeoTagVo> ogp;
     private String jsonLd;

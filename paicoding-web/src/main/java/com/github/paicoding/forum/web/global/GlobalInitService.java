@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.seo.Seo;
 import com.github.paicoding.forum.api.model.vo.user.dto.BaseUserInfoDTO;
 import com.github.paicoding.forum.core.util.NumUtil;
 import com.github.paicoding.forum.core.util.SessionUtil;
+import com.github.paicoding.forum.service.config.service.NavbarConfigService;
 import com.github.paicoding.forum.web.config.GlobalViewConfig;
 import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.global.vo.GlobalVo;
@@ -56,6 +57,9 @@ public class GlobalInitService {
     @Resource
     private WxLoginProperties wxLoginProperties;
 
+    @Resource
+    private NavbarConfigService navbarConfigService;
+
     /**
      * 全局属性配置
      */
@@ -67,6 +71,7 @@ public class GlobalInitService {
         vo.setSiteStatisticInfo(sitemapService.querySiteVisitInfo(null, null));
         vo.setTodaySiteStatisticInfo(sitemapService.querySiteVisitInfo(LocalDate.now(), null));
         vo.setLoginQrType(wxLoginProperties.getLoginQrType());
+        vo.setNavbarItems(navbarConfigService.getEnabledItems());
 
         if (ReqInfoContext.getReqInfo() == null || ReqInfoContext.getReqInfo().getSeo() == null || CollectionUtils.isEmpty(ReqInfoContext.getReqInfo().getSeo().getOgp())) {
             Seo seo = seoInjectService.defaultSeo();

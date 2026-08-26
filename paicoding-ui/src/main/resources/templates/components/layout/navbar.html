@@ -27,8 +27,12 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" href="/">首页</a>
               <a class="dropdown-item" href="/column">教程</a>
-              <a class="dropdown-item" href="https://smart.paicoding.com/" th:href="${global.siteInfo.paiSmartUrl}" th:text="${global.siteInfo.paiSmartName}">PaiSmart</a>
-              <a class="dropdown-item" href="/chat" th:text="${global.siteInfo.paiChatName}">PaiChat</a>
+              <a class="dropdown-item"
+                 th:each="item : ${global.navbarItems}"
+                 th:href="${item.url}"
+                 th:text="${item.name}"
+                 th:target="${item.openInNewWindow ? '_blank' : null}"
+                 th:rel="${item.openInNewWindow ? 'noopener noreferrer' : null}">导航入口</a>
             </div>
           </div>
         </div>
@@ -49,14 +53,16 @@
           >
             <a class="nav-link" href="/column">教程</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://smart.paicoding.com/" th:href="${global.siteInfo.paiSmartUrl}" th:text="${global.siteInfo.paiSmartName}">PaiSmart</a>
-          </li>
           <li
-                  th:class="${'nav-item' + (#strings.equals(global.currentDomain, 'chat') ? ' selected-domain' : '')}"
+                  th:each="item : ${global.navbarItems}"
+                  th:class="${'nav-item' + (!#strings.isEmpty(item.activeDomain) && #strings.equals(global.currentDomain, item.activeDomain) ? ' selected-domain' : '')}"
                   class="nav-item"
           >
-            <a class="nav-link" href="/chat" th:text="${global.siteInfo.paiChatName}">PaiChat</a>
+            <a class="nav-link"
+               th:href="${item.url}"
+               th:text="${item.name}"
+               th:target="${item.openInNewWindow ? '_blank' : null}"
+               th:rel="${item.openInNewWindow ? 'noopener noreferrer' : null}">导航入口</a>
           </li>
         </ul>
       </div>
