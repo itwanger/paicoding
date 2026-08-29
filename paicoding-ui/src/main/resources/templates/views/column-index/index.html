@@ -229,12 +229,6 @@
         color: #1f2328;
     }
 
-    .course-copy {
-        margin: 0;
-        color: var(--pai-color-4-gray);
-        line-height: 1.8;
-    }
-
     .course-catalog-head {
         display: flex;
         align-items: flex-end;
@@ -537,17 +531,14 @@
 
         <article class="custom-home-body bg-color-white course-landing-card course-content-card">
             <nav class="course-tabs" aria-label="教程页导航">
-                <a href="#course-intro" class="active">介绍</a>
-                <a href="#course-catalog">目录</a>
+                <a th:if="${!#strings.isEmpty(courseIntroHtml)}" href="#course-intro" class="active">介绍</a>
+                <a href="#course-catalog" th:classappend="${#strings.isEmpty(courseIntroHtml)} ? 'active' : ''">目录</a>
             </nav>
 
-            <section id="course-intro" class="course-section">
-                <div class="article-content course-intro-rich" th:if="${!#strings.isEmpty(courseIntroHtml)}" th:utext="${courseIntroHtml}">
+            <section id="course-intro" class="course-section" th:if="${!#strings.isEmpty(courseIntroHtml)}">
+                <div class="article-content course-intro-rich" th:utext="${courseIntroHtml}">
                     <p>项目介绍</p>
                 </div>
-                <p class="course-copy" th:if="${#strings.isEmpty(courseIntroHtml)}">
-                    这套教程围绕真实项目展开，覆盖项目背景、业务拆解、架构设计、核心技术实现、部署运行、简历写法和面试复盘。适合想用真实项目补齐工程经验、AI 应用经验和面试表达的同学系统学习。
-                </p>
             </section>
 
             <section id="course-catalog" class="course-section">

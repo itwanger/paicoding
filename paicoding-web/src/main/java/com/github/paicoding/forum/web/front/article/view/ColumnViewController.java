@@ -316,12 +316,7 @@ public class ColumnViewController {
                 return StrUtil.stabilizeHtmlImages(MarkdownConverter.markdownToHtml(introMarkdown));
             }
         }
-
-        if (StringUtils.isNotBlank(column.getIntroduction())) {
-            return MarkdownConverter.markdownToHtml(column.getIntroduction());
-        }
-
-        return "<p>这套教程围绕真实项目展开，覆盖项目背景、业务拆解、架构设计、核心技术实现、部署运行、简历写法和面试复盘。适合想用真实项目补齐工程经验、AI 应用经验和面试表达的同学系统学习。</p>";
+        return "";
     }
 
     private String normalizeReadmeMarkdown(String markdown) {
