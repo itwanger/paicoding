@@ -251,4 +251,12 @@
     <changeSet id="20260709_1" author="Claude">
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260709.sql"/>
     </changeSet>
+
+    <!-- 教程简介扩容，并由应用层统一限制为最多 500 个字符 -->
+    <changeSet id="20260829_1" author="Codex">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="column_info" columnName="introduction"/>
+        </preConditions>
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260829.sql"/>
+    </changeSet>
 </databaseChangeLog>

@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ColumnSettingServiceImpl implements ColumnSettingService {
+    private static final int COLUMN_INTRODUCTION_MAX_LENGTH = 500;
     private static final int README_INIT_SOURCE_MAX_LENGTH = 5000;
 
     @Autowired
@@ -85,6 +86,13 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
     @Override
     public void saveColumn(ColumnReq req) {
+        if (req == null) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "教程信息不能为空!");
+        }
+        if (StringUtils.length(req.getIntroduction()) > COLUMN_INTRODUCTION_MAX_LENGTH) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED,
+                    "教程简介不能超过" + COLUMN_INTRODUCTION_MAX_LENGTH + "个字符!");
+        }
         ColumnInfoDO columnInfoDO = columnStructMapper.toDo(req);
         boolean isNewColumn = NumUtil.nullOrZero(req.getColumnId());
         ColumnInfoDO oldColumn = isNewColumn ? null : columnDao.getById(req.getColumnId());
