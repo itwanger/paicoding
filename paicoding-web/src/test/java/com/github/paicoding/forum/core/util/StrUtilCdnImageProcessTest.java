@@ -30,6 +30,9 @@ public class StrUtilCdnImageProcessTest {
     @Test
     public void shouldLeaveExternalImagesUntouched() {
         assertNull(StrUtil.buildProcessedImageUrl("https://other-cdn.com/a.png", CDN, 1400));
+        // cdn.tobebetterjavaer.com 是另一个 CDN，实测不支持 OSS 图片处理参数，必须排除。
+        // 生产上 image.cdn-host 被动态配置覆盖成了这个域名，导致整条压缩链路匹配不上——
+        // 所以匹配基准必须是 image.oss.host。
         assertNull(StrUtil.buildProcessedImageUrl("https://cdn.tobebetterjavaer.com/a.png", CDN, 1400));
     }
 

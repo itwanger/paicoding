@@ -80,8 +80,12 @@ public class StrUtil {
      * 动图转 WebP 会丢动画，矢量图本身就很小，两者都不交给 OSS 处理。
      */
     private static final String[] IMAGE_PROCESS_SKIP_SUFFIXES = {".gif", ".svg"};
-    private static final String IMAGE_CDN_HOST_CONFIG_KEY = "image.cdn-host";
-    private static final AtomicBoolean CDN_HOST_MISSING_WARNED = new AtomicBoolean(false);
+    /**
+     * 图片处理只对自家 OSS 桶的域名生效，所以取 {@code image.oss.host} 而不是 {@code image.cdn-host}——
+     * 后者被动态配置覆盖成了 cdn.tobebetterjavaer.com，那个域名不支持 OSS 图片处理参数。
+     */
+    private static final String IMAGE_OSS_HOST_CONFIG_KEY = "image.oss.host";
+    private static final AtomicBoolean OSS_HOST_MISSING_WARNED = new AtomicBoolean(false);
 
     /**
      * 微信支付的提示信息，不支持表情包，因此我们只保留中文 + 数字 + 英文字母 + 符号 '《》【】-_.'
@@ -203,7 +207,7 @@ public class StrUtil {
 
         try {
             ImageDimensionStore store = resolveImageDimensionStore();
-            String cdnHost = resolveCdnHost();
+            String ossHost = resolveOssHost();
             org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parseBodyFragment(html);
             org.jsoup.select.Elements images = doc.select("img");
             int imageIndex = 0;
@@ -212,7 +216,7 @@ public class StrUtil {
 
                 String src = normalizeImageSrc(img.attr("src"));
                 // 注意：src 变量始终保持原图地址，宽高探测与 image_dimension 表都以它为键
-                applyCdnImageProcess(img, src, cdnHost);
+                applyCdnImageProcess(img, src, ossHost);
 
                 ImageDimension dimension = null;
                 if (StringUtils.isNotBlank(src)) {
@@ -364,18 +368,18 @@ public class StrUtil {
      * 小程序侧同样在下发单张 6~8MB 的原图。</p>
      */
     public static String compressHtmlImages(String html) {
-        return compressHtmlImages(html, resolveCdnHost());
+        return compressHtmlImages(html, resolveOssHost());
     }
 
-    static String compressHtmlImages(String html, String cdnHost) {
-        if (StringUtils.isBlank(html) || StringUtils.isBlank(cdnHost)) {
+    static String compressHtmlImages(String html, String ossHost) {
+        if (StringUtils.isBlank(html) || StringUtils.isBlank(ossHost)) {
             return html;
         }
 
         try {
             org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parseBodyFragment(html);
             for (org.jsoup.nodes.Element img : doc.select("img")) {
-                String processed = buildProcessedImageUrl(normalizeImageSrc(img.attr("src")), cdnHost, INLINE_IMAGE_WIDTH);
+                String processed = buildProcessedImageUrl(normalizeImageSrc(img.attr("src")), ossHost, INLINE_IMAGE_WIDTH);
                 if (processed != null) {
                     img.attr("src", processed);
                 }
@@ -395,29 +399,29 @@ public class StrUtil {
      *
      * <p>宽高属性仍写原图数值：等比缩放不改变宽高比，占位盒子依然正确，CLS 不受影响。</p>
      */
-    static void applyCdnImageProcess(org.jsoup.nodes.Element img, String src, String cdnHost) {
-        String inline = buildProcessedImageUrl(src, cdnHost, INLINE_IMAGE_WIDTH);
+    static void applyCdnImageProcess(org.jsoup.nodes.Element img, String src, String ossHost) {
+        String inline = buildProcessedImageUrl(src, ossHost, INLINE_IMAGE_WIDTH);
         if (inline == null) {
             return;
         }
 
         img.attr("src", inline);
         // Fancybox 绑定在 img 上，默认拿 src 当放大源；用 data-src 给它更清晰的一份
-        img.attr("data-src", buildProcessedImageUrl(src, cdnHost, ZOOM_IMAGE_WIDTH));
+        img.attr("data-src", buildProcessedImageUrl(src, ossHost, ZOOM_IMAGE_WIDTH));
     }
 
     /**
      * 拼接 OSS 图片处理地址，不适用时返回 null。
      *
      * @param src     已规范化的图片地址
-     * @param cdnHost 本站 CDN 前缀，只处理本站图片，外链原样保留
+     * @param ossHost 自家 OSS 桶的访问前缀，只处理这个域名下的图片，其余原样保留
      * @param width   下发的最大宽度，OSS 只缩不放，小图不受影响
      */
-    static String buildProcessedImageUrl(String src, String cdnHost, int width) {
-        if (StringUtils.isBlank(src) || StringUtils.isBlank(cdnHost)) {
+    static String buildProcessedImageUrl(String src, String ossHost, int width) {
+        if (StringUtils.isBlank(src) || StringUtils.isBlank(ossHost)) {
             return null;
         }
-        if (!StringUtils.startsWithIgnoreCase(src, cdnHost)) {
+        if (!StringUtils.startsWithIgnoreCase(src, ossHost)) {
             return null;
         }
         // 已带参数的地址可能是签名 URL 或已处理过，不重复追加
@@ -434,21 +438,23 @@ public class StrUtil {
     }
 
     /**
-     * 取本站 CDN 前缀。优先直接读配置——{@code SpringUtil.getConfig} 走 Environment，
-     * 不依赖 bean 是否注册成功；bean 只作兜底。
+     * 取自家 OSS 桶的访问域名。优先直接读配置——{@code SpringUtil.getConfig} 走 Environment，
+     * 能拿到数据库动态配置的最终值；bean 只作兜底。
      *
      * <p>两条路都拿不到时打一次 WARN：图片压缩会整体失效，而这种失效本身是静默的，
      * 没有日志就只能靠肉眼看页面才发现。</p>
      */
-    private static String resolveCdnHost() {
-        String fromConfig = StringUtils.trimToNull(SpringUtil.getConfig(IMAGE_CDN_HOST_CONFIG_KEY));
+    private static String resolveOssHost() {
+        String fromConfig = StringUtils.trimToNull(SpringUtil.getConfig(IMAGE_OSS_HOST_CONFIG_KEY));
         if (fromConfig != null) {
             return fromConfig;
         }
 
         try {
             ImageProperties properties = SpringUtil.getBeanOrNull(ImageProperties.class);
-            String fromBean = properties == null ? null : StringUtils.trimToNull(properties.getCdnHost());
+            String fromBean = properties == null || properties.getOss() == null
+                    ? null
+                    : StringUtils.trimToNull(properties.getOss().getHost());
             if (fromBean != null) {
                 return fromBean;
             }
@@ -456,8 +462,8 @@ public class StrUtil {
             log.warn("resolve ImageProperties bean failed", e);
         }
 
-        if (CDN_HOST_MISSING_WARNED.compareAndSet(false, true)) {
-            log.warn("未能解析 {}，正文图片将不做 OSS 压缩，按原图下发", IMAGE_CDN_HOST_CONFIG_KEY);
+        if (OSS_HOST_MISSING_WARNED.compareAndSet(false, true)) {
+            log.warn("未能解析 {}，正文图片将不做 OSS 压缩，按原图下发", IMAGE_OSS_HOST_CONFIG_KEY);
         }
         return null;
     }
