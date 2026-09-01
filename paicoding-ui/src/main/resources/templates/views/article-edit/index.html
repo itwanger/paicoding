@@ -500,6 +500,7 @@
     toolbarIcons: function () {
       return [
         "mdFile","|",
+        "aiIllustration", "|",
         "undo", "redo", "|",
         "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
         "h1", "h2", "h3", "h4", "|",
@@ -513,6 +514,7 @@
     // 用于增加自定义工具栏的功能，可以直接插入HTML标签，不使用默认的元素创建图标
     toolbarIconTexts : {
       mdFile : "导入MD",
+      aiIllustration : "<i class='fa fa-picture-o'></i>",
       video : "<i class='fa fa-film'></i>"
     },
     toolbarHandlers: {
@@ -577,6 +579,132 @@
           reader.readAsText(file);
         };
         fileInput.click();
+      },
+      aiIllustration : function(cm, icon, cursor, selection){
+        console.log("AI生成配图");
+        const dialogHtml = `
+          <div class="ai-illustration-dialog-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div class="ai-illustration-dialog-content" style="background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 700px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600;">AI生成文章配图</h3>
+                <button id="aiIllustrationCloseBtn" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #999;">&times;</button>
+              </div>
+              <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #666;">生成数量：</label>
+                <select id="aiIllustrationCount" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                  <option value="2">2张</option>
+                  <option value="3">3张</option>
+                  <option value="4" selected>4张</option>
+                  <option value="5">5张</option>
+                  <option value="6">6张</option>
+                </select>
+              </div>
+              <div style="margin-bottom: 20px; padding: 14px; border: 1px solid #f0f0f0; border-radius: 6px; background: #fafafa;">
+                <div style="font-size: 14px; color: #333; margin-bottom: 8px;">配图风格：小黑手绘风</div>
+                <div style="font-size: 12px; color: #999;">基于文章内容分析，自动生成适合的配图位置和主题</div>
+              </div>
+              <div id="aiIllustrationResult" style="display: none; margin-bottom: 20px; max-height: 400px; overflow-y: auto;">
+                <div style="font-size: 14px; color: #333; margin-bottom: 12px;">生成结果（点击图片插入到文章）：</div>
+                <div id="aiIllustrationList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;"></div>
+              </div>
+              <div id="aiIllustrationLoading" style="display: none; margin-bottom: 20px; text-align: center;">
+                <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #ff6b81; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px;"></div>
+                <div style="font-size: 14px; color: #666;">AI正在分析文章并生成配图，请稍候...</div>
+                <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+              </div>
+              <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button id="aiIllustrationCancelBtn" style="padding: 8px 20px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 14px;">取消</button>
+                <button id="aiIllustrationGenerateBtn" style="padding: 8px 20px; border: none; background: #ff6b81; color: white; border-radius: 4px; cursor: pointer; font-size: 14px;">开始生成</button>
+              </div>
+            </div>
+          </div>
+        `;
+        $('body').append(dialogHtml);
+
+        $('#aiIllustrationCloseBtn').on('click', function() {
+          $('.ai-illustration-dialog-overlay').remove();
+        });
+
+        $('#aiIllustrationCancelBtn').on('click', function() {
+          $('.ai-illustration-dialog-overlay').remove();
+        });
+
+        $('.ai-illustration-dialog-overlay').on('click', function(e) {
+          if (e.target === this) {
+            $(this).remove();
+          }
+        });
+
+        $(document).on('keydown.aiIllustrationDialog', function(e) {
+          if (e.key === 'Escape') {
+            $('.ai-illustration-dialog-overlay').remove();
+            $(document).off('keydown.aiIllustrationDialog');
+          }
+        });
+
+        $('#aiIllustrationGenerateBtn').on('click', function() {
+          const title = $("#titleInput").val().trim();
+          const content = simplemde.getMarkdown().trim();
+          const count = parseInt($('#aiIllustrationCount').val());
+
+          if (!title) {
+            toastr.warning('请先输入文章标题');
+            return;
+          }
+          if (!content) {
+            toastr.warning('请先输入文章内容');
+            return;
+          }
+
+          $('#aiIllustrationGenerateBtn').prop('disabled', true).text('生成中...');
+          $('#aiIllustrationLoading').show();
+          $('#aiIllustrationResult').hide();
+          $('#aiIllustrationList').empty();
+
+          post("/api/admin/article/generate/illustrations", {
+            title: title,
+            content: content,
+            count: count
+          }, function(data) {
+            console.log("AI配图生成结果:", data);
+            $('#aiIllustrationLoading').hide();
+
+            if (data && data.result && data.result.illustrations && data.result.illustrations.length > 0) {
+              $('#aiIllustrationResult').show();
+              const illustrations = data.result.illustrations;
+              illustrations.forEach(function(illustration) {
+                const imgItem = `
+                  <div style="border: 1px solid #eee; border-radius: 6px; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;" class="ai-illustration-item" data-url="${illustration.imageUrl}" data-theme="${illustration.theme}">
+                    <img src="${illustration.imageUrl}" style="width: 100%; height: 120px; object-fit: cover;" alt="${illustration.theme}" />
+                    <div style="padding: 8px; background: #fafafa;">
+                      <div style="font-size: 13px; font-weight: 500; color: #333; margin-bottom: 4px;">${illustration.theme}</div>
+                      <div style="font-size: 12px; color: #999;">位置：第${illustration.placement}段</div>
+                    </div>
+                  </div>
+                `;
+                $('#aiIllustrationList').append(imgItem);
+              });
+
+              $('.ai-illustration-item').on('click', function() {
+                const url = $(this).data('url');
+                const theme = $(this).data('theme');
+                cm.replaceSelection('\n![配图：' + theme + '](' + url + ')\n\n');
+                toastr.success('图片已插入文章');
+              });
+
+              toastr.success('配图生成成功，点击图片插入到文章');
+            } else {
+              toastr.error('生成配图失败，请重试');
+            }
+
+            $('#aiIllustrationGenerateBtn').prop('disabled', false).text('重新生成');
+          }, function(error) {
+            console.error("AI配图生成失败:", error);
+            $('#aiIllustrationLoading').hide();
+            $('#aiIllustrationGenerateBtn').prop('disabled', false).text('重新生成');
+            toastr.error('生成配图失败，请重试');
+          });
+        });
       },
       video : function(cm, icon, cursor, selection){
         console.log("插入视频");
@@ -737,6 +865,7 @@
     lang: {
       toolbar: {
         mdFile: "导入MD",
+        aiIllustration: "AI配图",
         video: "插入视频"
       }
     },
