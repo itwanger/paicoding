@@ -3,6 +3,7 @@ package com.github.paicoding.forum.core.util;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.paicoding.forum.core.config.ImageProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,12 +22,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author YiHui
  * @date 2024/12/5
  */
+@Slf4j
 public class StrUtil {
     private static final String IMAGE_DIMENSION_CACHE_VERSION = "text-size-v12:";
     private static final Cache<String, ImageDimension> IMAGE_DIMENSION_CACHE = Caffeine.newBuilder()
@@ -77,6 +80,8 @@ public class StrUtil {
      * 动图转 WebP 会丢动画，矢量图本身就很小，两者都不交给 OSS 处理。
      */
     private static final String[] IMAGE_PROCESS_SKIP_SUFFIXES = {".gif", ".svg"};
+    private static final String IMAGE_CDN_HOST_CONFIG_KEY = "image.cdn-host";
+    private static final AtomicBoolean CDN_HOST_MISSING_WARNED = new AtomicBoolean(false);
 
     /**
      * 微信支付的提示信息，不支持表情包，因此我们只保留中文 + 数字 + 英文字母 + 符号 '《》【】-_.'
@@ -428,13 +433,33 @@ public class StrUtil {
         return src + "?x-oss-process=image/resize,w_" + width + "/format,webp";
     }
 
+    /**
+     * 取本站 CDN 前缀。优先直接读配置——{@code SpringUtil.getConfig} 走 Environment，
+     * 不依赖 bean 是否注册成功；bean 只作兜底。
+     *
+     * <p>两条路都拿不到时打一次 WARN：图片压缩会整体失效，而这种失效本身是静默的，
+     * 没有日志就只能靠肉眼看页面才发现。</p>
+     */
     private static String resolveCdnHost() {
+        String fromConfig = StringUtils.trimToNull(SpringUtil.getConfig(IMAGE_CDN_HOST_CONFIG_KEY));
+        if (fromConfig != null) {
+            return fromConfig;
+        }
+
         try {
             ImageProperties properties = SpringUtil.getBeanOrNull(ImageProperties.class);
-            return properties == null ? null : StringUtils.trimToNull(properties.getCdnHost());
+            String fromBean = properties == null ? null : StringUtils.trimToNull(properties.getCdnHost());
+            if (fromBean != null) {
+                return fromBean;
+            }
         } catch (Exception e) {
-            return null;
+            log.warn("resolve ImageProperties bean failed", e);
         }
+
+        if (CDN_HOST_MISSING_WARNED.compareAndSet(false, true)) {
+            log.warn("未能解析 {}，正文图片将不做 OSS 压缩，按原图下发", IMAGE_CDN_HOST_CONFIG_KEY);
+        }
+        return null;
     }
 
     private static String normalizeImageSrc(String src) {
