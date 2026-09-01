@@ -227,10 +227,11 @@ public class SitemapServiceImpl implements SitemapService {
         sb.append("Disallow: /search/api/\n");
         sb.append("Disallow: /user/api/\n");
         sb.append("\n");
+        // 用户主页数量上万、内容单薄，早已统一 noindex 并退出索引；
+        // 但谷歌仍在复爬它们（实测占 Googlebot 抓取量的 36%），这里整段屏蔽把抓取预算还给文章页。
+        // 顺序不能反：必须等 noindex 生效、页面退出索引后再屏蔽，否则谷歌看不到 noindex，反而会把它们冻在索引里。
         sb.append("# 禁止抓取用户相关页面\n");
-        sb.append("Disallow: /user/login\n");
-        sb.append("Disallow: /user/register\n");
-        sb.append("Disallow: /user/home\n");
+        sb.append("Disallow: /user/\n");
         sb.append("Disallow: /login/\n");
         sb.append("Disallow: /logout\n");
         sb.append("\n");
