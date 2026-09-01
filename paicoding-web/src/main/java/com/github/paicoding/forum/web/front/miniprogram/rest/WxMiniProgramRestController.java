@@ -44,6 +44,7 @@ import com.github.paicoding.forum.core.mdc.MdcDot;
 import com.github.paicoding.forum.core.permission.Permission;
 import com.github.paicoding.forum.core.permission.UserRole;
 import com.github.paicoding.forum.core.util.MarkdownConverter;
+import com.github.paicoding.forum.core.util.StrUtil;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import com.github.paicoding.forum.service.article.service.ArticleReadService;
 import com.github.paicoding.forum.service.article.service.ArticleWriteService;
@@ -669,7 +670,8 @@ public class WxMiniProgramRestController {
         detail.setCreateTime(base.getCreateTime());
         detail.setLastUpdateTime(base.getLastUpdateTime());
         detail.setSearchHit(base.getSearchHit());
-        detail.setContentHtml(MarkdownConverter.markdownToHtml(article.getContent()));
+        // 只压图片体积、不写宽高：mp-html 自带排版，原图宽高会撑破容器
+        detail.setContentHtml(StrUtil.compressHtmlImages(MarkdownConverter.markdownToHtml(article.getContent())));
         detail.setPraised(Boolean.TRUE.equals(article.getPraised()));
         detail.setCollected(Boolean.TRUE.equals(article.getCollected()));
         detail.setCommented(Boolean.TRUE.equals(article.getCommented()));
