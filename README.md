@@ -30,6 +30,7 @@
 
 - 项目仓库（GitHub）：[https://github.com/itwanger/paicoding](https://github.com/itwanger/paicoding)
 - 项目仓库（码云）：[https://gitee.com/itwanger/paicoding](https://gitee.com/itwanger/paicoding)
+- 项目仓库（AtomGit）：[https://atomgit.com/javabetter/paicoding](https://atomgit.com/javabetter/paicoding)
 - 项目演示地址：[https://paicoding.com](https://paicoding.com)
 
 ![技术派首页](https://cdn.tobebetterjavaer.com/images/20230602/d7d341c557e7470d9fb41245e5bb4209.png)
