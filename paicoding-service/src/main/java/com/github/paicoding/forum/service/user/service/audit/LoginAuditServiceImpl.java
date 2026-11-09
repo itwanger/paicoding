@@ -98,6 +98,15 @@ public class LoginAuditServiceImpl implements LoginAuditService {
     }
 
     @Override
+    public Set<String> getActiveSessionHashes(Long userId) {
+        return userActiveSessionDao.lambdaQuery().select(UserActiveSessionDO::getSessionHash)
+                .eq(UserActiveSessionDO::getUserId, userId)
+                .isNull(UserActiveSessionDO::getOfflineTime)
+                .gt(UserActiveSessionDO::getExpireTime, new Date())
+                .list().stream().map(UserActiveSessionDO::getSessionHash).collect(Collectors.toSet());
+    }
+
+    @Override
     public void recordSessionOffline(String sessionHash, String reason, UserSessionHelper.SessionDeviceMeta sessionMeta, boolean kickout) {
         if (StringUtils.isBlank(sessionHash)) {
             return;

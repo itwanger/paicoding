@@ -11,6 +11,8 @@ import com.github.paicoding.forum.service.user.repository.entity.UserDO;
 import com.github.paicoding.forum.service.user.service.audit.UserShareRiskPolicy.HandleAction;
 import com.github.paicoding.forum.service.user.service.help.UserSessionHelper;
 
+import java.util.Set;
+
 /**
  * 登录审计与会话巡检
  *
@@ -21,6 +23,8 @@ public interface LoginAuditService {
     void recordLoginSuccess(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash, String riskTag);
 
     void recordLoginFail(String loginName, Integer loginType, String reason, UserSessionHelper.SessionDeviceMeta sessionMeta);
+
+    Set<String> getActiveSessionHashes(Long userId);
 
     void recordSessionOffline(String sessionHash, String reason, UserSessionHelper.SessionDeviceMeta sessionMeta, boolean kickout);
 

@@ -1,5 +1,7 @@
 package com.github.paicoding.forum.service.user.repository.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.paicoding.forum.api.model.entity.BaseDO;
 import lombok.Data;
@@ -49,6 +51,10 @@ public class UserDO extends BaseDO {
      * 最近一次成功登录时间
      */
     private Date lastLoginTime;
+
+    /** 只由全账号会话撤销操作递增。 */
+    @TableField(updateStrategy = FieldStrategy.NEVER)
+    private Long sessionVersion;
 
     /**
      * 禁用开始时间

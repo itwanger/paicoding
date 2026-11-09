@@ -125,6 +125,11 @@ public class UserDao extends ServiceImpl<UserInfoMapper, UserInfoDO> {
         userMapper.updateById(userDO);
     }
 
+    public void incrementSessionVersion(Long userId) {
+        userMapper.update(null, Wrappers.<UserDO>lambdaUpdate().eq(UserDO::getId, userId)
+                .setSql("session_version = session_version + 1"));
+    }
+
     public void updateLastLoginTime(Long userId, Date lastLoginTime) {
         LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate();
         updateWrapper.eq(UserDO::getId, userId)

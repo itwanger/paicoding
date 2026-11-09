@@ -11,7 +11,6 @@ import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.mdc.SelfTraceIdGenerator;
 import com.github.paicoding.forum.core.util.IpUtil;
 import com.github.paicoding.forum.core.util.JsonUtil;
-import com.github.paicoding.forum.core.util.MapUtils;
 import com.github.paicoding.forum.core.util.Md5Util;
 import com.github.paicoding.forum.core.util.SessionUtil;
 import com.github.paicoding.forum.service.user.service.LoginAuditService;
@@ -25,15 +24,9 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.data.redis.connection.DataType;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +50,7 @@ import java.util.Set;
 @Slf4j
 @Component
 public class UserSessionHelper {
+    private static final String SESSION_VERSION_CLAIM = "sv";
     private static final String USER_SESSION_PREFIX = "user_sessions:";
     private static final String SESSION_META_PREFIX = "session_meta:";
     private static final String SESSION_TOUCH_PREFIX = "session_touch:";
@@ -138,15 +133,15 @@ public class UserSessionHelper {
         // 1.生成jwt格式的会话，内部持有有效期，用户信息
         long now = System.currentTimeMillis();
         long expireTime = now + jwtProperties.getExpire();
-        String session = JsonUtil.toStr(MapUtils.create("s", SelfTraceIdGenerator.generate(), "u", userId));
-        String token = JWT.create().withIssuer(jwtProperties.getIssuer()).withExpiresAt(new Date(expireTime))
-                .withPayload(session)
-                .sign(algorithm);
-
         SessionDeviceMeta sessionMeta = buildSessionMeta(userId, loginName, loginType, now, expireTime);
         mergeSessionDeviceMeta(sessionMeta, sourceMeta);
-        assertUserLoginAllowed(userId, loginName, loginType, sessionMeta);
+        UserDO user = userDao.getUserByUserId(userId);
+        assertUserLoginAllowed(userId, user, loginName, loginType, sessionMeta);
         String riskTag = enforceDeviceLimit(userId, sessionMeta);
+        String token = JWT.create().withIssuer(jwtProperties.getIssuer()).withExpiresAt(new Date(expireTime))
+                .withClaim("s", SelfTraceIdGenerator.generate()).withClaim("u", userId)
+                .withClaim(SESSION_VERSION_CLAIM, user.getSessionVersion())
+                .sign(algorithm);
 
         // 2.使用jwt生成的token时，后端可以不存储这个session信息, 完全依赖jwt的信息
         // 但是需要考虑到用户登出，需要主动失效这个token，而jwt本身无状态，所以再这里的redis做一个简单的token -> userId的缓存，用于双重判定
@@ -231,82 +226,24 @@ public class UserSessionHelper {
         }
 
         long startTime = System.currentTimeMillis();
-        String userSessionKey = "user_sessions:" + userId;
-
-        // 优先从用户的 session 索引中获取所有 session（新版本）
+        String userSessionKey = userSessionKey(userId);
+        // 先取快照，只清理本次撤销前的会话，保留并发登录添加的新索引成员。
         Set<String> sessions = redisTemplate.opsForSet().members(userSessionKey);
-        long queryDuration = System.currentTimeMillis() - startTime;
-
-        // 兼容旧版本：如果索引不存在，回退到 SCAN 方式
-        if (sessions == null || sessions.isEmpty()) {
-            log.warn("用户 {} 的 session 索引不存在，使用 SCAN 方式兜底（可能是旧版本创建的 session）", userId);
-            removeAllSessionsByUserIdLegacy(userId, reason);
-            return;
-        }
-
-        log.info("查询用户 {} 的 session 索引耗时: {}ms, 数量: {}", userId, queryDuration, sessions.size());
-
-        // 删除所有 session token
-        for (String session : sessions) {
-            removeSession(session, reason);
-            log.info("踢掉用户 {} 的 session，key: {}", userId, session);
-        }
-
-        // 删除用户的 session 索引
-        redisTemplate.delete(userSessionKey);
-
-        long totalDuration = System.currentTimeMillis() - startTime;
-        log.info("用户 {} 踢人下线总耗时: {}ms, session 数量: {}", userId, totalDuration, sessions.size());
-    }
-
-    /**
-     * 旧版本踢人下线实现（使用 SCAN 全表扫描）
-     * 保留用于向后兼容，处理旧版本创建的 session
-     *
-     * @param userId 用户ID
-     * @deprecated 仅为兼容旧版本 session，新版本使用索引查询
-     */
-    @Deprecated
-    private void removeAllSessionsByUserIdLegacy(Long userId, String reason) {
-        String targetUserId = String.valueOf(userId);
-        List<String> sessions = redisTemplate.execute((RedisCallback<List<String>>) connection -> {
-            ScanOptions options = ScanOptions.scanOptions()
-                    .match("pai_*")
-                    .count(100)
-                    .build();
-
-            List<String> result = new ArrayList<>();
-            Cursor<byte[]> cursor = connection.scan(options);
-            while (cursor.hasNext()) {
-                byte[] key = cursor.next();
-                try {
-                    DataType dataType = connection.type(key);
-                    if (dataType != DataType.STRING) {
-                        continue;
-                    }
-
-                    byte[] value = connection.get(key);
-                    if (value != null) {
-                        String userIdInRedis = new String(value, StandardCharsets.UTF_8);
-                        if (targetUserId.equals(userIdInRedis)) {
-                            result.add(new String(key, StandardCharsets.UTF_8).replaceFirst("^pai_", ""));
-                        }
-                    }
-                } catch (Exception e) {
-                    log.debug("处理 key 时出错，跳过: {}", new String(key, StandardCharsets.UTF_8), e);
-                }
+        Set<String> activeHashes = new HashSet<>(loginAuditService.getActiveSessionHashes(userId));
+        userDao.incrementSessionVersion(userId);
+        if (sessions != null && !sessions.isEmpty()) {
+            for (String session : sessions) {
+                removeSession(session, reason);
+                activeHashes.remove(buildSessionHash(session));
             }
-            return result;
-        });
-
-        if (sessions == null || sessions.isEmpty()) {
-            return;
+            // removeSession 无法从过期 token 读回用户 ID，显式移除快照中残留的成员。
+            redisTemplate.opsForSet().remove(userSessionKey, sessions.toArray());
         }
-        for (String session : sessions) {
-            removeSession(session, reason);
-            log.info("踢掉用户 {} 的 session（旧版本），key: {}", userId, session);
+        for (String hash : activeHashes) {
+            loginAuditService.recordSessionOffline(hash, reason, null, true);
         }
-        log.info("用户 {} 通过 SCAN 方式踢掉了 {} 个 session", userId, sessions.size());
+        log.info("用户 {} 撤销会话耗时: {}ms, 索引会话数: {}, 未索引活跃会话数: {}", userId,
+                System.currentTimeMillis() - startTime, sessions == null ? 0 : sessions.size(), activeHashes.size());
     }
 
     /**
@@ -323,21 +260,22 @@ public class UserSessionHelper {
         // jwt的校验方式，如果token非法或者过期，则直接验签失败
         try {
             DecodedJWT decodedJWT = verifier.verify(session);
-            String pay = new String(Base64Utils.decodeFromString(decodedJWT.getPayload()));
-            // jwt验证通过，获取对应的userId
-            String userId = String.valueOf(JsonUtil.toObj(pay, HashMap.class).get("u"));
-
-            // 从redis中获取userId，解决用户登出，后台失效jwt token的问题
-            String user = RedisClient.getStr(session);
-            if (user == null || !Objects.equals(userId, user)) {
+            Long userId = decodedJWT.getClaim("u").asLong();
+            if (userId == null || !userId.toString().equals(RedisClient.getStr(session))) {
                 return null;
             }
-            if (isUserForbidden(Long.valueOf(userId))) {
+            UserDO user = userDao.getUserByUserId(userId);
+            // 上线前签发的 JWT 没有版本字段，对应数据库的初始版本 0。
+            Long version = Optional.ofNullable(decodedJWT.getClaim(SESSION_VERSION_CLAIM).asLong()).orElse(0L);
+            if (user == null || !version.equals(user.getSessionVersion())) {
+                return null;
+            }
+            if (isForbidden(user)) {
                 removeSession(session, ACCOUNT_SUSPENDED_REASON);
                 return null;
             }
-            refreshSessionMeta(session, Long.valueOf(userId), clientIp, deviceId, userAgent);
-            return Long.valueOf(user);
+            refreshSessionMeta(session, userId, clientIp, deviceId, userAgent);
+            return userId;
         } catch (Exception e) {
             log.debug("jwt token校验失败! token: {}, msg: {}", session, e.getMessage());
             // 如果jwt过期，自动删除用户的cookie；主要是为了解决jwt的有效期与cookie有效期不一致的场景
@@ -569,8 +507,7 @@ public class UserSessionHelper {
         return null;
     }
 
-    private void assertUserLoginAllowed(Long userId, String loginName, Integer loginType, SessionDeviceMeta sessionMeta) {
-        UserDO user = userDao.getUserByUserId(userId);
+    private void assertUserLoginAllowed(Long userId, UserDO user, String loginName, Integer loginType, SessionDeviceMeta sessionMeta) {
         if (user == null) {
             throw ExceptionUtil.of(StatusEnum.USER_NOT_EXISTS, "userId=" + userId);
         }
@@ -582,11 +519,6 @@ public class UserSessionHelper {
         String msg = untilText + (StringUtils.isBlank(user.getForbidReason()) ? "" : "，原因：" + user.getForbidReason());
         loginAuditService.recordLoginFail(StringUtils.defaultIfBlank(loginName, user.getUserName()), loginType, "账号已禁用:" + msg, sessionMeta);
         throw ExceptionUtil.of(StatusEnum.USER_FORBID_LOGIN, msg);
-    }
-
-    private boolean isUserForbidden(Long userId) {
-        UserDO user = userDao.getUserByUserId(userId);
-        return isForbidden(user);
     }
 
     private boolean isForbidden(UserDO user) {

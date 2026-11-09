@@ -259,4 +259,11 @@
         </preConditions>
         <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_260829.sql"/>
     </changeSet>
+    <changeSet id="20261109_1" author="Codex">
+        <addColumn tableName="user">
+            <column name="session_version" type="BIGINT" defaultValueNumeric="0" remarks="会话撤销版本">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

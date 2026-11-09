@@ -61,6 +61,7 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void operate(Long id, UserAIStatEnum operate) {
         // 根据id获取用户信息
         UserAiDO userAiDO = userAiDao.getById(id);
@@ -77,13 +78,12 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
             userAiDO.setStarExpireTime(new Date(System.currentTimeMillis() + aiConfig.getMaxNum().getExpireDays() * 24 * 60 * 60 * 1000L));
         }
 
+        userAiDao.updateById(userAiDO);
+
         // 如果状态变为未通过，则踢掉该用户的所有 session，让其立即下线
         if (UserAIStatEnum.NOT_PASS.equals(operate)) {
             userSessionHelper.removeAllSessionsByUserId(userAiDO.getUserId());
         }
-
-        // 审核通过的时候调整用户的策略
-        userAiDao.updateById(userAiDO);
     }
 
     @Override
@@ -137,6 +137,7 @@ public class ZsxqWhiteListServiceImpl implements ZsxqWhiteListService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void batchOperate(List<Long> ids, UserAIStatEnum operate) {
         // 如果设置为正式用户状态，则将过期时间延长360天
         if (UserAIStatEnum.FORMAL.equals(operate)) {
