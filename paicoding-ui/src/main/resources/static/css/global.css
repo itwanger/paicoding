@@ -1537,7 +1537,69 @@ button:focus {
   white-space: nowrap;
   font-size: 0.9rem;
 }
-#highlightControls, #detachedHighlights {
+.highlight-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 0 0 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e9eaed;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.layout-side > .highlight-filter { padding: 12px 16px; background: #fff; border-radius: 8px; }
+.highlight-filter[hidden] { display: none; }
+.highlight-filter__label,
+.highlight-filter__options,
+.highlight-filter__options label > span {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.highlight-filter__label { gap: 6px; color: #505967; }
+.highlight-filter__label svg { color: #777f88; }
+.highlight-filter__options {
+  padding: 3px;
+  border-radius: 9px;
+  background: #f2f3f5;
+}
+.highlight-filter__options label { position: relative; margin: 0; }
+.highlight-filter__options input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.highlight-filter__options label > span {
+  gap: 4px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  color: #58616c;
+}
+.highlight-filter__options small { font-size: 11px; font-variant-numeric: tabular-nums; }
+.highlight-filter__options input:checked + span {
+  color: #a84600;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(36, 43, 53, 0.14);
+  font-weight: 600;
+}
+.highlight-filter__options input:focus-visible + span { outline: 2px solid #b95200; }
+@media (hover: hover) {
+  .highlight-filter__options label:hover input:not(:checked) + span { color: #202831; }
+}
+@media (max-width: 991px) {
+  .toc-drawer-header + .highlight-filter { margin: 0; padding: 8px 18px; }
+  .highlight-filter__options label > span { min-height: 38px; }
+}
+.article-suspended-panel-md .highlight-filter { align-self: center; margin: 0; padding: 0; border: 0; }
+.article-suspended-panel-md .highlight-filter__label span,
+.article-suspended-panel-md .highlight-filter small { display: none; }
+#detachedHighlights {
   margin: 0.75rem 0;
   font-size: 0.9rem;
 }

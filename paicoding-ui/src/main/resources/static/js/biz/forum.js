@@ -216,6 +216,10 @@ const genTocMenu = function genToc(selector, el) {
     docContentTop = 0
 
   if (catalogLength === 0) {
+    // Articles without headings can still have highlights. Keep their filter in the sidebar.
+    const toc = document.querySelector(el)?.closest(".toc-container")
+    const filter = toc?.querySelector("#highlightControls")
+    if (filter) toc.before(filter)
     $(".toc-container").remove()
     return
   }

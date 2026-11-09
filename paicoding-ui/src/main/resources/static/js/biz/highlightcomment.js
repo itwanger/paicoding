@@ -189,8 +189,23 @@ function handleCommentIconClick(e) {
 function initUnderlineToSelection(commentList, viewerId) {
     highlightViewerId = viewerId ? String(viewerId) : '';
     articleHighlights = (commentList || []).filter(comment => comment.highlight?.selectedText);
-    const filter = document.getElementById('highlightMineOnly');
-    if (filter) filter.onchange = renderArticleHighlights;
+    const controls = document.getElementById('highlightControls');
+    if (controls) {
+        controls.onchange = renderArticleHighlights;
+        // Ordinary articles replace the desktop sidebar with a bottom toolbar on small screens.
+        const mobileBar = document.querySelector('.article-suspended-panel-md');
+        if (mobileBar) {
+            const sidebar = controls.parentElement;
+            const next = controls.nextSibling;
+            const smallScreen = window.matchMedia('(max-width: 768px)');
+            const placeFilter = () => {
+                if (smallScreen.matches) mobileBar.append(controls);
+                else sidebar.insertBefore(controls, next);
+            };
+            placeFilter();
+            smallScreen.addEventListener('change', placeFilter);
+        }
+    }
     // Syntax highlighting can replace inline DOM during DOMContentLoaded.
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', renderArticleHighlights, {once: true});
@@ -251,7 +266,11 @@ function renderArticleHighlights() {
         }
     }
     const controls = document.getElementById('highlightControls');
-    if (controls) controls.hidden = !articleHighlights.length;
+    if (controls) {
+        controls.hidden = !articleHighlights.length;
+        controls.querySelector('[data-count="all"]').textContent = articleHighlights.length;
+        controls.querySelector('[data-count="mine"]').textContent = articleHighlights.filter(isOwnHighlight).length;
+    }
     renderDetachedHighlights(detached);
 }
 

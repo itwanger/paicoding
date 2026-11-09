@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="filter" th:if="${global.isLogin}" id="highlightControls" class="highlight-filter" hidden
+     role="group" aria-label="正文划线显示范围">
+  <span class="highlight-filter__label">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m5 15 9.5-10a2.1 2.1 0 0 1 3 0l1.5 1.5a2.1 2.1 0 0 1 0 3L9 19l-5 1zM13 7l4 4"/>
+      <path d="M13 20h7"/>
+    </svg>
+    <span>正文划线</span>
+  </span>
+  <div class="highlight-filter__options">
+    <label>
+      <input type="radio" name="highlightScope" value="all" aria-label="全部划线" checked />
+      <span>全部 <small data-count="all"></small></span>
+    </label>
+    <label>
+      <input type="radio" name="highlightScope" id="highlightMineOnly" value="mine" aria-label="只看我的划线" />
+      <span>我的 <small data-count="mine"></small></span>
+    </label>
+  </div>
+</div>
+</html>

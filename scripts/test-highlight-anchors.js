@@ -1,8 +1,11 @@
 // Run with Playwright and its Chromium installed (or NODE_PATH pointing to global packages).
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const fs = require('node:fs');
 const {chromium} = require('playwright');
 const assets = path.join(__dirname, '../paicoding-ui/src/main/resources/static');
+const filterTemplate = path.join(assets, '../templates/components/comment/highlight-filter.html');
+const filterMarkup = fs.readFileSync(filterTemplate, 'utf8').match(/<div th:fragment=[\s\S]*<\/div>/)[0];
 const original = '一个超级简化版的 Claude Code，大概 400 行代码就能跑起来。';
 
 async function runReader(browser, mobile) {
@@ -17,7 +20,7 @@ async function runReader(browser, mobile) {
         await page.route('http://reader.test/**', async route => {
             const url = new URL(route.request().url());
             if (url.pathname === '/') {
-                return route.fulfill({contentType: 'text/html; charset=utf-8', body: `<div id="highlightControls"><input id="highlightMineOnly" type="checkbox"></div>
+                return route.fulfill({contentType: 'text/html; charset=utf-8', body: `<div class="layout-side"><aside class="toc-container"><div class="widget">${filterMarkup}<div id="contentMenu"></div></div></aside></div><div class="article-suspended-panel-md"></div>
                     <div id="highlightRelocation" hidden><button>取消</button></div>
                     <article id="articleContent"><p>先看一个具体的任务。在 PaiCLI 里输入“把 Hello.java 里</p>
                     <p>一个超级简化版的 <em>Claude Code</em>，大概 400 行代码就能跑起来。</p>
@@ -46,11 +49,13 @@ async function runReader(browser, mobile) {
             await page.addScriptTag({path: path.join(assets, file)});
         }
         await page.addStyleTag({path: path.join(assets, 'css/global.css')});
+        await page.addStyleTag({path: path.join(assets, 'css/views/article-detail.css')});
         await page.evaluate(() => {
             window.toastr = {success() {}, error(message) { throw new Error(message); }};
             window.articleId = 8;
         });
 
+        if (mobile) await page.evaluate(() => genTocMenu('#articleContent', '#contentMenu'));
         const results = await page.evaluate(original => {
             const article = document.getElementById('articleContent');
             const last = article.lastElementChild;
@@ -91,8 +96,22 @@ async function runReader(browser, mobile) {
         assert.deepEqual(threadRequests, ['11', '12']);
         if (mobile) await page.evaluate(() => $('#quoteCommentModal').modal('hide'));
 
-        await page.locator('#highlightMineOnly').check();
+        const controls = page.locator('#highlightControls');
+        assert.equal(await controls.locator('[data-count="all"]').textContent(), '6');
+        assert.equal(await controls.locator('[data-count="mine"]').textContent(), '3');
+        assert.equal(await controls.evaluate(el => el.parentElement.matches('.article-suspended-panel-md')), mobile);
+        await controls.getByRole('radio', {name: '只看我的划线'}).check();
+        await controls.getByRole('radio', {name: '全部划线'}).check();
+        assert.equal(await page.locator('#detachedHighlights li').count(), 2);
+        await controls.getByRole('radio', {name: '只看我的划线'}).check();
         assert.equal(await page.locator('#detachedHighlights li').count(), 1);
+        if (mobile) {
+            await page.setViewportSize({width: 1200, height: 800});
+            await page.locator('.layout-side > #highlightControls').waitFor();
+            await page.setViewportSize({width: 420, height: 800});
+            await page.locator('.article-suspended-panel-md > #highlightControls').waitFor();
+            assert.equal(await controls.getByRole('radio', {name: '只看我的划线'}).isChecked(), true);
+        }
         assert.equal(await page.locator('em span').count(), 1);
         assert.equal(await page.locator('.selected-text-highlight:not(.highlight-own)').count(), 0);
         await page.locator('#detachedHighlights summary').click();
