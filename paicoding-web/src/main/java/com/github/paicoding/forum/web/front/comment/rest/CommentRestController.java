@@ -13,6 +13,7 @@ import com.github.paicoding.forum.api.model.vo.comment.HighlightAiStreamEvent;
 import com.github.paicoding.forum.api.model.vo.comment.HighlightAiStreamReq;
 import com.github.paicoding.forum.api.model.vo.chat.ChatItemVo;
 import com.github.paicoding.forum.api.model.vo.comment.dto.TopCommentDTO;
+import com.github.paicoding.forum.api.model.vo.comment.dto.HighlightDto;
 import com.github.paicoding.forum.api.model.vo.comment.vo.SubCommentListVO;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.permission.Permission;
@@ -164,6 +165,14 @@ public class CommentRestController {
         vo.setCommentId(commentId);
         vo.setHtml(content);
         return ResVo.ok(vo);
+    }
+
+    @Permission(role = UserRole.LOGIN)
+    @PostMapping(path = "relocateHighlight")
+    public ResVo<HighlightDto> relocateHighlight(@RequestParam Long articleId, @RequestParam Long commentId,
+                                                  @RequestBody HighlightDto selection) {
+        return ResVo.ok(commentWriteService.relocateHighlight(articleId, commentId,
+                ReqInfoContext.getReqInfo().getUserId(), selection));
     }
 
     /**

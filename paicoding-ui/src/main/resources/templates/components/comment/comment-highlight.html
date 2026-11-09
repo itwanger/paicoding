@@ -15,6 +15,10 @@
     <div class="quote-content">
         <div class="highlight-comment-thread__quote-label">划线片段</div>
         <div class="quote-text" id="quotedText" th:text="${vo.highlight.selectedText}"></div>
+        <th:block th:if="${vo.highlight.anchoredText != null && vo.highlight.anchoredText != vo.highlight.selectedText}">
+            <div class="highlight-comment-thread__quote-label">新版原文</div>
+            <div class="quote-text" th:text="${vo.highlight.anchoredText}"></div>
+        </th:block>
         <div class="quote-comment-form">
             <!-- 评论列表 -->
             <div th:replace="components/comment/comment-item :: comment_item(${vo}, 'side')"></div>

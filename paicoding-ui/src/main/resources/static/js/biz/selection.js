@@ -1,133 +1,108 @@
-const ALLOWED = ['P','LI','UL','IMG','H1','H2','H3','H4','H5','H6'];
+const highlightBlocks = 'p,li,ul,h1,h2,h3,h4,h5,h6';
+const contextLengths = [8, 32];
 
-function canShowCommentIcon(range) {
-    let startNode = range.startContainer;
-    let startEl = (startNode.nodeType === Node.TEXT_NODE) ? startNode.parentElement : startNode;
-    if (startEl && ALLOWED.includes(startEl.tagName)) {
-        return true;
-    }
-    return false;
+function highlightBlock(node) {
+    const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+    return el.closest && el.closest(highlightBlocks);
 }
 
+function canShowCommentIcon(range) {
+    const article = document.getElementById('articleContent');
+    return article && article.contains(range.startContainer) && article.contains(range.endContainer)
+        && highlightBlock(range.startContainer) && !range.collapsed;
+}
 
-// 序列化：以同类型标签的顺序计数 elementIndex
-function rangeToElementJSON(range) {
-    const container = document.getElementById('articleContent');
-    if (!container) throw new Error('#articleContent not found');
-
-
-    // 从 startContainer 向上找第一个符合的元素
-    let startNode = range.startContainer;
-    let startEl = (startNode.nodeType === Node.TEXT_NODE) ? startNode.parentElement : startNode;
-    while (startEl && (!startEl.tagName || !ALLOWED.includes(startEl.tagName))) {
-        startEl = startEl.parentElement;
+// Index DOM text in UTF-16 units, the same units used by Range offsets and String.slice.
+function indexHighlightText(article) {
+    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let text = '';
+    while (walker.nextNode()) {
+        const node = walker.currentNode;
+        const start = text.length;
+        text += node.data;
+        if (node.length) nodes.push({node, start, end: text.length});
     }
-    if (!startEl) throw new Error('Selection start is not inside a supported element');
+    return {text, nodes, fingerprint: highlightFingerprint(text)};
+}
 
-    const tag = startEl.tagName.toLowerCase(); // 存小写，方便序列化 / querySelectorAll
-    // 只在同类型标签集合中计数（更稳定）
-    const sameTagElements = Array.from(container.querySelectorAll(tag));
-    const elementIndex = sameTagElements.indexOf(startEl);
-    if (elementIndex === -1) throw new Error('Element not found inside #articleContent');
+// Context signatures distinguish repeated quotes without embedding surrounding article text in comments.
+function highlightFingerprint(text) {
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) {
+        hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
+    }
+    return text.length + '-' + (hash >>> 0).toString(16);
+}
 
-    // 计算在该元素内的偏移
-    const preRange = range.cloneRange();
-    preRange.selectNodeContents(startEl);
-    preRange.setEnd(range.startContainer, range.startOffset);
-    const startOffset = preRange.toString().length;
+function highlightContext(text, start, end) {
+    return contextLengths.flatMap(size => [
+        highlightFingerprint(text.slice(Math.max(0, start - size), start)),
+        highlightFingerprint(text.slice(end, end + size))
+    ]);
+}
 
+function rangeToElementJSON(range) {
+    if (!range || !canShowCommentIcon(range)) return null;
+    const article = document.getElementById('articleContent');
+    const block = highlightBlock(range.startContainer);
+    const before = range.cloneRange();
+    before.selectNodeContents(article);
+    before.setEnd(range.startContainer, range.startOffset);
+    const textStart = before.toString().length;
+    before.selectNodeContents(block);
+    before.setEnd(range.startContainer, range.startOffset);
+    const startOffset = before.toString().length;
     const selectedText = range.toString();
-    const endOffset = startOffset + selectedText.length;
-
+    const text = article.textContent;
+    const tag = block.tagName.toLowerCase();
     return {
         elementTag: tag,
-        elementIndex,
-        startOffset,
-        endOffset,
-        selectedText,
+        elementIndex: Array.from(article.querySelectorAll(tag)).indexOf(block),
+        startOffset, endOffset: startOffset + selectedText.length, selectedText,
+        textStart, textFingerprint: highlightFingerprint(text),
+        context: highlightContext(text, textStart, textStart + selectedText.length),
+        repeated: text.indexOf(selectedText) !== text.lastIndexOf(selectedText)
     };
 }
 
-
-// 反序列化：基于 elementTag + elementIndex + offsets 恢复 Range（包含容错）
-function elementJSONToRange(json) {
-    const container = document.getElementById('articleContent');
-    if (!container) {
-        console.warn('#articleContent not found');
-        return null;
+// Old anchors have no revision or context. Their tag index cannot distinguish equal quotes after edits.
+function locateHighlight(anchor, index) {
+    const quote = anchor.anchoredText || anchor.selectedText;
+    if (typeof quote !== 'string' || !quote.trim()) return null;
+    const {text, fingerprint} = index;
+    if (anchor.textFingerprint === fingerprint && Number.isInteger(anchor.textStart)
+        && anchor.textStart >= 0 && text.startsWith(quote, anchor.textStart)) {
+        return {start: anchor.textStart, end: anchor.textStart + quote.length};
     }
-
-    const selector = json.elementTag; // 比如 'p'
-    const elements = Array.from(container.querySelectorAll(selector));
-    const el = elements[json.elementIndex];
-    if (!el) {
-        console.warn(`Element index not found for <${selector}>`);
-        return null;
+    const first = text.indexOf(quote);
+    if (first < 0) return null;
+    if (!anchor.repeated && text.indexOf(quote, first + 1) < 0) {
+        return {start: first, end: first + quote.length};
     }
+    if (!Array.isArray(anchor.context)) return null;
 
-    // 收集该元素内所有文本节点（按文档顺序）
-    const textNodes = [];
-    (function collectTextNodes(node) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            textNodes.push(node);
-        } else {
-            for (const child of node.childNodes) collectTextNodes(child);
-        }
-    })(el);
-
-    const range = document.createRange();
-    let current = 0;
-    let startSet = false;
-    let endSet = false;
-
-    for (const node of textNodes) {
-        const next = current + node.textContent.length;
-
-        // 设置起点（包括等于 current 的情况）
-        if (!startSet && json.startOffset >= current && json.startOffset <= next) {
-            range.setStart(node, Math.max(0, json.startOffset - current));
-            startSet = true;
-        }
-
-        // 设置终点（包括等于 next 的情况）
-        if (!endSet && json.endOffset >= current && json.endOffset <= next) {
-            range.setEnd(node, Math.max(0, json.endOffset - current));
-            endSet = true;
-            break;
-        }
-
-        current = next;
-    }
-
-    // 防御性补救：如果没有找到 start/end，回退到元素内容
-    if (!startSet || !endSet) {
-        console.warn('Offsets mismatch within element, falling back to selectNodeContents');
-        try {
-            range.selectNodeContents(el);
-        } catch (e) {
-            // 最后兜底：如果是 img（无文本节点）
-            if (el.tagName === 'IMG') {
-                range.selectNode(el);
-            } else {
-                return null;
+    let best = null;
+    let bestScore = 0;
+    for (let start = first; start >= 0; start = text.indexOf(quote, start + 1)) {
+        const end = start + quote.length;
+        const context = highlightContext(text, start, end);
+        let score = 0;
+        context.forEach((value, i) => {
+            // Ignore empty/very short boundaries (e.g. a single space).
+            const matchedLength = parseInt(value, 10);
+            if (value === anchor.context[i] && matchedLength >= 4) {
+                score += matchedLength;
             }
+        });
+        if (score > bestScore) {
+            best = {start, end};
+            bestScore = score;
+        } else if (score === bestScore) {
+            best = null;
         }
-        return range;
     }
-
-    // 确保选区不会跨出 el（surroundContents 要求 common ancestor 在同一容器内）
-    const commonAncestor = range.commonAncestorContainer;
-    if (!el.contains(commonAncestor)) {
-        console.warn('Range crosses element boundaries, normalizing to element contents');
-        range.selectNodeContents(el);
-    }
-
-    // 特殊：若元素本身无文本（如 img），选中整个元素
-    if (textNodes.length === 0 && el.tagName === 'IMG') {
-        range.selectNode(el);
-    }
-
-    return range;
+    return best;
 }
 
 // Copy limit for column pages (enabled via data attributes on <body>)

@@ -1514,6 +1514,43 @@ button:focus {
 
 .selected-text-highlight {
   cursor: pointer;
+  text-decoration: underline solid #ff8721 2px;
+  text-underline-offset: 2px;
+}
+.selected-text-highlight.highlight-own {
+  background-color: rgba(255, 135, 33, 0.12);
+}
+.selected-text-highlight.highlight-draft {
+  background-color: rgba(255, 135, 33, 0.24);
+}
+#highlightRelocation {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 2;
+  padding: 0.5rem;
+  background: #fff7ec;
+}
+#comment-icon.highlight-relocate-icon {
+  width: auto;
+  height: auto;
+  padding: 3px 8px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+#highlightControls, #detachedHighlights {
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+#detachedHighlights button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+.highlight-comment-thread select {
+  margin-bottom: 0.75rem;
 }
 
 /* 引用评论侧边栏样式 */

@@ -67,6 +67,38 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         return comment.getId();
     }
 
+    @Override
+    public HighlightDto relocateHighlight(Long articleId, Long commentId, Long userId, HighlightDto selection) {
+        if (selection == null || StringUtils.isBlank(selection.getSelectedText()) || selection.getTextStart() == null
+                || selection.getTextStart() < 0 || StringUtils.isBlank(selection.getTextFingerprint())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "请选择新版正文中的文字");
+        }
+        CommentDO comment = commentDao.getById(commentId);
+        if (comment == null || !Objects.equals(comment.getArticleId(), articleId)
+                || !Objects.equals(comment.getDeleted(), YesOrNoEnum.NO.getCode())
+                || !Objects.equals(comment.getTopCommentId(), 0L)) {
+            throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, commentId);
+        }
+        if (userId == null || !userId.equals(comment.getUserId())) {
+            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "只能重新定位自己的划线");
+        }
+        HighlightDto previous = StringUtils.isBlank(comment.getHighlightInfo()) ? null
+                : JsonUtil.toObj(comment.getHighlightInfo(), HighlightDto.class);
+        if (previous == null || StringUtils.isBlank(previous.getSelectedText())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "评论没有划线");
+        }
+        Integer expectedRevision = selection.getRevision();
+        selection.setRevision(expectedRevision == null ? 1 : expectedRevision + 1);
+        selection.setAnchoredText(selection.getSelectedText());
+        selection.setSelectedText(previous.getSelectedText());
+        if (selection.equals(previous)) return previous; // Retry of an already applied edit.
+        if (!Objects.equals(expectedRevision, previous.getRevision())
+                || !commentDao.replaceHighlight(comment, JsonUtil.toStr(selection))) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "划线已更新，请刷新后重新选择");
+        }
+        return selection;
+    }
+
     private CommentDO addComment(CommentSaveReq commentSaveReq) {
         // 0.获取父评论信息，校验是否存在
         CommentDO parentComment = getParentCommentUser(commentSaveReq.getParentCommentId());
@@ -105,6 +137,9 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         CommentDO commentDO = commentDao.getById(commentSaveReq.getCommentId());
         if (commentDO == null) {
             throw ExceptionUtil.of(StatusEnum.COMMENT_NOT_EXISTS, commentSaveReq.getCommentId());
+        }
+        if (!Objects.equals(commentDO.getUserId(), commentSaveReq.getUserId())) {
+            throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "无权修改评论");
         }
         commentDO.setContent(commentSaveReq.getCommentContent());
         commentDO.setUpdateTime(new Date());

@@ -5,8 +5,8 @@
   </div>
 
   <link rel="stylesheet" href="/css/views/article-detail.css" th:href="${global.siteInfo.oss + '/css/views/article-detail.css'}" />
-  <script src="/js/biz/selection.js" th:src="${global.siteInfo.oss + '/js/biz/selection.js'}"></script>
-  <script src="/js/biz/highlightcomment.js?v=202608101224" th:src="${global.siteInfo.oss + '/js/biz/highlightcomment.js?v=202608101224'}"></script>
+  <script src="/js/biz/selection.js?v=2026110901" th:src="${global.siteInfo.oss + '/js/biz/selection.js?v=2026110901'}"></script>
+  <script src="/js/biz/highlightcomment.js?v=2026110901" th:src="${global.siteInfo.oss + '/js/biz/highlightcomment.js?v=2026110901'}"></script>
   <script src="/js/biz/ai-comment.js?v=202606021332" th:src="${global.siteInfo.oss + '/js/biz/ai-comment.js?v=202606021332'}"></script>
   <script src="/js/biz/comment-markdown.js?v=202606021520" th:src="${global.siteInfo.oss + '/js/biz/comment-markdown.js?v=202606021520'}"></script>
 
@@ -211,11 +211,7 @@
 
       // 为选中的文本添加下划线样式
       const highlightComments = [[${vo.highlightComments}]];
-      console.log('highlightComments:', highlightComments)
-      if (highlightComments) {
-        // 初始化文章的下划线样式
-        initUnderlineToSelection(highlightComments);
-      }
+      initUnderlineToSelection(highlightComments, currentUserId);
 
       function praiseFunc() {
           if (!isLogin) {

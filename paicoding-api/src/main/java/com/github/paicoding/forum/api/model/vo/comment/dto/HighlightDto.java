@@ -2,6 +2,8 @@ package com.github.paicoding.forum.api.model.vo.comment.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 基于文章内容的划线评论
  * <p>
@@ -24,4 +26,19 @@ public class HighlightDto {
     private Integer startOffset;
 
     private Integer endOffset;
+
+    /** Full-article DOM text offset, valid only with a matching text fingerprint. */
+    private Integer textStart;
+
+    private String textFingerprint;
+
+    /** Short and long context signatures on both sides of the quote. */
+    private List<String> context;
+
+    private Boolean repeated;
+
+    /** Current text after the owner relocates a thread. selectedText keeps the original quote. */
+    private String anchoredText;
+
+    private Integer revision;
 }

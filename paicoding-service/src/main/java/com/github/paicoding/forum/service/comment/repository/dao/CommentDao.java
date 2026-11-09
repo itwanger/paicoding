@@ -35,7 +35,19 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
                 .eq(CommentDO::getArticleId, articleId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
                 .isNotNull(CommentDO::getHighlightInfo)
+                .ne(CommentDO::getHighlightInfo, "{}")
                 .list();
+    }
+
+    public boolean replaceHighlight(CommentDO comment, String highlightInfo) {
+        return lambdaUpdate()
+                .eq(CommentDO::getId, comment.getId())
+                .eq(CommentDO::getUserId, comment.getUserId())
+                .eq(CommentDO::getArticleId, comment.getArticleId())
+                .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
+                .eq(CommentDO::getHighlightInfo, comment.getHighlightInfo())
+                .set(CommentDO::getHighlightInfo, highlightInfo)
+                .update();
     }
 
     /**

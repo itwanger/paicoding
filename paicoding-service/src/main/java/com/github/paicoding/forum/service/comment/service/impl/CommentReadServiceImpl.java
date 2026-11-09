@@ -220,7 +220,12 @@ public class CommentReadServiceImpl implements CommentReadService {
             return Collections.emptyList();
         }
         sanitizeCommentContents(comments, new HashMap<>());
-        return comments.stream().map(CommentConverter::toTopDto).collect(Collectors.toList());
+        Map<Long, BaseUserInfoDTO> users = batchLoadCommentUsers(comments, Collections.emptyList());
+        return comments.stream().map(CommentConverter::toTopDto).map(comment -> {
+            BaseUserInfoDTO user = users.get(comment.getUserId());
+            comment.setUserName(user == null ? "读者" : user.getUserName());
+            return comment;
+        }).collect(Collectors.toList());
     }
 
     @Override

@@ -1,7 +1,10 @@
 // 文本选择功能
-let selectedText = '';
 let selectionRange = null;
 let toSaveSelection = null;
+let highlightViewerId = '';
+let relocatingComment = null;
+let articleHighlights = [];
+let highlightViewVersion = 0;
 // 保存被隐藏的侧边栏元素
 let hiddenSidebars = [];
 // 标记是否正在处理评论图标点击
@@ -99,15 +102,10 @@ document.addEventListener('selectionchange', function () {
     }
 
     const selection = window.getSelection();
-    if (selection.toString().trim() !== '' && isElementInArticleContent(selection.anchorNode)) {
-        selectedText = selection.toString().trim();
-        selectionRange = selection.getRangeAt(0);
-        // console.debug('检测到文本选择:', selectedText); // 调试信息
-        // 不再直接显示侧边栏，而是在文本附近显示评论图标
+    selectionRange = selection.rangeCount ? selection.getRangeAt(0) : null;
+    if (selectionRange && selection.toString().trim() && canShowCommentIcon(selectionRange)) {
         showCommentIcon(selectionRange);
-    } else if (selection.toString().trim() === '') {
-        // console.debug('文本选择已清除'); // 调试信息
-        // 隐藏评论图标
+    } else {
         hideCommentIcon();
     }
 });
@@ -127,29 +125,20 @@ document.addEventListener('mousedown', function (e) {
     }
 }, true);
 
-// 检查选中的元素是否在文章内容区域内
-function isElementInArticleContent(element) {
-    if (!element) return false;
-    const articleContent = document.getElementById('articleContent');
-    const result = articleContent && articleContent.contains(element);
-    // console.debug('元素是否在文章内容区域内:', result); // 调试信息
-    return result;
-}
-
 // 显示评论图标
 function showCommentIcon(range) {
     // 移除已存在的评论图标
     hideCommentIcon();
 
-    // 判断选中的区域标签，是否在支持的标签范围内
-    if (!canShowCommentIcon || !canShowCommentIcon(range)) {
-        return;
-    }
-
     // 创建评论图标
     const commentIcon = document.createElement('div');
     commentIcon.id = 'comment-icon';
-    commentIcon.innerHTML = '🤖';
+    if (relocatingComment) {
+        commentIcon.classList.add('highlight-relocate-icon');
+        commentIcon.textContent = '定位到这里';
+    } else {
+        commentIcon.textContent = '🤖';
+    }
 
 
     // 获取选中文本的位置
@@ -164,16 +153,7 @@ function showCommentIcon(range) {
     // 添加到页面
     document.body.appendChild(commentIcon);
 
-    // 确保图标已添加到DOM后再绑定事件
-    setTimeout(() => {
-        const icon = document.getElementById('comment-icon');
-        if (icon) {
-            icon.addEventListener('click', handleCommentIconClick);
-            icon.addEventListener('mousedown', function (e) {
-                e.preventDefault(); // 防止鼠标按下时清除选择
-            });
-        }
-    }, 0);
+    commentIcon.addEventListener('click', handleCommentIconClick);
 }
 
 // 评论图标点击处理函数
@@ -181,29 +161,19 @@ function handleCommentIconClick(e) {
     e.stopPropagation();
     e.preventDefault();
 
-    // 保存当前选择的文本范围
-    const savedRange = selectionRange;
-    toSaveSelection = rangeToElementJSON(savedRange);
-    console.log('需要保存的划线内容:', savedRange, toSaveSelection);
-
-    // 设置标记，防止选择变化事件隐藏图标
-    isHandlingCommentIcon = true;
-
-    // 检测设备类型，选择显示方式
-    showQuoteCommentForm(selectedText)
-
-    hideCommentIcon();
-
-    // 重新应用选择，保持文本选中状态，并添加下划线样式
-    setTimeout(() => {
-        if (savedRange) {
-            // 为选中的文本添加下划线样式
-            applyUnderlineToSelection(savedRange);
-        }
-
-        // 重置标记
+    const anchor = rangeToElementJSON(selectionRange);
+    if (!anchor) return;
+    if (relocatingComment) {
+        saveRelocatedHighlight(anchor);
+        hideCommentIcon();
         isHandlingCommentIcon = false;
-    }, 50);
+        return;
+    }
+    toSaveSelection = anchor;
+    showQuoteCommentForm(anchor.selectedText.trim());
+    hideCommentIcon();
+    renderArticleHighlights();
+    isHandlingCommentIcon = false;
 
     // 聚焦到评论输入框
     setTimeout(function () {
@@ -216,55 +186,192 @@ function handleCommentIconClick(e) {
 
 
 
-// 初始化文本的划线内容
-function initUnderlineToSelection(commentList) {
-    for (let i = 0; i < commentList.length; i++) {
-        initUnderLine(commentList[i])
+function initUnderlineToSelection(commentList, viewerId) {
+    highlightViewerId = viewerId ? String(viewerId) : '';
+    articleHighlights = (commentList || []).filter(comment => comment.highlight?.selectedText);
+    const filter = document.getElementById('highlightMineOnly');
+    if (filter) filter.onchange = renderArticleHighlights;
+    // Syntax highlighting can replace inline DOM during DOMContentLoaded.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderArticleHighlights, {once: true});
+    } else {
+        renderArticleHighlights();
     }
 }
 
-function initUnderLine(comment) {
-    const commentText = comment.highlight;
-    if (commentText) {
-        let range = elementJSONToRange(commentText)
-        if (range) {
-            try {
-                // 创建一个新的范围来包装选中的文本
-                const newNode = document.createElement('span');
-                newNode.style.textDecoration = 'underline';
-                newNode.style.textDecorationColor = '#ff8721';
-                newNode.style.textDecorationStyle = 'solid';
-                newNode.style.textDecorationThickness = '2px';
-                newNode.className = 'selected-text-highlight';
-                // 添加评论ID属性，用于点击时获取评论数据
-                newNode.setAttribute('data-comment-id', comment.commentId);
+function isOwnHighlight(comment) {
+    return highlightViewerId && String(comment.userId) === highlightViewerId;
+}
 
-                // 使用 surroundContents 方法包装选中的内容
-                range.surroundContents(newNode);
+function highlightThreadLabel(comment) {
+    const author = isOwnHighlight(comment) ? '我' : (comment.userName || '读者');
+    return author + ' · ' + (comment.commentContent || comment.highlight.selectedText).slice(0, 50);
+}
 
-                // 绑定点击事件
-                newNode.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    showQuoteCommentWithComments(comment.commentId)
-                });
-            } catch (e) {
-                console.debug('无法为选中文本添加下划线样式:', e);
-            }
+function renderArticleHighlights() {
+    const article = document.getElementById('articleContent');
+    if (!article) return;
+    // Split only text nodes. Existing links, inline code and their event handlers stay in place.
+    const parents = new Set();
+    article.querySelectorAll('span[data-highlight-segment]').forEach(span => {
+        parents.add(span.parentNode);
+        span.replaceWith(...span.childNodes);
+    });
+    parents.forEach(parent => parent.normalize());
+
+    const filter = document.getElementById('highlightMineOnly');
+    const index = indexHighlightText(article);
+    const located = [];
+    const detached = [];
+    articleHighlights.forEach(comment => {
+        if (filter?.checked && !isOwnHighlight(comment)) return;
+        const match = locateHighlight(comment.highlight, index);
+        if (match) located.push({...match, comment});
+        else detached.push(comment);
+    });
+    if (toSaveSelection && !articleHighlights.some(item => item.highlight === toSaveSelection)) {
+        const draft = locateHighlight(toSaveSelection, index);
+        if (draft) located.push(draft);
+    }
+    for (const {node, start, end} of index.nodes) {
+        const overlaps = located.filter(mark => mark.start < end && mark.end > start);
+        if (!overlaps.length) continue;
+        const cuts = new Set([start, end]);
+        overlaps.forEach(mark => {
+            cuts.add(Math.max(mark.start, start));
+            cuts.add(Math.min(mark.end, end));
+        });
+        const points = Array.from(cuts).sort((a, b) => a - b);
+        // Split from right to left, so each offset still addresses the original text node.
+        for (let i = points.length - 2; i >= 0; i--) {
+            const pos = points[i];
+            const piece = pos === start ? node : node.splitText(pos - start);
+            const marks = overlaps.filter(mark => mark.start <= pos && pos < mark.end);
+            if (marks.length) wrapHighlightSegment(piece, marks);
         }
     }
+    const controls = document.getElementById('highlightControls');
+    if (controls) controls.hidden = !articleHighlights.length;
+    renderDetachedHighlights(detached);
 }
 
+function wrapHighlightSegment(node, marks) {
+    const comments = marks.map(mark => mark.comment).filter(Boolean);
+    const span = document.createElement('span');
+    span.dataset.highlightSegment = '';
+    span.className = 'selected-text-highlight';
+    span.classList.toggle('highlight-own', comments.some(isOwnHighlight));
+    span.classList.toggle('highlight-draft', marks.length > comments.length);
+    if (comments.length) {
+        span.tabIndex = 0;
+        span.setAttribute('role', 'button');
+        span.onkeydown = event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                span.click();
+            }
+        };
+        span.title = comments.length > 1 ? comments.length + ' 条划线讨论' : highlightThreadLabel(comments[0]);
+        span.onclick = event => {
+            if (!window.getSelection().isCollapsed) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const first = comments.find(isOwnHighlight) || comments[0];
+            showQuoteCommentWithComments(first.commentId, comments);
+        };
+    }
+    node.replaceWith(span);
+    span.appendChild(node);
+}
+
+function renderDetachedHighlights(comments) {
+    const panel = document.getElementById('detachedHighlights');
+    if (!panel) return;
+    panel.hidden = !comments.length || !!document.querySelector('.needlock');
+    if (panel.hidden) {
+        panel.querySelector('ul').replaceChildren();
+        return;
+    }
+    panel.querySelector('summary').textContent = '未能定位到原文的划线（' + comments.length + '）';
+    const list = panel.querySelector('ul');
+    list.replaceChildren();
+    comments.forEach(comment => {
+        const item = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = comment.highlight.selectedText;
+        button.title = highlightThreadLabel(comment);
+        button.onclick = () => showQuoteCommentWithComments(comment.commentId);
+        item.appendChild(button);
+        if (isOwnHighlight(comment)) {
+            const relocate = document.createElement('button');
+            relocate.type = 'button';
+            relocate.textContent = '重新定位';
+            relocate.onclick = () => startHighlightRelocation(comment);
+            item.appendChild(relocate);
+        }
+        list.appendChild(item);
+    });
+}
+
+function startHighlightRelocation(comment) {
+    clearHighlightDraft();
+    relocatingComment = comment;
+    const prompt = document.getElementById('highlightRelocation');
+    prompt.hidden = false;
+    prompt.querySelector('button').onclick = cancelHighlightRelocation;
+    prompt.scrollIntoView({block: 'center'});
+}
+
+function cancelHighlightRelocation() {
+    relocatingComment = null;
+    document.getElementById('highlightRelocation').hidden = true;
+    hideCommentIcon();
+}
+
+function saveRelocatedHighlight(anchor) {
+    const comment = relocatingComment;
+    const url = '/comment/api/relocateHighlight?articleId=' + encodeURIComponent(articleId)
+        + '&commentId=' + encodeURIComponent(comment.commentId);
+    anchor.revision = comment.highlight.revision;
+    post(url, anchor, updated => {
+        // A slower response must not undo a subsequent relocation in this tab.
+        if ((comment.highlight.revision || 0) > updated.revision) return;
+        comment.highlight = updated;
+        if (relocatingComment === comment) cancelHighlightRelocation();
+        renderArticleHighlights();
+        toastr.success('已更新划线位置');
+    });
+}
+
+function addThreadSwitcher(container, comments, commentId) {
+    if (comments.length < 2) return;
+    const select = document.createElement('select');
+    select.className = 'form-control';
+    select.setAttribute('aria-label', '切换划线讨论');
+    comments.forEach(comment => {
+        const option = document.createElement('option');
+        option.value = comment.commentId;
+        option.textContent = highlightThreadLabel(comment);
+        select.appendChild(option);
+    });
+    select.value = String(commentId);
+    select.onchange = () => showQuoteCommentWithComments(select.value, comments);
+    container.querySelector('.quote-content')?.prepend(select);
+}
 
 // 点击划线内容,加载评论数据
-function loadCommentData(commentId, isModal) {
+function loadCommentData(commentId, isModal, comments, version) {
     // 调用后端API获取评论数据
     $.get('/comment/api/listTopComment?commentId=' + commentId, function (data) {
+        if (version !== highlightViewVersion) return;
         if (data && data.status && data.status.code === 0) {
             // 处理获取到的评论数据
             if (isModal) {
                 const modal = document.getElementById('quoteCommentModal');
                 modal.innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.result}</div>`;
                 decorateHighlightThread(modal);
+                addThreadSwitcher(modal, comments, commentId);
                 if (window.autoExpandSingleReplyWraps) {
                     window.autoExpandSingleReplyWraps(modal);
                 }
@@ -272,6 +379,7 @@ function loadCommentData(commentId, isModal) {
                 const sidebar = getHighlightSidebar();
                 sidebar.innerHTML = data.result;
                 decorateHighlightThread(sidebar);
+                addThreadSwitcher(sidebar, comments, commentId);
                 normalizeHighlightSidebarState();
                 if (window.autoExpandSingleReplyWraps) {
                     window.autoExpandSingleReplyWraps(sidebar);
@@ -343,6 +451,9 @@ function decorateHighlightThread(container) {
         quoteContent.insertBefore(label, quoteText);
     }
 
+    if (!isSidebarContainer) {
+        widget.querySelector('.highlight-comment-thread__close')?.setAttribute('data-dismiss', 'modal');
+    }
     const count = 1 + Number(widget.querySelector('.expand-replies-wrap')?.dataset.commentCount || 0);
     const titleNode = widget.querySelector('.com-nav-bar-title');
     if (titleNode && count > 0 && isSidebarContainer) {
@@ -351,75 +462,10 @@ function decorateHighlightThread(container) {
 }
 
 
-// 为选中的文本添加下划线样式
-function applyUnderlineToSelection(range) {
-    try {
-        // 创建一个新的范围来包装选中的文本
-        const newNode = document.createElement('span');
-        newNode.style.textDecoration = 'underline';
-        newNode.style.textDecorationColor = '#ff8721';
-        newNode.style.textDecorationStyle = 'solid';
-        newNode.style.textDecorationThickness = '2px';
-        newNode.style.backgroundColor = 'rgba(255, 105, 0, 0.08)';
-        newNode.className = 'selected-text-highlight';
-
-        // 使用 surroundContents 方法包装选中的内容
-        range.surroundContents(newNode);
-
-        // 保存高亮元素的引用，以便后续可以移除
-        if (!window.highlightedElements) {
-            window.highlightedElements = [];
-        }
-        window.highlightedElements.push(newNode);
-
-        // 绑定点击事件
-        newNode.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const selectedText = range.toString();
-            if (newNode.hasAttribute('data-comment-id')) {
-                // 如果当前节点,存在 data-comment-id, 则调用 showQuoteCommentWithComments
-                showQuoteCommentWithComments(newNode.getAttribute('data-comment-id'))
-            } else {
-                // 首次划线，显示输入评论框
-                showQuoteCommentForm(selectedText)
-            }
-        });
-    } catch (e) {
-        console.debug('无法为选中文本添加下划线样式:', e);
-        // 如果 surroundContents 失败，使用另一种方法
-        // 注意：不要重新声明range变量，使用传入的range参数
-        if (range) {
-            try {
-                const selectedContent = range.extractContents();
-                const span = document.createElement('span');
-                span.style.textDecoration = 'underline';
-                span.style.textDecorationColor = '#ff6900';
-                span.style.textDecorationStyle = 'wavy';
-                span.className = 'selected-text-highlight';
-                span.appendChild(selectedContent);
-                range.insertNode(span);
-
-                // 保存高亮元素的引用
-                if (!window.highlightedElements) {
-                    window.highlightedElements = [];
-                }
-                window.highlightedElements.push(span);
-
-                // 绑定点击事件
-                span.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    const selectedText = span.textContent;
-                    showQuoteCommentForm(selectedText)
-                });
-            } catch (e2) {
-                console.debug('第二种方法也失败了:', e2);
-            }
-        }
-    }
-}
-
 // 显示引用的评论信息
-function showQuoteCommentWithComments(commentId) {
+function showQuoteCommentWithComments(commentId, comments = []) {
+    const version = ++highlightViewVersion;
+    clearHighlightDraft();
     invalidateHighlightAiRequest('view-replaced');
     if (isMobileDevice()) {
         const modal = document.getElementById('quoteCommentModal');
@@ -440,7 +486,7 @@ function showQuoteCommentWithComments(commentId) {
             }
 
             // 加载评论数据
-            loadCommentData(commentId, true);
+            loadCommentData(commentId, true, comments, version);
         }
     } else {
         // 显示引用评论侧边栏并加载评论数据
@@ -461,37 +507,17 @@ function showQuoteCommentWithComments(commentId) {
             }
 
             // 加载评论数据
-            loadCommentData(commentId, false);
+            loadCommentData(commentId, false, comments, version);
         }
     }
 }
 
 
-// 在隐藏引用评论侧边栏时移除高亮
-const originalHideQuoteCommentSidebar = hideQuoteCommentSidebar;
-hideQuoteCommentSidebar = function () {
-    // 移除高亮样式 - 但保留新增的高亮
-    if (window.highlightedElements) {
-        // 只移除不是新增评论的高亮
-        window.highlightedElements = window.highlightedElements.filter(element => {
-            if (element.classList.contains('new-highlight')) {
-                // 保留新增的高亮
-                return true;
-            } else {
-                // 移除其他高亮
-                if (element.parentNode) {
-                    while (element.firstChild) {
-                        element.parentNode.insertBefore(element.firstChild, element);
-                    }
-                    element.parentNode.removeChild(element);
-                }
-                return false;
-            }
-        });
-    }
-    // 调用原始函数
-    originalHideQuoteCommentSidebar();
-};
+function clearHighlightDraft() {
+    if (!toSaveSelection) return;
+    toSaveSelection = null;
+    renderArticleHighlights();
+}
 
 // 隐藏评论图标
 function hideCommentIcon() {
@@ -503,6 +529,7 @@ function hideCommentIcon() {
 }
 
 function showQuoteCommentForm(text) {
+    ++highlightViewVersion;
     invalidateHighlightAiRequest('view-replaced');
     // 首次划线，显示输入评论框
     if (isMobileDevice()) {
@@ -548,11 +575,6 @@ function showQuoteCommentForm(text) {
             // 显示弹窗
             $('#quoteCommentModal').modal('show');
 
-            // 监听模态框关闭事件
-            $('#quoteCommentModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
-                // 模态框关闭时，清除选中的文本
-                hideQuoteCommentSidebar();
-            });
         }
     } else {
         // pc，侧边栏的方式显示输入框
@@ -630,6 +652,8 @@ function showQuoteCommentForm(text) {
 
 // 隐藏引用评论侧边栏
 function hideQuoteCommentSidebar() {
+    ++highlightViewVersion;
+    clearHighlightDraft();
     invalidateHighlightAiRequest('view-hidden');
     const sidebar = getHighlightSidebar();
     if (sidebar) {
@@ -830,18 +854,10 @@ function finishHighlightAiPanel(message) {
     setHighlightCommentSubmitting(false);
 }
 
-function bindGeneratedHighlightComment(commentId) {
-    if (!commentId || !window.highlightedElements || window.highlightedElements.length === 0) {
-        return;
-    }
-
-    const lastHighlight = window.highlightedElements[window.highlightedElements.length - 1];
-    lastHighlight.setAttribute('data-comment-id', commentId);
-    lastHighlight.classList.add('new-highlight');
-    lastHighlight.addEventListener('click', function (e) {
-        e.stopPropagation();
-        showQuoteCommentWithComments(commentId);
-    });
+function bindGeneratedHighlightComment(commentId, anchor, content) {
+    if (!commentId || !anchor || articleHighlights.some(item => String(item.commentId) === String(commentId))) return;
+    articleHighlights.push({commentId, userId: highlightViewerId, highlight: anchor, commentContent: content});
+    renderArticleHighlights();
 }
 
 function handleHighlightAiEvent(request, event) {
@@ -863,7 +879,7 @@ function handleHighlightAiEvent(request, event) {
     }
 
     if (event.type === 'comment') {
-        bindGeneratedHighlightComment(event.commentId);
+        bindGeneratedHighlightComment(event.commentId, request.anchor, request.content);
         if (status) {
             status.textContent = event.bot + ' 正在回复...';
         }
@@ -872,7 +888,7 @@ function handleHighlightAiEvent(request, event) {
 
     if (event.type === 'done') {
         request.terminal = true;
-        bindGeneratedHighlightComment(event.commentId);
+        bindGeneratedHighlightComment(event.commentId, request.anchor, request.content);
         toggleHighlightSidebarMode(true);
         normalizeHighlightSidebarState();
         settleHighlightAiRequest(request, '回复已生成');
@@ -883,7 +899,7 @@ function handleHighlightAiEvent(request, event) {
     if (event.type === 'error') {
         request.terminal = true;
         if (event.commentId) {
-            bindGeneratedHighlightComment(event.commentId);
+            bindGeneratedHighlightComment(event.commentId, request.anchor, request.content);
         }
         if (event.html) {
             const sidebar = getHighlightSidebar();
@@ -979,6 +995,8 @@ function startHighlightAiReply(botType, commentContent) {
     const request = {
         requestId: String(Date.now()) + String(Math.floor(Math.random() * 1000)),
         controller: new AbortController(),
+        anchor: toSaveSelection,
+        content: commentContent,
         terminal: false,
         uiSettled: false,
         abortReason: null,
@@ -1006,7 +1024,7 @@ function startHighlightAiReply(botType, commentContent) {
         },
         body: JSON.stringify({
             articleId: articleId,
-            highlight: toSaveSelection,
+            highlight: request.anchor,
             bot: highlightAiBotEnum(botType),
             commentContent: commentContent,
             question: question,
@@ -1089,25 +1107,15 @@ function initQuoteModalEvent() {
                 highlight: toSaveSelection,
             };
 
-            console.log('准备提交评论信息:', params)
+            const version = highlightViewVersion;
             post("/comment/api/highlightComment", params, function (data) {
-                // 为新增的评论添加持久化高亮标记
-                if (window.highlightedElements && window.highlightedElements.length > 0) {
-                    const lastHighlight = window.highlightedElements[window.highlightedElements.length - 1];
-                    // 添加评论ID属性，用于点击时获取评论数据
-                    lastHighlight.setAttribute('data-comment-id', data.commentId);
-                    lastHighlight.classList.add('new-highlight');
-                    // 绑定点击事件
-                    lastHighlight.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        // 支持点击之后查看详情页
-                        showQuoteCommentWithComments(data.commentId);
-                    });
-                }
-
+                bindGeneratedHighlightComment(data.commentId, params.highlight, commentContent);
+                if (version !== highlightViewVersion) return;
                 // 显示成功消息
                 toastr.success("评论发表成功");
-                document.getElementById('quoteCommentModal').innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+                const modal = document.getElementById('quoteCommentModal');
+                modal.innerHTML = `<div class="modal-dialog modal-dialog-centered" role="document">${data.html}</div>`;
+                decorateHighlightThread(modal);
             });
         });
     }
@@ -1201,22 +1209,10 @@ function initQuoteEvent() {
             highlight: toSaveSelection,
         };
 
-        console.log('准备提交评论信息:', params)
+        const version = highlightViewVersion;
         post("/comment/api/highlightComment", params, function (data) {
-            // 为新增的评论添加持久化高亮标记
-            if (window.highlightedElements && window.highlightedElements.length > 0) {
-                const lastHighlight = window.highlightedElements[window.highlightedElements.length - 1];
-                // 添加评论ID属性，用于点击时获取评论数据
-                lastHighlight.setAttribute('data-comment-id', data.commentId);
-                lastHighlight.classList.add('new-highlight');
-                // 绑定点击事件
-                lastHighlight.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    // 支持点击之后查看详情页
-                    showQuoteCommentWithComments(data.commentId)
-                });
-            }
-
+            bindGeneratedHighlightComment(data.commentId, params.highlight, commentContent);
+            if (version !== highlightViewVersion) return;
             // 显示成功消息
             toastr.success("评论发表成功");
             if (isMobileDevice()) {
@@ -1233,6 +1229,11 @@ function initQuoteEvent() {
 }
 
 if (isMobileDevice()) {
+    $(document).on('hidden.bs.modal', '#quoteCommentModal', function (event) {
+        if (event.target !== this) return;
+        ++highlightViewVersion;
+        clearHighlightDraft();
+    });
     initQuoteModalEvent();
 } else {
     initQuoteEvent();

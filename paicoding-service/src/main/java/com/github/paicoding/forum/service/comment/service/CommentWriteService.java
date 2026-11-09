@@ -1,7 +1,7 @@
 package com.github.paicoding.forum.service.comment.service;
 
 import com.github.paicoding.forum.api.model.vo.comment.CommentSaveReq;
-import com.github.paicoding.forum.service.comment.repository.entity.CommentDO;
+import com.github.paicoding.forum.api.model.vo.comment.dto.HighlightDto;
 
 /**
  * 评论Service接口
@@ -18,6 +18,8 @@ public interface CommentWriteService {
      * @return
      */
     Long saveComment(CommentSaveReq commentSaveReq);
+
+    HighlightDto relocateHighlight(Long articleId, Long commentId, Long userId, HighlightDto selection);
 
     /**
      * 删除评论

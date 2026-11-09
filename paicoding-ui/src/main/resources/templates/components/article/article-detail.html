@@ -75,8 +75,20 @@
     </div>
   </div>
 
+  <div id="highlightControls" th:if="${global.isLogin}" hidden>
+    <label><input type="checkbox" id="highlightMineOnly" /> 只看我的划线</label>
+  </div>
+  <div id="highlightRelocation" role="status" hidden>
+    选中新版正文中的对应文字，然后点“定位到这里”。
+    <button type="button" class="btn btn-link">取消</button>
+  </div>
   <div id="articleContent" class="article-content" th:utext="${article.content}">
   </div>
+
+  <details id="detachedHighlights" hidden>
+    <summary>未能定位到原文的划线</summary>
+    <ul></ul>
+  </details>
 
   <div class="article-change direction" th:if="${author == null}">
     <!-- 点赞按钮 -->
