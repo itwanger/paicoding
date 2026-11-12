@@ -94,6 +94,11 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
         if (StringUtils.isNotBlank(req.getShortTitle())) {
             article.setShortTitle(req.getShortTitle());
         }
+        // 摘要用于列表及 SEO；允许独立更新，避免完整保存触发正文图片转存。
+        // 未传入时保留原摘要，兼容仅修改标题或发布状态的调用。
+        if (req.getSummary() != null) {
+            article.setSummary(req.getSummary());
+        }
         if (req.getUrlSlug() != null) {
             article.setUrlSlug(resolveArticleUrlSlug(req, article));
         }
