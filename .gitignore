@@ -72,3 +72,13 @@ paicoding-miniapp/node_modules/
 paicoding-miniapp/miniprogram_npm/
 paicoding-miniapp/dist/
 paicoding-miniapp/docs/superpowers/specs/
+
+# Private paid tutorials and local synchronization evidence (never publish)
+/docs/Java面试指南/
+/docs/技术派教程/
+/docs/教程SEO修复/
+*.lakebook
+/scripts/javaguide_manifest.json
+/scripts/javaguide_short_titles.json
+/scripts/paicoding_tutorial_manifest.json
+/scripts/tutorial_descriptions.json
