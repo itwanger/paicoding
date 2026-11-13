@@ -88,6 +88,7 @@
 
   <!-- 一级评论及其回复 -->
   <div th:fragment="comment_item(comment, pos)" class="comment-list-wrap">
+    <button type="button" class="comment-edition-label" hidden th:data-thread="${comment.commentId}" th:attr="data-comment-edition=${comment.editionId == null ? 'legacy' : comment.editionId}"></button>
     <div class="comment-item-wrap" th:id="${pos == 'bottom' ? 'comment-' + comment.commentId : pos + '-comment-' + comment.commentId}">
       <div class="comment-item-top" th:if="${pos == 'side'}">
         <div class="comment-item-meta">

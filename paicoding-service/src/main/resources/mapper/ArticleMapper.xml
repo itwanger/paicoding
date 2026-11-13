@@ -140,7 +140,7 @@
                a.short_title,
                a.url_slug,
                a.summary,
-               ad.content,
+               case when a.current_edition_id is null then ad.content else published.content end as content,
                a.status,
                a.offical_stat,
                a.topping_stat,
@@ -159,9 +159,12 @@
                 group by article_id
             ) latest on latest.article_id = d.article_id and latest.version = d.version
             where d.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
-        ) ad on ad.article_id = a.id
+        ) ad on ad.article_id = a.id and a.current_edition_id is null
+        left join article_edition ae on ae.id = a.current_edition_id and ae.article_id = a.id and ae.state = 1 and ae.deleted = 0
+        left join article_detail published on published.id = ae.published_detail_id and published.article_id = a.id
+            and published.edition_id = ae.id and published.deleted = 0 and published.first_published_at is not null
         left join (
-            select article_id, group_concat(column_id) as column_ids
+            select article_id, group_concat(distinct column_id) as column_ids
             from column_article
             group by article_id
         ) ca on ca.article_id = a.id
@@ -185,7 +188,7 @@
               or a.short_title like concat('%', #{keyword}, '%')
               <if test="includeBody != null and includeBody">
                   or a.summary like concat('%', #{keyword}, '%')
-                  or ad.content like concat('%', #{keyword}, '%')
+                  or (case when a.current_edition_id is null then ad.content else published.content end) like concat('%', #{keyword}, '%')
               </if>
           )
         order by a.update_time desc, a.id desc

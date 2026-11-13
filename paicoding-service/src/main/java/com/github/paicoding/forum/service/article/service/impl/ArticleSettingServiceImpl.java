@@ -77,7 +77,16 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
 
     @Override
     @CacheEvict(key = "'sideBar_' + #req.articleId", cacheManager = "caffeineCacheManager", cacheNames = "article")
+    @Transactional(rollbackFor = Exception.class)
     public void updateArticle(ArticlePostReq req) {
+        ArticleDO editionArticle = articleDao.getBaseMapper().selectForUpdateById(req.getArticleId());
+        if (editionArticle != null && editionArticle.getCurrentEditionId() != null && (
+                (req.getTitle() != null && !Objects.equals(req.getTitle(), editionArticle.getTitle()))
+                || (req.getShortTitle() != null && !Objects.equals(req.getShortTitle(), editionArticle.getShortTitle()))
+                || (req.getSummary() != null && !Objects.equals(req.getSummary(), editionArticle.getSummary()))
+                || (req.getUrlSlug() != null && !Objects.equals(req.getUrlSlug(), editionArticle.getUrlSlug())))) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "请在版本编辑器中修订标题和摘要；正式版共用固定短链");
+        }
         if (req.getStatus() != PushStatusEnum.OFFLINE.getCode()
                 && req.getStatus() != PushStatusEnum.ONLINE.getCode()
                 && req.getStatus() != PushStatusEnum.REVIEW.getCode()) {
@@ -139,11 +148,12 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String updateArticleUrlSlug(ArticleUrlSlugReq req) {
         if (req == null || NumUtil.nullOrZero(req.getArticleId())) {
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章ID不能为空!");
         }
-        ArticleDO article = articleDao.getById(req.getArticleId());
+        ArticleDO article = articleDao.getBaseMapper().selectForUpdateById(req.getArticleId());
         if (article == null) {
             throw ExceptionUtil.of(StatusEnum.RECORDS_NOT_EXISTS, "文章不存在!");
         }
@@ -154,6 +164,9 @@ public class ArticleSettingServiceImpl implements ArticleSettingService {
             }
         }
 
+        if (article.getCurrentEditionId() != null && !Objects.equals(article.getUrlSlug(), req.getUrlSlug())) {
+            throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "已启用版本管理，文章短链保持不变");
+        }
         String normalizedSlug = UrlSlugUtil.generateSlug(req.getUrlSlug());
         if (!isValidArticleSlug(normalizedSlug)) {
             throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "文章slug只能包含小写字母、数字和连字符，且不能是纯数字!");

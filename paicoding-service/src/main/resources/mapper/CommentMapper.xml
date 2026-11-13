@@ -35,6 +35,15 @@
           and c.top_comment_id > 0
           and c.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
           and tc.deleted = ${@com.github.paicoding.forum.api.model.enums.YesOrNoEnum@NO.code}
+        <if test="editionId != null">
+            <choose>
+                <when test="history">
+                    and (tc.edition_id is null or (tc.edition_id != #{editionId} and tc.edition_id in
+                      (select id from article_edition where article_id = #{articleId} and state = 1 and deleted = 0)))
+                </when>
+                <otherwise>and tc.edition_id = #{editionId}</otherwise>
+            </choose>
+          </if>
         group by c.top_comment_id
         order by cnt desc limit 1
     </select>

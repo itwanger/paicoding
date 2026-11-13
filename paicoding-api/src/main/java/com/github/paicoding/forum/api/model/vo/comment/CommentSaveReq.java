@@ -21,6 +21,8 @@ public class CommentSaveReq {
      * 文章ID
      */
     private Long articleId;
+    private Long editionId;
+    private Long articleDetailId;
 
     /**
      * 用户ID

@@ -117,7 +117,7 @@ public class ImageDimensionBackfillJob {
 
     private List<String> extractArticleImages(long articleId) {
         try {
-            ArticleDetailDO detail = articleDao.findLatestDetail(articleId);
+            com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO detail = articleDao.queryArticleDetail(articleId);
             if (detail == null || StringUtils.isBlank(detail.getContent())) {
                 return java.util.Collections.emptyList();
             }

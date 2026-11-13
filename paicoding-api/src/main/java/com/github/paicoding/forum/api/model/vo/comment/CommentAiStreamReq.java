@@ -11,6 +11,8 @@ public class CommentAiStreamReq {
      * 文章ID
      */
     private Long articleId;
+    private Long editionId;
+    private Long articleDetailId;
 
     /**
      * AI 机器人：HATER_BOT / QA_BOT

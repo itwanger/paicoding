@@ -26,6 +26,8 @@ public class ArticleDTO implements Serializable {
     private static final long serialVersionUID = -793906904770296838L;
 
     private Long articleId;
+    private ArticleReadingContextDTO readingContext;
+    private ArticleEditionSummaryDTO editingEdition;
 
     /**
      * 文章类型：1-博文，2-问答

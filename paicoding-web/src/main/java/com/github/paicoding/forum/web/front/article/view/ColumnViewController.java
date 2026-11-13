@@ -392,6 +392,8 @@ public class ColumnViewController {
         vo.setTopCommentTotal(topCommentTotal);
         vo.setHotComment(hotComment);
         vo.setHighlightComments(highlightComment);
+        model.addAttribute("editionContextJson", com.github.paicoding.forum.core.util.JsonUtil.toStr(articleDTO.getReadingContext()));
+        model.addAttribute("editionHighlightsJson", com.github.paicoding.forum.core.util.JsonUtil.toStr(highlightComment));
         vo.setColumn(column.getColumnId());
         vo.setColumnSlug(column.getUrlSlug());
         int currentIndex = findArticleIndex(articles, articleId);

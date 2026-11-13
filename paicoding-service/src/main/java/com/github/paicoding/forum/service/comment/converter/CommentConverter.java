@@ -28,6 +28,8 @@ public class CommentConverter {
         CommentDO commentDO = new CommentDO();
         commentDO.setId(req.getCommentId());
         commentDO.setArticleId(req.getArticleId());
+        commentDO.setEditionId(req.getEditionId());
+        commentDO.setArticleDetailId(req.getArticleDetailId());
         commentDO.setUserId(req.getUserId());
         commentDO.setContent(req.getCommentContent());
         commentDO.setParentCommentId(req.getParentCommentId() == null ? 0L : req.getParentCommentId());
@@ -42,6 +44,8 @@ public class CommentConverter {
 
     private static <T extends BaseCommentDTO> void parseDto(CommentDO comment, T sub) {
         sub.setCommentId(comment.getId());
+        sub.setEditionId(comment.getEditionId());
+        sub.setArticleDetailId(comment.getArticleDetailId());
         sub.setUserId(comment.getUserId());
         sub.setCommentContent(comment.getContent());
         sub.setCommentTime(comment.getCreateTime().getTime());

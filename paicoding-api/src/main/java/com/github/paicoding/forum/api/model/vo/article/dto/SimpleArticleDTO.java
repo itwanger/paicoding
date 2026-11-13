@@ -17,6 +17,9 @@ import java.sql.Timestamp;
 @Data
 @Accessors(chain = true)
 public class SimpleArticleDTO implements Serializable {
+    private String editionCode;
+    private Integer editionCount;
+
     private static final long serialVersionUID = 3646376715620165839L;
 
     @ApiModelProperty("文章ID")
@@ -42,6 +45,9 @@ public class SimpleArticleDTO implements Serializable {
 
     @ApiModelProperty("创建时间")
     private Timestamp createTime;
+
+    @ApiModelProperty("更新时间")
+    private Timestamp updateTime;
 
     /**
      * @see ColumnArticleReadEnum#getRead()

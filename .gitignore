@@ -82,3 +82,4 @@ paicoding-miniapp/docs/superpowers/specs/
 /scripts/javaguide_short_titles.json
 /scripts/paicoding_tutorial_manifest.json
 /scripts/tutorial_descriptions.json
+/.playwright-mcp

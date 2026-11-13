@@ -22,6 +22,19 @@ public class ArticlePostReq implements Serializable {
      * 文章ID， 当存在时，表示更新文章
      */
     private Long articleId;
+    /** LEGACY / REVISE_EDITION / NEW_EDITION / SAVE_DRAFT; only admin can publish editions. */
+    private String publishMode;
+    private Long editionId;
+    private String editionCode;
+    private String editionName;
+    private String audienceTag;
+    private String guideTip;
+    private String changeNote;
+    private Boolean setAsDefault;
+    private Long expectedPublishedDetailId;
+    private Long expectedDraftDetailId;
+    private Long fallbackEditionId;
+
     /**
      * 文章标题
      */

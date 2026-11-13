@@ -194,7 +194,8 @@ function initUnderlineToSelection(commentList, viewerId) {
         controls.onchange = renderArticleHighlights;
         // Ordinary articles replace the desktop sidebar with a bottom toolbar on small screens.
         const mobileBar = document.querySelector('.article-suspended-panel-md');
-        if (mobileBar) {
+        if (mobileBar && !controls.dataset.editionPlacementBound) {
+            controls.dataset.editionPlacementBound = 'true';
             const sidebar = controls.parentElement;
             const next = controls.nextSibling;
             const smallScreen = window.matchMedia('(max-width: 768px)');
@@ -1039,9 +1040,11 @@ function startHighlightAiReply(botType, commentContent) {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...(window.articleEditionHeaders ? window.articleEditionHeaders() : {})
         },
         body: JSON.stringify({
+            ...(window.articleEditionCommentContext ? window.articleEditionCommentContext() : {}),
             articleId: articleId,
             highlight: request.anchor,
             bot: highlightAiBotEnum(botType),
@@ -1105,7 +1108,8 @@ function initQuoteModalEvent() {
     const commentInput = document.getElementById('quoteCommentInputModal');
     const submitBtn = document.getElementById('submitQuoteCommentModal');
 
-    if (commentInput && submitBtn) {
+    if (commentInput && submitBtn && !submitBtn.dataset.quoteBound) {
+        submitBtn.dataset.quoteBound = 'true';
         commentInput.addEventListener('input', function () {
             submitBtn.disabled = this.value.trim() === '';
         });
@@ -1193,6 +1197,9 @@ function initQuoteEvent() {
         });
     }
 
+    const submitNode = document.getElementById('submitQuoteComment');
+    if (!submitNode || submitNode.dataset.quoteBound) return;
+    submitNode.dataset.quoteBound = 'true';
     // 监听引用评论输入框
     document.getElementById('quoteCommentInput')?.addEventListener('input', function () {
         const submitBtn = document.getElementById('submitQuoteComment');
@@ -1256,4 +1263,20 @@ if (isMobileDevice()) {
     initQuoteModalEvent();
 } else {
     initQuoteEvent();
+}
+
+// Called before replacing a version's body; no listeners are rebound here.
+function resetEditionHighlights() {
+    invalidateHighlightAiRequest('edition-switch');
+    hideQuoteCommentSidebar();
+    hideCommentIcon();
+    selectionRange = null;
+    toSaveSelection = null;
+    relocatingComment = null;
+    articleHighlights = [];
+    const relocation = document.getElementById('highlightRelocation');
+    if (relocation) relocation.hidden = true;
+    const detached = document.getElementById('detachedHighlights');
+    if (detached) { detached.hidden = true; detached.querySelector('ul').replaceChildren(); }
+    window.getSelection()?.removeAllRanges();
 }

@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
  */
 @Repository
 public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
+    @Resource private com.github.paicoding.forum.service.article.service.ArticleEditionService editionService;
     @Resource
     private ArticleDetailMapper articleDetailMapper;
     @Resource
@@ -76,8 +77,15 @@ public class ArticleDao extends ServiceImpl<ArticleMapper, ArticleDO> {
         // 查询文章正文
         ArticleDTO dto = ArticleConverter.toDto(article);
         if (showReviewContent(article)) {
-            ArticleDetailDO detail = findLatestDetail(articleId);
-            dto.setContent(detail.getContent());
+            if (article.getCurrentEditionId() != null) {
+                editionService.apply(dto, editionService.resolve(article));
+            } else {
+                ArticleDetailDO detail = findLatestDetail(articleId);
+                dto.setContent(detail.getContent());
+                com.github.paicoding.forum.api.model.vo.article.dto.ArticleReadingContextDTO context = editionService.resolve(article);
+                context.setSelectedDetailId(detail.getId());
+                dto.setReadingContext(context);
+            }
         } else {
             // 对于审核中的文章，只有作者本人才能看到原文
             dto.setContent("### 文章审核中，请稍后再看");

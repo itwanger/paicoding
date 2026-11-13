@@ -23,6 +23,21 @@ import java.util.stream.Collectors;
  */
 @Repository
 public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
+    @javax.annotation.Resource private com.github.paicoding.forum.service.comment.service.CommentEditionSupport editionSupport;
+
+    private com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper<CommentDO> scoped(Long articleId, boolean highlights) {
+        com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper<CommentDO> query = lambdaQuery();
+        com.github.paicoding.forum.api.model.vo.article.dto.ArticleReadingContextDTO context = editionSupport.context(articleId);
+        if (!context.isVersioned()) return query;
+        com.github.paicoding.forum.api.model.context.ArticleEditionRequest request = com.github.paicoding.forum.api.model.context.ArticleEditionRequest.forArticle(articleId);
+        if (!highlights && request != null && "history".equals(request.getScope())) {
+            java.util.List<Long> ids = context.getEditions().stream().map(e -> e.getId())
+                    .filter(id -> !id.equals(context.getSelectedEditionId())).collect(java.util.stream.Collectors.toList());
+            query.and(q -> { q.isNull(CommentDO::getEditionId); if (!ids.isEmpty()) q.or().in(CommentDO::getEditionId, ids); });
+        } else query.eq(CommentDO::getEditionId, context.getSelectedEditionId());
+        return query;
+    }
+
     /**
      * 获取划线评论
      *
@@ -30,7 +45,7 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
      * @return
      */
     public List<CommentDO> listHighlightCommentList(Long articleId) {
-        return lambdaQuery()
+        return scoped(articleId, true)
                 .eq(CommentDO::getTopCommentId, 0)
                 .eq(CommentDO::getArticleId, articleId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
@@ -57,7 +72,7 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
      * @return
      */
     public List<CommentDO> listTopCommentList(Long articleId, PageParam pageParam) {
-        return lambdaQuery()
+        return scoped(articleId, false)
                 .eq(CommentDO::getTopCommentId, 0)
                 .eq(CommentDO::getArticleId, articleId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
@@ -94,7 +109,7 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
     }
 
     public int topCommentCount(Long articleId) {
-        return lambdaQuery()
+        return scoped(articleId, false)
                 .eq(CommentDO::getArticleId, articleId)
                 .eq(CommentDO::getTopCommentId, 0)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())
@@ -103,7 +118,10 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
     }
 
     public CommentDO getHotComment(Long articleId) {
-        Map<String, Object> map = baseMapper.getHotTopCommentId(articleId);
+        com.github.paicoding.forum.api.model.vo.article.dto.ArticleReadingContextDTO context = editionSupport.context(articleId);
+        com.github.paicoding.forum.api.model.context.ArticleEditionRequest request = com.github.paicoding.forum.api.model.context.ArticleEditionRequest.forArticle(articleId);
+        Map<String, Object> map = baseMapper.getHotTopCommentId(articleId, context.getSelectedEditionId(),
+                context.isVersioned() && request != null && "history".equals(request.getScope()));
         if (CollectionUtils.isEmpty(map)) {
             return null;
         }
@@ -165,6 +183,7 @@ public class CommentDao extends ServiceImpl<CommentMapper, CommentDO> {
      * @return 子评论列表
      */
     public List<CommentDO> listSubComments(Long topCommentId, PageParam pageParam) {
+        editionSupport.requireVisible(editionSupport.root(topCommentId));
         return lambdaQuery()
                 .eq(CommentDO::getTopCommentId, topCommentId)
                 .eq(CommentDO::getDeleted, YesOrNoEnum.NO.getCode())

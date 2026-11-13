@@ -110,7 +110,7 @@ public class ArticleReadServiceImpl implements ArticleReadService {
      */
     @Override
     public String queryArticleContentForAI(Long articleId) {
-        return articleDao.findLatestDetail(articleId).getContent();
+        return articleDao.queryArticleDetail(articleId).getContent();
     }
 
     @Override
@@ -140,13 +140,16 @@ public class ArticleReadServiceImpl implements ArticleReadService {
         ArticleDTO article = queryDetailArticleInfo(articleId);
 
         // 文章阅读计数+1
-        countService.incrArticleReadCount(article.getAuthor(), articleId);
+        com.github.paicoding.forum.api.model.context.ArticleEditionRequest editionRequest = com.github.paicoding.forum.api.model.context.ArticleEditionRequest.forArticle(articleId);
+        boolean switchingEdition = editionRequest != null && editionRequest.isSwitching();
+        if (!switchingEdition) countService.incrArticleReadCount(article.getAuthor(), articleId);
 
         // 文章的操作标记
         if (readUser != null) {
             // 更新用于足迹，并判断是否点赞、评论、收藏
-            UserFootDO foot = userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId,
-                    article.getAuthor(), readUser, OperateTypeEnum.READ);
+            UserFootDO foot = switchingEdition ? userFootService.queryUserFoot(articleId, DocumentTypeEnum.ARTICLE.getCode(), readUser)
+                    : userFootService.saveOrUpdateUserFoot(DocumentTypeEnum.ARTICLE, articleId, article.getAuthor(), readUser, OperateTypeEnum.READ);
+            if (foot == null) foot = new UserFootDO();
             article.setPraised(Objects.equals(foot.getPraiseStat(), PraiseStatEnum.PRAISE.getCode()));
             article.setCommented(Objects.equals(foot.getCommentStat(), CommentStatEnum.COMMENT.getCode()));
             article.setCollected(Objects.equals(foot.getCollectionStat(), CollectionStatEnum.COLLECTION.getCode()));

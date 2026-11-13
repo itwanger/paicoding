@@ -14,6 +14,8 @@ import java.util.List;
  */
 @Data
 public class HighlightDto {
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
+    private Long anchoredDetailId;
     /**
      * 划线的文本内容
      */

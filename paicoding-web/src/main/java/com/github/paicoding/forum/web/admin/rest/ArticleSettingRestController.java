@@ -40,6 +40,40 @@ import java.util.List;
 @Api(value = "文章设置管理控制器", tags = "文章管理")
 @RequestMapping(path = {"/api/admin/article/", "/admin/article/"})
 public class ArticleSettingRestController {
+    @Autowired private com.github.paicoding.forum.service.article.service.ArticleEditionService editionService;
+    @Autowired private com.github.paicoding.forum.service.image.service.ImageService editionImages;
+
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("edition/list")
+    public ResVo<java.util.List<com.github.paicoding.forum.api.model.vo.article.dto.ArticleEditionSummaryDTO>> editions(@RequestParam Long articleId) {
+        return ResVo.ok(editionService.list(articleId, true));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @GetMapping("edition/detail")
+    public ResVo<ArticleDTO> editionDetail(@RequestParam Long articleId, @RequestParam Long editionId) {
+        return ResVo.ok(editionService.edit(articleReadService.queryDetailArticleInfo(articleId), editionId));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping("edition/save")
+    public ResVo<com.github.paicoding.forum.api.model.vo.article.dto.ArticleEditionSummaryDTO> saveEdition(@RequestBody ArticlePostReq req) {
+        if (req.getContent() != null) req.setContent(editionImages.mdImgReplace(req.getContent()));
+        return ResVo.ok(editionService.save(req));
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping("edition/default")
+    public ResVo<String> defaultEdition(@RequestBody ArticlePostReq req) {
+        editionService.setDefault(req.getArticleId(), req.getEditionId()); return ResVo.ok();
+    }
+
+    @Permission(role = UserRole.ADMIN)
+    @PostMapping("edition/withdraw")
+    public ResVo<String> withdrawEdition(@RequestBody ArticlePostReq req) {
+        editionService.withdraw(req.getArticleId(), req.getEditionId(), req.getFallbackEditionId()); return ResVo.ok();
+    }
+
 
     @Autowired
     private ArticleSettingService articleSettingService;
@@ -93,6 +127,7 @@ public class ArticleSettingRestController {
 
     // 根据文章id获取文章详情
     @ApiOperation("根据文章id获取文章详情")
+    @Permission(role = UserRole.ADMIN)
     @GetMapping(path = "detail")
     public ResVo<ArticleDTO> detail(@RequestParam(name = "articleId", required = false) Long articleId) {
         ArticleDTO articleDTO = new ArticleDTO();

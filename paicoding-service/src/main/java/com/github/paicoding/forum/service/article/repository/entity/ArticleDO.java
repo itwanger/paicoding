@@ -44,6 +44,7 @@ public class ArticleDO extends BaseDO {
      * URL友好的文章标识,用于SEO优化
      */
     private String urlSlug;
+    private Long currentEditionId;
 
     /**
      * 文章头图

@@ -6,8 +6,10 @@
 
   <link rel="stylesheet" href="/css/views/article-detail.css" th:href="${global.siteInfo.oss + '/css/views/article-detail.css'}" />
   <script src="/js/biz/selection.js?v=2026110901" th:src="${global.siteInfo.oss + '/js/biz/selection.js?v=2026110901'}"></script>
-  <script src="/js/biz/highlightcomment.js?v=2026110902" th:src="${global.siteInfo.oss + '/js/biz/highlightcomment.js?v=2026110902'}"></script>
-  <script src="/js/biz/ai-comment.js?v=202606021332" th:src="${global.siteInfo.oss + '/js/biz/ai-comment.js?v=202606021332'}"></script>
+  <script src="/js/biz/highlightcomment.js?v=20261113" th:src="${global.siteInfo.oss + '/js/biz/highlightcomment.js?v=20261113'}"></script>
+  <script src="/js/biz/ai-comment.js?v=20261113" th:src="${global.siteInfo.oss + '/js/biz/ai-comment.js?v=20261113'}"></script>
+  <link rel="stylesheet" href="/css/components/article-editions.css?v=2026111304" th:href="${global.siteInfo.oss + '/css/components/article-editions.css?v=2026111304'}" />
+  <script src="/js/biz/article-editions.js?v=2026111304" th:src="${global.siteInfo.oss + '/js/biz/article-editions.js?v=2026111304'}"></script>
   <script src="/js/biz/comment-markdown.js?v=202606021520" th:src="${global.siteInfo.oss + '/js/biz/comment-markdown.js?v=202606021520'}"></script>
 
   <body id="body" class="bg-color">
@@ -367,11 +369,12 @@
 	        })
 	      }
 
-	      function bindCommentInputEvent() {
+	      window.bindEditionCommentInput = bindCommentInputEvent;
+    function bindCommentInputEvent() {
 	        // 直接评论
 	        const commentContent = $("#commentContent")
 	        const commentBtn = $("#commentBtn")
-        commentBtn.click(function () {
+        commentBtn.off('click.editionComment').on('click.editionComment', function () {
           const content = commentContent.val()
           if (!content || content.length > 512) {
             toastr.error("评论内容长度要求在[1,512]之间")
@@ -424,7 +427,7 @@
 	        });
 
         // 直接评论监听
-        $(document).on("input propertychange", "#commentContent", function () {
+        $(document).off("input.editionComment propertychange.editionComment", "#commentContent").on("input.editionComment propertychange.editionComment", "#commentContent", function () {
           const val = $(this).val()
           console.log(val)
           if (val) {

@@ -12,6 +12,8 @@ public class HighlightAiStreamReq {
      * 文章ID
      */
     private Long articleId;
+    private Long editionId;
+    private Long articleDetailId;
 
     /**
      * 引用的正文内容

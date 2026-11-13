@@ -110,6 +110,7 @@ public class NotifyMsgListener<T> implements ApplicationListener<NotifyMsgEvent<
         msg.setNotifyUserId(article.getUserId())
                 .setOperateUserId(comment.getUserId())
                 .setRelatedId(article.getId())
+                .setCommentId(comment.getId())
                 .setType(event.getNotifyType().getType())
                 .setState(NotifyStatEnum.UNREAD.getStat()).setMsg(comment.getContent());
         // 对于评论而言，支持多次评论；因此若之前有也不删除

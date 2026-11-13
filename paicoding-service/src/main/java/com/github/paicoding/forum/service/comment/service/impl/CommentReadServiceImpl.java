@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class CommentReadServiceImpl implements CommentReadService {
+    @javax.annotation.Resource private com.github.paicoding.forum.service.comment.service.CommentEditionSupport editionSupport;
+
 
     @Autowired
     private CommentDao commentDao;
@@ -352,7 +354,8 @@ public class CommentReadServiceImpl implements CommentReadService {
      */
     @Override
     public TopCommentDTO queryTopComments(Long commentId) {
-        CommentDO topComment = commentDao.getById(commentId);
+        CommentDO topComment = editionSupport.root(commentId);
+        editionSupport.requireVisible(topComment);
         if (topComment == null) {
             return null;
         }

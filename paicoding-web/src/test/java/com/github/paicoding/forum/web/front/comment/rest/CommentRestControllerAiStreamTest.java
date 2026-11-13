@@ -51,6 +51,9 @@ class CommentRestControllerAiStreamTest {
         Mockito.when(aiBots.getBotUser(AiBotEnum.QA_BOT)).thenReturn(new BaseUserInfoDTO().setUserId(99L));
 
         CommentRestController controller = new CommentRestController();
+        com.github.paicoding.forum.service.comment.service.CommentEditionSupport editions = Mockito.mock(com.github.paicoding.forum.service.comment.service.CommentEditionSupport.class);
+        Mockito.when(editions.aiContext(7L)).thenReturn("发言时的公开正文快照");
+        ReflectionTestUtils.setField(controller, "editionSupport", editions);
         ReflectionTestUtils.setField(controller, "articleReadService", articleReadService);
         ReflectionTestUtils.setField(controller, "commentWriteService", commentWriteService);
         ReflectionTestUtils.setField(controller, "aiBots", aiBots);

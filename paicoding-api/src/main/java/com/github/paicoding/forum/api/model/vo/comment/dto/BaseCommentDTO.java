@@ -14,6 +14,11 @@ import org.jetbrains.annotations.NotNull;
  */
 @Data
 public class BaseCommentDTO implements Comparable<BaseCommentDTO> {
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
+    private Long editionId;
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
+    private Long articleDetailId;
+    private String editionName;
 
     /**
      * 用户ID

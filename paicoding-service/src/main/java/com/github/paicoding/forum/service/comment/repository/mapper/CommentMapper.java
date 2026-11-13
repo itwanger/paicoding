@@ -18,7 +18,7 @@ import java.util.Map;
  * @date 2022-07-18
  */
 public interface CommentMapper extends BaseMapper<CommentDO> {
-    Map<String, Object> getHotTopCommentId(@Param("articleId") Long articleId);
+    Map<String, Object> getHotTopCommentId(@Param("articleId") Long articleId, @Param("editionId") Long editionId, @Param("history") boolean history);
 
     List<CommentAdminDTO> listCommentsByParams(@Param("req") SearchCommentReq req, @Param("pageParam") PageParam pageParam);
 

@@ -205,7 +205,7 @@ public class ColumnSettingServiceImpl implements ColumnSettingService {
 
     private String readArticleContent(Long articleId) {
         try {
-            ArticleDetailDO detail = articleDao.findLatestDetail(articleId);
+            com.github.paicoding.forum.api.model.vo.article.dto.ArticleDTO detail = articleDao.queryArticleDetail(articleId);
             return detail == null ? "" : StringUtils.defaultString(detail.getContent());
         } catch (Exception e) {
             return "";

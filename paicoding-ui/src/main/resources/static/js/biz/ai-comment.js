@@ -107,6 +107,10 @@ $(document).ready(function () {
 });
 
 window.aiCommentBot = (function () {
+    let streamController;
+    let streamGeneration = 0;
+    function cancel() { ++streamGeneration; if (streamController) streamController.abort(); }
+
     function enumName(botType) {
         return botType === 'hater' ? 'HATER_BOT' : 'QA_BOT';
     }
@@ -177,6 +181,9 @@ window.aiCommentBot = (function () {
             return false;
         }
 
+        cancel();
+        const generation = streamGeneration;
+        streamController = new AbortController();
         const requestId = String(Date.now()) + String(Math.floor(Math.random() * 1000));
         const options = callbacks || {};
 
@@ -184,9 +191,12 @@ window.aiCommentBot = (function () {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...(window.articleEditionHeaders ? window.articleEditionHeaders() : {})
             },
+            signal: streamController.signal,
             body: JSON.stringify({
+                ...(window.articleEditionCommentContext ? window.articleEditionCommentContext() : {}),
                 articleId: params.articleId,
                 bot: enumName(botType),
                 commentContent: params.commentContent,
@@ -201,7 +211,7 @@ window.aiCommentBot = (function () {
             }
 
             function handleEvent(event) {
-                if (!event || event.requestId !== requestId) {
+                if (generation !== streamGeneration || !event || event.requestId !== requestId) {
                     return;
                 }
                 if (event.type === 'comment' && event.html && options.onComment) {
@@ -222,10 +232,11 @@ window.aiCommentBot = (function () {
             }
 
             return readStream(response.body.getReader(), new TextDecoder('utf-8'), '', handleEvent);
-        }).catch(function () {
+        }).catch(function (error) {
+            if (generation !== streamGeneration || error.name === 'AbortError') return;
             toastr.error('AI 回复生成失败，请稍后再试');
         }).finally(function () {
-            if (options.onFinish) {
+            if (generation === streamGeneration && options.onFinish) {
                 options.onFinish();
             }
         });
@@ -238,6 +249,7 @@ window.aiCommentBot = (function () {
         enumName: enumName,
         botName: botName,
         stripMention: stripMention,
+        cancel: cancel,
         startStream: startStream
     };
 })();

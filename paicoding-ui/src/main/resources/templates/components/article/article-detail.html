@@ -75,6 +75,27 @@
     </div>
   </div>
 
+  <div id="articleEditionData" hidden th:if="${article.readingContext != null}"
+       th:attr="data-context=${editionContextJson},data-highlights=${editionHighlightsJson}"></div>
+  <div id="articleEditionControls" th:if="${article.readingContext != null && article.readingContext.versioned}"
+       th:hidden="${#lists.size(article.readingContext.editions) < 2}" th:with="reading=${article.readingContext}" class="edition-controls">
+    <button id="articleEditionTrigger" class="edition-trigger" type="button"
+            aria-haspopup="menu" aria-expanded="false" aria-controls="articleEditionMenu">
+      <span>版本</span>
+      <span class="edition-trigger-code" th:text="${reading.selectedEditionCode}"></span>
+      <span class="edition-old-tag" th:if="${reading.viewingHistoryEdition}">历史版</span>
+      <svg class="edition-chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div id="articleEditionMenu" class="edition-menu" role="menu" aria-labelledby="articleEditionTrigger" hidden>
+      <button th:each="edition : ${reading.editions}" type="button" class="edition-option" role="menuitemradio" tabindex="-1"
+              th:attr="data-edition-choice=${edition.id},aria-checked=${edition.id == reading.selectedEditionId}">
+        <span class="edition-check" aria-hidden="true" th:text="${edition.id == reading.selectedEditionId ? '✓' : ''}"></span>
+        <span class="edition-option-name" th:text="${edition.editionCode + ' · ' + edition.editionName}"></span>
+        <span class="edition-current-tag" th:if="${edition.id == reading.currentEditionId}">当前版</span>
+      </button>
+    </div>
+  </div>
+
   <div id="highlightRelocation" role="status" hidden>
     选中新版正文中的对应文字，然后点“定位到这里”。
     <button type="button" class="btn btn-link">取消</button>
@@ -446,7 +467,7 @@
     }
 
     // 初始化 Fancybox 图片预览功能
-    (function() {
+    function initArticleImages() {
       // 为所有文章图片添加 cursor 样式提示可点击
       const images = document.querySelectorAll('.article-content img');
 
@@ -497,7 +518,9 @@
         }
       });
 
-      // 初始化 Fancybox
+      // Fancybox uses delegated selectors; bind once while reapplying image sizing per body.
+      if (window.articleFancyboxBound) return;
+      window.articleFancyboxBound = true;
       Fancybox.bind('.article-content img', {
         groupAll: true, // 将所有图片作为一组，支持左右翻页
         Hash: false, // 不修改 URL hash
@@ -523,7 +546,8 @@
           zoom: true, // 启用缩放
         }
       });
-    })();
+    }
+    initArticleImages();
 
   </script>
 </section>

@@ -266,4 +266,7 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="20261113_1" author="paicoding">
+        <sqlFile dbms="mysql" endDelimiter=";" encoding="UTF-8" path="liquibase/data/update_schema_261113_article_edition.sql"/>
+    </changeSet>
 </databaseChangeLog>

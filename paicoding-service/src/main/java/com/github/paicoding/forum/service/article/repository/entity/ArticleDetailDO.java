@@ -24,6 +24,9 @@ public class ArticleDetailDO extends BaseDO {
      * 文章ID
      */
     private Long articleId;
+    private Long editionId;
+    private String metadataSnapshot;
+    private java.util.Date firstPublishedAt;
 
     /**
      * 版本号

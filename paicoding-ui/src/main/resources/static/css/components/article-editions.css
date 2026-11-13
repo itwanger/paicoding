@@ -1,0 +1,126 @@
+/* Clip the rotated corner label without clipping the version menu. */
+.article-info-wrap > .article-mark { overflow: hidden; }
+.edition-controls {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin: 4px 0 16px;
+  min-width: 0;
+}
+.edition-controls[hidden], .edition-menu[hidden] { display: none; }
+.edition-controls .edition-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  background: var(--pai-bg-white-fff, #fff);
+  color: #666;
+  font: inherit;
+  font-size: 13px;
+  line-height: 22px;
+  cursor: pointer;
+}
+.edition-trigger-code { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.edition-controls .edition-trigger:hover,
+.edition-controls .edition-trigger[aria-expanded=true] { color: #ff7800; border-color: #ffbd85; }
+.edition-chevron { flex: none; transition: transform .15s ease; }
+.edition-trigger[aria-expanded=true] .edition-chevron { transform: rotate(180deg); }
+.edition-old-tag { font-size: 12px; color: #999; }
+.edition-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  box-sizing: border-box;
+  width: 320px;
+  max-width: 100%;
+  max-height: min(360px, 50vh);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: var(--pai-bg-white-fff, #fff);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .1);
+}
+.edition-menu[data-placement="above"] { top: auto; bottom: calc(100% + 6px); }
+.edition-controls .edition-option {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #555;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  text-align: left;
+  cursor: pointer;
+}
+.edition-option-name { min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+.edition-current-tag { font-size: 11px; color: #999; white-space: nowrap; }
+.edition-check { font-weight: 600; }
+.edition-controls .edition-option:hover,
+.edition-controls .edition-option:focus-visible { background: #f6f6f6; }
+.edition-controls .edition-option[aria-checked=true] { background: #fff4e9; color: #e96900; }
+.edition-controls[aria-busy=true] .edition-trigger { opacity: .6; }
+.edition-discussions {
+  display: flex;
+  gap: 24px;
+  margin: 12px 20px 0;
+  border-bottom: 1px solid #eee;
+}
+.edition-discussions button {
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #666;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.edition-discussions button span { margin-left: 4px; font-size: 12px; }
+.edition-discussions button.active { border-bottom-color: #ff7800; color: #ff7800; }
+.comment-edition-label {
+  margin: 4px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #999;
+  font-size: 12px;
+}
+.comment-edition-label[data-switch-edition] { color: #ff7800; cursor: pointer; }
+.edition-trigger:focus-visible,
+.edition-option:focus-visible,
+.edition-discussions button:focus-visible,
+.comment-edition-label:focus-visible { outline: 2px solid #ff7800; outline-offset: 2px; }
+@media (max-width: 991px) {
+  .edition-controls { margin: 0 0 16px; }
+  .edition-controls .edition-trigger { min-height: 40px; }
+}
+
+.edition-discussions[aria-busy=true] { opacity: .6; }
+.edition-comments-empty { padding: 24px 20px; margin: 0; color: #999; font-size: 14px; }
+@media (max-width: 575px) {
+  #commentList > .comment-write-wrap { padding: 12px 0 20px; }
+  #commentList > .edition-discussions { margin: 0; }
+}
+/* Align filtered comments with their tabs, without stacking the legacy panel padding. */
+.edition-discussions + #editionCommentResults > .all-comment { padding: 0 20px; }
+.edition-discussions + #editionCommentResults .all-comment-items > .all-comment-item > .comment-list-wrap,
+.edition-discussions + #editionCommentResults .hot-comment > .comment-list-wrap { padding: 0; }
+@media (max-width: 575px) {
+  .edition-discussions + #editionCommentResults > .all-comment,
+  .edition-discussions + #editionCommentResults > .hot-comment { padding-left: 0; padding-right: 0; }
+}

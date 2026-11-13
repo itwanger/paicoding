@@ -39,6 +39,8 @@ import java.util.function.Supplier;
 @Slf4j
 @Service
 public class CommentWriteServiceImpl implements CommentWriteService {
+    @javax.annotation.Resource private com.github.paicoding.forum.service.comment.service.CommentEditionSupport editionSupport;
+
 
     @Autowired
     private CommentDao commentDao;
@@ -82,6 +84,17 @@ public class CommentWriteServiceImpl implements CommentWriteService {
         if (userId == null || !userId.equals(comment.getUserId())) {
             throw ExceptionUtil.of(StatusEnum.FORBID_ERROR_MIXED, "只能重新定位自己的划线");
         }
+        com.github.paicoding.forum.api.model.vo.article.dto.ArticleReadingContextDTO reading = editionSupport.context(articleId);
+        if (reading.isVersioned()) {
+            if (!Objects.equals(comment.getEditionId(), reading.getSelectedEditionId())) {
+                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "只能在划线所属版本内重新定位");
+            }
+            com.github.paicoding.forum.api.model.context.ArticleEditionRequest request = com.github.paicoding.forum.api.model.context.ArticleEditionRequest.forArticle(articleId);
+            if (request == null || !Objects.equals(request.getDetailId(), reading.getSelectedDetailId())) {
+                throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "正文已更新，请刷新后重新定位");
+            }
+            selection.setAnchoredDetailId(reading.getSelectedDetailId());
+        }
         HighlightDto previous = StringUtils.isBlank(comment.getHighlightInfo()) ? null
                 : JsonUtil.toObj(comment.getHighlightInfo(), HighlightDto.class);
         if (previous == null || StringUtils.isBlank(previous.getSelectedText())) {
@@ -100,6 +113,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
     }
 
     private CommentDO addComment(CommentSaveReq commentSaveReq) {
+        editionSupport.prepare(commentSaveReq);
         // 0.获取父评论信息，校验是否存在
         CommentDO parentComment = getParentCommentUser(commentSaveReq.getParentCommentId());
         Long parentUser = parentComment == null ? null : parentComment.getUserId();
@@ -260,7 +274,7 @@ public class CommentWriteServiceImpl implements CommentWriteService {
      */
     private Supplier<String> initQABotSystemPrompt(AiBotEnum bot, CommentDO comment) {
         if (bot == AiBotEnum.QA_BOT) {
-            String article = articleReadService.queryArticleContentForAI(comment.getArticleId());
+            String article = editionSupport.aiContext(comment.getId());
             return () -> bot.getPrompt() + "\n\n" + article;
         } else {
             return bot::getPrompt;

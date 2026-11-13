@@ -99,6 +99,12 @@ public class ArticleWriteServiceImpl implements ArticleWriteService {
         return transactionTemplate.execute(new TransactionCallback<Long>() {
             @Override
             public Long doInTransaction(TransactionStatus status) {
+                if (!NumUtil.nullOrZero(req.getArticleId())) {
+                    ArticleDO existing = articleDao.getBaseMapper().selectForUpdateById(req.getArticleId());
+                    if (existing != null && existing.getCurrentEditionId() != null) {
+                        throw ExceptionUtil.of(StatusEnum.ILLEGAL_ARGUMENTS_MIXED, "该文章已启用版本管理，请从管理端选择版本发布");
+                    }
+                }
                 Long articleId;
                 if (NumUtil.nullOrZero(req.getArticleId())) {
                     articleId = insertArticle(article, content, req.getTagIds());

@@ -263,6 +263,8 @@ public class ArticleViewController extends BaseViewController {
         // 查询文章的划线评论，用于高亮显示
         List<TopCommentDTO> highlightComments = commentService.queryHighlightComments(articleId);
         vo.setHighlightComments(highlightComments);
+        model.addAttribute("editionContextJson", com.github.paicoding.forum.core.util.JsonUtil.toStr(articleDTO.getReadingContext()));
+        model.addAttribute("editionHighlightsJson", com.github.paicoding.forum.core.util.JsonUtil.toStr(highlightComments));
 
         // 作者信息
         UserStatisticInfoDTO user = userService.queryUserInfoWithStatistic(articleDTO.getAuthor());

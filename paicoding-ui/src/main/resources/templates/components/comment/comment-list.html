@@ -125,8 +125,18 @@
       </div>
     </div>
 
+    <div id="editionDiscussionScope" class="edition-discussions"
+         th:if="${article != null && article.readingContext != null && article.readingContext.versioned}"
+         th:attr="data-scope=${article.readingContext.discussionScope},data-current-count=${article.readingContext.currentCommentCount},data-history-count=${article.readingContext.historyCommentCount}">
+      <button type="button" data-discussion-scope="current" aria-controls="editionCommentResults"
+              th:classappend="${article.readingContext.discussionScope == 'current' ? 'active' : ''}"
+              th:attr="aria-pressed=${article.readingContext.discussionScope == 'current'}">本版评论 <span th:text="${article.readingContext.currentCommentCount}"></span></button>
+      <button type="button" data-discussion-scope="history" aria-controls="editionCommentResults"
+              th:classappend="${article.readingContext.discussionScope == 'history' ? 'active' : ''}"
+              th:attr="aria-pressed=${article.readingContext.discussionScope == 'history'}">历史评论 <span th:text="${article.readingContext.historyCommentCount}"></span></button>
+    </div>
     <!-- 评论列表 -->
-    <div th:class="${(#lists.isEmpty(comments) ? ' no-comment-box' : '')}">
+    <div id="editionCommentResults" th:class="${(#lists.isEmpty(comments) ? ' no-comment-box' : '')}">
       <!-- 热门评论  -->
       <div th:if="${hotComment != null}" class="comment-list-wrap hot-comment bg-color-white">
         <h4 class="hot-comment-title">
@@ -149,11 +159,13 @@
       </div>
 
       <!-- 全部评论列表 -->
-      <div class="all-comment bg-color-white" th:if="${!#lists.isEmpty(comments)}">
-        <h4 class="all-comment-title">
-          <em th:text="${article != null && article.count != null ? article.count.commentCount : #lists.size(comments)}"></em>
-          条评论
+      <div class="all-comment bg-color-white">
+        <h4 class="all-comment-title" th:if="${!#lists.isEmpty(comments) && (article == null || article.readingContext == null || !article.readingContext.versioned)}">
+          <em th:text="${article != null && article.readingContext != null && article.readingContext.versioned ? topCommentTotal : (article != null && article.count != null ? article.count.commentCount : #lists.size(comments))}"></em>
+          <span th:text="${article != null && article.readingContext != null && article.readingContext.versioned ? '条讨论' : '条评论'}">条评论</span>
         </h4>
+        <p class="edition-comments-empty" th:if="${#lists.isEmpty(comments) && article != null && article.readingContext != null && article.readingContext.versioned}"
+           th:text="${article.readingContext.discussionScope == 'history' ? '暂无历史评论' : '暂无评论'}"></p>
         <div class="all-comment-items">
           <div class="all-comment-item" th:each="comment : ${comments}">
             <div th:replace="components/comment/comment-item :: comment_item(${comment}, 'bottom')"></div>

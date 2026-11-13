@@ -62,6 +62,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequestMapping(path = "comment/api")
 public class CommentRestController {
+    @javax.annotation.Resource private com.github.paicoding.forum.service.comment.service.CommentEditionSupport editionSupport;
+
     @Autowired
     private ArticleReadService articleReadService;
 
@@ -79,6 +81,28 @@ public class CommentRestController {
 
     @Autowired
     private AiBots aiBots;
+
+    @Permission(role = UserRole.ALL)
+    @GetMapping("context")
+    @ResponseBody
+    public ResVo<java.util.Map<String, Object>> commentContext(@RequestParam Long commentId) {
+        com.github.paicoding.forum.service.comment.repository.entity.CommentDO root = editionSupport.root(commentId);
+        editionSupport.requireVisible(root);
+        TopCommentDTO thread = commentReadService.queryTopComments(root.getId());
+        if (!root.getId().equals(commentId)) {
+            SubCommentListVO replies = commentReadService.getSubComments(root.getId(), PageParam.newPageInstance(editionSupport.replyPage(root.getId(), commentId), 10L));
+            thread.setChildComments(replies.getList());
+        }
+        ArticleDetailVo vo = new ArticleDetailVo();
+        vo.setArticle(ArticleConverter.toDto(articleReadService.queryBasicArticle(root.getArticleId())));
+        vo.setComments(java.util.Collections.singletonList(thread));
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("articleId", String.valueOf(root.getArticleId()));
+        result.put("rootCommentId", String.valueOf(root.getId()));
+        result.put("editionId", root.getEditionId() == null ? null : String.valueOf(root.getEditionId()));
+        result.put("html", templateEngineHelper.render("components/comment/comment-page-items", vo));
+        return ResVo.ok(result);
+    }
 
     /**
      * 评论列表页
@@ -123,7 +147,9 @@ public class CommentRestController {
 
         // 返回新的评论信息，用于实时更新详情也的评论列表
         ArticleDetailVo vo = new ArticleDetailVo();
-        vo.setArticle(ArticleConverter.toDto(article));
+        selectPublishedCommentScope(req.getArticleId(), req.getParentCommentId());
+        vo.setArticle(article.getCurrentEditionId() == null ? ArticleConverter.toDto(article)
+                : articleReadService.queryDetailArticleInfo(req.getArticleId()));
         // 评论信息
         List<TopCommentDTO> comments = commentReadService.getArticleComments(req.getArticleId(), PageParam.newPageInstance());
         vo.setComments(comments);
@@ -233,6 +259,7 @@ public class CommentRestController {
         String sourceBizId = "comment:" + commentId + "_" + ReqInfoContext.getReqInfo().getUserId();
         Long finalCommentId = commentId;
         try {
+            final String editionPrompt = buildHighlightAiSystemPrompt(finalBot, finalCommentId);
             aiBots.triggerStream(finalBot, buildHighlightAiQuestion(finalBot, req), sourceBizId, item -> {
                 if (closed.get()) {
                     return;
@@ -279,7 +306,7 @@ public class CommentRestController {
                         emitter.complete();
                     }
                 }
-            }, () -> buildHighlightAiSystemPrompt(finalBot, req.getArticleId()));
+            }, () -> editionPrompt);
         } catch (Exception e) {
             log.error("启动划线 AI 回复失败, requestId={}, articleId={}, parentCommentId={}, bot={}",
                     requestId, req.getArticleId(), finalCommentId, finalBot, e);
@@ -337,6 +364,7 @@ public class CommentRestController {
         Long topCommentId;
         try {
             commentId = saveCommentUserComment(req, userId);
+            selectPublishedCommentScope(req.getArticleId(), req.getParentCommentId());
             topCommentId = NumUtil.upZero(req.getTopCommentId()) ? req.getTopCommentId() : commentId;
             sendAiEvent(emitter, HighlightAiStreamEvent.comment(requestId, finalBot.getNickName(), commentId)
                     .setHtml(renderArticleComments(req.getArticleId())));
@@ -351,6 +379,7 @@ public class CommentRestController {
         String sourceBizId = "comment:" + topCommentId + "_" + userId;
         Long finalCommentId = commentId;
         Long finalTopCommentId = topCommentId;
+        final String editionPrompt = buildCommentAiSystemPrompt(finalBot, finalCommentId);
         aiBots.triggerSync(finalBot, buildCommentAiQuestion(req), sourceBizId, answer -> {
             if (closed.get()) {
                 return;
@@ -376,7 +405,7 @@ public class CommentRestController {
                 closed.set(true);
                 emitter.complete();
             }
-        }, () -> buildCommentAiSystemPrompt(finalBot, req.getArticleId()));
+        }, () -> editionPrompt);
         return emitter;
     }
 
@@ -453,9 +482,9 @@ public class CommentRestController {
                 .trim();
     }
 
-    private String buildHighlightAiSystemPrompt(AiBotEnum bot, Long articleId) {
+    private String buildHighlightAiSystemPrompt(AiBotEnum bot, Long commentId) {
         if (bot == AiBotEnum.QA_BOT) {
-            String article = articleReadService.queryArticleContentForAI(articleId);
+            String article = editionSupport.aiContext(commentId);
             return bot.getPrompt() + "\n\n" + article;
         }
         return bot.getPrompt() + "\n请直接围绕用户给出的划线内容回复，不要解释自己的角色设定。";
@@ -488,6 +517,8 @@ public class CommentRestController {
     private Long saveHighlightUserComment(HighlightAiStreamReq req) {
         CommentSaveReq save = new CommentSaveReq();
         save.setArticleId(req.getArticleId());
+        save.setEditionId(req.getEditionId());
+        save.setArticleDetailId(req.getArticleDetailId());
         save.setUserId(ReqInfoContext.getReqInfo().getUserId());
         save.setCommentContent(StringEscapeUtils.escapeHtml3(req.getCommentContent()));
         save.setHighlight(req.getHighlight());
@@ -503,6 +534,8 @@ public class CommentRestController {
 
         CommentSaveReq save = new CommentSaveReq();
         save.setArticleId(req.getArticleId());
+        save.setEditionId(req.getEditionId());
+        save.setArticleDetailId(req.getArticleDetailId());
         save.setUserId(aiBots.getBotUser(bot).getUserId());
         save.setCommentContent(StringEscapeUtils.escapeHtml3(content));
         save.setParentCommentId(parentCommentId);
@@ -514,6 +547,8 @@ public class CommentRestController {
     private Long saveCommentUserComment(CommentAiStreamReq req, Long userId) {
         CommentSaveReq save = new CommentSaveReq();
         save.setArticleId(req.getArticleId());
+        save.setEditionId(req.getEditionId());
+        save.setArticleDetailId(req.getArticleDetailId());
         save.setUserId(userId);
         save.setCommentContent(StringEscapeUtils.escapeHtml3(req.getCommentContent()));
         save.setParentCommentId(req.getParentCommentId());
@@ -530,6 +565,8 @@ public class CommentRestController {
 
         CommentSaveReq save = new CommentSaveReq();
         save.setArticleId(req.getArticleId());
+        save.setEditionId(req.getEditionId());
+        save.setArticleDetailId(req.getArticleDetailId());
         save.setUserId(aiBots.getBotUser(bot).getUserId());
         save.setCommentContent(StringEscapeUtils.escapeHtml3(content));
         save.setParentCommentId(parentCommentId);
@@ -542,18 +579,27 @@ public class CommentRestController {
         return StringUtils.defaultIfBlank(stripAiBotMention(req.getQuestion()), stripAiBotMention(req.getCommentContent()));
     }
 
-    private String buildCommentAiSystemPrompt(AiBotEnum bot, Long articleId) {
+    private String buildCommentAiSystemPrompt(AiBotEnum bot, Long commentId) {
         if (bot == AiBotEnum.QA_BOT) {
-            String article = articleReadService.queryArticleContentForAI(articleId);
+            String article = editionSupport.aiContext(commentId);
             return bot.getPrompt() + "\n\n" + article;
         }
         return bot.getPrompt();
     }
 
+    private void selectPublishedCommentScope(Long articleId, Long parentCommentId) {
+        com.github.paicoding.forum.api.model.context.ArticleEditionRequest selection =
+                com.github.paicoding.forum.api.model.context.ArticleEditionRequest.forArticle(articleId);
+        if (selection != null && (parentCommentId == null || parentCommentId == 0)) {
+            selection.setScope("current");
+        }
+    }
+
     private String renderArticleComments(Long articleId) {
         ArticleDO article = articleReadService.queryBasicArticle(articleId);
         ArticleDetailVo vo = new ArticleDetailVo();
-        vo.setArticle(ArticleConverter.toDto(article));
+        vo.setArticle(article.getCurrentEditionId() == null ? ArticleConverter.toDto(article)
+                : articleReadService.queryDetailArticleInfo(articleId));
         vo.setComments(commentReadService.getArticleComments(articleId, PageParam.newPageInstance()));
         vo.setTopCommentTotal(commentReadService.queryTopCommentCount(articleId));
         vo.setHotComment(commentReadService.queryHotComment(articleId));

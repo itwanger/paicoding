@@ -167,6 +167,13 @@ const followAction = function (e) {
  * @param el 生成的目录应该放的位置
  */
 const genTocMenu = function genToc(selector, el) {
+  if (window.articleTocController) window.articleTocController.abort()
+  const controller = new AbortController()
+  window.articleTocController = controller
+  const listen = (type, handler) => window.addEventListener(type, handler, {signal: controller.signal})
+  $(el).empty()
+  $(selector).find('.headerlink').remove()
+
   let DEFAULT = {
     lineHeight: 28, // 每个菜单的行高是 28
     moreHeight: 10, // 菜单左侧的线比菜单多出的高度
@@ -226,7 +233,7 @@ const genTocMenu = function genToc(selector, el) {
 
   initCatalog()
 
-  window.addEventListener(
+  listen(
     "scroll",
     function () {
       debounce(setHighlight, DEFAULT.delay)()
@@ -236,7 +243,7 @@ const genTocMenu = function genToc(selector, el) {
   )
 
   if (catalogLength > maxCatalogCount) {
-    window.addEventListener(
+    listen(
       "scroll",
       function () {
         debounce(scrollCatalog, DEFAULT.delay)()
@@ -248,7 +255,7 @@ const genTocMenu = function genToc(selector, el) {
   initMenu()
   controlMenu()
 
-  window.addEventListener(
+  listen(
     "resize",
     function (e) {
       debounce(initCatalog, DEFAULT.delay)()
@@ -359,7 +366,7 @@ const genTocMenu = function genToc(selector, el) {
     $(".toc-container .widget").css("max-height", tocMaxHeight + "px")
   }
 
-  window.addEventListener(
+  listen(
     "scroll",
     function (e) {
       const windowScrollTop = $(window).scrollTop()

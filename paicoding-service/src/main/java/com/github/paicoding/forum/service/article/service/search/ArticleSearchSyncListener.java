@@ -5,7 +5,7 @@ import com.github.paicoding.forum.api.model.event.ArticleMsgEvent;
 import com.github.paicoding.forum.service.article.repository.entity.ArticleDO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -18,15 +18,19 @@ public class ArticleSearchSyncListener {
 
     @Autowired
     private ArticleSearchService articleSearchService;
+    @javax.annotation.Resource(name = "caffeineCacheManager")
+    private org.springframework.cache.CacheManager cacheManager;
 
     @Async
-    @EventListener(ArticleMsgEvent.class)
+    @org.springframework.transaction.event.TransactionalEventListener(classes = ArticleMsgEvent.class, fallbackExecution = true)
     public void onArticleEvent(ArticleMsgEvent<?> event) {
         Object content = event.getContent();
         if (!(content instanceof ArticleDO)) {
             return;
         }
         Long articleId = ((ArticleDO) content).getId();
+        org.springframework.cache.Cache cache = cacheManager.getCache("article");
+        if (cache != null) cache.evict("sideBar_" + articleId);
         try {
             if (event.getType() == ArticleEventEnum.DELETE) {
                 articleSearchService.deleteArticle(articleId);

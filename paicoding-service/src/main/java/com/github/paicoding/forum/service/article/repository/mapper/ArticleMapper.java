@@ -20,6 +20,9 @@ import java.util.List;
  * @date 2022-07-18
  */
 public interface ArticleMapper extends BaseMapper<ArticleDO> {
+    @org.apache.ibatis.annotations.Select("SELECT * FROM article WHERE id = #{articleId} FOR UPDATE")
+    ArticleDO selectForUpdateById(@Param("articleId") Long articleId);
+
 
     /**
      * 通过id遍历文章, 用于生成sitemap.xml

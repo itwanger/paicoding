@@ -18,6 +18,7 @@ public enum ArticleEventEnum {
     REVIEW(3, "审核"),
     DELETE(4, "删除"),
     OFFLINE(5, "下线"),
+    EDITION_UPDATED(6, "正式版本更新"),
     ;
 
 
