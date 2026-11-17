@@ -18,8 +18,25 @@ RESTART_FUNC_NAME="restart"
 
 #env, ssh remote, work dir
 ENV_PRO="prod"
-SSH_HOST_PRO=("admin@39.105.208.175")
-WORK_DIR_PRO="/home/admin/workspace/paicoding-forum/"
+# Connection settings come from the environment or ignored .env files.
+SSH_HOST_PRO=()
+SSH_OPTS=()
+WORK_DIR_PRO=""
+
+function load_deploy_settings() {
+    local setting value
+    while IFS= read -r setting && IFS= read -r value; do
+        export "${setting}=${value}"
+    done < <(python3 scripts/read-deploy-settings.py)
+    : "${DEPLOY_SERVER_HOST:?Set DEPLOY_SERVER_HOST in the environment or local .env}"
+    : "${DEPLOY_SERVER_USER:?Set DEPLOY_SERVER_USER in the environment or local .env}"
+    SSH_HOST_PRO=("${DEPLOY_SERVER_USER}@${DEPLOY_SERVER_HOST}")
+    WORK_DIR_PRO="${DEPLOY_TARGET_DIR:-/home/www/paicoding}/"
+    SSH_OPTS=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15)
+    if [ -n "${DEPLOY_SERVER_KEY:-}" ]; then
+        SSH_OPTS+=(-i "${DEPLOY_SERVER_KEY}")
+    fi
+}
 
 
 # log file
@@ -104,7 +121,7 @@ function compile() {
 function upload() {
     # upload jar
     # rename to *.jar.bak
-    scp ${EXECUTABLE_JAR_PATH} $1:$2${TMP_EXECUTABLE_JAR_NAME}
+    scp "${SSH_OPTS[@]}" "${EXECUTABLE_JAR_PATH}" "$1:$2${TMP_EXECUTABLE_JAR_NAME}"
     ret=$?
     if [[ ${ret} -ne 0 ]] ; then
         echo 'Failed to scp jar'
@@ -112,7 +129,7 @@ function upload() {
     fi
 
     # upload script
-    scp ${DEPLOY_SCRIPT} $1:$2
+    scp "${SSH_OPTS[@]}" "${DEPLOY_SCRIPT}" "$1:$2"
     ret=$?
     if [[ ${ret} -ne 0 ]] ; then
         echo 'Failed to scp deploy.sh'
@@ -121,6 +138,7 @@ function upload() {
 }
 
 function deploy() {
+    load_deploy_settings
     # package
     echo "*******Start to package*******"
     compile $1
@@ -154,7 +172,7 @@ function deploy() {
     do
         # run
         echo "*******Start service:${host} *******"
-        ssh ${host} "bash ${WORK_DIR}${DEPLOY_SCRIPT} ${START_FUNC_NAME}"
+        ssh "${SSH_OPTS[@]}" "${host}" "bash ${WORK_DIR}${DEPLOY_SCRIPT} ${START_FUNC_NAME}"
         echo "*******Done*******"
     done
 }

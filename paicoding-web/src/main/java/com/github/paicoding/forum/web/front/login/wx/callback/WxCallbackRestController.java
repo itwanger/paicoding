@@ -25,6 +25,7 @@ import com.github.paicoding.forum.web.front.login.wx.config.WxLoginProperties;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxAckHelper;
 import com.github.paicoding.forum.web.front.login.wx.helper.WxLoginHelper;
 import com.github.paicoding.forum.web.front.login.wx.pairesume.PaiResumeWechatBridgeClient;
+import com.github.paicoding.forum.web.front.login.wx.paismart.PaiSmartWechatBridgeClient;
 import com.wechat.pay.java.service.refund.model.RefundNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -78,6 +79,9 @@ public class WxCallbackRestController {
     private PayServiceFactory payServiceFactory;
     @Autowired
     private PaiResumeWechatBridgeClient paiResumeWechatBridgeClient;
+
+    @Autowired
+    private PaiSmartWechatBridgeClient paiSmartWechatBridgeClient;
 
     /**
      * 微信的公众号接入 token 验证，即返回echostr的参数值
@@ -147,6 +151,13 @@ public class WxCallbackRestController {
                 WxTxtMsgResVo response = new WxTxtMsgResVo();
                 response.setContent("派简历身份确认成功，请返回浏览器继续操作。");
                 responseBody = renderWxResponse(msg, response);
+            } else if (("subscribe".equalsIgnoreCase(msg.getEvent())
+                    || "scan".equalsIgnoreCase(msg.getEvent()))
+                    && paiSmartWechatBridgeClient.isPaiSmartScene(code)) {
+                paiSmartWechatBridgeClient.forward(msg.getEvent(), msg.getFromUserName(), code);
+                WxTxtMsgResVo response = new WxTxtMsgResVo();
+                response.setContent("派聪明登录成功，请返回浏览器继续操作。");
+                responseBody = renderWxResponse(msg, response);
             } else if (directToLoginOcPai(code)) {
                 // 命中校招派登录的场景
                 BaseWxMsgResVo res = loginOcPai(msg);
@@ -206,8 +217,8 @@ public class WxCallbackRestController {
     private void wxCallbackSecurityCheck() {
         String securityToken = SpringUtil.getBean(WxLoginProperties.class).getSecurityCheckToken();
         if (StringUtils.isBlank(securityToken)) {
-            if (paiResumeWechatBridgeClient.isEnabled()) {
-                throw new IllegalStateException("启用派简历桥接前必须配置微信回调校验 token");
+            if (paiResumeWechatBridgeClient.isEnabled() || paiSmartWechatBridgeClient.isEnabled()) {
+                throw new IllegalStateException("启用扫码桥接前必须配置微信回调校验 token");
             }
             return;
         }

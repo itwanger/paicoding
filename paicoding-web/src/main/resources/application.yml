@@ -64,6 +64,11 @@ paicoding:
     wx:
       # 派简历复用“派聪明”服务号的内部桥接，默认关闭；开启后必须同时配置
       # 微信 callback token、32 字符以上共享密钥和派简历 HTTPS 回调地址。
+      pai-smart:
+        enabled: ${PAISMART_WECHAT_BRIDGE_ENABLED:false}
+        callback-url: ${PAISMART_WECHAT_BRIDGE_CALLBACK_URL:}
+        bridge-secret: ${PAISMART_WECHAT_BRIDGE_SECRET:}
+        scene-prefix: ${PAISMART_WECHAT_SCENE_PREFIX:ps_}
       pai-resume:
         enabled: ${PAIRESUME_WECHAT_BRIDGE_ENABLED:false}
         callback-url: ${PAIRESUME_WECHAT_BRIDGE_CALLBACK_URL:}
