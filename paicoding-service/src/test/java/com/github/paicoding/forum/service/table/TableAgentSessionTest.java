@@ -26,6 +26,17 @@ class TableAgentSessionTest {
         assertEquals(result.get("view"), result.get("export"));
         assertFalse(((Map<?,?>)result.get("export")).containsKey("preview"));
     }
+    @Test void exportsOnlyMatchingDurationsInNumericOrder() throws Exception {
+        TableLearningReq req = sample();
+        req.setRows(Arrays.asList(Arrays.asList("A", "5 小时"), Arrays.asList("B", "4小时"),
+                Arrays.asList("C", "12小时"), Arrays.asList("D", "5小时"), Arrays.asList("E", "30分钟")));
+        TableAgentSession session = new TableAgentSession(req);
+        String args = "{\"query\":\"\",\"numericFilter\":{\"column\":1,\"unit\":\"小时\",\"min\":5}," +
+                "\"sortColumn\":1,\"descending\":true,\"visibleColumns\":[]}";
+        Map<String,Object> view = session.execute("set_table_view", json.readTree(args));
+        assertEquals(Arrays.asList(3, 1, 4), view.get("rowIds"));
+        assertEquals(view, session.execute("export_table", json.readTree("{}")));
+    }
     @Test void invalidToolsCannotChangeView() throws Exception {
         TableAgentSession session=new TableAgentSession(sample());
         assertThrows(IllegalArgumentException.class,()->session.execute("delete_table",json.readTree("{}")));

@@ -228,6 +228,31 @@
     return imgAlt.trim();
   }
 
+  function scrollReaderAtGridEdge(event) {
+    if (event.defaultPrevented || !event.cancelable || event.ctrlKey || event.metaKey || event.shiftKey
+        || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+    const holder = event.target.closest('.tabulator-tableholder');
+    if (!holder) return;
+    const scrollingUp = event.deltaY < 0;
+    const canScroll = element => scrollingUp
+      ? element.scrollTop > 0
+      : element.scrollTop + element.clientHeight < element.scrollHeight - 1;
+    if (canScroll(holder)) return;
+
+    const chapter = holder.closest('.article-content-wrap');
+    const reader = chapter && /^(auto|scroll)$/.test(getComputedStyle(chapter).overflowY)
+      ? chapter : document.scrollingElement;
+    if (!reader || !canScroll(reader)) return;
+
+    const mode = event.deltaMode;
+    let distance = event.deltaY;
+    if (mode === WheelEvent.DOM_DELTA_LINE) distance *= parseFloat(getComputedStyle(holder).lineHeight) || 16;
+    if (mode === WheelEvent.DOM_DELTA_PAGE) distance *= reader.clientHeight;
+    event.preventDefault();
+    reader.scrollTop += distance;
+  }
+
   function wrapCompactTable(table) {
     const wrapper = node('div', null, 'pai-article-table-compact');
     table.before(wrapper);
@@ -395,6 +420,7 @@
     const body = node('div', null, 'pai-table-body');
     const area = node('div', null, 'pai-table-grid-area');
     const host = node('div', null, 'pai-article-grid');
+    host.addEventListener('wheel', scrollReaderAtGridEdge, { passive: false });
     const panel = node('aside', null, 'pai-table-panel');
     panel.hidden = true;
     panel.setAttribute('aria-label', '行详情与 表格智能体');

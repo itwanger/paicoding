@@ -109,12 +109,61 @@ async function check(browser, width, chapter) {
   }
 }
 
+// Keep the pointer over the final grid even when the browser does not chain wheel input.
+async function checkLastTableWheel(browser, width) {
+  const page = await browser.newPage({ viewport: { width, height: 850 } });
+  try {
+    const finalRows = Array.from({ length: 16 }, (_, i) => `<tr><td>${i}</td><td>岗位</td></tr>`).join('');
+    const content = fixture(true).replace('</div></main>', `<div style="height:1300px"></div>
+      <table><tr><th>公司</th><th>说明</th></tr>${finalRows}</table></div></main>`);
+    await page.route('http://reader.test/**', route => {
+      const pathname = new URL(route.request().url()).pathname;
+      if (pathname === '/') return route.fulfill({ contentType: 'text/html', body: content });
+      if (pathname === '/api/tables/capabilities') return route.fulfill({ json: { result: {} } });
+      return route.fulfill({ path: path.join(assets, pathname) });
+    });
+    await page.goto('http://reader.test/');
+    const grid = page.locator('.tabulator-tableholder').last();
+    await grid.locator('.tabulator-row').first().waitFor();
+    // Isolate the inner scroll area to exercise the explicit handoff on wheel boundaries.
+    await grid.evaluate(async el => {
+      el.style.overscrollBehaviorY = 'contain';
+      el.scrollIntoView({ block: 'center' });
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      el.scrollTop = el.scrollHeight;
+    });
+    const chapter = page.locator('.article-content-wrap');
+    const reader = width >= 992 ? chapter : page.locator('html');
+    const offset = () => reader.evaluate(el => el.scrollTop);
+    const start = await offset();
+    const box = await grid.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    assert.ok(await grid.evaluate(el => el.scrollTop > 45));
+    await page.mouse.wheel(0, -45);
+    await page.waitForFunction(el => el.scrollTop < el.scrollHeight - el.clientHeight - 10,
+      await grid.elementHandle());
+    assert.equal(await offset(), start, 'the grid scrolls while it has earlier rows');
+    await grid.evaluate(el => { el.scrollTop = 0; });
+    await page.mouse.wheel(0, -60);
+    await page.waitForFunction(([reader, start]) => reader.scrollTop < start,
+      [await reader.elementHandle(), start]);
+    // Keep rolling at the same pointer position until the article title is reached.
+    for (let i = 0; i < 20 && await offset() > 0; i++) await page.mouse.wheel(0, -200);
+    await page.waitForFunction(el => el.scrollTop === 0, await reader.elementHandle());
+    console.log('PASS last table wheel', width);
+  } finally {
+    await page.close();
+  }
+}
+
 (async () => {
   const browser = await chromium.launch();
   try {
     await check(browser, 1440, true);
     await check(browser, 1440, false);
     await check(browser, 390, false);
+    await checkLastTableWheel(browser, 1440);
+    await checkLastTableWheel(browser, 390);
   } finally {
     await browser.close();
   }

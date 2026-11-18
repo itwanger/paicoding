@@ -3,6 +3,7 @@ package com.github.paicoding.forum.service.table;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.paicoding.forum.api.model.vo.table.TableLearningReq;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,8 +28,12 @@ final class TableAgentSession {
         List<Object> tools=new ArrayList<>();
         tools.add(tool(json,"read_table","读取当前表格。query 搜索所有原始行；空字符串读取当前视图。offset 从0开始，limit最多10。返回行号和单元格；不能读取未提供的文章。",
                 "{\"query\":{\"type\":\"string\"},\"offset\":{\"type\":\"integer\"},\"limit\":{\"type\":\"integer\"}}", "query","offset","limit"));
-        tools.add(tool(json,"set_table_view","修改当前页面的筛选、排序和显示列。query 空字符串清除筛选，其他值对整行做文字包含匹配；sortColumn 为0起的列索引，-1为原文顺序。visibleColumns 为0起列索引数组，空数组保留当前列。返回匹配行号和按显示顺序排列的单元格预览。不会修改原文。",
-                "{\"query\":{\"type\":\"string\"},\"sortColumn\":{\"type\":\"integer\"},\"descending\":{\"type\":\"boolean\"},\"visibleColumns\":{\"type\":\"array\",\"items\":{\"type\":\"integer\"}}}", "query","sortColumn","descending","visibleColumns"));
+        String numericFilter = "{\"type\":\"object\",\"properties\":{" +
+                "\"column\":{\"type\":\"integer\"},\"unit\":{\"type\":\"string\"}," +
+                "\"min\":{\"type\":\"number\"},\"max\":{\"type\":\"number\"}}," +
+                "\"required\":[\"column\",\"unit\"],\"additionalProperties\":false}";
+        tools.add(tool(json,"set_table_view","修改当前页面的筛选、排序和显示列。至少、至多或范围用 numericFilter，指定 column、单元格的单位 unit（纯数字填空串）以及包含边界的 min 或 max。此时 query 仅填写另需匹配的文字，通常留空。query 空字符串清除筛选，其他值对整行做文字包含匹配；sortColumn 为0起的列索引，-1为原文顺序。visibleColumns 为0起列索引数组，空数组保留当前列。返回匹配行号和按显示顺序排列的单元格预览。不会修改原文。",
+                "{\"numericFilter\":" + numericFilter + ",\"query\":{\"type\":\"string\"},\"sortColumn\":{\"type\":\"integer\"},\"descending\":{\"type\":\"boolean\"},\"visibleColumns\":{\"type\":\"array\",\"items\":{\"type\":\"integer\"}}}", "query","sortColumn","descending","visibleColumns"));
         tools.add(tool(json,"export_table","生成当前视图的 CSV 下载结果。如需先筛选或调整列，先调用 set_table_view。只有用户要求导出时调用。","{}"));
         return tools;
     }
@@ -53,7 +58,31 @@ final class TableAgentSession {
                 JsonNode visible=args.path("visibleColumns");check(visible.isArray(),"visibleColumns 必须为数组");
                 List<Integer> nextColumns=new ArrayList<>();for(JsonNode c:visible){check(c.isIntegralNumber() && c.canConvertToInt() && c.asInt()>=0 && c.asInt()<request.getColumns().size() && !nextColumns.contains(c.asInt()),"列索引无效或重复");nextColumns.add(c.asInt());}
                 List<Integer> nextRows=matching(query);
-                if(sort>=0){Comparator<Integer> cmp=(a,b)->compare(rows().get(a-1).get(sort),rows().get(b-1).get(sort));if(args.path("descending").asBoolean())cmp=cmp.reversed();nextRows.sort(cmp);}
+                Map<Integer, BigDecimal> numbers = new HashMap<>();
+                int numericColumn = -1;
+                if (args.has("numericFilter")) {
+                    JsonNode filter = args.get("numericFilter");
+                    numericColumn = integer(filter, "column", 0, request.getColumns().size() - 1);
+                    check(filter.path("unit").isTextual(), "必须指定数值单位");
+                    BigDecimal min = bound(filter, "min");
+                    BigDecimal max = bound(filter, "max");
+                    check(min != null || max != null, "至少需要一个数值边界");
+                    check(min == null || max == null || min.compareTo(max) <= 0, "数值范围无效");
+                    String unit = filter.get("unit").asText().trim();
+                    for (int id : nextRows) {
+                        BigDecimal value = quantity(rows().get(id - 1).get(numericColumn), unit);
+                        if (value != null && (min == null || value.compareTo(min) >= 0)
+                                && (max == null || value.compareTo(max) <= 0)) {
+                            numbers.put(id, value);
+                        }
+                    }
+                    nextRows.removeIf(id -> !numbers.containsKey(id));
+                }
+                if (sort >= 0) {
+                    Comparator<Integer> order = sort == numericColumn ? Comparator.comparing(numbers::get)
+                            : (a, b) -> compare(rows().get(a - 1).get(sort), rows().get(b - 1).get(sort));
+                    nextRows.sort(args.get("descending").asBoolean() ? order.reversed() : order);
+                }
                 rowIds=nextRows;if(!nextColumns.isEmpty())columnIds=nextColumns;changed=true;steps.add("调整表格视图");return viewObservation(view());
             }
             case "export_table": export=view();steps.add("生成 CSV");return viewObservation(export);
@@ -101,6 +130,22 @@ final class TableAgentSession {
     private List<Integer> matching(String query) {
         String q=query.toLowerCase(Locale.ROOT);return IntStream.rangeClosed(1,rows().size()).filter(id->rows().get(id-1).stream().anyMatch(v->v.toLowerCase(Locale.ROOT).contains(q))).boxed().collect(Collectors.toList());
     }
+    private static BigDecimal bound(JsonNode filter, String key) {
+        if (!filter.has(key)) return null;
+        check(filter.get(key).isNumber(), key + " 必须是数值");
+        return filter.get(key).decimalValue();
+    }
+
+    private static BigDecimal quantity(String cell, String unit) {
+        String text = cell.trim();
+        if (!text.endsWith(unit)) return null;
+        try {
+            return new BigDecimal(text.substring(0, text.length() - unit.length()).trim());
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
     private static int compare(String a,String b) {
         try{return new java.math.BigDecimal(a.trim()).compareTo(new java.math.BigDecimal(b.trim()));}catch(NumberFormatException e){return a.compareToIgnoreCase(b);}
     }
