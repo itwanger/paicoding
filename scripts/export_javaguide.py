@@ -20,7 +20,7 @@ def main():
    body=re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', body)
    body=re.sub(r'&#(?:0*([0-8]|1[124-9]|2[0-9]|3[01])|x0*([0-8bcef]|1[0-9a-f]));', '', body, flags=re.I)
   sheet_stats=[]
-  if d.get('format')=='lakesheet':md,sheet_stats=to_markdown(body)
+  if d.get('format')=='lakesheet':md,sheet_stats=to_markdown(body, slug)
   else:md=board_to_markdown(body) if d.get('format')=='lakeboard' else html_to_markdown(clean_html(body,path,paths,{})) if body.strip() else ''
   path.write_text('# '+d['title']+'\n\n'+md+'\n')
   report.append({'sourceSlug':slug,'title':d['title'],'path':str(path.relative_to(a.output)),'format':d.get('format'),'status':d.get('status'),'inToc':slug not in extra,'bodyChars':len(md),'sheets':sheet_stats})

@@ -17,7 +17,7 @@ def main():
    rec=state['articles'][r['slug']];d=api(target,'article/detail?articleId='+rec['articleId']);assert sha(d['content'])==rec['sha256'] and d['status']==1
   state['verified']=False;checkpoint(state)
   for r in tables:
-   md,_=to_markdown(docs[r['sourceSlug']]['body'])
+   md,_=to_markdown(docs[r['sourceSlug']]['body'], r['sourceSlug'])
    for old,item in migration.items():
     if item.get('cdnUrl'):md=md.replace(old,item['cdnUrl'])
    (DOCS/r['path']).write_text('# '+r['title']+'\n\n'+md+'\n')
