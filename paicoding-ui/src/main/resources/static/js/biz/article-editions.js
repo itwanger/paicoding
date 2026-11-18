@@ -140,6 +140,7 @@
         if (typeof invalidateHighlightAiRequest === 'function') invalidateHighlightAiRequest('edition-switch');
         if (window.aiCommentBot?.cancel) window.aiCommentBot.cancel();
         if (typeof resetEditionHighlights === 'function') resetEditionHighlights();
+        if (typeof window.resetArticleTables === 'function') window.resetArticleTables();
         document.getElementById('articleContent').innerHTML = doc.getElementById('articleContent').innerHTML;
         document.getElementById('postsTitle').textContent = doc.getElementById('postsTitle').textContent;
         document.getElementById('articleEditionControls').replaceWith(doc.getElementById('articleEditionControls'));
@@ -158,6 +159,7 @@
         if (typeof generateTocMenu === 'function') generateTocMenu();
         else if (typeof genTocMenu === 'function') genTocMenu('#articleContent', '#contentMenu');
         if (typeof initArticleImages === 'function') initArticleImages();
+        if (typeof window.initArticleTables === 'function') window.initArticleTables();
         requestAnimationFrame(() => {
           if (typeof resetEditionScrollProgress === 'function') resetEditionScrollProgress();
           scrollTo(positions.get(String(id) + ":" + data.context.selectedDetailId) || 0);

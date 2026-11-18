@@ -7,6 +7,7 @@ import com.github.paicoding.forum.api.model.vo.Status;
 import com.github.paicoding.forum.api.model.vo.constants.StatusEnum;
 import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.core.util.SpringUtil;
+import com.github.paicoding.forum.service.table.TableException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.NestedRuntimeException;
@@ -56,8 +57,17 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             try {
                 response.reset();
                 // 若是rest接口请求异常时，返回json格式的异常数据；而不是专门的500页面
+                if (ex instanceof TableException) {
+                    response.setStatus(((TableException) ex).getHttpStatus());
+                    response.setHeader("Cache-Control", "private, no-store");
+                } else if (ex instanceof org.springframework.http.converter.HttpMessageNotReadableException
+                        && request.getRequestURI().startsWith("/api/tables")) {
+                    response.setStatus(400);
+                    response.setHeader("Cache-Control", "private, no-store");
+                } else {
+                    response.setHeader("Cache-Control", "no-cache, must-revalidate");
+                }
                 response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-                response.setHeader("Cache-Control", "no-cache, must-revalidate");
                 response.getWriter().println(JsonUtil.toStr(ResVo.fail(errStatus)));
                 response.getWriter().flush();
                 response.getWriter().close();
@@ -92,6 +102,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
         } else if (ex instanceof HttpRequestMethodNotSupportedException
                 || ex instanceof MethodArgumentTypeMismatchException
                 || ex instanceof ServletRequestBindingException
+                || ex instanceof org.springframework.http.converter.HttpMessageNotReadableException
                 || ex instanceof IOException) {
             // 请求方法/参数不匹配，是调用方的问题，记 warn 即可
             log.warn("illegal request! {}", ReqInfoContext.getReqInfo(), ex);
@@ -151,7 +162,7 @@ public class ForumExceptionHandler implements HandlerExceptionResolver {
             return true;
         }
 
-        if (request.getRequestURI().startsWith("/image/upload")) {
+        if (request.getRequestURI().startsWith("/image/upload") || request.getRequestURI().startsWith("/api/")) {
             return true;
         }
 

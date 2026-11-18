@@ -1,7 +1,13 @@
 const highlightBlocks = 'p,li,ul,h1,h2,h3,h4,h5,h6';
 const contextLengths = [8, 32];
 
+function isSyntheticArticleUi(node) {
+    const el = node && (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement);
+    return !!(el && el.closest && el.closest('.pai-article-ui'));
+}
+
 function highlightBlock(node) {
+    if (isSyntheticArticleUi(node)) return null;
     const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
     return el.closest && el.closest(highlightBlocks);
 }
@@ -9,12 +15,17 @@ function highlightBlock(node) {
 function canShowCommentIcon(range) {
     const article = document.getElementById('articleContent');
     return article && article.contains(range.startContainer) && article.contains(range.endContainer)
+        && !isSyntheticArticleUi(range.startContainer) && !isSyntheticArticleUi(range.endContainer)
         && highlightBlock(range.startContainer) && !range.collapsed;
 }
 
 // Index DOM text in UTF-16 units, the same units used by Range offsets and String.slice.
 function indexHighlightText(article) {
-    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+            return isSyntheticArticleUi(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+        }
+    });
     const nodes = [];
     let text = '';
     while (walker.nextNode()) {
@@ -46,21 +57,33 @@ function rangeToElementJSON(range) {
     if (!range || !canShowCommentIcon(range)) return null;
     const article = document.getElementById('articleContent');
     const block = highlightBlock(range.startContainer);
+    const index = indexHighlightText(article);
+    const startProbe = range.cloneRange();
+    startProbe.collapse(true);
+    let textStart = 0;
+    for (const item of index.nodes) {
+        if (item.node === range.startContainer) {
+            textStart = item.start + range.startOffset;
+            break;
+        }
+        if (startProbe.comparePoint(item.node, item.node.length) <= 0) {
+            textStart = item.end;
+        } else if (startProbe.comparePoint(item.node, 0) >= 0) {
+            break;
+        }
+    }
     const before = range.cloneRange();
-    before.selectNodeContents(article);
-    before.setEnd(range.startContainer, range.startOffset);
-    const textStart = before.toString().length;
     before.selectNodeContents(block);
     before.setEnd(range.startContainer, range.startOffset);
     const startOffset = before.toString().length;
     const selectedText = range.toString();
-    const text = article.textContent;
+    const text = index.text;
     const tag = block.tagName.toLowerCase();
     return {
         elementTag: tag,
-        elementIndex: Array.from(article.querySelectorAll(tag)).indexOf(block),
+        elementIndex: Array.from(article.querySelectorAll(tag)).filter(el => !isSyntheticArticleUi(el)).indexOf(block),
         startOffset, endOffset: startOffset + selectedText.length, selectedText,
-        textStart, textFingerprint: highlightFingerprint(text),
+        textStart, textFingerprint: index.fingerprint,
         context: highlightContext(text, textStart, textStart + selectedText.length),
         repeated: text.indexOf(selectedText) !== text.lastIndexOf(selectedText)
     };
