@@ -234,8 +234,7 @@
     wrapper.append(table);
   }
 
-  function enhanceInteractive(table, index, usedTitles) {
-    const rows = Array.from(table.rows);
+  function enhanceInteractive(table, index, usedTitles, rows, notes) {
     const columns = Array.from(rows[0].cells).map((c, i) => extractCellText(c) || ('列 ' + (i + 1)));
     const article = table.closest('#articleContent');
     const headings = Array.from(article.querySelectorAll('h1,h2,h3,h4,h5,h6'))
@@ -409,6 +408,11 @@
     const exportButton = button('导出 CSV', () => downloadCsvForSpec(null), 'pai-btn-export');
     footer.append(count, exportButton);
     ui.append(footer);
+    for (const cell of notes) {
+      const note = rich(cell);
+      note.className = 'pai-table-note';
+      ui.append(note);
+    }
 
     let selected = null;
     let mode = 'detail';
@@ -1033,25 +1037,34 @@
       const rows = Array.from(table.rows);
       if (rows.length < 2) return;
       const colCount = rows[0].cells.length;
-      const irregular = colCount === 0 || rows.some(r =>
+      // A full-width note after the records belongs below the grid.
+      const notes = [];
+      while (colCount > 1 && rows.length > 1) {
+        const last = rows[rows.length - 1];
+        const cell = last.cells[0];
+        if (last.cells.length !== 1 || cell.colSpan !== colCount || cell.rowSpan !== 1) break;
+        notes.unshift(cell);
+        rows.pop();
+      }
+      const irregular = rows.length < 2 || colCount === 0 || rows.some(r =>
         r.cells.length > colCount || Array.from(r.cells).some(c => c.colSpan !== 1 || c.rowSpan !== 1)
       );
       const dataRowCount = rows.length - 1;
-      const textLen = (table.textContent || '').trim().length;
+      const textLen = rows.reduce((size, row) => size + row.textContent.trim().length, 0);
       const isSmallSimple = dataRowCount < 4 && colCount < 5 && textLen < 320;
       if (irregular || isSmallSimple) {
         wrapCompactTable(table);
       } else {
-        interactiveCandidates.push({ table, idx });
+        interactiveCandidates.push({ table, idx, rows, notes });
       }
     });
 
     if (!interactiveCandidates.length) return;
     ensureTabulator().then(() => {
       const usedTitles = new Map();
-      interactiveCandidates.forEach(({ table, idx }) => {
+      interactiveCandidates.forEach(({ table, idx, rows, notes }) => {
         if (document.body.contains(table)) {
-          enhanceInteractive(table, idx, usedTitles);
+          enhanceInteractive(table, idx, usedTitles, rows, notes);
         }
       });
     }).catch(() => {

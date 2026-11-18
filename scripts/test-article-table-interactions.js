@@ -8,7 +8,8 @@ const tasks = ['整理知识点', '复习', '练习', '自测'];
 const rows = tasks.map((task, i) =>
   `<tr><td>${i + 1}</td><td>${task.repeat(16)}</td></tr>`).join('');
 const article = `<main class="article-info-wrap"><div id="articleContent">
-  <table><tr><th>天</th><th>任务</th></tr>${rows}</table></div></main>`;
+  <table><tr><th>天</th><th>任务</th></tr>${rows}<tr><td colspan="2">月末<a href="#review">复盘</a></td></tr></table>
+  <table><tr><th>天</th><th>任务</th></tr><tr><td rowspan="2">周一</td><td>算法</td></tr><tr><td>练习</td></tr>${rows}</table></div></main>`;
 
 function fixture(chapter) {
   const layout = chapter
@@ -46,6 +47,9 @@ async function check(browser, width, chapter) {
     const table = page.locator('.pai-article-table');
     const button = name => table.getByRole('button', { name, exact: true }).first();
     await table.locator('.tabulator-row').first().waitFor();
+    assert.equal(await table.locator('.pai-row-num').count(), tasks.length);
+    assert.equal(await table.locator('.pai-table-note a').getAttribute('href'), '#review');
+    assert.equal(await page.locator('.pai-article-table-compact td[rowspan="2"]:visible').count(), 1);
     const originalWidth = (await table.boundingBox()).width;
     await button('展开').click();
     const expandedWidth = (await table.boundingBox()).width;
@@ -73,6 +77,7 @@ async function check(browser, width, chapter) {
     await table.getByText('已调整', { exact: true }).waitFor();
     assert.equal(requests.length, 2);
     assert.equal(requests[1].action, 'ask');
+    assert.equal(requests[1].rows.length, tasks.length);
     assert.equal(await input.inputValue(), '');
     assert.deepEqual(await table.locator('.pai-row-num').allTextContents(), ['3', '1']);
     if (chapter) await page.keyboard.press('Escape');

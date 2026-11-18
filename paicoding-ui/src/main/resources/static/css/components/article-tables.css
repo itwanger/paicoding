@@ -308,7 +308,7 @@
   line-height: inherit;
   margin: 0;
 }
-#articleContent .pai-table-cell a, .pai-table-record a {
+#articleContent .pai-table-cell a, .pai-table-record a, #articleContent .pai-table-note a {
   color: #de711f;
   text-decoration: underline !important;
   text-underline-offset: 3px;
@@ -413,7 +413,13 @@
   overflow-wrap: anywhere;
   color: #1e293b;
 }
-.pai-table-record img { max-width: 100%; }
+.pai-table-note {
+  border-top: 1px solid #edf0f4;
+  padding: 12px 16px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.pai-table-note img, .pai-table-record img { max-width: 100%; }
 
 .pai-table-ai-actions {
   display: flex;
