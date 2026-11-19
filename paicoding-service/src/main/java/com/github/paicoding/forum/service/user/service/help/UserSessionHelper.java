@@ -24,9 +24,11 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -53,6 +55,7 @@ public class UserSessionHelper {
     private static final String SESSION_VERSION_CLAIM = "sv";
     private static final String USER_SESSION_PREFIX = "user_sessions:";
     private static final String SESSION_META_PREFIX = "session_meta:";
+    static final int MAX_SESSION_META_BYTES = 8192;
     private static final String SESSION_TOUCH_PREFIX = "session_touch:";
     private static final String USER_LOGOUT_REASON = "USER_LOGOUT";
     private static final String DEVICE_LIMIT_KICKOUT_REASON = "DEVICE_LIMIT_KICKOUT";
@@ -93,6 +96,26 @@ public class UserSessionHelper {
         private Long loginTime;
         private Long latestSeenTime;
         private Long expireTime;
+
+        // 与会话审计表的 varchar 长度一致，按 Unicode 码点截断，保留完整字符。
+        private void limitFields() {
+            loginName = limit(loginName, 128);
+            starNumber = limit(starNumber, 32);
+            deviceId = limit(deviceId, 64);
+            deviceName = limit(deviceName, 128);
+            userAgent = limit(userAgent, 512);
+            uaHash = limit(uaHash, 64);
+            ip = limit(ip, 64);
+            region = limit(region, 128);
+        }
+
+        private static String limit(String value, int maxChars) {
+            if (value == null || value.length() <= maxChars) {
+                return value;
+            }
+            int end = Character.offsetByCodePoints(value, 0, Math.min(maxChars, value.codePointCount(0, value.length())));
+            return value.substring(0, end);
+        }
     }
 
     private final JwtProperties jwtProperties;
@@ -135,6 +158,7 @@ public class UserSessionHelper {
         long expireTime = now + jwtProperties.getExpire();
         SessionDeviceMeta sessionMeta = buildSessionMeta(userId, loginName, loginType, now, expireTime);
         mergeSessionDeviceMeta(sessionMeta, sourceMeta);
+        sessionMeta.limitFields();
         UserDO user = userDao.getUserByUserId(userId);
         assertUserLoginAllowed(userId, user, loginName, loginType, sessionMeta);
         String riskTag = enforceDeviceLimit(userId, sessionMeta);
@@ -147,7 +171,7 @@ public class UserSessionHelper {
         // 但是需要考虑到用户登出，需要主动失效这个token，而jwt本身无状态，所以再这里的redis做一个简单的token -> userId的缓存，用于双重判定
         long expireSeconds = jwtProperties.getExpire() / 1000;
         RedisClient.setStrWithExpire(token, String.valueOf(userId), expireSeconds);
-        RedisClient.setStrWithExpire(sessionMetaKey(token), JsonUtil.toStr(sessionMeta), expireSeconds);
+        writeSessionMeta(token, sessionMeta, expireSeconds);
 
         // 3.维护用户的 session 索引，用于快速踢人下线
         String userSessionKey = userSessionKey(userId);
@@ -274,10 +298,10 @@ public class UserSessionHelper {
                 removeSession(session, ACCOUNT_SUSPENDED_REASON);
                 return null;
             }
-            refreshSessionMeta(session, userId, clientIp, deviceId, userAgent);
+            refreshSessionMeta(session, userId, clientIp, deviceId, userAgent, decodedJWT.getExpiresAt());
             return userId;
         } catch (Exception e) {
-            log.debug("jwt token校验失败! token: {}, msg: {}", session, e.getMessage());
+            log.debug("会话校验失败，异常类型 {}", e.getClass().getSimpleName());
             // 如果jwt过期，自动删除用户的cookie；主要是为了解决jwt的有效期与cookie有效期不一致的场景
             try {
                 SessionUtil.delCookies(LoginService.SESSION_KEY);
@@ -303,13 +327,14 @@ public class UserSessionHelper {
         Map<String, Long> deviceLoginTime = new HashMap<>();
         List<String> staleSessions = new ArrayList<>();
         for (String session : sessions) {
-            SessionDeviceMeta meta = getSessionMeta(session);
             String bindUserId = RedisClient.getStr(session);
-            if (meta == null || bindUserId == null || !Objects.equals(String.valueOf(userId), bindUserId)) {
+            if (!Objects.equals(String.valueOf(userId), bindUserId)) {
                 staleSessions.add(session);
                 continue;
             }
 
+            // 已绑定的旧会话即使缺少设备资料也必须计入设备数。
+            SessionDeviceMeta meta = Optional.ofNullable(getSessionMeta(session)).orElseGet(SessionDeviceMeta::new);
             String existDeviceId = normalizeDeviceId(meta.getDeviceId(), meta.getUaHash(), session);
             deviceSessions.computeIfAbsent(existDeviceId, key -> new ArrayList<>()).add(session);
             deviceLoginTime.merge(existDeviceId, Optional.ofNullable(meta.getLoginTime()).orElse(Long.MAX_VALUE), Math::min);
@@ -341,7 +366,7 @@ public class UserSessionHelper {
         return "DEVICE_LIMIT_REPLACED";
     }
 
-    private void refreshSessionMeta(String session, Long userId, String clientIp, String deviceId, String userAgent) {
+    private void refreshSessionMeta(String session, Long userId, String clientIp, String deviceId, String userAgent, Date tokenExpiry) {
         SessionDeviceMeta meta = Optional.ofNullable(getSessionMeta(session))
                 .orElseGet(() -> buildSessionMeta(userId, null, null, System.currentTimeMillis(), System.currentTimeMillis() + jwtProperties.getExpire()));
 
@@ -361,11 +386,14 @@ public class UserSessionHelper {
         meta.setLatestSeenTime(System.currentTimeMillis());
 
         Long ttl = RedisClient.ttl(session);
-        if (ttl != null && ttl > 0) {
-            RedisClient.setStrWithExpire(sessionMetaKey(session), JsonUtil.toStr(meta), ttl);
-        } else {
-            RedisClient.setStr(sessionMetaKey(session), JsonUtil.toStr(meta));
+        if (Long.valueOf(-1L).equals(ttl) && tokenExpiry != null) {
+            ttl = (tokenExpiry.getTime() - System.currentTimeMillis()) / 1000;
         }
+        if (ttl == null || ttl <= 0) {
+            return;
+        }
+        meta.limitFields();
+        writeSessionMeta(session, meta, ttl);
 
         if (Boolean.TRUE.equals(RedisClient.setStrIfAbsentWithExpire(sessionTouchKey(session), "1",
                 Optional.ofNullable(loginRiskProperties.getTouchSyncSeconds()).orElse(300).longValue()))) {
@@ -397,17 +425,38 @@ public class UserSessionHelper {
         return meta;
     }
 
+    private void writeSessionMeta(String session, SessionDeviceMeta meta, long ttl) {
+        String json = JsonUtil.toStr(meta);
+        if (json.getBytes(StandardCharsets.UTF_8).length > MAX_SESSION_META_BYTES) {
+            throw new IllegalStateException("会话元数据超过字节上限");
+        }
+        RedisClient.setStrWithExpire(sessionMetaKey(session), json, ttl);
+    }
+
     private SessionDeviceMeta getSessionMeta(String session) {
-        String meta = RedisClient.getStr(sessionMetaKey(session));
-        if (StringUtils.isBlank(meta)) {
+        // GETRANGE 的结束下标包含在内，多取一个字节即可识别历史大值。
+        byte[] raw = redisTemplate.execute((RedisCallback<byte[]>) connection ->
+                connection.getRange(RedisClient.keyBytes(sessionMetaKey(session)), 0, MAX_SESSION_META_BYTES));
+        if (raw == null || raw.length == 0) {
             return null;
         }
-        try {
-            return JsonUtil.toObj(meta, SessionDeviceMeta.class);
-        } catch (Exception e) {
-            log.warn("解析session元数据失败: {}", session, e);
-            return null;
+        if (raw.length <= MAX_SESSION_META_BYTES) {
+            try {
+                SessionDeviceMeta meta = JsonUtil.toObj(new String(raw, StandardCharsets.UTF_8), SessionDeviceMeta.class);
+                if (meta != null && (meta.loginName == null || meta.loginName.codePointCount(0, meta.loginName.length()) <= 128)) {
+                    return meta;
+                }
+            } catch (RuntimeException ignored) {
+                // 旧数据损坏时从会话审计表恢复，不把凭证或缓存内容写入日志。
+            }
         }
+        String hash = buildSessionHash(session);
+        log.warn("会话元数据损坏，从审计记录恢复 sessionHash={}", hash);
+        SessionDeviceMeta restored = loginAuditService.findActiveSessionMeta(hash);
+        if (restored != null) {
+            restored.setStarNumber(resolveStarNumber(restored.getUserId(), restored.getLoginName()));
+        }
+        return restored;
     }
 
     private String resolveRegion(String clientIp) {

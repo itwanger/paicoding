@@ -100,7 +100,7 @@ public class RedisClient {
     public static String getStr(String key) {
         return template.execute((RedisCallback<String>) con -> {
             byte[] val = con.get(keyBytes(key));
-            return val == null ? null : new String(val);
+            return val == null ? null : new String(val, CODE);
         });
     }
 
@@ -185,7 +185,7 @@ public class RedisClient {
                 continue;
             }
 
-            result.put(new String(entry.getKey()), toObj(entry.getValue(), clz));
+            result.put(new String(entry.getKey(), CODE), toObj(entry.getValue(), clz));
         }
         return result;
     }

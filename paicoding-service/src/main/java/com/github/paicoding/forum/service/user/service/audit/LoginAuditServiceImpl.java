@@ -107,6 +107,31 @@ public class LoginAuditServiceImpl implements LoginAuditService {
     }
 
     @Override
+    public UserSessionHelper.SessionDeviceMeta findActiveSessionMeta(String sessionHash) {
+        UserActiveSessionDO row = userActiveSessionDao.lambdaQuery()
+                .eq(UserActiveSessionDO::getSessionHash, sessionHash)
+                .isNull(UserActiveSessionDO::getOfflineTime)
+                .one();
+        if (row == null) {
+            return null;
+        }
+        UserSessionHelper.SessionDeviceMeta meta = new UserSessionHelper.SessionDeviceMeta();
+        meta.setUserId(row.getUserId());
+        meta.setLoginName(row.getLoginName());
+        meta.setLoginType(row.getLoginType());
+        meta.setDeviceId(row.getDeviceId());
+        meta.setDeviceName(row.getDeviceName());
+        meta.setUserAgent(row.getUserAgent());
+        meta.setUaHash(row.getUaHash());
+        meta.setIp(row.getIp());
+        meta.setRegion(row.getRegion());
+        meta.setLoginTime(row.getCreateTime().getTime());
+        meta.setLatestSeenTime(row.getLatestSeenTime().getTime());
+        meta.setExpireTime(row.getExpireTime().getTime());
+        return meta;
+    }
+
+    @Override
     public void recordSessionOffline(String sessionHash, String reason, UserSessionHelper.SessionDeviceMeta sessionMeta, boolean kickout) {
         if (StringUtils.isBlank(sessionHash)) {
             return;

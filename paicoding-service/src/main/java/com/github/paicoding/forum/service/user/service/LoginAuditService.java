@@ -26,6 +26,8 @@ public interface LoginAuditService {
 
     Set<String> getActiveSessionHashes(Long userId);
 
+    UserSessionHelper.SessionDeviceMeta findActiveSessionMeta(String sessionHash);
+
     void recordSessionOffline(String sessionHash, String reason, UserSessionHelper.SessionDeviceMeta sessionMeta, boolean kickout);
 
     void upsertActiveSession(UserSessionHelper.SessionDeviceMeta sessionMeta, String sessionHash);

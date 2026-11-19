@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.github.paicoding.forum.api.model.enums.user.UserAIStatEnum;
 import com.github.paicoding.forum.core.cache.RedisClient;
 import com.github.paicoding.forum.core.util.Md5Util;
+import com.github.paicoding.forum.core.util.JsonUtil;
 import com.github.paicoding.forum.service.user.repository.dao.UserAiDao;
 import com.github.paicoding.forum.service.user.repository.dao.UserDao;
 import com.github.paicoding.forum.service.user.repository.entity.UserAiDO;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -24,6 +27,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -51,7 +55,7 @@ class UserSessionRevocationTest {
     void setUp() {
         previousRedis = (RedisTemplate<String, String>) ReflectionTestUtils.getField(RedisClient.class, "template");
         RedisClient.register(redis);
-        when(redis.opsForSet()).thenReturn(sets);
+        lenient().when(redis.opsForSet()).thenReturn(sets);
         lenient().when(redis.execute(any(RedisCallback.class))).thenAnswer(call ->
                 ((RedisCallback<?>) call.getArgument(0)).doInRedis(connection));
         UserSessionHelper.JwtProperties jwt = new UserSessionHelper.JwtProperties();
@@ -133,6 +137,76 @@ class UserSessionRevocationTest {
         verify(audit, times(1)).recordSessionOffline(eq(hash), eq("FORCE_KICKOUT"), any(), eq(true));
         verify(redis, never()).delete(anyString());
         verify(connection, never()).scan(any());
+    }
+
+    @Test
+    void repairOversizedMetaFromAuditWithoutReadingFullValue() {
+        String token = validToken();
+        byte[] binding = RedisClient.keyBytes(token);
+        byte[] key = RedisClient.keyBytes("session_meta:" + token);
+        when(connection.get(binding)).thenReturn(RedisClient.valBytes("7"));
+        when(connection.ttl(binding)).thenReturn(35L);
+        when(connection.getRange(key, 0, UserSessionHelper.MAX_SESSION_META_BYTES))
+                .thenReturn(new byte[UserSessionHelper.MAX_SESSION_META_BYTES + 1]);
+        UserSessionHelper.SessionDeviceMeta row = new UserSessionHelper.SessionDeviceMeta();
+        row.setUserId(7L);
+        row.setLoginName("测试用户");
+        row.setDeviceId("original-device");
+        when(audit.findActiveSessionMeta(Md5Util.encode(token))).thenReturn(row);
+
+        assertThat(sessions.getUserIdBySession(token)).isEqualTo(7L);
+        ArgumentCaptor<byte[]> value = ArgumentCaptor.forClass(byte[].class);
+        verify(connection).setEx(eq(key), eq(35L), value.capture());
+        UserSessionHelper.SessionDeviceMeta saved = decode(value.getValue());
+        assertThat(saved.getLoginName()).isEqualTo("测试用户");
+        assertThat(saved.getDeviceId()).isEqualTo("original-device");
+        verify(connection, never()).get(key);
+        verify(connection, never()).setEx(eq(binding), anyLong(), any());
+    }
+
+    @Test
+    void expiredBindingCannotCreatePersistentMetadata() {
+        String token = validToken();
+        byte[] binding = RedisClient.keyBytes(token);
+        when(connection.get(binding)).thenReturn(RedisClient.valBytes("7"));
+        when(connection.ttl(binding)).thenReturn(-2L);
+        sessions.getUserIdBySession(token);
+        verify(connection, never()).set(any(), any());
+        verify(connection, never()).setEx(any(), anyLong(), any());
+    }
+
+    @Test
+    void capNewSessionFieldsAndReadUtf8RegardlessOfJvmLocale() {
+        UserDO user = new UserDO();
+        user.setSessionVersion(0L);
+        when(users.getUserByUserId(7L)).thenReturn(user);
+        UserSessionHelper.SessionDeviceMeta source = new UserSessionHelper.SessionDeviceMeta();
+        source.setDeviceId(StringUtils.repeat("设", 200));
+        source.setUserAgent(StringUtils.repeat("\u0001", 4000));
+        String character = new String(Character.toChars(0x1F600));
+        String token = sessions.genSession(7L, StringUtils.repeat(character, 5000), 1, source);
+        ArgumentCaptor<byte[]> value = ArgumentCaptor.forClass(byte[].class);
+        verify(connection).setEx(eq(RedisClient.keyBytes("session_meta:" + token)), eq(60L), value.capture());
+        UserSessionHelper.SessionDeviceMeta saved = decode(value.getValue());
+        assertThat(saved.getLoginName()).isEqualTo(StringUtils.repeat(character, 128));
+        assertThat(saved.getDeviceId()).isEqualTo(StringUtils.repeat("设", 64));
+        assertThat(saved.getUserAgent()).hasSize(512);
+        when(connection.get(RedisClient.keyBytes("unicode"))).thenReturn(RedisClient.valBytes("中文" + character));
+        assertThat(RedisClient.getStr("unicode")).isEqualTo("中文" + character);
+    }
+
+    private String validToken() {
+        UserDO user = new UserDO();
+        user.setSessionVersion(0L);
+        when(users.getUserByUserId(7L)).thenReturn(user);
+        return JWT.create().withIssuer("test").withClaim("u", 7L)
+                .withExpiresAt(new Date(System.currentTimeMillis() + 60000))
+                .sign(Algorithm.HMAC256("session-revocation-test"));
+    }
+
+    private UserSessionHelper.SessionDeviceMeta decode(byte[] bytes) {
+        assertThat(bytes.length).isLessThanOrEqualTo(UserSessionHelper.MAX_SESSION_META_BYTES);
+        return JsonUtil.toObj(new String(bytes, StandardCharsets.UTF_8), UserSessionHelper.SessionDeviceMeta.class);
     }
 
     private UserAiDO account(long id, long userId) {
