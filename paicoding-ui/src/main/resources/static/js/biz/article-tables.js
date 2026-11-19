@@ -211,12 +211,19 @@
   }
 
   let activeWideClose = null;
+  let activePanelClose = null;
+  const narrowPanel = window.matchMedia('(max-width: 700px)');
+  function smartIcon() {
+    const icon = node('span', '🤖', 'pai-smart-icon');
+    icon.setAttribute('aria-hidden', 'true');
+    return icon;
+  }
   const instances = [];
 
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && activeWideClose) {
+    if (event.key === 'Escape' && !event.isComposing && !event.defaultPrevented && (activePanelClose || activeWideClose)) {
       event.preventDefault();
-      activeWideClose();
+      (activePanelClose || activeWideClose)();
     }
   });
 
@@ -404,28 +411,87 @@
     });
     columnToggle.setAttribute('aria-expanded', 'false');
 
-    const aiButton = button('表格智能体', () => openPanel(selected || data[0], 'ai'), 'pai-btn-ai');
+    const aiButton = button('问问派聪明', () => {
+      if (panel.open && mode === 'ai') closePanel();
+      else openPanel(selected || grid.getRows('active')[0]?.getData() || data[0], 'ai');
+    }, 'pai-btn-ai');
+    aiButton.prepend(smartIcon());
+    aiButton.setAttribute('aria-haspopup', 'dialog');
+    aiButton.setAttribute('aria-expanded', 'false');
     aiButton.hidden = true;
     let capabilitiesState = { ai: false, loggedIn: false };
     getCapabilities().then(cap => {
       capabilitiesState = cap;
       aiButton.hidden = !cap.ai || !data.length;
-      if (!panel.hidden) paintPanel();
+      if (panel.open) paintPanel();
     });
 
-    tools.append(search, undoneToggle, resetAgentViewBtn, group, columnToggle, aiButton);
+    top.insertBefore(aiButton, expandBtn);
+    tools.append(search, undoneToggle, resetAgentViewBtn, group, columnToggle);
     ui.append(tools, columnPanel);
 
-    // Body: Grid + Side/Bottom Detail & AI Panel
+    // The drawer lives outside the chapter’s clipped scroll container.
     const body = node('div', null, 'pai-table-body');
     const area = node('div', null, 'pai-table-grid-area');
     const host = node('div', null, 'pai-article-grid');
     host.addEventListener('wheel', scrollReaderAtGridEdge, { passive: false });
-    const panel = node('aside', null, 'pai-table-panel');
-    panel.hidden = true;
-    panel.setAttribute('aria-label', '行详情与 表格智能体');
+    const panel = node('dialog', null, 'pai-table-panel');
+    panel.id = 'pai-table-drawer-' + index;
+    aiButton.setAttribute('aria-controls', panel.id);
+    const panelTitle = node('strong');
+    panelTitle.id = panel.id + '-title';
+    panel.setAttribute('aria-labelledby', panelTitle.id);
+    const header = node('header');
+    const identity = node('div', null, 'pai-drawer-identity');
+    const heading = node('div');
+    heading.append(panelTitle, node('small', title));
+    identity.append(smartIcon(), heading);
+    const dismiss = button('×', () => closePanel(), 'pai-drawer-close');
+    dismiss.setAttribute('aria-label', '关闭侧栏');
+    header.append(identity, dismiss);
+    const context = node('div', null, 'pai-panel-row-picker');
+    const select = node('select');
+    select.setAttribute('aria-label', '选择当前行');
+    function rowLabel(record) {
+      return (doneSet.has(record._id) ? '✓ ' : '') + (record.c0 || ('第 ' + record._id + ' 行'));
+    }
+    data.forEach(r => select.append(new Option(rowLabel(r), String(r._id))));
+    select.onchange = () => openPanel(data.find(r => r._id === Number(select.value)), mode);
+    const switchMode = button('', () => openPanel(selected, mode === 'ai' ? 'detail' : 'ai'), 'pai-mode-switch');
+    const doneBtn = button('', () => toggleDone(selected._id), 'pai-btn-done');
+    context.append(node('span', '当前行'), select, doneBtn, switchMode);
+    const conversation = node('div', null, 'pai-drawer-content');
+    const form = node('form', null, 'pai-table-question');
+    const question = node('textarea');
+    question.rows = 2;
+    question.maxLength = 500;
+    question.placeholder = '问这张表，或输入筛选、排序指令…';
+    question.setAttribute('aria-label', '输入指令');
+    question.setAttribute('aria-keyshortcuts', 'Control+Enter Meta+Enter');
+    const send = node('button', '发送');
+    send.type = 'submit';
+    question.oninput = () => {
+      drafts.set(selected._id, question.value);
+      send.disabled = Boolean(activeStreamAbort) || !question.value.trim();
+    };
+    question.onkeydown = ev => {
+      if (!ev.isComposing && (ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+        ev.preventDefault();
+        if (!send.disabled) form.requestSubmit();
+      }
+    };
+    form.onsubmit = ev => {
+      ev.preventDefault();
+      if (!send.disabled) {
+        conversation.scrollTop = conversation.scrollHeight;
+        runAiAction(selected, 'ask', question.value.trim());
+      }
+    };
+    form.append(question, send);
+    panel.append(header, context, conversation, form);
+    panel.addEventListener('cancel', event => { event.preventDefault(); closePanel(); });
     area.append(host);
-    body.append(area, panel);
+    body.append(area);
     ui.append(body);
 
     // Footer
@@ -501,7 +567,7 @@
       const rowData = rowComponent.getData();
       if (!rowData) return;
       const el = rowComponent.getElement();
-      el.classList.toggle('pai-selected', Boolean(selected && rowData._id === selected._id && !panel.hidden));
+      el.classList.toggle('pai-selected', Boolean(selected && rowData._id === selected._id && panel.open));
       el.classList.toggle('is-done', doneSet.has(rowData._id));
       const chk = el.querySelector('.pai-row-check');
       if (chk) chk.checked = doneSet.has(rowData._id);
@@ -515,32 +581,62 @@
     function toggleDone(rowId) {
       if (doneSet.has(rowId)) doneSet.delete(rowId);
       else doneSet.add(rowId);
+      select.options[rowId - 1].text = rowLabel(data[rowId - 1]);
       syncProgressBadge();
       persistCurrent();
       refreshAllRowStates();
       if (persisted.undoneOnly) applyFilters();
-      if (!panel.hidden && selected && selected._id === rowId) paintPanel();
+      if (panel.open && selected && selected._id === rowId) paintPanel();
     }
 
-    function openPanel(record, nextMode) {
+    let opener = null;
+
+    function showDrawer() {
+      if (narrowPanel.matches) panel.showModal();
+      else panel.show();
+    }
+
+    function resizeDrawer() {
+      if (!panel.open) return;
+      panel.close();
+      showDrawer();
+    }
+
+    function openPanel(record, nextMode, trigger) {
       if (!record) return;
-      selected = record;
-      mode = nextMode || mode || 'detail';
-      panel.hidden = false;
-      body.classList.add('has-panel');
-      paintPanel();
-      refreshAllRowStates();
-      if (!isWide && window.innerWidth <= 900) {
-        panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      const opening = !panel.open;
+      if (activePanelClose && activePanelClose !== closePanel) activePanelClose(false);
+      if (opening) {
+        opener = trigger || (document.activeElement === document.body ? aiButton : document.activeElement);
+        document.body.append(panel);
+        document.body.classList.add('pai-drawer-open');
+        activePanelClose = closePanel;
       }
-    }
-
-    function closePanel() {
-      panel.hidden = true;
-      body.classList.remove('has-panel');
+      const changed = record !== selected || nextMode !== mode;
+      selected = record;
+      mode = nextMode;
+      paintPanel();
+      if (opening) {
+        showDrawer();
+        narrowPanel.addEventListener('change', resizeDrawer);
+        if (mode === 'ai' && !narrowPanel.matches) question.focus({ preventScroll: true });
+        else dismiss.focus({ preventScroll: true });
+      }
+      if (opening || changed) conversation.scrollTop = mode === 'ai' ? conversation.scrollHeight : 0;
       refreshAllRowStates();
     }
 
+    function closePanel(restoreFocus = true) {
+      if (activePanelClose !== closePanel) return;
+      activePanelClose = null;
+      narrowPanel.removeEventListener('change', resizeDrawer);
+      panel.close();
+      panel.remove();
+      document.body.classList.remove('pai-drawer-open');
+      aiButton.setAttribute('aria-expanded', 'false');
+      refreshAllRowStates();
+      if (restoreFocus) (opener?.isConnected ? opener : aiButton).focus({ preventScroll: true });
+    }
     function renderQuizOrMarkdown(container, text) {
       const marker = text.indexOf('【参考答案】');
       if (marker >= 0) {
@@ -558,36 +654,19 @@
     }
 
     function paintPanel() {
-      panel.replaceChildren();
-      const activeRecord = selected || data[0];
-      if (!activeRecord) return;
-      selected = activeRecord;
-
-      const header = node('header');
-      const selectWrap = node('div', null, 'pai-panel-row-picker');
-      const select = node('select');
-      select.setAttribute('aria-label', '选择当前行');
-      data.forEach(r => {
-        const prefix = doneSet.has(r._id) ? '✓ ' : '';
-        select.append(new Option(prefix + (r.c0 || ('第 ' + r._id + ' 行')), String(r._id)));
-      });
+      if (activePanelClose !== closePanel) return;
+      const follow = conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 40;
+      const previousTop = conversation.scrollTop;
+      conversation.replaceChildren();
+      panelTitle.textContent = mode === 'ai' ? '问问派聪明' : '行详情';
       select.value = String(selected._id);
-      select.onchange = () => openPanel(data.find(r => r._id === Number(select.value)), mode);
-
-      const doneBtn = button(doneSet.has(selected._id) ? '✓ 已打卡' : '打卡完成', () => toggleDone(selected._id),
-        'pai-btn-done' + (doneSet.has(selected._id) ? ' is-done' : ''));
-      selectWrap.append(select, doneBtn);
-      header.append(selectWrap, button('关闭', closePanel, 'pai-btn-close'));
-      panel.append(header);
-
-      const tabs = node('div', null, 'pai-table-panel-tabs');
-      [['detail', '完整内容'], ['ai', '表格智能体']].forEach(([key, label]) => {
-        if (key === 'ai' && aiButton.hidden) return;
-        const b = button(label, () => { mode = key; paintPanel(); });
-        b.setAttribute('aria-pressed', String(mode === key));
-        tabs.append(b);
-      });
-      panel.append(tabs);
+      switchMode.textContent = mode === 'ai' ? '查看行详情' : '问问派聪明';
+      switchMode.hidden = mode === 'detail' && aiButton.hidden;
+      doneBtn.hidden = mode === 'ai';
+      doneBtn.textContent = doneSet.has(selected._id) ? '✓ 已打卡' : '打卡完成';
+      doneBtn.classList.toggle('is-done', doneSet.has(selected._id));
+      aiButton.setAttribute('aria-expanded', String(mode === 'ai' && activePanelClose === closePanel));
+      form.hidden = mode !== 'ai';
 
       if (mode === 'detail') {
         const list = node('dl', null, 'pai-table-record');
@@ -599,7 +678,7 @@
           dd.append(richCell.cloneNode(true));
           list.append(dd);
         });
-        panel.append(list);
+        conversation.append(list);
         return;
       }
 
@@ -618,10 +697,29 @@
           }
         });
         b.disabled = isAnyPending && !(cached && cached.pending);
-        b.setAttribute('aria-pressed', String(currentPresetAction === act));
+        b.setAttribute('aria-pressed', String(Boolean(cached) && currentPresetAction === act));
         actions.append(b);
       });
-      panel.append(actions);
+      const history = qaHistory.get(selected._id) || [];
+      if (!history.length && !actionCache.has(selected._id + ':' + currentPresetAction)) {
+        const welcome = node('div', null, 'pai-drawer-welcome');
+        welcome.append(node('strong', '想怎么处理这张表？'));
+        const suggestions = node('div', null, 'pai-drawer-suggestions');
+        for (const [label, prompt] of [['总结当前视图', '总结当前视图里的记录和重点。'], ['导出筛选结果', '将当前筛选结果按页面顺序导出为 CSV。']]) {
+          const suggestion = button(label, () => {
+            question.value = prompt;
+            question.oninput();
+            question.focus();
+          });
+          const icon = node('span', label === '总结当前视图' ? '≡' : '↓', 'pai-prompt-icon');
+          icon.setAttribute('aria-hidden', 'true');
+          suggestion.prepend(icon);
+          suggestions.append(suggestion);
+        }
+        welcome.append(suggestions);
+        conversation.append(welcome);
+      }
+      conversation.append(node('div', '围绕当前行', 'pai-actions-label'), actions);
 
       const presetKey = selected._id + ':' + currentPresetAction;
       const presetState = actionCache.get(presetKey);
@@ -647,43 +745,15 @@
           }
           box.append(metaBar);
         }
-        panel.append(box);
+        conversation.append(box);
       }
 
       // Custom Question Form & Thread
       const qaSection = node('div', null, 'pai-ai-qa-section');
-      const form = node('form', null, 'pai-table-question');
-      const question = node('textarea');
-      question.rows = 2;
-      question.maxLength = 500;
-      question.placeholder = '输入指令…';
-      question.setAttribute('aria-label', '输入指令');
-      question.setAttribute('aria-keyshortcuts', 'Control+Enter Meta+Enter');
-      const rowId = selected._id;
-      question.value = drafts.get(rowId) || '';
-      const send = node('button', '发送');
-      send.type = 'submit';
-      send.disabled = isAnyPending || !question.value.trim();
-      question.oninput = () => {
-        drafts.set(rowId, question.value);
-        send.disabled = isAnyPending || !question.value.trim();
-      };
-      question.onkeydown = ev => {
-        if (!ev.isComposing && (ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
-          ev.preventDefault();
-          form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
-        }
-      };
-      form.append(question, send);
-      form.onsubmit = event => {
-        event.preventDefault();
-        const q = question.value.trim();
-        if (q) runAiAction(selected, 'ask', q);
-      };
-      qaSection.append(form);
-
-      const history = qaHistory.get(rowId) || [];
-      history.slice().reverse().forEach(item => {
+      const draft = drafts.get(selected._id) || '';
+      if (question.value !== draft) question.value = draft;
+      send.disabled = isAnyPending || !draft.trim();
+      history.forEach(item => {
         const itemBox = node('div', null, 'pai-table-ai-answer pai-qa-item' + (item.error ? ' is-error' : ''));
         itemBox.append(node('div', item.question, 'pai-table-asked'));
         if (item.steps && item.steps.length) {
@@ -706,14 +776,20 @@
         }
         qaSection.append(itemBox);
       });
-      panel.append(qaSection);
+      conversation.append(qaSection);
+      conversation.scrollTop = follow ? conversation.scrollHeight : previousTop;
+    }
+
+    function requestLogin() {
+      if (panel.open && narrowPanel.matches && window.jQuery && document.getElementById('loginModal')) closePanel();
+      return promptLoginIfAvailable();
     }
 
     async function runAiAction(record, act, questionText, forceRefresh) {
       if (activeStreamAbort) return;
       if (!capabilitiesState.loggedIn) {
-        const opened = promptLoginIfAvailable();
-        const loginMsg = opened ? '请先在弹窗中完成登录，再使用 表格智能体' : '请先登录后再使用 表格智能体';
+        const opened = requestLogin();
+        const loginMsg = opened ? '请先在弹窗中完成登录，再问派聪明' : '请先登录后再问派聪明';
         if (act === 'ask') {
           const list = qaHistory.get(record._id) || [];
           qaHistory.set(record._id, [...list.filter(x => !x.error), { question: questionText, pending: false, error: true, text: loginMsg }]);
@@ -773,7 +849,7 @@
           if (!agentResp.ok || agentJson?.status?.code !== 0) {
             if (agentResp.status === 401 || agentJson?.status?.code === 401) {
               capabilitiesState.loggedIn = false;
-              promptLoginIfAvailable();
+              requestLogin();
             }
             throw new Error(agentJson?.status?.msg || '请求失败，请重试');
           }
@@ -806,7 +882,7 @@
             if (!fallback.ok || fbJson.status?.code !== 0) {
               if (fallback.status === 401 || fbJson.status?.code === 401) {
                 capabilitiesState.loggedIn = false;
-                promptLoginIfAvailable();
+                requestLogin();
               }
               throw new Error(fbJson.status?.msg || '请求失败，请重试');
             }
@@ -815,7 +891,7 @@
             const errJson = await response.json().catch(() => null);
             if (response.status === 401 || errJson?.status?.code === 401) {
               capabilitiesState.loggedIn = false;
-              promptLoginIfAvailable();
+              requestLogin();
             }
             throw new Error(errJson?.status?.msg || '请求失败，请重试');
           }
@@ -890,7 +966,7 @@
           chk.title = '标记完成';
           chk.setAttribute('aria-label', '标记第 ' + rowData._id + ' 行已完成');
           chk.onclick = ev => { ev.stopPropagation(); toggleDone(rowData._id); };
-          const numBtn = button(String(rowData._id), ev => { ev.stopPropagation(); openPanel(rowData, 'detail'); }, 'pai-row-num');
+          const numBtn = button(String(rowData._id), ev => { ev.stopPropagation(); openPanel(rowData, 'detail', ev.currentTarget); }, 'pai-row-num');
           numBtn.title = '查看第 ' + rowData._id + ' 行完整内容';
           numBtn.setAttribute('aria-label', '查看第 ' + rowData._id + ' 行');
           box.append(chk, numBtn);
@@ -942,7 +1018,7 @@
           },
           cellClick: (e, cell) => {
             if (e.target.closest('a,input,button')) return;
-            openPanel(cell.getRow().getData(), panel.hidden ? 'detail' : mode);
+            openPanel(cell.getRow().getData(), panel.open ? mode : 'detail', cell.getRow().getElement().querySelector('.pai-row-num'));
           }
         });
       });
@@ -1026,6 +1102,7 @@
 
       instances.push({
         destroy() {
+          closePanel(false);
           resizeObserver.disconnect();
           if (activeStreamAbort) activeStreamAbort();
           if (isWide) setWide(false);

@@ -51,6 +51,26 @@ async function check(browser, width, chapter) {
     assert.equal(await table.locator('.pai-table-note a').getAttribute('href'), '#review');
     assert.equal(await page.locator('.pai-article-table-compact td[rowspan="2"]:visible').count(), 1);
     const originalWidth = (await table.boundingBox()).width;
+    const ask = button('问问派聪明');
+    const drawer = page.getByRole('dialog');
+    await page.setViewportSize({ width, height: 500 });
+    await ask.click();
+    const composer = drawer.getByRole('textbox', { name: '输入指令' });
+    const composerBox = await composer.boundingBox();
+    assert.ok(composerBox.y >= 0 && composerBox.y + composerBox.height <= 500,
+      'opening from the normal table immediately exposes the composer on a short screen');
+    await drawer.getByRole('button', { name: '总结当前视图' }).click();
+    const draft = await composer.inputValue();
+    await drawer.getByLabel('选择当前行').selectOption('2');
+    assert.equal(await composer.inputValue(), '');
+    await drawer.getByLabel('选择当前行').selectOption('1');
+    assert.equal(await composer.inputValue(), draft);
+    await drawer.getByRole('button', { name: '查看行详情' }).click();
+    await drawer.getByRole('button', { name: '问问派聪明' }).click();
+    assert.equal(await composer.inputValue(), draft);
+    await composer.fill('');
+    await drawer.getByRole('button', { name: '关闭侧栏' }).click();
+    await page.setViewportSize({ width, height: 850 });
     await button('展开').click();
     const expandedWidth = (await table.boundingBox()).width;
     assert.ok(expandedWidth > width * 0.90);
@@ -60,9 +80,12 @@ async function check(browser, width, chapter) {
 
     const headerWidth = field => table.locator(`.tabulator-col[tabulator-field="${field}"]`).evaluate(el => el.clientWidth);
     assert.ok(await headerWidth('c0') < await headerWidth('c1'));
-    await button('表格智能体').click();
-    const input = table.getByRole('textbox', { name: '输入指令' });
-    const send = button('发送');
+    await ask.click();
+    const bounds = await drawer.boundingBox();
+    assert.ok(bounds.y >= 0 && Math.abs(bounds.x + bounds.width - width) <= 1);
+    assert.ok(bounds.y + bounds.height <= 851);
+    const input = drawer.getByRole('textbox', { name: '输入指令' });
+    const send = drawer.getByRole('button', { name: '发送' });
     assert.ok(await send.isDisabled());
     await input.fill('筛选后按学习顺序显示');
     const box = await input.boundingBox();
@@ -71,15 +94,19 @@ async function check(browser, width, chapter) {
       && submit.y + submit.height < box.y + box.height);
 
     await send.click();
-    await table.getByText('请重试', { exact: true }).waitFor();
+    await drawer.getByText('请重试', { exact: true }).waitFor();
     assert.equal(await input.inputValue(), requests[0].question);
     await input.press(chapter ? 'Meta+Enter' : 'Control+Enter');
-    await table.getByText('已调整', { exact: true }).waitFor();
+    await drawer.getByText('已调整', { exact: true }).waitFor();
     assert.equal(requests.length, 2);
     assert.equal(requests[1].action, 'ask');
     assert.equal(requests[1].rows.length, tasks.length);
     assert.equal(await input.inputValue(), '');
     assert.deepEqual(await table.locator('.pai-row-num').allTextContents(), ['3', '1']);
+    await page.keyboard.press('Escape');
+    await drawer.waitFor({ state: 'hidden' });
+    assert.equal(await ask.getAttribute('aria-expanded'), 'false');
+    assert.ok(await ask.evaluate(el => el === document.activeElement));
     if (chapter) await page.keyboard.press('Escape');
     else await button('收起').click();
     await button('展开').waitFor();
