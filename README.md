@@ -291,7 +291,7 @@ cp .env.example .env
 
 ## 七、star 趋势图
 
-[![Star History Chart](https://api.star-history.com/svg?repos=itwanger/paicoding&type=Date)](https://star-history.com/#itwanger/paicoding&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=itwanger/paicoding&type=Date)](https://star-history.dera.page/#itwanger/paicoding&Date)
 
 ## 八、公众号
 
